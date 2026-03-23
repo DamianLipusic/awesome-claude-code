@@ -1,5 +1,5 @@
 import { View, ScrollView, StyleSheet } from 'react-native';
-import { Text, Card, Chip, List, Divider, Button, TextInput, Dialog, Portal } from 'react-native-paper';
+import { Text, Card, Chip, List, Divider, Button, TextInput, Dialog, Portal, SegmentedButtons } from 'react-native-paper';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useState } from 'react';
 import { useProjektStore } from '../../../src/store/projectStore';
@@ -157,6 +157,15 @@ export default function MessungenPruefen() {
               keyboardType="decimal-pad"
               autoFocus
               style={{ marginBottom: 12 }}
+            />
+            <SegmentedButtons
+              value={eingabeEinheit}
+              onValueChange={v => setEingabeEinheit(v as 'mm' | 'cm' | 'm')}
+              buttons={[
+                { value: 'mm', label: 'mm' },
+                { value: 'cm', label: 'cm' },
+                { value: 'm', label: 'm' },
+              ]}
             />
           </Dialog.Content>
           <Dialog.Actions>

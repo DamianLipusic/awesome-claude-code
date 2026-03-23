@@ -1,6 +1,7 @@
 import { View, ScrollView, StyleSheet, Alert } from 'react-native';
-import { Text, Card, Button, FAB, Chip, ProgressBar, IconButton } from 'react-native-paper';
+import { Text, Card, Button, Chip, ProgressBar, Menu, IconButton } from 'react-native-paper';
 import { useLocalSearchParams, router } from 'expo-router';
+import { useState } from 'react';
 import { useProjektStore } from '../../../src/store/projectStore';
 import type { BausteinSeite } from '../../../src/models/Project';
 
@@ -62,8 +63,10 @@ function SeitenKarte({ seite, projektId }: { seite: BausteinSeite; projektId: st
 
 export default function ProjektUebersicht() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const [menuOffen, setMenuOffen] = useState(false);
   const projekt = useProjektStore(s => s.projekte.find(p => p.id === id));
   const fuegeSeiteHinzu = useProjektStore(s => s.fuegeSeiteHinzu);
+  const loescheProjekt = useProjektStore(s => s.loescheProjekt);
 
   if (!projekt) {
     return (
@@ -75,6 +78,24 @@ export default function ProjektUebersicht() {
 
   const vollstaendig = projekt.seiten.filter(s => s.messungStatus === 'vollstaendig').length;
   const fortschritt = projekt.seiten.length > 0 ? vollstaendig / projekt.seiten.length : 0;
+
+  function projektLoeschen() {
+    Alert.alert(
+      'Projekt löschen',
+      `"${projekt!.name}" wirklich löschen? Alle Fotos und Messungen gehen verloren.`,
+      [
+        { text: 'Abbrechen', style: 'cancel' },
+        {
+          text: 'Löschen',
+          style: 'destructive',
+          onPress: () => {
+            loescheProjekt(id);
+            router.replace('/');
+          },
+        },
+      ],
+    );
+  }
 
   function neueSeite() {
     const naechsteIndex = projekt!.seiten.length;
@@ -152,6 +173,16 @@ export default function ProjektUebersicht() {
             </View>
           </>
         )}
+
+        <Button
+          mode="outlined"
+          icon="delete"
+          onPress={projektLoeschen}
+          style={styles.loeschenButton}
+          textColor="#D32F2F"
+        >
+          Projekt löschen
+        </Button>
       </ScrollView>
     </View>
   );
@@ -175,4 +206,5 @@ const styles = StyleSheet.create({
   seiteHinzufuegen: { marginTop: 8, borderStyle: 'dashed' },
   aktionenGrid: { gap: 8 },
   aktionButton: { marginBottom: 4 },
+  loeschenButton: { marginTop: 32, borderColor: '#D32F2F' },
 });

@@ -138,7 +138,9 @@ export const useProjektStore = create<ProjectState>((set, get) => ({
     };
     const neueProjekte = get().projekte.map(p => {
       if (p.id !== projektId) return p;
-      return { ...p, seiten: [...p.seiten, neueSeite], aktualisiertAm: new Date().toISOString() };
+      // Transition entwurf → aufnahme when first side is added
+      const neuerStatus = p.status === 'entwurf' ? 'aufnahme' : p.status;
+      return { ...p, seiten: [...p.seiten, neueSeite], status: neuerStatus, aktualisiertAm: new Date().toISOString() };
     });
     set({ projekte: neueProjekte });
     speichereProjekte(neueProjekte);
@@ -162,7 +164,16 @@ export const useProjektStore = create<ProjectState>((set, get) => ({
       status = 'unvollstaendig';
     }
 
-    const neueProjekte = aktualisiereSeiteInProjekt(get().projekte, projektId, seitenId, s => ({ ...s, messungStatus: status }));
+    let neueProjekte = aktualisiereSeiteInProjekt(get().projekte, projektId, seitenId, s => ({ ...s, messungStatus: status }));
+
+    // Transition aufnahme → berechnung when all sides are complete
+    neueProjekte = neueProjekte.map(p => {
+      if (p.id !== projektId) return p;
+      if (p.status !== 'aufnahme') return p;
+      const alleVollstaendig = p.seiten.length > 0 && p.seiten.every(s => s.messungStatus === 'vollstaendig');
+      return alleVollstaendig ? { ...p, status: 'berechnung' } : p;
+    });
+
     set({ projekte: neueProjekte });
     speichereProjekte(neueProjekte);
   },
@@ -254,5 +265,13 @@ export const useProjektStore = create<ProjectState>((set, get) => ({
 
   setzePlan: (plan, materialien) => {
     set({ aktiverPlan: plan, aktiveMaterialien: materialien });
+    // Transition berechnung → fertig when plan is set
+    const neueProjekte = get().projekte.map(p => {
+      if (p.id !== plan.projektId) return p;
+      if (p.status !== 'berechnung') return p;
+      return { ...p, status: 'fertig' as const, aktualisiertAm: new Date().toISOString() };
+    });
+    set({ projekte: neueProjekte });
+    speichereProjekte(neueProjekte);
   },
 }));
