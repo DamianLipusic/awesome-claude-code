@@ -13,7 +13,7 @@ import { formatiereDatum } from '../../../src/utils/formatters';
 export default function ExportScreen() {
   const { id: projektId } = useLocalSearchParams<{ id: string }>();
   const [zeigePlanSeiten, setZeigePlanSeiten] = useState(true);
-  const [zeigeAnnotierteFoots, setZeigeAnnotierteFoots] = useState(true);
+  const [zeigeAnnotierteFotos, setZeigeAnnotierteFoots] = useState(true);
   const [zeigeMaterialliste, setZeigeMaterialliste] = useState(true);
   const [zeigeZeitprotokoll, setZeigeZeitprotokoll] = useState(true);
   const [zeigeCheckliste, setZeigeCheckliste] = useState(true);
@@ -55,7 +55,7 @@ export default function ExportScreen() {
         plan,
         materialien,
         zeigePlanSeiten,
-        zeigeAnnotierteFoots,
+        zeigeAnnotierteFotos,
         zeigeMaterialliste,
         zeigeZeitprotokoll: zeigeZeitprotokoll && hatZeiteintraege,
         zeigeCheckliste: zeigeCheckliste && hatCheckliste,
@@ -86,7 +86,7 @@ export default function ExportScreen() {
 
   const anzahlSeiten = 1
     + (zeigePlanSeiten ? projekt.seiten.length : 0)
-    + (zeigeAnnotierteFoots ? Math.ceil(projekt.seiten.reduce((s, seite) => s + seite.fotos.length, 0) / 2) : 0)
+    + (zeigeAnnotierteFotos ? Math.ceil(projekt.seiten.reduce((s, seite) => s + seite.fotos.length, 0) / 2) : 0)
     + (zeigeMaterialliste ? 1 : 0)
     + (zeigeZeitprotokoll && hatZeiteintraege ? 1 : 0)
     + (zeigeCheckliste && hatCheckliste ? 1 : 0);
@@ -121,7 +121,7 @@ export default function ExportScreen() {
           <OptionZeile
             label="Annotierte Fotos"
             beschreibung="Fotos mit eingezeichneten Maßen"
-            value={zeigeAnnotierteFoots}
+            value={zeigeAnnotierteFotos}
             onChange={setZeigeAnnotierteFoots}
           />
           <Divider style={styles.divider} />

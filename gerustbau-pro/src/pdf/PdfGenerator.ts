@@ -331,7 +331,7 @@ export interface PdfEingabe {
   firmentelefon?: string;
   firmenemail?: string;
   zeigePlanSeiten?: boolean;
-  zeigeAnnotierteFoots?: boolean;
+  zeigeAnnotierteFotos?: boolean;
   zeigeMaterialliste?: boolean;
   zeigeZeitprotokoll?: boolean;
   zeigeCheckliste?: boolean;
@@ -344,7 +344,7 @@ export function generierePdfHtml(eingabe: PdfEingabe): string {
     materialien,
     firmenname,
     zeigePlanSeiten = true,
-    zeigeAnnotierteFoots = true,
+    zeigeAnnotierteFotos = true,
     zeigeMaterialliste = true,
     zeigeZeitprotokoll = false,
     zeigeCheckliste = false,
@@ -369,7 +369,7 @@ export function generierePdfHtml(eingabe: PdfEingabe): string {
   }
 
   let fotoSeiten = '';
-  if (zeigeAnnotierteFoots) {
+  if (zeigeAnnotierteFotos) {
     for (const seite of projekt.seiten) {
       if (seite.fotos.length > 0) {
         fotoSeiten += fotoSeiteHtml(seite);

@@ -107,12 +107,12 @@ function berechneNaechstenSchritt(seiten: BausteinSeite[]) {
       aktion: 'seite',
     };
   }
-  const ohneFootos = seiten.filter(s => s.fotos.length === 0);
-  if (ohneFootos.length > 0) {
+  const ohneFotos = seiten.filter(s => s.fotos.length === 0);
+  if (ohneFotos.length > 0) {
     return {
       icon: 'camera',
       titel: 'Schritt 2 – Fotos aufnehmen',
-      beschreibung: `${ohneFootos.length} Seite(n) haben noch keine Fotos. Tippen Sie auf Schritt 1 bei der Seite und nehmen Sie ein Foto auf.`,
+      beschreibung: `${ohneFotos.length} Seite(n) haben noch keine Fotos. Tippen Sie auf Schritt 1 bei der Seite und nehmen Sie ein Foto auf.`,
       schaltflaeche: undefined,
       farbe: '#1565C0',
       aktion: null,
