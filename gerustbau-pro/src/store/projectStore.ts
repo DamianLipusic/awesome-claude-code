@@ -19,6 +19,7 @@ import type {
 } from '../models/Project';
 import { erstelleStandardPruefpunkte } from '../data/checklistData';
 import { generiereId } from '../utils/formatters';
+import { scheduleTerminNotifications, cancelTerminNotifications } from '../utils/notifications';
 
 const STORAGE_KEY = 'gerustbau_projekte';
 
@@ -133,6 +134,13 @@ export const useProjektStore = create<ProjectState>((set, get) => ({
     );
     set({ projekte: neueProjekte });
     speichereProjekte(neueProjekte);
+    // Reschedule deadline notifications when termin changes
+    if ('termin' in aenderungen) {
+      const aktualisiert = neueProjekte.find(p => p.id === id);
+      if (aktualisiert) {
+        scheduleTerminNotifications(id, aktualisiert.name, aenderungen.termin ?? null).catch(console.error);
+      }
+    }
   },
 
   loescheProjekt: (id) => {
@@ -145,6 +153,7 @@ export const useProjektStore = create<ProjectState>((set, get) => ({
           }
         }
       }
+      cancelTerminNotifications(id).catch(console.error);
     }
     const neueProjekte = get().projekte.filter(p => p.id !== id);
     set({ projekte: neueProjekte });

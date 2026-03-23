@@ -5,6 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import { PaperProvider, MD3LightTheme } from 'react-native-paper';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { richteNotificationKanalEin, berechtigungAnfordern } from '../src/utils/notifications';
 import { useProjektStore } from '../src/store/projectStore';
 import { useEinstellungenStore } from '../src/store/settingsStore';
 import { useCostsStore } from '../src/store/costsStore';
@@ -33,6 +34,7 @@ export default function RootLayout() {
     ladeEinstellungen();
     ladePreise();
     initialisierenIap();
+    richteNotificationKanalEin().then(() => berechtigungAnfordern()).catch(console.error);
     AsyncStorage.getItem(ONBOARDING_KEY).then(wert => {
       if (!wert) router.replace('/onboarding');
     });

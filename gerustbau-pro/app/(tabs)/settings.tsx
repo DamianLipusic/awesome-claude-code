@@ -231,8 +231,6 @@ export default function Einstellungen() {
 
         <Divider />
 
-        <Divider />
-
         {/* Backup */}
         <List.Section title="Datensicherung">
           <View style={styles.inputContainer}>
