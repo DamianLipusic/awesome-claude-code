@@ -357,6 +357,16 @@ export default function ProjektUebersicht() {
             </Button>
             <Button
               mode="contained-tonal"
+              icon="file-sign"
+              onPress={() => router.push(`/project/${id}/quote`)}
+              style={styles.auswertungButton}
+              contentStyle={styles.auswertungButtonInhalt}
+              labelStyle={{ fontSize: 16 }}
+            >
+              Angebot erstellen
+            </Button>
+            <Button
+              mode="contained-tonal"
               icon="file-pdf-box"
               onPress={() => router.push(`/project/${id}/export`)}
               style={styles.auswertungButton}

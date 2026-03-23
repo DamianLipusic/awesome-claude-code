@@ -67,6 +67,9 @@ interface ProjectState {
 
   initialisierePruefpunkte: (projektId: string) => void;
   aktualisierePruefpunkt: (projektId: string, punktId: string, erledigt: boolean, bemerkung?: string) => void;
+
+  exportiereAlsJson: () => string;
+  importiereAusJson: (json: string) => { erfolg: boolean; anzahl: number; fehler?: string };
 }
 
 function speichereProjekte(projekte: Project[]): void {
@@ -390,6 +393,30 @@ export const useProjektStore = create<ProjectState>((set, get) => ({
     speichereProjekte(neueProjekte);
   },
 
+  exportiereAlsJson: () => {
+    return JSON.stringify({ version: 1, exportiertAm: new Date().toISOString(), projekte: get().projekte }, null, 2);
+  },
+
+  importiereAusJson: (json) => {
+    try {
+      const daten = JSON.parse(json);
+      if (!daten.projekte || !Array.isArray(daten.projekte)) {
+        return { erfolg: false, anzahl: 0, fehler: 'Ungültiges Format: "projekte" Array fehlt.' };
+      }
+      const vorhandeneIds = new Set(get().projekte.map(p => p.id));
+      const neueProjekte: Project[] = daten.projekte.filter((p: Project) => {
+        return p.id && p.name && p.systemId && p.status;
+      });
+      const wirklichNeu = neueProjekte.filter(p => !vorhandeneIds.has(p.id));
+      const alleKombiniert = [...get().projekte, ...wirklichNeu];
+      set({ projekte: alleKombiniert });
+      speichereProjekte(alleKombiniert);
+      return { erfolg: true, anzahl: wirklichNeu.length };
+    } catch (e) {
+      return { erfolg: false, anzahl: 0, fehler: 'JSON konnte nicht gelesen werden.' };
+    }
+  },
+
   dupliziereProjekt: (id) => {
     const vorlage = get().projekte.find(p => p.id === id);
     if (!vorlage) return '';
@@ -403,6 +430,10 @@ export const useProjektStore = create<ProjectState>((set, get) => ({
       seiten: [],
       erstelltAm: jetzt,
       aktualisiertAm: jetzt,
+      // Do not carry over work logs, checklist state, or deadline
+      zeiteintraege: [],
+      pruefpunkte: undefined,
+      termin: undefined,
     };
     const neueProjekte = [...get().projekte, kopie];
     set({ projekte: neueProjekte });

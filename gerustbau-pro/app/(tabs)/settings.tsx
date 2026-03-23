@@ -1,7 +1,10 @@
-import { View, ScrollView, StyleSheet } from 'react-native';
-import { Text, List, Divider, TextInput, Button, Snackbar, SegmentedButtons, HelperText } from 'react-native-paper';
+import { View, ScrollView, StyleSheet, Alert } from 'react-native';
+import { Text, List, Divider, TextInput, Button, Snackbar, SegmentedButtons, HelperText, Portal, Dialog } from 'react-native-paper';
 import { useState } from 'react';
 import { useEinstellungenStore } from '../../src/store/settingsStore';
+import { useProjektStore } from '../../src/store/projectStore';
+import * as FileSystem from 'expo-file-system/legacy';
+import * as Sharing from 'expo-sharing';
 
 const LASTKLASSEN = [
   { value: '2', label: 'LK 2' },
@@ -29,8 +32,15 @@ export default function Einstellungen() {
   const setzeSicherheitszuschlag = useEinstellungenStore(s => s.setzeSicherheitszuschlag);
   const speichereEinstellungen = useEinstellungenStore(s => s.speichereEinstellungen);
 
+  const exportiereAlsJson = useProjektStore(s => s.exportiereAlsJson);
+  const importiereAusJson = useProjektStore(s => s.importiereAusJson);
+  const projekte = useProjektStore(s => s.projekte);
+
   const [gespeichert, setGespeichert] = useState(false);
   const [zuschlagText, setZuschlagText] = useState(String(sicherheitszuschlag));
+  const [importDialog, setImportDialog] = useState(false);
+  const [importText, setImportText] = useState('');
+  const [exportLaeuft, setExportLaeuft] = useState(false);
 
   async function speichern() {
     const zahl = parseFloat(zuschlagText.replace(',', '.'));
@@ -46,8 +56,62 @@ export default function Einstellungen() {
     return isNaN(z) || z < 0 || z > 30;
   })();
 
+  async function exportieren() {
+    setExportLaeuft(true);
+    try {
+      const json = exportiereAlsJson();
+      const pfad = (FileSystem.cacheDirectory ?? '') + 'gerustbau-backup.json';
+      await FileSystem.writeAsStringAsync(pfad, json, { encoding: FileSystem.EncodingType.UTF8 });
+      if (await Sharing.isAvailableAsync()) {
+        await Sharing.shareAsync(pfad, { mimeType: 'application/json', dialogTitle: 'Datensicherung exportieren' });
+      } else {
+        Alert.alert('Gespeichert', `Backup gespeichert unter:\n${pfad}`);
+      }
+    } catch (e) {
+      Alert.alert('Fehler', 'Export fehlgeschlagen.');
+    } finally {
+      setExportLaeuft(false);
+    }
+  }
+
+  function importierenBestaetigen() {
+    if (!importText.trim()) return;
+    const ergebnis = importiereAusJson(importText.trim());
+    setImportDialog(false);
+    setImportText('');
+    if (ergebnis.erfolg) {
+      Alert.alert('Import erfolgreich', `${ergebnis.anzahl} neue Projekt(e) importiert.`);
+    } else {
+      Alert.alert('Fehler', ergebnis.fehler ?? 'Import fehlgeschlagen.');
+    }
+  }
+
   return (
     <>
+      <Portal>
+        <Dialog visible={importDialog} onDismiss={() => setImportDialog(false)}>
+          <Dialog.Title>JSON-Backup einfügen</Dialog.Title>
+          <Dialog.Content>
+            <Text variant="bodySmall" style={{ color: '#666', marginBottom: 8 }}>
+              Fügen Sie den Inhalt einer exportierten Backup-Datei hier ein:
+            </Text>
+            <TextInput
+              mode="outlined"
+              multiline
+              numberOfLines={6}
+              value={importText}
+              onChangeText={setImportText}
+              placeholder='{ "version": 1, "projekte": [...] }'
+              style={{ backgroundColor: 'white', fontSize: 11 }}
+            />
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => { setImportDialog(false); setImportText(''); }}>Abbrechen</Button>
+            <Button mode="contained" onPress={importierenBestaetigen} disabled={!importText.trim()}>Importieren</Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
+
       <ScrollView style={styles.container}>
 
         {/* Company info */}
@@ -147,6 +211,38 @@ export default function Einstellungen() {
 
         <Divider />
 
+        <Divider />
+
+        {/* Backup */}
+        <List.Section title="Datensicherung">
+          <View style={styles.inputContainer}>
+            <Text variant="bodySmall" style={styles.hinweis}>
+              Alle {projekte.length} Projekt(e) als JSON-Datei exportieren oder importieren.
+              Bestehende Projekte werden beim Import nicht überschrieben.
+            </Text>
+            <Button
+              mode="outlined"
+              icon="export"
+              onPress={exportieren}
+              loading={exportLaeuft}
+              disabled={exportLaeuft || projekte.length === 0}
+              style={styles.backupButton}
+            >
+              Projekte exportieren (JSON)
+            </Button>
+            <Button
+              mode="outlined"
+              icon="import"
+              onPress={() => setImportDialog(true)}
+              style={styles.backupButton}
+            >
+              Projekte importieren (JSON einfügen)
+            </Button>
+          </View>
+        </List.Section>
+
+        <Divider />
+
         {/* App info */}
         <List.Section title="App-Info">
           <List.Item title="Version" description="1.0.0" left={props => <List.Icon {...props} icon="information" />} />
@@ -178,5 +274,6 @@ const styles = StyleSheet.create({
   label: { marginBottom: 8, fontWeight: '500', color: '#333' },
   segmented: { marginBottom: 4 },
   hinweis: { color: '#888', marginTop: 4, marginBottom: 4 },
+  backupButton: { marginBottom: 10 },
   saveButton: { padding: 16, paddingBottom: 40 },
 });

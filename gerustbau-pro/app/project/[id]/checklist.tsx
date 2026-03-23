@@ -8,8 +8,6 @@ import { useLocalSearchParams } from 'expo-router';
 import { useProjektStore } from '../../../src/store/projectStore';
 import {
   KATEGORIE_LABELS,
-  KATEGORIE_ICONS,
-  STANDARD_PRUEFPUNKTE,
   type KategorieKey,
 } from '../../../src/data/checklistData';
 import type { PruefPunkt } from '../../../src/models/Project';
