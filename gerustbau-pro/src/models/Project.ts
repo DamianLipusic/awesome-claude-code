@@ -22,6 +22,15 @@ export interface ZeitEintrag {
   mitarbeiter?: string;
 }
 
+export interface PruefPunkt {
+  id: string;
+  kategorie: 'aufbau' | 'sicherheit' | 'dokumentation' | 'abnahme';
+  text: string;
+  erledigt: boolean;
+  erledigtAm?: string;       // ISO date
+  bemerkung?: string;
+}
+
 export interface Project {
   id: string;
   name: string;
@@ -39,6 +48,7 @@ export interface Project {
   notizen?: string;
   termin?: string;           // ISO date string – project deadline
   zeiteintraege?: ZeitEintrag[];
+  pruefpunkte?: PruefPunkt[];
 }
 
 export type SeitenLabel =

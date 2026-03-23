@@ -15,7 +15,9 @@ import type {
   GeruestPlan,
   MaterialPosition,
   ZeitEintrag,
+  PruefPunkt,
 } from '../models/Project';
+import { erstelleStandardPruefpunkte } from '../data/checklistData';
 import { generiereId } from '../utils/formatters';
 
 const STORAGE_KEY = 'gerustbau_projekte';
@@ -62,6 +64,9 @@ interface ProjectState {
 
   fuegeZeitEintragHinzu: (projektId: string, eintrag: Omit<ZeitEintrag, 'id'>) => void;
   loescheZeitEintrag: (projektId: string, eintragId: string) => void;
+
+  initialisierePruefpunkte: (projektId: string) => void;
+  aktualisierePruefpunkt: (projektId: string, punktId: string, erledigt: boolean, bemerkung?: string) => void;
 }
 
 function speichereProjekte(projekte: Project[]): void {
@@ -348,6 +353,37 @@ export const useProjektStore = create<ProjectState>((set, get) => ({
         ...p,
         zeiteintraege: (p.zeiteintraege ?? []).filter(e => e.id !== eintragId),
         aktualisiertAm: new Date().toISOString(),
+      };
+    });
+    set({ projekte: neueProjekte });
+    speichereProjekte(neueProjekte);
+  },
+
+  initialisierePruefpunkte: (projektId) => {
+    const projekt = get().projekte.find(p => p.id === projektId);
+    if (!projekt) return;
+    // Only initialise if not yet present
+    if (projekt.pruefpunkte && projekt.pruefpunkte.length > 0) return;
+    const neueProjekte = get().projekte.map(p => {
+      if (p.id !== projektId) return p;
+      return { ...p, pruefpunkte: erstelleStandardPruefpunkte(), aktualisiertAm: new Date().toISOString() };
+    });
+    set({ projekte: neueProjekte });
+    speichereProjekte(neueProjekte);
+  },
+
+  aktualisierePruefpunkt: (projektId, punktId, erledigt, bemerkung) => {
+    const jetzt = new Date().toISOString();
+    const neueProjekte = get().projekte.map(p => {
+      if (p.id !== projektId) return p;
+      return {
+        ...p,
+        pruefpunkte: (p.pruefpunkte ?? []).map(pp =>
+          pp.id === punktId
+            ? { ...pp, erledigt, erledigtAm: erledigt ? jetzt.slice(0, 10) : undefined, bemerkung: bemerkung ?? pp.bemerkung }
+            : pp,
+        ),
+        aktualisiertAm: jetzt,
       };
     });
     set({ projekte: neueProjekte });

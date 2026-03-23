@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, ScrollView, StyleSheet, Alert, Platform } from 'react-native';
+import { View, ScrollView, StyleSheet, Alert } from 'react-native';
 import { Text, Button, Switch, Card, Divider, ActivityIndicator } from 'react-native-paper';
 import { useLocalSearchParams } from 'expo-router';
 import * as Print from 'expo-print';
@@ -15,6 +15,8 @@ export default function ExportScreen() {
   const [zeigePlanSeiten, setZeigePlanSeiten] = useState(true);
   const [zeigeAnnotierteFoots, setZeigeAnnotierteFoots] = useState(true);
   const [zeigeMaterialliste, setZeigeMaterialliste] = useState(true);
+  const [zeigeZeitprotokoll, setZeigeZeitprotokoll] = useState(true);
+  const [zeigeCheckliste, setZeigeCheckliste] = useState(true);
   const [exportLaeuft, setExportLaeuft] = useState(false);
 
   const projekt = useProjektStore(s => s.projekte.find(p => p.id === projektId));
@@ -26,12 +28,15 @@ export default function ExportScreen() {
 
   if (!projekt) return null;
 
+  const hatZeiteintraege = (projekt.zeiteintraege ?? []).length > 0;
+  const hatCheckliste = (projekt.pruefpunkte ?? []).length > 0;
+  const erledigteChecks = (projekt.pruefpunkte ?? []).filter(p => p.erledigt).length;
+
   async function exportieren() {
     if (!projekt) return;
     setExportLaeuft(true);
 
     try {
-      // Calculate if no plan yet
       let plan = aktiverPlan;
       let materialien = useProjektStore.getState().aktiveMaterialien;
 
@@ -52,16 +57,15 @@ export default function ExportScreen() {
         zeigePlanSeiten,
         zeigeAnnotierteFoots,
         zeigeMaterialliste,
+        zeigeZeitprotokoll: zeigeZeitprotokoll && hatZeiteintraege,
+        zeigeCheckliste: zeigeCheckliste && hatCheckliste,
         firmenname: firmenname || undefined,
         firmenadresse: firmenadresse || undefined,
         firmentelefon: firmentelefon || undefined,
         firmenemail: firmenemail || undefined,
       });
 
-      const { uri } = await Print.printToFileAsync({
-        html,
-        base64: false,
-      });
+      const { uri } = await Print.printToFileAsync({ html, base64: false });
 
       if (await Sharing.isAvailableAsync()) {
         await Sharing.shareAsync(uri, {
@@ -83,7 +87,9 @@ export default function ExportScreen() {
   const anzahlSeiten = 1
     + (zeigePlanSeiten ? projekt.seiten.length : 0)
     + (zeigeAnnotierteFoots ? Math.ceil(projekt.seiten.reduce((s, seite) => s + seite.fotos.length, 0) / 2) : 0)
-    + (zeigeMaterialliste ? 1 : 0);
+    + (zeigeMaterialliste ? 1 : 0)
+    + (zeigeZeitprotokoll && hatZeiteintraege ? 1 : 0)
+    + (zeigeCheckliste && hatCheckliste ? 1 : 0);
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.inhalt}>
@@ -98,40 +104,53 @@ export default function ExportScreen() {
       <Text variant="titleMedium" style={styles.abschnittTitel}>Inhalt auswählen</Text>
       <Card style={styles.optionenKarte}>
         <Card.Content>
-          <View style={styles.option}>
-            <View style={styles.optionText}>
-              <Text variant="bodyMedium">Deckblatt</Text>
-              <Text variant="bodySmall" style={styles.optionBeschreibung}>Projektinfos, System, Lastklasse</Text>
-            </View>
-            <Switch value={true} disabled />
-          </View>
+          <OptionZeile
+            label="Deckblatt"
+            beschreibung="Projektinfos, System, Lastklasse"
+            value={true}
+            disabled
+          />
           <Divider style={styles.divider} />
-
-          <View style={styles.option}>
-            <View style={styles.optionText}>
-              <Text variant="bodyMedium">Gerüstplan-Zeichnungen</Text>
-              <Text variant="bodySmall" style={styles.optionBeschreibung}>SVG-Ansicht jeder Gebäudeseite (1:50)</Text>
-            </View>
-            <Switch value={zeigePlanSeiten} onValueChange={setZeigePlanSeiten} />
-          </View>
+          <OptionZeile
+            label="Gerüstplan-Zeichnungen"
+            beschreibung="SVG-Ansicht jeder Gebäudeseite (1:50)"
+            value={zeigePlanSeiten}
+            onChange={setZeigePlanSeiten}
+          />
           <Divider style={styles.divider} />
-
-          <View style={styles.option}>
-            <View style={styles.optionText}>
-              <Text variant="bodyMedium">Annotierte Fotos</Text>
-              <Text variant="bodySmall" style={styles.optionBeschreibung}>Fotos mit eingezeichneten Maßen</Text>
-            </View>
-            <Switch value={zeigeAnnotierteFoots} onValueChange={setZeigeAnnotierteFoots} />
-          </View>
+          <OptionZeile
+            label="Annotierte Fotos"
+            beschreibung="Fotos mit eingezeichneten Maßen"
+            value={zeigeAnnotierteFoots}
+            onChange={setZeigeAnnotierteFoots}
+          />
           <Divider style={styles.divider} />
-
-          <View style={styles.option}>
-            <View style={styles.optionText}>
-              <Text variant="bodyMedium">Materialliste</Text>
-              <Text variant="bodySmall" style={styles.optionBeschreibung}>Vollständige Stückliste mit Gewichten</Text>
-            </View>
-            <Switch value={zeigeMaterialliste} onValueChange={setZeigeMaterialliste} />
-          </View>
+          <OptionZeile
+            label="Materialliste"
+            beschreibung="Vollständige Stückliste mit Gewichten"
+            value={zeigeMaterialliste}
+            onChange={setZeigeMaterialliste}
+          />
+          <Divider style={styles.divider} />
+          <OptionZeile
+            label="Zeitprotokoll"
+            beschreibung={hatZeiteintraege
+              ? `${(projekt.zeiteintraege ?? []).length} Einträge vorhanden`
+              : 'Noch keine Zeiteinträge erfasst'}
+            value={zeigeZeitprotokoll && hatZeiteintraege}
+            onChange={hatZeiteintraege ? setZeigeZeitprotokoll : undefined}
+            disabled={!hatZeiteintraege}
+          />
+          <Divider style={styles.divider} />
+          <OptionZeile
+            label="Abnahme-Checkliste"
+            beschreibung={hatCheckliste
+              ? `${erledigteChecks}/${(projekt.pruefpunkte ?? []).length} Punkte erfüllt`
+              : 'Noch nicht geöffnet – öffnen Sie „Checkliste"'}
+            value={zeigeCheckliste && hatCheckliste}
+            onChange={hatCheckliste ? setZeigeCheckliste : undefined}
+            disabled={!hatCheckliste}
+          />
         </Card.Content>
       </Card>
 
@@ -143,11 +162,7 @@ export default function ExportScreen() {
         icon={exportLaeuft ? undefined : 'file-pdf-box'}
         contentStyle={styles.exportButtonInhalt}
       >
-        {exportLaeuft ? (
-          <ActivityIndicator color="white" size="small" />
-        ) : (
-          'PDF erstellen und teilen'
-        )}
+        {exportLaeuft ? <ActivityIndicator color="white" size="small" /> : 'PDF erstellen und teilen'}
       </Button>
 
       <Text variant="bodySmall" style={styles.hinweis}>
@@ -155,6 +170,28 @@ export default function ExportScreen() {
         WhatsApp geteilt werden. Eine Internetverbindung ist nicht erforderlich.
       </Text>
     </ScrollView>
+  );
+}
+
+function OptionZeile({
+  label, beschreibung, value, onChange, disabled,
+}: {
+  label: string;
+  beschreibung: string;
+  value: boolean;
+  onChange?: (v: boolean) => void;
+  disabled?: boolean;
+}) {
+  return (
+    <View style={styles.option}>
+      <View style={styles.optionText}>
+        <Text variant="bodyMedium">{label}</Text>
+        <Text variant="bodySmall" style={[styles.optionBeschreibung, disabled && { color: '#BDBDBD' }]}>
+          {beschreibung}
+        </Text>
+      </View>
+      <Switch value={value} onValueChange={onChange} disabled={disabled || !onChange} />
+    </View>
   );
 }
 

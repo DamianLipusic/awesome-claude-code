@@ -1,4 +1,6 @@
-import type { Project, GeruestPlan, MaterialPosition, BausteinSeite } from '../models/Project';
+import type { Project, GeruestPlan, MaterialPosition, BausteinSeite, ZeitEintrag, PruefPunkt } from '../models/Project';
+import { KATEGORIE_LABELS as PRUEF_KAT_LABELS } from '../data/checklistData';
+import type { KategorieKey } from '../data/checklistData';
 import { getSystem } from '../data/systems';
 import type { GeruestKomponente, KomponentenKategorie } from '../data/systems';
 import { formatiereGewicht, formatiereZahl, formatiereDatum } from '../utils/formatters';
@@ -95,6 +97,98 @@ function fotoSeiteHtml(seite: BausteinSeite): string {
         </table>` : ''}
       </div>`;
   }).join('\n');
+}
+
+function zeitprotokollHtml(eintraege: ZeitEintrag[], projektName: string): string {
+  if (eintraege.length === 0) return '';
+  const sorted = [...eintraege].sort((a, b) => a.datum.localeCompare(b.datum));
+  const gesamtStunden = sorted.reduce((s, e) => s + e.stunden, 0);
+
+  const zeilen = sorted.map((e, i) => {
+    const std = Math.floor(e.stunden);
+    const min = Math.round((e.stunden - std) * 60);
+    const stdStr = min > 0 ? `${std}:${min.toString().padStart(2, '0')}` : `${std}`;
+    const datum = new Date(e.datum + 'T00:00:00').toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    return `
+      <tr class="${i % 2 === 0 ? '' : 'zeit-alt'}">
+        <td>${datum}</td>
+        <td>${e.mitarbeiter ?? '–'}</td>
+        <td>${e.beschreibung}</td>
+        <td class="zahl">${stdStr} Std.</td>
+      </tr>`;
+  }).join('');
+
+  const gesamtStd = Math.floor(gesamtStunden);
+  const gesamtMin = Math.round((gesamtStunden - gesamtStd) * 60);
+  const gesamtStr = gesamtMin > 0 ? `${gesamtStd}:${gesamtMin.toString().padStart(2, '0')}` : `${gesamtStd}`;
+
+  return `
+    <div class="seite zeit-seite">
+      <h3>Zeitprotokoll – ${projektName}</h3>
+      <table class="zeit-tabelle">
+        <thead>
+          <tr>
+            <th>Datum</th>
+            <th>Mitarbeiter</th>
+            <th>Tätigkeit</th>
+            <th>Stunden</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${zeilen}
+          <tr class="summe-zeile">
+            <td colspan="3"><strong>Gesamtstunden (${sorted.length} Einträge)</strong></td>
+            <td class="zahl"><strong>${gesamtStr} Std.</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>`;
+}
+
+const PRUEF_KATEGORIEN: KategorieKey[] = ['aufbau', 'sicherheit', 'dokumentation', 'abnahme'];
+
+function checklistHtml(pruefpunkte: PruefPunkt[], projektName: string): string {
+  if (pruefpunkte.length === 0) return '';
+  const erledigt = pruefpunkte.filter(p => p.erledigt).length;
+
+  const kategorienHtml = PRUEF_KATEGORIEN.map(kat => {
+    const kPunkte = pruefpunkte.filter(p => p.kategorie === kat);
+    if (kPunkte.length === 0) return '';
+    return `
+      <tr class="pruef-kat-kopf"><td colspan="3">${PRUEF_KAT_LABELS[kat]}</td></tr>
+      ${kPunkte.map(p => `
+        <tr>
+          <td class="pruef-check">${p.erledigt ? '&#9989;' : '&#9744;'}</td>
+          <td class="${p.erledigt ? 'pruef-ok' : ''}">${p.text}</td>
+          <td class="pruef-bem">${p.bemerkung ? p.bemerkung : (p.erledigt && p.erledigtAm ? new Date(p.erledigtAm + 'T00:00:00').toLocaleDateString('de-DE') : '')}</td>
+        </tr>`).join('')}`;
+  }).join('');
+
+  return `
+    <div class="seite pruef-seite">
+      <h3>Abnahme-Checkliste – ${projektName}</h3>
+      <p class="pruef-stand">Prüfstand: ${erledigt} von ${pruefpunkte.length} Punkten erfüllt</p>
+      <table class="pruef-tabelle">
+        <thead>
+          <tr><th style="width:6%">OK</th><th>Prüfpunkt</th><th style="width:28%">Datum / Bemerkung</th></tr>
+        </thead>
+        <tbody>${kategorienHtml}</tbody>
+      </table>
+      <div class="unterschrift-block" style="margin-top:10mm">
+        <div class="unterschrift-feld">
+          <div class="unterschrift-linie"></div>
+          <div>Geprüft von: ________________________</div>
+        </div>
+        <div class="unterschrift-feld">
+          <div class="unterschrift-linie"></div>
+          <div>Datum: ________________</div>
+        </div>
+        <div class="unterschrift-feld">
+          <div class="unterschrift-linie"></div>
+          <div>Auftraggeber: ________________________</div>
+        </div>
+      </div>
+    </div>`;
 }
 
 function materialListeHtml(materialien: MaterialPosition[], projekt: Project): string {
@@ -212,6 +306,20 @@ const CSS = `
   .unterschrift-block { display: flex; gap: 8mm; margin-top: 12mm; }
   .unterschrift-feld { flex: 1; font-size: 8pt; }
   .unterschrift-linie { border-top: 0.3mm solid #333; margin-bottom: 1mm; }
+  .zeit-tabelle { width: 100%; border-collapse: collapse; font-size: 9pt; }
+  .zeit-tabelle thead tr { background: #1565C0; color: white; }
+  .zeit-tabelle th { padding: 2mm 3mm; text-align: left; }
+  .zeit-tabelle td { padding: 1.5mm 3mm; border-bottom: 0.2mm solid #E0E0E0; }
+  .zeit-alt td { background: #F5F5F5; }
+  .pruef-tabelle { width: 100%; border-collapse: collapse; font-size: 9pt; }
+  .pruef-tabelle thead tr { background: #2E7D32; color: white; }
+  .pruef-tabelle th { padding: 2mm 3mm; text-align: left; }
+  .pruef-tabelle td { padding: 1.5mm 3mm; border-bottom: 0.2mm solid #E0E0E0; vertical-align: top; }
+  .pruef-kat-kopf td { background: #E8F5E9; font-weight: bold; color: #2E7D32; padding: 1.5mm 3mm; }
+  .pruef-check { text-align: center; font-size: 11pt; }
+  .pruef-ok { color: #555; }
+  .pruef-bem { color: #E65100; font-size: 8pt; }
+  .pruef-stand { font-size: 9pt; color: #555; margin-bottom: 4mm; }
 `;
 
 export interface PdfEingabe {
@@ -225,6 +333,8 @@ export interface PdfEingabe {
   zeigePlanSeiten?: boolean;
   zeigeAnnotierteFoots?: boolean;
   zeigeMaterialliste?: boolean;
+  zeigeZeitprotokoll?: boolean;
+  zeigeCheckliste?: boolean;
 }
 
 export function generierePdfHtml(eingabe: PdfEingabe): string {
@@ -236,6 +346,8 @@ export function generierePdfHtml(eingabe: PdfEingabe): string {
     zeigePlanSeiten = true,
     zeigeAnnotierteFoots = true,
     zeigeMaterialliste = true,
+    zeigeZeitprotokoll = false,
+    zeigeCheckliste = false,
   } = eingabe;
 
   const firma: FirmenKontakt = {
@@ -270,6 +382,16 @@ export function generierePdfHtml(eingabe: PdfEingabe): string {
     materialSeite = materialListeHtml(materialien, projekt);
   }
 
+  let zeitSeite = '';
+  if (zeigeZeitprotokoll && (projekt.zeiteintraege ?? []).length > 0) {
+    zeitSeite = zeitprotokollHtml(projekt.zeiteintraege!, projekt.name);
+  }
+
+  let checklistSeite = '';
+  if (zeigeCheckliste && (projekt.pruefpunkte ?? []).length > 0) {
+    checklistSeite = checklistHtml(projekt.pruefpunkte!, projekt.name);
+  }
+
   return `<!DOCTYPE html>
 <html lang="de">
 <head>
@@ -283,6 +405,8 @@ export function generierePdfHtml(eingabe: PdfEingabe): string {
   ${planSeiten}
   ${fotoSeiten}
   ${materialSeite}
+  ${zeitSeite}
+  ${checklistSeite}
 </body>
 </html>`;
 }

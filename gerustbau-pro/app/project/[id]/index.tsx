@@ -278,6 +278,28 @@ export default function ProjektUebersicht() {
           placeholder="Besonderheiten, Auflagen, Hinweise..."
         />
 
+        {/* Checklist */}
+        <Text variant="titleMedium" style={styles.abschnittTitel}>Abnahme & Sicherheit</Text>
+        {(() => {
+          const punkte = projekt.pruefpunkte ?? [];
+          const erledigt = punkte.filter(p => p.erledigt).length;
+          const alleOk = punkte.length > 0 && erledigt === punkte.length;
+          return (
+            <Button
+              mode={alleOk ? 'outlined' : 'contained-tonal'}
+              icon={alleOk ? 'checkbox-marked-circle' : 'clipboard-check-outline'}
+              onPress={() => router.push(`/project/${id}/checklist`)}
+              style={[styles.auswertungButton, alleOk && { borderColor: '#2E7D32' }]}
+              contentStyle={styles.auswertungButtonInhalt}
+              labelStyle={{ fontSize: 16 }}
+            >
+              {punkte.length > 0
+                ? `Abnahme-Checkliste (${erledigt}/${punkte.length} ✓)`
+                : 'Abnahme-Checkliste öffnen'}
+            </Button>
+          );
+        })()}
+
         {/* Time tracking — always visible */}
         <Text variant="titleMedium" style={styles.abschnittTitel}>Zeiterfassung</Text>
         {(() => {
