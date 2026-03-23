@@ -1,7 +1,6 @@
 import { View, ScrollView, StyleSheet, Alert } from 'react-native';
-import { Text, Card, Button, Chip, ProgressBar, Menu, IconButton } from 'react-native-paper';
+import { Text, Card, Button, Chip, ProgressBar } from 'react-native-paper';
 import { useLocalSearchParams, router } from 'expo-router';
-import { useState } from 'react';
 import { useProjektStore } from '../../../src/store/projectStore';
 import type { BausteinSeite } from '../../../src/models/Project';
 
@@ -33,28 +32,26 @@ function SeitenKarte({ seite, projektId }: { seite: BausteinSeite; projektId: st
         <Button
           compact
           mode="outlined"
-          icon="camera"
-          onPress={() => router.push({ pathname: `/project/${projektId}/capture`, params: { seitenId: seite.id } })}
+          icon="image-multiple"
+          onPress={() => router.push({ pathname: `/project/${projektId}/photos`, params: { seitenId: seite.id } })}
         >
-          Foto
+          Fotos
         </Button>
-        {seite.fotos.length > 0 && (
-          <Button
-            compact
-            mode="outlined"
-            icon="pencil-ruler"
-            onPress={() => router.push({ pathname: `/project/${projektId}/annotate/${seite.fotos[0].id}`, params: { seitenId: seite.id } })}
-          >
-            Maße
-          </Button>
-        )}
+        <Button
+          compact
+          mode="outlined"
+          icon="window-open"
+          onPress={() => router.push({ pathname: `/project/${projektId}/openings`, params: { seitenId: seite.id } })}
+        >
+          Öffnungen
+        </Button>
         <Button
           compact
           mode="outlined"
           icon="check-circle"
           onPress={() => router.push({ pathname: `/project/${projektId}/measurements`, params: { seitenId: seite.id } })}
         >
-          Prüfen
+          Maße
         </Button>
       </Card.Actions>
     </Card>
@@ -63,7 +60,6 @@ function SeitenKarte({ seite, projektId }: { seite: BausteinSeite; projektId: st
 
 export default function ProjektUebersicht() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const [menuOffen, setMenuOffen] = useState(false);
   const projekt = useProjektStore(s => s.projekte.find(p => p.id === id));
   const fuegeSeiteHinzu = useProjektStore(s => s.fuegeSeiteHinzu);
   const loescheProjekt = useProjektStore(s => s.loescheProjekt);

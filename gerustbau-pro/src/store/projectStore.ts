@@ -46,11 +46,13 @@ interface ProjectState {
   loescheAnnotation: (projektId: string, seitenId: string, fotoId: string, annotationId: string) => void;
 
   fuegeFotoHinzu: (projektId: string, seitenId: string, foto: Omit<Foto, 'id' | 'seitenId' | 'annotationen'>) => string;
+  loescheFoto: (projektId: string, seitenId: string, fotoId: string) => void;
 
   fuegeMessungHinzu: (projektId: string, seitenId: string, messung: Omit<Messung, 'id' | 'seitenId'>) => void;
   aktualisiereMessung: (projektId: string, seitenId: string, messung: Messung) => void;
 
   fuegeOeffnungHinzu: (projektId: string, seitenId: string, oeffnung: Omit<Oeffnung, 'id'>) => void;
+  loescheOeffnung: (projektId: string, seitenId: string, oeffnungId: string) => void;
 
   setzePlan: (plan: GeruestPlan, materialien: MaterialPosition[]) => void;
 }
@@ -231,6 +233,15 @@ export const useProjektStore = create<ProjectState>((set, get) => ({
     return id;
   },
 
+  loescheFoto: (projektId, seitenId, fotoId) => {
+    const neueProjekte = aktualisiereSeiteInProjekt(get().projekte, projektId, seitenId, seite => ({
+      ...seite,
+      fotos: seite.fotos.filter(f => f.id !== fotoId),
+    }));
+    set({ projekte: neueProjekte });
+    speichereProjekte(neueProjekte);
+  },
+
   fuegeMessungHinzu: (projektId, seitenId, messungDaten) => {
     const id = generiereId();
     const neueMessung: Messung = { id, seitenId, ...messungDaten };
@@ -258,6 +269,15 @@ export const useProjektStore = create<ProjectState>((set, get) => ({
     const neueProjekte = aktualisiereSeiteInProjekt(get().projekte, projektId, seitenId, seite => ({
       ...seite,
       oeffnungen: [...seite.oeffnungen, neueOeffnung],
+    }));
+    set({ projekte: neueProjekte });
+    speichereProjekte(neueProjekte);
+  },
+
+  loescheOeffnung: (projektId, seitenId, oeffnungId) => {
+    const neueProjekte = aktualisiereSeiteInProjekt(get().projekte, projektId, seitenId, seite => ({
+      ...seite,
+      oeffnungen: seite.oeffnungen.filter(o => o.id !== oeffnungId),
     }));
     set({ projekte: neueProjekte });
     speichereProjekte(neueProjekte);

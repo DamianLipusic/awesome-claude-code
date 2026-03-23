@@ -3,9 +3,10 @@ import { Text, Card, Chip, List, Divider, Button, TextInput, Dialog, Portal, Seg
 import { useLocalSearchParams, router } from 'expo-router';
 import { useState } from 'react';
 import { useProjektStore } from '../../../src/store/projectStore';
+import { useEinstellungenStore } from '../../../src/store/settingsStore';
 import { getSystem } from '../../../src/data/systems';
 import type { MessungsTyp, Messung } from '../../../src/models/Project';
-import { konvertiereZuMetern } from '../../../src/utils/formatters';
+import { konvertiereZuMetern, formatiereMetric } from '../../../src/utils/formatters';
 
 const TYP_LABELS: Record<MessungsTyp, string> = {
   breite: 'Gesamtbreite',
@@ -27,6 +28,7 @@ export default function MessungenPruefen() {
 
   const projekt = useProjektStore(s => s.projekte.find(p => p.id === projektId));
   const fuegeMessungHinzu = useProjektStore(s => s.fuegeMessungHinzu);
+  const standardEinheit = useEinstellungenStore(s => s.standardEinheit);
 
   if (!projekt) return null;
   const seite = projekt.seiten.find(s => s.id === seitenId) ?? projekt.seiten[0];
@@ -90,7 +92,7 @@ export default function MessungenPruefen() {
                   <View style={styles.messungsRechts}>
                     {messung && (
                       <Text variant="bodyLarge" style={styles.messungsWert}>
-                        {messung.wert >= 1 ? `${messung.wert.toFixed(2)} m` : `${Math.round(messung.wert * 100)} cm`}
+                        {formatiereMetric(messung.wert, standardEinheit)}
                       </Text>
                     )}
                     <Button

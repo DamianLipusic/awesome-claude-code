@@ -44,6 +44,8 @@ export default function RootLayout() {
           <Stack.Screen name="project/[id]/capture" options={{ title: 'Foto aufnehmen' }} />
           <Stack.Screen name="project/[id]/annotate/[photoId]" options={{ title: 'Maße erfassen' }} />
           <Stack.Screen name="project/[id]/measurements" options={{ title: 'Messungen prüfen' }} />
+          <Stack.Screen name="project/[id]/photos" options={{ title: 'Fotos' }} />
+          <Stack.Screen name="project/[id]/openings" options={{ title: 'Öffnungen' }} />
           <Stack.Screen name="project/[id]/plan" options={{ title: 'Gerüstplan' }} />
           <Stack.Screen name="project/[id]/materials" options={{ title: 'Materialliste' }} />
           <Stack.Screen name="project/[id]/export" options={{ title: 'PDF exportieren' }} />
