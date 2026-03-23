@@ -81,7 +81,7 @@ export interface Oeffnung {
   typ: 'fenster' | 'tuer' | 'tor' | 'sonstiges';
   breite: number;
   hoehe: number;
-  brustuengHoehe: number;    // sill height from ground
+  bruestungHoehe: number;    // sill height from ground
   horizontalOffset: number;  // offset from left edge of side
 }
 

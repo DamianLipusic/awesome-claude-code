@@ -62,7 +62,7 @@ export default function OeffnungenScreen() {
       typ: eingabe.typ,
       breite,
       hoehe,
-      brustuengHoehe: isNaN(bruestung) ? 0 : bruestung,
+      bruestungHoehe: isNaN(bruestung) ? 0 : bruestung,
       horizontalOffset: isNaN(offset) ? 0 : offset,
     });
     setDialogOffen(false);
@@ -107,7 +107,7 @@ export default function OeffnungenScreen() {
             <Card key={o.id} style={styles.oeffnungsKarte}>
               <List.Item
                 title={`${TYP_LABELS[o.typ]} ${idx + 1}`}
-                description={`${o.breite.toFixed(2)} × ${o.hoehe.toFixed(2)} m · Brüstung ${o.brustuengHoehe.toFixed(2)} m · Offset ${o.horizontalOffset.toFixed(2)} m`}
+                description={`${o.breite.toFixed(2)} × ${o.hoehe.toFixed(2)} m · Brüstung ${o.bruestungHoehe.toFixed(2)} m · Offset ${o.horizontalOffset.toFixed(2)} m`}
                 left={props => <List.Icon {...props} icon={TYP_ICONS[o.typ]} color="#1565C0" />}
                 right={() => (
                   <IconButton icon="delete" iconColor="#D32F2F" onPress={() => oeffnungLoeschen(o)} />

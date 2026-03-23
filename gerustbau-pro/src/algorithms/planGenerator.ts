@@ -8,7 +8,7 @@ interface PlanSvgOptionen {
   showMasse?: boolean;
 }
 
-const SCALE = 50; // 1:50 — 1 meter = 2mm at this scale, in SVG units (1 SVG unit = 1mm)
+const SCALE = 50; // 1:50 — 1 meter = 20mm at this scale, in SVG units (1 SVG unit = 1mm)
 function m(meter: number): number { return meter * 1000 / SCALE; }
 
 const FARBEN = {
@@ -68,7 +68,7 @@ export function generiereSeitenElevationSVG(
   // Openings
   for (const oeffnung of seite.oeffnungen) {
     const ox = xPos(oeffnung.horizontalOffset);
-    const oy = yPos(oeffnung.brustuengHoehe + oeffnung.hoehe);
+    const oy = yPos(oeffnung.bruestungHoehe + oeffnung.hoehe);
     const ow = m(oeffnung.breite);
     const oh = m(oeffnung.hoehe);
     flaechen.push(`<rect x="${ox}" y="${oy}" width="${ow}" height="${oh}" fill="${FARBEN.oeffnung}" stroke="${FARBEN.oeffnungRand}" stroke-width="0.5"/>`);
