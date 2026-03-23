@@ -1,8 +1,10 @@
-import { View, ScrollView, StyleSheet, Alert } from 'react-native';
-import { Text, List, Divider, TextInput, Button, Snackbar, SegmentedButtons, HelperText, Portal, Dialog } from 'react-native-paper';
+import { View, ScrollView, StyleSheet, Alert, Linking } from 'react-native';
+import { Text, List, Divider, TextInput, Button, Snackbar, SegmentedButtons, HelperText, Portal, Dialog, Chip } from 'react-native-paper';
 import { useState } from 'react';
+import { router } from 'expo-router';
 import { useEinstellungenStore } from '../../src/store/settingsStore';
 import { useProjektStore } from '../../src/store/projectStore';
+import { useIapStore } from '../../src/store/iapStore';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 
@@ -35,6 +37,24 @@ export default function Einstellungen() {
   const exportiereAlsJson = useProjektStore(s => s.exportiereAlsJson);
   const importiereAusJson = useProjektStore(s => s.importiereAusJson);
   const projekte = useProjektStore(s => s.projekte);
+
+  const istPremium = useIapStore(s => s.istPremium);
+  const kundenInfo = useIapStore(s => s.kundenInfo);
+  const kaeufeWiederherstellen = useIapStore(s => s.kaeufeWiederherstellen);
+  const [wiederherstellungLaeuft, setWiederherstellungLaeuft] = useState(false);
+
+  async function onKaeufeWiederherstellen() {
+    setWiederherstellungLaeuft(true);
+    const { erfolg, fehler } = await kaeufeWiederherstellen();
+    setWiederherstellungLaeuft(false);
+    if (erfolg) {
+      Alert.alert('Käufe wiederhergestellt', 'Ihr Abonnement wurde erfolgreich wiederhergestellt.');
+    } else {
+      Alert.alert('Kein Kauf gefunden', fehler ?? 'Es wurde kein aktives Abonnement für dieses Konto gefunden.');
+    }
+  }
+
+  const ablaufDatum = kundenInfo?.entitlements.active['premium']?.expirationDate;
 
   const [gespeichert, setGespeichert] = useState(false);
   const [zuschlagText, setZuschlagText] = useState(String(sicherheitszuschlag));
@@ -243,6 +263,69 @@ export default function Einstellungen() {
 
         <Divider />
 
+        {/* Subscription */}
+        <List.Section title="Abonnement">
+          <View style={styles.aboContainer}>
+            <View style={styles.aboKopf}>
+              <Text variant="titleMedium" style={styles.aboTitel}>Gerüstbau Pro</Text>
+              <Chip
+                compact
+                style={istPremium ? styles.aboChipPremium : styles.aboChipFree}
+                textStyle={{ color: 'white', fontSize: 12, fontWeight: 'bold' }}
+              >
+                {istPremium ? 'PRO AKTIV' : 'KOSTENLOS'}
+              </Chip>
+            </View>
+
+            {istPremium ? (
+              <>
+                <Text variant="bodySmall" style={styles.aboInfo}>
+                  Alle Funktionen sind freigeschaltet.
+                  {ablaufDatum ? `\nVerlängerung am ${new Date(ablaufDatum).toLocaleDateString('de-AT')}.` : ''}
+                </Text>
+                <Button
+                  mode="outlined"
+                  compact
+                  style={styles.aboButton}
+                  onPress={() => Linking.openURL('https://apps.apple.com/account/subscriptions')}
+                  icon="open-in-new"
+                >
+                  Abo in App Store verwalten
+                </Button>
+              </>
+            ) : (
+              <>
+                <Text variant="bodySmall" style={styles.aboInfo}>
+                  1 Gratis-Projekt · Alle weiteren Projekte, PDF-Export und alle Auswertungen erfordern ein Pro-Abo.
+                </Text>
+                <Button
+                  mode="contained"
+                  compact
+                  style={[styles.aboButton, { backgroundColor: '#1565C0' }]}
+                  onPress={() => router.push('/paywall')}
+                  icon="star-circle"
+                >
+                  Auf Pro upgraden
+                </Button>
+              </>
+            )}
+
+            <Button
+              mode="text"
+              compact
+              style={styles.wiederherstellenButton}
+              onPress={onKaeufeWiederherstellen}
+              loading={wiederherstellungLaeuft}
+              disabled={wiederherstellungLaeuft}
+              textColor="#666"
+            >
+              Käufe wiederherstellen
+            </Button>
+          </View>
+        </List.Section>
+
+        <Divider />
+
         {/* App info */}
         <List.Section title="App-Info">
           <List.Item title="Version" description="1.0.0" left={props => <List.Icon {...props} icon="information" />} />
@@ -276,4 +359,13 @@ const styles = StyleSheet.create({
   hinweis: { color: '#888', marginTop: 4, marginBottom: 4 },
   backupButton: { marginBottom: 10 },
   saveButton: { padding: 16, paddingBottom: 40 },
+
+  aboContainer: { paddingHorizontal: 16, paddingBottom: 12 },
+  aboKopf: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 },
+  aboTitel: { fontWeight: 'bold', color: '#1565C0' },
+  aboChipPremium: { backgroundColor: '#2E7D32' },
+  aboChipFree: { backgroundColor: '#9E9E9E' },
+  aboInfo: { color: '#555', lineHeight: 18, marginBottom: 10 },
+  aboButton: { marginBottom: 4 },
+  wiederherstellenButton: { alignSelf: 'flex-start' },
 });

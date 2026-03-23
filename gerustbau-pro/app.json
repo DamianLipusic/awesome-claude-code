@@ -42,10 +42,12 @@
         {
           "cameraPermission": "Die App benötigt Zugriff auf die Kamera."
         }
-      ]
+      ],
+      "react-native-purchases"
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "newArchEnabled": true
   }
 }
