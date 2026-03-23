@@ -1,0 +1,51 @@
+{
+  "expo": {
+    "name": "Gerüstbau Pro",
+    "slug": "gerustbau-pro",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "scheme": "gerustbaupro",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#1565C0"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.gerustbaupro.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Die App benötigt Zugriff auf die Kamera, um Gebäudeseiten zu fotografieren.",
+        "NSPhotoLibraryUsageDescription": "Die App speichert Fotos lokal auf Ihrem Gerät."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#1565C0"
+      },
+      "package": "com.gerustbaupro.app",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Die App benötigt Zugriff auf die Kamera."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
