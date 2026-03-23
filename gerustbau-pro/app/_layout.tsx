@@ -5,6 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import { PaperProvider, MD3LightTheme } from 'react-native-paper';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useProjektStore } from '../src/store/projectStore';
+import { useEinstellungenStore } from '../src/store/settingsStore';
 
 const theme = {
   ...MD3LightTheme,
@@ -19,9 +20,11 @@ const theme = {
 
 export default function RootLayout() {
   const ladeProjekte = useProjektStore(s => s.ladeProjekte);
+  const ladeEinstellungen = useEinstellungenStore(s => s.ladeEinstellungen);
 
   useEffect(() => {
     ladeProjekte();
+    ladeEinstellungen();
   }, []);
 
   return (

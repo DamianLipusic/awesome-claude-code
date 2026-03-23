@@ -5,6 +5,7 @@ import { useLocalSearchParams } from 'expo-router';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { useProjektStore } from '../../../src/store/projectStore';
+import { useEinstellungenStore } from '../../../src/store/settingsStore';
 import { berechneMaterialien } from '../../../src/algorithms/materialCalculator';
 import { generierePdfHtml } from '../../../src/pdf/PdfGenerator';
 import { formatiereDatum } from '../../../src/utils/formatters';
@@ -18,6 +19,7 @@ export default function ExportScreen() {
 
   const projekt = useProjektStore(s => s.projekte.find(p => p.id === projektId));
   const aktiverPlan = useProjektStore(s => s.aktiverPlan);
+  const firmenname = useEinstellungenStore(s => s.firmenname);
 
   if (!projekt) return null;
 
@@ -47,6 +49,7 @@ export default function ExportScreen() {
         zeigePlanSeiten,
         zeigeAnnotierteFoots,
         zeigeMaterialliste,
+        firmenname: firmenname || undefined,
       });
 
       const { uri } = await Print.printToFileAsync({
