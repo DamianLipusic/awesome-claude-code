@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { View, FlatList, Image, StyleSheet, Dimensions, TouchableOpacity, Alert } from 'react-native';
-import { Text, FAB, IconButton, Chip } from 'react-native-paper';
+import { Text, FAB, Button, Chip } from 'react-native-paper';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useProjektStore } from '../../../src/store/projectStore';
 import { formatiereDatum } from '../../../src/utils/formatters';
@@ -19,23 +19,26 @@ function FotoKarte({
   onLoeschen: () => void;
 }) {
   return (
-    <TouchableOpacity style={styles.fotoKarte} onPress={onAnnotieren}>
+    <TouchableOpacity style={styles.fotoKarte} onPress={onAnnotieren} activeOpacity={0.85}>
       <Image source={{ uri: foto.localUri }} style={styles.fotoVorschau} resizeMode="cover" />
       <View style={styles.fotoInfo}>
-        <Text variant="bodySmall" style={styles.fotoDatum} numberOfLines={1}>
-          {formatiereDatum(foto.aufgenommenAm)}
-        </Text>
         <Chip compact icon="pencil-ruler" style={styles.annotationsChip}>
           {foto.annotationen.length} Maße
         </Chip>
       </View>
-      <IconButton
+      {/* Large, easy-to-tap delete button */}
+      <Button
+        mode="contained"
+        buttonColor="#D32F2F"
         icon="delete"
-        size={18}
-        iconColor="#D32F2F"
-        style={styles.loeschenButton}
         onPress={onLoeschen}
-      />
+        style={styles.loeschenButton}
+        contentStyle={styles.loeschenInhalt}
+        labelStyle={styles.loeschenLabel}
+        compact
+      >
+        Löschen
+      </Button>
     </TouchableOpacity>
   );
 }
@@ -53,7 +56,7 @@ export default function FotoGalerie() {
   function fotoLoeschen(foto: Foto) {
     Alert.alert(
       'Foto löschen',
-      'Dieses Foto und alle eingezeichneten Maße werden gelöscht.',
+      'Dieses Foto und alle eingezeichneten Maße werden dauerhaft gelöscht.',
       [
         { text: 'Abbrechen', style: 'cancel' },
         {
@@ -74,11 +77,20 @@ export default function FotoGalerie() {
 
   return (
     <View style={styles.container}>
+      {/* Side label */}
+      <View style={styles.seitenHeader}>
+        <Text variant="titleMedium" style={styles.seitenTitel}>{seite.anzeigename}</Text>
+        <Text variant="bodySmall" style={styles.seitenHinweis}>
+          Tippen Sie auf ein Foto um Maße einzuzeichnen · + für neues Foto
+        </Text>
+      </View>
+
       {seite.fotos.length === 0 ? (
         <View style={styles.leer}>
-          <Text variant="headlineSmall" style={styles.leerTitel}>Keine Fotos</Text>
-          <Text variant="bodyMedium" style={styles.leerText}>
-            Tippen Sie auf + um ein Foto von {seite.anzeigename} aufzunehmen.
+          <Text style={styles.leerIcon}>📷</Text>
+          <Text variant="headlineSmall" style={styles.leerTitel}>Noch keine Fotos</Text>
+          <Text variant="bodyLarge" style={styles.leerText}>
+            Tippen Sie auf den blauen{'\n'}Kamera-Knopf unten rechts{'\n'}um ein Foto aufzunehmen.
           </Text>
         </View>
       ) : (
@@ -99,6 +111,7 @@ export default function FotoGalerie() {
 
       <FAB
         icon="camera"
+        label="Foto aufnehmen"
         style={styles.fab}
         onPress={() =>
           router.push({
@@ -113,22 +126,27 @@ export default function FotoGalerie() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F5F5F5' },
-  liste: { padding: 16, paddingBottom: 100 },
+  seitenHeader: { backgroundColor: '#1565C0', paddingHorizontal: 16, paddingTop: 12, paddingBottom: 14 },
+  seitenTitel: { color: 'white', fontWeight: 'bold', fontSize: 18 },
+  seitenHinweis: { color: 'rgba(255,255,255,0.8)', marginTop: 4 },
+  liste: { padding: 12, paddingBottom: 120 },
   fotoKarte: {
     width: BREITE,
     margin: 4,
     backgroundColor: 'white',
-    borderRadius: 8,
+    borderRadius: 10,
     elevation: 2,
     overflow: 'hidden',
   },
   fotoVorschau: { width: '100%', height: BREITE, backgroundColor: '#E0E0E0' },
-  fotoInfo: { padding: 8, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  fotoDatum: { color: '#666', flex: 1, marginRight: 4 },
-  annotationsChip: { backgroundColor: '#E3F2FD' },
-  loeschenButton: { position: 'absolute', top: 0, right: 0, backgroundColor: 'rgba(255,255,255,0.85)', margin: 4 },
+  fotoInfo: { padding: 8 },
+  annotationsChip: { backgroundColor: '#E3F2FD', alignSelf: 'flex-start' },
+  loeschenButton: { margin: 8, borderRadius: 6 },
+  loeschenInhalt: { height: 36 },
+  loeschenLabel: { fontSize: 13 },
   fab: { position: 'absolute', right: 16, bottom: 24, backgroundColor: '#1565C0' },
   leer: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32 },
-  leerTitel: { color: '#666', marginBottom: 8 },
-  leerText: { color: '#999', textAlign: 'center' },
+  leerIcon: { fontSize: 64, marginBottom: 16 },
+  leerTitel: { color: '#555', marginBottom: 12, textAlign: 'center' },
+  leerText: { color: '#777', textAlign: 'center', lineHeight: 26 },
 });
