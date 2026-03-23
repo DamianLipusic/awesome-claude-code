@@ -87,6 +87,17 @@ function ProjektKarte({ projekt }: { projekt: Project }) {
           <Chip compact style={styles.chip}>{SYSTEM_LABELS[projekt.systemId]}</Chip>
           <Chip compact style={styles.chip}>{ZWECK_LABELS[projekt.zweck]}</Chip>
           <Chip compact style={styles.chip}>{projekt.gesamthoehe} m</Chip>
+          {projekt.termin && (() => {
+            const heute = new Date(); heute.setHours(0,0,0,0);
+            const t = new Date(projekt.termin + 'T00:00:00');
+            const tage = Math.round((t.getTime() - heute.getTime()) / 86400000);
+            const farbe = tage < 0 ? '#B71C1C' : tage <= 7 ? '#E65100' : '#388E3C';
+            return (
+              <Chip compact style={{ backgroundColor: farbe }} textStyle={{ color: 'white', fontSize: 11 }}>
+                {tage < 0 ? `${Math.abs(tage)}T überfällig` : tage === 0 ? 'Heute!' : `${tage}T`}
+              </Chip>
+            );
+          })()}
         </View>
 
         {/* Progress bar */}

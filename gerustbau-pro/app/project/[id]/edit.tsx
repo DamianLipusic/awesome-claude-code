@@ -15,6 +15,7 @@ export default function ProjektBearbeiten() {
   const [gesamthoehe, setGesamthoehe] = useState(String(projekt?.gesamthoehe ?? ''));
   const [etagen, setEtagen] = useState(String(projekt?.etagen ?? ''));
   const [arbeitshoehe, setArbeitshoehe] = useState(String(projekt?.arbeitshoehe ?? ''));
+  const [termin, setTermin] = useState(projekt?.termin ?? '');
   const [gespeichert, setGespeichert] = useState(false);
 
   if (!projekt) return null;
@@ -30,6 +31,7 @@ export default function ProjektBearbeiten() {
     const et = parseInt(etagen, 10);
     const ah = parseFloat(arbeitshoehe.replace(',', '.'));
 
+    const terminGueltig = !termin.trim() || /^\d{4}-\d{2}-\d{2}$/.test(termin.trim());
     aktualisierteProjekt(id, {
       name: name.trim(),
       adresse: adresse.trim() || undefined,
@@ -37,6 +39,7 @@ export default function ProjektBearbeiten() {
       gesamthoehe: gh,
       etagen: et,
       arbeitshoehe: isNaN(ah) || ah <= 0 ? gh : ah,
+      termin: terminGueltig && termin.trim() ? termin.trim() : undefined,
     });
     setGespeichert(true);
     router.back();
@@ -73,6 +76,20 @@ export default function ProjektBearbeiten() {
         mode="outlined"
         style={styles.feld}
       />
+
+      <TextInput
+        label="Fertigstellungstermin (JJJJ-MM-TT)"
+        value={termin}
+        onChangeText={setTermin}
+        mode="outlined"
+        style={styles.feld}
+        keyboardType="numbers-and-punctuation"
+        placeholder="z.B. 2025-08-31"
+        left={<TextInput.Icon icon="calendar" />}
+      />
+      <HelperText type="info" style={{ marginBottom: 4 }}>
+        Leer lassen wenn kein Termin. Format: JJJJ-MM-TT
+      </HelperText>
 
       <Divider style={styles.divider} />
       <Text variant="titleMedium" style={styles.abschnitt}>Abmessungen</Text>

@@ -204,6 +204,20 @@ export default function ProjektUebersicht() {
             </View>
             {projekt.adresse && <Text variant="bodyMedium" style={styles.adresse}>{projekt.adresse}</Text>}
             {projekt.auftraggeber && <Text variant="bodySmall" style={styles.auftraggeber}>Auftraggeber: {projekt.auftraggeber}</Text>}
+            {projekt.termin && (() => {
+              const heute = new Date(); heute.setHours(0,0,0,0);
+              const t = new Date(projekt.termin + 'T00:00:00');
+              const tage = Math.round((t.getTime() - heute.getTime()) / 86400000);
+              const farbe = tage < 0 ? '#B71C1C' : tage <= 3 ? '#E65100' : tage <= 7 ? '#F57F17' : '#2E7D32';
+              const terminLabel = tage < 0 ? `${Math.abs(tage)} Tage überfällig` : tage === 0 ? 'Termin heute!' : `Termin in ${tage} Tagen`;
+              return (
+                <View style={[styles.terminBanner, { backgroundColor: farbe }]}>
+                  <Text style={styles.terminBannerText}>
+                    📅 {t.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })} – {terminLabel}
+                  </Text>
+                </View>
+              );
+            })()}
             <View style={styles.infoChips}>
               <Chip compact icon="cog" style={styles.infoChip}>{projekt.systemId.replace('-', ' ')}</Chip>
               <Chip compact icon="arrow-expand-up" style={styles.infoChip}>{projekt.gesamthoehe} m</Chip>
@@ -263,6 +277,27 @@ export default function ProjektUebersicht() {
           style={styles.notizenFeld}
           placeholder="Besonderheiten, Auflagen, Hinweise..."
         />
+
+        {/* Time tracking — always visible */}
+        <Text variant="titleMedium" style={styles.abschnittTitel}>Zeiterfassung</Text>
+        {(() => {
+          const stunden = (projekt.zeiteintraege ?? []).reduce((s, e) => s + e.stunden, 0);
+          const eintraege = (projekt.zeiteintraege ?? []).length;
+          return (
+            <Button
+              mode="contained-tonal"
+              icon="clock-outline"
+              onPress={() => router.push(`/project/${id}/time`)}
+              style={styles.auswertungButton}
+              contentStyle={styles.auswertungButtonInhalt}
+              labelStyle={{ fontSize: 16 }}
+            >
+              {eintraege > 0
+                ? `Arbeitsstunden (${stunden % 1 === 0 ? stunden : stunden.toFixed(1)} Std., ${eintraege} Einträge)`
+                : 'Arbeitsstunden erfassen'}
+            </Button>
+          );
+        })()}
 
         {/* Evaluation buttons — only when sides exist */}
         {projekt.seiten.length > 0 && (
@@ -351,7 +386,9 @@ const styles = StyleSheet.create({
   projektName: { fontWeight: 'bold', flex: 1, fontSize: 18 },
   editButton: { margin: 0, marginLeft: 'auto' },
   adresse: { color: '#555', marginBottom: 2 },
-  auftraggeber: { color: '#888', marginBottom: 8 },
+  auftraggeber: { color: '#888', marginBottom: 6 },
+  terminBanner: { borderRadius: 6, paddingHorizontal: 10, paddingVertical: 5, marginBottom: 8 },
+  terminBannerText: { color: 'white', fontWeight: 'bold', fontSize: 13 },
   infoChips: { flexDirection: 'row', gap: 8, flexWrap: 'wrap', marginBottom: 12 },
   infoChip: { backgroundColor: '#E3F2FD' },
   fortschrittRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 },

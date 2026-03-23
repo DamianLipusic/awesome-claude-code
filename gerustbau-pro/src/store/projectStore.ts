@@ -14,6 +14,7 @@ import type {
   MessungsTyp,
   GeruestPlan,
   MaterialPosition,
+  ZeitEintrag,
 } from '../models/Project';
 import { generiereId } from '../utils/formatters';
 
@@ -58,6 +59,9 @@ interface ProjectState {
   setzePlan: (plan: GeruestPlan, materialien: MaterialPosition[]) => void;
   aktualisiereMaterieMenge: (positionId: string, mengeManuell: number | undefined) => void;
   dupliziereProjekt: (id: string) => string;
+
+  fuegeZeitEintragHinzu: (projektId: string, eintrag: Omit<ZeitEintrag, 'id'>) => void;
+  loescheZeitEintrag: (projektId: string, eintragId: string) => void;
 }
 
 function speichereProjekte(projekte: Project[]): void {
@@ -320,6 +324,34 @@ export const useProjektStore = create<ProjectState>((set, get) => ({
         pos.id === positionId ? { ...pos, mengeManuell } : pos,
       ),
     }));
+  },
+
+  fuegeZeitEintragHinzu: (projektId, eintragDaten) => {
+    const id = generiereId();
+    const neuerEintrag: ZeitEintrag = { id, ...eintragDaten };
+    const neueProjekte = get().projekte.map(p => {
+      if (p.id !== projektId) return p;
+      return {
+        ...p,
+        zeiteintraege: [...(p.zeiteintraege ?? []), neuerEintrag],
+        aktualisiertAm: new Date().toISOString(),
+      };
+    });
+    set({ projekte: neueProjekte });
+    speichereProjekte(neueProjekte);
+  },
+
+  loescheZeitEintrag: (projektId, eintragId) => {
+    const neueProjekte = get().projekte.map(p => {
+      if (p.id !== projektId) return p;
+      return {
+        ...p,
+        zeiteintraege: (p.zeiteintraege ?? []).filter(e => e.id !== eintragId),
+        aktualisiertAm: new Date().toISOString(),
+      };
+    });
+    set({ projekte: neueProjekte });
+    speichereProjekte(neueProjekte);
   },
 
   dupliziereProjekt: (id) => {

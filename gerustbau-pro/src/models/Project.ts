@@ -14,6 +14,14 @@ export type ProjectStatus =
   | 'berechnung'
   | 'fertig';
 
+export interface ZeitEintrag {
+  id: string;
+  datum: string;             // ISO date string YYYY-MM-DD
+  stunden: number;           // decimal hours e.g. 2.5
+  beschreibung: string;
+  mitarbeiter?: string;
+}
+
 export interface Project {
   id: string;
   name: string;
@@ -29,6 +37,8 @@ export interface Project {
   erstelltAm: string;        // ISO date string
   aktualisiertAm: string;
   notizen?: string;
+  termin?: string;           // ISO date string – project deadline
+  zeiteintraege?: ZeitEintrag[];
 }
 
 export type SeitenLabel =

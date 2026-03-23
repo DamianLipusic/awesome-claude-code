@@ -54,6 +54,7 @@ export default function RootLayout() {
           <Stack.Screen name="project/[id]/materials" options={{ title: 'Materialliste' }} />
           <Stack.Screen name="project/[id]/export" options={{ title: 'PDF exportieren' }} />
           <Stack.Screen name="project/[id]/costs" options={{ title: 'Kostenschätzung' }} />
+          <Stack.Screen name="project/[id]/time" options={{ title: 'Zeiterfassung' }} />
         </Stack>
       </PaperProvider>
     </GestureHandlerRootView>
