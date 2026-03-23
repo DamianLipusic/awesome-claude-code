@@ -66,7 +66,7 @@ export default function ZeiterfassungScreen() {
 
   function eintragSpeichern() {
     const stunden = parseFloat(stundenText.replace(',', '.'));
-    if (isNaN(stunden) || stunden <= 0 || stunden > 24) {
+    if (isNaN(stunden) || stunden < 0.5 || stunden > 24) {
       Alert.alert('Ungültige Stunden', 'Bitte eine Zahl zwischen 0,5 und 24 eingeben.');
       return;
     }

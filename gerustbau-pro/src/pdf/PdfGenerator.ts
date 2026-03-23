@@ -384,12 +384,12 @@ export function generierePdfHtml(eingabe: PdfEingabe): string {
 
   let zeitSeite = '';
   if (zeigeZeitprotokoll && (projekt.zeiteintraege ?? []).length > 0) {
-    zeitSeite = zeitprotokollHtml(projekt.zeiteintraege!, projekt.name);
+    zeitSeite = zeitprotokollHtml(projekt.zeiteintraege ?? [], projekt.name);
   }
 
   let checklistSeite = '';
   if (zeigeCheckliste && (projekt.pruefpunkte ?? []).length > 0) {
-    checklistSeite = checklistHtml(projekt.pruefpunkte!, projekt.name);
+    checklistSeite = checklistHtml(projekt.pruefpunkte ?? [], projekt.name);
   }
 
   return `<!DOCTYPE html>

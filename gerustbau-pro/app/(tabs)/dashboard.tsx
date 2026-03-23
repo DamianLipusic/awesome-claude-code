@@ -27,9 +27,11 @@ function formatiereStunden(h: number): string {
 }
 
 function termin_tage(iso: string): number {
+  if (!iso || !/^\d{4}-\d{2}-\d{2}$/.test(iso)) return 0;
   const heute = new Date();
   heute.setHours(0, 0, 0, 0);
   const t = new Date(iso + 'T00:00:00');
+  if (isNaN(t.getTime())) return 0;
   return Math.round((t.getTime() - heute.getTime()) / 86400000);
 }
 
