@@ -86,7 +86,7 @@ function berechneAnker(seitenId: string, gesamtBreite: number, gesamtHoehe: numb
   const maxVertikalAbstand = 4.0;   // max 4m vertical
   const maxHorizontalAbstand = 6.0; // max 6m horizontal
   const ersteReiheHoehe = Math.min(4.0, gesamtHoehe);
-  const letzteReiheHoehe = gesamtHoehe - 1.5;
+  const letzteReiheHoehe = Math.max(ersteReiheHoehe, gesamtHoehe - 1.5);
 
   const anzahlReihen = Math.ceil((letzteReiheHoehe - ersteReiheHoehe) / maxVertikalAbstand) + 1;
   const anzahlSpalten = Math.ceil(gesamtBreite / maxHorizontalAbstand) + 1;

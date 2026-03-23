@@ -84,12 +84,13 @@ function ProjektKarte({ projekt }: { projekt: Project }) {
 
         {/* System + purpose */}
         <View style={styles.chips}>
-          <Chip compact style={styles.chip}>{SYSTEM_LABELS[projekt.systemId]}</Chip>
-          <Chip compact style={styles.chip}>{ZWECK_LABELS[projekt.zweck]}</Chip>
+          <Chip compact style={styles.chip}>{SYSTEM_LABELS[projekt.systemId] ?? projekt.systemId}</Chip>
+          <Chip compact style={styles.chip}>{ZWECK_LABELS[projekt.zweck] ?? projekt.zweck}</Chip>
           <Chip compact style={styles.chip}>{projekt.gesamthoehe} m</Chip>
           {projekt.termin && (() => {
             const heute = new Date(); heute.setHours(0,0,0,0);
             const t = new Date(projekt.termin + 'T00:00:00');
+            if (isNaN(t.getTime())) return null;
             const tage = Math.round((t.getTime() - heute.getTime()) / 86400000);
             const farbe = tage < 0 ? '#B71C1C' : tage <= 7 ? '#E65100' : '#388E3C';
             return (

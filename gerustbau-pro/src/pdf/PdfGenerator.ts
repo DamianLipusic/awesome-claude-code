@@ -6,6 +6,15 @@ import type { GeruestKomponente, KomponentenKategorie } from '../data/systems';
 import { formatiereGewicht, formatiereZahl, formatiereDatum } from '../utils/formatters';
 import { generiereSeitenElevationSVG } from '../algorithms/planGenerator';
 
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 const KATEGORIE_LABELS: Record<KomponentenKategorie, string> = {
   rahmen: 'Rahmen',
   riegel: 'Riegel',
@@ -32,20 +41,20 @@ interface FirmenKontakt {
 function deckblattHtml(projekt: Project, plan: GeruestPlan, firma?: FirmenKontakt): string {
   const firmenBlock = firma?.name ? `
     <div class="firma-block">
-      <div class="firma">${firma.name}</div>
-      ${firma.adresse ? `<div class="firma-detail">${firma.adresse}</div>` : ''}
-      ${firma.telefon ? `<div class="firma-detail">Tel: ${firma.telefon}</div>` : ''}
-      ${firma.email ? `<div class="firma-detail">${firma.email}</div>` : ''}
+      <div class="firma">${escapeHtml(firma.name)}</div>
+      ${firma.adresse ? `<div class="firma-detail">${escapeHtml(firma.adresse)}</div>` : ''}
+      ${firma.telefon ? `<div class="firma-detail">Tel: ${escapeHtml(firma.telefon)}</div>` : ''}
+      ${firma.email ? `<div class="firma-detail">${escapeHtml(firma.email)}</div>` : ''}
     </div>` : '';
 
   return `
     <div class="seite deckblatt">
       ${firmenBlock}
       <h1>Gerüstplanung</h1>
-      <h2>${projekt.name}</h2>
+      <h2>${escapeHtml(projekt.name)}</h2>
       <table class="info-tabelle">
-        ${projekt.adresse ? `<tr><th>Adresse</th><td>${projekt.adresse}</td></tr>` : ''}
-        ${projekt.auftraggeber ? `<tr><th>Auftraggeber</th><td>${projekt.auftraggeber}</td></tr>` : ''}
+        ${projekt.adresse ? `<tr><th>Adresse</th><td>${escapeHtml(projekt.adresse)}</td></tr>` : ''}
+        ${projekt.auftraggeber ? `<tr><th>Auftraggeber</th><td>${escapeHtml(projekt.auftraggeber)}</td></tr>` : ''}
         <tr><th>Gerüstsystem</th><td>${projekt.systemId.replace('-', ' ').toUpperCase()}</td></tr>
         <tr><th>Verwendungszweck</th><td>${projekt.zweck.charAt(0).toUpperCase() + projekt.zweck.slice(1)}</td></tr>
         <tr><th>Gebäudehöhe</th><td>${projekt.gesamthoehe.toFixed(2)} m</td></tr>
@@ -66,7 +75,7 @@ function deckblattHtml(projekt: Project, plan: GeruestPlan, firma?: FirmenKontak
 function planSeiteHtml(seite: BausteinSeite, seitenSvg: string): string {
   return `
     <div class="seite plan-seite">
-      <h3>${seite.anzeigename} – Ansicht</h3>
+      <h3>${escapeHtml(seite.anzeigename)} – Ansicht</h3>
       <div class="plan-svg">${seitenSvg}</div>
       <div class="plan-legende">
         <span class="legende-item blau">Rahmen/Rohre</span>
@@ -88,7 +97,7 @@ function fotoSeiteHtml(seite: BausteinSeite): string {
 
     return `
       <div class="${idx % 2 === 0 ? 'seite' : ''} foto-bereich">
-        <h4>${seite.anzeigename} – Foto ${idx + 1}</h4>
+        <h4>${escapeHtml(seite.anzeigename)} – Foto ${idx + 1}</h4>
         <img src="${foto.localUri}" class="foto" />
         ${foto.annotationen.length > 0 ? `
         <table class="messung-tabelle">
@@ -112,8 +121,8 @@ function zeitprotokollHtml(eintraege: ZeitEintrag[], projektName: string): strin
     return `
       <tr class="${i % 2 === 0 ? '' : 'zeit-alt'}">
         <td>${datum}</td>
-        <td>${e.mitarbeiter ?? '–'}</td>
-        <td>${e.beschreibung}</td>
+        <td>${e.mitarbeiter ? escapeHtml(e.mitarbeiter) : '–'}</td>
+        <td>${escapeHtml(e.beschreibung)}</td>
         <td class="zahl">${stdStr} Std.</td>
       </tr>`;
   }).join('');
@@ -124,7 +133,7 @@ function zeitprotokollHtml(eintraege: ZeitEintrag[], projektName: string): strin
 
   return `
     <div class="seite zeit-seite">
-      <h3>Zeitprotokoll – ${projektName}</h3>
+      <h3>Zeitprotokoll – ${escapeHtml(projektName)}</h3>
       <table class="zeit-tabelle">
         <thead>
           <tr>
@@ -160,13 +169,13 @@ function checklistHtml(pruefpunkte: PruefPunkt[], projektName: string): string {
         <tr>
           <td class="pruef-check">${p.erledigt ? '&#9989;' : '&#9744;'}</td>
           <td class="${p.erledigt ? 'pruef-ok' : ''}">${p.text}</td>
-          <td class="pruef-bem">${p.bemerkung ? p.bemerkung : (p.erledigt && p.erledigtAm ? new Date(p.erledigtAm + 'T00:00:00').toLocaleDateString('de-DE') : '')}</td>
+          <td class="pruef-bem">${p.bemerkung ? escapeHtml(p.bemerkung) : (p.erledigt && p.erledigtAm ? new Date(p.erledigtAm + 'T00:00:00').toLocaleDateString('de-DE') : '')}</td>
         </tr>`).join('')}`;
   }).join('');
 
   return `
     <div class="seite pruef-seite">
-      <h3>Abnahme-Checkliste – ${projektName}</h3>
+      <h3>Abnahme-Checkliste – ${escapeHtml(projektName)}</h3>
       <p class="pruef-stand">Prüfstand: ${erledigt} von ${pruefpunkte.length} Punkten erfüllt</p>
       <table class="pruef-tabelle">
         <thead>
@@ -397,7 +406,7 @@ export function generierePdfHtml(eingabe: PdfEingabe): string {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gerüstplanung – ${projekt.name}</title>
+  <title>Gerüstplanung – ${escapeHtml(projekt.name)}</title>
   <style>${CSS}</style>
 </head>
 <body>

@@ -32,6 +32,10 @@ export default function ProjektBearbeiten() {
     const ah = parseFloat(arbeitshoehe.replace(',', '.'));
 
     const terminGueltig = !termin.trim() || /^\d{4}-\d{2}-\d{2}$/.test(termin.trim());
+    if (termin.trim() && !terminGueltig) {
+      Alert.alert('Ungültiges Datum', 'Bitte im Format JJJJ-MM-TT eingeben (z.B. 2026-08-31).');
+      return;
+    }
     aktualisierteProjekt(id, {
       name: name.trim(),
       adresse: adresse.trim() || undefined,
