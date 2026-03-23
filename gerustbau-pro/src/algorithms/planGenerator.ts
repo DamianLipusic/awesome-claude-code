@@ -43,7 +43,8 @@ export function generiereSeitenElevationSVG(
   } = optionen;
 
   const gesamtBreite = seitenPlan.felder.reduce((sum, f) => sum + f.breite, 0);
-  const gesamtHoehe = seitenPlan.lagen.reduce((sum, l) => l.startY + l.hoehe, 0);
+  const letzteLage = seitenPlan.lagen.at(-1);
+  const gesamtHoehe = letzteLage ? letzteLage.startY + letzteLage.hoehe : 0;
 
   // SVG dimensions in mm (at 1:50 scale)
   const svgBreite = m(gesamtBreite) + 60; // margins for dimensions

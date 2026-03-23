@@ -1,6 +1,7 @@
 import { View, ScrollView, StyleSheet, Alert } from 'react-native';
-import { Text, Card, Button, Chip, ProgressBar } from 'react-native-paper';
+import { Text, Card, Button, Chip, ProgressBar, TextInput } from 'react-native-paper';
 import { useLocalSearchParams, router } from 'expo-router';
+import { useState } from 'react';
 import { useProjektStore } from '../../../src/store/projectStore';
 import type { BausteinSeite } from '../../../src/models/Project';
 
@@ -63,6 +64,8 @@ export default function ProjektUebersicht() {
   const projekt = useProjektStore(s => s.projekte.find(p => p.id === id));
   const fuegeSeiteHinzu = useProjektStore(s => s.fuegeSeiteHinzu);
   const loescheProjekt = useProjektStore(s => s.loescheProjekt);
+  const aktualisierteProjekt = useProjektStore(s => s.aktualisierteProjekt);
+  const [notizen, setNotizen] = useState(projekt?.notizen ?? '');
 
   if (!projekt) {
     return (
@@ -124,6 +127,18 @@ export default function ProjektUebersicht() {
             <ProgressBar progress={fortschritt} color="#1565C0" style={styles.fortschritt} />
           </Card.Content>
         </Card>
+
+        <TextInput
+          label="Notizen"
+          value={notizen}
+          onChangeText={setNotizen}
+          onBlur={() => aktualisierteProjekt(id, { notizen: notizen.trim() || undefined })}
+          mode="outlined"
+          multiline
+          numberOfLines={3}
+          style={styles.notizenFeld}
+          placeholder="Besonderheiten, Auflagen, Hinweise..."
+        />
 
         <Text variant="titleMedium" style={styles.abschnittTitel}>Gebäudeseiten</Text>
         {projekt.seiten.map(seite => (
@@ -203,4 +218,5 @@ const styles = StyleSheet.create({
   aktionenGrid: { gap: 8 },
   aktionButton: { marginBottom: 4 },
   loeschenButton: { marginTop: 32, borderColor: '#D32F2F' },
+  notizenFeld: { marginBottom: 8, backgroundColor: 'white' },
 });

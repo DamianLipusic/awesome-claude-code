@@ -3,6 +3,8 @@ import { View, StyleSheet, Alert } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { Button, Text, ActivityIndicator, Chip } from 'react-native-paper';
 import { router, useLocalSearchParams } from 'expo-router';
+// expo-file-system v55 restructured the API; the legacy sub-path still provides
+// documentDirectory / makeDirectoryAsync / moveAsync used below.
 import * as FileSystem from 'expo-file-system/legacy';
 import { useProjektStore } from '../../../src/store/projectStore';
 

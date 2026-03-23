@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { View, SectionList, StyleSheet } from 'react-native';
-import { Text, Card, Chip, ActivityIndicator, Button, Divider } from 'react-native-paper';
+import { Text, Card, Chip, ActivityIndicator, Button, Divider, Dialog, Portal, List } from 'react-native-paper';
 import { useLocalSearchParams } from 'expo-router';
 import { useProjektStore } from '../../../src/store/projectStore';
 import { berechneMaterialien } from '../../../src/algorithms/materialCalculator';
@@ -30,15 +30,48 @@ const KATEGORIE_REIHENFOLGE: KomponentenKategorie[] = [
   'spindel', 'fussplatte', 'anker', 'treppe', 'rohr', 'kupplung', 'sonstiges',
 ];
 
+type Lastklasse = '2' | '3' | '4' | '5' | '6';
+
+const LASTKLASSEN: { value: Lastklasse; label: string; beschreibung: string }[] = [
+  { value: '2', label: 'LK 2', beschreibung: '1,5 kN/m² · Inspektionsgerüst' },
+  { value: '3', label: 'LK 3', beschreibung: '2,0 kN/m² · Arbeitsgerüst leicht' },
+  { value: '4', label: 'LK 4', beschreibung: '3,0 kN/m² · Arbeitsgerüst schwer' },
+  { value: '5', label: 'LK 5', beschreibung: '4,5 kN/m² · Schwerlastgerüst' },
+  { value: '6', label: 'LK 6', beschreibung: '6,0 kN/m² · Sonderlastgerüst' },
+];
+
 export default function MaterialListe() {
   const { id: projektId } = useLocalSearchParams<{ id: string }>();
   const [laden, setLaden] = useState(true);
   const [warnungen, setWarnungen] = useState<string[]>([]);
+  const [lastklasse, setLastklasse] = useState<Lastklasse>('3');
+  const [lkOffen, setLkOffen] = useState(false);
 
   const projekt = useProjektStore(s => s.projekte.find(p => p.id === projektId));
   const setzePlan = useProjektStore(s => s.setzePlan);
   const aktiverPlan = useProjektStore(s => s.aktiverPlan);
   const aktiveMaterialien = useProjektStore(s => s.aktiveMaterialien);
+
+  function neuBerechnen(lk: Lastklasse) {
+    if (!projekt) return;
+    setLaden(true);
+    const ergebnis = berechneMaterialien({
+      seiten: projekt.seiten,
+      systemId: projekt.systemId,
+      arbeitshoehe: projekt.arbeitshoehe,
+      lastklasse: lk,
+    });
+    ergebnis.plan.projektId = projekt.id;
+    setzePlan(ergebnis.plan, ergebnis.materialien);
+    setWarnungen(ergebnis.warnungen);
+    setLaden(false);
+  }
+
+  function aendereLastklasse(lk: Lastklasse) {
+    setLastklasse(lk);
+    setLkOffen(false);
+    neuBerechnen(lk);
+  }
 
   useEffect(() => {
     if (!projekt) return;
@@ -47,6 +80,7 @@ export default function MaterialListe() {
       seiten: projekt.seiten,
       systemId: projekt.systemId,
       arbeitshoehe: projekt.arbeitshoehe,
+      lastklasse,
     });
 
     ergebnis.plan.projektId = projekt.id;
@@ -119,7 +153,14 @@ export default function MaterialListe() {
               <Text variant="bodySmall" style={styles.summaryLabel}>Gesamtgewicht</Text>
             </View>
             <View style={styles.summaryItem}>
-              <Text variant="headlineSmall" style={styles.summaryWert}>LK {aktiverPlan?.lastklasse ?? '3'}</Text>
+              <Button
+                mode="outlined"
+                compact
+                onPress={() => setLkOffen(true)}
+                style={styles.lkButton}
+              >
+                LK {lastklasse}
+              </Button>
               <Text variant="bodySmall" style={styles.summaryLabel}>Lastklasse</Text>
             </View>
           </View>
@@ -146,6 +187,29 @@ export default function MaterialListe() {
         contentContainerStyle={styles.liste}
         stickySectionHeadersEnabled={false}
       />
+
+      <Portal>
+        <Dialog visible={lkOffen} onDismiss={() => setLkOffen(false)}>
+          <Dialog.Title>Lastklasse wählen</Dialog.Title>
+          <Dialog.Content>
+            {LASTKLASSEN.map(lk => (
+              <List.Item
+                key={lk.value}
+                title={lk.label}
+                description={lk.beschreibung}
+                left={props => (
+                  <List.Icon {...props} icon={lastklasse === lk.value ? 'radiobox-marked' : 'radiobox-blank'} color="#1565C0" />
+                )}
+                onPress={() => aendereLastklasse(lk.value)}
+                style={lastklasse === lk.value ? styles.lkAktiv : undefined}
+              />
+            ))}
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setLkOffen(false)}>Schließen</Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     </View>
   );
 }
@@ -173,4 +237,6 @@ const styles = StyleSheet.create({
   positionGewicht: { flex: 1, alignItems: 'flex-end', justifyContent: 'center' },
   gewicht: { color: '#666' },
   liste: { paddingBottom: 40 },
+  lkButton: { borderColor: '#1565C0' },
+  lkAktiv: { backgroundColor: '#E3F2FD' },
 });
