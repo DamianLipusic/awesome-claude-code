@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as FileSystem from 'expo-file-system/legacy';
 import type {
   Project,
   BausteinSeite,
@@ -55,6 +56,8 @@ interface ProjectState {
   loescheOeffnung: (projektId: string, seitenId: string, oeffnungId: string) => void;
 
   setzePlan: (plan: GeruestPlan, materialien: MaterialPosition[]) => void;
+  aktualisiereMaterieMenge: (positionId: string, mengeManuell: number | undefined) => void;
+  dupliziereProjekt: (id: string) => string;
 }
 
 function speichereProjekte(projekte: Project[]): void {
@@ -121,6 +124,16 @@ export const useProjektStore = create<ProjectState>((set, get) => ({
   },
 
   loescheProjekt: (id) => {
+    const projekt = get().projekte.find(p => p.id === id);
+    if (projekt) {
+      for (const seite of projekt.seiten) {
+        for (const foto of seite.fotos) {
+          if (foto.localUri) {
+            FileSystem.deleteAsync(foto.localUri, { idempotent: true }).catch(console.error);
+          }
+        }
+      }
+    }
     const neueProjekte = get().projekte.filter(p => p.id !== id);
     set({ projekte: neueProjekte });
     speichereProjekte(neueProjekte);
@@ -234,6 +247,12 @@ export const useProjektStore = create<ProjectState>((set, get) => ({
   },
 
   loescheFoto: (projektId, seitenId, fotoId) => {
+    const projekt = get().projekte.find(p => p.id === projektId);
+    const seite = projekt?.seiten.find(s => s.id === seitenId);
+    const foto = seite?.fotos.find(f => f.id === fotoId);
+    if (foto?.localUri) {
+      FileSystem.deleteAsync(foto.localUri, { idempotent: true }).catch(console.error);
+    }
     const neueProjekte = aktualisiereSeiteInProjekt(get().projekte, projektId, seitenId, seite => ({
       ...seite,
       fotos: seite.fotos.filter(f => f.id !== fotoId),
@@ -293,5 +312,33 @@ export const useProjektStore = create<ProjectState>((set, get) => ({
     });
     set({ projekte: neueProjekte });
     speichereProjekte(neueProjekte);
+  },
+
+  aktualisiereMaterieMenge: (positionId, mengeManuell) => {
+    set(state => ({
+      aktiveMaterialien: state.aktiveMaterialien.map(pos =>
+        pos.id === positionId ? { ...pos, mengeManuell } : pos,
+      ),
+    }));
+  },
+
+  dupliziereProjekt: (id) => {
+    const vorlage = get().projekte.find(p => p.id === id);
+    if (!vorlage) return '';
+    const neueId = generiereId();
+    const jetzt = new Date().toISOString();
+    const kopie: Project = {
+      ...vorlage,
+      id: neueId,
+      name: vorlage.name + ' – Kopie',
+      status: 'entwurf',
+      seiten: [],
+      erstelltAm: jetzt,
+      aktualisiertAm: jetzt,
+    };
+    const neueProjekte = [...get().projekte, kopie];
+    set({ projekte: neueProjekte });
+    speichereProjekte(neueProjekte);
+    return neueId;
   },
 }));

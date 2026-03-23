@@ -26,6 +26,8 @@ export default function AnnotateScreen() {
   const projekt = useProjektStore(s => s.projekte.find(p => p.id === projektId));
   const fuegeAnnotationHinzu = useProjektStore(s => s.fuegeAnnotationHinzu);
   const loescheAnnotation = useProjektStore(s => s.loescheAnnotation);
+  const aktualisiereAnnotation = useProjektStore(s => s.aktualisiereAnnotation);
+  const aktualisiereMessung = useProjektStore(s => s.aktualisiereMessung);
   const fuegeMessungHinzu = useProjektStore(s => s.fuegeMessungHinzu);
 
   if (!projekt) return null;
@@ -52,6 +54,16 @@ export default function AnnotateScreen() {
 
   function onAnnotationGeloescht(annotationId: string) {
     loescheAnnotation(projektId, seitenId, photoId, annotationId);
+  }
+
+  function onAnnotationGeaendert(annotation: Annotation) {
+    aktualisiereAnnotation(projektId, seitenId, photoId, annotation);
+    // Update the linked measurement if it exists
+    const seite = projekt!.seiten.find(s => s.id === seitenId);
+    const messung = seite?.messungen.find(m => m.annotationId === annotation.id);
+    if (messung) {
+      aktualisiereMessung(projektId, seitenId, { ...messung, wert: annotation.realweltWert });
+    }
   }
 
   const erledigteTypen = new Set(seite.messungen.map(m => m.typ));
@@ -83,6 +95,7 @@ export default function AnnotateScreen() {
           fotoId={photoId}
           onAnnotationHinzugefuegt={onAnnotationHinzugefuegt}
           onAnnotationGeloescht={onAnnotationGeloescht}
+          onAnnotationGeaendert={onAnnotationGeaendert}
           aktuellerTyp={aktuellerTyp}
         />
       </View>

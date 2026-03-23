@@ -41,6 +41,7 @@ export default function RootLayout() {
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="project/new" options={{ title: 'Neues Projekt', presentation: 'modal' }} />
           <Stack.Screen name="project/[id]/index" options={{ title: 'Projektübersicht' }} />
+          <Stack.Screen name="project/[id]/edit" options={{ title: 'Projekt bearbeiten', presentation: 'modal' }} />
           <Stack.Screen name="project/[id]/capture" options={{ title: 'Foto aufnehmen' }} />
           <Stack.Screen name="project/[id]/annotate/[photoId]" options={{ title: 'Maße erfassen' }} />
           <Stack.Screen name="project/[id]/measurements" options={{ title: 'Messungen prüfen' }} />

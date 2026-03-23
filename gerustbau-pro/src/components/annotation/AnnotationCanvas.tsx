@@ -1,18 +1,15 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Image,
   PanResponder,
   StyleSheet,
-  Modal,
   Alert,
-  Dimensions,
 } from 'react-native';
 import Svg, { Line, Circle, Text as SvgText, G } from 'react-native-svg';
 import { Text, Button, TextInput, SegmentedButtons, Portal, Dialog } from 'react-native-paper';
 import type { Annotation, MessungsTyp } from '../../models/Project';
-import { generiereId } from '../../utils/formatters';
-import { konvertiereZuMetern } from '../../utils/formatters';
+import { generiereId, konvertiereZuMetern } from '../../utils/formatters';
 
 const TYP_FARBEN: Record<MessungsTyp, string> = {
   breite: '#1565C0',
@@ -44,6 +41,7 @@ interface Props {
   fotoId: string;
   onAnnotationHinzugefuegt: (annotation: Annotation) => void;
   onAnnotationGeloescht: (annotationId: string) => void;
+  onAnnotationGeaendert?: (annotation: Annotation) => void;
   aktuellerTyp: MessungsTyp;
 }
 
@@ -57,10 +55,12 @@ export default function AnnotationCanvas({
   fotoId,
   onAnnotationHinzugefuegt,
   onAnnotationGeloescht,
+  onAnnotationGeaendert,
   aktuellerTyp,
 }: Props) {
   const [zeichneLinie, setZeichneLinie] = useState<{ start: Punkt; end: Punkt } | null>(null);
-  const [dialogOffen, setDialogOffen] = useState(false);
+  const [neuDialogOffen, setNeuDialogOffen] = useState(false);
+  const [editDialogOffen, setEditDialogOffen] = useState(false);
   const [eingabeWert, setEingabeWert] = useState('');
   const [eingabeEinheit, setEingabeEinheit] = useState<'mm' | 'cm' | 'm'>('m');
   const [ausgewaehlteAnnotation, setAusgewaehlteAnnotation] = useState<string | null>(null);
@@ -68,7 +68,6 @@ export default function AnnotationCanvas({
   const containerRef = useRef<View>(null);
   const containerLayout = useRef<{ x: number; y: number; width: number; height: number } | null>(null);
 
-  // Convert screen coords to normalized [0..1] in photo space
   function normalisiereKoordinaten(screenX: number, screenY: number): Punkt {
     const layout = containerLayout.current;
     if (!layout) return { x: 0, y: 0 };
@@ -101,13 +100,10 @@ export default function AnnotationCanvas({
           const dx = end.x - prev.start.x;
           const dy = end.y - prev.start.y;
           const laenge = Math.sqrt(dx * dx + dy * dy);
-          if (laenge < 0.02) {
-            // Too short, treat as tap
-            return null;
-          }
+          if (laenge < 0.02) return null;
           return { start: prev.start, end };
         });
-        setDialogOffen(true);
+        setNeuDialogOffen(true);
       },
     }),
   ).current;
@@ -119,7 +115,6 @@ export default function AnnotationCanvas({
       Alert.alert('Ungültige Eingabe', 'Bitte geben Sie einen gültigen Messwert ein.');
       return;
     }
-
     const annotation: Annotation = {
       id: generiereId(),
       fotoId,
@@ -130,15 +125,14 @@ export default function AnnotationCanvas({
       einheit: eingabeEinheit,
       farbe: TYP_FARBEN[aktuellerTyp],
     };
-
     onAnnotationHinzugefuegt(annotation);
-    setDialogOffen(false);
+    setNeuDialogOffen(false);
     setZeichneLinie(null);
     setEingabeWert('');
   }
 
-  function abbrechenDialog() {
-    setDialogOffen(false);
+  function abbrechenNeuDialog() {
+    setNeuDialogOffen(false);
     setZeichneLinie(null);
     setEingabeWert('');
   }
@@ -150,12 +144,47 @@ export default function AnnotationCanvas({
     }
   }
 
+  function oeffneEditDialog() {
+    const ann = annotationen.find(a => a.id === ausgewaehlteAnnotation);
+    if (!ann) return;
+    // Pre-fill with value in the annotation's stored unit
+    const einheit = ann.einheit ?? 'm';
+    let anzeigenwert: number;
+    if (einheit === 'mm') anzeigenwert = ann.realweltWert * 1000;
+    else if (einheit === 'cm') anzeigenwert = ann.realweltWert * 100;
+    else anzeigenwert = ann.realweltWert;
+    setEingabeWert(anzeigenwert.toFixed(einheit === 'm' ? 2 : 0));
+    setEingabeEinheit(einheit);
+    setEditDialogOffen(true);
+  }
+
+  function bestaetigenEdit() {
+    const ann = annotationen.find(a => a.id === ausgewaehlteAnnotation);
+    if (!ann || !eingabeWert) return;
+    const wertNum = parseFloat(eingabeWert.replace(',', '.'));
+    if (isNaN(wertNum) || wertNum <= 0) {
+      Alert.alert('Ungültige Eingabe', 'Bitte einen gültigen Wert eingeben.');
+      return;
+    }
+    const geaendert: Annotation = {
+      ...ann,
+      realweltWert: konvertiereZuMetern(wertNum, eingabeEinheit),
+      einheit: eingabeEinheit,
+    };
+    onAnnotationGeaendert?.(geaendert);
+    setEditDialogOffen(false);
+    setAusgewaehlteAnnotation(null);
+    setEingabeWert('');
+  }
+
+  const ausgewaehlteAnn = annotationen.find(a => a.id === ausgewaehlteAnnotation);
+
   return (
     <View style={styles.container}>
       <View
         ref={containerRef}
         style={styles.bildContainer}
-        onLayout={evt => {
+        onLayout={() => {
           containerRef.current?.measure((x, y, width, height, pageX, pageY) => {
             containerLayout.current = { x: pageX, y: pageY, width, height };
           });
@@ -165,7 +194,6 @@ export default function AnnotationCanvas({
         <Image source={{ uri: fotoUri }} style={styles.bild} resizeMode="contain" />
 
         <Svg style={StyleSheet.absoluteFillObject}>
-          {/* Existing annotations */}
           {annotationen.map(ann => {
             const layout = containerLayout.current;
             if (!layout) return null;
@@ -202,7 +230,6 @@ export default function AnnotationCanvas({
             );
           })}
 
-          {/* Active drawing line */}
           {zeichneLinie && containerLayout.current && (() => {
             const layout = containerLayout.current!;
             const x1 = zeichneLinie.start.x * layout.width;
@@ -226,17 +253,35 @@ export default function AnnotationCanvas({
         </Svg>
       </View>
 
-      {ausgewaehlteAnnotation && (
+      {ausgewaehlteAnnotation && ausgewaehlteAnn && (
         <View style={styles.auswahlLeiste}>
-          <Text variant="bodyMedium">Annotation ausgewählt</Text>
-          <Button mode="contained" onPress={loescheAusgewaehlt} buttonColor="#D32F2F" icon="delete">
-            Löschen
-          </Button>
+          <Text variant="bodyMedium" style={styles.auswahlLabel}>
+            {TYP_LABELS[ausgewaehlteAnn.typ]}: {ausgewaehlteAnn.realweltWert >= 1
+              ? `${ausgewaehlteAnn.realweltWert.toFixed(2)} m`
+              : `${Math.round(ausgewaehlteAnn.realweltWert * 100)} cm`}
+          </Text>
+          <View style={styles.auswahlAktionen}>
+            {onAnnotationGeaendert && (
+              <Button
+                mode="outlined"
+                onPress={oeffneEditDialog}
+                icon="pencil"
+                compact
+                style={styles.auswahlButton}
+              >
+                Wert ändern
+              </Button>
+            )}
+            <Button mode="contained" onPress={loescheAusgewaehlt} buttonColor="#D32F2F" icon="delete" compact>
+              Löschen
+            </Button>
+          </View>
         </View>
       )}
 
       <Portal>
-        <Dialog visible={dialogOffen} onDismiss={abbrechenDialog}>
+        {/* New annotation dialog */}
+        <Dialog visible={neuDialogOffen} onDismiss={abbrechenNeuDialog}>
           <Dialog.Title>Maß eingeben – {TYP_LABELS[aktuellerTyp]}</Dialog.Title>
           <Dialog.Content>
             <TextInput
@@ -261,8 +306,38 @@ export default function AnnotationCanvas({
             />
           </Dialog.Content>
           <Dialog.Actions>
-            <Button onPress={abbrechenDialog}>Abbrechen</Button>
+            <Button onPress={abbrechenNeuDialog}>Abbrechen</Button>
             <Button mode="contained" onPress={bestaetigenAnnotation}>Speichern</Button>
+          </Dialog.Actions>
+        </Dialog>
+
+        {/* Edit annotation value dialog */}
+        <Dialog visible={editDialogOffen} onDismiss={() => setEditDialogOffen(false)}>
+          <Dialog.Title>Wert bearbeiten</Dialog.Title>
+          <Dialog.Content>
+            <TextInput
+              label="Messwert"
+              value={eingabeWert}
+              onChangeText={setEingabeWert}
+              mode="outlined"
+              keyboardType="decimal-pad"
+              autoFocus
+              style={styles.eingabe}
+            />
+            <SegmentedButtons
+              value={eingabeEinheit}
+              onValueChange={v => setEingabeEinheit(v as 'mm' | 'cm' | 'm')}
+              buttons={[
+                { value: 'mm', label: 'mm' },
+                { value: 'cm', label: 'cm' },
+                { value: 'm', label: 'm' },
+              ]}
+              style={styles.einheitButtons}
+            />
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setEditDialogOffen(false)}>Abbrechen</Button>
+            <Button mode="contained" onPress={bestaetigenEdit}>Speichern</Button>
           </Dialog.Actions>
         </Dialog>
       </Portal>
@@ -275,9 +350,11 @@ const styles = StyleSheet.create({
   bildContainer: { flex: 1, backgroundColor: '#000' },
   bild: { width: '100%', height: '100%' },
   auswahlLeiste: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     padding: 12, backgroundColor: '#FFF3E0', borderTopWidth: 1, borderTopColor: '#F57F17',
   },
+  auswahlLabel: { fontWeight: '500', marginBottom: 8 },
+  auswahlAktionen: { flexDirection: 'row', gap: 8, justifyContent: 'flex-end' },
+  auswahlButton: { borderColor: '#1565C0' },
   eingabe: { marginBottom: 12 },
   einheitButtons: { marginTop: 4 },
 });

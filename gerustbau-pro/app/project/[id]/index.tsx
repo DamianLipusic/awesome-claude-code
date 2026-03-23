@@ -1,5 +1,5 @@
 import { View, ScrollView, StyleSheet, Alert } from 'react-native';
-import { Text, Card, Button, Chip, ProgressBar, TextInput } from 'react-native-paper';
+import { Text, Card, Button, Chip, ProgressBar, TextInput, IconButton } from 'react-native-paper';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useState } from 'react';
 import { useProjektStore } from '../../../src/store/projectStore';
@@ -65,6 +65,7 @@ export default function ProjektUebersicht() {
   const fuegeSeiteHinzu = useProjektStore(s => s.fuegeSeiteHinzu);
   const loescheProjekt = useProjektStore(s => s.loescheProjekt);
   const aktualisierteProjekt = useProjektStore(s => s.aktualisierteProjekt);
+  const dupliziereProjekt = useProjektStore(s => s.dupliziereProjekt);
   const [notizen, setNotizen] = useState(projekt?.notizen ?? '');
 
   if (!projekt) {
@@ -112,7 +113,15 @@ export default function ProjektUebersicht() {
       <ScrollView contentContainerStyle={styles.inhalt}>
         <Card style={styles.kopfKarte}>
           <Card.Content>
-            <Text variant="titleLarge" style={styles.projektName}>{projekt.name}</Text>
+            <View style={styles.kopfZeile}>
+              <Text variant="titleLarge" style={styles.projektName}>{projekt.name}</Text>
+              <IconButton
+                icon="pencil"
+                size={20}
+                onPress={() => router.push(`/project/${id}/edit`)}
+                style={styles.editButton}
+              />
+            </View>
             {projekt.adresse && <Text variant="bodyMedium" style={styles.adresse}>{projekt.adresse}</Text>}
             {projekt.auftraggeber && <Text variant="bodySmall" style={styles.auftraggeber}>AG: {projekt.auftraggeber}</Text>}
             <View style={styles.infoCips}>
@@ -187,6 +196,18 @@ export default function ProjektUebersicht() {
 
         <Button
           mode="outlined"
+          icon="content-copy"
+          onPress={() => {
+            const neueId = dupliziereProjekt(id);
+            if (neueId) router.replace(`/project/${neueId}`);
+          }}
+          style={styles.duplizierenButton}
+        >
+          Projekt duplizieren
+        </Button>
+
+        <Button
+          mode="outlined"
           icon="delete"
           onPress={projektLoeschen}
           style={styles.loeschenButton}
@@ -204,7 +225,7 @@ const styles = StyleSheet.create({
   inhalt: { padding: 16, paddingBottom: 100 },
   fehler: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   kopfKarte: { marginBottom: 16, elevation: 2 },
-  projektName: { fontWeight: 'bold', marginBottom: 4 },
+  projektName: { fontWeight: 'bold', flex: 1 },
   adresse: { color: '#666', marginBottom: 2 },
   auftraggeber: { color: '#888', marginBottom: 8 },
   infoCips: { flexDirection: 'row', gap: 8, flexWrap: 'wrap', marginBottom: 12 },
@@ -217,6 +238,9 @@ const styles = StyleSheet.create({
   seiteHinzufuegen: { marginTop: 8, borderStyle: 'dashed' },
   aktionenGrid: { gap: 8 },
   aktionButton: { marginBottom: 4 },
-  loeschenButton: { marginTop: 32, borderColor: '#D32F2F' },
+  duplizierenButton: { marginTop: 32 },
+  loeschenButton: { marginTop: 8, borderColor: '#D32F2F' },
   notizenFeld: { marginBottom: 8, backgroundColor: 'white' },
+  kopfZeile: { flexDirection: 'row', alignItems: 'center', marginBottom: 4 },
+  editButton: { margin: 0, marginLeft: 'auto' },
 });
