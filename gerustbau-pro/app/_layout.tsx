@@ -1,13 +1,15 @@
 import 'react-native-get-random-values';
 import { useEffect } from 'react';
-import { Stack } from 'expo-router';
+import { Stack, router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { PaperProvider, MD3LightTheme } from 'react-native-paper';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useProjektStore } from '../src/store/projectStore';
 import { useEinstellungenStore } from '../src/store/settingsStore';
 import { useCostsStore } from '../src/store/costsStore';
 import { useIapStore } from '../src/store/iapStore';
+import { ONBOARDING_KEY } from './onboarding';
 
 const theme = {
   ...MD3LightTheme,
@@ -31,6 +33,9 @@ export default function RootLayout() {
     ladeEinstellungen();
     ladePreise();
     initialisierenIap();
+    AsyncStorage.getItem(ONBOARDING_KEY).then(wert => {
+      if (!wert) router.replace('/onboarding');
+    });
   }, []);
 
   return (
@@ -61,6 +66,7 @@ export default function RootLayout() {
           <Stack.Screen name="project/[id]/checklist" options={{ title: 'Abnahme-Checkliste' }} />
           <Stack.Screen name="project/[id]/quote" options={{ title: 'Angebot erstellen' }} />
           <Stack.Screen name="paywall" options={{ title: 'Gerüstbau Pro', presentation: 'modal' }} />
+          <Stack.Screen name="onboarding" options={{ headerShown: false, gestureEnabled: false }} />
         </Stack>
       </PaperProvider>
     </GestureHandlerRootView>

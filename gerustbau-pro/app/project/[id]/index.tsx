@@ -3,6 +3,7 @@ import { Text, Card, Button, Chip, ProgressBar, TextInput, IconButton, Divider }
 import { useLocalSearchParams, router } from 'expo-router';
 import { useState } from 'react';
 import { useProjektStore } from '../../../src/store/projectStore';
+import { useIapStore, FREE_PROJEKT_LIMIT } from '../../../src/store/iapStore';
 import NaechsterSchrittBanner from '../../../src/components/NaechsterSchrittBanner';
 import type { BausteinSeite } from '../../../src/models/Project';
 
@@ -142,10 +143,12 @@ function berechneNaechstenSchritt(seiten: BausteinSeite[]) {
 export default function ProjektUebersicht() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const projekt = useProjektStore(s => s.projekte.find(p => p.id === id));
+  const projektAnzahl = useProjektStore(s => s.projekte.length);
   const fuegeSeiteHinzu = useProjektStore(s => s.fuegeSeiteHinzu);
   const loescheProjekt = useProjektStore(s => s.loescheProjekt);
   const aktualisierteProjekt = useProjektStore(s => s.aktualisierteProjekt);
   const dupliziereProjekt = useProjektStore(s => s.dupliziereProjekt);
+  const istPremium = useIapStore(s => s.istPremium);
   const [notizen, setNotizen] = useState(projekt?.notizen ?? '');
 
   if (!projekt) {
@@ -384,6 +387,10 @@ export default function ProjektUebersicht() {
           mode="outlined"
           icon="content-copy"
           onPress={() => {
+            if (!istPremium && projektAnzahl >= FREE_PROJEKT_LIMIT) {
+              router.push('/paywall');
+              return;
+            }
             const neueId = dupliziereProjekt(id);
             if (neueId) router.replace(`/project/${neueId}`);
           }}
