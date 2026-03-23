@@ -55,8 +55,7 @@
           "color": "#1565C0",
           "defaultChannel": "termine"
         }
-      ],
-      "react-native-purchases"
+      ]
     ],
     "experiments": {
       "typedRoutes": true
