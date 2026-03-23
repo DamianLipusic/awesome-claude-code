@@ -1,8 +1,10 @@
 import { useCallback, useMemo, useState } from 'react';
-import { FlatList, View, StyleSheet } from 'react-native';
+import { FlatList, View, StyleSheet, TouchableOpacity } from 'react-native';
 import { FAB, Card, Text, Chip, Searchbar, Menu, IconButton, ProgressBar } from 'react-native-paper';
 import { router } from 'expo-router';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useProjektStore } from '../../src/store/projectStore';
+import { useIapStore, FREE_PROJEKT_LIMIT } from '../../src/store/iapStore';
 import type { Project, ProjectStatus } from '../../src/models/Project';
 import { formatiereDatum } from '../../src/utils/formatters';
 
@@ -126,10 +128,13 @@ function ProjektKarte({ projekt }: { projekt: Project }) {
 
 export default function ProjekteListe() {
   const projekte = useProjektStore(s => s.projekte);
+  const istPremium = useIapStore(s => s.istPremium);
   const [suche, setSuche] = useState('');
   const [sortierung, setSortierung] = useState<SortKey>('datum-neu');
   const [statusFilter, setStatusFilter] = useState<ProjectStatus | null>(null);
   const [sortMenuOffen, setSortMenuOffen] = useState(false);
+
+  const zeigeUpgradeBanner = !istPremium && projekte.length >= FREE_PROJEKT_LIMIT;
 
   const gefiltertUndSortiert = useMemo(() => {
     let liste = [...projekte];
@@ -213,6 +218,17 @@ export default function ProjekteListe() {
         ))}
       </View>
 
+      {zeigeUpgradeBanner && (
+        <TouchableOpacity style={styles.upgradeBanner} onPress={() => router.push('/paywall')} activeOpacity={0.85}>
+          <MaterialCommunityIcons name="star-circle" size={22} color="#F57F17" />
+          <View style={styles.upgradeBannerText}>
+            <Text variant="labelLarge" style={styles.upgradeBannerTitel}>Auf Pro upgraden</Text>
+            <Text variant="bodySmall" style={styles.upgradeBannerSub}>1 Gratis-Projekt genutzt · Unbegrenzt ab €6,67/Monat</Text>
+          </View>
+          <MaterialCommunityIcons name="chevron-right" size={22} color="#F57F17" />
+        </TouchableOpacity>
+      )}
+
       <FlatList
         data={gefiltertUndSortiert}
         keyExtractor={p => p.id}
@@ -259,6 +275,21 @@ const styles = StyleSheet.create({
   filterLeiste: { flexDirection: 'row', gap: 8, paddingHorizontal: 16, paddingVertical: 8, flexWrap: 'wrap' },
   filterChip: { backgroundColor: '#E0E0E0' },
   liste: { padding: 16, paddingTop: 4, paddingBottom: 120 },
+
+  upgradeBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF8E1',
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: '#FFE082',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    gap: 10,
+  },
+  upgradeBannerText: { flex: 1 },
+  upgradeBannerTitel: { color: '#E65100', fontWeight: 'bold' },
+  upgradeBannerSub: { color: '#795548', marginTop: 1 },
 
   karte: { marginBottom: 14, elevation: 3, borderRadius: 12 },
   karteKopf: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },

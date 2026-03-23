@@ -3,6 +3,7 @@ import { View, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import { Text, Button, TextInput, HelperText } from 'react-native-paper';
 import { router } from 'expo-router';
 import { useProjektStore } from '../../src/store/projectStore';
+import { useIapStore, FREE_PROJEKT_LIMIT } from '../../src/store/iapStore';
 import type { ScaffoldSystemId, ScaffoldPurpose } from '../../src/models/Project';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
@@ -38,6 +39,8 @@ export default function NeueProjekt() {
   const [arbeitshoehe, setArbeitshoehe] = useState('');
 
   const erstelleProjekt = useProjektStore(s => s.erstelleProjekt);
+  const projektAnzahl = useProjektStore(s => s.projekte.length);
+  const istPremium = useIapStore(s => s.istPremium);
 
   function weiter() {
     if (schritt < 3) setSchritt((schritt + 1) as Schritt);
@@ -48,6 +51,12 @@ export default function NeueProjekt() {
   }
 
   function erstellen() {
+    // Paywall: free users may only create FREE_PROJEKT_LIMIT projects
+    if (!istPremium && projektAnzahl >= FREE_PROJEKT_LIMIT) {
+      router.replace('/paywall');
+      return;
+    }
+
     const gh = parseFloat(gesamthoehe.replace(',', '.'));
     const et = parseInt(etagen, 10);
     const ah = parseFloat(arbeitshoehe.replace(',', '.')) || gh;

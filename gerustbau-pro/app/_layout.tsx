@@ -7,6 +7,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useProjektStore } from '../src/store/projectStore';
 import { useEinstellungenStore } from '../src/store/settingsStore';
 import { useCostsStore } from '../src/store/costsStore';
+import { useIapStore } from '../src/store/iapStore';
 
 const theme = {
   ...MD3LightTheme,
@@ -23,11 +24,13 @@ export default function RootLayout() {
   const ladeProjekte = useProjektStore(s => s.ladeProjekte);
   const ladeEinstellungen = useEinstellungenStore(s => s.ladeEinstellungen);
   const ladePreise = useCostsStore(s => s.ladePreise);
+  const initialisierenIap = useIapStore(s => s.initialisieren);
 
   useEffect(() => {
     ladeProjekte();
     ladeEinstellungen();
     ladePreise();
+    initialisierenIap();
   }, []);
 
   return (
@@ -57,6 +60,7 @@ export default function RootLayout() {
           <Stack.Screen name="project/[id]/time" options={{ title: 'Zeiterfassung' }} />
           <Stack.Screen name="project/[id]/checklist" options={{ title: 'Abnahme-Checkliste' }} />
           <Stack.Screen name="project/[id]/quote" options={{ title: 'Angebot erstellen' }} />
+          <Stack.Screen name="paywall" options={{ title: 'Gerüstbau Pro', presentation: 'modal' }} />
         </Stack>
       </PaperProvider>
     </GestureHandlerRootView>
