@@ -290,6 +290,16 @@ export default function ProjektUebersicht() {
             </Button>
             <Button
               mode="contained-tonal"
+              icon="currency-eur"
+              onPress={() => router.push(`/project/${id}/costs`)}
+              style={styles.auswertungButton}
+              contentStyle={styles.auswertungButtonInhalt}
+              labelStyle={{ fontSize: 16 }}
+            >
+              Kostenschätzung
+            </Button>
+            <Button
+              mode="contained-tonal"
               icon="file-pdf-box"
               onPress={() => router.push(`/project/${id}/export`)}
               style={styles.auswertungButton}

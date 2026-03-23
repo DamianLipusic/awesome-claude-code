@@ -20,6 +20,9 @@ export default function ExportScreen() {
   const projekt = useProjektStore(s => s.projekte.find(p => p.id === projektId));
   const aktiverPlan = useProjektStore(s => s.aktiverPlan);
   const firmenname = useEinstellungenStore(s => s.firmenname);
+  const firmenadresse = useEinstellungenStore(s => s.firmenadresse);
+  const firmentelefon = useEinstellungenStore(s => s.firmentelefon);
+  const firmenemail = useEinstellungenStore(s => s.firmenemail);
 
   if (!projekt) return null;
 
@@ -50,6 +53,9 @@ export default function ExportScreen() {
         zeigeAnnotierteFoots,
         zeigeMaterialliste,
         firmenname: firmenname || undefined,
+        firmenadresse: firmenadresse || undefined,
+        firmentelefon: firmentelefon || undefined,
+        firmenemail: firmenemail || undefined,
       });
 
       const { uri } = await Print.printToFileAsync({

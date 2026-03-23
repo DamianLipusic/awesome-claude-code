@@ -20,10 +20,25 @@ const KATEGORIE_LABELS: Record<KomponentenKategorie, string> = {
   sonstiges: 'Sonstiges',
 };
 
-function deckblattHtml(projekt: Project, plan: GeruestPlan, firmenname?: string): string {
+interface FirmenKontakt {
+  name?: string;
+  adresse?: string;
+  telefon?: string;
+  email?: string;
+}
+
+function deckblattHtml(projekt: Project, plan: GeruestPlan, firma?: FirmenKontakt): string {
+  const firmenBlock = firma?.name ? `
+    <div class="firma-block">
+      <div class="firma">${firma.name}</div>
+      ${firma.adresse ? `<div class="firma-detail">${firma.adresse}</div>` : ''}
+      ${firma.telefon ? `<div class="firma-detail">Tel: ${firma.telefon}</div>` : ''}
+      ${firma.email ? `<div class="firma-detail">${firma.email}</div>` : ''}
+    </div>` : '';
+
   return `
     <div class="seite deckblatt">
-      ${firmenname ? `<div class="firma">${firmenname}</div>` : ''}
+      ${firmenBlock}
       <h1>Gerüstplanung</h1>
       <h2>${projekt.name}</h2>
       <table class="info-tabelle">
@@ -163,7 +178,9 @@ const CSS = `
   body { font-size: 10pt; color: #212121; }
   .seite { page-break-before: always; padding: 8mm 0; }
   .deckblatt { page-break-before: avoid; }
-  .deckblatt .firma { font-size: 14pt; font-weight: bold; color: #1565C0; margin-bottom: 8mm; }
+  .firma-block { margin-bottom: 8mm; padding-bottom: 4mm; border-bottom: 0.5mm solid #BBDEFB; }
+  .deckblatt .firma { font-size: 14pt; font-weight: bold; color: #1565C0; margin-bottom: 1mm; }
+  .firma-detail { font-size: 9pt; color: #555; margin-top: 1mm; }
   h1 { font-size: 20pt; color: #1565C0; margin-bottom: 2mm; }
   h2 { font-size: 14pt; color: #424242; margin-bottom: 8mm; }
   h3 { font-size: 12pt; color: #1565C0; margin-bottom: 4mm; }
@@ -202,6 +219,9 @@ export interface PdfEingabe {
   plan: GeruestPlan;
   materialien: MaterialPosition[];
   firmenname?: string;
+  firmenadresse?: string;
+  firmentelefon?: string;
+  firmenemail?: string;
   zeigePlanSeiten?: boolean;
   zeigeAnnotierteFoots?: boolean;
   zeigeMaterialliste?: boolean;
@@ -218,7 +238,13 @@ export function generierePdfHtml(eingabe: PdfEingabe): string {
     zeigeMaterialliste = true,
   } = eingabe;
 
-  const deckblatt = deckblattHtml(projekt, plan, firmenname);
+  const firma: FirmenKontakt = {
+    name: firmenname,
+    adresse: eingabe.firmenadresse,
+    telefon: eingabe.firmentelefon,
+    email: eingabe.firmenemail,
+  };
+  const deckblatt = deckblattHtml(projekt, plan, firma);
 
   let planSeiten = '';
   if (zeigePlanSeiten) {

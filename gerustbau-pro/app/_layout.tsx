@@ -6,6 +6,7 @@ import { PaperProvider, MD3LightTheme } from 'react-native-paper';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useProjektStore } from '../src/store/projectStore';
 import { useEinstellungenStore } from '../src/store/settingsStore';
+import { useCostsStore } from '../src/store/costsStore';
 
 const theme = {
   ...MD3LightTheme,
@@ -21,10 +22,12 @@ const theme = {
 export default function RootLayout() {
   const ladeProjekte = useProjektStore(s => s.ladeProjekte);
   const ladeEinstellungen = useEinstellungenStore(s => s.ladeEinstellungen);
+  const ladePreise = useCostsStore(s => s.ladePreise);
 
   useEffect(() => {
     ladeProjekte();
     ladeEinstellungen();
+    ladePreise();
   }, []);
 
   return (
@@ -50,6 +53,7 @@ export default function RootLayout() {
           <Stack.Screen name="project/[id]/plan" options={{ title: 'Gerüstplan' }} />
           <Stack.Screen name="project/[id]/materials" options={{ title: 'Materialliste' }} />
           <Stack.Screen name="project/[id]/export" options={{ title: 'PDF exportieren' }} />
+          <Stack.Screen name="project/[id]/costs" options={{ title: 'Kostenschätzung' }} />
         </Stack>
       </PaperProvider>
     </GestureHandlerRootView>
