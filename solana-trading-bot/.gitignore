@@ -1,0 +1,25 @@
+# Environment
+.env
+venv/
+__pycache__/
+*.pyc
+
+# Data (keep structure, ignore generated data)
+data/*.db
+data/*.pkl
+data/model.pkl
+data/model_stats.json
+data/paper_state.json
+
+# Logs
+logs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
