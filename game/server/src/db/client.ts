@@ -1,4 +1,4 @@
-import { Pool, PoolClient, QueryResult } from 'pg';
+import { Pool, PoolClient, QueryResult, QueryResultRow } from 'pg';
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -11,7 +11,7 @@ pool.on('error', (err) => {
   console.error('Unexpected PostgreSQL pool error:', err);
 });
 
-export async function query<T = Record<string, unknown>>(
+export async function query<T extends QueryResultRow = Record<string, unknown>>(
   text: string,
   params?: unknown[]
 ): Promise<QueryResult<T>> {

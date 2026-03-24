@@ -28,8 +28,10 @@ export async function recalculateNetWorth(playerId: string): Promise<number> {
 
   let businessValue = 0;
   for (const b of businessRes.rows) {
-    const costs = STARTUP_COSTS[b.type] ?? [5000];
-    const tierCost = costs[Math.min(b.tier - 1, costs.length - 1)] ?? 5000;
+    const type = String(b.type);
+    const tier = Number(b.tier);
+    const costs = STARTUP_COSTS[type] ?? [5000];
+    const tierCost = costs[Math.min(tier - 1, costs.length - 1)] ?? 5000;
     businessValue += tierCost * 0.7; // 70% book value
   }
 

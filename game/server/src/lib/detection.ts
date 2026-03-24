@@ -76,11 +76,12 @@ export function getHeatLevel(score: number): HeatLevel {
 function getHeatMultiplier(score: number): number {
   const level = getHeatLevel(score);
   switch (level) {
-    case 'COLD':    return 1.0;
-    case 'WARM':    return 2.0;
-    case 'HOT':     return 4.0;
-    case 'BURNING': return 7.0;
+    case 'COLD':     return 1.0;
+    case 'WARM':     return 2.0;
+    case 'HOT':      return 4.0;
+    case 'BURNING':  return 7.0;
     case 'FUGITIVE': return 12.0;
+    default:         return 1.0;
   }
 }
 

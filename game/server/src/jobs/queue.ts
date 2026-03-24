@@ -1,5 +1,4 @@
-import { Queue, Worker, Job } from 'bullmq';
-import IORedis from 'ioredis';
+import { Queue, Worker, Job, type ConnectionOptions } from 'bullmq';
 import {
   economy_update,
   market_refresh,
@@ -14,12 +13,28 @@ import {
 import { query } from '../db/client';
 
 // ─── Redis Connection ─────────────────────────────────────────
+// Pass plain RedisOptions to BullMQ to avoid ioredis version conflicts
+// (bullmq bundles its own ioredis internally)
 
-export function createRedisConnection(): IORedis {
-  return new IORedis(process.env.REDIS_URL ?? 'redis://localhost:6379', {
-    maxRetriesPerRequest: null,
-    enableReadyCheck: false,
-  });
+export function createRedisConnection(): ConnectionOptions {
+  const url = process.env.REDIS_URL ?? 'redis://localhost:6379';
+  try {
+    const parsed = new URL(url);
+    return {
+      host: parsed.hostname || 'localhost',
+      port: parseInt(parsed.port) || 6379,
+      password: parsed.password || undefined,
+      maxRetriesPerRequest: null,
+      enableReadyCheck: false,
+    };
+  } catch {
+    return {
+      host: 'localhost',
+      port: 6379,
+      maxRetriesPerRequest: null,
+      enableReadyCheck: false,
+    };
+  }
 }
 
 // ─── Queue Definitions ────────────────────────────────────────
