@@ -45,12 +45,10 @@ class Backtester:
         self.slippage = 0.02
         self.fee_rate = 0.003
 
-        # Scaled exit levels (matching paper/live trader)
-        self.scaled_exits = [
-            (0.25, 0.30),  # Sell 30% at 25% profit
-            (0.50, 0.30),  # Sell 30% at 50% profit
-            (1.00, 0.40),  # Sell remaining at 100% profit
-        ]
+        # Scaled exit levels from config or defaults (matching paper/live trader)
+        default_exits = [[0.25, 0.30], [0.50, 0.30], [1.00, 0.40]]
+        raw_exits = strategy.get("scaled_exits", default_exits)
+        self.scaled_exits = [(level, frac) for level, frac in raw_exits]
 
         self.risk_manager = RiskManager(config)
         self.feature_engineer = FeatureEngineer()

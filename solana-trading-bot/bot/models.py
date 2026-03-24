@@ -91,6 +91,7 @@ class Position:
     pnl_pct: float = 0.0
     exit_reason: str = ""
     confidence_at_entry: float = 0.0
+    features_at_entry: dict = field(default_factory=dict)
 
     @property
     def unrealized_pnl_sol(self) -> float:

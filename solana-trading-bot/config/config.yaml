@@ -42,7 +42,12 @@ strategy:
   # Level 1: Sell 30% at +25% profit (lock in early gains)
   # Level 2: Sell 30% at +50% profit (secure more profit)
   # Level 3: Sell remaining 40% at +100% profit or trailing stop
-  take_profit_pct: 0.50         # Legacy: full exit threshold (used if scaled exits disabled)
+  # Scaled exit levels: [profit_threshold, sell_fraction]
+  scaled_exits:
+    - [0.25, 0.30]              # Sell 30% at +25% profit
+    - [0.50, 0.30]              # Sell 30% at +50% profit
+    - [1.00, 0.40]              # Sell remaining 40% at +100% profit
+  take_profit_pct: 0.50         # Fallback if scaled exits empty
   stop_loss_pct: 0.20           # 20% stop loss - exit everything
   trailing_stop_pct: 0.10       # 10% trailing stop (activates after +10% profit)
   max_hold_time_hours: 24       # Force exit after this time

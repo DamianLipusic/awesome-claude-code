@@ -40,12 +40,10 @@ class LiveTrader:
         self.max_hold_hours = strategy.get("max_hold_time_hours", 24)
         self.max_positions = strategy.get("max_positions", 5)
 
-        # Scaled exit levels
-        self.scaled_exits = [
-            (0.25, 0.30),  # Sell 30% at 25% profit
-            (0.50, 0.30),  # Sell 30% at 50% profit
-            (1.00, 0.40),  # Sell remaining at 100% profit
-        ]
+        # Scaled exit levels from config or defaults
+        default_exits = [[0.25, 0.30], [0.50, 0.30], [1.00, 0.40]]
+        raw_exits = strategy.get("scaled_exits", default_exits)
+        self.scaled_exits = [(level, frac) for level, frac in raw_exits]
 
         self.portfolio = PortfolioState(
             mode=BotMode.LIVE,
@@ -194,6 +192,7 @@ class LiveTrader:
                 current_price_sol=price,
                 highest_price_sol=price,
                 confidence_at_entry=signal.confidence,
+                features_at_entry=signal.features,
             )
 
             self.portfolio.open_positions.append(position)

@@ -36,12 +36,13 @@ class PaperTrader:
         self.max_hold_hours = strategy.get("max_hold_time_hours", 24)
         self.max_positions = strategy.get("max_positions", 5)
 
-        # Scaled exit levels (sell portions at different profit levels)
-        self.scaled_exits = [
-            (0.25, 0.30),  # Sell 30% at 25% profit
-            (0.50, 0.30),  # Sell 30% at 50% profit
-            (1.00, 0.40),  # Sell remaining 40% at 100% profit (or trailing stop)
-        ]
+        # Scaled exit levels from config or defaults
+        default_exits = [[0.25, 0.30], [0.50, 0.30], [1.00, 0.40]]
+        raw_exits = strategy.get("scaled_exits", default_exits)
+        self.scaled_exits = [(level, frac) for level, frac in raw_exits]
+
+        # Minimum SOL to execute a partial sell (dust guard)
+        self.min_sell_sol = 0.001
 
         # Portfolio state
         initial = paper_config.get("initial_balance_sol", 10.0)
@@ -95,6 +96,7 @@ class PaperTrader:
             current_price_sol=effective_price,
             highest_price_sol=effective_price,
             confidence_at_entry=signal.confidence,
+            features_at_entry=signal.features,
         )
 
         # Update portfolio
@@ -123,6 +125,11 @@ class PaperTrader:
                      sell_fraction: float = 1.0) -> TradeRecord | None:
         """Execute a paper sell order, optionally partial."""
         if current_price <= 0:
+            return None
+
+        # Dust guard: skip if sell amount too small
+        sol_portion = position.sol_invested * sell_fraction
+        if sol_portion < self.min_sell_sol:
             return None
 
         # Calculate tokens to sell
@@ -158,13 +165,14 @@ class PaperTrader:
             hold_duration_minutes=hold_minutes,
             exit_reason=reason,
             confidence_at_entry=position.confidence_at_entry,
-            features_at_entry=getattr(position, '_features', {}),
+            features_at_entry=position.features_at_entry,
             was_profitable=pnl_sol > 0,
         )
 
         # Update portfolio
         self.portfolio.balance_sol += net_sol
         self.portfolio.total_pnl_sol += pnl_sol
+        self.portfolio.total_invested_sol -= sol_invested_portion
 
         if sell_fraction >= 1.0:
             # Full exit
