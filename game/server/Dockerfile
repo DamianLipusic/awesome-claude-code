@@ -5,7 +5,7 @@ WORKDIR /app
 # Build context is game/ so both shared/ and server/ are accessible
 COPY shared ./shared
 COPY server/package*.json ./
-RUN npm ci
+RUN npm install
 
 COPY server ./
 RUN npm run build
@@ -18,7 +18,7 @@ WORKDIR /app
 ENV NODE_ENV=production
 
 COPY package*.json ./
-RUN npm ci --omit=dev
+RUN npm install --omit=dev
 
 COPY --from=builder /app/dist ./dist
 # Migrations live at dist/db/migrations (path.resolve(__dirname, 'migrations') from migrate.js)
