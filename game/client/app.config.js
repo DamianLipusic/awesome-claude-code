@@ -37,8 +37,8 @@ module.exports = {
       ],
     ],
     extra: {
-      apiBaseUrl: process.env.API_BASE_URL ?? 'http://localhost:3000/api/v1',
-      wsBaseUrl:  process.env.WS_BASE_URL  ?? 'ws://localhost:3000/ws',
+      apiBaseUrl: process.env.API_BASE_URL ?? 'http://187.124.18.170:3000/api/v1',
+      wsBaseUrl:  process.env.WS_BASE_URL  ?? 'ws://187.124.18.170:3000/ws',
     },
   },
 };
