@@ -68,7 +68,121 @@ export const GAME_EVENTS: GameEvent[] = [
   },
 ];
 
-// Events trigger randomly, this is the schedule logic seed
 export function getRandomEvent(): GameEvent {
   return GAME_EVENTS[Math.floor(Math.random() * GAME_EVENTS.length)];
 }
+
+// ===== NEGATIVE / HARDCORE EVENTS =====
+
+export type NegativeEventType =
+  | 'police_raid'
+  | 'rival_attack'
+  | 'shot'
+  | 'market_crash'
+  | 'cartel_squeeze'
+  | 'federal_investigation'
+  | 'arson'
+  | 'informant';
+
+export interface NegativeEvent {
+  id: string;
+  title: string;
+  description: string;
+  emoji: string;
+  type: NegativeEventType;
+  color: string;
+  minHeat: number;
+  criminalOnly: boolean;
+  probabilityPerMinute: number; // base chance per minute at minimum heat
+}
+
+export const NEGATIVE_EVENTS: NegativeEvent[] = [
+  {
+    id: 'police_raid',
+    title: '🚨 POLICE RAID',
+    description: 'SWAT hits your operation. All street cash seized.',
+    emoji: '🚔',
+    type: 'police_raid',
+    color: '#ef4444',
+    minHeat: 35,
+    criminalOnly: false,
+    probabilityPerMinute: 0.009,
+  },
+  {
+    id: 'rival_attack',
+    title: '💀 RIVAL HIT',
+    description: 'A rival crew attacks one of your businesses.',
+    emoji: '🔫',
+    type: 'rival_attack',
+    color: '#dc2626',
+    minHeat: 25,
+    criminalOnly: true,
+    probabilityPerMinute: 0.007,
+  },
+  {
+    id: 'shot_wounded',
+    title: '🩸 AMBUSH',
+    description: 'You walked into a trap. You survived... barely.',
+    emoji: '💉',
+    type: 'shot',
+    color: '#dc2626',
+    minHeat: 45,
+    criminalOnly: true,
+    probabilityPerMinute: 0.005,
+  },
+  {
+    id: 'market_crash',
+    title: '📉 BLACK MONDAY',
+    description: 'Global market crash. All stocks plunge 80%.',
+    emoji: '📉',
+    type: 'market_crash',
+    color: '#f97316',
+    minHeat: 0,
+    criminalOnly: false,
+    probabilityPerMinute: 0.0015,
+  },
+  {
+    id: 'cartel_squeeze',
+    title: '🐊 CARTEL DEMANDS',
+    description: 'The cartel wants 30% of your street cash. Pay up.',
+    emoji: '🐊',
+    type: 'cartel_squeeze',
+    color: '#a855f7',
+    minHeat: 55,
+    criminalOnly: true,
+    probabilityPerMinute: 0.006,
+  },
+  {
+    id: 'federal_investigation',
+    title: '🕵️ FBI INVESTIGATION',
+    description: 'Feds opened a case. +1 Federal Charge. Income -50% for 24h.',
+    emoji: '🏛️',
+    type: 'federal_investigation',
+    color: '#3b82f6',
+    minHeat: 65,
+    criminalOnly: true,
+    probabilityPerMinute: 0.004,
+  },
+  {
+    id: 'arson',
+    title: '🔥 ARSON',
+    description: 'A rival torched one of your businesses. It\'s gone.',
+    emoji: '🔥',
+    type: 'arson',
+    color: '#f97316',
+    minHeat: 30,
+    criminalOnly: true,
+    probabilityPerMinute: 0.005,
+  },
+  {
+    id: 'informant',
+    title: '🐀 INFORMANT',
+    description: 'Someone talked. Criminal ops locked for 12 hours.',
+    emoji: '🐀',
+    type: 'informant',
+    color: '#eab308',
+    minHeat: 40,
+    criminalOnly: true,
+    probabilityPerMinute: 0.006,
+  },
+];

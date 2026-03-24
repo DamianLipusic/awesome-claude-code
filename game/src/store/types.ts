@@ -14,7 +14,7 @@ export interface BusinessState {
   id: string;
   level: number;
   autoManaged: boolean;
-  upgradeMultiplier: number; // accumulated from purchased upgrades
+  upgradeMultiplier: number;
 }
 
 export interface ShopItem {
@@ -63,9 +63,45 @@ export interface HustleResult {
   timestamp: number;
 }
 
+export interface ActiveLoan {
+  id: string;
+  principal: number;
+  totalOwed: number;
+  borrowedAt: number;
+  dueAt: number;
+}
+
+export interface DeathRecord {
+  runNumber: number;
+  cause: string;
+  moneyAtDeath: number;
+  lifetimeEarned: number;
+  criminalLevel: number;
+  ghostPointsEarned: number;
+  timestamp: number;
+}
+
+export interface NegativeEventNotification {
+  id: string;
+  title: string;
+  description: string;
+  emoji: string;
+  timestamp: number;
+}
+
+export interface CriminalOpResult {
+  success: boolean;
+  reward: number;
+  message: string;
+  jailed?: boolean;
+  charged?: boolean;
+  healthDamage?: number;
+}
+
 export interface GameState {
-  // Economy
+  // Economy - street cash (unbanked, at risk)
   money: number;
+  bankedMoney: number; // secured in vault, safe from raids
   totalEarned: number;
   lifetimeEarned: number;
   tapValue: number;
@@ -79,6 +115,8 @@ export interface GameState {
   // Businesses
   businesses: BusinessState[];
   purchasedUpgrades: string[];
+  businessConditions: Record<string, number>; // 0-100 health per business
+  lastConditionDecay: number;
 
   // Shop
   ownedItems: string[];
@@ -89,7 +127,7 @@ export interface GameState {
   stockInitialized: boolean;
 
   // Hustles
-  hustleCooldowns: Record<string, number>; // expiry timestamp
+  hustleCooldowns: Record<string, number>;
   hustleHistory: HustleResult[];
 
   // Missions
@@ -106,20 +144,63 @@ export interface GameState {
   seasonPassPurchased: boolean;
   seasonPassClaimedTiers: number[];
 
-  // Events
+  // Positive Events
   activeEvent: ActiveEvent | null;
   lastEventCheck: number;
+
+  // Negative Events
+  lastNegativeCheck: number;
+  activeNegativeNotification: NegativeEventNotification | null;
 
   // Boosts
   boostActive: boolean;
   boostMultiplier: number;
   boostExpiry: number;
 
+  // ===== HARDCORE SYSTEMS =====
+
+  // Criminal Path
+  criminalPathChosen: boolean;
+  isCriminal: boolean;
+  criminalLevel: number; // 0-4
+  criminalXp: number;
+  criminalOpsLockedUntil: number;
+
+  // Heat / Wanted Level
+  heatLevel: number; // 0-100
+  lastHeatDecay: number;
+
+  // Health
+  health: number; // 0-100 (0 = permadeath)
+  isHospitalized: boolean;
+  hospitalReleaseTime: number;
+
+  // Jail
+  inJail: boolean;
+  jailReleaseTime: number;
+  jailSentences: number; // accumulated arrests
+  federalCharges: number; // 0-3, at 3 = life sentence = permadeath
+
+  // Loan Shark
+  activeLoans: ActiveLoan[];
+
+  // FBI Investigation modifier
+  federalInvestigationExpiry: number;
+
+  // Permadeath / Legacy
+  isDeceased: boolean;
+  deathCause: string;
+  runNumber: number;
+  totalDeaths: number;
+  deathRecords: DeathRecord[];
+  ghostPoints: number;
+  legacyUpgrades: string[];
+
   // Meta
   lastSaveTime: number;
   isPremium: boolean;
 
-  // Actions
+  // ===== ACTIONS =====
   tap: () => void;
   buyBusiness: (id: string) => void;
   toggleAutoManage: (id: string) => void;
@@ -139,6 +220,36 @@ export interface GameState {
 
   // Hustles
   attemptHustle: (hustleId: string) => HustleResult;
+
+  // Criminal Operations
+  chooseCriminalPath: (accept: boolean) => void;
+  attemptCriminalOp: (opId: string) => CriminalOpResult;
+
+  // Banking
+  bankMoney: (amount: number) => void;
+  withdrawMoney: (amount: number) => void;
+
+  // Loans
+  takeLoan: (amount: number) => void;
+  repayLoan: (loanId: string) => void;
+
+  // Business repair
+  repairBusiness: (businessId: string) => void;
+
+  // Heat
+  reduceHeat: (amount: number) => void;
+
+  // Hospital
+  payHospital: () => void;
+
+  // Permadeath
+  triggerPermadeath: (cause: string) => void;
+  startNewRun: () => void;
+  purchaseLegacyUpgrade: (upgradeId: string) => void;
+
+  // Negative events
+  dismissNegativeNotification: () => void;
+  applyNegativeEvent: (eventId: string) => void;
 
   // Missions
   updateMissionProgress: (type: string, amount: number) => void;
