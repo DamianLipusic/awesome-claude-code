@@ -27,10 +27,12 @@ interface AuthActions {
 
 type AuthStore = AuthState & AuthActions;
 
+// Server returns access_token (not token) and no player object
 interface AuthResponse {
-  token: string;
+  access_token: string;
   refresh_token: string;
-  player: Player;
+  player_id: string;
+  username: string;
 }
 
 export const useAuthStore = create<AuthStore>((set, get) => ({
@@ -47,11 +49,13 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         email,
         password,
       });
-      await setStoredToken(response.token);
+      await setStoredToken(response.access_token);
       await setStoredRefreshToken(response.refresh_token);
+      // Fetch player profile after storing token
+      const player = await api.get<Player>('/players/me');
       set({
-        player: response.player,
-        token: response.token,
+        player,
+        token: response.access_token,
         isAuthenticated: true,
         isLoading: false,
         error: null,
