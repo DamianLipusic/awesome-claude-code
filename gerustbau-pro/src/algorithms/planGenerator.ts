@@ -183,3 +183,238 @@ export function generiereSeitenElevationSVG(
   <g id="texte">${texte.join('\n  ')}</g>
 </svg>`;
 }
+
+// ─── Grundriss (Floor Plan) ──────────────────────────────────────────────────
+//
+// Draufsicht (top-down view) for one facade side.
+// X-axis  = facade width (bay layout)
+// Y-axis  = depth away from building wall
+//
+// Layout (Y, upward = away from wall):
+//   y = 0            → building wall (thick line)
+//   y = wandabstand  → front standards row  (default 0.25 m)
+//   y = wandabstand + RAHMEN_TIEFE → back standards row
+//   deck fills the bay area between front & back row
+//
+// Standards are shown as small squares; anchor positions are
+// shown as red dots on the wall line; diagonal braces are shown
+// as thin X patterns in alternate bays.
+
+const RAHMEN_TIEFE = 0.73;   // distance between inner and outer standard rows (m)
+const BELAG_BREITE = 0.32;   // width of one plank board (m)
+const STD_RADIUS   = 0.04;   // visual radius of a standard post (m)
+const WANDABSTAND  = 0.25;   // default wall clearance (m)
+
+interface GrundrissOptionen {
+  wandabstand?: number;        // actual measured clearance, default 0.25m
+  showStaender?: boolean;      // show standard posts
+  showBelag?: boolean;         // shade working deck
+  showAnker?: boolean;         // show anchor positions
+  showDiagonalen?: boolean;    // show plan-view brace pattern
+  showMasse?: boolean;         // dimension annotations
+}
+
+export function generiereGrundrissSSVG(
+  seitenPlan: SeitenPlan,
+  seite: BausteinSeite,
+  plan: GeruestPlan,
+  optionen: GrundrissOptionen = {},
+): string {
+  const {
+    wandabstand = WANDABSTAND,
+    showStaender = true,
+    showBelag = true,
+    showAnker = true,
+    showDiagonalen = true,
+    showMasse = true,
+  } = optionen;
+
+  const gesamtBreite = seitenPlan.felder.reduce((sum, f) => sum + f.breite, 0);
+
+  // Depth of the full scaffold cross-section
+  const geruestTiefe = wandabstand + RAHMEN_TIEFE;
+
+  // SVG page (1:50 scale)
+  const MARG_LEFT   = 50;
+  const MARG_RIGHT  = 20;
+  const MARG_TOP    = 30;
+  const MARG_BOTTOM = 40;
+
+  const svgBreite = m(gesamtBreite) + MARG_LEFT + MARG_RIGHT;
+  const svgHoehe  = m(geruestTiefe) + MARG_TOP + MARG_BOTTOM;
+
+  // Coordinate helpers (Y grows downward in SVG, but we draw wall at bottom → scaffold extends up)
+  const wallY = svgHoehe - MARG_BOTTOM;     // building wall at bottom
+  function xOf(meterX: number): number { return MARG_LEFT + m(meterX); }
+  function yOf(depthM: number): number  { return wallY - m(depthM); }   // depth from wall
+
+  const innerY = yOf(wandabstand);              // front standard row (near wall)
+  const outerY = yOf(wandabstand + RAHMEN_TIEFE); // back standard row (far from wall)
+
+  const elemente: string[] = [];
+
+  // ── Wall clearance zone (light yellow) ──────────────────────────────────
+  elemente.push(`<rect x="${xOf(0)}" y="${innerY}" width="${m(gesamtBreite)}" height="${m(wandabstand)}"
+    fill="#FFFDE7" stroke="none"/>`);
+
+  // ── Working deck per field (light blue) ──────────────────────────────────
+  if (showBelag) {
+    for (const feld of seitenPlan.felder) {
+      const bx  = xOf(feld.startX);
+      const bw  = m(feld.breite);
+      const plankenAnzahl = Math.ceil(feld.breite / BELAG_BREITE);
+      const plankenBreite = m(BELAG_BREITE);
+
+      for (let i = 0; i < plankenAnzahl; i++) {
+        const px = bx + i * plankenBreite;
+        const clipped = Math.min(plankenBreite, bx + bw - px);
+        if (clipped <= 0) continue;
+        const shade = i % 2 === 0 ? '#B3E5FC' : '#81D4FA';
+        elemente.push(`<rect x="${px}" y="${outerY}" width="${clipped}" height="${m(RAHMEN_TIEFE)}"
+          fill="${shade}" stroke="${FARBEN.belagRand}" stroke-width="0.3"/>`);
+      }
+    }
+  }
+
+  // ── Building wall ─────────────────────────────────────────────────────────
+  elemente.push(`<line x1="${xOf(0)}" y1="${wallY}" x2="${xOf(gesamtBreite)}" y2="${wallY}"
+    stroke="#424242" stroke-width="4"/>`);
+  // Wall fill below
+  elemente.push(`<rect x="${xOf(0)}" y="${wallY}" width="${m(gesamtBreite)}" height="4"
+    fill="#9E9E9E"/>`);
+
+  // ── Openings on wall ─────────────────────────────────────────────────────
+  for (const oeffnung of seite.oeffnungen) {
+    const ox = xOf(oeffnung.horizontalOffset);
+    const ow = m(oeffnung.breite);
+    elemente.push(`<rect x="${ox}" y="${wallY - 2}" width="${ow}" height="8"
+      fill="white" stroke="${FARBEN.oeffnungRand}" stroke-width="0.5"/>`);
+    elemente.push(`<text x="${ox + ow / 2}" y="${wallY + 8}"
+      text-anchor="middle" font-size="5" fill="#616161">${oeffnung.typ}</text>`);
+  }
+
+  // ── Diagonal plan-view braces ─────────────────────────────────────────────
+  if (showDiagonalen) {
+    for (let i = 0; i < seitenPlan.felder.length; i += 4) {
+      const feld = seitenPlan.felder[i];
+      const x1 = xOf(feld.startX);
+      const x2 = xOf(feld.startX + feld.breite);
+      elemente.push(`<line x1="${x1}" y1="${outerY}" x2="${x2}" y2="${innerY}"
+        stroke="${FARBEN.diagonale}" stroke-width="0.7" opacity="0.6"/>`);
+      elemente.push(`<line x1="${x2}" y1="${outerY}" x2="${x1}" y2="${innerY}"
+        stroke="${FARBEN.diagonale}" stroke-width="0.7" opacity="0.6"/>`);
+    }
+  }
+
+  // ── Standard posts ────────────────────────────────────────────────────────
+  if (showStaender) {
+    const postR = m(STD_RADIUS);
+    const yRows = [innerY, outerY];
+
+    // One post per field boundary (including right edge)
+    const postXs = [
+      ...seitenPlan.felder.map(f => xOf(f.startX)),
+      xOf(gesamtBreite),
+    ];
+
+    for (const px of postXs) {
+      for (const py of yRows) {
+        elemente.push(`<rect x="${px - postR}" y="${py - postR}" width="${postR * 2}" height="${postR * 2}"
+          fill="${FARBEN.rahmen}" stroke="white" stroke-width="0.5" rx="1"/>`);
+      }
+    }
+
+    // Inner ledger lines
+    elemente.push(`<line x1="${xOf(0)}" y1="${innerY}" x2="${xOf(gesamtBreite)}" y2="${innerY}"
+      stroke="${FARBEN.riegel}" stroke-width="1.2"/>`);
+    elemente.push(`<line x1="${xOf(0)}" y1="${outerY}" x2="${xOf(gesamtBreite)}" y2="${outerY}"
+      stroke="${FARBEN.riegel}" stroke-width="1.2"/>`);
+
+    // Field divider ledgers (transversal Rahmen)
+    for (const feld of seitenPlan.felder) {
+      const fx = xOf(feld.startX);
+      elemente.push(`<line x1="${fx}" y1="${innerY}" x2="${fx}" y2="${outerY}"
+        stroke="${FARBEN.rahmen}" stroke-width="1.5"/>`);
+    }
+    // Rightmost divider
+    elemente.push(`<line x1="${xOf(gesamtBreite)}" y1="${innerY}" x2="${xOf(gesamtBreite)}" y2="${outerY}"
+      stroke="${FARBEN.rahmen}" stroke-width="1.5"/>`);
+  }
+
+  // ── Anchor positions on wall ──────────────────────────────────────────────
+  if (showAnker) {
+    const seiteAnker = plan.verankerungen.filter(a => a.seitenId === seite.id);
+    for (const anker of seiteAnker) {
+      const ax = xOf(anker.x);
+      elemente.push(`<circle cx="${ax}" cy="${wallY}" r="3" fill="${FARBEN.anker}" stroke="white" stroke-width="0.5"/>`);
+      elemente.push(`<line x1="${ax}" y1="${wallY}" x2="${ax}" y2="${wallY - 6}"
+        stroke="${FARBEN.anker}" stroke-width="1"/>`);
+    }
+  }
+
+  // ── Dimension annotations ────────────────────────────────────────────────
+  if (showMasse) {
+    // Total facade width at top
+    const yDimTop = outerY - 10;
+    elemente.push(`<line x1="${xOf(0)}" y1="${yDimTop - 4}" x2="${xOf(0)}" y2="${yDimTop + 4}"
+      stroke="${FARBEN.masse}" stroke-width="0.8"/>`);
+    elemente.push(`<line x1="${xOf(gesamtBreite)}" y1="${yDimTop - 4}" x2="${xOf(gesamtBreite)}" y2="${yDimTop + 4}"
+      stroke="${FARBEN.masse}" stroke-width="0.8"/>`);
+    elemente.push(`<line x1="${xOf(0)}" y1="${yDimTop}" x2="${xOf(gesamtBreite)}" y2="${yDimTop}"
+      stroke="${FARBEN.masse}" stroke-width="0.8"/>`);
+    elemente.push(`<text x="${xOf(gesamtBreite / 2)}" y="${yDimTop - 3}"
+      text-anchor="middle" font-size="7" fill="${FARBEN.masse}">${gesamtBreite.toFixed(2)} m</text>`);
+
+    // Individual bay widths
+    for (const feld of seitenPlan.felder) {
+      const xMitte = xOf(feld.startX + feld.breite / 2);
+      elemente.push(`<text x="${xMitte}" y="${outerY - 2}"
+        text-anchor="middle" font-size="5" fill="${FARBEN.masse}">${feld.breite.toFixed(2)}</text>`);
+    }
+
+    // Wall clearance dimension on left
+    const xDimLeft = xOf(0) - 18;
+    elemente.push(`<line x1="${xDimLeft - 4}" y1="${wallY}" x2="${xDimLeft + 4}" y2="${wallY}"
+      stroke="${FARBEN.masse}" stroke-width="0.8"/>`);
+    elemente.push(`<line x1="${xDimLeft - 4}" y1="${innerY}" x2="${xDimLeft + 4}" y2="${innerY}"
+      stroke="${FARBEN.masse}" stroke-width="0.8"/>`);
+    elemente.push(`<line x1="${xDimLeft}" y1="${wallY}" x2="${xDimLeft}" y2="${innerY}"
+      stroke="${FARBEN.masse}" stroke-width="0.8"/>`);
+    elemente.push(`<text x="${xDimLeft - 6}" y="${(wallY + innerY) / 2}"
+      text-anchor="middle" font-size="6" fill="${FARBEN.masse}"
+      transform="rotate(-90,${xDimLeft - 6},${(wallY + innerY) / 2})">${wandabstand.toFixed(2)} m</text>`);
+
+    // Scaffold width dimension (wall to outer face)
+    elemente.push(`<line x1="${xDimLeft - 4}" y1="${outerY}" x2="${xDimLeft + 4}" y2="${outerY}"
+      stroke="${FARBEN.masse}" stroke-width="0.8"/>`);
+    elemente.push(`<line x1="${xDimLeft}" y1="${innerY}" x2="${xDimLeft}" y2="${outerY}"
+      stroke="${FARBEN.masse}" stroke-width="0.8"/>`);
+    elemente.push(`<text x="${xDimLeft - 6}" y="${(innerY + outerY) / 2}"
+      text-anchor="middle" font-size="6" fill="${FARBEN.masse}"
+      transform="rotate(-90,${xDimLeft - 6},${(innerY + outerY) / 2})">${RAHMEN_TIEFE.toFixed(2)} m</text>`);
+  }
+
+  // ── Labels ────────────────────────────────────────────────────────────────
+  // Side label
+  elemente.push(`<text x="${xOf(gesamtBreite / 2)}" y="${svgHoehe - 6}"
+    text-anchor="middle" font-size="8" font-weight="bold" fill="#212121"
+  >${escapeXml(seite.anzeigename)} – Draufsicht – Maßstab 1:50</text>`);
+
+  // Compass/direction indicators
+  elemente.push(`<text x="${xOf(0)}" y="${wallY + 12}"
+    text-anchor="start" font-size="6" fill="#555">▼ Gebäude</text>`);
+  elemente.push(`<text x="${xOf(0)}" y="${outerY - 14}"
+    text-anchor="start" font-size="6" fill="#555">▲ Außengerüst</text>`);
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${svgBreite} ${svgHoehe}" width="${svgBreite}mm" height="${svgHoehe}mm">
+  <defs>
+    <style>text { font-family: Arial, Helvetica, sans-serif; }</style>
+  </defs>
+  <rect width="100%" height="100%" fill="white"/>
+  <g id="grundriss">${elemente.join('\n  ')}</g>
+</svg>`;
+}
+
+function escapeXml(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
