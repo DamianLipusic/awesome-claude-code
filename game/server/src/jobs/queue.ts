@@ -1,4 +1,4 @@
-import { Queue, Worker, QueueEvents, Job } from 'bullmq';
+import { Queue, Worker, Job } from 'bullmq';
 import IORedis from 'ioredis';
 import {
   economy_update,

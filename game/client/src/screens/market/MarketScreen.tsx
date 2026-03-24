@@ -29,7 +29,7 @@ export type MarketStackParamList = {
   ContractScreen: undefined;
 };
 
-type NavProp = NativeStackNavigationProp<MarketStackParamList, 'MarketMain'>;
+type NavProp = StackNavigationProp<MarketStackParamList, 'MarketMain'>;
 
 const CATEGORIES: Array<{ label: string; value: ResourceCategory | 'ALL' }> = [
   { label: 'All', value: 'ALL' },
