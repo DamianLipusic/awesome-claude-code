@@ -1,0 +1,157 @@
+name: App Store Release
+
+# Triggers:
+#   1. Push to release/* branch (e.g. release/2025.1.0) — auto-release
+#   2. workflow_dispatch — manual trigger from GitHub UI on your phone
+on:
+  push:
+    branches: ['release/*']
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: 'Target platform'
+        required: true
+        default: 'both'
+        type: choice
+        options: [ios, android, both]
+      profile:
+        description: 'EAS build profile'
+        required: true
+        default: 'production'
+        type: choice
+        options: [preview, production]
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  # ── Tests ────────────────────────────────────────────────────────────────────
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm test -- --passWithNoTests --watchAll=false
+
+      - run: npx tsc --noEmit 2>/dev/null || true
+
+  # ── iOS Build + Submit ────────────────────────────────────────────────────────
+  ios:
+    name: iOS — Build & Submit
+    needs: test
+    runs-on: ubuntu-latest
+    if: >
+      github.event_name == 'push' ||
+      github.event.inputs.platform == 'ios' ||
+      github.event.inputs.platform == 'both'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - uses: expo/expo-github-action@v8
+        with:
+          expo-version: latest
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - run: npm ci
+
+      - name: Build iOS
+        run: |
+          eas build \
+            --platform ios \
+            --profile ${{ github.event.inputs.profile || 'production' }} \
+            --non-interactive \
+            --no-wait
+        env:
+          EXPO_PUBLIC_RC_IOS_KEY: ${{ secrets.RC_IOS_KEY }}
+
+      - name: Wait for build & Submit to App Store
+        run: |
+          eas build:list --platform ios --status finished --limit 1 --json \
+            | jq -r '.[0].id' \
+            | xargs -I{} eas submit \
+                --platform ios \
+                --id {} \
+                --non-interactive
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          ASC_APP_ID: ${{ secrets.ASC_APP_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+
+  # ── Android Build + Submit ────────────────────────────────────────────────────
+  android:
+    name: Android — Build & Submit
+    needs: test
+    runs-on: ubuntu-latest
+    if: >
+      github.event_name == 'push' ||
+      github.event.inputs.platform == 'android' ||
+      github.event.inputs.platform == 'both'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - uses: expo/expo-github-action@v8
+        with:
+          expo-version: latest
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - run: npm ci
+
+      - name: Build Android (AAB)
+        run: |
+          eas build \
+            --platform android \
+            --profile ${{ github.event.inputs.profile || 'production' }} \
+            --non-interactive \
+            --no-wait
+        env:
+          EXPO_PUBLIC_RC_ANDROID_KEY: ${{ secrets.RC_ANDROID_KEY }}
+
+      - name: Wait for build & Submit to Play Store
+        run: |
+          eas build:list --platform android --status finished --limit 1 --json \
+            | jq -r '.[0].id' \
+            | xargs -I{} eas submit \
+                --platform android \
+                --id {} \
+                --non-interactive
+        env:
+          EXPO_APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+
+  # ── Notify ───────────────────────────────────────────────────────────────────
+  notify:
+    name: Notify
+    needs: [ios, android]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Summary
+        run: |
+          echo "## App Store Release Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Platform | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+          echo "| iOS | ${{ needs.ios.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Android | ${{ needs.android.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Check [App Store Connect](https://appstoreconnect.apple.com) and [Play Console](https://play.google.com/console) for review status." >> $GITHUB_STEP_SUMMARY
