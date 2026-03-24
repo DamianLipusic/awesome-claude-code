@@ -140,6 +140,14 @@ export function emitToChannel(channel: string, event: string, data: unknown): vo
 }
 
 /**
+ * Send a market price update to all subscribers of a market channel.
+ * Channel: market:{city}:{resource_id}
+ */
+export function emitToMarket(city: string, resource_id: string, data: unknown): void {
+  emitToChannel(`market:${city}:${resource_id}`, 'price_update', data);
+}
+
+/**
  * Send an event to every connected client regardless of subscriptions.
  */
 export function emitBroadcast(event: string, data: unknown): void {
