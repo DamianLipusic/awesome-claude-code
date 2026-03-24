@@ -1,10 +1,11 @@
 import React, { useEffect } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
 import { useAuthStore } from '../stores/authStore';
 import { AuthStack } from './AuthStack';
 import { MainTabs } from './MainTabs';
 import { LoadingScreen } from '../components/ui/LoadingScreen';
 
-export function RootNavigator() {
+function Navigator() {
   const { isAuthenticated, isLoading, refreshSession } = useAuthStore();
 
   useEffect(() => {
@@ -16,4 +17,12 @@ export function RootNavigator() {
   }
 
   return isAuthenticated ? <MainTabs /> : <AuthStack />;
+}
+
+export default function RootNavigator() {
+  return (
+    <NavigationContainer>
+      <Navigator />
+    </NavigationContainer>
+  );
 }

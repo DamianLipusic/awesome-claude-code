@@ -25,7 +25,7 @@ export async function contractRoutes(fastify: FastifyInstance): Promise<void> {
     '/contracts',
     { preHandler: [requireAuth] },
     async (request: FastifyRequest, reply: FastifyReply) => {
-      const { playerId, playerSeasonId } = request;
+      const playerId = request.player.id; const playerSeasonId = request.player.season_id;
 
       const result = await query(
         `SELECT
@@ -128,7 +128,7 @@ export async function contractRoutes(fastify: FastifyInstance): Promise<void> {
     '/contracts',
     { preHandler: [requireAuth] },
     async (request: FastifyRequest, reply: FastifyReply) => {
-      const { playerId, playerSeasonId } = request;
+      const playerId = request.player.id; const playerSeasonId = request.player.season_id;
       const parsed = CreateContractSchema.safeParse(request.body);
       if (!parsed.success) {
         return reply.status(400).send({ error: parsed.error.issues[0].message });
@@ -226,7 +226,7 @@ export async function contractRoutes(fastify: FastifyInstance): Promise<void> {
     '/contracts/:id/accept',
     { preHandler: [requireAuth] },
     async (request: FastifyRequest, reply: FastifyReply) => {
-      const { playerId, playerSeasonId } = request;
+      const playerId = request.player.id; const playerSeasonId = request.player.season_id;
       const { id: contractId } = request.params as { id: string };
 
       try {
@@ -294,7 +294,7 @@ export async function contractRoutes(fastify: FastifyInstance): Promise<void> {
     '/contracts/:id',
     { preHandler: [requireAuth] },
     async (request: FastifyRequest, reply: FastifyReply) => {
-      const { playerId, playerSeasonId } = request;
+      const playerId = request.player.id; const playerSeasonId = request.player.season_id;
       const { id: contractId } = request.params as { id: string };
 
       try {

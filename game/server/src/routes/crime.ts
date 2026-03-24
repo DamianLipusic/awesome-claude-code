@@ -10,7 +10,7 @@ import {
   type LaunderingMethod,
   type HeatLevel,
 } from '../../../shared/src/types/entities';
-import { scheduleCrimeResolve } from '../jobs/queue';
+import { scheduleCrimeResolveJob } from '../jobs/queue';
 
 // ─── Input schemas ────────────────────────────────────────────
 
@@ -42,7 +42,7 @@ export async function crimeRoutes(fastify: FastifyInstance): Promise<void> {
     '/crime/heat',
     { preHandler: [requireAuth] },
     async (request: FastifyRequest, reply: FastifyReply) => {
-      const { playerId, playerSeasonId } = request;
+      const playerId = request.player.id; const playerSeasonId = request.player.season_id;
       const result = await query(
         `SELECT * FROM heat_scores WHERE player_id = $1 AND season_id = $2`,
         [playerId, playerSeasonId],
@@ -59,7 +59,7 @@ export async function crimeRoutes(fastify: FastifyInstance): Promise<void> {
     '/crime/dirty-money',
     { preHandler: [requireAuth] },
     async (request: FastifyRequest, reply: FastifyReply) => {
-      const { playerId, playerSeasonId } = request;
+      const playerId = request.player.id; const playerSeasonId = request.player.season_id;
       const result = await query(
         `SELECT * FROM dirty_money_balances WHERE player_id = $1 AND season_id = $2`,
         [playerId, playerSeasonId],
@@ -76,7 +76,7 @@ export async function crimeRoutes(fastify: FastifyInstance): Promise<void> {
     '/crime/operations/available',
     { preHandler: [requireAuth] },
     async (request: FastifyRequest, reply: FastifyReply) => {
-      const { playerId, playerSeasonId } = request;
+      const playerId = request.player.id; const playerSeasonId = request.player.season_id;
 
       // Get player heat level
       const heatRow = await query<{ level: HeatLevel }>(
@@ -119,7 +119,7 @@ export async function crimeRoutes(fastify: FastifyInstance): Promise<void> {
     '/crime/operations/active',
     { preHandler: [requireAuth] },
     async (request: FastifyRequest, reply: FastifyReply) => {
-      const { playerId, playerSeasonId } = request;
+      const playerId = request.player.id; const playerSeasonId = request.player.season_id;
       const result = await query(
         `SELECT * FROM criminal_operations
          WHERE player_id = $1 AND season_id = $2 AND status = 'ACTIVE'
@@ -135,7 +135,7 @@ export async function crimeRoutes(fastify: FastifyInstance): Promise<void> {
     '/crime/operations',
     { preHandler: [requireAuth] },
     async (request: FastifyRequest, reply: FastifyReply) => {
-      const { playerId, playerSeasonId } = request;
+      const playerId = request.player.id; const playerSeasonId = request.player.season_id;
       const parsed = StartOperationSchema.safeParse(request.body);
       if (!parsed.success) {
         return reply.status(400).send({ error: parsed.error.issues[0].message });
@@ -281,7 +281,7 @@ export async function crimeRoutes(fastify: FastifyInstance): Promise<void> {
           );
 
           // Schedule crime_resolve job
-          await scheduleCrimeResolve(op.id, new Date(op.completes_at));
+          await scheduleCrimeResolveJob(op.id, new Date(op.completes_at));
 
           return op;
         });
@@ -299,7 +299,7 @@ export async function crimeRoutes(fastify: FastifyInstance): Promise<void> {
     '/crime/laundering',
     { preHandler: [requireAuth] },
     async (request: FastifyRequest, reply: FastifyReply) => {
-      const { playerId, playerSeasonId } = request;
+      const playerId = request.player.id; const playerSeasonId = request.player.season_id;
       const parsed = LaunderingSchema.safeParse(request.body);
       if (!parsed.success) {
         return reply.status(400).send({ error: parsed.error.issues[0].message });
@@ -433,7 +433,7 @@ export async function crimeRoutes(fastify: FastifyInstance): Promise<void> {
     '/crime/laundering/active',
     { preHandler: [requireAuth] },
     async (request: FastifyRequest, reply: FastifyReply) => {
-      const { playerId, playerSeasonId } = request;
+      const playerId = request.player.id; const playerSeasonId = request.player.season_id;
       const result = await query(
         `SELECT * FROM laundering_processes
          WHERE player_id = $1 AND season_id = $2 AND status = 'IN_PROGRESS'
@@ -449,7 +449,7 @@ export async function crimeRoutes(fastify: FastifyInstance): Promise<void> {
     '/crime/heat/bribe',
     { preHandler: [requireAuth] },
     async (request: FastifyRequest, reply: FastifyReply) => {
-      const { playerId, playerSeasonId } = request;
+      const playerId = request.player.id; const playerSeasonId = request.player.season_id;
 
       try {
         const result = await withTransaction(async (client) => {
@@ -539,7 +539,7 @@ export async function crimeRoutes(fastify: FastifyInstance): Promise<void> {
     '/crime/heat/lay-low',
     { preHandler: [requireAuth] },
     async (request: FastifyRequest, reply: FastifyReply) => {
-      const { playerId, playerSeasonId } = request;
+      const playerId = request.player.id; const playerSeasonId = request.player.season_id;
       const parsed = LayLowSchema.safeParse(request.body);
       if (!parsed.success) {
         return reply.status(400).send({ error: parsed.error.issues[0].message });
