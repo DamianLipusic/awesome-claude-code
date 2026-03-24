@@ -31,6 +31,8 @@ class DataAggregator:
         self._price_cache: dict[str, list[tuple[datetime, float]]] = {}
         # Token cache
         self._token_cache: dict[str, TokenInfo] = {}
+        # Track which source has best price for each token
+        self._price_source: dict[str, str] = {}
 
     async def start(self) -> None:
         await asyncio.gather(
@@ -55,13 +57,23 @@ class DataAggregator:
             return_exceptions=True,
         )
 
+        source_names = ["jupiter", "raydium", "pump_fun"]
+        source_counts = {}
+
         all_tokens: dict[str, TokenInfo] = {}
-        for result in results:
+        for i, result in enumerate(results):
             if isinstance(result, Exception):
-                logger.error("discover_error", error=str(result))
+                logger.error("discover_error",
+                             source=source_names[i], error=str(result))
+                source_counts[source_names[i]] = 0
                 continue
+            source_counts[source_names[i]] = len(result)
             for token in result:
-                if token.mint_address and token.mint_address not in all_tokens:
+                if not token.mint_address:
+                    continue
+                # Keep token with most metadata
+                existing = all_tokens.get(token.mint_address)
+                if existing is None or token.liquidity_usd > existing.liquidity_usd:
                     all_tokens[token.mint_address] = token
 
         # Filter based on config
@@ -73,7 +85,6 @@ class DataAggregator:
 
         filtered = []
         for token in all_tokens.values():
-            # Skip tokens that don't meet criteria
             if token.liquidity_usd > 0 and token.liquidity_usd < min_liquidity:
                 continue
             if token.age_hours > max_age:
@@ -88,53 +99,76 @@ class DataAggregator:
         for token in filtered:
             self._token_cache[token.mint_address] = token
 
-        logger.info("tokens_discovered", total=len(all_tokens),
-                     filtered=len(filtered))
+        logger.info("tokens_discovered",
+                     total=len(all_tokens),
+                     filtered=len(filtered),
+                     sources=source_counts)
         return filtered
 
     async def update_prices(self, mint_addresses: list[str]) -> dict[str, float]:
-        """Update prices for tracked tokens."""
+        """Update prices for tracked tokens with smart source routing."""
         prices: dict[str, float] = {}
 
-        # Batch price fetching
-        tasks = []
-        for mint in mint_addresses:
-            tasks.append(self._get_best_price(mint))
+        # Batch price fetching with concurrency limit
+        semaphore = asyncio.Semaphore(15)
 
+        async def fetch_price(mint: str) -> tuple[str, float | None]:
+            async with semaphore:
+                return mint, await self._get_best_price(mint)
+
+        tasks = [fetch_price(mint) for mint in mint_addresses]
         results = await asyncio.gather(*tasks, return_exceptions=True)
 
-        for mint, result in zip(mint_addresses, results):
-            if isinstance(result, Exception) or result is None:
+        now = datetime.utcnow()
+        for result in results:
+            if isinstance(result, Exception):
                 continue
-            prices[mint] = result
+            mint, price = result
+            if price is None or price <= 0:
+                continue
+
+            prices[mint] = price
 
             # Update price cache
             if mint not in self._price_cache:
                 self._price_cache[mint] = []
-            self._price_cache[mint].append((datetime.utcnow(), result))
+            self._price_cache[mint].append((now, price))
 
             # Keep only last 1000 prices per token
             if len(self._price_cache[mint]) > 1000:
                 self._price_cache[mint] = self._price_cache[mint][-1000:]
 
+        # Prune stale tokens from cache (no price update in 1 hour)
+        stale_mints = []
+        for mint, history in self._price_cache.items():
+            if history and (now - history[-1][0]).total_seconds() > 3600:
+                stale_mints.append(mint)
+        for mint in stale_mints:
+            del self._price_cache[mint]
+            self._price_source.pop(mint, None)
+
         return prices
 
     async def _get_best_price(self, mint_address: str) -> float | None:
-        """Get best price from available sources."""
-        # Try Jupiter first (most reliable)
-        price = await self.jupiter.get_token_price(mint_address)
-        if price and price > 0:
-            return price
+        """Get best price, preferring the last successful source."""
+        # Try last known good source first
+        preferred = self._price_source.get(mint_address)
 
-        # Try Raydium
-        price = await self.raydium.get_token_price(mint_address)
-        if price and price > 0:
-            return price
+        sources = [
+            ("jupiter", self.jupiter),
+            ("raydium", self.raydium),
+            ("pump_fun", self.pump_fun),
+        ]
 
-        # Try pump.fun
-        price = await self.pump_fun.get_token_price(mint_address)
-        if price and price > 0:
-            return price
+        # Reorder to try preferred source first
+        if preferred:
+            sources.sort(key=lambda s: 0 if s[0] == preferred else 1)
+
+        for name, collector in sources:
+            price = await collector.get_token_price(mint_address)
+            if price and price > 0:
+                self._price_source[mint_address] = name
+                return price
 
         return None
 
@@ -167,7 +201,8 @@ class DataAggregator:
 
         # Volatility
         if len(prices) >= 5:
-            returns = np.diff(np.log(np.array(prices[-30:])))
+            log_prices = np.log(np.array(prices[-30:]))
+            returns = np.diff(log_prices)
             features["price_volatility"] = float(np.std(returns)) if len(returns) > 0 else 0
 
         # Momentum (rate of price change)
@@ -211,18 +246,42 @@ class DataAggregator:
                     (current_price - recent_low) / (recent_high - recent_low)
                 )
 
-        # Volume profile approximation
+        # Volume profile approximation (volatility ratio)
         if len(prices) >= 10:
             recent_vol = np.std(prices[-5:])
             older_vol = np.std(prices[-10:-5])
             if older_vol > 0:
                 features["volume_profile"] = recent_vol / older_vol
 
+        # Additional features for better ML performance
+        if len(prices) >= 30:
+            # Bollinger Band position
+            sma20 = np.mean(prices[-20:])
+            std20 = np.std(prices[-20:])
+            if std20 > 0:
+                features["bb_position"] = (current_price - sma20) / (2 * std20)
+
+            # Rate of change
+            if prices[-10] > 0:
+                features["roc_10"] = (current_price - prices[-10]) / prices[-10]
+
+            # Average True Range proxy (using close prices)
+            price_arr = np.array(prices[-20:])
+            tr_proxy = np.abs(np.diff(price_arr))
+            features["atr_ratio"] = float(np.mean(tr_proxy) / current_price) if current_price > 0 else 0
+
+        # Price acceleration (is momentum increasing?)
+        if len(prices) >= 15:
+            mom_recent = np.mean(prices[-3:]) - np.mean(prices[-6:-3])
+            mom_older = np.mean(prices[-6:-3]) - np.mean(prices[-9:-6])
+            if abs(mom_older) > 0:
+                features["momentum_acceleration"] = mom_recent / abs(mom_older)
+
         return features
 
     @staticmethod
     def _calculate_rsi(prices: list[float], period: int = 14) -> float:
-        """Calculate RSI."""
+        """Calculate RSI using exponential moving average (more accurate)."""
         if len(prices) < period + 1:
             return 50.0
 
@@ -230,8 +289,13 @@ class DataAggregator:
         gains = np.where(deltas > 0, deltas, 0)
         losses = np.where(deltas < 0, -deltas, 0)
 
-        avg_gain = np.mean(gains[-period:])
-        avg_loss = np.mean(losses[-period:])
+        # Use EMA instead of SMA for smoother RSI
+        alpha = 1.0 / period
+        avg_gain = gains[0]
+        avg_loss = losses[0]
+        for i in range(1, len(gains)):
+            avg_gain = alpha * gains[i] + (1 - alpha) * avg_gain
+            avg_loss = alpha * losses[i] + (1 - alpha) * avg_loss
 
         if avg_loss == 0:
             return 100.0
@@ -244,16 +308,27 @@ class DataAggregator:
         """Calculate MACD and signal line."""
         prices_arr = np.array(prices)
 
-        # EMA 12
         ema12 = DataAggregator._ema(prices_arr, 12)
-        # EMA 26
         ema26 = DataAggregator._ema(prices_arr, 26)
 
         macd_line = ema12 - ema26
-        # Signal line is EMA 9 of MACD
-        signal = DataAggregator._ema(np.array([macd_line]), 1)
 
-        return float(macd_line), float(signal)
+        # For proper signal line, we'd need MACD history
+        # Use simple approximation with shorter EMA
+        if len(prices_arr) >= 35:
+            # Compute MACD line for last 9 periods
+            macd_values = []
+            for i in range(9):
+                idx = len(prices_arr) - 9 + i
+                if idx >= 26:
+                    e12 = DataAggregator._ema(prices_arr[:idx+1], 12)
+                    e26 = DataAggregator._ema(prices_arr[:idx+1], 26)
+                    macd_values.append(e12 - e26)
+            if macd_values:
+                signal = DataAggregator._ema(np.array(macd_values), min(9, len(macd_values)))
+                return float(macd_line), float(signal)
+
+        return float(macd_line), float(macd_line * 0.9)
 
     @staticmethod
     def _ema(data: np.ndarray, period: int) -> float:

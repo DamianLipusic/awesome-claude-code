@@ -22,7 +22,7 @@ LAMPORTS_PER_SOL = 1_000_000_000
 
 
 class LiveTrader:
-    """Executes real trades on Solana via Jupiter aggregator."""
+    """Executes real trades on Solana via Jupiter aggregator with scaled exits."""
 
     def __init__(self, config: dict, db: Database):
         self.config = config
@@ -40,14 +40,23 @@ class LiveTrader:
         self.max_hold_hours = strategy.get("max_hold_time_hours", 24)
         self.max_positions = strategy.get("max_positions", 5)
 
+        # Scaled exit levels
+        self.scaled_exits = [
+            (0.25, 0.30),  # Sell 30% at 25% profit
+            (0.50, 0.30),  # Sell 30% at 50% profit
+            (1.00, 0.40),  # Sell remaining at 100% profit
+        ]
+
         self.portfolio = PortfolioState(
             mode=BotMode.LIVE,
-            balance_sol=0,  # Will be set from wallet
+            balance_sol=0,
         )
 
         self._keypair = None
         self._public_key: str = ""
         self._initialized = False
+        self._exit_levels_hit: dict[str, set[int]] = {}
+        self._rpc_url: str = ""
 
     async def initialize(self) -> bool:
         """Initialize wallet and Solana connection."""
@@ -64,6 +73,10 @@ class LiveTrader:
             key_bytes = base58.b58decode(private_key)
             self._keypair = Keypair.from_bytes(key_bytes)
             self._public_key = str(self._keypair.pubkey())
+
+            self._rpc_url = self.config.get("solana", {}).get(
+                "rpc_url", "https://api.mainnet-beta.solana.com"
+            )
 
             # Get SOL balance
             balance = await self._get_sol_balance()
@@ -88,12 +101,9 @@ class LiveTrader:
         """Get wallet SOL balance."""
         try:
             from solana.rpc.async_api import AsyncClient
+            from solders.pubkey import Pubkey
 
-            rpc_url = self.config.get("solana", {}).get(
-                "rpc_url", "https://api.mainnet-beta.solana.com"
-            )
-            async with AsyncClient(rpc_url) as client:
-                from solders.pubkey import Pubkey
+            async with AsyncClient(self._rpc_url) as client:
                 pubkey = Pubkey.from_string(self._public_key)
                 resp = await client.get_balance(pubkey)
                 return resp.value / LAMPORTS_PER_SOL
@@ -128,9 +138,6 @@ class LiveTrader:
             from solders.transaction import VersionedTransaction
             import base64
 
-            rpc_url = self.config.get("solana", {}).get(
-                "rpc_url", "https://api.mainnet-beta.solana.com"
-            )
             amount_lamports = int(sol_amount * LAMPORTS_PER_SOL)
 
             # 1. Get Jupiter quote
@@ -166,7 +173,7 @@ class LiveTrader:
             tx = VersionedTransaction.from_bytes(swap_tx_bytes)
             signed_tx = VersionedTransaction(tx.message, [self._keypair])
 
-            async with AsyncClient(rpc_url) as client:
+            async with AsyncClient(self._rpc_url) as client:
                 tx_sig = await client.send_transaction(signed_tx)
                 signature = str(tx_sig.value)
 
@@ -191,12 +198,14 @@ class LiveTrader:
 
             self.portfolio.open_positions.append(position)
             self.portfolio.balance_sol -= sol_amount
+            self._exit_levels_hit[position.id] = set()
             self.db.save_open_position(position)
 
             logger.info("live_buy",
                         symbol=signal.symbol,
                         sol=f"{sol_amount:.4f}",
-                        tx=signature[:16])
+                        tx=signature[:16],
+                        confidence=f"{signal.confidence:.2%}")
 
             return position
 
@@ -206,10 +215,14 @@ class LiveTrader:
             return None
 
     async def execute_sell(self, position: Position, current_price: float,
-                           reason: str = "manual") -> TradeRecord | None:
-        """Execute a real sell on Solana via Jupiter."""
+                           reason: str = "manual",
+                           sell_fraction: float = 1.0) -> TradeRecord | None:
+        """Execute a real sell on Solana via Jupiter, optionally partial."""
         if not self._initialized:
             return None
+
+        tokens_to_sell = position.amount_tokens * sell_fraction
+        sol_invested_portion = position.sol_invested * sell_fraction
 
         try:
             import httpx
@@ -217,13 +230,9 @@ class LiveTrader:
             from solders.transaction import VersionedTransaction
             import base64
 
-            rpc_url = self.config.get("solana", {}).get(
-                "rpc_url", "https://api.mainnet-beta.solana.com"
-            )
-
             # Get token decimals (default 9 for most, 6 for pump.fun)
             decimals = 9
-            amount_raw = int(position.amount_tokens * (10 ** decimals))
+            amount_raw = int(tokens_to_sell * (10 ** decimals))
 
             # 1. Get Jupiter quote (token -> SOL)
             async with httpx.AsyncClient(timeout=30) as http:
@@ -257,26 +266,26 @@ class LiveTrader:
             tx = VersionedTransaction.from_bytes(swap_tx_bytes)
             signed_tx = VersionedTransaction(tx.message, [self._keypair])
 
-            async with AsyncClient(rpc_url) as client:
+            async with AsyncClient(self._rpc_url) as client:
                 tx_sig = await client.send_transaction(signed_tx)
 
             # 3. Calculate PnL
             sol_received = int(quote.get("outAmount", 0)) / LAMPORTS_PER_SOL
-            pnl_sol = sol_received - position.sol_invested
-            pnl_pct = pnl_sol / position.sol_invested if position.sol_invested > 0 else 0
+            pnl_sol = sol_received - sol_invested_portion
+            pnl_pct = pnl_sol / sol_invested_portion if sol_invested_portion > 0 else 0
 
             now = datetime.utcnow()
             hold_minutes = (now - position.entry_time).total_seconds() / 60
 
             trade = TradeRecord(
-                id=position.id,
+                id=position.id + (f"_p{int(sell_fraction*100)}" if sell_fraction < 1.0 else ""),
                 mint_address=position.mint_address,
                 symbol=position.symbol,
                 side=TradeSide.SELL,
                 entry_price=position.entry_price_sol,
                 exit_price=current_price,
-                amount=position.amount_tokens,
-                sol_invested=position.sol_invested,
+                amount=tokens_to_sell,
+                sol_invested=sol_invested_portion,
                 pnl_sol=pnl_sol,
                 pnl_pct=pnl_pct,
                 entry_time=position.entry_time,
@@ -290,21 +299,28 @@ class LiveTrader:
             # Update portfolio
             self.portfolio.balance_sol += sol_received
             self.portfolio.total_pnl_sol += pnl_sol
-            self.portfolio.total_trades += 1
-            if pnl_sol > 0:
-                self.portfolio.winning_trades += 1
-            else:
-                self.portfolio.losing_trades += 1
 
-            self.portfolio.open_positions = [
-                p for p in self.portfolio.open_positions if p.id != position.id
-            ]
+            if sell_fraction >= 1.0:
+                self.portfolio.total_trades += 1
+                if pnl_sol > 0:
+                    self.portfolio.winning_trades += 1
+                else:
+                    self.portfolio.losing_trades += 1
+                self.portfolio.open_positions = [
+                    p for p in self.portfolio.open_positions if p.id != position.id
+                ]
+                self._exit_levels_hit.pop(position.id, None)
+            else:
+                position.amount_tokens -= tokens_to_sell
+                position.sol_invested -= sol_invested_portion
 
             self.db.save_trade(trade)
 
-            logger.info("live_sell",
+            prefix = "partial_" if sell_fraction < 1.0 else ""
+            logger.info(f"live_{prefix}sell",
                         symbol=position.symbol,
                         pnl_sol=f"{pnl_sol:+.4f}",
+                        fraction=f"{sell_fraction:.0%}",
                         reason=reason)
 
             return trade
@@ -315,7 +331,7 @@ class LiveTrader:
             return None
 
     async def check_exits(self, prices: dict[str, float]) -> list[TradeRecord]:
-        """Check all positions for exit conditions (same logic as paper)."""
+        """Check all positions for exit conditions with scaled exits."""
         closed_trades = []
 
         for position in list(self.portfolio.open_positions):
@@ -328,25 +344,45 @@ class LiveTrader:
                 position.highest_price_sol = price
 
             pnl_pct = (price - position.entry_price_sol) / position.entry_price_sol
-            reason = None
 
-            if pnl_pct >= self.take_profit:
-                reason = "take_profit"
-            elif pnl_pct <= -self.stop_loss:
-                reason = "stop_loss"
-            elif position.highest_price_sol > position.entry_price_sol * 1.1:
-                drawdown = (position.highest_price_sol - price) / position.highest_price_sol
-                if drawdown >= self.trailing_stop:
-                    reason = "trailing_stop"
-
-            hold_hours = (datetime.utcnow() - position.entry_time).total_seconds() / 3600
-            if hold_hours >= self.max_hold_hours:
-                reason = "max_hold_time"
-
-            if reason:
-                trade = await self.execute_sell(position, price, reason)
+            # 1. Stop loss
+            if pnl_pct <= -self.stop_loss:
+                trade = await self.execute_sell(position, price, "stop_loss")
                 if trade:
                     closed_trades.append(trade)
+                continue
+
+            # 2. Max hold time
+            hold_hours = (datetime.utcnow() - position.entry_time).total_seconds() / 3600
+            if hold_hours >= self.max_hold_hours:
+                trade = await self.execute_sell(position, price, "max_hold_time")
+                if trade:
+                    closed_trades.append(trade)
+                continue
+
+            # 3. Scaled profit taking
+            levels_hit = self._exit_levels_hit.get(position.id, set())
+            for level_idx, (profit_level, sell_pct) in enumerate(self.scaled_exits):
+                if level_idx in levels_hit:
+                    continue
+                if pnl_pct >= profit_level:
+                    trade = await self.execute_sell(
+                        position, price,
+                        f"take_profit_{int(profit_level*100)}pct",
+                        sell_fraction=sell_pct,
+                    )
+                    if trade:
+                        closed_trades.append(trade)
+                        levels_hit.add(level_idx)
+                    self._exit_levels_hit[position.id] = levels_hit
+
+            # 4. Trailing stop
+            if position.highest_price_sol > position.entry_price_sol * 1.1:
+                drawdown = (position.highest_price_sol - price) / position.highest_price_sol
+                if drawdown >= self.trailing_stop:
+                    trade = await self.execute_sell(position, price, "trailing_stop")
+                    if trade:
+                        closed_trades.append(trade)
 
         return closed_trades
 

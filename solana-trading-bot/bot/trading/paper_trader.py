@@ -19,7 +19,7 @@ logger = structlog.get_logger()
 
 
 class PaperTrader:
-    """Simulates trading with virtual balance."""
+    """Simulates trading with virtual balance and scaled exit strategy."""
 
     def __init__(self, config: dict, db: Database):
         self.config = config
@@ -36,6 +36,13 @@ class PaperTrader:
         self.max_hold_hours = strategy.get("max_hold_time_hours", 24)
         self.max_positions = strategy.get("max_positions", 5)
 
+        # Scaled exit levels (sell portions at different profit levels)
+        self.scaled_exits = [
+            (0.25, 0.30),  # Sell 30% at 25% profit
+            (0.50, 0.30),  # Sell 30% at 50% profit
+            (1.00, 0.40),  # Sell remaining 40% at 100% profit (or trailing stop)
+        ]
+
         # Portfolio state
         initial = paper_config.get("initial_balance_sol", 10.0)
         self.portfolio = PortfolioState(
@@ -44,8 +51,13 @@ class PaperTrader:
             peak_balance_sol=initial,
         )
 
+        # Track partial exits per position
+        self._exit_levels_hit: dict[str, set[int]] = {}
+
         # State file for persistence
         self._state_path = Path("data/paper_state.json")
+        self._save_interval = paper_config.get("save_interval_seconds", 300)
+        self._last_save = datetime.utcnow()
         self._load_state()
 
     def execute_buy(self, signal: TradeSignal, sol_amount: float) -> Position | None:
@@ -56,7 +68,7 @@ class PaperTrader:
             return None
 
         if sol_amount > self.portfolio.balance_sol:
-            sol_amount = self.portfolio.balance_sol * 0.95  # Leave some for fees
+            sol_amount = self.portfolio.balance_sol * 0.95
 
         if sol_amount <= 0.001:
             logger.info("insufficient_balance", balance=self.portfolio.balance_sol)
@@ -90,6 +102,9 @@ class PaperTrader:
         self.portfolio.total_invested_sol += sol_amount
         self.portfolio.open_positions.append(position)
 
+        # Initialize exit tracking
+        self._exit_levels_hit[position.id] = set()
+
         # Save to DB
         self.db.save_open_position(position)
 
@@ -104,33 +119,38 @@ class PaperTrader:
         return position
 
     def execute_sell(self, position: Position, current_price: float,
-                     reason: str = "manual") -> TradeRecord | None:
-        """Execute a paper sell order."""
+                     reason: str = "manual",
+                     sell_fraction: float = 1.0) -> TradeRecord | None:
+        """Execute a paper sell order, optionally partial."""
         if current_price <= 0:
             return None
 
+        # Calculate tokens to sell
+        tokens_to_sell = position.amount_tokens * sell_fraction
+        sol_invested_portion = position.sol_invested * sell_fraction
+
         # Simulate slippage and fees
         slippage_adj = current_price * (1 - self.slippage)
-        gross_sol = position.amount_tokens * slippage_adj
+        gross_sol = tokens_to_sell * slippage_adj
         fee = gross_sol * self.fee_rate
         net_sol = gross_sol - fee
 
-        pnl_sol = net_sol - position.sol_invested
-        pnl_pct = pnl_sol / position.sol_invested if position.sol_invested > 0 else 0
+        pnl_sol = net_sol - sol_invested_portion
+        pnl_pct = pnl_sol / sol_invested_portion if sol_invested_portion > 0 else 0
 
-        # Create trade record
         now = datetime.utcnow()
         hold_minutes = (now - position.entry_time).total_seconds() / 60
 
+        # Create trade record
         trade = TradeRecord(
-            id=position.id,
+            id=position.id + (f"_p{int(sell_fraction*100)}" if sell_fraction < 1.0 else ""),
             mint_address=position.mint_address,
             symbol=position.symbol,
             side=TradeSide.SELL,
             entry_price=position.entry_price_sol,
             exit_price=slippage_adj,
-            amount=position.amount_tokens,
-            sol_invested=position.sol_invested,
+            amount=tokens_to_sell,
+            sol_invested=sol_invested_portion,
             pnl_sol=pnl_sol,
             pnl_pct=pnl_pct,
             entry_time=position.entry_time,
@@ -138,22 +158,35 @@ class PaperTrader:
             hold_duration_minutes=hold_minutes,
             exit_reason=reason,
             confidence_at_entry=position.confidence_at_entry,
+            features_at_entry=getattr(position, '_features', {}),
             was_profitable=pnl_sol > 0,
         )
 
         # Update portfolio
         self.portfolio.balance_sol += net_sol
         self.portfolio.total_pnl_sol += pnl_sol
-        self.portfolio.total_trades += 1
-        if pnl_sol > 0:
-            self.portfolio.winning_trades += 1
+
+        if sell_fraction >= 1.0:
+            # Full exit
+            self.portfolio.total_trades += 1
+            if pnl_sol > 0:
+                self.portfolio.winning_trades += 1
+            else:
+                self.portfolio.losing_trades += 1
+
+            # Remove from open positions
+            self.portfolio.open_positions = [
+                p for p in self.portfolio.open_positions if p.id != position.id
+            ]
+            self._exit_levels_hit.pop(position.id, None)
         else:
-            self.portfolio.losing_trades += 1
+            # Partial exit - reduce position size
+            position.amount_tokens -= tokens_to_sell
+            position.sol_invested -= sol_invested_portion
 
         # Update peak/drawdown
         total_value = self.portfolio.balance_sol + sum(
             p.sol_invested for p in self.portfolio.open_positions
-            if p.id != position.id
         )
         if total_value > self.portfolio.peak_balance_sol:
             self.portfolio.peak_balance_sol = total_value
@@ -162,19 +195,16 @@ class PaperTrader:
             self.portfolio.current_drawdown_pct,
         )
 
-        # Remove from open positions
-        self.portfolio.open_positions = [
-            p for p in self.portfolio.open_positions if p.id != position.id
-        ]
-
         # Save to DB
         self.db.save_trade(trade)
 
-        emoji = "+" if pnl_sol > 0 else ""
-        logger.info("paper_sell",
+        prefix = "partial_" if sell_fraction < 1.0 else ""
+        sign = "+" if pnl_sol > 0 else ""
+        logger.info(f"paper_{prefix}sell",
                      symbol=position.symbol,
-                     pnl_sol=f"{emoji}{pnl_sol:.4f}",
-                     pnl_pct=f"{emoji}{pnl_pct:.2%}",
+                     fraction=f"{sell_fraction:.0%}",
+                     pnl_sol=f"{sign}{pnl_sol:.4f}",
+                     pnl_pct=f"{sign}{pnl_pct:.2%}",
                      reason=reason,
                      hold_min=f"{hold_minutes:.0f}")
 
@@ -182,7 +212,7 @@ class PaperTrader:
         return trade
 
     def check_exits(self, prices: dict[str, float]) -> list[TradeRecord]:
-        """Check all positions for exit conditions."""
+        """Check all positions for exit conditions including scaled exits."""
         closed_trades = []
 
         for position in list(self.portfolio.open_positions):
@@ -196,31 +226,50 @@ class PaperTrader:
                 position.highest_price_sol = price
 
             pnl_pct = (price - position.entry_price_sol) / position.entry_price_sol
-            reason = None
 
-            # Take profit
-            if pnl_pct >= self.take_profit:
-                reason = "take_profit"
-
-            # Stop loss
-            elif pnl_pct <= -self.stop_loss:
-                reason = "stop_loss"
-
-            # Trailing stop (only after some profit)
-            elif position.highest_price_sol > position.entry_price_sol * 1.1:
-                drawdown = (position.highest_price_sol - price) / position.highest_price_sol
-                if drawdown >= self.trailing_stop:
-                    reason = "trailing_stop"
-
-            # Max hold time
-            hold_hours = (datetime.utcnow() - position.entry_time).total_seconds() / 3600
-            if hold_hours >= self.max_hold_hours:
-                reason = "max_hold_time"
-
-            if reason:
-                trade = self.execute_sell(position, price, reason)
+            # 1. Stop loss - exit everything immediately
+            if pnl_pct <= -self.stop_loss:
+                trade = self.execute_sell(position, price, "stop_loss")
                 if trade:
                     closed_trades.append(trade)
+                continue
+
+            # 2. Max hold time - exit everything
+            hold_hours = (datetime.utcnow() - position.entry_time).total_seconds() / 3600
+            if hold_hours >= self.max_hold_hours:
+                trade = self.execute_sell(position, price, "max_hold_time")
+                if trade:
+                    closed_trades.append(trade)
+                continue
+
+            # 3. Scaled profit taking
+            levels_hit = self._exit_levels_hit.get(position.id, set())
+            for level_idx, (profit_level, sell_pct) in enumerate(self.scaled_exits):
+                if level_idx in levels_hit:
+                    continue
+                if pnl_pct >= profit_level:
+                    # Calculate actual fraction of remaining position
+                    trade = self.execute_sell(
+                        position, price,
+                        f"take_profit_{int(profit_level*100)}pct",
+                        sell_fraction=sell_pct,
+                    )
+                    if trade:
+                        closed_trades.append(trade)
+                        levels_hit.add(level_idx)
+                    self._exit_levels_hit[position.id] = levels_hit
+
+            # 4. Trailing stop (only after some profit)
+            if position.highest_price_sol > position.entry_price_sol * 1.1:
+                drawdown = (position.highest_price_sol - price) / position.highest_price_sol
+                if drawdown >= self.trailing_stop:
+                    trade = self.execute_sell(position, price, "trailing_stop")
+                    if trade:
+                        closed_trades.append(trade)
+
+        # Periodic save
+        if (datetime.utcnow() - self._last_save).total_seconds() > self._save_interval:
+            self._save_state()
 
         return closed_trades
 
@@ -231,11 +280,15 @@ class PaperTrader:
             for p in self.portfolio.open_positions
         )
 
+        initial = self.config.get("paper_trading", {}).get("initial_balance_sol", 10.0)
+        total_return = (total_value - initial) / initial if initial > 0 else 0
+
         return {
             "mode": "PAPER",
             "balance_sol": round(self.portfolio.balance_sol, 4),
             "total_value_sol": round(total_value, 4),
             "total_pnl_sol": round(self.portfolio.total_pnl_sol, 4),
+            "total_return": f"{total_return:.2%}",
             "open_positions": len(self.portfolio.open_positions),
             "total_trades": self.portfolio.total_trades,
             "win_rate": f"{self.portfolio.win_rate:.1%}",
@@ -265,6 +318,9 @@ class PaperTrader:
             "losing_trades": self.portfolio.losing_trades,
             "peak_balance_sol": self.portfolio.peak_balance_sol,
             "max_drawdown_pct": self.portfolio.max_drawdown_pct,
+            "exit_levels_hit": {
+                k: list(v) for k, v in self._exit_levels_hit.items()
+            },
             "open_positions": [
                 {
                     "id": p.id,
@@ -280,8 +336,12 @@ class PaperTrader:
                 for p in self.portfolio.open_positions
             ],
         }
-        with open(self._state_path, "w") as f:
-            json.dump(state, f, indent=2)
+        try:
+            with open(self._state_path, "w") as f:
+                json.dump(state, f, indent=2)
+            self._last_save = datetime.utcnow()
+        except Exception as e:
+            logger.error("paper_state_save_error", error=str(e))
 
     def _load_state(self) -> None:
         """Load paper trading state from disk."""
@@ -301,6 +361,10 @@ class PaperTrader:
                                                          self.portfolio.balance_sol)
             self.portfolio.max_drawdown_pct = state.get("max_drawdown_pct", 0)
 
+            # Restore exit levels
+            for k, v in state.get("exit_levels_hit", {}).items():
+                self._exit_levels_hit[k] = set(v)
+
             for p_data in state.get("open_positions", []):
                 pos = Position(
                     id=p_data["id"],
@@ -317,6 +381,7 @@ class PaperTrader:
 
             logger.info("paper_state_loaded",
                         balance=self.portfolio.balance_sol,
-                        positions=len(self.portfolio.open_positions))
+                        positions=len(self.portfolio.open_positions),
+                        trades=self.portfolio.total_trades)
         except Exception as e:
             logger.error("paper_state_load_error", error=str(e))

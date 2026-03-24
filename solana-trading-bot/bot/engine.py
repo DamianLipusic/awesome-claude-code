@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import asyncio
-from datetime import datetime
+import time
+from datetime import datetime, timedelta
 
 import structlog
-import yaml
 
 from bot.database import Database
 from bot.data_collector.aggregator import DataAggregator
@@ -15,6 +15,7 @@ from bot.trading.paper_trader import PaperTrader
 from bot.trading.live_trader import LiveTrader
 from bot.trading.risk_manager import RiskManager
 from bot.models import BotMode
+from bot.utils.speed import latency_tracker
 
 logger = structlog.get_logger()
 
@@ -48,11 +49,22 @@ class TradingEngine:
         data_config = config.get("data", {})
         self._price_interval = data_config.get("price_poll_interval", 10)
         self._scan_interval = data_config.get("token_scan_interval", 60)
-        self._holder_interval = data_config.get("holder_check_interval", 300)
+
+        # Health tracking
+        self._start_time: datetime | None = None
+        self._loop_errors: dict[str, int] = {
+            "discovery": 0, "price": 0, "trading": 0, "ml": 0, "reporting": 0,
+        }
+        self._consecutive_errors: dict[str, int] = {
+            "discovery": 0, "price": 0, "trading": 0, "ml": 0,
+        }
+        self._max_consecutive_errors = 10
+        self._last_successful: dict[str, datetime] = {}
 
     async def start(self) -> None:
         """Start the trading engine."""
         logger.info("engine_starting", mode=self.mode.value)
+        self._start_time = datetime.utcnow()
 
         await self.data.start()
 
@@ -76,6 +88,8 @@ class TradingEngine:
                 self._trading_loop(),
                 self._ml_training_loop(),
                 self._reporting_loop(),
+                self._health_check_loop(),
+                self._db_maintenance_loop(),
             )
         except asyncio.CancelledError:
             logger.info("engine_stopped")
@@ -83,23 +97,57 @@ class TradingEngine:
             await self.stop()
 
     async def stop(self) -> None:
-        """Stop the trading engine."""
+        """Stop the trading engine gracefully."""
         self.running = False
+
+        # Save state before stopping
+        if self.mode == BotMode.PAPER and hasattr(self.trader, '_save_state'):
+            self.trader._save_state()
+
         await self.data.stop()
         self.db.close()
-        logger.info("engine_shutdown_complete")
+
+        uptime = ""
+        if self._start_time:
+            uptime = str(datetime.utcnow() - self._start_time)
+
+        logger.info("engine_shutdown_complete",
+                     uptime=uptime,
+                     total_errors=sum(self._loop_errors.values()))
 
     async def _token_discovery_loop(self) -> None:
         """Periodically discover new tokens."""
         while self.running:
             try:
+                start = time.perf_counter()
                 tokens = await self.data.discover_tokens()
+
+                new_count = 0
                 for token in tokens:
+                    if token.mint_address not in self._tracked_mints:
+                        new_count += 1
                     self._tracked_mints.add(token.mint_address)
 
-                logger.info("tracking_tokens", count=len(self._tracked_mints))
+                elapsed = (time.perf_counter() - start) * 1000
+                latency_tracker.record("token_discovery", elapsed)
+
+                logger.info("tracking_tokens",
+                            total=len(self._tracked_mints),
+                            new=new_count)
+
+                self._consecutive_errors["discovery"] = 0
+                self._last_successful["discovery"] = datetime.utcnow()
+
             except Exception as e:
-                logger.error("discovery_error", error=str(e))
+                self._loop_errors["discovery"] += 1
+                self._consecutive_errors["discovery"] += 1
+                logger.error("discovery_error", error=str(e),
+                             consecutive=self._consecutive_errors["discovery"])
+
+                if self._consecutive_errors["discovery"] >= self._max_consecutive_errors:
+                    logger.critical("discovery_loop_failing",
+                                     msg="Too many consecutive errors, backing off")
+                    await asyncio.sleep(self._scan_interval * 5)
 
             await asyncio.sleep(self._scan_interval)
 
@@ -111,7 +159,11 @@ class TradingEngine:
                 continue
 
             try:
+                start = time.perf_counter()
                 prices = await self.data.update_prices(list(self._tracked_mints))
+                elapsed = (time.perf_counter() - start) * 1000
+                latency_tracker.record("price_update", elapsed)
+
                 if prices:
                     # Check exits
                     if self.mode == BotMode.PAPER:
@@ -128,7 +180,12 @@ class TradingEngine:
                         )
                         self.risk_manager.record_trade_result(trade.pnl_sol)
 
+                self._consecutive_errors["price"] = 0
+                self._last_successful["price"] = datetime.utcnow()
+
             except Exception as e:
+                self._loop_errors["price"] += 1
+                self._consecutive_errors["price"] += 1
                 logger.error("price_tracking_error", error=str(e))
 
             await asyncio.sleep(self._price_interval)
@@ -151,6 +208,7 @@ class TradingEngine:
                     continue
 
                 # Evaluate each tracked token
+                signals_evaluated = 0
                 for mint in list(self._tracked_mints):
                     # Skip if already have position
                     if any(p.mint_address == mint for p in portfolio.open_positions):
@@ -160,6 +218,8 @@ class TradingEngine:
                     features = self.data.compute_features(mint)
                     if not features:
                         continue
+
+                    signals_evaluated += 1
 
                     # Get ML prediction
                     token = self.data._token_cache.get(mint)
@@ -186,33 +246,46 @@ class TradingEngine:
                     logger.info("trade_signal",
                                 symbol=symbol,
                                 confidence=f"{signal.confidence:.2%}",
-                                size=f"{size:.4f} SOL")
+                                size=f"{size:.4f} SOL",
+                                predicted_return=f"{signal.predicted_return:.2%}")
 
                     if self.mode == BotMode.PAPER:
                         self.trader.execute_buy(signal, size)
                     else:
                         await self.trader.execute_buy(signal, size)
 
+                self._consecutive_errors["trading"] = 0
+                self._last_successful["trading"] = datetime.utcnow()
+
             except Exception as e:
+                self._loop_errors["trading"] += 1
+                self._consecutive_errors["trading"] += 1
                 logger.error("trading_loop_error", error=str(e))
 
             await asyncio.sleep(self._price_interval * 3)
 
     async def _ml_training_loop(self) -> None:
         """Periodically retrain the ML model."""
-        # Wait for some initial data
+        # Wait for initial data collection
         await asyncio.sleep(300)
 
         while self.running:
             try:
                 if self.model.should_retrain():
                     logger.info("ml_retraining_started")
+                    start = time.perf_counter()
                     stats = self.model.train()
-                    logger.info("ml_retraining_done", **stats)
+                    elapsed = (time.perf_counter() - start) * 1000
+                    latency_tracker.record("ml_training", elapsed)
+                    logger.info("ml_retraining_done",
+                                duration_s=f"{elapsed/1000:.1f}",
+                                **stats)
+                self._consecutive_errors["ml"] = 0
             except Exception as e:
+                self._loop_errors["ml"] += 1
+                self._consecutive_errors["ml"] += 1
                 logger.error("ml_training_error", error=str(e))
 
-            # Check every hour
             await asyncio.sleep(3600)
 
     async def _reporting_loop(self) -> None:
@@ -228,11 +301,17 @@ class TradingEngine:
                 summary = self.trader.get_portfolio_summary()
                 risk = self.risk_manager.get_risk_status(self.trader.portfolio)
                 ml_stats = self.model.get_stats()
+                latencies = latency_tracker.report()
 
                 logger.info("=== STATUS REPORT ===")
                 logger.info("portfolio", **summary)
                 logger.info("risk", **risk)
                 logger.info("ml_model", **ml_stats)
+                if latencies:
+                    logger.info("latencies", **{
+                        k: f"{v['avg_ms']:.0f}ms (p99: {v['p99_ms']:.0f}ms)"
+                        for k, v in latencies.items()
+                    })
 
                 # Save portfolio snapshot
                 self.db.save_portfolio_snapshot(
@@ -244,4 +323,59 @@ class TradingEngine:
                     win_rate=self.trader.portfolio.win_rate,
                 )
             except Exception as e:
+                self._loop_errors["reporting"] += 1
                 logger.error("reporting_error", error=str(e))
+
+    async def _health_check_loop(self) -> None:
+        """Monitor bot health and restart components if needed."""
+        check_interval = self.config.get("deployment", {}).get(
+            "health_check_interval", 60
+        )
+
+        while self.running:
+            await asyncio.sleep(check_interval)
+
+            try:
+                now = datetime.utcnow()
+                health = {
+                    "uptime_hours": round(
+                        (now - self._start_time).total_seconds() / 3600, 1
+                    ) if self._start_time else 0,
+                    "tracked_tokens": len(self._tracked_mints),
+                    "open_positions": len(self.trader.portfolio.open_positions),
+                    "total_errors": sum(self._loop_errors.values()),
+                    "errors_by_loop": {k: v for k, v in self._loop_errors.items() if v > 0},
+                }
+
+                # Check if any loop hasn't run successfully in a while
+                stale_threshold = timedelta(minutes=10)
+                for loop_name, last_time in self._last_successful.items():
+                    if now - last_time > stale_threshold:
+                        health[f"{loop_name}_stale"] = True
+                        logger.warning("loop_stale",
+                                        loop=loop_name,
+                                        last_success=last_time.isoformat())
+
+                # Check if data collector connections are alive
+                if not self.data.jupiter.client or not self.data.raydium.client:
+                    logger.warning("collector_client_down", msg="Restarting collectors")
+                    await self.data.stop()
+                    await self.data.start()
+
+                logger.debug("health_check", **health)
+
+            except Exception as e:
+                logger.error("health_check_error", error=str(e))
+
+    async def _db_maintenance_loop(self) -> None:
+        """Periodic database maintenance."""
+        while self.running:
+            # Run every 6 hours
+            await asyncio.sleep(21600)
+
+            try:
+                self.db.cleanup_old_data(days=30)
+                self.db.optimize()
+                logger.info("db_maintenance_done")
+            except Exception as e:
+                logger.error("db_maintenance_error", error=str(e))

@@ -4,27 +4,44 @@ from __future__ import annotations
 
 import json
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
+
+import structlog
 
 from bot.models import PriceCandle, Position, TradeRecord, TradeSide, TradeStatus
 
+logger = structlog.get_logger()
+
 
 class Database:
-    """SQLite database manager."""
+    """SQLite database manager with WAL mode and batch operations."""
 
     def __init__(self, db_path: str = "data/trading_bot.db"):
         self.db_path = Path(db_path)
-        self.db_path.parent.mkdir(parents=True, exist_ok=True)
+        if str(db_path) != ":memory:":
+            self.db_path.parent.mkdir(parents=True, exist_ok=True)
         self.conn: sqlite3.Connection | None = None
 
     def connect(self) -> None:
         self.conn = sqlite3.connect(str(self.db_path))
         self.conn.row_factory = sqlite3.Row
+
+        # Performance optimizations
+        self.conn.execute("PRAGMA journal_mode=WAL")
+        self.conn.execute("PRAGMA synchronous=NORMAL")
+        self.conn.execute("PRAGMA cache_size=-64000")  # 64MB cache
+        self.conn.execute("PRAGMA temp_store=MEMORY")
+        self.conn.execute("PRAGMA mmap_size=268435456")  # 256MB mmap
+
         self._create_tables()
 
     def close(self) -> None:
         if self.conn:
+            try:
+                self.conn.execute("PRAGMA optimize")
+            except Exception:
+                pass
             self.conn.close()
 
     def _create_tables(self) -> None:
@@ -103,8 +120,14 @@ class Database:
                 ON trades(mint_address);
             CREATE INDEX IF NOT EXISTS idx_trades_status
                 ON trades(status);
+            CREATE INDEX IF NOT EXISTS idx_trades_exit_time
+                ON trades(exit_time);
             CREATE INDEX IF NOT EXISTS idx_snapshots_mint_ts
                 ON token_snapshots(mint_address, timestamp);
+            CREATE INDEX IF NOT EXISTS idx_ml_data_type_ts
+                ON ml_training_data(label_type, timestamp);
+            CREATE INDEX IF NOT EXISTS idx_portfolio_ts
+                ON portfolio_snapshots(timestamp);
         """)
         self.conn.commit()
 
@@ -118,6 +141,20 @@ class Database:
                VALUES (?, ?, ?, ?, ?, ?, ?)""",
             (candle.mint_address, candle.timestamp.isoformat(),
              candle.open, candle.high, candle.low, candle.close, candle.volume),
+        )
+        self.conn.commit()
+
+    def save_candles_batch(self, candles: list[PriceCandle]) -> None:
+        """Batch insert candles for better performance."""
+        assert self.conn is not None
+        if not candles:
+            return
+        self.conn.executemany(
+            """INSERT OR REPLACE INTO price_candles
+               (mint_address, timestamp, open, high, low, close, volume)
+               VALUES (?, ?, ?, ?, ?, ?, ?)""",
+            [(c.mint_address, c.timestamp.isoformat(),
+              c.open, c.high, c.low, c.close, c.volume) for c in candles],
         )
         self.conn.commit()
 
@@ -201,6 +238,24 @@ class Database:
             for r in rows
         ]
 
+    def get_trade_stats(self) -> dict:
+        """Get aggregate trade statistics."""
+        assert self.conn is not None
+        row = self.conn.execute("""
+            SELECT
+                COUNT(*) as total,
+                SUM(CASE WHEN was_profitable = 1 THEN 1 ELSE 0 END) as wins,
+                SUM(pnl_sol) as total_pnl,
+                AVG(pnl_pct) as avg_pnl_pct,
+                AVG(hold_duration_minutes) as avg_hold_min,
+                MAX(pnl_pct) as best_trade_pct,
+                MIN(pnl_pct) as worst_trade_pct
+            FROM trades WHERE status = 'closed'
+        """).fetchone()
+        if not row or row["total"] == 0:
+            return {"total": 0}
+        return dict(row)
+
     # --- ML Training Data ---
 
     def save_training_sample(self, mint_address: str, features: dict,
@@ -229,6 +284,15 @@ class Database:
             for r in rows
         ]
 
+    def get_training_data_count(self, label_type: str = "return") -> int:
+        """Get count of training samples without loading all data."""
+        assert self.conn is not None
+        row = self.conn.execute(
+            "SELECT COUNT(*) as cnt FROM ml_training_data WHERE label_type = ?",
+            (label_type,),
+        ).fetchone()
+        return row["cnt"] if row else 0
+
     # --- Portfolio Snapshots ---
 
     def save_portfolio_snapshot(self, balance: float, invested: float,
@@ -244,3 +308,68 @@ class Database:
              positions, trades, win_rate),
         )
         self.conn.commit()
+
+    def get_portfolio_history(self, days: int = 7) -> list[dict]:
+        """Get portfolio snapshots for the last N days."""
+        assert self.conn is not None
+        cutoff = (datetime.utcnow() - timedelta(days=days)).isoformat()
+        rows = self.conn.execute(
+            """SELECT * FROM portfolio_snapshots
+               WHERE timestamp > ? ORDER BY timestamp""",
+            (cutoff,),
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+    # --- Maintenance ---
+
+    def cleanup_old_data(self, days: int = 30) -> None:
+        """Remove old data to prevent database bloat."""
+        assert self.conn is not None
+        cutoff = (datetime.utcnow() - timedelta(days=days)).isoformat()
+
+        deleted_candles = self.conn.execute(
+            "DELETE FROM price_candles WHERE timestamp < ?", (cutoff,)
+        ).rowcount
+        deleted_snapshots = self.conn.execute(
+            "DELETE FROM token_snapshots WHERE timestamp < ?", (cutoff,)
+        ).rowcount
+
+        # Keep more training data (90 days)
+        training_cutoff = (datetime.utcnow() - timedelta(days=90)).isoformat()
+        deleted_training = self.conn.execute(
+            "DELETE FROM ml_training_data WHERE timestamp < ?", (training_cutoff,)
+        ).rowcount
+
+        self.conn.commit()
+
+        logger.info("db_cleanup",
+                     candles=deleted_candles,
+                     snapshots=deleted_snapshots,
+                     training=deleted_training)
+
+    def optimize(self) -> None:
+        """Run VACUUM and ANALYZE for optimal performance."""
+        assert self.conn is not None
+        try:
+            self.conn.execute("ANALYZE")
+            # Only VACUUM occasionally as it rewrites the whole DB
+            size = self.db_path.stat().st_size if self.db_path.exists() else 0
+            if size > 100 * 1024 * 1024:  # > 100MB
+                self.conn.execute("VACUUM")
+                logger.info("db_vacuumed", size_mb=round(size / 1024 / 1024, 1))
+        except Exception as e:
+            logger.error("db_optimize_error", error=str(e))
+
+    def get_db_stats(self) -> dict:
+        """Get database size and row count statistics."""
+        assert self.conn is not None
+        stats = {}
+        for table in ["price_candles", "trades", "token_snapshots",
+                       "ml_training_data", "portfolio_snapshots"]:
+            row = self.conn.execute(f"SELECT COUNT(*) as cnt FROM {table}").fetchone()
+            stats[table] = row["cnt"] if row else 0
+
+        if self.db_path.exists():
+            stats["size_mb"] = round(self.db_path.stat().st_size / 1024 / 1024, 2)
+
+        return stats
