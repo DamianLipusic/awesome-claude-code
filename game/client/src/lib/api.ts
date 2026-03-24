@@ -3,11 +3,11 @@ import { Platform } from 'react-native';
 
 const BASE_URL =
   (Constants.expoConfig?.extra?.apiBaseUrl as string | undefined) ??
-  'http://localhost:3000/api/v1';
+  'http://187.124.18.170:3000/api/v1';
 
 const WS_BASE_URL =
   (Constants.expoConfig?.extra?.wsBaseUrl as string | undefined) ??
-  'ws://localhost:3000/ws';
+  'ws://187.124.18.170:3000/ws';
 
 const TOKEN_KEY = 'auth_token';
 const REFRESH_TOKEN_KEY = 'refresh_token';
