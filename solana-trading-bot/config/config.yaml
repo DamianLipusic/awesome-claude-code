@@ -38,32 +38,29 @@ strategy:
   min_confidence_score: 0.65    # Minimum ML confidence to enter trade
   max_positions: 5              # Maximum concurrent positions
 
-  # Exit strategy
-  take_profit_pct: 0.50         # 50% take profit
-  stop_loss_pct: 0.20           # 20% stop loss
-  trailing_stop_pct: 0.10       # 10% trailing stop after profit
+  # Exit strategy - Scaled exits (sell portions at different profit levels)
+  # Level 1: Sell 30% at +25% profit (lock in early gains)
+  # Level 2: Sell 30% at +50% profit (secure more profit)
+  # Level 3: Sell remaining 40% at +100% profit or trailing stop
+  take_profit_pct: 0.50         # Legacy: full exit threshold (used if scaled exits disabled)
+  stop_loss_pct: 0.20           # 20% stop loss - exit everything
+  trailing_stop_pct: 0.10       # 10% trailing stop (activates after +10% profit)
   max_hold_time_hours: 24       # Force exit after this time
 
 # ML Model Configuration
 ml:
-  model_type: "xgboost"         # "xgboost" | "random_forest" | "gradient_boosting"
+  model_type: "xgboost"         # "xgboost" | "random_forest" | "gradient_boosting" | "ensemble"
   retrain_interval_hours: 6     # Retrain model every N hours
   min_training_samples: 100     # Minimum samples before training
   feature_window_minutes: 30    # Feature calculation window
   lookback_periods: [5, 15, 30, 60]  # Minutes for feature calculation
 
-  # Features to use
-  features:
-    - price_change_pct
-    - volume_surge_ratio
-    - buy_sell_ratio
-    - liquidity_depth
-    - holder_growth_rate
-    - price_volatility
-    - momentum_score
-    - rsi
-    - macd_signal
-    - volume_profile
+  # Features computed automatically (20 total):
+  # Price: price_change_5m/15m/30m/60m, price_volatility, price_position
+  # Momentum: momentum_score, momentum_acceleration, rsi, macd_signal, roc_10
+  # Volume: buy_sell_ratio, volume_profile, liquidity_depth, volume_24h
+  # Token: holder_count, market_cap, token_age_hours
+  # Technical: bb_position (Bollinger), atr_ratio
 
 # Data Collection
 data:
@@ -86,9 +83,14 @@ risk:
   max_daily_loss_pct: 0.10      # Stop trading if daily loss exceeds 10%
   max_drawdown_pct: 0.25        # Stop trading if drawdown exceeds 25%
   max_trades_per_hour: 10       # Rate limit trades
-  cooldown_after_loss_minutes: 15  # Wait after a losing trade
+  cooldown_after_loss_minutes: 15  # Wait after a losing trade (extends during streaks)
   position_size_method: "kelly"  # "fixed" | "kelly" | "risk_parity"
   kelly_fraction: 0.25          # Use 1/4 Kelly for safety
+
+  # Streak protection:
+  # - Position size reduces by 20% per loss after 3rd consecutive loss
+  # - Trading halts after 5 consecutive losses (manual resume required)
+  # - Winning streaks get up to 30% size boost
 
 # Backtesting
 backtesting:
@@ -107,7 +109,7 @@ monitoring:
     bot_token: ""               # Set in .env: TELEGRAM_BOT_TOKEN
     chat_id: ""                 # Set in .env: TELEGRAM_CHAT_ID
   # Performance report interval
-  report_interval_hours: 24
+  report_interval_hours: 1      # Report every hour (was 24h - too infrequent)
 
 # VPS Deployment
 deployment:

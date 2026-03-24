@@ -70,7 +70,8 @@ class BaseCollector(ABC):
 
         for attempt in range(retries):
             try:
-                assert self.client is not None
+                if self.client is None:
+                    return None
                 self._request_count += 1
                 resp = await self.client.get(path, params=params)
                 self._last_request_time = time.monotonic()

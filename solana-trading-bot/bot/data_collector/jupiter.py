@@ -100,7 +100,8 @@ class JupiterCollector(BaseCollector):
         """Get serialized swap transaction from Jupiter."""
         if not self.client:
             await self.start()
-        assert self.client is not None
+        if self.client is None:
+            return None
 
         try:
             resp = await self.client.post(
