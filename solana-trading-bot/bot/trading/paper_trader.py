@@ -225,6 +225,9 @@ class PaperTrader:
             if price > position.highest_price_sol:
                 position.highest_price_sol = price
 
+            if position.entry_price_sol <= 0:
+                continue
+
             pnl_pct = (price - position.entry_price_sol) / position.entry_price_sol
 
             # 1. Stop loss - exit everything immediately

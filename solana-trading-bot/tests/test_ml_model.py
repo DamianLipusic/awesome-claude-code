@@ -61,7 +61,7 @@ class TestFeatureEngineer:
 
 class TestTradingModel:
     @pytest.fixture
-    def model(self):
+    def model(self, tmp_path):
         db = Database(":memory:")
         db.connect()
         config = {
@@ -72,6 +72,13 @@ class TestTradingModel:
             }
         }
         m = TradingModel(config, db)
+        # Use temp paths to avoid cross-test contamination
+        m._model_path = tmp_path / "model.pkl"
+        m._stats_path = tmp_path / "model_stats.json"
+        m._is_trained = False
+        m.model = None
+        m._last_train_time = None
+        m._train_count = 0
         yield m
         db.close()
 

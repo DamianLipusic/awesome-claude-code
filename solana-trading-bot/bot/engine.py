@@ -357,7 +357,7 @@ class TradingEngine:
                                         last_success=last_time.isoformat())
 
                 # Check if data collector connections are alive
-                if not self.data.jupiter.client or not self.data.raydium.client:
+                if not self.data.jupiter.client or not self.data.raydium.client or not self.data.pump_fun.client:
                     logger.warning("collector_client_down", msg="Restarting collectors")
                     await self.data.stop()
                     await self.data.start()

@@ -45,7 +45,8 @@ class Database:
             self.conn.close()
 
     def _create_tables(self) -> None:
-        assert self.conn is not None
+        if self.conn is None:
+            raise RuntimeError("Database not connected. Call connect() first.")
         self.conn.executescript("""
             CREATE TABLE IF NOT EXISTS price_candles (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -134,7 +135,8 @@ class Database:
     # --- Price Candles ---
 
     def save_candle(self, candle: PriceCandle) -> None:
-        assert self.conn is not None
+        if self.conn is None:
+            raise RuntimeError("Database not connected. Call connect() first.")
         self.conn.execute(
             """INSERT OR REPLACE INTO price_candles
                (mint_address, timestamp, open, high, low, close, volume)
@@ -146,7 +148,8 @@ class Database:
 
     def save_candles_batch(self, candles: list[PriceCandle]) -> None:
         """Batch insert candles for better performance."""
-        assert self.conn is not None
+        if self.conn is None:
+            raise RuntimeError("Database not connected. Call connect() first.")
         if not candles:
             return
         self.conn.executemany(
@@ -159,7 +162,8 @@ class Database:
         self.conn.commit()
 
     def get_candles(self, mint_address: str, limit: int = 500) -> list[PriceCandle]:
-        assert self.conn is not None
+        if self.conn is None:
+            raise RuntimeError("Database not connected. Call connect() first.")
         rows = self.conn.execute(
             """SELECT * FROM price_candles
                WHERE mint_address = ?
@@ -179,7 +183,8 @@ class Database:
     # --- Trades ---
 
     def save_trade(self, trade: TradeRecord) -> None:
-        assert self.conn is not None
+        if self.conn is None:
+            raise RuntimeError("Database not connected. Call connect() first.")
         self.conn.execute(
             """INSERT OR REPLACE INTO trades
                (id, mint_address, symbol, side, entry_price, exit_price,
@@ -198,7 +203,8 @@ class Database:
         self.conn.commit()
 
     def save_open_position(self, pos: Position) -> None:
-        assert self.conn is not None
+        if self.conn is None:
+            raise RuntimeError("Database not connected. Call connect() first.")
         self.conn.execute(
             """INSERT OR REPLACE INTO trades
                (id, mint_address, symbol, side, entry_price, exit_price,
@@ -214,7 +220,8 @@ class Database:
         self.conn.commit()
 
     def get_completed_trades(self, limit: int = 1000) -> list[TradeRecord]:
-        assert self.conn is not None
+        if self.conn is None:
+            raise RuntimeError("Database not connected. Call connect() first.")
         rows = self.conn.execute(
             """SELECT * FROM trades WHERE status = 'closed'
                ORDER BY exit_time DESC LIMIT ?""",
@@ -240,7 +247,8 @@ class Database:
 
     def get_trade_stats(self) -> dict:
         """Get aggregate trade statistics."""
-        assert self.conn is not None
+        if self.conn is None:
+            raise RuntimeError("Database not connected. Call connect() first.")
         row = self.conn.execute("""
             SELECT
                 COUNT(*) as total,
@@ -260,7 +268,8 @@ class Database:
 
     def save_training_sample(self, mint_address: str, features: dict,
                               label: float, label_type: str = "return") -> None:
-        assert self.conn is not None
+        if self.conn is None:
+            raise RuntimeError("Database not connected. Call connect() first.")
         self.conn.execute(
             """INSERT INTO ml_training_data
                (timestamp, mint_address, features, label, label_type)
@@ -272,7 +281,8 @@ class Database:
 
     def get_training_data(self, label_type: str = "return",
                           limit: int = 10000) -> list[dict]:
-        assert self.conn is not None
+        if self.conn is None:
+            raise RuntimeError("Database not connected. Call connect() first.")
         rows = self.conn.execute(
             """SELECT features, label FROM ml_training_data
                WHERE label_type = ?
@@ -286,7 +296,8 @@ class Database:
 
     def get_training_data_count(self, label_type: str = "return") -> int:
         """Get count of training samples without loading all data."""
-        assert self.conn is not None
+        if self.conn is None:
+            raise RuntimeError("Database not connected. Call connect() first.")
         row = self.conn.execute(
             "SELECT COUNT(*) as cnt FROM ml_training_data WHERE label_type = ?",
             (label_type,),
@@ -298,7 +309,8 @@ class Database:
     def save_portfolio_snapshot(self, balance: float, invested: float,
                                  pnl: float, positions: int,
                                  trades: int, win_rate: float) -> None:
-        assert self.conn is not None
+        if self.conn is None:
+            raise RuntimeError("Database not connected. Call connect() first.")
         self.conn.execute(
             """INSERT INTO portfolio_snapshots
                (timestamp, balance_sol, total_invested_sol, total_pnl_sol,
@@ -311,7 +323,8 @@ class Database:
 
     def get_portfolio_history(self, days: int = 7) -> list[dict]:
         """Get portfolio snapshots for the last N days."""
-        assert self.conn is not None
+        if self.conn is None:
+            raise RuntimeError("Database not connected. Call connect() first.")
         cutoff = (datetime.utcnow() - timedelta(days=days)).isoformat()
         rows = self.conn.execute(
             """SELECT * FROM portfolio_snapshots
@@ -324,7 +337,8 @@ class Database:
 
     def cleanup_old_data(self, days: int = 30) -> None:
         """Remove old data to prevent database bloat."""
-        assert self.conn is not None
+        if self.conn is None:
+            raise RuntimeError("Database not connected. Call connect() first.")
         cutoff = (datetime.utcnow() - timedelta(days=days)).isoformat()
 
         deleted_candles = self.conn.execute(
@@ -349,7 +363,8 @@ class Database:
 
     def optimize(self) -> None:
         """Run VACUUM and ANALYZE for optimal performance."""
-        assert self.conn is not None
+        if self.conn is None:
+            raise RuntimeError("Database not connected. Call connect() first.")
         try:
             self.conn.execute("ANALYZE")
             # Only VACUUM occasionally as it rewrites the whole DB
@@ -362,7 +377,8 @@ class Database:
 
     def get_db_stats(self) -> dict:
         """Get database size and row count statistics."""
-        assert self.conn is not None
+        if self.conn is None:
+            raise RuntimeError("Database not connected. Call connect() first.")
         stats = {}
         for table in ["price_candles", "trades", "token_snapshots",
                        "ml_training_data", "portfolio_snapshots"]:
