@@ -238,4 +238,147 @@ export async function businessRoutes(app: FastifyInstance): Promise<void> {
     const res = await query(`SELECT inventory FROM businesses WHERE id = $1`, [id]);
     return reply.send({ data: { inventory: res.rows[0]?.inventory ?? {} } });
   });
+
+  // GET /businesses/:id/upgrade-info
+  app.get('/:id/upgrade-info', { preHandler: [requireAuth] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    const { id } = request.params as { id: string };
+    const res = await query(
+      `SELECT type, tier, storage_cap FROM businesses WHERE id = $1 AND owner_id = $2`,
+      [id, request.player.id],
+    );
+    if (!res.rows.length) return reply.status(404).send({ error: 'Business not found' });
+    const { type, tier, storage_cap } = res.rows[0] as { type: string; tier: number; storage_cap: number };
+
+    const nextTier = tier < 4 ? tier + 1 : null;
+    const upgradeCosts = UPGRADE_COSTS[type as BusinessType];
+    const upgrade_cost = nextTier ? (upgradeCosts?.[nextTier] ?? 0) : 0;
+    const baseCapacity = BASE_CAPACITY[type as BusinessType] ?? 200;
+    const nextCapacity = nextTier ? Math.round(baseCapacity * (TIER_CAPACITY_MULTIPLIER[nextTier] ?? 1)) : 0;
+    const capacity_increase = nextCapacity - storage_cap;
+    const efficiency_boost = nextTier ? 0.05 : 0;
+
+    return reply.send({
+      data: {
+        current_tier: tier,
+        next_tier: nextTier,
+        upgrade_cost,
+        capacity_increase,
+        efficiency_boost,
+      },
+    });
+  });
+
+  // GET /businesses/:id/revenue
+  app.get('/:id/revenue', { preHandler: [requireAuth] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    const { id } = request.params as { id: string };
+    const { days = '7' } = request.query as { days?: string };
+    const ownerCheck = await query(
+      `SELECT id FROM businesses WHERE id = $1 AND owner_id = $2`,
+      [id, request.player.id],
+    );
+    if (!ownerCheck.rows.length) return reply.status(404).send({ error: 'Business not found' });
+
+    const numDays = Math.min(parseInt(days, 10) || 7, 30);
+    const res = await query<{ day: string; revenue: string; expenses: string }>(
+      `SELECT day::text, revenue, expenses
+         FROM business_ledger
+        WHERE business_id = $1
+          AND day >= CURRENT_DATE - INTERVAL '${numDays} days'
+        ORDER BY day ASC`,
+      [id],
+    );
+
+    // Build a full array covering the last N days (fill gaps with 0)
+    const dates: string[] = [];
+    const revenues: number[] = [];
+    const expenses: number[] = [];
+    const rowMap = new Map(res.rows.map((r) => [r.day, r]));
+
+    for (let i = numDays - 1; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const key = d.toISOString().slice(0, 10);
+      const row = rowMap.get(key);
+      dates.push(key);
+      revenues.push(row ? Number(row.revenue) : 0);
+      expenses.push(row ? Number(row.expenses) : 0);
+    }
+
+    return reply.send({ data: { dates, revenues, expenses } });
+  });
+
+  // GET /businesses/:id/config
+  app.get('/:id/config', { preHandler: [requireAuth] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    const { id } = request.params as { id: string };
+    const res = await query(
+      `SELECT producing_resource_id AS resource_id,
+              quantity_per_tick,
+              auto_sell,
+              auto_sell_price
+         FROM businesses
+        WHERE id = $1 AND owner_id = $2`,
+      [id, request.player.id],
+    );
+    if (!res.rows.length) return reply.status(404).send({ error: 'Business not found' });
+    return reply.send({ data: res.rows[0] });
+  });
+
+  // PUT /businesses/:id/config
+  const ConfigSchema = z.object({
+    resource_id: z.string().uuid().nullable().optional(),
+    auto_sell: z.boolean().optional(),
+    auto_sell_price: z.number().positive().nullable().optional(),
+  });
+
+  app.put('/:id/config', { preHandler: [requireAuth] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    const { id } = request.params as { id: string };
+    const parsed = ConfigSchema.safeParse(request.body);
+    if (!parsed.success) return reply.status(400).send({ error: parsed.error.errors[0].message });
+
+    const ownerCheck = await query(
+      `SELECT id FROM businesses WHERE id = $1 AND owner_id = $2`,
+      [id, request.player.id],
+    );
+    if (!ownerCheck.rows.length) return reply.status(404).send({ error: 'Business not found' });
+
+    const setClauses: string[] = [];
+    const values: unknown[] = [];
+    let pi = 1;
+
+    if (parsed.data.resource_id !== undefined) {
+      setClauses.push(`producing_resource_id = $${pi++}`);
+      values.push(parsed.data.resource_id);
+    }
+    if (parsed.data.auto_sell !== undefined) {
+      setClauses.push(`auto_sell = $${pi++}`);
+      values.push(parsed.data.auto_sell);
+    }
+    if (parsed.data.auto_sell_price !== undefined) {
+      setClauses.push(`auto_sell_price = $${pi++}`);
+      values.push(parsed.data.auto_sell_price);
+    }
+
+    if (!setClauses.length) return reply.status(400).send({ error: 'Nothing to update' });
+
+    values.push(id);
+    await query(`UPDATE businesses SET ${setClauses.join(', ')} WHERE id = $${pi}`, values);
+    return reply.send({ data: { success: true } });
+  });
+
+  // DELETE /businesses/:id/employees/:employeeId
+  app.delete('/:id/employees/:employeeId', { preHandler: [requireAuth] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    const { id: businessId, employeeId } = request.params as { id: string; employeeId: string };
+    const playerId = request.player.id;
+
+    const empRow = await query(
+      `SELECT e.id FROM employees e
+         JOIN businesses b ON b.id = e.business_id
+        WHERE e.id = $1 AND b.id = $2 AND b.owner_id = $3`,
+      [employeeId, businessId, playerId],
+    );
+    if (!empRow.rows.length) return reply.status(403).send({ error: 'Employee not found or not owned by player' });
+
+    await query(`UPDATE employees SET business_id = NULL, hired_at = NULL WHERE id = $1`, [employeeId]);
+    return reply.status(204).send();
+  });
 }

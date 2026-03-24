@@ -5,7 +5,6 @@ import {
   ScrollView,
   TouchableOpacity,
   StyleSheet,
-  FlatList,
   Switch,
   Alert,
   Modal,
@@ -448,14 +447,30 @@ interface ProductionConfig {
   auto_sell_price: number | null;
 }
 
+interface Resource {
+  id: string;
+  name: string;
+  category: string;
+  tier: number;
+  illegal: boolean;
+}
+
 function OperationsTab({ business }: { business: Business }) {
   const queryClient = useQueryClient();
   const [autoSell, setAutoSell] = useState(false);
   const [autoSellPrice, setAutoSellPrice] = useState('');
+  const [selectedResourceId, setSelectedResourceId] = useState<string | null>(null);
+  const [qtyPerTick, setQtyPerTick] = useState('10');
 
   const { data: config } = useQuery<ProductionConfig>({
     queryKey: ['business', business.id, 'config'],
     queryFn: () => api.get<ProductionConfig>(`/businesses/${business.id}/config`),
+  });
+
+  const { data: resources } = useQuery<Resource[]>({
+    queryKey: ['market', 'resources'],
+    queryFn: () => api.get<Resource[]>('/market/resources'),
+    staleTime: 120_000,
   });
 
   // Sync config into local state when loaded
@@ -463,6 +478,8 @@ function OperationsTab({ business }: { business: Business }) {
     if (config) {
       setAutoSell(config.auto_sell);
       setAutoSellPrice(config.auto_sell_price?.toString() ?? '');
+      setSelectedResourceId(config.resource_id);
+      setQtyPerTick(config.quantity_per_tick?.toString() ?? '10');
     }
   }, [config]);
 
@@ -473,24 +490,82 @@ function OperationsTab({ business }: { business: Business }) {
       queryClient.invalidateQueries({ queryKey: ['business', business.id, 'config'] });
       Alert.alert('Saved', 'Production configuration updated.');
     },
+    onError: (err) => {
+      Alert.alert('Error', err instanceof Error ? err.message : 'Save failed');
+    },
   });
+
+  const produceMutation = useMutation({
+    mutationFn: () => api.post(`/businesses/${business.id}/produce`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['business', business.id] });
+      Alert.alert('Done', 'Manual production tick triggered.');
+    },
+    onError: (err) => {
+      Alert.alert('Error', err instanceof Error ? err.message : 'Production failed');
+    },
+  });
+
+  const currentResourceName = resources?.find((r) => r.id === selectedResourceId)?.name;
+
+  const grouped: Record<string, Resource[]> = {};
+  for (const r of resources ?? []) {
+    if (!grouped[r.category]) grouped[r.category] = [];
+    grouped[r.category].push(r);
+  }
 
   return (
     <ScrollView contentContainerStyle={styles.tabContent}>
+      {/* Resource picker */}
       <Card style={styles.section}>
-        <Text style={styles.sectionTitle}>Production</Text>
-        <Text style={styles.helperText}>
-          Configure what this business produces each tick.
-        </Text>
-        {config?.resource_id ? (
-          <Text style={styles.producingText}>
-            Currently producing: <Text style={styles.accent}>{config.resource_id}</Text>
+        <Text style={styles.sectionTitle}>Production Resource</Text>
+        <Text style={styles.helperText}>What does this business produce each tick?</Text>
+        {Object.entries(grouped).map(([cat, items]) => (
+          <View key={cat}>
+            <Text style={styles.categoryLabel}>{cat}</Text>
+            <View style={styles.resourceGrid}>
+              {items.map((r) => (
+                <TouchableOpacity
+                  key={r.id}
+                  style={[
+                    styles.resourceChip,
+                    selectedResourceId === r.id && styles.resourceChipSelected,
+                  ]}
+                  onPress={() => setSelectedResourceId(r.id)}
+                >
+                  <Text style={[
+                    styles.resourceChipText,
+                    selectedResourceId === r.id && styles.resourceChipTextSelected,
+                  ]}>
+                    {r.illegal ? '🔴 ' : ''}{r.name}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        ))}
+        {currentResourceName && (
+          <Text style={[styles.helperText, { marginTop: 8 }]}>
+            Selected: <Text style={styles.accent}>{currentResourceName}</Text>
           </Text>
-        ) : (
-          <Text style={styles.helperText}>No production configured</Text>
         )}
       </Card>
 
+      {/* Qty per tick */}
+      <Card style={styles.section}>
+        <Text style={styles.sectionTitle}>Output per Tick</Text>
+        <Text style={styles.inputLabel}>Units produced per production tick</Text>
+        <TextInput
+          style={styles.configInput}
+          value={qtyPerTick}
+          onChangeText={setQtyPerTick}
+          keyboardType="numeric"
+          placeholder="10"
+          placeholderTextColor="#4b5563"
+        />
+      </Card>
+
+      {/* Auto-sell */}
       <Card style={styles.section}>
         <View style={styles.optionRow}>
           <View>
@@ -509,7 +584,7 @@ function OperationsTab({ business }: { business: Business }) {
 
         {autoSell && (
           <>
-            <Text style={styles.inputLabel}>Auto-sell price per unit</Text>
+            <Text style={styles.inputLabel}>Auto-sell price per unit ($)</Text>
             <TextInput
               style={styles.configInput}
               value={autoSellPrice}
@@ -520,22 +595,34 @@ function OperationsTab({ business }: { business: Business }) {
             />
           </>
         )}
-
-        <TouchableOpacity
-          style={styles.saveBtn}
-          onPress={() =>
-            saveMutation.mutate({
-              auto_sell: autoSell,
-              auto_sell_price: autoSell ? parseFloat(autoSellPrice) || null : null,
-            })
-          }
-          disabled={saveMutation.isPending}
-        >
-          <Text style={styles.saveBtnText}>
-            {saveMutation.isPending ? 'Saving...' : 'Save Configuration'}
-          </Text>
-        </TouchableOpacity>
       </Card>
+
+      <TouchableOpacity
+        style={styles.saveBtn}
+        onPress={() =>
+          saveMutation.mutate({
+            resource_id: selectedResourceId,
+            quantity_per_tick: parseInt(qtyPerTick, 10) || 10,
+            auto_sell: autoSell,
+            auto_sell_price: autoSell ? parseFloat(autoSellPrice) || null : null,
+          })
+        }
+        disabled={saveMutation.isPending}
+      >
+        <Text style={styles.saveBtnText}>
+          {saveMutation.isPending ? 'Saving...' : 'Save Configuration'}
+        </Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={[styles.saveBtn, { backgroundColor: '#374151', marginTop: 8 }]}
+        onPress={() => produceMutation.mutate()}
+        disabled={produceMutation.isPending}
+      >
+        <Text style={styles.saveBtnText}>
+          {produceMutation.isPending ? 'Producing...' : '⚡ Trigger Production Now'}
+        </Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 }
@@ -925,12 +1012,41 @@ const styles = StyleSheet.create({
     color: '#6b7280',
     marginBottom: 8,
   },
-  producingText: {
-    fontSize: 14,
-    color: '#d1d5db',
-  },
   accent: {
     color: '#22c55e',
     fontWeight: '600',
+  },
+  categoryLabel: {
+    fontSize: 11,
+    color: '#6b7280',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    marginTop: 10,
+    marginBottom: 4,
+  },
+  resourceGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+  },
+  resourceChip: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#1f2937',
+    backgroundColor: '#030712',
+  },
+  resourceChipSelected: {
+    borderColor: '#22c55e',
+    backgroundColor: '#052e16',
+  },
+  resourceChipText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#9ca3af',
+  },
+  resourceChipTextSelected: {
+    color: '#22c55e',
   },
 });
