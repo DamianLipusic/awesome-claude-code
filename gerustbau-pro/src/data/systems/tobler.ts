@@ -69,6 +69,7 @@ export const TOBLER_SYSTEM: GeruestSystem = {
     { id: 'tb-riegel-207', systemId: 'tobler', name: 'Tobler Riegel 2,07 m', laenge: 2.07, gewicht: 5.9, einheit: 'stk', kategorie: 'riegel', standardFeldBreiten: [2.07] },
     { id: 'tb-riegel-157', systemId: 'tobler', name: 'Tobler Riegel 1,57 m', laenge: 1.57, gewicht: 4.5, einheit: 'stk', kategorie: 'riegel', standardFeldBreiten: [1.57] },
     { id: 'tb-riegel-109', systemId: 'tobler', name: 'Tobler Riegel 1,09 m', laenge: 1.09, gewicht: 3.2, einheit: 'stk', kategorie: 'riegel', standardFeldBreiten: [1.09] },
+    { id: 'tb-riegel-073', systemId: 'tobler', name: 'Tobler Riegel 0,73 m', laenge: 0.73, gewicht: 2.1, einheit: 'stk', kategorie: 'riegel', standardFeldBreiten: [0.73] },
     // Diagonalen
     { id: 'tb-diag-257-200', systemId: 'tobler', name: 'Tobler Diagonale 2,57/2,00', gewicht: 6.1, einheit: 'stk', kategorie: 'diagonale' },
     { id: 'tb-diag-207-200', systemId: 'tobler', name: 'Tobler Diagonale 2,07/2,00', gewicht: 5.1, einheit: 'stk', kategorie: 'diagonale' },
