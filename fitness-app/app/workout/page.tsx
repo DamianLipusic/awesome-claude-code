@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
 import { v4 as uuidv4 } from 'uuid'
-import { getWorkout, saveWorkout, getLastEntry } from '@/lib/storage'
+import { getWorkout, saveWorkout, getLastEntry, deleteWorkout } from '@/lib/storage'
 import { Workout, ExerciseEntry, WorkoutSet, WorkoutTemplate } from '@/lib/types'
 import { EXERCISES, MUSCLES } from '@/lib/exercises'
 import { getTemplate, saveUserTemplate } from '@/lib/templates'
@@ -114,7 +114,7 @@ function WorkoutScreen() {
           .filter(Boolean)
       ),
     ]
-    const suggested = template?.name ?? muscles.slice(0, 2).join(' + ') || 'Mein Training'
+    const suggested = (template?.name ?? muscles.slice(0, 2).join(' + ')) || 'Mein Training'
     setTemplateName(suggested)
     setShowSaveModal(true)
   }
@@ -140,11 +140,7 @@ function WorkoutScreen() {
 
   function cancelWorkout() {
     if (!workout) return
-    const all = JSON.parse(localStorage.getItem('ironlog_workouts') || '[]')
-    localStorage.setItem(
-      'ironlog_workouts',
-      JSON.stringify(all.filter((w: Workout) => w.id !== workout.id))
-    )
+    deleteWorkout(workout.id)
     router.replace('/')
   }
 
@@ -332,7 +328,7 @@ function WorkoutScreen() {
                         height="16"
                         viewBox="0 0 24 24"
                         fill="none"
-                        stroke={isSuggested ? '#f97316' : '#f97316'}
+                        stroke="#f97316"
                         strokeWidth="2"
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -389,7 +385,7 @@ function WorkoutScreen() {
 
 export default function WorkoutPage() {
   return (
-    <Suspense>
+    <Suspense fallback={<div className="flex-1" />}>
       <WorkoutScreen />
     </Suspense>
   )

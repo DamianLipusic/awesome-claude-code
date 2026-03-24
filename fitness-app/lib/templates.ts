@@ -100,6 +100,7 @@ export function loadUserTemplates(): WorkoutTemplate[] {
 }
 
 export function saveUserTemplate(template: WorkoutTemplate): void {
+  if (typeof window === 'undefined') return
   const all = loadUserTemplates()
   const idx = all.findIndex((t) => t.id === template.id)
   if (idx >= 0) {
@@ -111,6 +112,7 @@ export function saveUserTemplate(template: WorkoutTemplate): void {
 }
 
 export function deleteUserTemplate(id: string): void {
+  if (typeof window === 'undefined') return
   const all = loadUserTemplates().filter((t) => t.id !== id)
   localStorage.setItem(TEMPLATES_KEY, JSON.stringify(all))
 }

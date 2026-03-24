@@ -9,7 +9,7 @@ import { getProgressData } from '@/lib/storage'
 const ProgressChart = dynamic(() => import('@/components/ProgressChart'), { ssr: false })
 
 export default function ProgressPage() {
-  const [selectedId, setSelectedId] = useState(EXERCISES[0].id)
+  const [selectedId, setSelectedId] = useState(EXERCISES[0]?.id ?? '')
   const [data, setData] = useState<{ date: string; weight: number }[]>([])
 
   useEffect(() => {
