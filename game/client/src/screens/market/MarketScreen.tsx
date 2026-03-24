@@ -150,6 +150,7 @@ function ListingCard({
 }
 
 export function MarketScreen() {
+  const navigation = useNavigation<NavProp>();
   const { selectedCity, selectedCategory, updatePrices } = useMarketStore();
   const queryClient = useQueryClient();
 
@@ -247,7 +248,7 @@ export function MarketScreen() {
       )}
 
       {/* FAB — Create Listing */}
-      <TouchableOpacity style={styles.fab}>
+      <TouchableOpacity style={styles.fab} onPress={() => navigation.navigate('CreateListing')}>
         <Text style={styles.fabText}>＋ List Item</Text>
       </TouchableOpacity>
     </View>

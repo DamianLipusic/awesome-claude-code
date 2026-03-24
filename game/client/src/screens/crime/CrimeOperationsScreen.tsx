@@ -16,7 +16,7 @@ import { Badge } from '../../components/ui/Badge';
 import { LoadingSkeleton } from '../../components/ui/LoadingScreen';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { CurrencyText } from '../../components/ui/CurrencyText';
-import { formatCurrency } from '../../lib/format';
+import { formatCurrency } from '../../components/ui/CurrencyText';
 import type { CriminalOperation, Employee, CrimeOpType } from '@economy-game/shared';
 import { CRIME_OP_CONFIGS } from '@economy-game/shared';
 
