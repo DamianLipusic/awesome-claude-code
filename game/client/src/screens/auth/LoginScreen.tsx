@@ -5,54 +5,61 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  ScrollView,
-  KeyboardAvoidingView,
+  ActivityIndicator,
   Platform,
-  Alert,
 } from 'react-native';
-import type { StackScreenProps } from '@react-navigation/stack';
-import type { AuthStackParamList } from '../../navigation/AuthStack';
 import { useAuthStore } from '../../stores/authStore';
 
-type Props = StackScreenProps<AuthStackParamList, 'Login'>;
+const GUEST_PASSWORD = 'EmpireOS_Guest_2024!';
 
-export function LoginScreen({ navigation }: Props) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const { login, isLoading, error, clearError } = useAuthStore();
+export function LoginScreen() {
+  const [name, setName] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { login, register } = useAuthStore();
 
-  const handleLogin = async () => {
-    if (!email.trim() || !password.trim()) {
-      Alert.alert('Validation', 'Please enter your email and password.');
+  const handleEnter = async () => {
+    const trimmed = name.trim().toLowerCase().replace(/\s+/g, '_');
+    if (!trimmed || trimmed.length < 2) {
+      setError('Name must be at least 2 characters.');
+      return;
+    }
+    if (trimmed.length > 20) {
+      setError('Name must be 20 characters or less.');
+      return;
+    }
+    if (!/^[a-z0-9_]+$/.test(trimmed)) {
+      setError('Only letters, numbers and underscores allowed.');
       return;
     }
 
-    clearError();
+    setError(null);
+    setIsLoading(true);
+    const email = `${trimmed}@empireos.guest`;
+
     try {
-      await login(email.trim().toLowerCase(), password);
-      // Navigation handled by RootNavigator reacting to isAuthenticated
+      await login(email, GUEST_PASSWORD);
     } catch {
-      // Error is set in the store
+      // Not registered yet — create account automatically
+      try {
+        await register(email, trimmed, GUEST_PASSWORD);
+        await login(email, GUEST_PASSWORD);
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Something went wrong.';
+        setError(msg);
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.flex}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <ScrollView
-        contentContainerStyle={styles.container}
-        keyboardShouldPersistTaps="handled"
-      >
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.logo}>🏛️</Text>
-          <Text style={styles.title}>EmpireOS</Text>
-          <Text style={styles.subtitle}>The Multiplayer Economy Game</Text>
-        </View>
+    <View style={styles.container}>
+      <View style={styles.card}>
+        <Text style={styles.logo}>🏛️</Text>
+        <Text style={styles.title}>EmpireOS</Text>
+        <Text style={styles.subtitle}>The Multiplayer Economy Game</Text>
 
-        {/* Form */}
         <View style={styles.form}>
           {error && (
             <View style={styles.errorBanner}>
@@ -60,69 +67,54 @@ export function LoginScreen({ navigation }: Props) {
             </View>
           )}
 
-          <View style={styles.field}>
-            <Text style={styles.label}>Email</Text>
-            <TextInput
-              style={styles.input}
-              value={email}
-              onChangeText={setEmail}
-              placeholder="your@email.com"
-              placeholderTextColor="#4b5563"
-              autoCapitalize="none"
-              keyboardType="email-address"
-              autoComplete="email"
-              returnKeyType="next"
-            />
-          </View>
-
-          <View style={styles.field}>
-            <Text style={styles.label}>Password</Text>
-            <TextInput
-              style={styles.input}
-              value={password}
-              onChangeText={setPassword}
-              placeholder="••••••••"
-              placeholderTextColor="#4b5563"
-              secureTextEntry
-              autoComplete="current-password"
-              returnKeyType="done"
-              onSubmitEditing={handleLogin}
-            />
-          </View>
+          <Text style={styles.label}>Choose your player name</Text>
+          <TextInput
+            style={styles.input}
+            value={name}
+            onChangeText={setName}
+            placeholder="e.g. kingpin99"
+            placeholderTextColor="#4b5563"
+            autoCapitalize="none"
+            autoCorrect={false}
+            maxLength={20}
+            returnKeyType="done"
+            onSubmitEditing={handleEnter}
+            editable={!isLoading}
+          />
 
           <TouchableOpacity
             style={[styles.button, isLoading && styles.buttonDisabled]}
-            onPress={handleLogin}
+            onPress={handleEnter}
             disabled={isLoading}
           >
-            <Text style={styles.buttonText}>{isLoading ? 'Signing in...' : 'Sign In'}</Text>
+            {isLoading ? (
+              <ActivityIndicator color="#030712" />
+            ) : (
+              <Text style={styles.buttonText}>Enter Game →</Text>
+            )}
           </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.linkButton}
-            onPress={() => navigation.navigate('Register')}
-          >
-            <Text style={styles.linkText}>
-              Don't have an account?{' '}
-              <Text style={styles.linkHighlight}>Create one</Text>
-            </Text>
-          </TouchableOpacity>
+          <Text style={styles.hint}>
+            Same name = same account. No password needed.
+          </Text>
         </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  flex: { flex: 1, backgroundColor: '#030712' },
   container: {
-    flexGrow: 1,
+    flex: 1,
+    backgroundColor: '#030712',
     justifyContent: 'center',
+    alignItems: 'center',
     padding: 24,
   },
-  header: {
+  card: {
+    width: '100%',
+    maxWidth: 400,
     alignItems: 'center',
-    marginBottom: 48,
   },
   logo: {
     fontSize: 56,
@@ -138,24 +130,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#6b7280',
     marginTop: 4,
+    marginBottom: 40,
   },
   form: {
-    gap: 16,
-  },
-  errorBanner: {
-    backgroundColor: '#450a0a',
-    borderWidth: 1,
-    borderColor: '#7f1d1d',
-    borderRadius: 8,
-    padding: 12,
-  },
-  errorText: {
-    color: '#ef4444',
-    fontSize: 13,
-    textAlign: 'center',
-  },
-  field: {
-    gap: 6,
+    width: '100%',
+    gap: 12,
   },
   label: {
     fontSize: 13,
@@ -171,13 +150,14 @@ const styles = StyleSheet.create({
     padding: 14,
     fontSize: 16,
     color: '#f9fafb',
+    width: '100%',
   },
   button: {
     backgroundColor: '#22c55e',
     borderRadius: 10,
     padding: 16,
     alignItems: 'center',
-    marginTop: 8,
+    marginTop: 4,
   },
   buttonDisabled: {
     opacity: 0.6,
@@ -187,16 +167,22 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
   },
-  linkButton: {
-    alignItems: 'center',
-    paddingVertical: 8,
+  errorBanner: {
+    backgroundColor: '#450a0a',
+    borderWidth: 1,
+    borderColor: '#7f1d1d',
+    borderRadius: 8,
+    padding: 12,
   },
-  linkText: {
-    color: '#6b7280',
-    fontSize: 14,
+  errorText: {
+    color: '#ef4444',
+    fontSize: 13,
+    textAlign: 'center',
   },
-  linkHighlight: {
-    color: '#22c55e',
-    fontWeight: '600',
+  hint: {
+    fontSize: 12,
+    color: '#4b5563',
+    textAlign: 'center',
+    marginTop: 4,
   },
 });
