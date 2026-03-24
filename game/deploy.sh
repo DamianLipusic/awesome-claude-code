@@ -64,13 +64,13 @@ done
 # ─── Migrations ───────────────────────────────────────────────
 echo ""
 echo "[3/4] Running database migrations..."
-$DC -f docker-compose.prod.yml exec -T server node dist/db/migrate.js
+$DC -f docker-compose.prod.yml exec -T server npx tsx src/db/migrate.ts
 ok "Migrations complete"
 
 # ─── Seed ─────────────────────────────────────────────────────
 echo ""
 echo "[4/4] Seeding database (NPC players, market, price history)..."
-$DC -f docker-compose.prod.yml exec -T server node dist/db/seed.js
+$DC -f docker-compose.prod.yml exec -T server npx tsx src/db/seed.ts
 ok "Seed complete"
 
 # ─── Summary ──────────────────────────────────────────────────

@@ -1,32 +1,18 @@
-FROM node:22-alpine AS builder
+FROM node:22-alpine
 
-# Use /workspace so directory structure mirrors the repo:
-#   /workspace/shared/   ← shared package
-#   /workspace/server/   ← server source
-# This preserves all relative import paths (e.g. ../../../shared/src/...)
 WORKDIR /workspace
 
+# Preserve directory structure so relative imports work:
+#   /workspace/shared/ and /workspace/server/
 COPY shared ./shared
 COPY server ./server
 
 WORKDIR /workspace/server
+
+# Install all deps (including tsx for running TypeScript directly)
 RUN npm install
-RUN npm run build
-
-# ─── Production image ─────────────────────────────────────────
-FROM node:22-alpine AS runner
-
-WORKDIR /workspace/server
-
-ENV NODE_ENV=production
-
-COPY server/package*.json ./
-RUN npm install --omit=dev
-
-COPY --from=builder /workspace/server/dist ./dist
-# Migrations path: dist/db/migrations (matches path.resolve(__dirname, 'migrations') in migrate.js)
-COPY server/src/db/migrations ./dist/db/migrations
 
 EXPOSE 3000
 
-CMD ["node", "dist/index.js"]
+# Run with tsx — no compile step needed
+CMD ["npx", "tsx", "src/index.ts"]
