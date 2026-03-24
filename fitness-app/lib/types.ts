@@ -22,3 +22,16 @@ export type Exercise = {
   name: string
   muscle: string
 }
+
+export type WorkoutTemplate = {
+  id: string
+  name: string
+  description: string
+  tag: string
+  defaultSets: number
+  defaultReps: number
+  suggestedMuscles: string[]
+  isPreset: boolean
+  /** Only for user-saved templates – the exercise list to pre-load */
+  exercises?: { exerciseId: string; name: string }[]
+}
