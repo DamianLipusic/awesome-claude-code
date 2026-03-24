@@ -1,0 +1,22 @@
+{
+  "name": "economy-game",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "shared",
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "dev:server": "cd server && npm run dev",
+    "dev:client": "cd client && npx expo start",
+    "build:server": "cd server && npm run build",
+    "build:shared": "cd shared && npm run build",
+    "setup": "npm install && npm run build:shared",
+    "migrate": "cd server && npm run migrate",
+    "seed": "cd server && npm run seed"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  }
+}
