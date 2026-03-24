@@ -1,11 +1,11 @@
 import React from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createStackNavigator } from '@react-navigation/stack';
 import { MarketScreen } from '../screens/market/MarketScreen';
 import { CreateListingScreen } from '../screens/market/CreateListingScreen';
 import { ContractScreen } from '../screens/market/ContractScreen';
 import type { MarketStackParamList } from '../screens/market/MarketScreen';
 
-const Stack = createNativeStackNavigator<MarketStackParamList>();
+const Stack = createStackNavigator<MarketStackParamList>();
 
 export function MarketStack() {
   return (
@@ -14,7 +14,7 @@ export function MarketStack() {
         headerStyle: { backgroundColor: '#030712' },
         headerTintColor: '#f9fafb',
         headerShadowVisible: false,
-        contentStyle: { backgroundColor: '#030712' },
+        cardStyle: { backgroundColor: '#030712' },
       }}
     >
       <Stack.Screen

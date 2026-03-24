@@ -1,12 +1,12 @@
 import React from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createStackNavigator } from '@react-navigation/stack';
 import { CrimeHubScreen } from '../screens/crime/CrimeHubScreen';
 import { CrimeOperationsScreen } from '../screens/crime/CrimeOperationsScreen';
 import { LaunderingScreen } from '../screens/crime/LaunderingScreen';
 import { HeatManagementScreen } from '../screens/crime/HeatManagementScreen';
 import type { CrimeStackParamList } from '../screens/crime/CrimeHubScreen';
 
-const Stack = createNativeStackNavigator<CrimeStackParamList>();
+const Stack = createStackNavigator<CrimeStackParamList>();
 
 export function CrimeStack() {
   return (
@@ -15,7 +15,7 @@ export function CrimeStack() {
         headerStyle: { backgroundColor: '#030712' },
         headerTintColor: '#f9fafb',
         headerShadowVisible: false,
-        contentStyle: { backgroundColor: '#030712' },
+        cardStyle: { backgroundColor: '#030712' },
       }}
     >
       <Stack.Screen
@@ -29,7 +29,7 @@ export function CrimeStack() {
         options={{ title: 'Operations' }}
       />
       <Stack.Screen
-        name="Laundering"
+        name="LaunderingScreen"
         component={LaunderingScreen}
         options={{ title: 'Laundering' }}
       />

@@ -8,7 +8,7 @@ import {
   RefreshControl,
   Alert,
 } from 'react-native';
-import Slider from '@react-native-community/slider';
+// Slider replaced with step buttons to avoid extra dependency
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { api } from '../../lib/api';
@@ -187,17 +187,19 @@ export function EmployeeMarketScreen() {
           <Text style={styles.filterLabel}>
             Min Efficiency: <Text style={styles.filterValue}>{minEfficiency}</Text>
           </Text>
-          <Slider
-            style={styles.slider}
-            minimumValue={0}
-            maximumValue={100}
-            step={5}
-            value={minEfficiency}
-            onValueChange={setMinEfficiency}
-            minimumTrackTintColor="#22c55e"
-            maximumTrackTintColor="#1f2937"
-            thumbTintColor="#22c55e"
-          />
+          <View style={styles.stepRow}>
+            {[0, 25, 50, 70, 85].map((v) => (
+              <TouchableOpacity
+                key={v}
+                style={[styles.stepBtn, minEfficiency === v && styles.stepBtnActive]}
+                onPress={() => setMinEfficiency(v)}
+              >
+                <Text style={[styles.stepBtnText, minEfficiency === v && styles.stepBtnTextActive]}>
+                  {v}+
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
 
         {/* Max salary */}
@@ -206,17 +208,19 @@ export function EmployeeMarketScreen() {
             Max Salary:{' '}
             <Text style={styles.filterValue}>{formatCurrency(maxSalary)}/day</Text>
           </Text>
-          <Slider
-            style={styles.slider}
-            minimumValue={50}
-            maximumValue={5000}
-            step={50}
-            value={maxSalary}
-            onValueChange={setMaxSalary}
-            minimumTrackTintColor="#3b82f6"
-            maximumTrackTintColor="#1f2937"
-            thumbTintColor="#3b82f6"
-          />
+          <View style={styles.stepRow}>
+            {[200, 500, 1000, 2000, 5000].map((v) => (
+              <TouchableOpacity
+                key={v}
+                style={[styles.stepBtn, maxSalary === v && styles.stepBtnActive]}
+                onPress={() => setMaxSalary(v)}
+              >
+                <Text style={[styles.stepBtnText, maxSalary === v && styles.stepBtnTextActive]}>
+                  ≤${v}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
       </View>
 
@@ -301,9 +305,30 @@ const styles = StyleSheet.create({
     color: '#f9fafb',
     textTransform: 'none',
   },
-  slider: {
-    height: 32,
-    marginHorizontal: -4,
+  stepRow: {
+    flexDirection: 'row',
+    gap: 6,
+  },
+  stepBtn: {
+    flex: 1,
+    paddingVertical: 6,
+    borderRadius: 8,
+    backgroundColor: '#1f2937',
+    borderWidth: 1,
+    borderColor: '#374151',
+    alignItems: 'center',
+  },
+  stepBtnActive: {
+    backgroundColor: '#052e16',
+    borderColor: '#22c55e',
+  },
+  stepBtnText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#6b7280',
+  },
+  stepBtnTextActive: {
+    color: '#22c55e',
   },
   roleList: {
     gap: 6,

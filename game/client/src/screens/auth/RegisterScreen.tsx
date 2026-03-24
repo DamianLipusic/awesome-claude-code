@@ -10,11 +10,11 @@ import {
   Platform,
   Alert,
 } from 'react-native';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { StackScreenProps } from '@react-navigation/stack';
 import type { AuthStackParamList } from '../../navigation/AuthStack';
 import { useAuthStore } from '../../stores/authStore';
 
-type Props = NativeStackScreenProps<AuthStackParamList, 'Register'>;
+type Props = StackScreenProps<AuthStackParamList, 'Register'>;
 
 function validateEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);

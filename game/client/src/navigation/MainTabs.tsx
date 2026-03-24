@@ -5,7 +5,7 @@ import { DashboardScreen } from '../screens/DashboardScreen';
 import { MarketStack } from './MarketStack';
 import { BusinessStack } from './BusinessStack';
 import { CrimeStack } from './CrimeStack';
-import ProfileScreen from '../screens/ProfileScreen';
+import { ProfileScreen } from '../screens/ProfileScreen';
 import { useAlertStore } from '../stores/alertStore';
 import { useAuthStore } from '../stores/authStore';
 
@@ -97,7 +97,7 @@ export function MainTabs() {
           fontWeight: '600',
           marginTop: 2,
         },
-        cardStyle: { backgroundColor: '#030712' },
+        headerShown: false,
       }}
     >
       <Tab.Screen

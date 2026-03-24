@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { StackNavigationProp } from '@react-navigation/stack';
 import { api } from '../../lib/api';
 import { useAuthStore } from '../../stores/authStore';
 import { Card } from '../../components/ui/Card';
@@ -27,7 +27,7 @@ export type BusinessStackParamList = {
   EmployeeMarket: { businessId: string };
 };
 
-type NavProp = NativeStackNavigationProp<BusinessStackParamList, 'BusinessHub'>;
+type NavProp = StackNavigationProp<BusinessStackParamList, 'BusinessHub'>;
 
 const BUSINESS_TYPE_ICONS: Record<string, string> = {
   RETAIL: '🏪',

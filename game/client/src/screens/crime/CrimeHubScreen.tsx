@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { StackNavigationProp } from '@react-navigation/stack';
 import * as Haptics from 'expo-haptics';
 import { api } from '../../lib/api';
 import { useAuthStore } from '../../stores/authStore';
@@ -36,7 +36,7 @@ export type CrimeStackParamList = {
   HeatManagement: undefined;
 };
 
-type NavProp = NativeStackNavigationProp<CrimeStackParamList, 'CrimeHub'>;
+type NavProp = StackNavigationProp<CrimeStackParamList, 'CrimeHub'>;
 
 const HEAT_COLORS: Record<HeatLevel, string> = {
   COLD: '#6b7280',

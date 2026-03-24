@@ -22,7 +22,7 @@ export async function contractRoutes(fastify: FastifyInstance): Promise<void> {
 
   // GET /contracts — my active + pending contracts (as initiator or counterparty)
   fastify.get(
-    '/contracts',
+    '/',
     { preHandler: [requireAuth] },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const playerId = request.player.id; const playerSeasonId = request.player.season_id;
@@ -66,10 +66,10 @@ export async function contractRoutes(fastify: FastifyInstance): Promise<void> {
 
   // GET /contracts/open — all PENDING open offers (counterparty_id IS NULL), paginated
   fastify.get(
-    '/contracts/open',
+    '/open',
     { preHandler: [requireAuth] },
     async (request: FastifyRequest, reply: FastifyReply) => {
-      const { playerSeasonId } = request;
+      const playerSeasonId = request.player.season_id;
       const { offset } = request.query as { offset?: string };
       const limit = 20;
       const offsetVal = parseInt(offset ?? '0', 10);
@@ -125,7 +125,7 @@ export async function contractRoutes(fastify: FastifyInstance): Promise<void> {
 
   // POST /contracts — create a new contract or open offer
   fastify.post(
-    '/contracts',
+    '/',
     { preHandler: [requireAuth] },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const playerId = request.player.id; const playerSeasonId = request.player.season_id;
@@ -223,7 +223,7 @@ export async function contractRoutes(fastify: FastifyInstance): Promise<void> {
 
   // POST /contracts/:id/accept
   fastify.post(
-    '/contracts/:id/accept',
+    '/:id/accept',
     { preHandler: [requireAuth] },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const playerId = request.player.id; const playerSeasonId = request.player.season_id;
@@ -291,7 +291,7 @@ export async function contractRoutes(fastify: FastifyInstance): Promise<void> {
 
   // DELETE /contracts/:id — cancel a PENDING contract you initiated
   fastify.delete(
-    '/contracts/:id',
+    '/:id',
     { preHandler: [requireAuth] },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const playerId = request.player.id; const playerSeasonId = request.player.season_id;

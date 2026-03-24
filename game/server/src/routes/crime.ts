@@ -39,7 +39,7 @@ export async function crimeRoutes(fastify: FastifyInstance): Promise<void> {
 
   // GET /crime/heat
   fastify.get(
-    '/crime/heat',
+    '/heat',
     { preHandler: [requireAuth] },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const playerId = request.player.id; const playerSeasonId = request.player.season_id;
@@ -56,7 +56,7 @@ export async function crimeRoutes(fastify: FastifyInstance): Promise<void> {
 
   // GET /crime/dirty-money
   fastify.get(
-    '/crime/dirty-money',
+    '/dirty-money',
     { preHandler: [requireAuth] },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const playerId = request.player.id; const playerSeasonId = request.player.season_id;
@@ -73,7 +73,7 @@ export async function crimeRoutes(fastify: FastifyInstance): Promise<void> {
 
   // GET /crime/operations/available
   fastify.get(
-    '/crime/operations/available',
+    '/operations/available',
     { preHandler: [requireAuth] },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const playerId = request.player.id; const playerSeasonId = request.player.season_id;
@@ -116,7 +116,7 @@ export async function crimeRoutes(fastify: FastifyInstance): Promise<void> {
 
   // GET /crime/operations/active
   fastify.get(
-    '/crime/operations/active',
+    '/operations/active',
     { preHandler: [requireAuth] },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const playerId = request.player.id; const playerSeasonId = request.player.season_id;
@@ -132,7 +132,7 @@ export async function crimeRoutes(fastify: FastifyInstance): Promise<void> {
 
   // POST /crime/operations
   fastify.post(
-    '/crime/operations',
+    '/operations',
     { preHandler: [requireAuth] },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const playerId = request.player.id; const playerSeasonId = request.player.season_id;
@@ -285,7 +285,7 @@ export async function crimeRoutes(fastify: FastifyInstance): Promise<void> {
 
   // POST /crime/laundering
   fastify.post(
-    '/crime/laundering',
+    '/laundering',
     { preHandler: [requireAuth] },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const playerId = request.player.id; const playerSeasonId = request.player.season_id;
@@ -419,7 +419,7 @@ export async function crimeRoutes(fastify: FastifyInstance): Promise<void> {
 
   // GET /crime/laundering/active
   fastify.get(
-    '/crime/laundering/active',
+    '/laundering/active',
     { preHandler: [requireAuth] },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const playerId = request.player.id; const playerSeasonId = request.player.season_id;
@@ -435,7 +435,7 @@ export async function crimeRoutes(fastify: FastifyInstance): Promise<void> {
 
   // POST /crime/heat/bribe
   fastify.post(
-    '/crime/heat/bribe',
+    '/heat/bribe',
     { preHandler: [requireAuth] },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const playerId = request.player.id; const playerSeasonId = request.player.season_id;
@@ -525,7 +525,7 @@ export async function crimeRoutes(fastify: FastifyInstance): Promise<void> {
 
   // PUT /crime/heat/lay-low
   fastify.put(
-    '/crime/heat/lay-low',
+    '/heat/lay-low',
     { preHandler: [requireAuth] },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const playerId = request.player.id; const playerSeasonId = request.player.season_id;

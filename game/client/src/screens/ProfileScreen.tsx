@@ -1,12 +1,12 @@
 import React from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  FlatList, ActivityIndicator,
+  ActivityIndicator, Alert,
 } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../stores/authStore';
 import { api } from '../lib/api';
-import { Badge } from '../components/ui/Badge';
+import { AlignmentBadge } from '../components/ui/Badge';
 import { CurrencyText } from '../components/ui/CurrencyText';
 import { EmptyState } from '../components/ui/EmptyState';
 import type { LeaderboardEntry, Player } from '@economy-game/shared';
@@ -17,17 +17,23 @@ const ALIGNMENT_COLORS: Record<string, string> = {
   MIXED: '#f97316',
 };
 
-export default function ProfileScreen() {
+export function ProfileScreen() {
   const { player, logout } = useAuthStore();
 
   const leaderboardQuery = useQuery({
     queryKey: ['leaderboard'],
-    queryFn: () => api.get<LeaderboardEntry[]>('/players/leaderboard'),
-    select: (r) => r.data,
+    queryFn: () => api.get<LeaderboardEntry[]>('/seasons/current/leaderboard?limit=50'),
   });
 
   const leaderboard = leaderboardQuery.data ?? [];
   const myRank = leaderboard.findIndex((e) => e.player_id === player?.id) + 1;
+
+  const handleLogout = () => {
+    Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Sign Out', style: 'destructive', onPress: () => logout() },
+    ]);
+  };
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -38,10 +44,7 @@ export default function ProfileScreen() {
         </View>
         <View style={styles.playerInfo}>
           <Text style={styles.username}>{player?.username ?? '—'}</Text>
-          <Badge
-            label={player?.alignment ?? 'LEGAL'}
-            color={ALIGNMENT_COLORS[player?.alignment ?? 'LEGAL'] ?? '#3b82f6'}
-          />
+          <AlignmentBadge alignment={player?.alignment ?? 'LEGAL'} />
         </View>
         <View style={styles.metaPoints}>
           <Text style={styles.metaPointsValue}>{player?.meta_points ?? 0}</Text>
@@ -125,7 +128,7 @@ export default function ProfileScreen() {
       </View>
 
       {/* Sign Out */}
-      <TouchableOpacity style={styles.signOutButton} onPress={logout}>
+      <TouchableOpacity style={styles.signOutButton} onPress={handleLogout}>
         <Text style={styles.signOutText}>Sign Out</Text>
       </TouchableOpacity>
     </ScrollView>

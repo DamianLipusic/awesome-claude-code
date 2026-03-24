@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { StackNavigationProp } from '@react-navigation/stack';
 import { api } from '../../lib/api';
 import { useMarketStore } from '../../stores/marketStore';
 import { useWebSocketChannel } from '../../hooks/useWebSocket';

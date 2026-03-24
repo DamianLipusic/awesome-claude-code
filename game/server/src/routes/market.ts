@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { query, withTransaction } from '../db/client';
 import { requireAuth } from '../middleware/auth';
 import { LISTING_FEE_PERCENT } from '../lib/constants';
+import { emitToMarket } from '../websocket/handler';
 
 // ─── Input schemas ────────────────────────────────────────────
 
@@ -154,10 +155,20 @@ export async function marketRoutes(fastify: FastifyInstance): Promise<void> {
 
       try {
         const listing = await withTransaction(async (client) => {
+          // Resolve resource name (inventory uses name as key)
+          const resourceRow = await client.query<{ name: string }>(
+            `SELECT name FROM resources WHERE id = $1`,
+            [resource_id],
+          );
+          if (!resourceRow.rows.length) {
+            throw Object.assign(new Error('Resource not found'), { statusCode: 404 });
+          }
+          const resourceName = resourceRow.rows[0].name;
+
           // Lock player row
           const playerRow = await client.query<{ cash: number }>(
-            `SELECT cash FROM players WHERE id = $1 AND season_id = $2 FOR UPDATE`,
-            [playerId, playerSeasonId],
+            `SELECT cash FROM players WHERE id = $1 FOR UPDATE`,
+            [playerId],
           );
           if (!playerRow.rows.length) {
             throw Object.assign(new Error('Player not found'), { statusCode: 404 });
@@ -174,21 +185,22 @@ export async function marketRoutes(fastify: FastifyInstance): Promise<void> {
             }
             // Validate business ownership
             const bizRow = await client.query<{ id: string; inventory: Record<string, number> }>(
-              `SELECT id, inventory FROM businesses WHERE id = $1 AND owner_id = $2 AND season_id = $3 FOR UPDATE`,
-              [business_id, playerId, playerSeasonId],
+              `SELECT id, inventory FROM businesses WHERE id = $1 AND owner_id = $2 FOR UPDATE`,
+              [business_id, playerId],
             );
             if (!bizRow.rows.length) {
               throw Object.assign(new Error('Business not found or not owned by player'), { statusCode: 403 });
             }
             const biz = bizRow.rows[0];
-            const inventoryQty: number = (biz.inventory as Record<string, number>)[resource_id] ?? 0;
+            // Inventory keyed by resource name
+            const inventoryQty: number = (biz.inventory as Record<string, number>)[resourceName] ?? 0;
             if (inventoryQty < quantity) {
               throw Object.assign(
                 new Error(`Insufficient inventory: have ${inventoryQty}, need ${quantity}`),
                 { statusCode: 400 },
               );
             }
-            // Deduct from business inventory
+            // Deduct from business inventory using resource name as key
             await client.query(
               `UPDATE businesses
                SET inventory = jsonb_set(
@@ -197,12 +209,7 @@ export async function marketRoutes(fastify: FastifyInstance): Promise<void> {
                  to_jsonb((COALESCE((inventory->$2)::int, 0) - $3)::int)
                )
                WHERE id = $4`,
-              [
-                `{${resource_id}}`,
-                resource_id,
-                quantity,
-                business_id,
-              ],
+              [`{${resourceName}}`, resourceName, quantity, business_id],
             );
           } else {
             // PLAYER_BUY: reserve cash = total_value + listing_fee
@@ -347,13 +354,20 @@ export async function marketRoutes(fastify: FastifyInstance): Promise<void> {
             [totalCost, playerId],
           );
 
-          // Credit resource to buyer's primary business (or create inventory entry)
-          const bizRow = await client.query<{ id: string; inventory: Record<string, number> }>(
-            `SELECT id, inventory FROM businesses
-             WHERE owner_id = $1 AND season_id = $2 AND status = 'ACTIVE'
-             ORDER BY established_at ASC
-             LIMIT 1
-             FOR UPDATE`,
+          // Resolve resource name for inventory key
+          const resRow = await client.query<{ name: string }>(
+            `SELECT name FROM resources WHERE id = $1`,
+            [listing.resource_id],
+          );
+          const resName = resRow.rows[0]?.name ?? listing.resource_id;
+
+          // Credit resource to buyer's primary active business
+          const bizRow = await client.query<{ id: string }>(
+            `SELECT id FROM businesses
+               WHERE owner_id = $1 AND season_id = $2 AND status = 'ACTIVE'
+               ORDER BY established_at ASC
+               LIMIT 1
+               FOR UPDATE`,
             [playerId, playerSeasonId],
           );
           if (!bizRow.rows.length) {
@@ -362,21 +376,21 @@ export async function marketRoutes(fastify: FastifyInstance): Promise<void> {
               { statusCode: 400 },
             );
           }
-          const buyerBiz = bizRow.rows[0];
+          const buyerBizId = bizRow.rows[0].id;
           await client.query(
             `UPDATE businesses
-             SET inventory = jsonb_set(
-               inventory,
-               $1,
-               to_jsonb((COALESCE((inventory->$2)::int, 0) + $3)::int)
-             )
+               SET inventory = jsonb_set(
+                 inventory,
+                 $1,
+                 to_jsonb((COALESCE((inventory->$2)::int, 0) + $3)::int)
+               )
              WHERE id = $4`,
-            [`{${listing.resource_id}}`, listing.resource_id, quantity, buyerBiz.id],
+            [`{${resName}}`, resName, quantity, buyerBizId],
           );
 
           // Update listing quantity_remaining
           const newRemaining = listing.quantity_remaining - quantity;
-          const newStatus = newRemaining === 0 ? 'FILLED' : 'OPEN';
+          const newStatus = newRemaining === 0 ? 'FILLED' : 'PARTIALLY_FILLED';
           await client.query(
             `UPDATE market_listings
              SET quantity_remaining = $1,
@@ -449,15 +463,12 @@ export async function marketRoutes(fastify: FastifyInstance): Promise<void> {
 
           // Emit WebSocket update to market channel
           try {
-            (fastify as FastifyInstance & { io?: { to: (ch: string) => { emit: (ev: string, data: unknown) => void } } })
-              .io?.to(`market:${listing.city}:${listing.resource_id}`)
-              .emit('listing_updated', {
-                listing_id: listingId,
-                quantity_remaining: newRemaining,
-                status: newStatus,
-                city: listing.city,
-                resource_id: listing.resource_id,
-              });
+            emitToMarket(listing.city, listing.resource_id, {
+              event: 'listing_updated',
+              listing_id: listingId,
+              quantity_remaining: newRemaining,
+              status: newStatus,
+            });
           } catch {
             // WebSocket emit is non-critical
           }
@@ -515,8 +526,13 @@ export async function marketRoutes(fastify: FastifyInstance): Promise<void> {
             );
           }
 
-          // Return inventory to business for PLAYER_SELL
+          // Return inventory to business for PLAYER_SELL (use resource name as key)
           if (listing.listing_type === 'PLAYER_SELL' && listing.business_id) {
+            const resLookup = await client.query<{ name: string }>(
+              `SELECT name FROM resources WHERE id = $1`,
+              [listing.resource_id],
+            );
+            const rName = resLookup.rows[0]?.name ?? listing.resource_id;
             await client.query(
               `UPDATE businesses
                SET inventory = jsonb_set(
@@ -525,13 +541,7 @@ export async function marketRoutes(fastify: FastifyInstance): Promise<void> {
                  to_jsonb((COALESCE((inventory->$2)::int, 0) + $3)::int)
                )
                WHERE id = $4 AND owner_id = $5`,
-              [
-                `{${listing.resource_id}}`,
-                listing.resource_id,
-                listing.quantity_remaining,
-                listing.business_id,
-                playerId,
-              ],
+              [`{${rName}}`, rName, listing.quantity_remaining, listing.business_id, playerId],
             );
           }
 

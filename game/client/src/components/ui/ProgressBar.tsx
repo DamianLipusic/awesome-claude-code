@@ -1,11 +1,12 @@
 import React from 'react';
-import { View, StyleSheet, ViewStyle } from 'react-native';
+import { View, Text, StyleSheet, ViewStyle } from 'react-native';
 
 interface ProgressBarProps {
   progress: number; // 0 to 1
   color?: string;
   height?: number;
   style?: ViewStyle;
+  showLabel?: boolean;
 }
 
 export function ProgressBar({
@@ -13,21 +14,28 @@ export function ProgressBar({
   color = '#22c55e',
   height = 4,
   style,
+  showLabel = false,
 }: ProgressBarProps) {
   const clamped = Math.max(0, Math.min(1, progress));
+  const pct = Math.round(clamped * 100);
 
   return (
-    <View style={[styles.track, { height }, style]}>
-      <View
-        style={[
-          styles.fill,
-          {
-            width: `${clamped * 100}%` as `${number}%`,
-            height,
-            backgroundColor: color,
-          },
-        ]}
-      />
+    <View style={style}>
+      <View style={[styles.track, { height }]}>
+        <View
+          style={[
+            styles.fill,
+            {
+              width: `${pct}%` as `${number}%`,
+              height,
+              backgroundColor: color,
+            },
+          ]}
+        />
+      </View>
+      {showLabel && (
+        <Text style={[styles.label, { color }]}>{pct}%</Text>
+      )}
     </View>
   );
 }
@@ -41,5 +49,11 @@ const styles = StyleSheet.create({
   },
   fill: {
     borderRadius: 4,
+  },
+  label: {
+    fontSize: 11,
+    fontWeight: '700',
+    marginTop: 3,
+    textAlign: 'right',
   },
 });

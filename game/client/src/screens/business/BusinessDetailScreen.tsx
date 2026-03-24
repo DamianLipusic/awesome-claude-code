@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { StackNavigationProp } from '@react-navigation/stack';
 import { BarChart } from 'react-native-chart-kit';
 import { Dimensions } from 'react-native';
 import { api } from '../../lib/api';
@@ -27,7 +27,7 @@ import { formatCurrency } from '../../components/ui/CurrencyText';
 import type { Business, Employee } from '@economy-game/shared';
 import type { BusinessStackParamList } from './BusinessHubScreen';
 
-type NavProp = NativeStackNavigationProp<BusinessStackParamList, 'BusinessDetail'>;
+type NavProp = StackNavigationProp<BusinessStackParamList, 'BusinessDetail'>;
 type RoutePropType = RouteProp<BusinessStackParamList, 'BusinessDetail'>;
 
 type Tab = 'overview' | 'employees' | 'upgrade' | 'operations';
@@ -456,11 +456,15 @@ function OperationsTab({ business }: { business: Business }) {
   const { data: config } = useQuery<ProductionConfig>({
     queryKey: ['business', business.id, 'config'],
     queryFn: () => api.get<ProductionConfig>(`/businesses/${business.id}/config`),
-    onSuccess: (data) => {
-      setAutoSell(data.auto_sell);
-      setAutoSellPrice(data.auto_sell_price?.toString() ?? '');
-    },
-  } as Parameters<typeof useQuery>[0]);
+  });
+
+  // Sync config into local state when loaded
+  React.useEffect(() => {
+    if (config) {
+      setAutoSell(config.auto_sell);
+      setAutoSellPrice(config.auto_sell_price?.toString() ?? '');
+    }
+  }, [config]);
 
   const saveMutation = useMutation({
     mutationFn: (payload: Partial<ProductionConfig>) =>
