@@ -2,9 +2,9 @@ import React from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet, Alert,
 } from 'react-native';
-import { CompareEntry } from '../types';
+import { CompareEntry, PeptideResults } from '../types';
 import { validateSequence, calculateAll } from '../lib/calculations';
-import { COLORS, SPACING, FONT_SIZE, RADIUS, SHADOW } from '../constants/theme';
+import { COLORS, SPACING, FONT_SIZE, RADIUS, SHADOW, getThemeColors } from '../constants/theme';
 
 interface Props {
   entries: CompareEntry[];
@@ -31,12 +31,7 @@ export default function CompareScreen({ entries, dark, onAdd, onRemove }: Props)
   const [inputSeq, setInputSeq] = React.useState('');
   const [inputName, setInputName] = React.useState('');
 
-  const bg     = dark ? COLORS.bgDark    : COLORS.bgLight;
-  const card   = dark ? COLORS.cardDark  : COLORS.cardLight;
-  const text   = dark ? COLORS.textDark  : COLORS.textLight;
-  const muted  = dark ? COLORS.mutedDark : COLORS.mutedLight;
-  const border = dark ? COLORS.borderDark: COLORS.borderLight;
-  const surface= dark ? COLORS.surfaceDark: COLORS.surfaceLight;
+  const { bg, card, text, muted, border, surface } = getThemeColors(dark);
 
   const addEntry = () => {
     const { valid, sequence, errors } = validateSequence(inputSeq);
@@ -48,10 +43,10 @@ export default function CompareScreen({ entries, dark, onAdd, onRemove }: Props)
     setInputName('');
   };
 
-  const getVal = (entry: CompareEntry, key: string): string => {
+  const getVal = (entry: CompareEntry, key: keyof PeptideResults): string => {
     if (!entry.results) return '—';
-    const v = (entry.results as any)[key];
-    return v === undefined ? '—' : String(v);
+    const v = entry.results[key];
+    return v === undefined || v === null ? '—' : String(v);
   };
 
   return (

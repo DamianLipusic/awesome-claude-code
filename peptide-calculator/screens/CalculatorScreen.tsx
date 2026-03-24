@@ -9,7 +9,8 @@ import SequenceViewer from '../components/SequenceViewer';
 import ChargePHChart from '../components/charts/ChargePHChart';
 import HydrophobicityChart from '../components/charts/HydrophobicityChart';
 import CompositionChart from '../components/charts/CompositionChart';
-import { COLORS, SPACING, FONT_SIZE, RADIUS, SHADOW } from '../constants/theme';
+import { COLORS, SPACING, FONT_SIZE, RADIUS, SHADOW, getThemeColors } from '../constants/theme';
+import { parseInput } from '../lib/calculations';
 
 interface Props {
   sequence: string;
@@ -23,20 +24,15 @@ interface Props {
   onSaveProject: () => void;
 }
 
-function instabilityBadge(ii: number): { label: string; color: string } {
-  if (ii < 40) return { label: 'Stable', color: COLORS.success };
-  return { label: 'Unstable', color: COLORS.danger };
-}
-
-function solubilityBadge(s: number): { label: string; color: string } {
-  if (s >= 60) return { label: 'Soluble', color: COLORS.success };
-  if (s >= 40) return { label: 'Moderate', color: COLORS.warning };
-  return { label: 'Poor', color: COLORS.danger };
-}
-
-function gravyBadge(g: number): { label: string; color: string } {
-  if (g > 0) return { label: 'Hydrophobic', color: COLORS.hydrophobic };
-  return { label: 'Hydrophilic', color: COLORS.primary };
+function thresholdBadge(
+  value: number,
+  thresholds: { limit: number; label: string; color: string }[],
+  fallback: { label: string; color: string },
+): { label: string; color: string } {
+  for (const t of thresholds) {
+    if (value < t.limit) return { label: t.label, color: t.color };
+  }
+  return fallback;
 }
 
 export default function CalculatorScreen({
@@ -44,12 +40,7 @@ export default function CalculatorScreen({
   onSequenceChange, onModChange, onAddCompare, onSaveProject,
 }: Props) {
   const [showCharts, setShowCharts] = useState(true);
-  const bg     = dark ? COLORS.bgDark    : COLORS.bgLight;
-  const card   = dark ? COLORS.cardDark  : COLORS.cardLight;
-  const text   = dark ? COLORS.textDark  : COLORS.textLight;
-  const muted  = dark ? COLORS.mutedDark : COLORS.mutedLight;
-  const border = dark ? COLORS.borderDark: COLORS.borderLight;
-  const surface= dark ? COLORS.surfaceDark: COLORS.surfaceLight;
+  const { bg, card, text, muted, border, surface } = getThemeColors(dark);
 
   const copyResults = async () => {
     if (!results) return;
@@ -73,6 +64,23 @@ export default function CalculatorScreen({
     Alert.alert('Copied', 'Results copied to clipboard.');
   };
 
+  const instabilityBadge = (ii: number) => thresholdBadge(ii,
+    [{ limit: 40, label: 'Stable', color: COLORS.success }],
+    { label: 'Unstable', color: COLORS.danger },
+  );
+  const solubilityBadge = (s: number) => thresholdBadge(s,
+    [
+      { limit: 40, label: 'Poor',     color: COLORS.danger  },
+      { limit: 60, label: 'Moderate', color: COLORS.warning },
+    ],
+    { label: 'Soluble', color: COLORS.success },
+  );
+  const gravyBadge = (g: number) => g > 0
+    ? { label: 'Hydrophobic', color: COLORS.hydrophobic }
+    : { label: 'Hydrophilic', color: COLORS.primary };
+
+  const residueCount = parseInput(sequence).length;
+
   return (
     <ScrollView style={[styles.screen, { backgroundColor: bg }]} contentContainerStyle={styles.content}>
       {/* Sequence input */}
@@ -93,7 +101,7 @@ export default function CalculatorScreen({
           <Text key={i} style={styles.error}>⚠ {e}</Text>
         ))}
         <Text style={[styles.hint, { color: muted }]}>
-          {sequence.trim().length} chars entered · One-letter codes · FASTA supported
+          {residueCount} residues · One-letter codes · FASTA supported
         </Text>
 
         {/* Modifications */}

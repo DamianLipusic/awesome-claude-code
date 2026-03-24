@@ -22,11 +22,11 @@ export function parseInput(raw: string): string {
 export function validateSequence(raw: string): { valid: boolean; sequence: string; errors: string[] } {
   const sequence = parseInput(raw);
   const errors: string[] = [];
-  const invalid: string[] = [];
+  const invalid = new Set<string>();
   for (const ch of sequence) {
-    if (!AA_DATA[ch] && !invalid.includes(ch)) invalid.push(ch);
+    if (!AA_DATA[ch]) invalid.add(ch);
   }
-  if (invalid.length) errors.push(`Unknown residues: ${invalid.join(', ')}`);
+  if (invalid.size) errors.push(`Unknown residues: ${[...invalid].join(', ')}`);
   if (sequence.length < 2) errors.push('Sequence must be at least 2 residues.');
   if (sequence.length > 1000) errors.push('Sequence too long (max 1000).');
   return { valid: errors.length === 0, sequence, errors };
@@ -35,7 +35,7 @@ export function validateSequence(raw: string): { valid: boolean; sequence: strin
 // ── Molecular Weight ─────────────────────────────────────────────────────────
 
 export function calcMW(sequence: string, mods: Modifications): { mono: number; avg: number } {
-  let mono = 18.01056; // water
+  let mono = 18.01056;
   let avg  = 18.015;
   for (const aa of sequence) {
     const d = AA_DATA[aa];
@@ -51,7 +51,6 @@ export function calcMW(sequence: string, mods: Modifications): { mono: number; a
 // ── Net Charge & pI ──────────────────────────────────────────────────────────
 
 function hh(pKa: number, pH: number, isBasic: boolean): number {
-  // Henderson-Hasselbalch: returns fractional charge contribution
   if (isBasic) return  1 / (1 + Math.pow(10, pH - pKa));
   else          return -1 / (1 + Math.pow(10, pKa - pH));
 }
@@ -260,10 +259,22 @@ export function calcHydroProfile(sequence: string, window = 5): { position: numb
 // ── Charge vs pH curve ───────────────────────────────────────────────────────
 
 export function calcChargeVsPH(sequence: string, mods: Modifications): { ph: number; charge: number }[] {
+  // Pre-scan ionizable groups once — avoids re-iterating the sequence 141 times
+  const groups: { pKa: number; isBasic: boolean }[] = [];
+  if (!mods.nAcetyl) groups.push({ pKa: PKA_NTERM, isBasic: true });
+  groups.push({ pKa: PKA_CTERM, isBasic: false });
+  for (const aa of sequence) {
+    const d = AA_DATA[aa];
+    if (d?.pKaSC !== null && d?.pKaSC !== undefined) {
+      groups.push({ pKa: d.pKaSC, isBasic: d.group === 'basic' });
+    }
+  }
   const result = [];
   for (let i = 0; i <= 140; i++) {
     const ph = i / 10;
-    result.push({ ph, charge: parseFloat(calcNetCharge(sequence, ph, mods).toFixed(3)) });
+    let charge = 0;
+    for (const g of groups) charge += hh(g.pKa, ph, g.isBasic);
+    result.push({ ph, charge: Math.round(charge * 1000) / 1000 });
   }
   return result;
 }
@@ -288,13 +299,13 @@ export function calculateAll(sequence: string, mods: Modifications): PeptideResu
     mwMono: mono,
     mwAvg: avg,
     pI: calcPI(sequence, mods),
-    netCharge: parseFloat(calcNetCharge(sequence, 7.4, mods).toFixed(2)),
+    netCharge: Math.round(calcNetCharge(sequence, 7.4, mods) * 100) / 100,
     extinctionCoeff: calcExtinction(sequence),
-    gravy: parseFloat(calcGRAVY(sequence).toFixed(3)),
-    instabilityIndex: parseFloat(calcInstabilityIndex(sequence).toFixed(2)),
-    aliphaticIndex: parseFloat(calcAliphaticIndex(sequence).toFixed(2)),
+    gravy: Math.round(calcGRAVY(sequence) * 1000) / 1000,
+    instabilityIndex: Math.round(calcInstabilityIndex(sequence) * 100) / 100,
+    aliphaticIndex: Math.round(calcAliphaticIndex(sequence) * 100) / 100,
     halfLife: calcHalfLife(sequence),
-    retentionTime: parseFloat(calcHPLCRetentionTime(sequence, mods).toFixed(1)),
+    retentionTime: Math.round(calcHPLCRetentionTime(sequence, mods) * 10) / 10,
     solubilityScore: calcSolubility(sequence, mods),
     composition: calcComposition(sequence),
     chargeVsPH: calcChargeVsPH(sequence, mods),

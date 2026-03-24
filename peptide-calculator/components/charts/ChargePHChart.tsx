@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, Dimensions, StyleSheet } from 'react-native';
 import Svg, { Path, Line, Text as SvgText, Defs, LinearGradient, Stop, G } from 'react-native-svg';
 import { COLORS, SPACING, FONT_SIZE, RADIUS } from '../../constants/theme';
+import { buildFillPath } from '../../lib/chartUtils';
 
 interface Props {
   data: { ph: number; charge: number }[];
@@ -15,7 +16,7 @@ const PAD = { top: 20, right: 20, bottom: 36, left: 44 };
 const CW = W - PAD.left - PAD.right;
 const CH = H - PAD.top - PAD.bottom;
 
-export default function ChargePHChart({ data, pI, dark }: Props) {
+export default React.memo(function ChargePHChart({ data, pI, dark }: Props) {
   if (!data.length) return null;
 
   const maxCharge = Math.max(...data.map(d => Math.abs(d.charge)));
@@ -26,19 +27,15 @@ export default function ChargePHChart({ data, pI, dark }: Props) {
   const toY = (c: number) => ((yMax - c) / (yMax - yMin)) * CH;
   const y0  = toY(0);
 
-  const linePath = data.map((d, i) =>
-    `${i === 0 ? 'M' : 'L'} ${toX(d.ph).toFixed(1)} ${toY(d.charge).toFixed(1)}`
-  ).join(' ');
-
-  // Positive fill (above zero line)
-  const posArea = data.map((d, i) =>
-    `${i === 0 ? 'M' : 'L'} ${toX(d.ph).toFixed(1)} ${Math.min(toY(d.charge), y0).toFixed(1)}`
-  ).join(' ') + ` L ${toX(14).toFixed(1)} ${y0.toFixed(1)} L ${toX(0).toFixed(1)} ${y0.toFixed(1)} Z`;
-
-  // Negative fill (below zero line)
-  const negArea = data.map((d, i) =>
-    `${i === 0 ? 'M' : 'L'} ${toX(d.ph).toFixed(1)} ${Math.max(toY(d.charge), y0).toFixed(1)}`
-  ).join(' ') + ` L ${toX(14).toFixed(1)} ${y0.toFixed(1)} L ${toX(0).toFixed(1)} ${y0.toFixed(1)} Z`;
+  const { linePath, posArea, negArea } = useMemo(() => {
+    const pts = data.map(d => ({ x: toX(d.ph), y: toY(d.charge) }));
+    return {
+      linePath: pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' '),
+      posArea:  buildFillPath(pts, y0, 'pos', toX(0), toX(14)),
+      negArea:  buildFillPath(pts, y0, 'neg', toX(0), toX(14)),
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, y0]);
 
   const bg        = dark ? COLORS.cardDark   : COLORS.cardLight;
   const border    = dark ? COLORS.borderDark : COLORS.borderLight;
@@ -68,7 +65,6 @@ export default function ChargePHChart({ data, pI, dark }: Props) {
           </LinearGradient>
         </Defs>
 
-        {/* Plot area — use G with translate instead of nested Svg */}
         <G x={PAD.left} y={PAD.top}>
           {/* Grid lines */}
           {yTicks.map(v => (
@@ -111,11 +107,11 @@ export default function ChargePHChart({ data, pI, dark }: Props) {
         {/* Axis labels */}
         <SvgText x={W / 2} y={H - 2} textAnchor="middle" fontSize={9} fill={muted}>pH</SvgText>
         <SvgText x={10} y={H / 2} textAnchor="middle" fontSize={9} fill={muted}
-          rotation="-90" originX={10} originY={H / 2}>z</SvgText>
+          rotation="-90" originX={10} originY={H / 2}>Charge</SvgText>
       </Svg>
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   container: {

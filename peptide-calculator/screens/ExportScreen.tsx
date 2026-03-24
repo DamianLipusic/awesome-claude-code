@@ -3,7 +3,7 @@ import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, ActivityIn
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { PeptideResults, Modifications } from '../types';
-import { COLORS, SPACING, FONT_SIZE, RADIUS, SHADOW } from '../constants/theme';
+import { COLORS, SPACING, FONT_SIZE, RADIUS, SHADOW, getThemeColors } from '../constants/theme';
 
 interface Props {
   results: PeptideResults | null;
@@ -86,11 +86,7 @@ function buildHTML(results: PeptideResults, mods: Modifications): string {
 export default function ExportScreen({ results, modifications, dark }: Props) {
   const [loading, setLoading] = useState(false);
 
-  const bg     = dark ? COLORS.bgDark    : COLORS.bgLight;
-  const card   = dark ? COLORS.cardDark  : COLORS.cardLight;
-  const text   = dark ? COLORS.textDark  : COLORS.textLight;
-  const muted  = dark ? COLORS.mutedDark : COLORS.mutedLight;
-  const border = dark ? COLORS.borderDark: COLORS.borderLight;
+  const { bg, card, text, muted, border } = getThemeColors(dark);
 
   const exportPDF = async () => {
     if (!results) return;

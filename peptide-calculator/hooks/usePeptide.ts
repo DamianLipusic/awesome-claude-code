@@ -33,7 +33,6 @@ type Action =
   | { type: 'SET_RESULTS'; payload: { results: PeptideResults | null; errors: string[] } }
   | { type: 'ADD_COMPARE'; payload: CompareEntry }
   | { type: 'REMOVE_COMPARE'; payload: string }
-  | { type: 'UPDATE_COMPARE'; payload: CompareEntry }
   | { type: 'SET_PROJECTS'; payload: Project[] }
   | { type: 'UPSERT_PROJECT'; payload: Project }
   | { type: 'DELETE_PROJECT'; payload: string }
@@ -52,11 +51,6 @@ function reducer(state: State, action: Action): State {
       return { ...state, comparing: [...state.comparing, action.payload] };
     case 'REMOVE_COMPARE':
       return { ...state, comparing: state.comparing.filter(e => e.id !== action.payload) };
-    case 'UPDATE_COMPARE':
-      return {
-        ...state,
-        comparing: state.comparing.map(e => e.id === action.payload.id ? action.payload : e),
-      };
     case 'SET_PROJECTS':
       return { ...state, projects: action.payload };
     case 'UPSERT_PROJECT': {
@@ -80,10 +74,15 @@ function reducer(state: State, action: Action): State {
 export function usePeptide() {
   const [state, dispatch] = useReducer(reducer, INIT);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const saveRef    = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isLoaded   = useRef(false);
 
   // Load projects on mount
   useEffect(() => {
-    loadProjects().then(projects => dispatch({ type: 'SET_PROJECTS', payload: projects }));
+    loadProjects().then(projects => {
+      dispatch({ type: 'SET_PROJECTS', payload: projects });
+      isLoaded.current = true;
+    });
   }, []);
 
   // Debounced recalculate when sequence or mods change
@@ -102,11 +101,15 @@ export function usePeptide() {
       const results = calculateAll(sequence, state.modifications);
       dispatch({ type: 'SET_RESULTS', payload: { results, errors: [] } });
     }, 300);
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
   }, [state.sequence, state.modifications]);
 
-  // Persist projects
+  // Debounced project persistence — skip the initial load
   useEffect(() => {
-    saveProjects(state.projects);
+    if (!isLoaded.current) return;
+    if (saveRef.current) clearTimeout(saveRef.current);
+    saveRef.current = setTimeout(() => saveProjects(state.projects), 500);
+    return () => { if (saveRef.current) clearTimeout(saveRef.current); };
   }, [state.projects]);
 
   const actions = {

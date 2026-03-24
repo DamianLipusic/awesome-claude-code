@@ -1,19 +1,8 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { Project, ProjectStatus } from '../types';
-import { COLORS, SPACING, FONT_SIZE, RADIUS, SHADOW } from '../constants/theme';
-
-const STATUS_COLORS: Record<ProjectStatus, string> = {
-  planning:  COLORS.warning,
-  synthesis: COLORS.primary,
-  done:      COLORS.success,
-};
-
-const STATUS_LABELS: Record<ProjectStatus, string> = {
-  planning:  'Planning',
-  synthesis: 'In Synthesis',
-  done:      'Done',
-};
+import { Project } from '../types';
+import { COLORS, SPACING, FONT_SIZE, RADIUS, SHADOW, getThemeColors } from '../constants/theme';
+import { STATUS_COLORS, STATUS_LABELS } from '../constants/project';
 
 interface Props {
   project: Project;
@@ -27,15 +16,11 @@ export default function ProjectCard({ project, onPress, dark }: Props) {
   const pct   = steps.length ? (done / steps.length) * 100 : 0;
   const statusColor = STATUS_COLORS[project.status];
 
-  const bg     = dark ? COLORS.cardDark   : COLORS.cardLight;
-  const text   = dark ? COLORS.textDark   : COLORS.textLight;
-  const muted  = dark ? COLORS.mutedDark  : COLORS.mutedLight;
-  const border = dark ? COLORS.borderDark : COLORS.borderLight;
-  const track  = dark ? COLORS.surfaceDark: COLORS.surfaceLight;
+  const { card, text, muted, border, surface: trackBg } = getThemeColors(dark);
 
   return (
     <TouchableOpacity
-      style={[styles.card, SHADOW.card, { backgroundColor: bg, borderColor: border }]}
+      style={[styles.card, SHADOW.card, { backgroundColor: card, borderColor: border }]}
       onPress={onPress}
       activeOpacity={0.8}
     >
@@ -53,7 +38,7 @@ export default function ProjectCard({ project, onPress, dark }: Props) {
       {/* Progress */}
       {project.status === 'synthesis' && (
         <View style={styles.progress}>
-          <View style={[styles.track, { backgroundColor: track }]}>
+          <View style={[styles.track, { backgroundColor: trackBg }]}>
             <View style={[styles.fill, { width: `${pct}%` as any }]} />
           </View>
           <Text style={[styles.pct, { color: muted }]}>{pct.toFixed(0)}%</Text>

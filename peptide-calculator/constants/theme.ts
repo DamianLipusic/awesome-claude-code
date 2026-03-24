@@ -66,3 +66,14 @@ export function getAAColor(group: string): string {
     default:            return COLORS.special;
   }
 }
+
+export function getThemeColors(dark?: boolean) {
+  return {
+    bg:      dark ? COLORS.bgDark      : COLORS.bgLight,
+    card:    dark ? COLORS.cardDark    : COLORS.cardLight,
+    text:    dark ? COLORS.textDark    : COLORS.textLight,
+    muted:   dark ? COLORS.mutedDark   : COLORS.mutedLight,
+    border:  dark ? COLORS.borderDark  : COLORS.borderLight,
+    surface: dark ? COLORS.surfaceDark : COLORS.surfaceLight,
+  };
+}

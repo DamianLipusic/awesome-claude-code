@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, Dimensions, StyleSheet } from 'react-native';
 import Svg, { Path, Line, Text as SvgText, Defs, LinearGradient, Stop, G } from 'react-native-svg';
 import { COLORS, SPACING, FONT_SIZE, RADIUS } from '../../constants/theme';
+import { buildFillPath } from '../../lib/chartUtils';
 
 interface DataPoint { position: number; aa: string; value: number }
 
@@ -16,7 +17,7 @@ const PAD = { top: 20, right: 16, bottom: 36, left: 44 };
 const CW = W - PAD.left - PAD.right;
 const CH = H - PAD.top - PAD.bottom;
 
-export default function HydrophobicityChart({ data, dark }: Props) {
+export default React.memo(function HydrophobicityChart({ data, dark }: Props) {
   if (!data.length) return null;
 
   const maxVal = Math.max(4.5, Math.max(...data.map(d => Math.abs(d.value))));
@@ -27,17 +28,17 @@ export default function HydrophobicityChart({ data, dark }: Props) {
   const toY = (v: number)   => ((yMax - v) / (yMax - yMin)) * CH;
   const y0  = toY(0);
 
-  const posPath = data.map((d, i) =>
-    `${i === 0 ? 'M' : 'L'} ${toX(d.position).toFixed(1)} ${Math.min(toY(d.value), y0).toFixed(1)}`
-  ).join(' ') + ` L ${toX(data[data.length - 1].position).toFixed(1)} ${y0.toFixed(1)} L ${toX(1).toFixed(1)} ${y0.toFixed(1)} Z`;
-
-  const negPath = data.map((d, i) =>
-    `${i === 0 ? 'M' : 'L'} ${toX(d.position).toFixed(1)} ${Math.max(toY(d.value), y0).toFixed(1)}`
-  ).join(' ') + ` L ${toX(data[data.length - 1].position).toFixed(1)} ${y0.toFixed(1)} L ${toX(1).toFixed(1)} ${y0.toFixed(1)} Z`;
-
-  const linePath = data.map((d, i) =>
-    `${i === 0 ? 'M' : 'L'} ${toX(d.position).toFixed(1)} ${toY(d.value).toFixed(1)}`
-  ).join(' ');
+  const { posPath, negPath, linePath } = useMemo(() => {
+    const pts = data.map(d => ({ x: toX(d.position), y: toY(d.value) }));
+    const xStart = toX(1);
+    const xEnd   = toX(data[data.length - 1].position);
+    return {
+      posPath:  buildFillPath(pts, y0, 'pos', xStart, xEnd),
+      negPath:  buildFillPath(pts, y0, 'neg', xStart, xEnd),
+      linePath: pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' '),
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, y0]);
 
   const bg     = dark ? COLORS.cardDark   : COLORS.cardLight;
   const border = dark ? COLORS.borderDark : COLORS.borderLight;
@@ -68,7 +69,6 @@ export default function HydrophobicityChart({ data, dark }: Props) {
           </LinearGradient>
         </Defs>
 
-        {/* Plot area */}
         <G x={PAD.left} y={PAD.top}>
           {/* Grid lines */}
           {yTicks.map(v => (
@@ -103,7 +103,7 @@ export default function HydrophobicityChart({ data, dark }: Props) {
       </Svg>
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   container: {

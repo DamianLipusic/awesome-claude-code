@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { SynthesisStep } from '../types';
 import { AA_DATA } from '../lib/aaData';
-import { COLORS, SPACING, FONT_SIZE, RADIUS, SHADOW, getAAColor } from '../constants/theme';
+import { COLORS, SPACING, FONT_SIZE, RADIUS, SHADOW, getAAColor, getThemeColors } from '../constants/theme';
 
 interface Props {
   steps: SynthesisStep[];
@@ -14,11 +14,7 @@ export default function SynthesisTracker({ steps, onToggle, dark }: Props) {
   const done = steps.filter(s => s.done).length;
   const pct  = steps.length ? (done / steps.length) * 100 : 0;
 
-  const bg     = dark ? COLORS.cardDark    : COLORS.cardLight;
-  const text   = dark ? COLORS.textDark    : COLORS.textLight;
-  const muted  = dark ? COLORS.mutedDark   : COLORS.mutedLight;
-  const border = dark ? COLORS.borderDark  : COLORS.borderLight;
-  const track  = dark ? COLORS.surfaceDark : COLORS.surfaceLight;
+  const { card: bg, text, muted, border, surface: trackBg } = getThemeColors(dark);
 
   return (
     <View style={[styles.container, SHADOW.card, { backgroundColor: bg, borderColor: border }]}>
@@ -29,7 +25,7 @@ export default function SynthesisTracker({ steps, onToggle, dark }: Props) {
       </View>
 
       {/* Progress bar */}
-      <View style={[styles.track, { backgroundColor: track }]}>
+      <View style={[styles.track, { backgroundColor: trackBg }]}>
         <View style={[styles.fill, { width: `${pct}%` as any, backgroundColor: pct === 100 ? COLORS.success : COLORS.primary }]} />
       </View>
       <Text style={[styles.pctText, { color: muted }]}>{pct.toFixed(0)}% complete · C→N direction</Text>

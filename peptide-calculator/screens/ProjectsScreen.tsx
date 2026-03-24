@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, TextInput, Modal, StyleSheet, Alert,
 } from 'react-native';
-import { Project, ProjectStatus, SynthesisStep } from '../types';
+import { Project, ProjectStatus } from '../types';
 import ProjectCard from '../components/ProjectCard';
 import SynthesisTracker from '../components/SynthesisTracker';
 import { newProject } from '../lib/storage';
-import { COLORS, SPACING, FONT_SIZE, RADIUS, SHADOW } from '../constants/theme';
+import { COLORS, SPACING, FONT_SIZE, RADIUS, SHADOW, getThemeColors } from '../constants/theme';
+import { STATUS_COLORS, STATUS_LABELS } from '../constants/project';
 
 interface Props {
   projects: Project[];
@@ -17,8 +18,6 @@ interface Props {
 }
 
 const STATUSES: ProjectStatus[] = ['planning', 'synthesis', 'done'];
-const STATUS_LABELS: Record<ProjectStatus, string> = { planning: 'Planning', synthesis: 'In Synthesis', done: 'Done' };
-const STATUS_COLORS: Record<ProjectStatus, string> = { planning: COLORS.warning, synthesis: COLORS.primary, done: COLORS.success };
 
 export default function ProjectsScreen({ projects, dark, onUpsert, onDelete, onLoadIntoCalc }: Props) {
   const [activeProject, setActiveProject] = useState<Project | null>(null);
@@ -26,12 +25,7 @@ export default function ProjectsScreen({ projects, dark, onUpsert, onDelete, onL
   const [newName, setNewName] = useState('');
   const [newSeq, setNewSeq] = useState('');
 
-  const bg     = dark ? COLORS.bgDark    : COLORS.bgLight;
-  const card   = dark ? COLORS.cardDark  : COLORS.cardLight;
-  const text   = dark ? COLORS.textDark  : COLORS.textLight;
-  const muted  = dark ? COLORS.mutedDark : COLORS.mutedLight;
-  const border = dark ? COLORS.borderDark: COLORS.borderLight;
-  const surface= dark ? COLORS.surfaceDark: COLORS.surfaceLight;
+  const { bg, text, muted, border, surface } = getThemeColors(dark);
 
   const createProject = () => {
     if (!newSeq.trim() || !newName.trim()) { Alert.alert('Required', 'Please enter name and sequence.'); return; }
@@ -109,7 +103,7 @@ export default function ProjectsScreen({ projects, dark, onUpsert, onDelete, onL
             spellCheck={false}
           />
           <View style={styles.modalBtns}>
-            <TouchableOpacity style={[styles.cancelBtn, { borderColor: border }]} onPress={() => setShowNew(false)}>
+            <TouchableOpacity style={[styles.cancelBtn, { borderColor: border }]} onPress={() => { setShowNew(false); setNewName(''); setNewSeq(''); }}>
               <Text style={[styles.cancelText, { color: muted }]}>Cancel</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.createBtn} onPress={createProject}>
