@@ -1,10 +1,26 @@
 import { AA_DATA, PKA_NTERM, PKA_CTERM, HALF_LIFE, HPLC_RC } from './aaData';
 import { Modifications, PeptideResults } from '../types';
 
+// ── FASTA / Sequence Parsing ─────────────────────────────────────────────────
+
+/** Accepts plain sequence or FASTA format (strips header lines starting with '>') */
+export function parseInput(raw: string): string {
+  if (raw.includes('>')) {
+    // FASTA: remove header lines
+    return raw
+      .split('\n')
+      .filter(l => !l.startsWith('>'))
+      .join('')
+      .toUpperCase()
+      .replace(/\s/g, '');
+  }
+  return raw.toUpperCase().replace(/\s/g, '');
+}
+
 // ── Validation ───────────────────────────────────────────────────────────────
 
 export function validateSequence(raw: string): { valid: boolean; sequence: string; errors: string[] } {
-  const sequence = raw.toUpperCase().replace(/\s/g, '');
+  const sequence = parseInput(raw);
   const errors: string[] = [];
   const invalid: string[] = [];
   for (const ch of sequence) {

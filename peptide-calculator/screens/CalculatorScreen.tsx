@@ -82,7 +82,7 @@ export default function CalculatorScreen({
           style={[styles.input, { backgroundColor: surface, color: text, borderColor: border }]}
           value={sequence}
           onChangeText={onSequenceChange}
-          placeholder="e.g. ACDEFGHIKLMNPQRSTVWY"
+          placeholder={'One-letter codes · FASTA format accepted\ne.g. ACDEFGHIKLMNPQRSTVWY'}
           placeholderTextColor={muted}
           multiline
           autoCapitalize="characters"
@@ -90,10 +90,10 @@ export default function CalculatorScreen({
           spellCheck={false}
         />
         {errors.map((e, i) => (
-          <Text key={i} style={styles.error}>{e}</Text>
+          <Text key={i} style={styles.error}>⚠ {e}</Text>
         ))}
         <Text style={[styles.hint, { color: muted }]}>
-          {sequence.replace(/\s/g, '').length} residues · One-letter codes only
+          {sequence.trim().length} chars entered · One-letter codes · FASTA supported
         </Text>
 
         {/* Modifications */}

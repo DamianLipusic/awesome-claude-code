@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, Dimensions, StyleSheet } from 'react-native';
-import Svg, { Path, Line, Text as SvgText, Defs, LinearGradient, Stop, Rect } from 'react-native-svg';
+import Svg, { Path, Line, Text as SvgText, Defs, LinearGradient, Stop, G } from 'react-native-svg';
 import { COLORS, SPACING, FONT_SIZE, RADIUS } from '../../constants/theme';
 
 interface Props {
@@ -24,37 +24,30 @@ export default function ChargePHChart({ data, pI, dark }: Props) {
 
   const toX = (ph: number) => (ph / 14) * CW;
   const toY = (c: number) => ((yMax - c) / (yMax - yMin)) * CH;
+  const y0  = toY(0);
 
-  // Build SVG path
-  const positives = data.filter(d => d.charge >= 0);
-  const negatives = data.filter(d => d.charge <= 0);
-
-  let posPath = '';
-  let negPath = '';
-  const y0 = toY(0);
-
-  // Full line
   const linePath = data.map((d, i) =>
     `${i === 0 ? 'M' : 'L'} ${toX(d.ph).toFixed(1)} ${toY(d.charge).toFixed(1)}`
   ).join(' ');
 
-  // Positive fill area
+  // Positive fill (above zero line)
   const posArea = data.map((d, i) =>
     `${i === 0 ? 'M' : 'L'} ${toX(d.ph).toFixed(1)} ${Math.min(toY(d.charge), y0).toFixed(1)}`
   ).join(' ') + ` L ${toX(14).toFixed(1)} ${y0.toFixed(1)} L ${toX(0).toFixed(1)} ${y0.toFixed(1)} Z`;
 
+  // Negative fill (below zero line)
   const negArea = data.map((d, i) =>
     `${i === 0 ? 'M' : 'L'} ${toX(d.ph).toFixed(1)} ${Math.max(toY(d.charge), y0).toFixed(1)}`
   ).join(' ') + ` L ${toX(14).toFixed(1)} ${y0.toFixed(1)} L ${toX(0).toFixed(1)} ${y0.toFixed(1)} Z`;
 
-  const bg     = dark ? COLORS.cardDark   : COLORS.cardLight;
-  const border = dark ? COLORS.borderDark : COLORS.borderLight;
-  const muted  = dark ? COLORS.mutedDark  : COLORS.mutedLight;
+  const bg        = dark ? COLORS.cardDark   : COLORS.cardLight;
+  const border    = dark ? COLORS.borderDark : COLORS.borderLight;
+  const muted     = dark ? COLORS.mutedDark  : COLORS.mutedLight;
   const gridColor = dark ? '#334155' : '#E2E8F0';
 
   const pIx = toX(pI);
-  const ticks = [0, 2, 4, 6, 7, 8, 10, 12, 14];
-  const yTicks = [-yMax, -Math.round(yMax/2), 0, Math.round(yMax/2), yMax];
+  const ticks  = [0, 2, 4, 6, 7, 8, 10, 12, 14];
+  const yTicks = [-yMax, -Math.round(yMax / 2), 0, Math.round(yMax / 2), yMax];
 
   return (
     <View style={[styles.container, { backgroundColor: bg, borderColor: border }]}>
@@ -65,57 +58,60 @@ export default function ChargePHChart({ data, pI, dark }: Props) {
 
       <Svg width={W} height={H}>
         <Defs>
-          <LinearGradient id="posGrad" x1="0" y1="0" x2="0" y2="1">
+          <LinearGradient id="cpPosGrad" x1="0" y1="0" x2="0" y2="1">
             <Stop offset="0" stopColor={COLORS.primary} stopOpacity="0.3" />
             <Stop offset="1" stopColor={COLORS.primary} stopOpacity="0.02" />
           </LinearGradient>
-          <LinearGradient id="negGrad" x1="0" y1="1" x2="0" y2="0">
+          <LinearGradient id="cpNegGrad" x1="0" y1="1" x2="0" y2="0">
             <Stop offset="0" stopColor={COLORS.danger} stopOpacity="0.3" />
             <Stop offset="1" stopColor={COLORS.danger} stopOpacity="0.02" />
           </LinearGradient>
         </Defs>
 
-        <Svg x={PAD.left} y={PAD.top} width={CW} height={CH}>
+        {/* Plot area — use G with translate instead of nested Svg */}
+        <G x={PAD.left} y={PAD.top}>
           {/* Grid lines */}
           {yTicks.map(v => (
-            <Line key={v} x1={0} y1={toY(v)} x2={CW} y2={toY(v)} stroke={gridColor} strokeWidth={0.8} />
+            <Line key={`gy${v}`} x1={0} y1={toY(v)} x2={CW} y2={toY(v)} stroke={gridColor} strokeWidth={0.8} />
           ))}
           {ticks.map(t => (
-            <Line key={t} x1={toX(t)} y1={0} x2={toX(t)} y2={CH} stroke={gridColor} strokeWidth={0.8} />
+            <Line key={`gx${t}`} x1={toX(t)} y1={0} x2={toX(t)} y2={CH} stroke={gridColor} strokeWidth={0.8} />
           ))}
 
           {/* Fill areas */}
-          <Path d={posArea} fill="url(#posGrad)" />
-          <Path d={negArea} fill="url(#negGrad)" />
+          <Path d={posArea} fill="url(#cpPosGrad)" />
+          <Path d={negArea} fill="url(#cpNegGrad)" />
 
           {/* Zero line */}
           <Line x1={0} y1={y0} x2={CW} y2={y0} stroke={gridColor} strokeWidth={1.5} strokeDasharray="4,3" />
 
-          {/* pI line */}
+          {/* pI vertical line */}
           <Line x1={pIx} y1={0} x2={pIx} y2={CH} stroke={COLORS.accent} strokeWidth={1.5} strokeDasharray="4,3" />
 
-          {/* Main line */}
-          <Path d={linePath} fill="none" stroke={COLORS.primary} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-        </Svg>
+          {/* Main charge curve */}
+          <Path d={linePath} fill="none" stroke={COLORS.primary} strokeWidth={2}
+            strokeLinecap="round" strokeLinejoin="round" />
 
-        {/* X-axis labels */}
+          {/* pI label inside plot */}
+          <SvgText x={pIx + 4} y={12} fontSize={9} fill={COLORS.accent} fontWeight="bold">pI</SvgText>
+        </G>
+
+        {/* X-axis tick labels */}
         {ticks.map(t => (
-          <SvgText key={t} x={PAD.left + toX(t)} y={H - 4} textAnchor="middle"
-            fontSize={9} fill={muted}>{t}</SvgText>
+          <SvgText key={`lx${t}`} x={PAD.left + toX(t)} y={H - 4}
+            textAnchor="middle" fontSize={9} fill={muted}>{t}</SvgText>
         ))}
 
-        {/* Y-axis labels */}
+        {/* Y-axis tick labels */}
         {yTicks.map(v => (
-          <SvgText key={v} x={PAD.left - 6} y={PAD.top + toY(v) + 4} textAnchor="end"
-            fontSize={9} fill={muted}>{v}</SvgText>
+          <SvgText key={`ly${v}`} x={PAD.left - 6} y={PAD.top + toY(v) + 4}
+            textAnchor="end" fontSize={9} fill={muted}>{v}</SvgText>
         ))}
 
-        {/* Axis label */}
+        {/* Axis labels */}
         <SvgText x={W / 2} y={H - 2} textAnchor="middle" fontSize={9} fill={muted}>pH</SvgText>
-
-        {/* pI label */}
-        <SvgText x={PAD.left + pIx + 4} y={PAD.top + 10} textAnchor="start"
-          fontSize={9} fill={COLORS.accent} fontWeight="bold">pI</SvgText>
+        <SvgText x={10} y={H / 2} textAnchor="middle" fontSize={9} fill={muted}
+          rotation="-90" originX={10} originY={H / 2}>z</SvgText>
       </Svg>
     </View>
   );
