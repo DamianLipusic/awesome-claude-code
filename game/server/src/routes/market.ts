@@ -28,10 +28,10 @@ export async function marketRoutes(fastify: FastifyInstance): Promise<void> {
 
   // GET /market/resources
   fastify.get(
-    '/market/resources',
+    '/resources',
     { preHandler: [requireAuth] },
     async (request: FastifyRequest, reply: FastifyReply) => {
-      const { playerSeasonId } = request;
+      const playerSeasonId = request.player.season_id;
       const result = await query<{
         id: string;
         name: string;
@@ -52,10 +52,10 @@ export async function marketRoutes(fastify: FastifyInstance): Promise<void> {
 
   // GET /market/listings
   fastify.get(
-    '/market/listings',
+    '/listings',
     { preHandler: [requireAuth] },
     async (request: FastifyRequest, reply: FastifyReply) => {
-      const { playerSeasonId } = request;
+      const playerSeasonId = request.player.season_id;
       const { city, resource_id, listing_type } = request.query as {
         city?: string;
         resource_id?: string;
@@ -126,10 +126,10 @@ export async function marketRoutes(fastify: FastifyInstance): Promise<void> {
 
   // POST /market/listings
   fastify.post(
-    '/market/listings',
+    '/listings',
     { preHandler: [requireAuth] },
     async (request: FastifyRequest, reply: FastifyReply) => {
-      const { playerId, playerSeasonId } = request;
+      const playerId = request.player.id; const playerSeasonId = request.player.season_id;
       const parsed = CreateListingSchema.safeParse(request.body);
       if (!parsed.success) {
         return reply.status(400).send({ error: parsed.error.issues[0].message });
@@ -266,10 +266,10 @@ export async function marketRoutes(fastify: FastifyInstance): Promise<void> {
 
   // POST /market/listings/:id/buy
   fastify.post(
-    '/market/listings/:id/buy',
+    '/listings/:id/buy',
     { preHandler: [requireAuth] },
     async (request: FastifyRequest, reply: FastifyReply) => {
-      const { playerId, playerSeasonId } = request;
+      const playerId = request.player.id; const playerSeasonId = request.player.season_id;
       const { id: listingId } = request.params as { id: string };
 
       const parsed = BuyListingSchema.safeParse(request.body);
@@ -396,15 +396,9 @@ export async function marketRoutes(fastify: FastifyInstance): Promise<void> {
 
           // Insert price_history record
           await client.query(
-            `INSERT INTO price_history (resource_id, city, price_per_unit, quantity, listing_type, recorded_at)
-             VALUES ($1, $2, $3, $4, $5, NOW())`,
-            [
-              listing.resource_id,
-              listing.city,
-              listing.price_per_unit,
-              quantity,
-              listing.listing_type,
-            ],
+            `INSERT INTO price_history (resource_id, season_id, price)
+             VALUES ($1, $2, $3)`,
+            [listing.resource_id, listing.season_id, listing.price_per_unit],
           );
 
           // Recalculate net worth for buyer
@@ -486,10 +480,10 @@ export async function marketRoutes(fastify: FastifyInstance): Promise<void> {
 
   // DELETE /market/listings/:id
   fastify.delete(
-    '/market/listings/:id',
+    '/listings/:id',
     { preHandler: [requireAuth] },
     async (request: FastifyRequest, reply: FastifyReply) => {
-      const { playerId, playerSeasonId } = request;
+      const playerId = request.player.id; const playerSeasonId = request.player.season_id;
       const { id: listingId } = request.params as { id: string };
 
       try {
@@ -557,23 +551,19 @@ export async function marketRoutes(fastify: FastifyInstance): Promise<void> {
 
   // GET /market/price-history/:resource_id
   fastify.get(
-    '/market/price-history/:resource_id',
+    '/price-history/:resource_id',
     { preHandler: [requireAuth] },
     async (request: FastifyRequest, reply: FastifyReply) => {
+      const playerSeasonId = request.player.season_id;
       const { resource_id } = request.params as { resource_id: string };
-      const { city } = request.query as { city?: string };
-
-      if (!city) {
-        return reply.status(400).send({ error: 'city query param is required' });
-      }
 
       const result = await query(
-        `SELECT id, resource_id, city, price_per_unit, quantity, listing_type, recorded_at
-         FROM price_history
-         WHERE resource_id = $1 AND city = $2
-         ORDER BY recorded_at DESC
-         LIMIT 48`,
-        [resource_id, city],
+        `SELECT id, resource_id, season_id, price, recorded_at
+           FROM price_history
+          WHERE resource_id = $1 AND season_id = $2
+          ORDER BY recorded_at DESC
+          LIMIT 288`,
+        [resource_id, playerSeasonId],
       );
 
       return reply.send({ data: result.rows });

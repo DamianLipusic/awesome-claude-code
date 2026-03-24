@@ -221,7 +221,7 @@ function HistoryRow({ op }: { op: CriminalOperation }) {
         </Text>
       </View>
       {isBusted ? (
-        <Badge label="BUSTED" color="#ef4444" size="sm" />
+        <Badge label="BUSTED" variant="red" size="sm" />
       ) : (
         <CurrencyText amount={op.dirty_money_yield} variant="dirty" size="sm" />
       )}
