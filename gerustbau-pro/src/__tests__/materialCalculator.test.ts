@@ -201,7 +201,7 @@ describe('berechneMaterialien – Layher Allround', () => {
     expect(warnungen.length).toBeGreaterThan(0);
   });
 
-  test('Türöffnung reduziert Belagmenge', () => {
+  test('Türöffnung reduziert Belagmenge (la-belag-307-032)', () => {
     const ohneOeffnung = berechneMaterialien({
       seiten: [baueSeite(6, 4)],
       systemId: SYSTEM,
@@ -220,13 +220,14 @@ describe('berechneMaterialien – Layher Allround', () => {
       arbeitshoehe: 4,
     });
 
-    const belagOhne = ohneOeffnung.materialien.find(p => p.komponenteId.includes('belag'));
-    const belagMit = mitTuer.materialien.find(p => p.komponenteId.includes('belag'));
+    // 6m uses 3.07+2.57+0.73 fields; belagFallback = la-belag-307-032
+    const belagOhne = ohneOeffnung.materialien.find(p => p.komponenteId === 'la-belag-307-032');
+    const belagMit = mitTuer.materialien.find(p => p.komponenteId === 'la-belag-307-032');
 
-    // With a door deduction, belag count should be ≤ without
-    if (belagOhne && belagMit) {
-      expect(belagMit.menge).toBeLessThanOrEqual(belagOhne.menge);
-    }
+    expect(belagOhne).toBeDefined();
+    expect(belagMit).toBeDefined();
+    // floor(1.0 / 0.32) = 3 planks deducted
+    expect(belagMit!.menge).toBeLessThan(belagOhne!.menge);
   });
 
   test('mehrere Seiten werden kumuliert', () => {
@@ -259,7 +260,8 @@ describe('berechneMaterialien – Layher Allround', () => {
       arbeitshoehe: 10, // higher than building
     });
     const gesamtLagHoehe = plan.seiten[0].lagen.reduce((s, l) => s + l.hoehe, 0);
-    expect(gesamtLagHoehe).toBeLessThanOrEqual(3 + 0.5); // slight tolerance
+    // scaffoldHoehe = min(10, 3) = 3 → lagen: [2.0, 1.0] = exactly 3.0m
+    expect(gesamtLagHoehe).toBeCloseTo(3.0, 1);
   });
 
   test('plan hat erstelltAm als ISO-String', () => {
@@ -281,6 +283,29 @@ describe('berechneMaterialien – Layher Allround', () => {
     const ids = materialien.map(m => m.id);
     const unique = new Set(ids);
     expect(unique.size).toBe(ids.length);
+  });
+
+  test('exakte Mengen für 2.07m × 2m (deterministischer Testfall)', () => {
+    // 1 Feld 2.07m, 1 Lage 2.0m, 2 Stützen → raw × 1.05, Math.ceil
+    const { materialien, warnungen } = berechneMaterialien({
+      seiten: [baueSeite(2.07, 2)],
+      systemId: SYSTEM,
+      arbeitshoehe: 2,
+    });
+
+    expect(warnungen).toHaveLength(0);
+
+    const finde = (id: string) => materialien.find(p => p.komponenteId === id)?.menge;
+
+    expect(finde('la-rahmen-073-200')).toBe(5);  // raw 4 → ceil(4.2)=5
+    expect(finde('la-riegel-207')).toBe(3);       // raw 2 → ceil(2.1)=3
+    expect(finde('la-diag-257-200')).toBe(3);     // raw 2 → ceil(2.1)=3
+    expect(finde('la-belag-207-032')).toBe(8);    // raw ceil(2.07/0.32)=7 → ceil(7.35)=8
+    expect(finde('la-gelaender-207')).toBe(2);    // raw 1 → ceil(1.05)=2
+    expect(finde('la-bordbrett-257')).toBe(3);    // raw 2 → ceil(2.1)=3
+    expect(finde('la-spindel-038')).toBe(5);      // raw 4 → ceil(4.2)=5
+    expect(finde('la-fussplatte')).toBe(5);       // raw 4 → ceil(4.2)=5
+    expect(finde('la-flexanker')).toBe(3);        // raw 2 → ceil(2.1)=3
   });
 });
 
