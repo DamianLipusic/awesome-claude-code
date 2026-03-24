@@ -1,6 +1,14 @@
 import * as SecureStore from 'expo-secure-store';
+import Constants from 'expo-constants';
 
-const BASE_URL = 'http://localhost:3000/api/v1';
+const BASE_URL =
+  (Constants.expoConfig?.extra?.apiBaseUrl as string | undefined) ??
+  'http://localhost:3000/api/v1';
+
+const WS_BASE_URL =
+  (Constants.expoConfig?.extra?.wsBaseUrl as string | undefined) ??
+  'ws://localhost:3000/ws';
+
 const TOKEN_KEY = 'auth_token';
 const REFRESH_TOKEN_KEY = 'refresh_token';
 
@@ -155,7 +163,7 @@ export class GameWebSocket {
   private shouldReconnect = true;
   private url: string;
 
-  constructor(private readonly wsBaseUrl: string = 'ws://localhost:3000/ws') {
+  constructor(private readonly wsBaseUrl: string = WS_BASE_URL) {
     this.url = wsBaseUrl;
   }
 
