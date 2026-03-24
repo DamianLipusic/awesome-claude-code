@@ -15,7 +15,8 @@ import { HeatBadge } from '../../components/ui/Badge';
 import { ProgressBar } from '../../components/ui/ProgressBar';
 import { CountdownTimer } from '../../components/ui/CountdownTimer';
 import { LoadingScreen } from '../../components/ui/LoadingScreen';
-import { CurrencyText, formatCurrency } from '../../components/ui/CurrencyText';
+import { CurrencyText } from '../../components/ui/CurrencyText';
+import { formatCurrency } from '../../lib/format';
 import type { HeatScore, HeatLevel } from '@economy-game/shared';
 import { HEAT_THRESHOLDS } from '@economy-game/shared';
 

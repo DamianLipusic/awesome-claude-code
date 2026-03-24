@@ -13,22 +13,11 @@ export async function seasonRoutes(fastify: FastifyInstance): Promise<void> {
     async (request: FastifyRequest, reply: FastifyReply) => {
       const result = await query(
         `SELECT
-           id,
-           season_number,
-           name,
-           started_at,
-           ends_at,
-           status,
-           starting_cash,
-           tax_rate_brackets,
-           crime_multiplier,
-           resource_set,
-           special_rule,
-           total_players,
-           top_players,
-           winner_id,
+           id, season_number, name, started_at, ends_at, status, starting_cash,
+           tax_rate_brackets, crime_multiplier, resource_set, special_rule,
+           total_players, top_players, winner_id,
            EXTRACT(EPOCH FROM (ends_at - NOW()))::int AS time_remaining_seconds
-         FROM seasons
+         FROM season_profiles
          WHERE status IN ('ACTIVE', 'ENDING')
          ORDER BY started_at DESC
          LIMIT 1`,
@@ -49,21 +38,10 @@ export async function seasonRoutes(fastify: FastifyInstance): Promise<void> {
     async (_request: FastifyRequest, reply: FastifyReply) => {
       const result = await query(
         `SELECT
-           id,
-           season_number,
-           name,
-           started_at,
-           ends_at,
-           status,
-           starting_cash,
-           tax_rate_brackets,
-           crime_multiplier,
-           resource_set,
-           special_rule,
-           total_players,
-           top_players,
-           winner_id
-         FROM seasons
+           id, season_number, name, started_at, ends_at, status, starting_cash,
+           tax_rate_brackets, crime_multiplier, resource_set, special_rule,
+           total_players, top_players, winner_id
+         FROM season_profiles
          WHERE status = 'COMPLETED'
          ORDER BY started_at DESC
          LIMIT 10`,

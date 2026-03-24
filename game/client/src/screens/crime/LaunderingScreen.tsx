@@ -16,7 +16,8 @@ import { ProgressBar } from '../../components/ui/ProgressBar';
 import { CountdownTimer } from '../../components/ui/CountdownTimer';
 import { LoadingScreen } from '../../components/ui/LoadingScreen';
 import { EmptyState } from '../../components/ui/EmptyState';
-import { CurrencyText, formatCurrency } from '../../components/ui/CurrencyText';
+import { CurrencyText } from '../../components/ui/CurrencyText';
+import { formatCurrency } from '../../lib/format';
 import type { LaunderingProcess, LaunderingMethod, DirtyMoneyBalance } from '@economy-game/shared';
 import { LAUNDERING_METHODS } from '@economy-game/shared';
 
@@ -120,11 +121,11 @@ function MethodCard({
         <View style={styles.methodBadges}>
           <Badge
             label={`${config.feePercent}% fee`}
-            color={config.locked ? '#6b7280' : '#f97316'}
+            variant={config.locked ? 'gray' : 'orange'}
             size="sm"
           />
           {config.locked && (
-            <Badge label="LOCKED" color="#6b7280" size="sm" />
+            <Badge label="LOCKED" variant="gray" size="sm" />
           )}
         </View>
       </View>
