@@ -2,9 +2,9 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { DashboardScreen } from '../screens/DashboardScreen';
-import { MarketScreen } from '../screens/market/MarketScreen';
-import { BusinessHubScreen } from '../screens/business/BusinessHubScreen';
-import { CrimeHubScreen } from '../screens/crime/CrimeHubScreen';
+import { MarketStack } from './MarketStack';
+import { BusinessStack } from './BusinessStack';
+import { CrimeStack } from './CrimeStack';
 import ProfileScreen from '../screens/ProfileScreen';
 import { useAlertStore } from '../stores/alertStore';
 import { useAuthStore } from '../stores/authStore';
@@ -112,7 +112,7 @@ export function MainTabs() {
       />
       <Tab.Screen
         name="Market"
-        component={MarketScreen}
+        component={MarketStack}
         options={{
           title: 'Market',
           tabBarIcon: () => <TabIcon emoji="📊" label="Market" />,
@@ -120,7 +120,7 @@ export function MainTabs() {
       />
       <Tab.Screen
         name="Business"
-        component={BusinessHubScreen}
+        component={BusinessStack}
         options={{
           title: 'Business',
           tabBarIcon: () => <TabIcon emoji="🏢" label="Business" />,
@@ -128,7 +128,7 @@ export function MainTabs() {
       />
       <Tab.Screen
         name="Crime"
-        component={CrimeHubScreen}
+        component={CrimeStack}
         options={{
           title: 'Crime',
           tabBarIcon: ({ focused }) => (
