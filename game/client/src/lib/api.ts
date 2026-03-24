@@ -1,4 +1,3 @@
-import * as SecureStore from 'expo-secure-store';
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 
@@ -19,23 +18,29 @@ async function storageGet(key: string): Promise<string | null> {
   if (Platform.OS === 'web') {
     return localStorage.getItem(key);
   }
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const SecureStore = require('expo-secure-store');
   return SecureStore.getItemAsync(key);
 }
 
 async function storageSet(key: string, value: string): Promise<void> {
   if (Platform.OS === 'web') {
     localStorage.setItem(key, value);
-  } else {
-    await SecureStore.setItemAsync(key, value);
+    return;
   }
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const SecureStore = require('expo-secure-store');
+  await SecureStore.setItemAsync(key, value);
 }
 
 async function storageDelete(key: string): Promise<void> {
   if (Platform.OS === 'web') {
     localStorage.removeItem(key);
-  } else {
-    await SecureStore.deleteItemAsync(key);
+    return;
   }
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const SecureStore = require('expo-secure-store');
+  await SecureStore.deleteItemAsync(key);
 }
 
 // ─── Token helpers ────────────────────────────────────────────

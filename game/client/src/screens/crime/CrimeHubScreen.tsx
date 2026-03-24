@@ -214,7 +214,7 @@ export function CrimeHubScreen() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['player', 'me'] });
       queryClient.invalidateQueries({ queryKey: ['crime', 'dashboard'] });
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => {});
     },
   });
 

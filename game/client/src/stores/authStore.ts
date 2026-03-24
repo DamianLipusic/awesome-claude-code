@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import * as SecureStore from 'expo-secure-store';
 import {
   api,
   setStoredToken,
@@ -38,7 +37,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   player: null,
   token: null,
   isAuthenticated: false,
-  isLoading: false,
+  isLoading: true,
   error: null,
 
   login: async (email: string, password: string) => {

@@ -112,7 +112,7 @@ export function ContractScreen() {
   const acceptMutation = useMutation({
     mutationFn: (id: string) => api.post(`/contracts/${id}/accept`),
     onSuccess: () => {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
       queryClient.invalidateQueries({ queryKey: ['contracts'] });
       queryClient.invalidateQueries({ queryKey: ['player', 'me'] });
     },
