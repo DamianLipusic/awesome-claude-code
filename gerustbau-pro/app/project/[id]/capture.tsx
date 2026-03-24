@@ -70,8 +70,8 @@ export default function CaptureScreen() {
       });
 
       router.push({
-        pathname: `/project/${projektId}/annotate/${fotoId}`,
-        params: { seitenId },
+        pathname: '/project/[id]/annotate/[photoId]',
+        params: { id: projektId, photoId: fotoId, seitenId },
       });
     } catch (fehler) {
       Alert.alert('Fehler', 'Foto konnte nicht aufgenommen werden.');

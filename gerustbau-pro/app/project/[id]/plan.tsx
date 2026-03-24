@@ -118,22 +118,18 @@ export default function PlanView() {
 
       {/* Layer toggles */}
       <View style={styles.ebenenLeiste}>
-        {ansicht === 'elevation' ? (
-          [
-            { label: 'Rahmen',   wert: showRahmen,   setWert: setShowRahmen },
-            { label: 'Belag',    wert: showBelag,    setWert: setShowBelag },
-            { label: 'Geländer', wert: showGelaender, setWert: setShowGelaender },
-            { label: 'Anker',    wert: showAnker,    setWert: setShowAnker },
-            { label: 'Maße',     wert: showMasse,    setWert: setShowMasse },
-          ]
-        ) : (
-          [
-            { label: 'Belag',      wert: gpShowBelag,  setWert: setGpShowBelag },
-            { label: 'Anker',      wert: gpShowAnker,  setWert: setGpShowAnker },
-            { label: 'Diagonalen', wert: gpShowDiag,   setWert: setGpShowDiag },
-            { label: 'Maße',       wert: gpShowMasse,  setWert: setGpShowMasse },
-          ]
-        ).map(({ label, wert, setWert }) => (
+        {(ansicht === 'elevation' ? [
+          { label: 'Rahmen',   wert: showRahmen,    setWert: setShowRahmen },
+          { label: 'Belag',    wert: showBelag,     setWert: setShowBelag },
+          { label: 'Geländer', wert: showGelaender, setWert: setShowGelaender },
+          { label: 'Anker',    wert: showAnker,     setWert: setShowAnker },
+          { label: 'Maße',     wert: showMasse,     setWert: setShowMasse },
+        ] : [
+          { label: 'Belag',      wert: gpShowBelag,  setWert: setGpShowBelag },
+          { label: 'Anker',      wert: gpShowAnker,  setWert: setGpShowAnker },
+          { label: 'Diagonalen', wert: gpShowDiag,   setWert: setGpShowDiag },
+          { label: 'Maße',       wert: gpShowMasse,  setWert: setGpShowMasse },
+        ]).map(({ label, wert, setWert }) => (
           <Chip
             key={label}
             selected={wert}

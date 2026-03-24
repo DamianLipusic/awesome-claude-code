@@ -70,8 +70,8 @@ export default function FotoGalerie() {
 
   function fotoAnnotieren(foto: Foto) {
     router.push({
-      pathname: `/project/${projektId}/annotate/${foto.id}`,
-      params: { seitenId },
+      pathname: '/project/[id]/annotate/[photoId]',
+      params: { id: projektId, photoId: foto.id, seitenId },
     });
   }
 
@@ -115,8 +115,8 @@ export default function FotoGalerie() {
         style={styles.fab}
         onPress={() =>
           router.push({
-            pathname: `/project/${projektId}/capture`,
-            params: { seitenId },
+            pathname: '/project/[id]/capture',
+            params: { id: projektId, seitenId },
           })
         }
       />

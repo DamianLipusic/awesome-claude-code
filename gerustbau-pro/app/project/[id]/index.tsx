@@ -75,21 +75,21 @@ function SeitenKarte({ seite, projektId }: { seite: BausteinSeite; projektId: st
             label={hatFotos ? `Fotos (${seite.fotos.length})` : 'Fotos aufnehmen'}
             hinweis="Fotografieren Sie die Gebäudeseite"
             erledigt={hatFotos}
-            onPress={() => router.push({ pathname: `/project/${projektId}/photos`, params: { seitenId: seite.id } })}
+            onPress={() => router.push({ pathname: '/project/[id]/photos', params: { id: projektId, seitenId: seite.id } })}
           />
           <SchrittZeile
             nummer={2}
             label={hatMasse ? `Maße prüfen (${seite.messungen.length})` : 'Maße prüfen / eingeben'}
             hinweis="Länge, Höhe und Wandabstand erfassen"
             erledigt={hatMasse}
-            onPress={() => router.push({ pathname: `/project/${projektId}/measurements`, params: { seitenId: seite.id } })}
+            onPress={() => router.push({ pathname: '/project/[id]/measurements', params: { id: projektId, seitenId: seite.id } })}
           />
           <SchrittZeile
             nummer={3}
             label={seite.oeffnungen.length > 0 ? `Öffnungen (${seite.oeffnungen.length})` : 'Öffnungen erfassen'}
             hinweis="Türen, Fenster und Tore eintragen"
             erledigt={seite.oeffnungen.length > 0}
-            onPress={() => router.push({ pathname: `/project/${projektId}/openings`, params: { seitenId: seite.id } })}
+            onPress={() => router.push({ pathname: '/project/[id]/openings', params: { id: projektId, seitenId: seite.id } })}
           />
         </View>
       </Card.Content>

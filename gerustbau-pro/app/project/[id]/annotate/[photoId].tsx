@@ -68,7 +68,7 @@ export default function AnnotateScreen() {
 
   function onAnnotationGeaendert(annotation: Annotation) {
     aktualisiereAnnotation(projektId, seitenId, photoId, annotation);
-    const messung = seite.messungen.find(m => m.annotationId === annotation.id);
+    const messung = seite!.messungen.find(m => m.annotationId === annotation.id);
     if (messung) {
       aktualisiereMessung(projektId, seitenId, { ...messung, wert: annotation.realweltWert });
     }
