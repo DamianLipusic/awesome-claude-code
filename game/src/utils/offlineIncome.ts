@@ -9,10 +9,11 @@ export function calculateOfflineIncome(
   prestigeMultiplier: number,
   isPremium: boolean,
   offlineMs: number,
+  globalOfflineMultiplier: number = 1,
 ): number {
   const cappedMs = Math.min(offlineMs, MAX_OFFLINE_HOURS * 60 * 60 * 1000);
   const offlineSec = cappedMs / 1000;
-  const ips = getTotalIncomePerSecond(businesses, ownedItems, prestigeMultiplier, false, isPremium);
-  const multiplier = isPremium ? 1.0 : 0.5; // premium gets full offline, free gets 50%
-  return ips * offlineSec * multiplier;
+  const ips = getTotalIncomePerSecond(businesses, ownedItems, prestigeMultiplier, 1, isPremium);
+  const baseMultiplier = isPremium ? 1.0 : 0.5;
+  return ips * offlineSec * baseMultiplier * globalOfflineMultiplier;
 }

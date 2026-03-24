@@ -3,8 +3,17 @@ import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useGameStore } from '../src/store/gameStore';
+
+function TabBarBadge({ count }: { count: number }) {
+  // Native badge via tabBarBadge prop
+  return null;
+}
 
 export default function RootLayout() {
+  const dailyMissions = useGameStore(s => s.dailyMissions);
+  const unclaimedMissions = dailyMissions.filter(m => m.completed && !m.claimed).length;
+
   return (
     <GestureHandlerRootView style={styles.root}>
       <StatusBar style="light" />
@@ -16,13 +25,14 @@ export default function RootLayout() {
             borderTopColor: '#1a1a2e',
             borderTopWidth: 1,
             paddingBottom: 4,
-            height: 60,
+            height: 62,
           },
           tabBarActiveTintColor: '#FFD700',
-          tabBarInactiveTintColor: '#444',
+          tabBarInactiveTintColor: '#3a3a5a',
           tabBarLabelStyle: {
-            fontSize: 11,
+            fontSize: 10,
             fontWeight: '700',
+            letterSpacing: 0.3,
           },
         }}
       >
@@ -31,7 +41,7 @@ export default function RootLayout() {
           options={{
             title: 'Empire',
             tabBarIcon: ({ color, size }) => (
-              <Ionicons name="cash-outline" size={size} color={color} />
+              <Ionicons name="cash" size={size} color={color} />
             ),
           }}
         />
@@ -40,7 +50,7 @@ export default function RootLayout() {
           options={{
             title: 'Business',
             tabBarIcon: ({ color, size }) => (
-              <Ionicons name="business-outline" size={size} color={color} />
+              <Ionicons name="business" size={size} color={color} />
             ),
           }}
         />
@@ -49,7 +59,45 @@ export default function RootLayout() {
           options={{
             title: 'Shop',
             tabBarIcon: ({ color, size }) => (
-              <Ionicons name="cart-outline" size={size} color={color} />
+              <Ionicons name="cart" size={size} color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="hustle"
+          options={{
+            title: 'Hustle',
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="flash" size={size} color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="stocks"
+          options={{
+            title: 'Stocks',
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="trending-up" size={size} color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="missions"
+          options={{
+            title: 'Missions',
+            tabBarBadge: unclaimedMissions > 0 ? unclaimedMissions : undefined,
+            tabBarBadgeStyle: { backgroundColor: '#f97316', fontSize: 10 },
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="trophy" size={size} color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="store"
+          options={{
+            title: 'Store',
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="diamond" size={size} color={color} />
             ),
           }}
         />
@@ -58,7 +106,7 @@ export default function RootLayout() {
           options={{
             title: 'Prestige',
             tabBarIcon: ({ color, size }) => (
-              <Ionicons name="refresh-circle-outline" size={size} color={color} />
+              <Ionicons name="refresh-circle" size={size} color={color} />
             ),
           }}
         />
