@@ -252,24 +252,13 @@ export async function crimeRoutes(fastify: FastifyInstance): Promise<void> {
           );
           const op = insertResult.rows[0];
 
-          // UPDATE player alignment
+          // Update player alignment: first op = MIXED, repeated = CRIMINAL
           await client.query(
             `UPDATE players
-             SET alignment = CASE
-               WHEN alignment = 'LEGAL' THEN 'CRIMINAL'
-               WHEN alignment = 'LEGAL' THEN 'MIXED'
-               ELSE 'CRIMINAL'
-             END
-             WHERE id = $1`,
-            [playerId],
-          );
-          // More precise alignment update
-          await client.query(
-            `UPDATE players
-             SET alignment = CASE
-               WHEN alignment = 'LEGAL' THEN 'MIXED'::player_alignment
-               ELSE 'CRIMINAL'::player_alignment
-             END
+               SET alignment = CASE
+                 WHEN alignment = 'LEGAL' THEN 'MIXED'::player_alignment
+                 ELSE 'CRIMINAL'::player_alignment
+               END
              WHERE id = $1`,
             [playerId],
           );
@@ -548,13 +537,14 @@ export async function crimeRoutes(fastify: FastifyInstance): Promise<void> {
 
       try {
         const result = await withTransaction(async (client) => {
-          // Toggle lay_low
+          // Toggle lay_low via decay_rate: active = 2x base (4.0), inactive = base (2.0)
+          const newDecayRate = active ? 4.0 : 2.0;
           const heatUpdate = await client.query(
             `UPDATE heat_scores
-             SET lay_low = $1
+               SET decay_rate = $1
              WHERE player_id = $2 AND season_id = $3
              RETURNING *`,
-            [active, playerId, playerSeasonId],
+            [newDecayRate, playerId, playerSeasonId],
           );
           if (!heatUpdate.rows.length) {
             throw Object.assign(new Error('Heat score not found'), { statusCode: 404 });
@@ -565,7 +555,7 @@ export async function crimeRoutes(fastify: FastifyInstance): Promise<void> {
           if (active) {
             const abortResult = await client.query(
               `UPDATE criminal_operations
-               SET status = 'ABORTED'
+                 SET status = 'ABORTED'
                WHERE player_id = $1 AND season_id = $2 AND status = 'ACTIVE'
                RETURNING id`,
               [playerId, playerSeasonId],

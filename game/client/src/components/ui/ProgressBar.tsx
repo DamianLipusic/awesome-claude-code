@@ -1,52 +1,45 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, StyleSheet, ViewStyle } from 'react-native';
 
 interface ProgressBarProps {
-  progress: number; // 0-1
+  progress: number; // 0 to 1
   color?: string;
   height?: number;
-  showLabel?: boolean;
+  style?: ViewStyle;
 }
 
 export function ProgressBar({
   progress,
   color = '#22c55e',
-  height = 6,
-  showLabel = false,
+  height = 4,
+  style,
 }: ProgressBarProps) {
   const clamped = Math.max(0, Math.min(1, progress));
-  const pct = Math.round(clamped * 100);
 
   return (
-    <View>
-      <View style={[styles.track, { height }]}>
-        <View
-          style={[
-            styles.fill,
-            { width: `${pct}%`, backgroundColor: color, height },
-          ]}
-        />
-      </View>
-      {showLabel && (
-        <Text style={[styles.label, { color }]}>{pct}%</Text>
-      )}
+    <View style={[styles.track, { height }, style]}>
+      <View
+        style={[
+          styles.fill,
+          {
+            width: `${clamped * 100}%` as `${number}%`,
+            height,
+            backgroundColor: color,
+          },
+        ]}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   track: {
-    borderRadius: 999,
+    borderRadius: 4,
     backgroundColor: '#1f2937',
     overflow: 'hidden',
+    width: '100%',
   },
   fill: {
-    borderRadius: 999,
-  },
-  label: {
-    fontSize: 11,
-    fontWeight: '700',
-    marginTop: 3,
-    textAlign: 'right',
+    borderRadius: 4,
   },
 });

@@ -5,7 +5,7 @@ import { DashboardScreen } from '../screens/DashboardScreen';
 import { MarketScreen } from '../screens/market/MarketScreen';
 import { BusinessHubScreen } from '../screens/business/BusinessHubScreen';
 import { CrimeHubScreen } from '../screens/crime/CrimeHubScreen';
-import { ProfileScreen } from '../screens/ProfileScreen';
+import ProfileScreen from '../screens/ProfileScreen';
 import { useAlertStore } from '../stores/alertStore';
 import { useAuthStore } from '../stores/authStore';
 
@@ -131,10 +131,11 @@ export function MainTabs() {
         component={CrimeHubScreen}
         options={{
           title: 'Crime',
-          tabBarIcon: () => (
+          tabBarIcon: ({ focused }) => (
             <BadgeIcon
               emoji="🔥"
-              count={hasCriminalActivity ? undefined : undefined}
+              // Show a red dot badge if player has criminal activity
+              count={hasCriminalActivity && !focused ? 1 : undefined}
             />
           ),
           tabBarItemStyle: hasCriminalActivity
