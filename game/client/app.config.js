@@ -1,28 +1,30 @@
 // Dynamic Expo config — reads API/WS URLs from environment at build time.
-// Set API_BASE_URL and WS_BASE_URL before running:
-//   API_BASE_URL=http://YOUR_VPS_IP:3000/api/v1 WS_BASE_URL=ws://YOUR_VPS_IP:3000/ws npx expo start
+//
+// Development (local):
+//   npx expo start
+//
+// Production (VPS):
+//   API_BASE_URL=http://YOUR_VPS_IP:3000/api/v1 \
+//   WS_BASE_URL=ws://YOUR_VPS_IP:3000/ws \
+//   npx expo start --tunnel
 
 module.exports = {
   expo: {
     name: 'EmpireOS',
     slug: 'empire-os',
-    version: '1.0.0',
+    version: '0.1.0',
     orientation: 'portrait',
     userInterfaceStyle: 'dark',
-    splash: {
-      resizeMode: 'contain',
-      backgroundColor: '#030712',
-    },
-    assetBundlePatterns: ['**/*'],
+    backgroundColor: '#030712',
     ios: {
       supportsTablet: false,
       bundleIdentifier: 'com.empireos.app',
     },
     android: {
+      package: 'com.empireos.app',
       adaptiveIcon: {
         backgroundColor: '#030712',
       },
-      package: 'com.empireos.app',
     },
     plugins: [
       'expo-secure-store',
@@ -36,7 +38,7 @@ module.exports = {
     ],
     extra: {
       apiBaseUrl: process.env.API_BASE_URL ?? 'http://localhost:3000/api/v1',
-      wsBaseUrl: process.env.WS_BASE_URL ?? 'ws://localhost:3000/ws',
+      wsBaseUrl:  process.env.WS_BASE_URL  ?? 'ws://localhost:3000/ws',
     },
   },
 };
