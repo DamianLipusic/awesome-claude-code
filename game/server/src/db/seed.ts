@@ -315,7 +315,7 @@ async function main() {
         now.toISOString(), endsAt.toISOString(),
         BETA_STARTING_CASH,
         taxBrackets, 1.0,
-        JSON.stringify(SEED_RESOURCES.map(r => r.name)),
+        SEED_RESOURCES.map(r => r.name),
         'Beta Season — All bugs are features', 0, '[]',
       ],
     );
