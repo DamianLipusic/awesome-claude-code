@@ -340,7 +340,27 @@ export interface DashboardData {
   season: SeasonProfile;
   rank: number;
   alerts: GameAlert[];
+  heat: HeatScore | null;
+  dirty_money: DirtyMoneyBalance | null;
+  income_summary: IncomeSummary;
+  business_overview: BusinessOverview;
+  active_events: SeasonalEvent[];
+  reputation: ReputationProfile[];
 }
+
+export interface IncomeSummary {
+  revenue_per_tick: number;
+  expenses_per_tick: number;
+  net_per_tick: number;
+}
+
+export interface BusinessOverview {
+  total: number;
+  by_type: Record<string, number>;
+  total_employees: number;
+  avg_efficiency: number;
+}
+
 
 export interface GameAlert {
   id: string;
@@ -363,7 +383,15 @@ export type AlertType =
   | 'BUSINESS_RAIDED'
   | 'SEASON_ENDING'
   | 'EMPLOYEE_QUIT'
-  | 'MARKET_CONTRACT_OFFER';
+  | 'MARKET_CONTRACT_OFFER'
+  | 'REVENUE_REPORT'
+  | 'HEAT_WARNING'
+  | 'EVENT_STARTED'
+  | 'SHIPMENT_ARRIVED'
+  | 'SPY_DISCOVERED'
+  | 'SPY_LOST'
+  | 'EMBEZZLEMENT_DETECTED'
+  | 'BLOCKADE_COLLAPSED';
 
 // ─── Game constants ───────────────────────────────────────────
 
@@ -414,4 +442,271 @@ export const BUSINESS_BASE_COSTS: Record<BusinessType, { startup: number; daily_
   LOGISTICS: { startup: 12000, daily_operating: 500 },
   SECURITY_FIRM: { startup: 10000, daily_operating: 400 },
   FRONT_COMPANY: { startup: 18000, daily_operating: 700 },
+};
+
+// ============ NEW SYSTEM TYPES ============
+
+// Reputation
+export type ReputationAxisType = 'BUSINESS' | 'CRIMINAL' | 'NEGOTIATION' | 'EMPLOYEE' | 'COMMUNITY' | 'RELIABILITY';
+
+export interface ReputationProfile {
+  id: string;
+  player_id: string;
+  axis: ReputationAxisType;
+  score: number;
+  last_updated: string;
+}
+
+export interface ReputationEvent {
+  id: string;
+  player_id: string;
+  event_type: string;
+  axis: ReputationAxisType;
+  impact: number;
+  description: string;
+  created_at: string;
+}
+
+// Alliances
+export interface Syndicate {
+  id: string;
+  name: string;
+  leader_id: string;
+  status: string;
+  treasury: number;
+  member_count: number;
+  created_at: string;
+}
+
+export interface SyndicateMember {
+  id: string;
+  syndicate_id: string;
+  player_id: string;
+  role: string;
+  joined_at: string;
+}
+
+export interface TrustLevel {
+  id: string;
+  player_a: string;
+  player_b: string;
+  trust_score: number;
+  betrayal_count: number;
+  last_updated: string;
+}
+
+// Rivalry
+export type RivalryState = 'NEUTRAL' | 'COMPETITIVE' | 'HOSTILE' | 'WAR' | 'BLOOD_FEUD';
+
+export interface RivalryPoints {
+  id: string;
+  player_a: string;
+  player_b: string;
+  points: number;
+  state: RivalryState;
+  last_escalation: string;
+}
+
+export type SabotageType = 'ARSON' | 'THEFT' | 'POACH_EMPLOYEE' | 'SPREAD_RUMORS';
+
+export interface SabotageRecord {
+  id: string;
+  attacker_id: string;
+  target_id: string;
+  sabotage_type: SabotageType;
+  damage: number;
+  success: boolean;
+  created_at: string;
+}
+
+// Intelligence
+export type IntelligenceType = 'EMPLOYEE_COUNT' | 'PRODUCTION_LEVEL' | 'CASH_POSITION' | 'CRIME_OPS' | 'HEAT_LEVEL' | 'CONTRACTS' | 'LOCATION';
+export type SpyStatus = 'ACTIVE' | 'DISCOVERED' | 'TURNED' | 'INACTIVE';
+
+export interface Spy {
+  id: string;
+  owner_player_id: string;
+  spy_employee_id: string;
+  target_player_id: string;
+  status: SpyStatus;
+  discovery_risk: number;
+  intel_gathered: Record<string, any>;
+  placed_at: string;
+}
+
+export interface IntelligenceListing {
+  id: string;
+  seller_id: string;
+  buyer_id: string;
+  intel_type: IntelligenceType;
+  target_player_id: string;
+  data: Record<string, any>;
+  accuracy: number;
+  price: number;
+  purchased_at: string;
+}
+
+// Managers
+export type ManagerTier = 'LEVEL_1' | 'LEVEL_2' | 'LEVEL_3';
+
+export interface ManagerAssignment {
+  id: string;
+  player_id: string;
+  business_id: string;
+  employee_id: string;
+  manager_tier: ManagerTier;
+  efficiency_bonus: number;
+  embezzlement_risk: number;
+  assigned_at: string;
+}
+
+export interface EmbezzlementLog {
+  id: string;
+  manager_id: string;
+  amount: number;
+  detected: boolean;
+  created_at: string;
+}
+
+// Logistics
+export type TransportType = 'LOCAL_COURIER' | 'REGIONAL' | 'SHIPPING' | 'BLACK_MARKET';
+
+export interface TransportRoute {
+  id: string;
+  origin_city: string;
+  destination_city: string;
+  transport: TransportType;
+  base_cost: number;
+  risk_level: number;
+  travel_time_hours: number;
+}
+
+export interface Shipment {
+  id: string;
+  player_id: string;
+  route_id: string;
+  items_json: Record<string, any>;
+  status: string;
+  loss_rate: number;
+  departed_at: string;
+  arrives_at: string;
+}
+
+export interface Blockade {
+  id: string;
+  player_id: string;
+  route_id: string;
+  strength: number;
+  active: boolean;
+  cost: number;
+  created_at: string;
+}
+
+// Locations
+export type LocationZone = 'TOURIST_DISTRICT' | 'INDUSTRIAL' | 'PORT' | 'DOWNTOWN' | 'SUBURB' | 'REDLIGHT';
+
+export interface GameLocation {
+  id: string;
+  player_id: string;
+  name: string;
+  zone: LocationZone;
+  city: string;
+  setup_cost: number;
+  monthly_cost: number;
+  traffic_level: number;
+  status: string;
+  created_at: string;
+}
+
+// Events
+export type EventCategory = 'MARKET_CRASH' | 'SUPPLY_SURGE' | 'POLICE_CRACKDOWN' | 'EMPLOYEE_STRIKE' | 'RIVAL_COLLAPSE' | 'DISASTER' | 'POLITICAL' | 'INSIDER_LEAK' | 'ALLIANCE_COLLAPSE' | 'BOOM';
+
+export interface SeasonalEvent {
+  id: string;
+  season_id: string;
+  category: EventCategory | string;
+  title: string;
+  description: string;
+  probability?: number;
+  triggered_at: string;
+  impact_json: Record<string, unknown>;
+  status: string;
+  duration_hours: number | null;
+}
+
+export interface EventImpact {
+  id: string;
+  event_id: string;
+  affected_player_id: string;
+  impact_type: string;
+  magnitude: number;
+  resolved: boolean;
+}
+
+// Employee enhancements
+export interface EmployeeTrait {
+  id: string;
+  employee_id: string;
+  trait_name: string;
+  trait_value: number;
+  discovered: boolean;
+}
+
+export interface EmployeeSkill {
+  id: string;
+  employee_id: string;
+  skill_type: string;
+  level: number;
+  experience: number;
+}
+
+export interface PoachingOffer {
+  id: string;
+  source_player_id: string;
+  target_employee_id: string;
+  offer_amount: number;
+  status: string;
+  created_at: string;
+}
+
+// Contracts enhancement
+export interface ProfitShare {
+  id: string;
+  player_a: string;
+  player_b: string;
+  business_id: string;
+  share_percent: number;
+  profit_total: number;
+  last_settlement: string;
+}
+
+// Game constants for new systems
+export const ZONE_BONUSES: Record<LocationZone, { revenue_modifier: number; detection_modifier: number; setup_cost_modifier: number; description: string }> = {
+  TOURIST_DISTRICT: { revenue_modifier: 0.2, detection_modifier: 0.1, setup_cost_modifier: 1.0, description: 'High foot traffic, popular with tourists' },
+  INDUSTRIAL: { revenue_modifier: -0.1, detection_modifier: -0.1, setup_cost_modifier: 0.8, description: 'Factory zone, great for manufacturing' },
+  PORT: { revenue_modifier: 0.0, detection_modifier: 0.0, setup_cost_modifier: 1.1, description: 'Shipping hub, logistics bonuses' },
+  DOWNTOWN: { revenue_modifier: 0.15, detection_modifier: 0.05, setup_cost_modifier: 1.25, description: 'City center, premium location' },
+  SUBURB: { revenue_modifier: -0.1, detection_modifier: -0.15, setup_cost_modifier: 0.7, description: 'Quiet residential area' },
+  REDLIGHT: { revenue_modifier: 0.4, detection_modifier: 0.3, setup_cost_modifier: 0.9, description: 'Underground economy thrives here' },
+};
+
+export const SABOTAGE_CONFIG: Record<SabotageType, { cost: number; success_chance: number; rivalry_points: number; description: string }> = {
+  ARSON: { cost: 5000, success_chance: 0.5, rivalry_points: 15, description: 'Burn down a rival facility' },
+  THEFT: { cost: 3000, success_chance: 0.6, rivalry_points: 10, description: 'Steal resources from a rival' },
+  POACH_EMPLOYEE: { cost: 8000, success_chance: 0.4, rivalry_points: 8, description: 'Steal a rival employee' },
+  SPREAD_RUMORS: { cost: 2000, success_chance: 0.7, rivalry_points: 5, description: 'Damage rival reputation' },
+};
+
+export const MANAGER_TIER_CONFIG: Record<ManagerTier, { min_efficiency: number; efficiency_bonus: number; embezzlement_risk: number }> = {
+  LEVEL_1: { min_efficiency: 60, efficiency_bonus: 0.1, embezzlement_risk: 0.05 },
+  LEVEL_2: { min_efficiency: 75, efficiency_bonus: 0.2, embezzlement_risk: 0.03 },
+  LEVEL_3: { min_efficiency: 90, efficiency_bonus: 0.3, embezzlement_risk: 0.01 },
+};
+
+export const RIVALRY_THRESHOLDS: Record<RivalryState, { min: number; max: number }> = {
+  NEUTRAL: { min: 0, max: 20 },
+  COMPETITIVE: { min: 21, max: 50 },
+  HOSTILE: { min: 51, max: 75 },
+  WAR: { min: 76, max: 90 },
+  BLOOD_FEUD: { min: 91, max: 100 },
 };

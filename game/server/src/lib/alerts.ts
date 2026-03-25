@@ -27,8 +27,40 @@ export async function getPlayerAlerts(
   limit = 50,
 ): Promise<unknown[]> {
   const res = await query(
-    `SELECT * FROM alerts WHERE player_id = $1 ORDER BY created_at DESC LIMIT $2`,
+    `SELECT * FROM alerts
+     WHERE player_id = $1
+     ORDER BY read ASC, created_at DESC
+     LIMIT $2`,
     [playerId, limit],
   );
   return res.rows;
+}
+
+export async function getUnreadAlertCount(
+  playerId: string,
+): Promise<number> {
+  const res = await query<{ count: string }>(
+    `SELECT COUNT(*) AS count FROM alerts
+     WHERE player_id = $1 AND read = false`,
+    [playerId],
+  );
+  return parseInt(res.rows[0]?.count ?? '0', 10);
+}
+
+export async function markAlertRead(alertId: string): Promise<boolean> {
+  const res = await query(
+    `UPDATE alerts SET read = true WHERE id = $1 RETURNING id`,
+    [alertId],
+  );
+  return res.rows.length > 0;
+}
+
+export async function markAllAlertsRead(playerId: string): Promise<number> {
+  const res = await query(
+    `UPDATE alerts SET read = true
+     WHERE player_id = $1 AND read = false
+     RETURNING id`,
+    [playerId],
+  );
+  return res.rows.length;
 }

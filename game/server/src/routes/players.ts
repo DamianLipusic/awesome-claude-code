@@ -2,7 +2,7 @@ import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { requireAuth } from '../middleware/auth';
 import { query } from '../db/client';
 import { getCurrentSeason } from '../lib/season';
-import { getPlayerAlerts } from '../lib/alerts';
+import { getPlayerAlerts, getUnreadAlertCount, markAlertRead, markAllAlertsRead } from '../lib/alerts';
 
 export async function playerRoutes(app: FastifyInstance): Promise<void> {
   // GET /players/me
@@ -60,6 +60,56 @@ export async function playerRoutes(app: FastifyInstance): Promise<void> {
 
     const alerts = await getPlayerAlerts(playerId, 10);
 
+    // Income summary: calculate from businesses
+    const incomeRes = await query<{ revenue: string; expenses: string }>(
+      `SELECT COALESCE(SUM(b.total_revenue), 0)::text AS revenue,
+              COALESCE(SUM(b.total_expenses), 0)::text AS expenses
+         FROM businesses b
+        WHERE b.owner_id = $1 AND b.status != 'BANKRUPT'`,
+      [playerId],
+    );
+    const revPerTick = parseFloat(incomeRes.rows[0]?.revenue ?? '0');
+    const expPerTick = parseFloat(incomeRes.rows[0]?.expenses ?? '0');
+
+    // Business overview
+    const bizOverviewRes = await query<{ total: string; total_employees: string; avg_efficiency: string }>(
+      `SELECT COUNT(*)::text AS total,
+              COALESCE((SELECT COUNT(*)::text FROM employees e
+                         JOIN businesses b2 ON b2.id = e.business_id
+                        WHERE b2.owner_id = $1 AND b2.status != 'BANKRUPT'), '0') AS total_employees,
+              COALESCE(AVG(b.efficiency)::text, '0') AS avg_efficiency
+         FROM businesses b
+        WHERE b.owner_id = $1 AND b.status != 'BANKRUPT'`,
+      [playerId],
+    );
+    const bizByTypeRes = await query<{ type: string; count: string }>(
+      `SELECT type, COUNT(*)::text AS count
+         FROM businesses
+        WHERE owner_id = $1 AND status != 'BANKRUPT'
+        GROUP BY type`,
+      [playerId],
+    );
+    const byType: Record<string, number> = {};
+    for (const row of bizByTypeRes.rows) {
+      byType[row.type] = Number(row.count);
+    }
+
+    // Active events
+    const activeEventsRes = await query(
+      `SELECT * FROM seasonal_events
+        WHERE season_id = $1 AND status = 'ACTIVE'
+        ORDER BY triggered_at DESC`,
+      [seasonId],
+    );
+
+    // Reputation
+    const reputationRes = await query<{ axis: string; score: number }>(
+      `SELECT axis, score
+         FROM reputation_profiles
+        WHERE player_id = $1`,
+      [playerId],
+    );
+
     return reply.send({
       data: {
         player: playerRes.rows[0],
@@ -70,6 +120,19 @@ export async function playerRoutes(app: FastifyInstance): Promise<void> {
         season,
         rank: Number(rankRes.rows[0]?.rank ?? 1),
         alerts,
+        income_summary: {
+          revenue_per_tick: revPerTick,
+          expenses_per_tick: expPerTick,
+          net_per_tick: revPerTick - expPerTick,
+        },
+        business_overview: {
+          total: Number(bizOverviewRes.rows[0]?.total ?? 0),
+          by_type: byType,
+          total_employees: Number(bizOverviewRes.rows[0]?.total_employees ?? 0),
+          avg_efficiency: Number(parseFloat(bizOverviewRes.rows[0]?.avg_efficiency ?? '0').toFixed(1)),
+        },
+        active_events: activeEventsRes.rows,
+        reputation: reputationRes.rows,
       },
     });
   });
@@ -130,5 +193,30 @@ export async function playerRoutes(app: FastifyInstance): Promise<void> {
     );
     if (res.rows.length === 0) return reply.status(404).send({ error: 'Player not found' });
     return reply.send({ data: res.rows[0] });
+  });
+
+  // ─── Notification Endpoints ──────────────────────────────────
+
+  // GET /players/notifications — last 50 alerts, unread first
+  app.get('/notifications', { preHandler: [requireAuth] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    const playerId = request.player.id;
+    const alerts = await getPlayerAlerts(playerId, 50);
+    const unreadCount = await getUnreadAlertCount(playerId);
+    return reply.send({ data: { alerts, unread_count: unreadCount } });
+  });
+
+  // POST /players/notifications/:id/read — mark single notification as read
+  app.post('/notifications/:id/read', { preHandler: [requireAuth] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    const { id } = request.params as { id: string };
+    const success = await markAlertRead(id);
+    if (!success) return reply.status(404).send({ error: 'Notification not found' });
+    return reply.send({ data: { success: true } });
+  });
+
+  // POST /players/notifications/read-all — mark all as read
+  app.post('/notifications/read-all', { preHandler: [requireAuth] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    const playerId = request.player.id;
+    const count = await markAllAlertsRead(playerId);
+    return reply.send({ data: { marked_read: count } });
   });
 }
