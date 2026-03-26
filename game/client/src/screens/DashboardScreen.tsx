@@ -204,6 +204,11 @@ function BusinessOverviewCard({ data }: { data: DashboardData }) {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
   });
 
+  const trainMutation = useMutation({
+    mutationFn: (businessId: string) => api.post('/employees/quick-train', { business_id: businessId }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
+  });
+
   if (!businesses || businesses.total === 0) return null;
 
   return (
@@ -305,6 +310,18 @@ function BusinessOverviewCard({ data }: { data: DashboardData }) {
               >
                 <Text style={[styles.bizActionBtnText, { color: COLORS.warning }]}>
                   {quickSellMutation.isPending ? '...' : 'Sell All'}
+                </Text>
+              </TouchableOpacity>
+            )}
+
+            {biz.employees > 0 && (
+              <TouchableOpacity
+                style={[styles.bizActionBtn, { backgroundColor: COLORS.accent + '22', borderColor: COLORS.accent + '44' }]}
+                onPress={() => trainMutation.mutate(biz.id)}
+                disabled={trainMutation.isPending}
+              >
+                <Text style={[styles.bizActionBtnText, { color: COLORS.accent }]}>
+                  {trainMutation.isPending ? '...' : 'Train $5k'}
                 </Text>
               </TouchableOpacity>
             )}

@@ -147,6 +147,77 @@ export async function employeeRoutes(fastify: FastifyInstance): Promise<void> {
     },
   );
 
+  // POST /employees/quick-train — train the lowest-efficiency worker in a business
+  fastify.post(
+    '/quick-train',
+    { preHandler: [requireAuth] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const playerId = request.player.id;
+      const seasonId = request.player.season_id;
+      const { business_id } = (request.body as { business_id: string }) ?? {};
+      if (!business_id) return reply.status(400).send({ error: 'business_id is required' });
+
+      const TRAIN_COST = 5000;
+
+      try {
+        const result = await withTransaction(async (client) => {
+          // Verify ownership
+          const bizRow = await client.query<{ id: string; name: string }>(
+            `SELECT id, name FROM businesses WHERE id = $1 AND owner_id = $2 AND season_id = $3`,
+            [business_id, playerId, seasonId],
+          );
+          if (!bizRow.rows.length) throw Object.assign(new Error('Business not found'), { statusCode: 404 });
+
+          // Find lowest efficiency worker
+          const empRow = await client.query<{ id: string; name: string; efficiency: string }>(
+            `SELECT id, name, efficiency::text FROM employees
+              WHERE business_id = $1 AND role = 'WORKER'
+              ORDER BY efficiency ASC LIMIT 1 FOR UPDATE`,
+            [business_id],
+          );
+          if (!empRow.rows.length) throw Object.assign(new Error('No workers to train'), { statusCode: 400 });
+
+          const emp = empRow.rows[0];
+          const currentEff = parseFloat(emp.efficiency);
+          if (currentEff >= 0.95) throw Object.assign(new Error('Worker already at max efficiency'), { statusCode: 400 });
+
+          // Check cash
+          const playerRow = await client.query<{ cash: string }>(
+            `SELECT cash FROM players WHERE id = $1 FOR UPDATE`, [playerId],
+          );
+          if (parseFloat(playerRow.rows[0]?.cash ?? '0') < TRAIN_COST) {
+            throw Object.assign(new Error(`Need $${TRAIN_COST}`), { statusCode: 400 });
+          }
+
+          // Apply training boost (5-10%)
+          const boost = 0.05 + Math.random() * 0.05;
+          const newEff = Math.min(1.0, currentEff + boost);
+
+          await client.query(`UPDATE players SET cash = cash - $1 WHERE id = $2`, [TRAIN_COST, playerId]);
+          await client.query(`UPDATE employees SET efficiency = $1, experience = experience + 50 WHERE id = $2`, [newEff.toFixed(4), emp.id]);
+          await recalcBusinessEfficiency(client as Parameters<typeof recalcBusinessEfficiency>[0], business_id);
+
+          return {
+            employee_name: emp.name,
+            efficiency_before: parseFloat((currentEff * 100).toFixed(1)),
+            efficiency_after: parseFloat((newEff * 100).toFixed(1)),
+            boost: parseFloat((boost * 100).toFixed(1)),
+            cost: TRAIN_COST,
+            business_name: bizRow.rows[0].name,
+          };
+        });
+
+        return reply.status(200).send({
+          data: result,
+          message: `${result.employee_name} trained! Efficiency: ${result.efficiency_before}% → ${result.efficiency_after}% (+${result.boost}%)`,
+        });
+      } catch (err: unknown) {
+        const e = err as { statusCode?: number; message: string };
+        return reply.status(e.statusCode ?? 500).send({ error: e.message });
+      }
+    },
+  );
+
   // POST /employees/quick-hire — hire the best available worker for a business
   fastify.post(
     '/quick-hire',

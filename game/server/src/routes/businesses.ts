@@ -65,7 +65,16 @@ export async function businessRoutes(app: FastifyInstance): Promise<void> {
       };
     });
 
-    return reply.send({ data: types });
+    // City bonuses info
+    const cityBonuses = [
+      { city: 'Ironport', bonus: 'Capital city — largest market, highest prices', specialization: 'MINE (+10% output)' },
+      { city: 'Duskfield', bonus: 'Industrial hub — Factory production bonus', specialization: 'FACTORY (+10% output)' },
+      { city: 'Ashvale', bonus: 'Agricultural region — Farm production bonus', specialization: 'FARM (+15% output)' },
+      { city: 'Coldmarsh', bonus: 'Low cost region — reduced operating expenses', specialization: 'All (-10% operating costs)' },
+      { city: 'Farrow', bonus: 'Frontier town — high risk, high reward', specialization: 'Crime (+20% rewards)' },
+    ];
+
+    return reply.send({ data: types, cities: cityBonuses });
   });
 
   // GET /businesses
@@ -292,6 +301,65 @@ export async function businessRoutes(app: FastifyInstance): Promise<void> {
 
     const res = await query(`SELECT * FROM employees WHERE business_id = $1`, [id]);
     return reply.send({ data: res.rows });
+  });
+
+  // POST /businesses/:id/maintain — invest in business maintenance for efficiency boost
+  app.post('/:id/maintain', { preHandler: [requireAuth] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    const { id } = request.params as { id: string };
+    const playerId = request.player.id;
+
+    try {
+      const result = await withTransaction(async (client) => {
+        const bizRes = await client.query<{
+          tier: number; efficiency: string; daily_operating_cost: string; name: string;
+        }>(
+          `SELECT tier, efficiency, daily_operating_cost, name FROM businesses
+            WHERE id = $1 AND owner_id = $2 AND status = 'ACTIVE' FOR UPDATE`,
+          [id, playerId],
+        );
+        if (!bizRes.rows.length) throw Object.assign(new Error('Business not found'), { statusCode: 404 });
+        const biz = bizRes.rows[0];
+
+        // Maintenance cost = 10% of daily operating cost, min $200
+        const maintenanceCost = Math.max(200, parseFloat(biz.daily_operating_cost) * 0.1);
+
+        const playerRes = await client.query<{ cash: string }>(
+          `SELECT cash FROM players WHERE id = $1 FOR UPDATE`, [playerId],
+        );
+        if (parseFloat(playerRes.rows[0]?.cash ?? '0') < maintenanceCost) {
+          throw Object.assign(new Error(`Insufficient funds: need $${maintenanceCost.toFixed(0)}`), { statusCode: 400 });
+        }
+
+        // Boost efficiency by 2-5% (up to 1.0 max)
+        const currentEff = parseFloat(biz.efficiency);
+        const boost = 0.02 + Math.random() * 0.03;
+        const newEff = Math.min(1.0, currentEff + boost);
+
+        await client.query(
+          `UPDATE players SET cash = cash - $1 WHERE id = $2`,
+          [maintenanceCost, playerId],
+        );
+        await client.query(
+          `UPDATE businesses SET efficiency = $1, total_expenses = total_expenses + $2 WHERE id = $3`,
+          [newEff.toFixed(4), maintenanceCost, id],
+        );
+
+        return {
+          cost: parseFloat(maintenanceCost.toFixed(2)),
+          efficiency_before: parseFloat((currentEff * 100).toFixed(1)),
+          efficiency_after: parseFloat((newEff * 100).toFixed(1)),
+          boost: parseFloat((boost * 100).toFixed(1)),
+        };
+      });
+
+      return reply.send({
+        data: result,
+        message: `Maintenance complete! Efficiency boosted by ${result.boost}% (${result.efficiency_before}% → ${result.efficiency_after}%).`,
+      });
+    } catch (err: unknown) {
+      const e = err as { statusCode?: number; message: string };
+      return reply.status(e.statusCode ?? 500).send({ error: e.message });
+    }
   });
 
   // POST /businesses/:id/auto-sell — toggle auto-sell for a business

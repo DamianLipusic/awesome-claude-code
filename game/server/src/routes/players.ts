@@ -78,6 +78,24 @@ export async function playerRoutes(app: FastifyInstance): Promise<void> {
 
     const alerts = await getPlayerAlerts(playerId, 10);
 
+    // Get net worth history (last 24 data points from business_ledger)
+    const nwHistoryRes = await query<{ day: string; revenue: string; expenses: string }>(
+      `SELECT bl.day::text, SUM(bl.revenue)::text AS revenue, SUM(bl.expenses)::text AS expenses
+         FROM business_ledger bl
+         JOIN businesses b ON b.id = bl.business_id
+        WHERE b.owner_id = $1
+        GROUP BY bl.day
+        ORDER BY bl.day DESC
+        LIMIT 14`,
+      [playerId],
+    );
+    const cashHistory = nwHistoryRes.rows.reverse().map(r => ({
+      day: r.day,
+      revenue: parseFloat(r.revenue),
+      expenses: parseFloat(r.expenses),
+      net: parseFloat(r.revenue) - parseFloat(r.expenses),
+    }));
+
     // Get server-wide business averages for comparison
     const avgRes = await query<{
       type: string; avg_revenue: string; avg_efficiency: string; avg_employees: string;
@@ -448,6 +466,7 @@ export async function playerRoutes(app: FastifyInstance): Promise<void> {
           can_afford_upgrade: upgradeTargets.length > 0 && cash >= upgradeTargets[0].cost,
           upgrade_options: upgradeTargets.slice(0, 3),
         },
+        cash_history: cashHistory,
         // Supply chain analysis
         supply_chains: (() => {
           const chains: Array<{ from: string; to: string; resource: string; from_type: string; to_type: string; status: string }> = [];
