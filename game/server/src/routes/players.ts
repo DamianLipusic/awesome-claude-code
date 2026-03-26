@@ -679,6 +679,71 @@ export async function playerRoutes(app: FastifyInstance): Promise<void> {
     });
   });
 
+  // GET /players/empire — grouped business overview by city
+  app.get('/empire', { preHandler: [requireAuth] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    const playerId = request.player.id;
+
+    const bizRes = await query<{
+      id: string; name: string; type: string; tier: number; city: string;
+      efficiency: string; daily_operating_cost: string; inventory: Record<string, number>;
+      employee_count: string; total_revenue: string; total_expenses: string;
+      auto_sell: boolean; status: string;
+    }>(
+      `SELECT b.id, b.name, b.type::text, b.tier, b.city, b.efficiency,
+              b.daily_operating_cost, b.inventory, b.total_revenue::text,
+              b.total_expenses::text, b.auto_sell, b.status,
+              COALESCE(ec.cnt, 0)::text AS employee_count
+         FROM businesses b
+         LEFT JOIN (SELECT business_id, COUNT(*) AS cnt FROM employees GROUP BY business_id) ec ON ec.business_id = b.id
+        WHERE b.owner_id = $1 AND b.status != 'BANKRUPT'
+        ORDER BY b.city, b.established_at`,
+      [playerId],
+    );
+
+    // Group by city
+    const cities: Record<string, {
+      businesses: Array<{ id: string; name: string; type: string; tier: number; employees: number; status: string; auto_sell: boolean }>;
+      total_revenue: number; total_expenses: number; total_employees: number; total_inventory: number;
+    }> = {};
+
+    for (const b of bizRes.rows) {
+      if (!cities[b.city]) {
+        cities[b.city] = { businesses: [], total_revenue: 0, total_expenses: 0, total_employees: 0, total_inventory: 0 };
+      }
+      const empCount = parseInt(b.employee_count);
+      const eff = parseFloat(b.efficiency);
+      const dailyRev = b.tier * 1400 * eff * (1 + empCount * 0.1);
+      const inv = b.inventory as Record<string, number>;
+      const invCount = Object.values(inv).reduce((a, v) => a + v, 0);
+
+      cities[b.city].businesses.push({
+        id: b.id, name: b.name, type: b.type, tier: b.tier,
+        employees: empCount, status: b.status, auto_sell: b.auto_sell,
+      });
+      cities[b.city].total_revenue += dailyRev;
+      cities[b.city].total_expenses += parseFloat(b.daily_operating_cost);
+      cities[b.city].total_employees += empCount;
+      cities[b.city].total_inventory += invCount;
+    }
+
+    // Convert to array and add net profit
+    const empireData = Object.entries(cities).map(([city, data]) => ({
+      city,
+      ...data,
+      total_revenue: parseFloat(data.total_revenue.toFixed(2)),
+      total_expenses: parseFloat(data.total_expenses.toFixed(2)),
+      daily_net: parseFloat((data.total_revenue - data.total_expenses).toFixed(2)),
+    }));
+
+    return reply.send({
+      data: {
+        total_cities: empireData.length,
+        total_businesses: bizRes.rows.length,
+        cities: empireData,
+      },
+    });
+  });
+
   // GET /players/leaderboard
   app.get('/leaderboard', { preHandler: [requireAuth] }, async (request: FastifyRequest, reply: FastifyReply) => {
     const { page = '1', per_page = '100' } = request.query as { page?: string; per_page?: string };
