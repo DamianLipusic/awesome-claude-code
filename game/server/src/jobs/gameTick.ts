@@ -92,6 +92,25 @@ export async function runGameTick(): Promise<void> {
       console.error('[GameTick] Failed to record tick:', err);
     }
 
+    // ── Push tick update to connected players via WebSocket ──
+    try {
+      const playerSummaries = await query<{
+        id: string; cash: string; net_worth: string;
+      }>(
+        `SELECT id, cash::text, net_worth::text FROM players
+          WHERE last_active > NOW() - INTERVAL '30 minutes'`,
+      );
+      for (const p of playerSummaries.rows) {
+        emitToPlayer(p.id, 'tick_update', {
+          cash: parseFloat(p.cash),
+          net_worth: parseFloat(p.net_worth),
+          tick_time: new Date().toISOString(),
+        });
+      }
+    } catch (err) {
+      // Non-critical — don't fail the tick
+    }
+
     console.log(`[GameTick] Completed in ${elapsed}ms (NPC actions: ${npcActions}) at ${new Date().toISOString()}`);
   } catch (err) {
     console.error('[GameTick] Fatal error:', err);

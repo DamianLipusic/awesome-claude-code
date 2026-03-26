@@ -130,10 +130,12 @@ function PlayerStatsHeader({ data }: { data: DashboardData & { total_players?: n
 
 // ─── Income Summary Card ──────────────────────────────────────
 
-function IncomeSummaryCard({ data }: { data: DashboardData }) {
+function IncomeSummaryCard({ data }: { data: DashboardData & { income: { daily_salaries?: number; daily_total_costs?: number; inventory_value?: number } } }) {
   const { income } = data;
   if (!income) return null;
-  const { daily_revenue, daily_expenses, daily_net, per_tick_net, cash_trend } = income;
+  const { daily_revenue, daily_net, per_tick_net, cash_trend } = income;
+  const totalCosts = (income as any).daily_total_costs ?? income.daily_expenses;
+  const salaries = (income as any).daily_salaries ?? 0;
   const netColor = daily_net >= 0 ? COLORS.success : COLORS.error;
   const trendIcon = cash_trend === 'growing' ? '\u2191' : cash_trend === 'declining' ? '\u2193' : '\u2192';
 
@@ -151,9 +153,9 @@ function IncomeSummaryCard({ data }: { data: DashboardData }) {
           </Text>
         </View>
         <View style={styles.incomeItem}>
-          <Text style={styles.incomeLabel}>Expenses</Text>
+          <Text style={styles.incomeLabel}>Costs</Text>
           <Text style={[styles.incomeValue, { color: COLORS.error }]}>
-            -{formatCurrency(daily_expenses)}
+            -{formatCurrency(totalCosts)}
           </Text>
         </View>
         <View style={styles.incomeItem}>
@@ -163,7 +165,14 @@ function IncomeSummaryCard({ data }: { data: DashboardData }) {
           </Text>
         </View>
       </View>
-      <Text style={styles.perTickNote}>({formatCurrency(per_tick_net)}/tick)</Text>
+      <View style={styles.incomeBreakdown}>
+        <Text style={styles.incomeBreakdownText}>
+          Operating: {formatCurrency(income.daily_expenses)}
+          {salaries > 0 ? ` | Salaries: ${formatCurrency(salaries)}` : ''}
+          {(income as any).inventory_value > 0 ? ` | Stock: ${formatCurrency((income as any).inventory_value)}` : ''}
+        </Text>
+        <Text style={styles.perTickNote}>({formatCurrency(per_tick_net)}/tick)</Text>
+      </View>
     </Card>
   );
 }
@@ -310,6 +319,44 @@ function BusinessOverviewCard({ data }: { data: DashboardData }) {
           </View>
         </View>
       ))}
+    </Card>
+  );
+}
+
+// ─── Getting Started Tutorial ─────────────────────────────────
+
+function GettingStartedCard({ data }: { data: DashboardData }) {
+  const navigation = useNavigation<NavProp>();
+  if (data.businesses.total > 0) return null;
+
+  const steps = [
+    { num: '1', title: 'Create a Business', desc: 'Open your first business to start earning revenue', done: false },
+    { num: '2', title: 'Hire Workers', desc: 'Workers boost production and revenue by 10% each', done: false },
+    { num: '3', title: 'Produce & Sell', desc: 'Make goods and sell them on the market for profit', done: false },
+    { num: '4', title: 'Upgrade & Expand', desc: 'Upgrade to higher tiers and open more businesses', done: false },
+  ];
+
+  return (
+    <Card style={{...styles.card, borderColor: COLORS.primary + '66', borderWidth: 1}}>
+      <Text style={[styles.cardTitle, { color: COLORS.primary }]}>Welcome to EmpireOS</Text>
+      <Text style={styles.tutorialSubtitle}>Build your business empire in 4 steps:</Text>
+      {steps.map((step) => (
+        <View key={step.num} style={styles.tutorialStep}>
+          <View style={styles.tutorialStepNum}>
+            <Text style={styles.tutorialStepNumText}>{step.num}</Text>
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.tutorialStepTitle}>{step.title}</Text>
+            <Text style={styles.tutorialStepDesc}>{step.desc}</Text>
+          </View>
+        </View>
+      ))}
+      <TouchableOpacity
+        style={styles.tutorialBtn}
+        onPress={() => navigation.navigate('Business')}
+      >
+        <Text style={styles.tutorialBtnText}>Create Your First Business</Text>
+      </TouchableOpacity>
     </Card>
   );
 }
@@ -634,6 +681,9 @@ export function DashboardScreen() {
         Welcome back, {data.player.username}
       </Text>
 
+      {/* Getting Started Tutorial for new players */}
+      <GettingStartedCard data={data} />
+
       {/* Next Actions - HIGHEST PRIORITY - tell the player what to do */}
       <NextActionsCard data={data} />
 
@@ -768,6 +818,54 @@ const styles = StyleSheet.create({
     marginHorizontal: 12,
   },
 
+  // Tutorial
+  tutorialSubtitle: {
+    fontSize: 13,
+    color: COLORS.textDim,
+    marginBottom: 12,
+  },
+  tutorialStep: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingVertical: 8,
+  },
+  tutorialStepNum: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: COLORS.primary + '33',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tutorialStepNumText: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: COLORS.primary,
+  },
+  tutorialStepTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: COLORS.textBright,
+  },
+  tutorialStepDesc: {
+    fontSize: 11,
+    color: COLORS.textDim,
+    marginTop: 1,
+  },
+  tutorialBtn: {
+    backgroundColor: COLORS.primary,
+    borderRadius: 10,
+    paddingVertical: 12,
+    alignItems: 'center',
+    marginTop: 12,
+  },
+  tutorialBtnText: {
+    color: '#0a0a0f',
+    fontSize: 14,
+    fontWeight: '700',
+  },
+
   // Next Actions Card
   nextActionsCard: {
     borderColor: COLORS.primary + '44',
@@ -808,11 +906,22 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     textTransform: 'capitalize',
   },
+  incomeBreakdown: {
+    marginTop: 8,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.cardBorder,
+    alignItems: 'center',
+  },
+  incomeBreakdownText: {
+    fontSize: 10,
+    color: COLORS.textDim,
+  },
   perTickNote: {
     fontSize: 11,
     color: COLORS.textDim,
     textAlign: 'center',
-    marginTop: 6,
+    marginTop: 4,
   },
 
   // Income Summary

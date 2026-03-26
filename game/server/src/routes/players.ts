@@ -78,6 +78,16 @@ export async function playerRoutes(app: FastifyInstance): Promise<void> {
 
     const alerts = await getPlayerAlerts(playerId, 10);
 
+    // Get total salary costs
+    const salaryRes = await query<{ total_salary: string }>(
+      `SELECT COALESCE(SUM(e.salary), 0)::text AS total_salary
+         FROM employees e
+         JOIN businesses b ON b.id = e.business_id
+        WHERE b.owner_id = $1 AND b.status != 'BANKRUPT'`,
+      [playerId],
+    );
+    const totalDailySalary = parseFloat(salaryRes.rows[0]?.total_salary ?? '0');
+
     // Detailed business data with per-tick economics
     const bizDetailRes = await query<{
       id: string; name: string; type: string; tier: number; city: string;
@@ -375,10 +385,12 @@ export async function playerRoutes(app: FastifyInstance): Promise<void> {
         income: {
           daily_revenue: parseFloat(totalDailyRev.toFixed(2)),
           daily_expenses: parseFloat(totalDailyCost.toFixed(2)),
-          daily_net: parseFloat((totalDailyRev - totalDailyCost).toFixed(2)),
-          per_tick_net: parseFloat(((totalDailyRev - totalDailyCost) / 288).toFixed(2)),
+          daily_salaries: parseFloat(totalDailySalary.toFixed(2)),
+          daily_total_costs: parseFloat((totalDailyCost + totalDailySalary).toFixed(2)),
+          daily_net: parseFloat((totalDailyRev - totalDailyCost - totalDailySalary).toFixed(2)),
+          per_tick_net: parseFloat(((totalDailyRev - totalDailyCost - totalDailySalary) / 288).toFixed(2)),
           today_net: parseFloat(todayNet.toFixed(2)),
-          cash_trend: totalDailyRev - totalDailyCost > 0 ? 'growing' : totalDailyRev - totalDailyCost < -10 ? 'declining' : 'stable',
+          cash_trend: (totalDailyRev - totalDailyCost - totalDailySalary) > 0 ? 'growing' : (totalDailyRev - totalDailyCost - totalDailySalary) < -10 ? 'declining' : 'stable',
           inventory_value: parseFloat(totalInventoryValue.toFixed(2)),
         },
         businesses: {
@@ -392,6 +404,55 @@ export async function playerRoutes(app: FastifyInstance): Promise<void> {
           can_afford_upgrade: upgradeTargets.length > 0 && cash >= upgradeTargets[0].cost,
           upgrade_options: upgradeTargets.slice(0, 3),
         },
+        // Supply chain analysis
+        supply_chains: (() => {
+          const chains: Array<{ from: string; to: string; resource: string; from_type: string; to_type: string; status: string }> = [];
+          const bizByType: Record<string, typeof businessDetails[0][]> = {};
+          for (const b of businessDetails) {
+            if (!bizByType[b.type]) bizByType[b.type] = [];
+            bizByType[b.type].push(b);
+          }
+
+          // Mine → Factory chain
+          if (bizByType['MINE'] && bizByType['FACTORY']) {
+            for (const mine of bizByType['MINE']) {
+              for (const factory of bizByType['FACTORY']) {
+                chains.push({
+                  from: mine.name, to: factory.name,
+                  resource: 'Coal + Metals',
+                  from_type: 'MINE', to_type: 'FACTORY',
+                  status: mine.employees > 0 && factory.employees > 0 ? 'active' : 'idle',
+                });
+              }
+            }
+          }
+
+          // Farm → Factory chain (potential)
+          if (bizByType['FARM'] && bizByType['FACTORY']) {
+            for (const farm of bizByType['FARM']) {
+              chains.push({
+                from: farm.name, to: bizByType['FACTORY'][0].name,
+                resource: 'Wheat (raw materials)',
+                from_type: 'FARM', to_type: 'FACTORY',
+                status: 'potential',
+              });
+            }
+          }
+
+          // Suggest chains the player could build
+          const suggestions: string[] = [];
+          if (bizByType['MINE'] && !bizByType['FACTORY']) {
+            suggestions.push('Open a FACTORY to process your Mine\'s Coal and Metals into Steel (higher value)');
+          }
+          if (bizByType['FACTORY'] && !bizByType['MINE']) {
+            suggestions.push('Open a MINE to supply your Factory with raw materials');
+          }
+          if (!bizByType['MINE'] && !bizByType['FACTORY'] && bizDetailRes.rows.length > 0) {
+            suggestions.push('Build a Mine + Factory combo for a profitable production chain');
+          }
+
+          return { active: chains, suggestions };
+        })(),
         empire_summary: {
           total_lifetime_revenue: parseFloat(businessDetails.reduce((s, b) => s + b.lifetime_revenue, 0).toFixed(2)),
           total_lifetime_expenses: parseFloat(businessDetails.reduce((s, b) => s + b.lifetime_expenses, 0).toFixed(2)),
