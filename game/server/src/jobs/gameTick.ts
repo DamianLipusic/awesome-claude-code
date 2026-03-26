@@ -339,6 +339,13 @@ async function processAutoSell(): Promise<void> {
           `UPDATE players SET cash = cash + $1 WHERE id = $2`,
           [bizEarned, biz.owner_id],
         );
+
+        // Push real-time profit notification
+        emitToPlayer(biz.owner_id, 'auto_sell', {
+          business: biz.name,
+          earned: parseFloat(bizEarned.toFixed(2)),
+        });
+
         totalSold++;
       }
     }

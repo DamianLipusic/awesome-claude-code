@@ -679,6 +679,54 @@ export async function playerRoutes(app: FastifyInstance): Promise<void> {
     });
   });
 
+  // GET /players/tips — contextual gameplay tips
+  app.get('/tips', { preHandler: [requireAuth] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    const playerId = request.player.id;
+    const bizRes = await query<{ type: string; tier: number; city: string; auto_sell: boolean; employee_count: string }>(
+      `SELECT b.type::text, b.tier, b.city, b.auto_sell,
+              COALESCE((SELECT COUNT(*) FROM employees e WHERE e.business_id = b.id), 0)::text AS employee_count
+         FROM businesses b WHERE b.owner_id = $1 AND b.status != 'BANKRUPT'`,
+      [playerId],
+    );
+
+    const tips: string[] = [];
+    const types = new Set(bizRes.rows.map(b => b.type));
+    const cities = new Set(bizRes.rows.map(b => b.city));
+
+    if (bizRes.rows.length === 0) {
+      tips.push('Start with a RETAIL business — cheapest at $15k with guaranteed profit from day one.');
+      tips.push('Each worker you hire boosts revenue by 10%. More workers = more money.');
+    } else {
+      if (types.has('MINE') && !types.has('FACTORY')) {
+        tips.push('Build a FACTORY to convert your Mine\'s Coal and Metals into Steel — worth 3x more on the market.');
+      }
+      if (!types.has('FARM') && bizRes.rows.length < 3) {
+        tips.push('FARMs produce Wheat and Lumber with no input costs — pure profit once you hire workers.');
+      }
+      if (!cities.has('Coldmarsh') && bizRes.rows.length >= 2) {
+        tips.push('Coldmarsh has -10% operating costs. Consider opening your next business there to save money.');
+      }
+      const noAutoSell = bizRes.rows.filter(b => !b.auto_sell && parseInt(b.employee_count) > 0);
+      if (noAutoSell.length > 0) {
+        tips.push('Enable Auto-Sell on your businesses to convert production into cash automatically each tick.');
+      }
+      const lowTier = bizRes.rows.filter(b => b.tier === 1 && parseInt(b.employee_count) >= 3);
+      if (lowTier.length > 0) {
+        tips.push('Your businesses with 3+ workers are ready for a Tier 2 upgrade — doubles revenue and unlocks new resources.');
+      }
+      if (bizRes.rows.length >= 3 && !types.has('SECURITY_FIRM')) {
+        tips.push('Consider a Security Firm to protect your growing empire from raids and employee theft.');
+      }
+      if (bizRes.rows.every(b => b.city === bizRes.rows[0].city)) {
+        tips.push('Expand to a second city for market diversification. Each city has different price dynamics.');
+      }
+    }
+
+    // Return max 2 tips, randomized
+    const shuffled = tips.sort(() => Math.random() - 0.5).slice(0, 2);
+    return reply.send({ data: { tips: shuffled } });
+  });
+
   // GET /players/progression — complete progression snapshot
   app.get('/progression', { preHandler: [requireAuth] }, async (request: FastifyRequest, reply: FastifyReply) => {
     const playerId = request.player.id;
