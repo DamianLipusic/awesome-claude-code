@@ -78,6 +78,28 @@ export async function playerRoutes(app: FastifyInstance): Promise<void> {
 
     const alerts = await getPlayerAlerts(playerId, 10);
 
+    // Get server-wide business averages for comparison
+    const avgRes = await query<{
+      type: string; avg_revenue: string; avg_efficiency: string; avg_employees: string;
+    }>(
+      `SELECT b.type::text,
+              AVG(b.tier * 1400 * b.efficiency * (1 + COALESCE(ec.cnt, 0) * 0.1))::text AS avg_revenue,
+              AVG(b.efficiency)::text AS avg_efficiency,
+              AVG(COALESCE(ec.cnt, 0))::text AS avg_employees
+         FROM businesses b
+         LEFT JOIN (SELECT business_id, COUNT(*)::int AS cnt FROM employees GROUP BY business_id) ec ON ec.business_id = b.id
+        WHERE b.status = 'ACTIVE'
+        GROUP BY b.type`,
+    );
+    const serverAvgs: Record<string, { avg_revenue: number; avg_efficiency: number; avg_employees: number }> = {};
+    for (const r of avgRes.rows) {
+      serverAvgs[r.type] = {
+        avg_revenue: parseFloat(parseFloat(r.avg_revenue).toFixed(2)),
+        avg_efficiency: parseFloat((parseFloat(r.avg_efficiency) * 100).toFixed(1)),
+        avg_employees: parseFloat(parseFloat(r.avg_employees).toFixed(1)),
+      };
+    }
+
     // Get total salary costs
     const salaryRes = await query<{ total_salary: string }>(
       `SELECT COALESCE(SUM(e.salary), 0)::text AS total_salary
@@ -382,7 +404,13 @@ export async function playerRoutes(app: FastifyInstance): Promise<void> {
           status: workerCount === 0 ? 'idle_no_workers' : 'producing',
         };
       }
-      return { ...b, production, rating: calcRating(b) };
+      const avg = serverAvgs[b.type];
+      const vs_average = avg ? {
+        revenue: b.daily_revenue > avg.avg_revenue ? 'above' : b.daily_revenue < avg.avg_revenue * 0.8 ? 'below' : 'average',
+        efficiency: b.efficiency > avg.avg_efficiency ? 'above' : b.efficiency < avg.avg_efficiency * 0.8 ? 'below' : 'average',
+        employees: b.employees > avg.avg_employees ? 'above' : b.employees < avg.avg_employees * 0.5 ? 'below' : 'average',
+      } : null;
+      return { ...b, production, rating: calcRating(b), vs_average };
     });
 
     return reply.send({

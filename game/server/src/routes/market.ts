@@ -678,6 +678,70 @@ export async function marketRoutes(fastify: FastifyInstance): Promise<void> {
     },
   );
 
+  // GET /market/trends — Resource price trends with 24h change and direction
+  fastify.get(
+    '/trends',
+    { preHandler: [requireAuth] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const seasonId = request.player.season_id;
+
+      const result = await query<{
+        id: string; name: string; category: string; base_value: string;
+        current_ai_price: string;
+        price_24h_ago: string | null; price_1h_ago: string | null;
+        high_24h: string | null; low_24h: string | null;
+        volume_24h: string;
+      }>(
+        `SELECT r.id, r.name, r.category, r.base_value::text, r.current_ai_price::text,
+                (SELECT price::text FROM price_history
+                  WHERE resource_id = r.id AND recorded_at < NOW() - INTERVAL '24 hours'
+                  ORDER BY recorded_at DESC LIMIT 1) AS price_24h_ago,
+                (SELECT price::text FROM price_history
+                  WHERE resource_id = r.id AND recorded_at < NOW() - INTERVAL '1 hour'
+                  ORDER BY recorded_at DESC LIMIT 1) AS price_1h_ago,
+                (SELECT MAX(price)::text FROM price_history
+                  WHERE resource_id = r.id AND recorded_at > NOW() - INTERVAL '24 hours') AS high_24h,
+                (SELECT MIN(price)::text FROM price_history
+                  WHERE resource_id = r.id AND recorded_at > NOW() - INTERVAL '24 hours') AS low_24h,
+                COALESCE((SELECT SUM(quantity - quantity_remaining)::text FROM market_listings
+                  WHERE resource_id = r.id AND filled_at > NOW() - INTERVAL '24 hours'), '0') AS volume_24h
+           FROM resources r
+          WHERE r.season_id = $1
+          ORDER BY r.category, r.name`,
+        [seasonId],
+      );
+
+      const trends = result.rows.map(r => {
+        const currentPrice = parseFloat(r.current_ai_price);
+        const price24hAgo = r.price_24h_ago ? parseFloat(r.price_24h_ago) : currentPrice;
+        const price1hAgo = r.price_1h_ago ? parseFloat(r.price_1h_ago) : currentPrice;
+        const change24h = price24hAgo > 0 ? ((currentPrice - price24hAgo) / price24hAgo) * 100 : 0;
+        const change1h = price1hAgo > 0 ? ((currentPrice - price1hAgo) / price1hAgo) * 100 : 0;
+
+        let direction: 'up' | 'down' | 'stable' = 'stable';
+        if (change1h > 1) direction = 'up';
+        else if (change1h < -1) direction = 'down';
+
+        return {
+          resource_id: r.id,
+          name: r.name,
+          category: r.category,
+          current_price: currentPrice,
+          base_value: parseFloat(r.base_value),
+          change_24h_pct: parseFloat(change24h.toFixed(1)),
+          change_1h_pct: parseFloat(change1h.toFixed(1)),
+          high_24h: r.high_24h ? parseFloat(r.high_24h) : currentPrice,
+          low_24h: r.low_24h ? parseFloat(r.low_24h) : currentPrice,
+          volume_24h: parseInt(r.volume_24h),
+          direction,
+          quick_sell_price: parseFloat((currentPrice * 0.85).toFixed(2)),
+        };
+      });
+
+      return reply.send({ data: trends });
+    },
+  );
+
   // POST /market/quick-sell — Instantly sell inventory at AI buy price (discounted)
   // Removes friction from the core loop: produce → quick-sell → profit
   const QuickSellSchema = z.object({
