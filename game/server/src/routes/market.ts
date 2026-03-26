@@ -677,4 +677,152 @@ export async function marketRoutes(fastify: FastifyInstance): Promise<void> {
       return reply.send({ data: result.rows });
     },
   );
+
+  // POST /market/quick-sell — Instantly sell inventory at AI buy price (discounted)
+  // Removes friction from the core loop: produce → quick-sell → profit
+  const QuickSellSchema = z.object({
+    business_id: z.string().uuid(),
+    resource_name: z.string().min(1).optional(), // If omitted, sell ALL inventory
+    quantity: z.number().int().positive().optional(), // If omitted, sell all of that resource
+  });
+
+  fastify.post(
+    '/quick-sell',
+    { preHandler: [requireAuth] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const parsed = QuickSellSchema.safeParse(request.body);
+      if (!parsed.success) {
+        return reply.status(400).send({ error: parsed.error.errors[0].message });
+      }
+
+      const { business_id, resource_name, quantity } = parsed.data;
+      const playerId = request.player.id;
+      const seasonId = request.player.season_id;
+
+      try {
+        const result = await withTransaction(async (client) => {
+          // Verify business ownership
+          const bizRes = await client.query<{
+            id: string; inventory: Record<string, number>; city: string;
+          }>(
+            `SELECT id, inventory, city FROM businesses
+              WHERE id = $1 AND owner_id = $2 AND status = 'ACTIVE'
+              FOR UPDATE`,
+            [business_id, playerId],
+          );
+          if (bizRes.rows.length === 0) {
+            throw Object.assign(new Error('Business not found or not active'), { statusCode: 404 });
+          }
+
+          const biz = bizRes.rows[0];
+          const inventory = biz.inventory as Record<string, number>;
+
+          // Determine what to sell
+          const toSell: Array<{ name: string; qty: number }> = [];
+          if (resource_name) {
+            const available = inventory[resource_name] ?? 0;
+            if (available <= 0) {
+              throw Object.assign(new Error(`No ${resource_name} in inventory`), { statusCode: 400 });
+            }
+            const sellQty = quantity ? Math.min(quantity, available) : available;
+            toSell.push({ name: resource_name, qty: sellQty });
+          } else {
+            // Sell all inventory
+            for (const [name, qty] of Object.entries(inventory)) {
+              if (qty > 0) {
+                toSell.push({ name, qty: quantity ? Math.min(quantity, qty) : qty });
+              }
+            }
+          }
+
+          if (toSell.length === 0) {
+            throw Object.assign(new Error('No inventory to sell'), { statusCode: 400 });
+          }
+
+          // Look up AI prices for each resource (sell at 85% of AI price for instant sale)
+          const QUICK_SELL_DISCOUNT = 0.85;
+          let totalEarned = 0;
+          const soldItems: Array<{ resource: string; quantity: number; price_per_unit: number; total: number }> = [];
+
+          for (const item of toSell) {
+            const priceRes = await client.query<{ current_ai_price: string; id: string }>(
+              `SELECT id, current_ai_price FROM resources
+                WHERE name = $1 AND season_id = $2`,
+              [item.name, seasonId],
+            );
+            if (priceRes.rows.length === 0) continue; // Skip unknown resources
+
+            const aiPrice = parseFloat(priceRes.rows[0].current_ai_price);
+            const sellPrice = parseFloat((aiPrice * QUICK_SELL_DISCOUNT).toFixed(2));
+            const itemTotal = parseFloat((sellPrice * item.qty).toFixed(2));
+            totalEarned += itemTotal;
+
+            soldItems.push({
+              resource: item.name,
+              quantity: item.qty,
+              price_per_unit: sellPrice,
+              total: itemTotal,
+            });
+
+            // Deduct from inventory
+            inventory[item.name] = (inventory[item.name] ?? 0) - item.qty;
+            if (inventory[item.name] <= 0) delete inventory[item.name];
+
+            // Record price history
+            await client.query(
+              `INSERT INTO price_history (resource_id, season_id, price)
+               VALUES ($1, $2, $3)`,
+              [priceRes.rows[0].id, seasonId, sellPrice],
+            );
+          }
+
+          if (soldItems.length === 0) {
+            throw Object.assign(new Error('Could not find market prices for inventory'), { statusCode: 400 });
+          }
+
+          // Update inventory
+          await client.query(
+            `UPDATE businesses SET inventory = $1 WHERE id = $2`,
+            [JSON.stringify(inventory), business_id],
+          );
+
+          // Add cash to player
+          await client.query(
+            `UPDATE players SET cash = cash + $1 WHERE id = $2`,
+            [totalEarned, playerId],
+          );
+
+          // Update business revenue tracking
+          await client.query(
+            `UPDATE businesses SET total_revenue = total_revenue + $1 WHERE id = $2`,
+            [totalEarned, business_id],
+          );
+
+          // Create alert
+          const itemSummary = soldItems.map(s => `${s.quantity}x ${s.resource}`).join(', ');
+          await client.query(
+            `INSERT INTO alerts (player_id, season_id, type, message, data)
+             VALUES ($1, $2, 'REVENUE_REPORT', $3, $4)`,
+            [
+              playerId, seasonId,
+              `Quick sale: sold ${itemSummary} for $${totalEarned.toFixed(0)} (85% market rate).`,
+              JSON.stringify({ sold: soldItems, total: totalEarned, type: 'quick_sell' }),
+            ],
+          );
+
+          return { total_earned: totalEarned, items_sold: soldItems };
+        });
+
+        await recalculateNetWorth(playerId);
+
+        return reply.status(200).send({
+          data: result,
+          message: `Sold ${result.items_sold.length} item(s) for $${result.total_earned.toFixed(2)}!`,
+        });
+      } catch (err: unknown) {
+        const e = err as { statusCode?: number; message: string };
+        return reply.status(e.statusCode ?? 500).send({ error: e.message });
+      }
+    },
+  );
 }

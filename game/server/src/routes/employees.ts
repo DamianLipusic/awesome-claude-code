@@ -2,7 +2,8 @@ import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { z } from 'zod';
 import { query, withTransaction } from '../db/client';
 import { requireAuth } from '../middleware/auth';
-import { calculateHireCost, MAX_EMPLOYEES_PER_TIER } from '../lib/constants';
+import { calculateHireCost, MAX_EMPLOYEES_PER_TIER, PRODUCTION_RECIPES, GAME_BALANCE } from '../lib/constants';
+import type { BusinessType } from '../../../shared/src/types/entities';
 import { secureRandom, secureRandomInt } from '../lib/random';
 import type { EmployeeRole } from '../../../shared/src/types/entities';
 import { adjustReputation } from '../lib/reputation';
@@ -238,7 +239,47 @@ export async function employeeRoutes(fastify: FastifyInstance): Promise<void> {
           return { hired: true, hiring_cost, employee_id, business_id };
         });
 
-        return reply.status(201).send({ data: result });
+        // Fetch updated business info for impact summary
+        const updatedBiz = await query<{
+          type: string; tier: number; efficiency: string;
+          daily_operating_cost: string; name: string;
+        }>(
+          `SELECT type, tier, efficiency, daily_operating_cost, name FROM businesses WHERE id = $1`,
+          [business_id],
+        );
+        const empCountRes = await query<{ count: string }>(
+          `SELECT COUNT(*) as count FROM employees WHERE business_id = $1`,
+          [business_id],
+        );
+
+        let impact = null;
+        if (updatedBiz.rows.length > 0) {
+          const biz = updatedBiz.rows[0];
+          const empCount = parseInt(empCountRes.rows[0]?.count ?? '1', 10);
+          const eff = parseFloat(biz.efficiency);
+          const dailyRev = biz.tier * GAME_BALANCE.BUSINESS_BASE_REVENUE * eff * (1 + empCount * 0.1);
+          const dailyCost = parseFloat(biz.daily_operating_cost);
+          const recipe = PRODUCTION_RECIPES[biz.type as BusinessType]?.[biz.tier];
+
+          impact = {
+            business_name: biz.name,
+            employees_now: empCount,
+            max_employees: MAX_EMPLOYEES_PER_TIER[biz.tier] ?? 10,
+            daily_revenue: parseFloat(dailyRev.toFixed(2)),
+            daily_cost: parseFloat(dailyCost.toFixed(2)),
+            daily_net: parseFloat((dailyRev - dailyCost).toFixed(2)),
+            profitable: dailyRev > dailyCost,
+            produces: recipe?.outputs.filter(o => o.quantity > 0).map(o => o.resource_name) ?? [],
+          };
+        }
+
+        return reply.status(201).send({
+          data: result,
+          impact,
+          message: impact
+            ? `Hired! ${impact.business_name} now earns $${impact.daily_net.toFixed(0)}/day with ${impact.employees_now} worker(s).`
+            : 'Employee hired successfully.',
+        });
       } catch (err: unknown) {
         const e = err as { statusCode?: number; message: string };
         return reply.status(e.statusCode ?? 500).send({ error: e.message });

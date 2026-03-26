@@ -16,7 +16,7 @@ import { employee_production } from './simulation';
 
 // Tick counter for periodic alerts (resets on server restart)
 let tickCount = 0;
-const REVENUE_ALERT_INTERVAL = 12; // Alert every 12 ticks (1 hour)
+const REVENUE_ALERT_INTERVAL = 3; // Alert every 3 ticks (15 minutes) for fast feedback
 
 // ─── Master Game Tick ─────────────────────────────────────────
 // Runs every 5 minutes via BullMQ. Processes all periodic systems
@@ -1236,7 +1236,7 @@ async function processWorkerRecruitment(): Promise<void> {
   }
 }
 
-// ─── Revenue Report Alerts (every 12 ticks = ~1 hour) ─────────
+// ─── Revenue Report Alerts (every 3 ticks = ~15 min) ─────────
 
 async function processRevenueAlerts(): Promise<void> {
   if (tickCount % REVENUE_ALERT_INTERVAL !== 0) return;
@@ -1245,13 +1245,17 @@ async function processRevenueAlerts(): Promise<void> {
     const players = await client.query<{
       owner_id: string; season_id: string;
       total_rev: string; total_exp: string; biz_count: string;
+      total_inv: string;
     }>(
       `SELECT b.owner_id, p.season_id,
-              COALESCE(SUM(b.tier * 500 * (b.efficiency / 100.0)
+              COALESCE(SUM(b.tier * ${GAME_BALANCE.BUSINESS_BASE_REVENUE} * b.efficiency
                 * (1 + (SELECT COUNT(*) FROM employees e WHERE e.business_id = b.id) * 0.1)
                 / 288 * $1), 0) AS total_rev,
               COALESCE(SUM(b.daily_operating_cost / 288 * $1), 0) AS total_exp,
-              COUNT(*)::int AS biz_count
+              COUNT(*)::int AS biz_count,
+              COALESCE(SUM(
+                (SELECT COALESCE(SUM(v::int), 0) FROM jsonb_each_text(b.inventory) AS t(k, v))
+              ), 0)::text AS total_inv
        FROM businesses b
        JOIN players p ON p.id = b.owner_id
        WHERE b.status = 'ACTIVE'
@@ -1265,9 +1269,11 @@ async function processRevenueAlerts(): Promise<void> {
       const exp = parseFloat(row.total_exp);
       const net = rev - exp;
       const sign = net >= 0 ? '+' : '';
+      const totalInv = parseInt(row.total_inv ?? '0', 10);
+      const invNote = totalInv > 0 ? ` ${totalInv} items in storage.` : '';
       await createAlert(client, row.owner_id, row.season_id, 'REVENUE_REPORT',
-        `Hourly report: ${row.biz_count} businesses earned $${rev.toFixed(0)} revenue, $${exp.toFixed(0)} expenses (${sign}$${net.toFixed(0)} net).`,
-        { revenue: rev, expenses: exp, net, businesses: Number(row.biz_count) },
+        `${row.biz_count} businesses: ${sign}$${net.toFixed(0)} net ($${rev.toFixed(0)} rev, $${exp.toFixed(0)} costs).${invNote}`,
+        { revenue: rev, expenses: exp, net, businesses: Number(row.biz_count), inventory: totalInv },
       );
     }
   });

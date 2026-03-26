@@ -15,7 +15,6 @@ import { useAlertStore } from '../stores/alertStore';
 import { useAuthStore } from '../stores/authStore';
 import { Card } from '../components/ui/Card';
 import { Badge, HeatBadge, AlignmentBadge } from '../components/ui/Badge';
-import { CountdownTimer } from '../components/ui/CountdownTimer';
 import { CurrencyText, formatCurrency } from '../components/ui/CurrencyText';
 import { LoadingSkeleton } from '../components/ui/LoadingScreen';
 import { EmptyState } from '../components/ui/EmptyState';
@@ -24,9 +23,8 @@ import type {
   DashboardData,
   GameAlert,
   AlertType,
-  CriminalOperation,
-  LaunderingProcess,
-  ReputationProfile,
+  NextAction,
+  BusinessDetail,
 } from '@economy-game/shared';
 import type { MainTabParamList } from '../navigation/MainTabs';
 
@@ -123,34 +121,39 @@ function PlayerStatsHeader({ data }: { data: DashboardData }) {
 // ─── Income Summary Card ──────────────────────────────────────
 
 function IncomeSummaryCard({ data }: { data: DashboardData }) {
-  const { income_summary } = data;
-  if (!income_summary) return null;
-  const { revenue_per_tick, expenses_per_tick, net_per_tick } = income_summary;
-  const netColor = net_per_tick >= 0 ? COLORS.success : COLORS.error;
+  const { income } = data;
+  if (!income) return null;
+  const { daily_revenue, daily_expenses, daily_net, per_tick_net, cash_trend } = income;
+  const netColor = daily_net >= 0 ? COLORS.success : COLORS.error;
+  const trendIcon = cash_trend === 'growing' ? '\u2191' : cash_trend === 'declining' ? '\u2193' : '\u2192';
 
   return (
     <Card style={styles.card}>
-      <Text style={styles.cardTitle}>Income per Tick</Text>
+      <View style={styles.cardHeader}>
+        <Text style={styles.cardTitle}>Daily Income</Text>
+        <Text style={[styles.trendBadge, { color: netColor }]}>{trendIcon} {cash_trend}</Text>
+      </View>
       <View style={styles.incomeRow}>
         <View style={styles.incomeItem}>
           <Text style={styles.incomeLabel}>Revenue</Text>
           <Text style={[styles.incomeValue, { color: COLORS.success }]}>
-            +{formatCurrency(revenue_per_tick)}
+            +{formatCurrency(daily_revenue)}
           </Text>
         </View>
         <View style={styles.incomeItem}>
           <Text style={styles.incomeLabel}>Expenses</Text>
           <Text style={[styles.incomeValue, { color: COLORS.error }]}>
-            -{formatCurrency(expenses_per_tick)}
+            -{formatCurrency(daily_expenses)}
           </Text>
         </View>
         <View style={styles.incomeItem}>
-          <Text style={styles.incomeLabel}>Net</Text>
+          <Text style={styles.incomeLabel}>Net/Day</Text>
           <Text style={[styles.incomeValue, { color: netColor, fontWeight: '800' }]}>
-            {net_per_tick >= 0 ? '+' : ''}{formatCurrency(net_per_tick)}
+            {daily_net >= 0 ? '+' : ''}{formatCurrency(daily_net)}
           </Text>
         </View>
       </View>
+      <Text style={styles.perTickNote}>({formatCurrency(per_tick_net)}/tick)</Text>
     </Card>
   );
 }
@@ -158,44 +161,123 @@ function IncomeSummaryCard({ data }: { data: DashboardData }) {
 // ─── Business Overview Card ───────────────────────────────────
 
 function BusinessOverviewCard({ data }: { data: DashboardData }) {
-  const { business_overview } = data;
-  if (!business_overview || business_overview.total === 0) return null;
+  const { businesses } = data;
+  if (!businesses || businesses.total === 0) return null;
 
   return (
     <Card style={styles.card}>
-      <Text style={styles.cardTitle}>Business Overview</Text>
+      <Text style={styles.cardTitle}>Your Businesses</Text>
       <View style={styles.bizStatsRow}>
         <View style={styles.bizStatBox}>
-          <Text style={styles.bizStatValue}>{business_overview.total}</Text>
+          <Text style={styles.bizStatValue}>{businesses.total}</Text>
           <Text style={styles.bizStatLabel}>Businesses</Text>
         </View>
         <View style={styles.bizStatBox}>
-          <Text style={styles.bizStatValue}>{business_overview.total_employees}</Text>
+          <Text style={styles.bizStatValue}>{businesses.total_employees}</Text>
           <Text style={styles.bizStatLabel}>Employees</Text>
         </View>
         <View style={styles.bizStatBox}>
-          <Text style={styles.bizStatValue}>{business_overview.avg_efficiency}%</Text>
+          <Text style={styles.bizStatValue}>{businesses.avg_efficiency}%</Text>
           <Text style={styles.bizStatLabel}>Avg Efficiency</Text>
         </View>
       </View>
-      {Object.keys(business_overview.by_type).length > 0 && (
-        <View style={styles.bizTypeRow}>
-          {Object.entries(business_overview.by_type).map(([type, count]) => (
-            <View key={type} style={styles.bizTypeChip}>
-              <Text style={styles.bizTypeText}>
-                {type.replace(/_/g, ' ')} x{count}
+
+      {/* Per-business breakdown */}
+      {businesses.list.map((biz: BusinessDetail) => (
+        <View key={biz.id} style={styles.bizCard}>
+          <View style={styles.bizCardHeader}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.bizCardName}>{biz.name}</Text>
+              <Text style={styles.bizCardMeta}>
+                {biz.type.replace(/_/g, ' ')} \u00B7 Tier {biz.tier} \u00B7 {biz.city}
               </Text>
             </View>
-          ))}
+            <View style={[styles.profitBadge, { backgroundColor: biz.profitable ? COLORS.success + '22' : COLORS.error + '22' }]}>
+              <Text style={[styles.profitBadgeText, { color: biz.profitable ? COLORS.success : COLORS.error }]}>
+                {biz.daily_net >= 0 ? '+' : ''}{formatCurrency(biz.daily_net)}/d
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.bizCardStats}>
+            <Text style={styles.bizCardStat}>{biz.employees} workers</Text>
+            <Text style={styles.bizCardStat}>{biz.efficiency}% eff</Text>
+            {biz.inventory_count > 0 && (
+              <Text style={[styles.bizCardStat, { color: COLORS.warning }]}>
+                {biz.inventory_count} items (${formatCurrency(biz.inventory_value)})
+              </Text>
+            )}
+          </View>
+
+          {/* Production info */}
+          {biz.production && (
+            <View style={styles.productionRow}>
+              {biz.production.status === 'idle_no_workers' ? (
+                <Text style={[styles.productionText, { color: COLORS.error }]}>
+                  No workers - not producing
+                </Text>
+              ) : (
+                <Text style={[styles.productionText, { color: COLORS.success }]}>
+                  Producing: {biz.production.produces.map(p =>
+                    `${p.per_tick} ${p.resource}/tick`
+                  ).join(', ')}
+                </Text>
+              )}
+            </View>
+          )}
         </View>
-      )}
+      ))}
+    </Card>
+  );
+}
+
+// ─── Next Actions Card ───────────────────────────────────────
+
+const ACTION_CATEGORY_COLORS: Record<string, string> = {
+  getting_started: COLORS.primary,
+  growth: COLORS.success,
+  revenue: COLORS.warning,
+  expansion: COLORS.accent,
+  optimization: '#00cec9',
+  warning: COLORS.error,
+};
+
+const ACTION_CATEGORY_ICONS: Record<string, string> = {
+  getting_started: '\u{1F680}',
+  growth: '\u{1F4C8}',
+  revenue: '\u{1F4B0}',
+  expansion: '\u{1F3D7}\uFE0F',
+  optimization: '\u2699\uFE0F',
+  warning: '\u26A0\uFE0F',
+};
+
+function NextActionsCard({ data }: { data: DashboardData }) {
+  const actions = data.next_actions;
+  if (!actions || actions.length === 0) return null;
+
+  return (
+    <Card style={{...styles.card, ...styles.nextActionsCard}}>
+      <Text style={styles.cardTitle}>What To Do Next</Text>
+      {actions.map((action: NextAction, idx: number) => {
+        const color = ACTION_CATEGORY_COLORS[action.category] ?? COLORS.primary;
+        const icon = ACTION_CATEGORY_ICONS[action.category] ?? '\u27A1\uFE0F';
+        return (
+          <View key={idx} style={[styles.actionRow, idx === 0 && styles.actionRowFirst]}>
+            <Text style={styles.actionIcon}>{icon}</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.actionTitle, { color }]}>{action.action}</Text>
+              <Text style={styles.actionDetail}>{action.detail}</Text>
+            </View>
+          </View>
+        );
+      })}
     </Card>
   );
 }
 
 // ─── Active Events Banner ─────────────────────────────────────
 
-function ActiveEventsBanner({ data }: { data: DashboardData }) {
+function ActiveEventsBanner({ data }: { data: DashboardData & { active_events?: Array<{ id: string; category: string; title: string; description: string }> } }) {
   const events = data.active_events;
   if (!events || events.length === 0) return null;
 
@@ -220,50 +302,27 @@ function ActiveEventsBanner({ data }: { data: DashboardData }) {
   );
 }
 
-// ─── Reputation Mini-Chart ────────────────────────────────────
+// ─── Progression Card ────────────────────────────────────────
 
-function ReputationChart({ data }: { data: DashboardData }) {
-  const reputation = data.reputation;
-  if (!reputation || reputation.length === 0) return null;
-
-  const axisLabels: Record<string, string> = {
-    BUSINESS: 'Business',
-    CRIMINAL: 'Criminal',
-    NEGOTIATION: 'Negotiation',
-    EMPLOYEE: 'Employee',
-    COMMUNITY: 'Community',
-    RELIABILITY: 'Reliability',
-  };
-
-  const axisColors: Record<string, string> = {
-    BUSINESS: COLORS.primary,
-    CRIMINAL: COLORS.error,
-    NEGOTIATION: COLORS.warning,
-    EMPLOYEE: COLORS.success,
-    COMMUNITY: COLORS.accent,
-    RELIABILITY: '#00cec9',
-  };
+function ProgressionCard({ data }: { data: DashboardData }) {
+  const { progression } = data;
+  if (!progression || !progression.next_upgrade) return null;
 
   return (
     <Card style={styles.card}>
-      <Text style={styles.cardTitle}>Reputation</Text>
-      {reputation.map((rep) => (
-        <View key={rep.axis} style={styles.repRow}>
-          <Text style={styles.repLabel}>{axisLabels[rep.axis] ?? rep.axis}</Text>
-          <View style={styles.repBarTrack}>
-            <View
-              style={[
-                styles.repBarFill,
-                {
-                  width: `${rep.score}%`,
-                  backgroundColor: axisColors[rep.axis] ?? COLORS.primary,
-                },
-              ]}
-            />
-          </View>
-          <Text style={styles.repScore}>{rep.score}</Text>
+      <Text style={styles.cardTitle}>Upgrade Available</Text>
+      <View style={styles.actionRow}>
+        <Text style={styles.actionIcon}>{'\u2B06\uFE0F'}</Text>
+        <View style={{ flex: 1 }}>
+          <Text style={[styles.actionTitle, { color: COLORS.success }]}>
+            {progression.next_upgrade.business_name} → Tier {progression.next_upgrade.next_tier}
+          </Text>
+          <Text style={styles.actionDetail}>
+            Cost: {formatCurrency(progression.next_upgrade.cost)}
+            {progression.can_afford_upgrade ? ' (can afford!)' : ''}
+          </Text>
         </View>
-      ))}
+      </View>
     </Card>
   );
 }
@@ -271,7 +330,7 @@ function ReputationChart({ data }: { data: DashboardData }) {
 // ─── Heat Level Indicator ─────────────────────────────────────
 
 function HeatIndicator({ data }: { data: DashboardData }) {
-  const heat = data.heat;
+  const heat = data.crime?.heat;
   if (!heat) return null;
 
   const level = heat.level ?? 'COLD';
@@ -442,41 +501,6 @@ function AlertsFeed({ data }: { data: DashboardData }) {
   );
 }
 
-// ─── Active Operations ────────────────────────────────────────
-
-function ActiveOpRow({ op }: { op: CriminalOperation }) {
-  const riskColor = op.risk_level >= 7 ? COLORS.error : op.risk_level >= 4 ? COLORS.warning : COLORS.success;
-  return (
-    <View style={styles.opRow}>
-      <View style={styles.opInfo}>
-        <Text style={styles.opName}>{op.op_type.replace(/_/g, ' ')}</Text>
-        <View style={[styles.riskDot, { backgroundColor: riskColor }]} />
-      </View>
-      <CountdownTimer target={op.completes_at} style={styles.opTimer} />
-    </View>
-  );
-}
-
-function LaunderRow({ process }: { process: LaunderingProcess }) {
-  const now = Date.now();
-  const total = new Date(process.completes_at).getTime() - new Date(process.started_at).getTime();
-  const elapsed = now - new Date(process.started_at).getTime();
-  const progress = Math.min(1, Math.max(0, elapsed / total));
-
-  return (
-    <View style={styles.launderRow}>
-      <View style={styles.launderHeader}>
-        <Text style={styles.opName}>{process.method.replace(/_/g, ' ')}</Text>
-        <Text style={styles.launderAmount}>{formatCurrency(process.dirty_amount)}</Text>
-      </View>
-      <View style={styles.progressTrack}>
-        <View style={[styles.progressFill, { width: `${progress * 100}%` }]} />
-      </View>
-      <Text style={styles.progressLabel}>{Math.round(progress * 100)}% complete</Text>
-    </View>
-  );
-}
-
 // ─── Main Dashboard Screen ────────────────────────────────────
 
 export function DashboardScreen() {
@@ -527,8 +551,8 @@ export function DashboardScreen() {
         Welcome back, {data.player.username}
       </Text>
 
-      {/* Active Events Banner - top priority */}
-      <ActiveEventsBanner data={data} />
+      {/* Next Actions - HIGHEST PRIORITY - tell the player what to do */}
+      <NextActionsCard data={data} />
 
       {/* Player Stats Header */}
       <PlayerStatsHeader data={data} />
@@ -536,40 +560,17 @@ export function DashboardScreen() {
       {/* Income Summary */}
       <IncomeSummaryCard data={data} />
 
-      {/* Business Overview */}
+      {/* Business Overview with per-business breakdown */}
       <BusinessOverviewCard data={data} />
 
       {/* Heat Level Indicator */}
       <HeatIndicator data={data} />
 
-      {/* Season Info */}
-      <SeasonCountdown data={data} />
-
-      {/* Reputation Chart */}
-      <ReputationChart data={data} />
-
       {/* Quick Actions */}
       <QuickActionsGrid />
 
-      {/* Active Crime Operations */}
-      {data.active_ops.length > 0 && (
-        <Card style={styles.card}>
-          <Text style={styles.cardTitle}>Active Operations</Text>
-          {data.active_ops.map((op) => (
-            <ActiveOpRow key={op.id} op={op} />
-          ))}
-        </Card>
-      )}
-
-      {/* Active Laundering */}
-      {data.active_laundering.length > 0 && (
-        <Card style={styles.card}>
-          <Text style={styles.cardTitle}>Laundering in Progress</Text>
-          {data.active_laundering.map((p) => (
-            <LaunderRow key={p.id} process={p} />
-          ))}
-        </Card>
-      )}
+      {/* Season Info */}
+      <SeasonCountdown data={data} />
 
       {/* Recent Activity Feed */}
       <AlertsFeed data={data} />
@@ -667,6 +668,53 @@ const styles = StyleSheet.create({
     marginHorizontal: 12,
   },
 
+  // Next Actions Card
+  nextActionsCard: {
+    borderColor: COLORS.primary + '44',
+    borderWidth: 1,
+  },
+  actionRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 10,
+    paddingVertical: 10,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.cardBorder,
+  },
+  actionRowFirst: {
+    borderTopWidth: 0,
+    paddingTop: 4,
+  },
+  actionIcon: {
+    fontSize: 20,
+    width: 28,
+    textAlign: 'center',
+    marginTop: 1,
+  },
+  actionTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    marginBottom: 2,
+  },
+  actionDetail: {
+    fontSize: 12,
+    color: COLORS.textDim,
+    lineHeight: 17,
+  },
+
+  // Trend badge
+  trendBadge: {
+    fontSize: 12,
+    fontWeight: '700',
+    textTransform: 'capitalize',
+  },
+  perTickNote: {
+    fontSize: 11,
+    color: COLORS.textDim,
+    textAlign: 'center',
+    marginTop: 6,
+  },
+
   // Income Summary
   incomeRow: {
     flexDirection: 'row',
@@ -710,25 +758,56 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     marginTop: 2,
   },
-  bizTypeRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 6,
-    marginTop: 4,
+  bizCard: {
+    backgroundColor: COLORS.bg,
+    borderRadius: 10,
+    padding: 12,
+    marginTop: 8,
+    borderWidth: 1,
+    borderColor: COLORS.cardBorder,
   },
-  bizTypeChip: {
-    backgroundColor: COLORS.primary + '1a',
+  bizCardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  bizCardName: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: COLORS.textBright,
+  },
+  bizCardMeta: {
+    fontSize: 11,
+    color: COLORS.textDim,
+    marginTop: 1,
+  },
+  profitBadge: {
     borderRadius: 6,
     paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderWidth: 1,
-    borderColor: COLORS.primary + '33',
+    paddingVertical: 4,
   },
-  bizTypeText: {
-    fontSize: 10,
-    color: COLORS.accent,
+  profitBadgeText: {
+    fontSize: 12,
+    fontWeight: '800',
+  },
+  bizCardStats: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  bizCardStat: {
+    fontSize: 11,
+    color: COLORS.text,
     fontWeight: '600',
-    textTransform: 'capitalize',
+  },
+  productionRow: {
+    marginTop: 6,
+    paddingTop: 6,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.cardBorder,
+  },
+  productionText: {
+    fontSize: 11,
+    fontWeight: '600',
   },
 
   // Events Banner
@@ -769,37 +848,6 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
 
-  // Reputation Chart
-  repRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 8,
-    gap: 8,
-  },
-  repLabel: {
-    width: 80,
-    fontSize: 11,
-    color: COLORS.text,
-    fontWeight: '600',
-  },
-  repBarTrack: {
-    flex: 1,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#1f1f3a',
-    overflow: 'hidden',
-  },
-  repBarFill: {
-    height: '100%',
-    borderRadius: 4,
-  },
-  repScore: {
-    width: 28,
-    fontSize: 12,
-    fontWeight: '700',
-    color: COLORS.text,
-    textAlign: 'right',
-  },
 
   // Heat Indicator
   heatBadge: {
@@ -946,64 +994,4 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 
-  // Operations
-  opRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 8,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.cardBorder,
-  },
-  opInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  opName: {
-    fontSize: 13,
-    color: COLORS.text,
-    fontWeight: '600',
-    textTransform: 'capitalize',
-  },
-  riskDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
-  opTimer: {
-    fontSize: 13,
-    fontWeight: '700',
-  },
-  launderRow: {
-    paddingVertical: 8,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.cardBorder,
-  },
-  launderHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 6,
-  },
-  launderAmount: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: COLORS.error,
-  },
-  progressTrack: {
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: '#1f1f3a',
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: '100%',
-    borderRadius: 2,
-    backgroundColor: COLORS.success,
-  },
-  progressLabel: {
-    fontSize: 11,
-    color: COLORS.textDim,
-    marginTop: 4,
-  },
 });

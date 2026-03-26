@@ -333,21 +333,82 @@ export interface LeaderboardEntry {
   business_count: number;
 }
 
+export interface NextAction {
+  priority: number;
+  action: string;
+  detail: string;
+  category: string;
+}
+
+export interface BusinessProductionInfo {
+  produces: Array<{ resource: string; per_tick: number }>;
+  requires: Array<{ resource: string; per_tick: number }>;
+  status: string;
+}
+
+export interface BusinessDetail {
+  id: string;
+  name: string;
+  type: string;
+  tier: number;
+  city: string;
+  efficiency: number;
+  employees: number;
+  daily_revenue: number;
+  daily_cost: number;
+  daily_net: number;
+  profitable: boolean;
+  inventory_count: number;
+  inventory_items: Record<string, number>;
+  inventory_value: number;
+  lifetime_revenue: number;
+  lifetime_expenses: number;
+  production: BusinessProductionInfo | null;
+}
+
+export interface DashboardIncome {
+  daily_revenue: number;
+  daily_expenses: number;
+  daily_net: number;
+  per_tick_net: number;
+  today_net: number;
+  cash_trend: 'growing' | 'declining' | 'stable';
+  inventory_value: number;
+}
+
+export interface DashboardBusinesses {
+  total: number;
+  total_employees: number;
+  avg_efficiency: number;
+  list: BusinessDetail[];
+}
+
+export interface DashboardProgression {
+  next_upgrade: { business_id: string; business_name: string; current_tier: number; next_tier: number; cost: number } | null;
+  can_afford_upgrade: boolean;
+  upgrade_options: Array<{ business_id: string; business_name: string; current_tier: number; next_tier: number; cost: number }>;
+}
+
+export interface DashboardCrime {
+  heat: HeatScore | null;
+  dirty_money: DirtyMoneyBalance | null;
+  active_ops: number;
+  active_laundering: number;
+}
+
 export interface DashboardData {
   player: Player;
-  active_ops: CriminalOperation[];
-  active_laundering: LaunderingProcess[];
   season: SeasonProfile;
   rank: number;
   alerts: GameAlert[];
-  heat: HeatScore | null;
-  dirty_money: DirtyMoneyBalance | null;
-  income_summary: IncomeSummary;
-  business_overview: BusinessOverview;
-  active_events: SeasonalEvent[];
-  reputation: ReputationProfile[];
+  next_actions: NextAction[];
+  income: DashboardIncome;
+  businesses: DashboardBusinesses;
+  progression: DashboardProgression;
+  crime: DashboardCrime;
 }
 
+// Legacy aliases for backwards compat
 export interface IncomeSummary {
   revenue_per_tick: number;
   expenses_per_tick: number;

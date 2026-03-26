@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { requireAuth } from '../middleware/auth';
 import { query, withTransaction } from '../db/client';
 import { recalculateNetWorth } from '../lib/networth';
-import { UPGRADE_COSTS, TIER_CAPACITY_MULTIPLIER, BUSINESS_STARTUP_COSTS, BUSINESS_DAILY_COSTS, MAX_EMPLOYEES_PER_TIER } from '../lib/constants';
+import { UPGRADE_COSTS, TIER_CAPACITY_MULTIPLIER, BUSINESS_STARTUP_COSTS, BUSINESS_DAILY_COSTS, MAX_EMPLOYEES_PER_TIER, PRODUCTION_RECIPES, GAME_BALANCE, calculateHireCost } from '../lib/constants';
 import { BUSINESS_BASE_COSTS } from '../../../shared/src/types/entities';
 import type { BusinessType } from '../../../shared/src/types/entities';
 import { employee_production } from '../jobs/simulation';
@@ -107,7 +107,42 @@ export async function businessRoutes(app: FastifyInstance): Promise<void> {
 
       await recalculateNetWorth(playerId);
       const res = await query(`SELECT * FROM businesses WHERE id = $1`, [biz]);
-      return reply.status(201).send({ data: res.rows[0] });
+      const business = res.rows[0];
+
+      // Calculate projected economics for the new business
+      const dailyRevBase = 1 * GAME_BALANCE.BUSINESS_BASE_REVENUE * 1.0; // tier 1, efficiency 1.0, 0 employees
+      const dailyCost = BUSINESS_DAILY_COSTS[type] ?? 800;
+      const recipe = PRODUCTION_RECIPES[type as BusinessType]?.[1];
+      const hireCost = calculateHireCost(
+        Number((await query(`SELECT COUNT(*)::int AS cnt FROM businesses WHERE owner_id = $1 AND status != 'BANKRUPT'`, [playerId])).rows[0]?.cnt ?? 1),
+        0,
+      );
+
+      const projections = {
+        daily_revenue_now: parseFloat(dailyRevBase.toFixed(2)),
+        daily_cost: parseFloat(dailyCost.toFixed(2)),
+        daily_net_now: parseFloat((dailyRevBase - dailyCost).toFixed(2)),
+        daily_revenue_with_1_worker: parseFloat((1 * GAME_BALANCE.BUSINESS_BASE_REVENUE * 1.0 * (1 + 1 * 0.1)).toFixed(2)),
+        daily_net_with_1_worker: parseFloat((1 * GAME_BALANCE.BUSINESS_BASE_REVENUE * 1.0 * (1 + 1 * 0.1) - dailyCost).toFixed(2)),
+        hire_cost: hireCost,
+        produces: recipe?.outputs.filter(o => o.quantity > 0).map(o => o.resource_name) ?? [],
+        max_employees_tier_1: MAX_EMPLOYEES_PER_TIER[1] ?? 10,
+      };
+
+      const nextSteps = [
+        `Hire workers to start production (cost: $${hireCost}/worker)`,
+        `Each worker boosts revenue by 10% and produces goods`,
+        recipe && recipe.outputs.length > 0 && recipe.outputs[0].quantity > 0
+          ? `Workers will produce: ${recipe.outputs.map(o => o.resource_name).join(', ')}`
+          : `This business earns passive revenue each tick`,
+      ].filter(Boolean);
+
+      return reply.status(201).send({
+        data: business,
+        projections,
+        next_steps: nextSteps,
+        message: `${name} is now open for business! Hire workers to maximize your profits.`,
+      });
     } catch (err: unknown) {
       const e = err as { statusCode?: number; message: string };
       return reply.status(e.statusCode ?? 500).send({ error: e.message });
