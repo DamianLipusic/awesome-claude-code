@@ -60,39 +60,89 @@ export async function playerRoutes(app: FastifyInstance): Promise<void> {
 
     const alerts = await getPlayerAlerts(playerId, 10);
 
-    // Income summary: calculate from businesses
-    const incomeRes = await query<{ revenue: string; expenses: string }>(
-      `SELECT COALESCE(SUM(b.total_revenue), 0)::text AS revenue,
-              COALESCE(SUM(b.total_expenses), 0)::text AS expenses
+    // Detailed business data with per-tick economics
+    const bizDetailRes = await query<{
+      id: string; name: string; type: string; tier: number; city: string;
+      efficiency: string; daily_operating_cost: string; inventory: Record<string, number>;
+      employee_count: string; total_revenue: string; total_expenses: string;
+    }>(
+      `SELECT b.id, b.name, b.type::text, b.tier, b.city,
+              b.efficiency, b.daily_operating_cost, b.inventory,
+              COALESCE(ec.cnt, 0)::text AS employee_count,
+              b.total_revenue::text, b.total_expenses::text
          FROM businesses b
-        WHERE b.owner_id = $1 AND b.status != 'BANKRUPT'`,
+         LEFT JOIN (SELECT business_id, COUNT(*) AS cnt FROM employees GROUP BY business_id) ec ON ec.business_id = b.id
+        WHERE b.owner_id = $1 AND b.status != 'BANKRUPT'
+        ORDER BY b.established_at ASC`,
       [playerId],
     );
-    const revPerTick = parseFloat(incomeRes.rows[0]?.revenue ?? '0');
-    const expPerTick = parseFloat(incomeRes.rows[0]?.expenses ?? '0');
 
-    // Business overview
-    const bizOverviewRes = await query<{ total: string; total_employees: string; avg_efficiency: string }>(
-      `SELECT COUNT(*)::text AS total,
-              COALESCE((SELECT COUNT(*)::text FROM employees e
-                         JOIN businesses b2 ON b2.id = e.business_id
-                        WHERE b2.owner_id = $1 AND b2.status != 'BANKRUPT'), '0') AS total_employees,
-              COALESCE(AVG(b.efficiency)::text, '0') AS avg_efficiency
-         FROM businesses b
-        WHERE b.owner_id = $1 AND b.status != 'BANKRUPT'`,
-      [playerId],
-    );
-    const bizByTypeRes = await query<{ type: string; count: string }>(
-      `SELECT type, COUNT(*)::text AS count
-         FROM businesses
-        WHERE owner_id = $1 AND status != 'BANKRUPT'
-        GROUP BY type`,
-      [playerId],
-    );
+    const BASE_REVENUE = 1400;
+    let totalDailyRev = 0;
+    let totalDailyCost = 0;
+    let totalEmployees = 0;
     const byType: Record<string, number> = {};
-    for (const row of bizByTypeRes.rows) {
-      byType[row.type] = Number(row.count);
-    }
+    const businessDetails = bizDetailRes.rows.map((b) => {
+      const eff = parseFloat(b.efficiency);
+      const empCount = parseInt(b.employee_count);
+      const dailyRev = b.tier * BASE_REVENUE * eff * (1 + empCount * 0.1);
+      const dailyCost = parseFloat(b.daily_operating_cost);
+      const dailyNet = dailyRev - dailyCost;
+      totalDailyRev += dailyRev;
+      totalDailyCost += dailyCost;
+      totalEmployees += empCount;
+      byType[b.type] = (byType[b.type] || 0) + 1;
+
+      const inv = b.inventory as Record<string, number>;
+      const invItems = Object.entries(inv).filter(([, v]) => v > 0);
+      const totalInventory = invItems.reduce((a, [, v]) => a + v, 0);
+
+      return {
+        id: b.id, name: b.name, type: b.type, tier: b.tier, city: b.city,
+        efficiency: parseFloat((eff * 100).toFixed(1)),
+        employees: empCount,
+        daily_revenue: parseFloat(dailyRev.toFixed(2)),
+        daily_cost: parseFloat(dailyCost.toFixed(2)),
+        daily_net: parseFloat(dailyNet.toFixed(2)),
+        profitable: dailyNet > 0,
+        inventory_count: totalInventory,
+        inventory_items: invItems.length > 0 ? Object.fromEntries(invItems) : {},
+        lifetime_revenue: parseFloat(b.total_revenue),
+        lifetime_expenses: parseFloat(b.total_expenses),
+      };
+    });
+
+    const avgEff = bizDetailRes.rows.length > 0
+      ? bizDetailRes.rows.reduce((a, b) => a + parseFloat(b.efficiency), 0) / bizDetailRes.rows.length
+      : 0;
+
+    // Cash trend: compare current cash to 1-hour-ago estimate from ledger
+    const ledgerRes = await query<{ recent_net: string }>(
+      `SELECT COALESCE(SUM(bl.revenue - bl.expenses), 0)::text AS recent_net
+         FROM business_ledger bl
+         JOIN businesses b ON b.id = bl.business_id
+        WHERE b.owner_id = $1 AND bl.day = CURRENT_DATE`,
+      [playerId],
+    );
+    const todayNet = parseFloat(ledgerRes.rows[0]?.recent_net ?? '0');
+
+    // Upgrade info for cheapest next upgrade
+    const upgradeTargets = bizDetailRes.rows
+      .filter((b) => b.tier < 4)
+      .map((b) => {
+        const upgradeCosts: Record<string, Record<number, number>> = {
+          RETAIL: { 2: 8000, 3: 20000, 4: 60000 },
+          FACTORY: { 2: 30000, 3: 80000, 4: 200000 },
+          MINE: { 2: 22000, 3: 60000, 4: 150000 },
+          FARM: { 2: 12000, 3: 30000, 4: 80000 },
+          LOGISTICS: { 2: 18000, 3: 50000, 4: 120000 },
+          SECURITY_FIRM: { 2: 15000, 3: 40000, 4: 100000 },
+          FRONT_COMPANY: { 2: 25000, 3: 70000, 4: 175000 },
+        };
+        const cost = upgradeCosts[b.type]?.[b.tier + 1] ?? 0;
+        return { business_id: b.id, business_name: b.name, current_tier: b.tier, next_tier: b.tier + 1, cost };
+      })
+      .sort((a, b) => a.cost - b.cost);
 
     // Active events
     const activeEventsRes = await query(
@@ -104,9 +154,7 @@ export async function playerRoutes(app: FastifyInstance): Promise<void> {
 
     // Reputation
     const reputationRes = await query<{ axis: string; score: number }>(
-      `SELECT axis, score
-         FROM reputation_profiles
-        WHERE player_id = $1`,
+      `SELECT axis, score FROM reputation_profiles WHERE player_id = $1`,
       [playerId],
     );
 
@@ -121,15 +169,24 @@ export async function playerRoutes(app: FastifyInstance): Promise<void> {
         rank: Number(rankRes.rows[0]?.rank ?? 1),
         alerts,
         income_summary: {
-          revenue_per_tick: revPerTick,
-          expenses_per_tick: expPerTick,
-          net_per_tick: revPerTick - expPerTick,
+          daily_revenue: parseFloat(totalDailyRev.toFixed(2)),
+          daily_expenses: parseFloat(totalDailyCost.toFixed(2)),
+          daily_net: parseFloat((totalDailyRev - totalDailyCost).toFixed(2)),
+          per_tick_net: parseFloat(((totalDailyRev - totalDailyCost) / 288).toFixed(2)),
+          today_net: parseFloat(todayNet.toFixed(2)),
+          cash_trend: totalDailyRev - totalDailyCost > 0 ? 'growing' : totalDailyRev - totalDailyCost < -10 ? 'declining' : 'stable',
         },
         business_overview: {
-          total: Number(bizOverviewRes.rows[0]?.total ?? 0),
+          total: bizDetailRes.rows.length,
           by_type: byType,
-          total_employees: Number(bizOverviewRes.rows[0]?.total_employees ?? 0),
-          avg_efficiency: Number(parseFloat(bizOverviewRes.rows[0]?.avg_efficiency ?? '0').toFixed(1)),
+          total_employees: totalEmployees,
+          avg_efficiency: parseFloat((avgEff * 100).toFixed(1)),
+          businesses: businessDetails,
+        },
+        progression: {
+          next_upgrade: upgradeTargets[0] || null,
+          can_afford_upgrade: upgradeTargets.length > 0 && parseFloat(playerRes.rows[0].cash) >= upgradeTargets[0].cost,
+          upgrade_options: upgradeTargets.slice(0, 3),
         },
         active_events: activeEventsRes.rows,
         reputation: reputationRes.rows,
