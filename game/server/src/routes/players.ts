@@ -679,6 +679,98 @@ export async function playerRoutes(app: FastifyInstance): Promise<void> {
     });
   });
 
+  // GET /players/progression — complete progression snapshot
+  app.get('/progression', { preHandler: [requireAuth] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    const playerId = request.player.id;
+    const seasonId = request.player.season_id;
+
+    const [playerRes, bizRes, empRes, rankRes, totalRes] = await Promise.all([
+      query<{ cash: string; net_worth: string; business_slots: number; alignment: string; created_at: string }>(
+        `SELECT cash::text, net_worth::text, business_slots, alignment, created_at::text FROM players WHERE id = $1`, [playerId],
+      ),
+      query<{ count: string; max_tier: string; total_rev: string; total_exp: string }>(
+        `SELECT COUNT(*)::text as count, MAX(tier)::text as max_tier,
+                SUM(total_revenue)::text as total_rev, SUM(total_expenses)::text as total_exp
+           FROM businesses WHERE owner_id = $1 AND status != 'BANKRUPT'`, [playerId],
+      ),
+      query<{ count: string }>(
+        `SELECT COUNT(*)::text as count FROM employees e
+           JOIN businesses b ON b.id = e.business_id WHERE b.owner_id = $1`, [playerId],
+      ),
+      query<{ rank: string }>(
+        `SELECT COUNT(*) + 1 AS rank FROM players WHERE season_id = $1 AND net_worth > $2`,
+        [seasonId, (await query(`SELECT net_worth FROM players WHERE id = $1`, [playerId])).rows[0]?.net_worth ?? '0'],
+      ),
+      query<{ count: string }>(`SELECT COUNT(*)::text as count FROM players WHERE season_id = $1`, [seasonId]),
+    ]);
+
+    const p = playerRes.rows[0];
+    const netWorth = parseFloat(p?.net_worth ?? '0');
+    const cash = parseFloat(p?.cash ?? '0');
+    const bizCount = parseInt(bizRes.rows[0]?.count ?? '0');
+    const maxTier = parseInt(bizRes.rows[0]?.max_tier ?? '0');
+    const empCount = parseInt(empRes.rows[0]?.count ?? '0');
+    const rank = parseInt(rankRes.rows[0]?.rank ?? '999');
+    const totalPlayers = parseInt(totalRes.rows[0]?.count ?? '1');
+    const totalRevenue = parseFloat(bizRes.rows[0]?.total_rev ?? '0');
+    const totalExpenses = parseFloat(bizRes.rows[0]?.total_exp ?? '0');
+
+    // Unlock milestones
+    const unlocks = [
+      { name: 'First Business', threshold: 1, type: 'businesses', current: bizCount, unlocked: bizCount >= 1 },
+      { name: 'First Worker', threshold: 1, type: 'employees', current: empCount, unlocked: empCount >= 1 },
+      { name: 'Tier 2 Business', threshold: 2, type: 'max_tier', current: maxTier, unlocked: maxTier >= 2 },
+      { name: '5 Employees', threshold: 5, type: 'employees', current: empCount, unlocked: empCount >= 5 },
+      { name: '3 Businesses', threshold: 3, type: 'businesses', current: bizCount, unlocked: bizCount >= 3 },
+      { name: 'Tier 3 Business', threshold: 3, type: 'max_tier', current: maxTier, unlocked: maxTier >= 3 },
+      { name: '$100k Net Worth', threshold: 100000, type: 'net_worth', current: netWorth, unlocked: netWorth >= 100000 },
+      { name: '5 Businesses', threshold: 5, type: 'businesses', current: bizCount, unlocked: bizCount >= 5 },
+      { name: '20 Employees', threshold: 20, type: 'employees', current: empCount, unlocked: empCount >= 20 },
+      { name: 'Tier 4 Business', threshold: 4, type: 'max_tier', current: maxTier, unlocked: maxTier >= 4 },
+      { name: '$500k Net Worth', threshold: 500000, type: 'net_worth', current: netWorth, unlocked: netWorth >= 500000 },
+      { name: 'Top 10 Ranked', threshold: 10, type: 'rank', current: rank, unlocked: rank <= 10 },
+      { name: 'Millionaire', threshold: 1000000, type: 'net_worth', current: netWorth, unlocked: netWorth >= 1000000 },
+      { name: '#1 Ranked', threshold: 1, type: 'rank', current: rank, unlocked: rank === 1 },
+    ];
+
+    const unlockedCount = unlocks.filter(u => u.unlocked).length;
+    const nextUnlock = unlocks.find(u => !u.unlocked);
+
+    return reply.send({
+      data: {
+        stats: {
+          cash: parseFloat(cash.toFixed(2)),
+          net_worth: parseFloat(netWorth.toFixed(2)),
+          rank,
+          total_players: totalPlayers,
+          businesses: bizCount,
+          employees: empCount,
+          highest_tier: maxTier,
+          total_revenue: parseFloat(totalRevenue.toFixed(2)),
+          total_expenses: parseFloat(totalExpenses.toFixed(2)),
+          total_profit: parseFloat((totalRevenue - totalExpenses).toFixed(2)),
+          alignment: p?.alignment ?? 'LEGAL',
+          play_time_hours: p?.created_at
+            ? parseFloat(((Date.now() - new Date(p.created_at).getTime()) / 3600000).toFixed(1))
+            : 0,
+        },
+        progression: {
+          unlocked: unlockedCount,
+          total: unlocks.length,
+          percentage: parseFloat(((unlockedCount / unlocks.length) * 100).toFixed(1)),
+          next_unlock: nextUnlock ? {
+            name: nextUnlock.name,
+            type: nextUnlock.type,
+            current: nextUnlock.current,
+            threshold: nextUnlock.threshold,
+            progress: parseFloat(((nextUnlock.current / nextUnlock.threshold) * 100).toFixed(1)),
+          } : null,
+          milestones: unlocks,
+        },
+      },
+    });
+  });
+
   // GET /players/empire — grouped business overview by city
   app.get('/empire', { preHandler: [requireAuth] }, async (request: FastifyRequest, reply: FastifyReply) => {
     const playerId = request.player.id;
