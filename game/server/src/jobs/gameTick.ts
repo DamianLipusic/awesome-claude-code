@@ -31,34 +31,36 @@ export async function runGameTick(): Promise<void> {
     await runSafe('RandomEvents', rollRandomEvents);
 
     // Each sub-system runs in its own transaction for isolation.
-    // A failure in one system should not block the others.
+    // ── Core economy (runs every tick) ──
     await runSafe('BusinessRevenue', processBusinessRevenue);
     await runSafe('Production', processProduction);
     await runSafe('EmployeeMorale', processEmployeeMorale);
-    await runSafe('HeatDecay', processHeatDecay);
     await runSafe('MarketPrices', processMarketPrices);
     await runSafe('AIBuyOrders', processAIBuyOrders);
+    await runSafe('ExpiredListings', processExpiredListings);
+
+    // ── Crime & underworld ──
+    await runSafe('HeatDecay', processHeatDecay);
     await runSafe('CrimeOperations', processCrimeOperations);
     await runSafe('Laundering', processLaundering);
+
+    // ── Logistics ──
     await runSafe('Shipments', processShipments);
     await runSafe('Deliveries', processDeliveries);
     await runSafe('ContractSettlement', processContractSettlement);
-    await runSafe('SpyDiscovery', processSpyDiscovery);
-    await runSafe('Embezzlement', processEmbezzlement);
-    await runSafe('BlockadeCosts', processBlockadeCosts);
-    await runSafe('LocationCosts', processLocationCosts);
 
-    // ── Periodic Alerts ──
+    // ── Periodic alerts (every 12 ticks = ~1 hour) ──
     await runSafe('RevenueAlerts', processRevenueAlerts);
     await runSafe('HeatWarnings', processHeatWarnings);
-    await runSafe('EventAlerts', processEventAlerts);
     tickCount++;
 
-    // ── Market listing expiration ──
-    await runSafe('ExpiredListings', processExpiredListings);
-
-    // ── END OF TICK: Expire old events + check cascades ──
-    await runSafe('EventExpiry', processEventExpiry);
+    // ── Disabled: systems not yet connected to core loop ──
+    // await runSafe('SpyDiscovery', processSpyDiscovery);
+    // await runSafe('Embezzlement', processEmbezzlement);
+    // await runSafe('BlockadeCosts', processBlockadeCosts);
+    // await runSafe('LocationCosts', processLocationCosts);
+    // await runSafe('EventAlerts', processEventAlerts);
+    // await runSafe('EventExpiry', processEventExpiry);
 
     // ── NPC AI Competitors ──
     let npcActions = 0;

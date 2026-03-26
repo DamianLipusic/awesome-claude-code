@@ -144,31 +144,13 @@ export async function playerRoutes(app: FastifyInstance): Promise<void> {
       })
       .sort((a, b) => a.cost - b.cost);
 
-    // Active events
-    const activeEventsRes = await query(
-      `SELECT * FROM seasonal_events
-        WHERE season_id = $1 AND status = 'ACTIVE'
-        ORDER BY triggered_at DESC`,
-      [seasonId],
-    );
-
-    // Reputation
-    const reputationRes = await query<{ axis: string; score: number }>(
-      `SELECT axis, score FROM reputation_profiles WHERE player_id = $1`,
-      [playerId],
-    );
-
     return reply.send({
       data: {
         player: playerRes.rows[0],
-        heat: heatRes.rows[0] ?? null,
-        dirty_money: dirtyRes.rows[0] ?? null,
-        active_ops: activeOps.rows,
-        active_laundering: activeLaundering.rows,
         season,
         rank: Number(rankRes.rows[0]?.rank ?? 1),
         alerts,
-        income_summary: {
+        income: {
           daily_revenue: parseFloat(totalDailyRev.toFixed(2)),
           daily_expenses: parseFloat(totalDailyCost.toFixed(2)),
           daily_net: parseFloat((totalDailyRev - totalDailyCost).toFixed(2)),
@@ -176,20 +158,23 @@ export async function playerRoutes(app: FastifyInstance): Promise<void> {
           today_net: parseFloat(todayNet.toFixed(2)),
           cash_trend: totalDailyRev - totalDailyCost > 0 ? 'growing' : totalDailyRev - totalDailyCost < -10 ? 'declining' : 'stable',
         },
-        business_overview: {
+        businesses: {
           total: bizDetailRes.rows.length,
-          by_type: byType,
           total_employees: totalEmployees,
           avg_efficiency: parseFloat((avgEff * 100).toFixed(1)),
-          businesses: businessDetails,
+          list: businessDetails,
         },
         progression: {
           next_upgrade: upgradeTargets[0] || null,
           can_afford_upgrade: upgradeTargets.length > 0 && parseFloat(playerRes.rows[0].cash) >= upgradeTargets[0].cost,
           upgrade_options: upgradeTargets.slice(0, 3),
         },
-        active_events: activeEventsRes.rows,
-        reputation: reputationRes.rows,
+        crime: {
+          heat: heatRes.rows[0] ?? null,
+          dirty_money: dirtyRes.rows[0] ?? null,
+          active_ops: activeOps.rows.length,
+          active_laundering: activeLaundering.rows.length,
+        },
       },
     });
   });

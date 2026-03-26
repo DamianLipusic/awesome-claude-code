@@ -56,24 +56,28 @@ async function main() {
     global: false, // only apply where explicitly configured
   });
 
-  // ─── Routes ───────────────────────────────────────────────────
+  // ─── Core routes (the playable game loop) ────────────────────
   await app.register(authRoutes,     { prefix: '/api/v1/auth' });
   await app.register(playerRoutes,   { prefix: '/api/v1/players' });
   await app.register(businessRoutes, { prefix: '/api/v1/businesses' });
   await app.register(employeeRoutes, { prefix: '/api/v1/employees' });
   await app.register(marketRoutes,   { prefix: '/api/v1/market' });
-  await app.register(contractRoutes, { prefix: '/api/v1/contracts' });
   await app.register(crimeRoutes,    { prefix: '/api/v1/crime' });
-  await app.register(seasonRoutes,   { prefix: '/api/v1/seasons' });
-  await app.register(managerRoutes,  { prefix: '/api/v1/managers' });
+
+  // ─── Secondary routes (functional but not core loop) ─────────
+  await app.register(contractRoutes,  { prefix: '/api/v1/contracts' });
+  await app.register(managerRoutes,   { prefix: '/api/v1/managers' });
   await app.register(logisticsRoutes, { prefix: '/api/v1/logistics' });
-  await app.register(eventRoutes,    { prefix: '/api/v1/events' });
-  await app.register(locationRoutes, { prefix: '/api/v1/locations' });
-  await app.register(reputationRoutes,    { prefix: '/api/v1/reputation' });
-  await app.register(allianceRoutes,      { prefix: '/api/v1/alliances' });
-  await app.register(rivalryRoutes,       { prefix: '/api/v1/rivalry' });
-  await app.register(intelligenceRoutes,  { prefix: '/api/v1/intelligence' });
-  await app.register(businessListingRoutes, { prefix: '/api/v1/business-listings' });
+  await app.register(seasonRoutes,    { prefix: '/api/v1/seasons' });
+  await app.register(eventRoutes,     { prefix: '/api/v1/events' });
+
+  // ─── Future routes (scaffolded, not yet in core loop) ────────
+  await app.register(locationRoutes,         { prefix: '/api/v1/locations' });
+  await app.register(reputationRoutes,       { prefix: '/api/v1/reputation' });
+  await app.register(allianceRoutes,         { prefix: '/api/v1/alliances' });
+  await app.register(rivalryRoutes,          { prefix: '/api/v1/rivalry' });
+  await app.register(intelligenceRoutes,     { prefix: '/api/v1/intelligence' });
+  await app.register(businessListingRoutes,  { prefix: '/api/v1/business-listings' });
 
   // ─── WebSocket ────────────────────────────────────────────────
   await registerWebSocketHandler(app);
