@@ -263,18 +263,39 @@ export async function playerRoutes(app: FastifyInstance): Promise<void> {
         });
       }
 
-      // Check if can afford new business
+      // Check if can afford new business — with smart type recommendation
       const bizCount = bizDetailRes.rows.length;
       const slots = playerRes.rows[0].business_slots;
       if (bizCount < slots) {
+        const existingTypes = new Set(businessDetails.map(b => b.type));
         const affordableTypes = Object.entries(BUSINESS_STARTUP_COSTS)
           .filter(([, c]) => cash >= c)
           .sort((a, b) => a[1] - b[1]);
+
         if (affordableTypes.length > 0 && bizWithNoWorkers.length === 0) {
+          // Smart recommendation based on existing businesses
+          let recommended = affordableTypes[0][0];
+          let reason = 'cheapest option';
+
+          if (existingTypes.has('MINE') && !existingTypes.has('FACTORY') && cash >= (BUSINESS_STARTUP_COSTS.FACTORY ?? 120000)) {
+            recommended = 'FACTORY';
+            reason = 'processes your Mine\'s raw materials into valuable goods';
+          } else if (!existingTypes.has('FARM') && cash >= (BUSINESS_STARTUP_COSTS.FARM ?? 25000)) {
+            recommended = 'FARM';
+            reason = 'produces resources with no input costs';
+          } else if (!existingTypes.has('MINE') && cash >= (BUSINESS_STARTUP_COSTS.MINE ?? 50000)) {
+            recommended = 'MINE';
+            reason = 'extracts raw materials for production';
+          } else if (!existingTypes.has('RETAIL') && cash >= (BUSINESS_STARTUP_COSTS.RETAIL ?? 15000)) {
+            recommended = 'RETAIL';
+            reason = 'lowest startup cost, steady revenue';
+          }
+
+          const cost = BUSINESS_STARTUP_COSTS[recommended] ?? 0;
           actions.push({
             priority: 4,
-            action: `Expand: open another business`,
-            detail: `You have ${bizCount}/${slots} slots used. A ${affordableTypes[0][0]} costs $${affordableTypes[0][1].toLocaleString()}.`,
+            action: `Expand: open a ${recommended.replace(/_/g, ' ')}`,
+            detail: `${bizCount}/${slots} slots used. ${recommended} ($${cost.toLocaleString()}) — ${reason}.`,
             category: 'expansion',
           });
         }
@@ -370,6 +391,15 @@ export async function playerRoutes(app: FastifyInstance): Promise<void> {
           next_upgrade: upgradeTargets[0] || null,
           can_afford_upgrade: upgradeTargets.length > 0 && cash >= upgradeTargets[0].cost,
           upgrade_options: upgradeTargets.slice(0, 3),
+        },
+        empire_summary: {
+          total_lifetime_revenue: parseFloat(businessDetails.reduce((s, b) => s + b.lifetime_revenue, 0).toFixed(2)),
+          total_lifetime_expenses: parseFloat(businessDetails.reduce((s, b) => s + b.lifetime_expenses, 0).toFixed(2)),
+          total_lifetime_profit: parseFloat(businessDetails.reduce((s, b) => s + (b.lifetime_revenue - b.lifetime_expenses), 0).toFixed(2)),
+          total_businesses: bizDetailRes.rows.length,
+          total_employees: totalEmployees,
+          highest_tier: bizDetailRes.rows.length > 0 ? Math.max(...bizDetailRes.rows.map(b => b.tier)) : 0,
+          total_inventory_value: parseFloat(totalInventoryValue.toFixed(2)),
         },
         crime: {
           heat: heatRes.rows[0] ?? null,
