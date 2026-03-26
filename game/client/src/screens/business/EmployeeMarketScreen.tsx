@@ -65,16 +65,20 @@ export function EmployeeMarketScreen() {
 
   const { data: available, isLoading, refetch, isRefetching } = useQuery<AvailableEmployee[]>({
     queryKey: ['employee-market', selectedRole, minEfficiency, maxSalary],
-    queryFn: () =>
-      api.get<AvailableEmployee[]>(
-        `/employees/market?role=${selectedRole}&min_efficiency=${minEfficiency}&max_salary=${maxSalary}&limit=30`
-      ),
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (selectedRole !== 'ALL') params.set('role', selectedRole);
+      params.set('min_efficiency', String(minEfficiency));
+      params.set('max_salary', String(maxSalary));
+      const res = await api.get<{ employees: AvailableEmployee[]; hiring_cost: number }>('/employees/available?' + params.toString());
+      return res?.employees ?? [];
+    },
     staleTime: 30_000,
   });
 
   const hireMutation = useMutation({
     mutationFn: ({ employeeId }: { employeeId: string }) =>
-      api.post(`/businesses/${businessId}/employees/hire`, { employee_id: employeeId }),
+      api.post(`/employees/hire`, { business_id: businessId, employee_id: employeeId }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['business', businessId, 'employees'] });
       queryClient.invalidateQueries({ queryKey: ['employee-market'] });

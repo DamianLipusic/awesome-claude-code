@@ -12,10 +12,12 @@ import {
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigation } from '@react-navigation/native';
 import { api } from '../../lib/api';
+import { useMarketStore } from '../../stores/marketStore';
 import { Card } from '../../components/ui/Card';
 import { formatCurrency } from '../../components/ui/CurrencyText';
 import { LoadingScreen } from '../../components/ui/LoadingScreen';
 import type { Resource } from '@economy-game/shared';
+import { useToast } from '../../components/Toast';
 
 type Duration = '24h' | '72h' | '7d';
 
@@ -25,16 +27,13 @@ const DURATIONS: Array<{ label: string; value: Duration; hours: number }> = [
   { label: '7 Days', value: '7d', hours: 168 },
 ];
 
-interface InventoryItem {
-  resource: Resource;
-  quantity: number;
-}
-
 export function CreateListingScreen() {
   const navigation = useNavigation();
   const queryClient = useQueryClient();
+  const toast = useToast();
+  const { selectedCity } = useMarketStore();
 
-  const [selectedResource, setSelectedResource] = useState<InventoryItem | null>(null);
+  const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
   const [quantity, setQuantity] = useState('');
   const [price, setPrice] = useState('');
   const [duration, setDuration] = useState<Duration>('24h');
@@ -43,10 +42,10 @@ export function CreateListingScreen() {
   const [anonymous, setAnonymous] = useState(false);
   const [showResourcePicker, setShowResourcePicker] = useState(false);
 
-  // Load player inventory
-  const { data: inventory, isLoading } = useQuery<InventoryItem[]>({
-    queryKey: ['player', 'inventory'],
-    queryFn: () => api.get<InventoryItem[]>('/players/me/inventory'),
+  // Load available resources
+  const { data: resources, isLoading } = useQuery<Resource[]>({
+    queryKey: ['market', 'resources'],
+    queryFn: () => api.get<Resource[]>('/market/resources'),
   });
 
   const createMutation = useMutation({
@@ -54,12 +53,11 @@ export function CreateListingScreen() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['listings'] });
       queryClient.invalidateQueries({ queryKey: ['player', 'inventory'] });
-      Alert.alert('Listing Created', 'Your listing has been posted to the market.', [
-        { text: 'OK', onPress: () => navigation.goBack() },
-      ]);
+      toast.show('Listing created and posted to the market!', 'success');
+      navigation.goBack();
     },
     onError: (err) => {
-      Alert.alert('Error', err instanceof Error ? err.message : 'Failed to create listing');
+      toast.show(err instanceof Error ? err.message : 'Failed to create listing', 'error');
     },
   });
 
@@ -79,7 +77,6 @@ export function CreateListingScreen() {
   const canSubmit =
     selectedResource &&
     qtyNum > 0 &&
-    qtyNum <= selectedResource.quantity &&
     priceNum > 0 &&
     !createMutation.isPending;
 
@@ -87,7 +84,9 @@ export function CreateListingScreen() {
     if (!canSubmit || !selectedResource) return;
 
     createMutation.mutate({
-      resource_id: selectedResource.resource.id,
+      resource_id: selectedResource.id,
+      city: selectedCity,
+      listing_type: 'PLAYER_SELL',
       quantity: qtyNum,
       price_per_unit: priceNum,
       duration_hours: durationHours,
@@ -111,7 +110,7 @@ export function CreateListingScreen() {
         >
           <Text style={styles.pickerButtonText}>
             {selectedResource
-              ? `${selectedResource.resource.name} (${selectedResource.quantity.toLocaleString()} owned)`
+              ? `${selectedResource.name} (${formatCurrency(selectedResource.current_ai_price)}/unit)`
               : 'Select a resource...'}
           </Text>
           <Text style={styles.pickerChevron}>{showResourcePicker ? '▲' : '▼'}</Text>
@@ -119,15 +118,15 @@ export function CreateListingScreen() {
 
         {showResourcePicker && (
           <View style={styles.dropdownContainer}>
-            {(inventory ?? []).length === 0 ? (
-              <Text style={styles.emptyPicker}>No inventory available</Text>
+            {(resources ?? []).length === 0 ? (
+              <Text style={styles.emptyPicker}>No resources available</Text>
             ) : (
-              (inventory ?? []).map((item) => (
+              (resources ?? []).map((item) => (
                 <TouchableOpacity
-                  key={item.resource.id}
+                  key={item.id}
                   style={[
                     styles.dropdownItem,
-                    selectedResource?.resource.id === item.resource.id &&
+                    selectedResource?.id === item.id &&
                       styles.dropdownItemSelected,
                   ]}
                   onPress={() => {
@@ -135,8 +134,8 @@ export function CreateListingScreen() {
                     setShowResourcePicker(false);
                   }}
                 >
-                  <Text style={styles.dropdownItemName}>{item.resource.name}</Text>
-                  <Text style={styles.dropdownItemQty}>{item.quantity.toLocaleString()}</Text>
+                  <Text style={styles.dropdownItemName}>{item.name}</Text>
+                  <Text style={styles.dropdownItemQty}>{formatCurrency(item.current_ai_price)}</Text>
                 </TouchableOpacity>
               ))
             )}
@@ -156,11 +155,9 @@ export function CreateListingScreen() {
           placeholderTextColor="#4b5563"
         />
         {selectedResource && (
-          <TouchableOpacity onPress={() => setQuantity(String(selectedResource.quantity))}>
-            <Text style={styles.maxHint}>
-              Max: {selectedResource.quantity.toLocaleString()}
-            </Text>
-          </TouchableOpacity>
+          <Text style={styles.maxHint}>
+            AI Price: {formatCurrency(selectedResource.current_ai_price)}/unit
+          </Text>
         )}
       </Card>
 
@@ -169,7 +166,7 @@ export function CreateListingScreen() {
         <Text style={styles.sectionTitle}>Price per Unit</Text>
         {selectedResource && (
           <Text style={styles.referencePrice}>
-            AI Price: {formatCurrency(selectedResource.resource.current_ai_price)}
+            AI Price: {formatCurrency(selectedResource.current_ai_price)}
           </Text>
         )}
         <TextInput

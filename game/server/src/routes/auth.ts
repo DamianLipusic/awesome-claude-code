@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import { z } from 'zod';
 import crypto from 'crypto';
 import { query, withTransaction } from '../db/client';
+import { requireAuth } from '../middleware/auth';
 import { getCurrentSeason } from '../lib/season';
 
 const RegisterSchema = z.object({
@@ -76,7 +77,7 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
     const password_hash = await bcrypt.hash(password, SALT_ROUNDS);
 
     const playerId = await withTransaction(async (client) => {
-      const startingCash = season ? Number(season.starting_cash) : 10000;
+      const startingCash = season ? Number(season.starting_cash) : 25000;
 
       const playerRes = await client.query<{ id: string }>(
         `INSERT INTO players
@@ -211,5 +212,18 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
       }
     }
     return reply.send({ data: { message: 'Logged out successfully' } });
+  });
+
+  // GET /auth/me — current user profile
+  app.get('/me', { preHandler: [requireAuth] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    const playerId = request.player.id;
+    const result = await query(
+      `SELECT id, username, cash, created_at FROM players WHERE id = $1`,
+      [playerId],
+    );
+    if (!result.rows.length) {
+      return reply.status(404).send({ error: 'Player not found' });
+    }
+    return reply.send({ data: result.rows[0] });
   });
 }

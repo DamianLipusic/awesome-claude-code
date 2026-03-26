@@ -17,6 +17,16 @@ import { CITIES, CRIME_OP_CONFIGS, LAUNDERING_METHODS, BUSINESS_BASE_COSTS } fro
 import type { CitySize } from '../../../shared/src/types/entities';
 import { emitToPlayer, emitBroadcast } from '../websocket/handler';
 
+
+// City price modifiers for AI pricing
+const CITY_PRICE_MODIFIERS: Record<string, number> = {
+  Ironport: 1.0,
+  Duskfield: 0.95,
+  Ashvale: 0.85,
+  Coldmarsh: 0.80,
+  Farrow: 0.70,
+};
+
 // ─── Economy Update ───────────────────────────────────────────
 
 /**
@@ -185,7 +195,9 @@ export async function market_refresh(season_id: string): Promise<void> {
         // Skip illegal items in non-capital cities
         if (res.illegal && city.size !== 'CAPITAL') continue;
 
-        const aiPrice = parseFloat(res.current_ai_price);
+        const baseAiPrice = parseFloat(res.current_ai_price);
+        const cityMod = CITY_PRICE_MODIFIERS[city.name] ?? 1.0;
+        const aiPrice = baseAiPrice * cityMod;
         const aiBuyPrice = aiPrice * (AI_BUY_DISCOUNT / AI_MARKUP);
         const cap = AI_QUANTITY_CAPS[city.size as CitySize]?.[res.tier] ?? 500;
         const targetQty = Math.round(cap * 0.8);

@@ -19,6 +19,7 @@ import { CurrencyText } from '../../components/ui/CurrencyText';
 import { formatCurrency } from '../../components/ui/CurrencyText';
 import type { CriminalOperation, Employee, CrimeOpType } from '@economy-game/shared';
 import { CRIME_OP_CONFIGS } from '@economy-game/shared';
+import { useToast } from '../../components/Toast';
 
 const OP_LABELS: Record<CrimeOpType, string> = {
   SMUGGLING: 'Smuggling',
@@ -71,7 +72,7 @@ interface AvailableOp {
 
 interface LaunchOpPayload {
   op_type: CrimeOpType;
-  employee_ids: string[];
+  employees: string[];
 }
 
 function OpDetailModal({
@@ -196,7 +197,7 @@ function OpDetailModal({
                 { backgroundColor: color },
                 (!canLaunch || isLaunching) && styles.launchButtonDisabled,
               ]}
-              onPress={() => onLaunch({ op_type: op.op_type, employee_ids: selectedEmployees })}
+              onPress={() => onLaunch({ op_type: op.op_type, employees: selectedEmployees })}
               disabled={!canLaunch || isLaunching}
             >
               <Text style={styles.launchButtonText}>
@@ -233,23 +234,30 @@ const ALL_OP_TYPES = Object.keys(CRIME_OP_CONFIGS) as CrimeOpType[];
 
 export function CrimeOperationsScreen() {
   const queryClient = useQueryClient();
+  const toast = useToast();
   const [selectedOp, setSelectedOp] = useState<AvailableOp | null>(null);
 
   const { data: available, isLoading } = useQuery<AvailableOp[]>({
     queryKey: ['crime', 'available-ops'],
-    queryFn: () => api.get<AvailableOp[]>('/crime/available-operations'),
+    queryFn: async () => {
+      const res = await api.get<{ heat_level: string; operations: Array<{ op_type: CrimeOpType; can_perform: boolean; [key: string]: unknown }> }>('/crime/operations/available');
+      return res.operations.map(op => ({
+        op_type: op.op_type,
+        available: op.can_perform,
+      }));
+    },
     staleTime: 30_000,
   });
 
   const { data: employees } = useQuery<Employee[]>({
     queryKey: ['crime', 'criminal-employees'],
-    queryFn: () => api.get<Employee[]>('/employees?criminal_capable=true'),
+    queryFn: () => api.get<Employee[]>('/employees/available'),
     staleTime: 60_000,
   });
 
   const { data: history } = useQuery<CriminalOperation[]>({
     queryKey: ['crime', 'history'],
-    queryFn: () => api.get<CriminalOperation[]>('/crime/operations?status=completed&limit=10'),
+    queryFn: () => api.get<CriminalOperation[]>('/crime/operations/active'),
     staleTime: 60_000,
   });
 
@@ -261,10 +269,10 @@ export function CrimeOperationsScreen() {
       queryClient.invalidateQueries({ queryKey: ['crime', 'available-ops'] });
       queryClient.invalidateQueries({ queryKey: ['crime', 'history'] });
       setSelectedOp(null);
-      Alert.alert('Operation Launched', 'Your crew is on the move. Check back for results.');
+      toast.show('Operation launched! Your crew is on the move.', 'success');
     },
     onError: (err) => {
-      Alert.alert('Failed', err instanceof Error ? err.message : 'Could not launch operation');
+      toast.show(err instanceof Error ? err.message : 'Could not launch operation', 'error');
     },
   });
 

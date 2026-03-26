@@ -36,6 +36,7 @@ export async function runGameTick(): Promise<void> {
     await runSafe('CrimeOperations', processCrimeOperations);
     await runSafe('Laundering', processLaundering);
     await runSafe('Shipments', processShipments);
+    await runSafe('Deliveries', processDeliveries);
     await runSafe('SpyDiscovery', processSpyDiscovery);
     await runSafe('Embezzlement', processEmbezzlement);
     await runSafe('BlockadeCosts', processBlockadeCosts);
@@ -202,14 +203,14 @@ async function processBusinessRevenue(): Promise<void> {
         [Math.max(tickRevenue, 0), tickCost, biz.id],
       );
 
-      // Write to business_ledger
+      // Write to business_ledger (upsert per business per day)
       await client.query(
-        `INSERT INTO business_ledger (business_id, player_id, season_id, type, amount, description)
-         VALUES ($1, $2, $3, $4, $5, $6)`,
-        [biz.id, biz.owner_id, biz.season_id,
-         netProfit >= 0 ? 'REVENUE' : 'EXPENSE',
-         Math.abs(netProfit),
-         `Tick revenue: $${tickRevenue.toFixed(2)}, costs: $${tickCost.toFixed(2)} (event mult: ${eventMods.revenue_multiplier.toFixed(2)}x)`],
+        `INSERT INTO business_ledger (business_id, day, revenue, expenses)
+         VALUES ($1, CURRENT_DATE, $2, $3)
+         ON CONFLICT (business_id, day)
+         DO UPDATE SET revenue = business_ledger.revenue + EXCLUDED.revenue,
+                       expenses = business_ledger.expenses + EXCLUDED.expenses`,
+        [biz.id, Math.max(tickRevenue, 0), tickCost],
       );
     }
   });
@@ -730,6 +731,7 @@ async function processShipments(): Promise<void> {
 
 // ─── 8. Spy Discovery Checks ─────────────────────────────────
 
+
 async function processSpyDiscovery(): Promise<void> {
   await withTransaction(async (client) => {
     const spies = await client.query<{
@@ -815,14 +817,14 @@ async function processEmbezzlement(): Promise<void> {
       const roll = Math.random();
       if (roll >= mgr.embezzlement_risk) continue;
 
-      // Get last tick's revenue estimate from business_ledger
-      const ledgerRes = await client.query<{ amount: string }>(
-        `SELECT amount FROM business_ledger
-          WHERE business_id = $1 AND type = 'REVENUE'
-          ORDER BY created_at DESC LIMIT 1`,
+      // Get last day's revenue from business_ledger
+      const ledgerRes = await client.query<{ revenue: string }>(
+        `SELECT revenue FROM business_ledger
+          WHERE business_id = $1
+          ORDER BY day DESC LIMIT 1`,
         [mgr.business_id],
       );
-      const lastRevenue = ledgerRes.rows.length > 0 ? parseFloat(ledgerRes.rows[0].amount) : 0;
+      const lastRevenue = ledgerRes.rows.length > 0 ? parseFloat(ledgerRes.rows[0].revenue) : 0;
       if (lastRevenue <= 0) continue;
 
       // Steal 5-15% of last tick's revenue
@@ -1100,6 +1102,185 @@ async function processEventAlerts(): Promise<void> {
           `New event: ${evt.title} - ${evt.description}`,
           { event_id: evt.id, category: evt.category },
         );
+      }
+    }
+  });
+}
+
+
+
+// ─── Delivery Order Processing ────────────────────────────────
+// Processes delivery orders every tick (5 min).
+// 1. Auto-delivers expired PENDING orders (auto_deliver_at < NOW())
+// 2. Completes CLAIMED deliveries past estimated_delivery
+
+async function processDeliveries(): Promise<void> {
+  await withTransaction(async (client) => {
+    // 1. Auto-deliver expired PENDING orders
+    const expired = await client.query<{
+      id: string; buyer_id: string; resource_name: string; quantity: number;
+      destination_city: string; standard_fee: number; season_id: string;
+    }>(
+      `SELECT d.*, d.season_id FROM delivery_orders d
+       WHERE d.status = 'PENDING' AND d.auto_deliver_at < NOW()`,
+    );
+
+    for (const order of expired.rows) {
+      // Find buyer's business in destination city
+      const bizRow = await client.query<{ id: string; inventory: Record<string, number> }>(
+        `SELECT id, inventory FROM businesses
+         WHERE owner_id = $1 AND city = $2 AND status = 'ACTIVE'
+         LIMIT 1`,
+        [order.buyer_id, order.destination_city],
+      );
+
+      if (bizRow.rows.length > 0) {
+        const biz = bizRow.rows[0];
+        const inv = biz.inventory as Record<string, number>;
+        inv[order.resource_name] = (inv[order.resource_name] ?? 0) + order.quantity;
+        await client.query(
+          `UPDATE businesses SET inventory = $1 WHERE id = $2`,
+          [JSON.stringify(inv), biz.id],
+        );
+      } else {
+        // Fallback: find any active business of the buyer
+        const fallbackBiz = await client.query<{ id: string; inventory: Record<string, number> }>(
+          `SELECT id, inventory FROM businesses
+           WHERE owner_id = $1 AND status = 'ACTIVE'
+           ORDER BY established_at ASC LIMIT 1`,
+          [order.buyer_id],
+        );
+        if (fallbackBiz.rows.length > 0) {
+          const biz = fallbackBiz.rows[0];
+          const inv = biz.inventory as Record<string, number>;
+          inv[order.resource_name] = (inv[order.resource_name] ?? 0) + order.quantity;
+          await client.query(
+            `UPDATE businesses SET inventory = $1 WHERE id = $2`,
+            [JSON.stringify(inv), biz.id],
+          );
+        }
+      }
+
+      // Deduct standard_fee from buyer for auto-delivery service
+      await client.query(
+        `UPDATE players SET cash = cash - LEAST(cash, $1) WHERE id = $2`,
+        [order.standard_fee, order.buyer_id],
+      );
+
+      // Mark as AUTO_DELIVERED
+      await client.query(
+        `UPDATE delivery_orders SET status = 'AUTO_DELIVERED', delivered_at = NOW() WHERE id = $1`,
+        [order.id],
+      );
+
+      // Alert buyer
+      const seasonId = order.season_id;
+      if (seasonId) {
+        await createAlert(client, order.buyer_id, seasonId, 'DELIVERY_AUTO',
+          `Your order of ${order.quantity} ${order.resource_name} was auto-delivered to ${order.destination_city}. Delivery fee: $${Number(order.standard_fee).toFixed(2)}`,
+          { delivery_id: order.id, resource: order.resource_name, quantity: order.quantity },
+        );
+      }
+
+      try {
+        emitToPlayer(order.buyer_id, 'delivery_completed', {
+          delivery_id: order.id, type: 'auto', destination: order.destination_city,
+          resource: order.resource_name, quantity: order.quantity,
+        });
+      } catch {
+        // Non-critical
+      }
+    }
+
+    // 2. Complete CLAIMED deliveries past estimated_delivery
+    const completed = await client.query<{
+      id: string; buyer_id: string; carrier_id: string; resource_name: string;
+      quantity: number; destination_city: string; player_fee: number; season_id: string;
+    }>(
+      `SELECT d.*, d.season_id FROM delivery_orders d
+       WHERE d.status = 'CLAIMED' AND d.estimated_delivery < NOW()`,
+    );
+
+    for (const order of completed.rows) {
+      // Credit inventory to buyer's business in destination city
+      const bizRow = await client.query<{ id: string; inventory: Record<string, number> }>(
+        `SELECT id, inventory FROM businesses
+         WHERE owner_id = $1 AND city = $2 AND status = 'ACTIVE'
+         LIMIT 1`,
+        [order.buyer_id, order.destination_city],
+      );
+
+      if (bizRow.rows.length > 0) {
+        const biz = bizRow.rows[0];
+        const inv = biz.inventory as Record<string, number>;
+        inv[order.resource_name] = (inv[order.resource_name] ?? 0) + order.quantity;
+        await client.query(
+          `UPDATE businesses SET inventory = $1 WHERE id = $2`,
+          [JSON.stringify(inv), biz.id],
+        );
+      } else {
+        // Fallback: any active business
+        const fallbackBiz = await client.query<{ id: string; inventory: Record<string, number> }>(
+          `SELECT id, inventory FROM businesses
+           WHERE owner_id = $1 AND status = 'ACTIVE'
+           ORDER BY established_at ASC LIMIT 1`,
+          [order.buyer_id],
+        );
+        if (fallbackBiz.rows.length > 0) {
+          const biz = fallbackBiz.rows[0];
+          const inv = biz.inventory as Record<string, number>;
+          inv[order.resource_name] = (inv[order.resource_name] ?? 0) + order.quantity;
+          await client.query(
+            `UPDATE businesses SET inventory = $1 WHERE id = $2`,
+            [JSON.stringify(inv), biz.id],
+          );
+        }
+      }
+
+      // Pay carrier the player_fee
+      const fee = Number(order.player_fee) || 0;
+      if (fee > 0 && order.carrier_id) {
+        await client.query(
+          `UPDATE players SET cash = cash + $1 WHERE id = $2`,
+          [fee, order.carrier_id],
+        );
+      }
+
+      // Mark as DELIVERED
+      await client.query(
+        `UPDATE delivery_orders SET status = 'DELIVERED', delivered_at = NOW() WHERE id = $1`,
+        [order.id],
+      );
+
+      const seasonId = order.season_id;
+      if (seasonId) {
+        // Alert buyer
+        await createAlert(client, order.buyer_id, seasonId, 'DELIVERY_COMPLETE',
+          `${order.quantity} ${order.resource_name} delivered to ${order.destination_city} by carrier.`,
+          { delivery_id: order.id, resource: order.resource_name, quantity: order.quantity },
+        );
+
+        // Alert carrier
+        if (order.carrier_id) {
+          await createAlert(client, order.carrier_id, seasonId, 'DELIVERY_EARNED',
+            `Delivery completed! Earned $${fee.toFixed(2)} for delivering ${order.quantity} ${order.resource_name} to ${order.destination_city}.`,
+            { delivery_id: order.id, earned: fee },
+          );
+        }
+      }
+
+      try {
+        emitToPlayer(order.buyer_id, 'delivery_completed', {
+          delivery_id: order.id, type: 'carrier', destination: order.destination_city,
+          resource: order.resource_name, quantity: order.quantity,
+        });
+        if (order.carrier_id) {
+          emitToPlayer(order.carrier_id, 'delivery_earned', {
+            delivery_id: order.id, earned: fee,
+          });
+        }
+      } catch {
+        // Non-critical
       }
     }
   });

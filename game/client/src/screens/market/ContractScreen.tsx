@@ -20,9 +20,9 @@ import { LoadingSkeleton } from '../../components/ui/LoadingScreen';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { formatCurrency } from '../../components/ui/CurrencyText';
 import { formatTimestamp } from '../../lib/format';
-import type { TradeContract, PaginatedResponse } from '@economy-game/shared';
+import type { TradeContract } from '@economy-game/shared';
 
-type Tab = 'my' | 'open';
+type Tab = 'my' | 'open' | 'profit-share';
 
 interface Resource {
   id: string;
@@ -49,6 +49,7 @@ function CreateContractModal({
   const [period, setPeriod] = useState<'DAILY' | 'WEEKLY'>('DAILY');
   const [duration, setDuration] = useState('7');
   const [city, setCity] = useState<string>('Ironport');
+  const [profitSharePct, setProfitSharePct] = useState('');
 
   const { data: resources, isLoading: resLoading } = useQuery<Resource[]>({
     queryKey: ['market', 'resources'],
@@ -66,6 +67,7 @@ function CreateContractModal({
         period,
         duration_periods: parseInt(duration, 10),
         delivery_city: city,
+        profit_share_percent: profitSharePct ? parseFloat(profitSharePct) : undefined,
       }),
     onSuccess: () => {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
@@ -86,6 +88,7 @@ function CreateContractModal({
     setPeriod('DAILY');
     setDuration('7');
     setCity('Ironport');
+    setProfitSharePct('');
   };
 
   const handleCreate = () => {
@@ -109,9 +112,10 @@ function CreateContractModal({
       return;
     }
     const totalValue = qtyNum * priceNum * durNum;
+    const profitNote = profitSharePct ? `\nProfit-share: ${profitSharePct}%` : '';
     Alert.alert(
       'Confirm Contract',
-      `Post a ${period.toLowerCase()} contract for ${qtyNum.toLocaleString()} × ${selectedResource.name} @ ${formatCurrency(priceNum)} for ${durNum} periods.\n\nTotal value: ${formatCurrency(totalValue)}`,
+      `Post a ${period.toLowerCase()} contract for ${qtyNum.toLocaleString()} \u00D7 ${selectedResource.name} @ ${formatCurrency(priceNum)} for ${durNum} periods.\n\nTotal value: ${formatCurrency(totalValue)}${profitNote}`,
       [
         { text: 'Cancel', style: 'cancel' },
         { text: 'Create', onPress: () => mutation.mutate() },
@@ -139,7 +143,7 @@ function CreateContractModal({
         <View style={mStyles.header}>
           <Text style={mStyles.title}>Create Trade Contract</Text>
           <TouchableOpacity onPress={handleClose}>
-            <Text style={mStyles.closeBtn}>✕</Text>
+            <Text style={mStyles.closeBtn}>{'\u2715'}</Text>
           </TouchableOpacity>
         </View>
 
@@ -167,7 +171,7 @@ function CreateContractModal({
                       }}
                     >
                       <Text style={[mStyles.resourceChipText, selectedResource?.id === r.id && mStyles.resourceChipTextSelected]}>
-                        {r.illegal ? '🔴 ' : ''}{r.name}
+                        {r.illegal ? '\uD83D\uDD34 ' : ''}{r.name}
                       </Text>
                     </TouchableOpacity>
                   ))}
@@ -263,6 +267,20 @@ function CreateContractModal({
             ))}
           </View>
 
+          {/* Profit Share */}
+          <Text style={mStyles.label}>Profit Share % (optional)</Text>
+          <TextInput
+            style={mStyles.input}
+            value={profitSharePct}
+            onChangeText={setProfitSharePct}
+            keyboardType="decimal-pad"
+            placeholder="e.g. 15"
+            placeholderTextColor="#4b5563"
+          />
+          <Text style={mStyles.profitShareHint}>
+            Set a profit-share percentage to split proceeds with your counterparty
+          </Text>
+
           {/* Summary */}
           {selectedResource && parseFloat(price) > 0 && parseInt(qty, 10) > 0 && parseInt(duration, 10) > 0 && (
             <View style={mStyles.summary}>
@@ -284,6 +302,14 @@ function CreateContractModal({
                   {duration} {period === 'DAILY' ? 'days' : 'weeks'}
                 </Text>
               </View>
+              {profitSharePct && parseFloat(profitSharePct) > 0 && (
+                <View style={mStyles.summaryRow}>
+                  <Text style={mStyles.summaryLabel}>Profit Share</Text>
+                  <Text style={[mStyles.summaryValue, { color: '#a855f7' }]}>
+                    {profitSharePct}%
+                  </Text>
+                </View>
+              )}
             </View>
           )}
 
@@ -308,10 +334,12 @@ function ContractCard({
   contract,
   showAccept,
   onAccept,
+  onBreach,
 }: {
   contract: TradeContract;
   showAccept?: boolean;
   onAccept?: (id: string) => void;
+  onBreach?: (id: string) => void;
 }) {
   const periodsLeft = contract.duration_periods - contract.periods_completed;
 
@@ -361,17 +389,30 @@ function ContractCard({
         <View style={styles.footerRight}>
           {contract.price_locked && <Badge label="LOCKED" variant="blue" />}
           {contract.auto_renew && <Badge label="AUTO-RENEW" variant="green" />}
+          {(contract as any).profit_share_percent > 0 && (
+            <Badge label={`${(contract as any).profit_share_percent}% SHARE`} variant="purple" />
+          )}
         </View>
       </View>
 
-      {showAccept && contract.status === 'PENDING' && (
-        <TouchableOpacity
-          style={styles.acceptButton}
-          onPress={() => onAccept?.(contract.id)}
-        >
-          <Text style={styles.acceptButtonText}>Accept Contract</Text>
-        </TouchableOpacity>
-      )}
+      <View style={styles.cardButtonRow}>
+        {showAccept && contract.status === 'PENDING' && (
+          <TouchableOpacity
+            style={styles.acceptButton}
+            onPress={() => onAccept?.(contract.id)}
+          >
+            <Text style={styles.acceptButtonText}>Accept Contract</Text>
+          </TouchableOpacity>
+        )}
+        {contract.status === 'ACTIVE' && onBreach && (
+          <TouchableOpacity
+            style={styles.breachButton}
+            onPress={() => onBreach(contract.id)}
+          >
+            <Text style={styles.breachButtonText}>Report Breach</Text>
+          </TouchableOpacity>
+        )}
+      </View>
     </View>
   );
 }
@@ -381,16 +422,22 @@ export function ContractScreen() {
   const [showCreate, setShowCreate] = useState(false);
   const queryClient = useQueryClient();
 
-  const { data: myContracts, isLoading: myLoading, refetch: refetchMy } = useQuery<PaginatedResponse<TradeContract>>({
+  const { data: myContracts, isLoading: myLoading, refetch: refetchMy } = useQuery<TradeContract[]>({
     queryKey: ['contracts', 'my'],
-    queryFn: () => api.get<PaginatedResponse<TradeContract>>('/contracts/my?limit=30'),
+    queryFn: () => api.get<TradeContract[]>('/contracts'),
     enabled: tab === 'my',
   });
 
-  const { data: openContracts, isLoading: openLoading, refetch: refetchOpen } = useQuery<PaginatedResponse<TradeContract>>({
+  const { data: openContractsData, isLoading: openLoading, refetch: refetchOpen } = useQuery<{ items: TradeContract[]; total: number }>({
     queryKey: ['contracts', 'open'],
-    queryFn: () => api.get<PaginatedResponse<TradeContract>>('/contracts/open?limit=30'),
+    queryFn: () => api.get<{ items: TradeContract[]; total: number }>('/contracts/open'),
     enabled: tab === 'open',
+  });
+
+  const { data: profitShareData, isLoading: profitShareLoading, refetch: refetchProfitShare } = useQuery<TradeContract[]>({
+    queryKey: ['contracts', 'profit-share'],
+    queryFn: () => api.get<TradeContract[]>('/contracts/profit-share').then((r: any) => r.data ?? r),
+    enabled: tab === 'profit-share',
   });
 
   const acceptMutation = useMutation({
@@ -405,6 +452,19 @@ export function ContractScreen() {
     },
   });
 
+  const breachMutation = useMutation({
+    mutationFn: (id: string) => api.post(`/contracts/${id}/breach`, {}),
+    onSuccess: (data: any) => {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => {});
+      queryClient.invalidateQueries({ queryKey: ['contracts'] });
+      const result = data?.data ?? data;
+      Alert.alert('Breach Reported', result?.message ?? 'Contract breach has been reported. Penalties may apply.');
+    },
+    onError: (err) => {
+      Alert.alert('Error', err instanceof Error ? err.message : 'Failed to report breach');
+    },
+  });
+
   const handleAccept = (id: string) => {
     Alert.alert('Accept Contract', 'Are you sure you want to accept this trade contract?', [
       { text: 'Cancel', style: 'cancel' },
@@ -415,23 +475,37 @@ export function ContractScreen() {
     ]);
   };
 
-  const currentData = tab === 'my' ? myContracts : openContracts;
-  const currentLoading = tab === 'my' ? myLoading : openLoading;
-  const currentRefetch = tab === 'my' ? refetchMy : refetchOpen;
-  const items = currentData?.items ?? [];
+  const handleBreach = (id: string) => {
+    Alert.alert(
+      'Report Contract Breach',
+      'Are you sure you want to report this contract as breached? This will trigger penalties for the violating party and may damage your trust score if unfounded.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Report Breach', style: 'destructive', onPress: () => breachMutation.mutate(id) },
+      ]
+    );
+  };
+
+  const currentLoading = tab === 'my' ? myLoading : tab === 'open' ? openLoading : profitShareLoading;
+  const currentRefetch = tab === 'my' ? refetchMy : tab === 'open' ? refetchOpen : refetchProfitShare;
+  const items = tab === 'my'
+    ? (myContracts ?? [])
+    : tab === 'open'
+      ? (openContractsData?.items ?? [])
+      : (Array.isArray(profitShareData) ? profitShareData : []);
 
   return (
     <View style={styles.screen}>
       {/* Tab bar */}
       <View style={styles.tabs}>
-        {(['my', 'open'] as Tab[]).map((t) => (
+        {(['my', 'open', 'profit-share'] as Tab[]).map((t) => (
           <TouchableOpacity
             key={t}
             style={[styles.tab, tab === t && styles.tabActive]}
             onPress={() => setTab(t)}
           >
             <Text style={[styles.tabText, tab === t && styles.tabTextActive]}>
-              {t === 'my' ? 'My Contracts' : 'Open Offers'}
+              {t === 'my' ? 'My Contracts' : t === 'open' ? 'Open Offers' : 'Profit Share'}
             </Text>
           </TouchableOpacity>
         ))}
@@ -444,11 +518,13 @@ export function ContractScreen() {
       ) : items.length === 0 ? (
         <EmptyState
           icon="📋"
-          title={tab === 'my' ? 'No contracts yet' : 'No open offers'}
+          title={tab === 'my' ? 'No contracts yet' : tab === 'open' ? 'No open offers' : 'No profit-share agreements'}
           subtitle={
             tab === 'my'
               ? 'Create a trade contract to start recurring trade deals'
-              : 'No open contract offers available right now'
+              : tab === 'open'
+                ? 'No open contract offers available right now'
+                : 'Create a contract with a profit-share percentage to see agreements here'
           }
         />
       ) : (
@@ -460,6 +536,7 @@ export function ContractScreen() {
               contract={item}
               showAccept={tab === 'open'}
               onAccept={handleAccept}
+              onBreach={tab === 'my' ? handleBreach : undefined}
             />
           )}
           contentContainerStyle={styles.listContent}
@@ -477,7 +554,7 @@ export function ContractScreen() {
 
       {/* FAB */}
       <TouchableOpacity style={styles.fab} onPress={() => setShowCreate(true)}>
-        <Text style={styles.fabText}>＋ Create Contract</Text>
+        <Text style={styles.fabText}>+ Create Contract</Text>
       </TouchableOpacity>
 
       <CreateContractModal visible={showCreate} onClose={() => setShowCreate(false)} />
@@ -503,7 +580,7 @@ const styles = StyleSheet.create({
     borderBottomColor: '#22c55e',
   },
   tabText: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '600',
     color: '#6b7280',
   },
@@ -584,8 +661,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 6,
   },
+  cardButtonRow: {
+    flexDirection: 'row',
+    gap: 10,
+    marginTop: 8,
+  },
   acceptButton: {
-    marginTop: 12,
+    flex: 1,
     backgroundColor: '#22c55e',
     borderRadius: 8,
     paddingVertical: 10,
@@ -593,6 +675,20 @@ const styles = StyleSheet.create({
   },
   acceptButtonText: {
     color: '#030712',
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  breachButton: {
+    flex: 1,
+    backgroundColor: '#1c1917',
+    borderWidth: 1,
+    borderColor: '#ef4444',
+    borderRadius: 8,
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  breachButtonText: {
+    color: '#ef4444',
     fontSize: 14,
     fontWeight: '700',
   },
@@ -678,6 +774,9 @@ const mStyles = StyleSheet.create({
   cityBtnActive: { borderColor: '#22c55e', backgroundColor: '#052e16' },
   cityBtnText: { fontSize: 13, fontWeight: '600', color: '#6b7280' },
   cityBtnTextActive: { color: '#22c55e' },
+  profitShareHint: {
+    fontSize: 11, color: '#6b7280', marginTop: 4,
+  },
   summary: {
     backgroundColor: '#111827', borderRadius: 10, padding: 16,
     marginTop: 16, borderWidth: 1, borderColor: '#1f2937', gap: 10,

@@ -3,6 +3,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { LoginScreen } from '../screens/auth/LoginScreen';
 
 export type AuthStackParamList = {
+  Register: undefined;
   Login: undefined;
 };
 

@@ -201,25 +201,33 @@ export function CrimeHubScreen() {
   const hasCriminalActivity =
     player?.alignment === 'CRIMINAL' || player?.alignment === 'MIXED';
 
-  const { data, isLoading, refetch, isRefetching } = useQuery<CrimeDashboard>({
+  const [enteredCrime, setEnteredCrime] = useState(false);
+
+  const fetchCrimeDashboard = async (): Promise<CrimeDashboard> => {
+    const dashboard = await api.get<Record<string, unknown>>('/players/dashboard');
+    return {
+      heat: (dashboard.heat ?? { score: 0, level: 'COLD' as HeatLevel, decay_rate: 1, under_investigation: false, investigation_ends: null, bribe_cooldown: null, lay_low: false }) as HeatScore,
+      dirty_money: (dashboard.dirty_money ?? { total_dirty: 0, total_earned: 0, total_laundered: 0, flagged: false }) as DirtyMoneyBalance,
+      active_ops: (dashboard.active_ops ?? []) as CriminalOperation[],
+      active_laundering: (dashboard.active_laundering ?? []) as LaunderingProcess[],
+      lay_low_active: (dashboard.heat as any)?.lay_low ?? false,
+    };
+  };
+
+  const { data: rawData, isLoading, refetch, isRefetching } = useQuery({
     queryKey: ['crime', 'dashboard'],
-    queryFn: () => api.get<CrimeDashboard>('/crime/dashboard'),
-    enabled: hasCriminalActivity,
+    queryFn: fetchCrimeDashboard,
+    enabled: hasCriminalActivity || enteredCrime,
     refetchInterval: 15_000,
     staleTime: 10_000,
   });
+  const data = rawData as CrimeDashboard | undefined;
 
-  const enterCrimeMutation = useMutation({
-    mutationFn: () => api.post('/crime/initiate'),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['player', 'me'] });
-      queryClient.invalidateQueries({ queryKey: ['crime', 'dashboard'] });
+  if (!hasCriminalActivity && !enteredCrime) {
+    return <CriminalGateScreen onEnter={() => {
+      setEnteredCrime(true);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => {});
-    },
-  });
-
-  if (!hasCriminalActivity) {
-    return <CriminalGateScreen onEnter={() => enterCrimeMutation.mutate()} />;
+    }} />;
   }
 
   if (isLoading) {

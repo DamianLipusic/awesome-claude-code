@@ -2,8 +2,9 @@ import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { z } from 'zod';
 import { query, withTransaction } from '../db/client';
 import { requireAuth } from '../middleware/auth';
-import { calculateHireCost } from '../lib/constants';
+import { calculateHireCost, MAX_EMPLOYEES_PER_TIER } from '../lib/constants';
 import type { EmployeeRole } from '../../../shared/src/types/entities';
+import { adjustReputation } from '../lib/reputation';
 
 // ─── Valid role values (mirrors EmployeeRole union) ───────────
 
@@ -32,6 +33,19 @@ const UpdateEmployeeSchema = z
     message: 'At least one of role or morale must be provided',
   });
 
+const PoachSchema = z.object({
+  target_employee_id: z.string().uuid(),
+  business_id: z.string().uuid(),
+  offered_salary: z.number().positive(),
+});
+
+const TrainSchema = z.object({
+  employee_id: z.string().uuid(),
+  skill_type: z.enum(['efficiency', 'speed', 'loyalty', 'reliability']),
+});
+
+const TRAINING_COST = 5000;
+
 // ─── Helper: recalculate business efficiency from avg of employees ────
 
 async function recalcBusinessEfficiency(
@@ -52,6 +66,23 @@ async function recalcBusinessEfficiency(
 // ─── Route plugin ─────────────────────────────────────────────
 
 export async function employeeRoutes(fastify: FastifyInstance): Promise<void> {
+
+  // GET /employees — list player's employees
+  fastify.get(
+    '/',
+    { preHandler: [requireAuth] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const playerId = request.player.id;
+      const result = await query(
+        `SELECT e.*, b.name as business_name
+         FROM employees e
+         JOIN businesses b ON e.business_id = b.id
+         WHERE b.owner_id = $1`,
+        [playerId],
+      );
+      return reply.send({ data: result.rows });
+    },
+  );
 
   // GET /employees/available
   fastify.get(
@@ -82,7 +113,7 @@ export async function employeeRoutes(fastify: FastifyInstance): Promise<void> {
       let paramIndex = 2;
       const conditions: string[] = ['e.business_id IS NULL', 'e.season_id = $1'];
 
-      if (role) {
+      if (role && role !== 'ALL') {
         conditions.push(`e.role = $${paramIndex++}`);
         params.push(role);
       }
@@ -132,6 +163,25 @@ export async function employeeRoutes(fastify: FastifyInstance): Promise<void> {
           );
           if (!bizRow.rows.length) {
             throw Object.assign(new Error('Business not found or not owned by player'), { statusCode: 403 });
+          }
+
+          // Check employee cap per tier
+          const bizTierRow = await client.query<{ tier: number }>(
+            `SELECT tier FROM businesses WHERE id = $1`,
+            [business_id],
+          );
+          const bizTier = bizTierRow.rows[0]?.tier ?? 1;
+          const maxEmployees = MAX_EMPLOYEES_PER_TIER[bizTier] ?? 10;
+          const empCountRow = await client.query<{ count: string }>(
+            `SELECT COUNT(*) as count FROM employees WHERE business_id = $1`,
+            [business_id],
+          );
+          const currentEmployees = parseInt(empCountRow.rows[0]?.count ?? '0', 10);
+          if (currentEmployees >= maxEmployees) {
+            throw Object.assign(
+              new Error(`Business is at max capacity (${maxEmployees} employees for tier ${bizTier})`),
+              { statusCode: 400 },
+            );
           }
 
           // Validate employee is available (business_id IS NULL = in pool)
@@ -286,4 +336,181 @@ export async function employeeRoutes(fastify: FastifyInstance): Promise<void> {
       }
     },
   );
+
+  // POST /employees/poach - Attempt to poach another player's employee
+  fastify.post(
+    '/poach',
+    { preHandler: [requireAuth] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const playerId = request.player.id;
+      const seasonId = request.player.season_id;
+      const parsed = PoachSchema.safeParse(request.body);
+      if (!parsed.success) {
+        return reply.status(400).send({ error: parsed.error.issues[0].message });
+      }
+      const { target_employee_id, business_id, offered_salary } = parsed.data;
+
+      try {
+        const result = await withTransaction(async (client) => {
+          const bizRow = await client.query<{ id: string }>(
+            'SELECT id FROM businesses WHERE id = $1 AND owner_id = $2 AND season_id = $3 FOR UPDATE',
+            [business_id, playerId, seasonId],
+          );
+          if (!bizRow.rows.length) {
+            throw Object.assign(new Error('Business not found or not owned by player'), { statusCode: 403 });
+          }
+
+          const empRow = await client.query<{
+            id: string; business_id: string; salary: number; loyalty: number; name: string;
+          }>(
+            'SELECT e.id, e.business_id, e.salary, e.loyalty, e.name FROM employees e JOIN businesses b ON b.id = e.business_id WHERE e.id = $1 AND e.season_id = $2 AND b.owner_id != $3 FOR UPDATE',
+            [target_employee_id, seasonId, playerId],
+          );
+          if (!empRow.rows.length) {
+            throw Object.assign(new Error('Employee not found, not employed, or already owned by you'), { statusCode: 400 });
+          }
+          const emp = empRow.rows[0];
+
+          if (offered_salary <= emp.salary) {
+            throw Object.assign(new Error('Offered salary must exceed current salary of ' + emp.salary), { statusCode: 400 });
+          }
+
+          const salaryRatio = offered_salary / emp.salary;
+          const loyaltyFactor = 1 - (emp.loyalty / 100);
+          const successChance = Math.min(0.9, salaryRatio * 0.3 * (0.5 + loyaltyFactor * 0.5));
+
+          const roll = Math.random();
+          if (roll >= successChance) {
+            await adjustReputation(playerId, 'EMPLOYEE', -2, 'Failed poach attempt on ' + emp.name);
+            return { success: false, message: emp.name + ' rejected your offer.' };
+          }
+
+          await client.query(
+            'UPDATE employees SET business_id = $1, salary = $2, hired_at = NOW() WHERE id = $3',
+            [business_id, offered_salary, target_employee_id],
+          );
+
+          await adjustReputation(playerId, 'CRIMINAL', 1, 'Poached employee ' + emp.name);
+          await adjustReputation(playerId, 'EMPLOYEE', 1, 'Poached employee ' + emp.name);
+
+          const origOwner = await client.query<{ owner_id: string; season_id: string }>(
+            'SELECT owner_id, season_id FROM businesses WHERE id = $1',
+            [emp.business_id],
+          );
+          if (origOwner.rows.length) {
+            await client.query(
+              "INSERT INTO alerts (player_id, season_id, type, message, data) VALUES ($1, $2, 'EMPLOYEE_QUIT', $3, $4)",
+              [origOwner.rows[0].owner_id, origOwner.rows[0].season_id, emp.name + ' was poached by a rival!', JSON.stringify({ employee_id: target_employee_id, poached_by: playerId })],
+            );
+          }
+
+          await recalcBusinessEfficiency(client as Parameters<typeof recalcBusinessEfficiency>[0], business_id);
+
+          return { success: true, employee_id: target_employee_id, new_salary: offered_salary };
+        });
+
+        return reply.send({ data: result });
+      } catch (err: unknown) {
+        const e = err as { statusCode?: number; message: string };
+        return reply.status(e.statusCode ?? 500).send({ error: e.message });
+      }
+    },
+  );
+
+  // POST /employees/train - Train an employee (costs money, improves skills)
+  fastify.post(
+    '/train',
+    { preHandler: [requireAuth] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const playerId = request.player.id;
+      const seasonId = request.player.season_id;
+      const parsed = TrainSchema.safeParse(request.body);
+      if (!parsed.success) {
+        return reply.status(400).send({ error: parsed.error.issues[0].message });
+      }
+      const { employee_id, skill_type } = parsed.data;
+
+      try {
+        const result = await withTransaction(async (client) => {
+          const empRow = await client.query<{ id: string }>(
+            'SELECT e.id FROM employees e JOIN businesses b ON b.id = e.business_id WHERE e.id = $1 AND b.owner_id = $2 AND b.season_id = $3 FOR UPDATE',
+            [employee_id, playerId, seasonId],
+          );
+          if (!empRow.rows.length) {
+            throw Object.assign(new Error('Employee not found or not owned by player'), { statusCode: 403 });
+          }
+
+          const playerRow = await client.query<{ cash: string }>(
+            'SELECT cash FROM players WHERE id = $1 FOR UPDATE',
+            [playerId],
+          );
+          if (Number(playerRow.rows[0]?.cash ?? 0) < TRAINING_COST) {
+            throw Object.assign(new Error('Insufficient cash: need ' + TRAINING_COST), { statusCode: 400 });
+          }
+
+          await client.query('UPDATE players SET cash = cash - $1 WHERE id = $2', [TRAINING_COST, playerId]);
+
+          const boost = 5 + Math.floor(Math.random() * 6);
+          const columnMap: Record<string, string> = {
+            efficiency: 'efficiency',
+            speed: 'speed',
+            loyalty: 'loyalty',
+            reliability: 'reliability',
+          };
+          const col = columnMap[skill_type];
+          await client.query(
+            'UPDATE employees SET ' + col + ' = LEAST(' + col + ' + $1, 100), experience_points = experience_points + 50 WHERE id = $2',
+            [boost, employee_id],
+          );
+
+          await adjustReputation(playerId, 'EMPLOYEE', 1, 'Trained employee in ' + skill_type);
+
+          return { trained: true, employee_id, skill_type, boost, cost: TRAINING_COST };
+        });
+
+        return reply.send({ data: result });
+      } catch (err: unknown) {
+        const e = err as { statusCode?: number; message: string };
+        return reply.status(e.statusCode ?? 500).send({ error: e.message });
+      }
+    },
+  );
+
+  // GET /employees/traits/:employeeId - Get hidden traits (only if loyalty > 80)
+  fastify.get(
+    '/traits/:employeeId',
+    { preHandler: [requireAuth] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const playerId = request.player.id;
+      const seasonId = request.player.season_id;
+      const { employeeId } = request.params as { employeeId: string };
+
+      const empRow = await query<{ id: string; loyalty: number }>(
+        'SELECT e.id, e.loyalty FROM employees e JOIN businesses b ON b.id = e.business_id WHERE e.id = $1 AND b.owner_id = $2 AND b.season_id = $3',
+        [employeeId, playerId, seasonId],
+      );
+      if (!empRow.rows.length) {
+        return reply.status(403).send({ error: 'Employee not found or not owned by player' });
+      }
+
+      if (empRow.rows[0].loyalty < 80) {
+        return reply.status(403).send({
+          error: 'Employee loyalty must be at least 80 to reveal hidden traits',
+          current_loyalty: empRow.rows[0].loyalty,
+        });
+      }
+
+      const traits = await query<{ trait_name: string; trait_value: number; discovered: boolean }>(
+        'SELECT trait_name, trait_value, discovered FROM employee_traits WHERE employee_id = $1',
+        [employeeId],
+      );
+
+      if (traits.rows.length > 0) {
+        await query('UPDATE employee_traits SET discovered = true WHERE employee_id = $1', [employeeId]);
+      }
+
+      return reply.send({ data: { employee_id: employeeId, traits: traits.rows } });
+    },
+  );
+
 }

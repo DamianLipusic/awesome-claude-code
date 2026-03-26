@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { requireAuth } from '../middleware/auth';
 import { query, withTransaction } from '../db/client';
 import { recalculateNetWorth } from '../lib/networth';
-import { UPGRADE_COSTS, TIER_CAPACITY_MULTIPLIER } from '../lib/constants';
+import { UPGRADE_COSTS, TIER_CAPACITY_MULTIPLIER, BUSINESS_STARTUP_COSTS, BUSINESS_DAILY_COSTS, MAX_EMPLOYEES_PER_TIER } from '../lib/constants';
 import { BUSINESS_BASE_COSTS } from '../../../shared/src/types/entities';
 import type { BusinessType } from '../../../shared/src/types/entities';
 import { employee_production } from '../jobs/simulation';
@@ -73,9 +73,8 @@ export async function businessRoutes(app: FastifyInstance): Promise<void> {
           throw Object.assign(new Error('Business slot limit reached'), { statusCode: 400 });
         }
 
-        const costs = BUSINESS_BASE_COSTS[type as BusinessType];
-        const startupCost = costs?.startup ?? 5000;
-        const dailyCost = costs?.daily_operating ?? 200;
+        const startupCost = BUSINESS_STARTUP_COSTS[type] ?? 25000;
+        const dailyCost = BUSINESS_DAILY_COSTS[type] ?? 800;
 
         if (Number(player.cash) < startupCost) {
           throw Object.assign(new Error('Insufficient funds'), { statusCode: 400 });
@@ -84,15 +83,16 @@ export async function businessRoutes(app: FastifyInstance): Promise<void> {
         const isFront = type === 'FRONT_COMPANY';
         const baseCapacity = BASE_CAPACITY[type as BusinessType] ?? 200;
 
+        const maxEmps = MAX_EMPLOYEES_PER_TIER[1] ?? 10;
         const bizRes = await client.query<{ id: string }>(
           `INSERT INTO businesses
              (owner_id, season_id, name, type, tier, city, status, capacity,
-              efficiency, inventory, storage_cap, daily_operating_cost, is_front, front_capacity)
-           VALUES ($1,$2,$3,$4,1,$5,'ACTIVE',$6,1.0,'{}',1000,$7,$8,$9)
+              efficiency, inventory, storage_cap, daily_operating_cost, is_front, front_capacity, max_employees)
+           VALUES ($1,$2,$3,$4,1,$5,'ACTIVE',$6,1.0,'{}',1000,$7,$8,$9,$10)
            RETURNING id`,
           [
             playerId, seasonId, name, type, city,
-            baseCapacity, dailyCost, isFront, isFront ? 50000 : 0,
+            baseCapacity, dailyCost, isFront, isFront ? 50000 : 0, maxEmps,
           ],
         );
         const businessId = bizRes.rows[0].id;

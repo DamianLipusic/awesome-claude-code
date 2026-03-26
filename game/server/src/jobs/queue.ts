@@ -1,3 +1,4 @@
+import { runGameTick } from './gameTick';
 import { Queue, Worker, Job, type ConnectionOptions } from 'bullmq';
 import {
   economy_update,
@@ -132,6 +133,16 @@ export async function scheduleRepeatingJobs(): Promise<void> {
     }
   );
 
+  // Game tick every 5 minutes (new enhanced system)
+  await simulationQueue.add(
+    'game_tick',
+    { type: 'game_tick' },
+    {
+      repeat: { every: 5 * 60 * 1000 }, // 5 min in ms
+      jobId: 'game_tick_repeat',
+    }
+  );
+
   console.log('[queue] Repeating jobs scheduled.');
 }
 
@@ -202,7 +213,7 @@ function startWorkersInternal(): void {
     'simulation',
     async (job: Job) => {
       const seasonId = await getActiveSeasonId();
-      if (!seasonId && job.data.type !== 'heat_decay') {
+      if (!seasonId && job.data.type !== 'heat_decay' && job.data.type !== 'game_tick') {
         console.warn(`[worker:simulation] No active season found for job: ${job.name}`);
         return;
       }
@@ -215,6 +226,9 @@ function startWorkersInternal(): void {
           break;
         case 'heat_decay':
           await heat_decay();
+          break;
+        case 'game_tick':
+          await runGameTick();
           break;
         default:
           console.warn(`[worker:simulation] Unknown job type: ${job.data.type ?? job.name}`);

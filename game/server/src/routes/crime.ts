@@ -11,6 +11,7 @@ import {
   type HeatLevel,
 } from '../../../shared/src/types/entities';
 import { scheduleCrimeResolveJob } from '../jobs/queue';
+import { adjustReputation } from '../lib/reputation';
 
 // ─── Input schemas ────────────────────────────────────────────
 
@@ -19,7 +20,7 @@ const StartOperationSchema = z.object({
     'SMUGGLING', 'THEFT', 'EXTORTION', 'FRAUD',
     'DRUG_TRADE', 'BRIBERY', 'SABOTAGE',
   ]),
-  employees: z.array(z.string().uuid()),
+  employees: z.array(z.string().uuid()).default([]),
   business_id: z.string().uuid().optional(),
 });
 
@@ -186,7 +187,7 @@ export async function crimeRoutes(fastify: FastifyInstance): Promise<void> {
                  EXISTS (
                    SELECT 1 FROM criminal_operations co
                    WHERE co.status = 'ACTIVE'
-                     AND co.employees_assigned @> to_jsonb(ARRAY[e.id::text])
+                     AND e.id = ANY(co.employees_assigned)
                  ) AS on_active_op
                FROM employees e
                JOIN businesses b ON b.id = e.business_id
@@ -237,7 +238,7 @@ export async function crimeRoutes(fastify: FastifyInstance): Promise<void> {
              VALUES
                ($1, $2, $3, $4, 'ACTIVE',
                 NOW(), NOW() + ($5 || ' hours')::interval, $6, $7,
-                $8::jsonb, NULL, NULL, NULL)
+                $8::uuid[], NULL, NULL, NULL)
              RETURNING *`,
             [
               playerId,
@@ -247,7 +248,7 @@ export async function crimeRoutes(fastify: FastifyInstance): Promise<void> {
               config.duration_hours,
               config.base_yield,
               config.risk_level,
-              JSON.stringify(employees),
+              employees,
             ],
           );
           const op = insertResult.rows[0];
@@ -268,6 +269,10 @@ export async function crimeRoutes(fastify: FastifyInstance): Promise<void> {
             `UPDATE heat_scores SET last_criminal_act = NOW() WHERE player_id = $1 AND season_id = $2`,
             [playerId, playerSeasonId],
           );
+
+          // Starting a crime increases criminal notoriety slightly
+          await adjustReputation(playerId, 'CRIMINAL', 1, `Started crime: ${op_type}`);
+          await adjustReputation(playerId, 'COMMUNITY', -1, `Started crime: ${op_type}`);
 
           // Schedule crime_resolve job
           await scheduleCrimeResolveJob(op.id, new Date(op.completes_at));

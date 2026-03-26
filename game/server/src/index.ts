@@ -11,6 +11,15 @@ import { marketRoutes } from './routes/market';
 import { contractRoutes } from './routes/contracts';
 import { crimeRoutes } from './routes/crime';
 import { seasonRoutes } from './routes/seasons';
+import managerRoutes from './routes/managers';
+import logisticsRoutes from './routes/logistics';
+import eventRoutes from './routes/events';
+import locationRoutes from './routes/locations';
+import { reputationRoutes } from './routes/reputation';
+import { allianceRoutes } from './routes/alliances';
+import { rivalryRoutes } from './routes/rivalry';
+import { intelligenceRoutes } from './routes/intelligence';
+import businessListingRoutes from './routes/businessListings';
 import { registerWebSocketHandler } from './websocket/handler';
 import { startWorkers, scheduleRecurringJobs } from './jobs/queue';
 import pool from './db/client';
@@ -38,6 +47,15 @@ async function main() {
   await app.register(contractRoutes, { prefix: '/api/v1/contracts' });
   await app.register(crimeRoutes,    { prefix: '/api/v1/crime' });
   await app.register(seasonRoutes,   { prefix: '/api/v1/seasons' });
+  await app.register(managerRoutes,  { prefix: '/api/v1/managers' });
+  await app.register(logisticsRoutes, { prefix: '/api/v1/logistics' });
+  await app.register(eventRoutes,    { prefix: '/api/v1/events' });
+  await app.register(locationRoutes, { prefix: '/api/v1/locations' });
+  await app.register(reputationRoutes,    { prefix: '/api/v1/reputation' });
+  await app.register(allianceRoutes,      { prefix: '/api/v1/alliances' });
+  await app.register(rivalryRoutes,       { prefix: '/api/v1/rivalry' });
+  await app.register(intelligenceRoutes,  { prefix: '/api/v1/intelligence' });
+  await app.register(businessListingRoutes, { prefix: '/api/v1/business-listings' });
 
   // ─── WebSocket ────────────────────────────────────────────────
   await registerWebSocketHandler(app);

@@ -277,3 +277,64 @@ export const SECURITY_TIER_STATS: Record<number, {
   3: { protection_rating: 0.45, employee_watch: 0.40, anti_infiltration: 0.45, daily_cost: 1200 },
   4: { protection_rating: 0.65, employee_watch: 0.60, anti_infiltration: 0.65, daily_cost: 3000 },
 };
+
+
+// ─── Game Balance Constants ───────────────────────────────────
+
+export const GAME_BALANCE = {
+  // Economy
+  STARTING_CASH: 50000,
+  BUSINESS_BASE_REVENUE: 500,     // per tick
+  UPGRADE_COST_MULTIPLIER: 1.8,   // each level costs 1.8x more
+  MAX_BUSINESS_LEVEL: 10,
+
+  // Crime
+  BASE_CRIME_SUCCESS_RATE: 0.65,
+  HEAT_DECAY_PER_TICK: 0.02,      // 2% decay
+  LAUNDERING_FEE_PERCENT: 0.15,   // 15% laundering fee
+
+  // Employees
+  BASE_SALARY: 200,
+  SALARY_INCREASE_PER_SKILL: 50,
+  LOYALTY_DECAY_PER_TICK: 0.01,   // 1% natural decay
+  MAX_EMPLOYEES: 50,
+
+  // Events
+  EVENT_CHANCE_PER_CITY: 0.05,    // 5% per tick per city
+  MAX_CONCURRENT_EVENTS: 3,
+
+  // Reputation
+  REPUTATION_DECAY_RATE: 0.005,   // 0.5% per tick toward 0
+  MAX_REPUTATION: 100,
+  MIN_REPUTATION: -100,
+};
+
+// ─── Phase 5: Economy Overhaul Constants ─────────────────────
+
+export const MAX_EMPLOYEES_PER_TIER: Record<number, number> = {
+  1: 10, 2: 20, 3: 35, 4: 50
+};
+
+export const BUSINESS_STARTUP_COSTS: Record<string, number> = {
+  RETAIL: 25000, FACTORY: 150000, MINE: 80000, FARM: 40000,
+  LOGISTICS: 60000, SECURITY_FIRM: 45000, FRONT_COMPANY: 100000
+};
+
+export const BUSINESS_DAILY_COSTS: Record<string, number> = {
+  RETAIL: 800, FACTORY: 3000, MINE: 2000, FARM: 1200,
+  LOGISTICS: 1800, SECURITY_FIRM: 1500, FRONT_COMPANY: 2500
+};
+
+export const DISTRICT_REVENUE_MULTIPLIER: Record<number, number> = {
+  1: 0.7, 2: 1.0, 3: 1.5, 4: 2.5
+};
+
+export const DISTRICT_RENT_MULTIPLIER: Record<number, number> = {
+  1: 0.6, 2: 1.0, 3: 1.8, 4: 3.0
+};
+
+export const CITY_PRICE_MODIFIERS: Record<string, number> = {
+  Ironport: 1.0, Duskfield: 0.95, Ashvale: 0.85, Coldmarsh: 0.80, Farrow: 0.70
+};
+
+export const STARTING_CASH = 100000;

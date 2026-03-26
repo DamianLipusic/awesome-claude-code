@@ -87,7 +87,7 @@ async function attemptRefresh(): Promise<string | null> {
     }
 
     const data = await response.json();
-    const newToken: string = data.data?.token ?? data.token;
+    const newToken: string = data.data?.access_token ?? data.data?.token ?? data.access_token ?? data.token;
     if (newToken) {
       await setStoredToken(newToken);
       if (data.data?.refresh_token ?? data.refresh_token) {
@@ -109,18 +109,23 @@ async function request<T>(
 ): Promise<T> {
   const token = await getStoredToken();
 
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-  };
+  const headers: Record<string, string> = {};
 
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
   }
 
+  // Always send JSON body for mutating methods to satisfy Fastify's content-type parser
+  const needsBody = method === 'POST' || method === 'PUT' || method === 'PATCH' || method === 'DELETE';
+  const bodyPayload = needsBody ? (body !== undefined ? body : {}) : undefined;
+  if (bodyPayload !== undefined) {
+    headers['Content-Type'] = 'application/json';
+  }
+
   const response = await fetch(`${BASE_URL}${path}`, {
     method,
     headers,
-    body: body !== undefined ? JSON.stringify(body) : undefined,
+    body: bodyPayload !== undefined ? JSON.stringify(bodyPayload) : undefined,
   });
 
   if (response.status === 401 && retry) {

@@ -61,7 +61,13 @@ export function HeatManagementScreen() {
 
   const { data, isLoading } = useQuery<HeatManagementData>({
     queryKey: ['heat-management'],
-    queryFn: () => api.get<HeatManagementData>('/crime/heat'),
+    queryFn: async () => {
+      const heat = await api.get<HeatScore & { lay_low?: boolean }>('/crime/heat');
+      return {
+        heat,
+        lay_low_active: heat?.lay_low ?? false,
+      };
+    },
     staleTime: 10_000,
     refetchInterval: 30_000,
   });
@@ -85,7 +91,7 @@ export function HeatManagementScreen() {
   });
 
   const layLowMutation = useMutation({
-    mutationFn: (active: boolean) => api.patch('/crime/heat/lay-low', { active }),
+    mutationFn: (active: boolean) => api.put('/crime/heat/lay-low', { active }),
     onSuccess: (_, active) => {
       setLayLowActive(active);
       queryClient.invalidateQueries({ queryKey: ['heat-management'] });

@@ -27,6 +27,18 @@ const BuyListingSchema = z.object({
 
 export async function marketRoutes(fastify: FastifyInstance): Promise<void> {
 
+  // GET /market/ai-prices — AI baseline prices
+  fastify.get(
+    '/ai-prices',
+    { preHandler: [requireAuth] },
+    async (_request: FastifyRequest, reply: FastifyReply) => {
+      const result = await query(
+        `SELECT id, name AS resource_type, category, base_value, current_ai_price FROM resources ORDER BY category, name`,
+      );
+      return reply.send({ data: result.rows });
+    },
+  );
+
   // GET /market/resources
   fastify.get(
     '/resources',
@@ -47,6 +59,107 @@ export async function marketRoutes(fastify: FastifyInstance): Promise<void> {
          ORDER BY category, tier, name`,
         [playerSeasonId],
       );
+      return reply.send({ data: result.rows });
+    },
+  );
+
+  // GET /market/stats — Market statistics per city (24h volume, price change, high/low)
+  fastify.get(
+    '/stats',
+    { preHandler: [requireAuth] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const playerSeasonId = request.player.season_id;
+      const { city } = request.query as { city?: string };
+
+      if (!city) {
+        return reply.status(400).send({ error: 'city query param is required' });
+      }
+
+      const result = await query(
+        `SELECT
+           r.id,
+           r.name AS resource_name,
+           r.base_value,
+           r.current_ai_price,
+           r.category,
+           COALESCE(SUM(
+             CASE WHEN ml.filled_at > NOW() - INTERVAL '24 hours'
+               THEN ml.quantity - ml.quantity_remaining
+               ELSE 0
+             END
+           ), 0)::int AS volume_24h,
+           (SELECT price FROM price_history WHERE resource_id = r.id ORDER BY recorded_at DESC LIMIT 1) AS current_price,
+           (SELECT price FROM price_history WHERE resource_id = r.id AND recorded_at < NOW() - INTERVAL '24 hours' ORDER BY recorded_at DESC LIMIT 1) AS price_24h_ago,
+           (SELECT MAX(price) FROM price_history WHERE resource_id = r.id AND recorded_at > NOW() - INTERVAL '24 hours') AS high_24h,
+           (SELECT MIN(price) FROM price_history WHERE resource_id = r.id AND recorded_at > NOW() - INTERVAL '24 hours') AS low_24h
+         FROM resources r
+         LEFT JOIN market_listings ml ON ml.resource_id = r.id AND ml.city = $1
+         WHERE r.season_id = $2
+         GROUP BY r.id, r.name, r.base_value, r.current_ai_price, r.category
+         ORDER BY r.category, r.name`,
+        [city, playerSeasonId],
+      );
+
+      const stats = result.rows.map((row: any) => {
+        const currentPrice = row.current_price ?? row.current_ai_price;
+        const price24hAgo = row.price_24h_ago ?? row.current_ai_price;
+        const priceChangePercent = price24hAgo > 0
+          ? ((currentPrice - price24hAgo) / price24hAgo) * 100
+          : 0;
+
+        return {
+          resource_id: row.id,
+          resource_name: row.resource_name,
+          category: row.category,
+          base_value: row.base_value,
+          current_price: currentPrice,
+          volume_24h: row.volume_24h,
+          price_change_percent: Math.round(priceChangePercent * 10) / 10,
+          high_24h: row.high_24h ?? currentPrice,
+          low_24h: row.low_24h ?? currentPrice,
+        };
+      });
+
+      return reply.send({ data: stats });
+    },
+  );
+
+  // GET /market/recent-trades — Recent trade activity for a city
+  fastify.get(
+    '/recent-trades',
+    { preHandler: [requireAuth] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const playerSeasonId = request.player.season_id;
+      const { city, limit: limitStr } = request.query as { city?: string; limit?: string };
+
+      if (!city) {
+        return reply.status(400).send({ error: 'city query param is required' });
+      }
+
+      const tradeLimit = Math.min(Math.max(parseInt(limitStr ?? '10', 10) || 10, 1), 50);
+
+      const result = await query(
+        `SELECT
+           ml.id,
+           r.name AS resource_name,
+           (ml.quantity - ml.quantity_remaining)::int AS traded_quantity,
+           ml.price_per_unit,
+           ml.listing_type,
+           ml.filled_at,
+           ml.city,
+           CASE WHEN ml.is_anonymous THEN 'Anonymous' ELSE p.username END AS trader
+         FROM market_listings ml
+         JOIN resources r ON ml.resource_id = r.id
+         LEFT JOIN players p ON ml.seller_id = p.id
+         WHERE ml.city = $1
+           AND ml.season_id = $2
+           AND ml.status IN ('FILLED', 'PARTIALLY_FILLED')
+           AND ml.filled_at IS NOT NULL
+         ORDER BY ml.filled_at DESC
+         LIMIT $3`,
+        [city, playerSeasonId, tradeLimit],
+      );
+
       return reply.send({ data: result.rows });
     },
   );
@@ -99,6 +212,7 @@ export async function marketRoutes(fastify: FastifyInstance): Promise<void> {
            ml.business_id,
            ml.resource_id,
            r.name AS resource_name,
+           r.category AS resource_category,
            ml.city,
            ml.quantity,
            ml.quantity_remaining,
@@ -391,13 +505,14 @@ export async function marketRoutes(fastify: FastifyInstance): Promise<void> {
           // Update listing quantity_remaining
           const newRemaining = listing.quantity_remaining - quantity;
           const newStatus = newRemaining === 0 ? 'FILLED' : 'PARTIALLY_FILLED';
+          const filledAt = newRemaining === 0 ? new Date() : null;
           await client.query(
             `UPDATE market_listings
              SET quantity_remaining = $1,
                  status = $2,
-                 filled_at = CASE WHEN $2 = 'FILLED' THEN NOW() ELSE NULL END
-             WHERE id = $3`,
-            [newRemaining, newStatus, listingId],
+                 filled_at = $3
+             WHERE id = $4`,
+            [newRemaining, newStatus, filledAt, listingId],
           );
 
           // Credit seller for PLAYER_SELL (listing fee already paid upfront, 0% deduction on sale)

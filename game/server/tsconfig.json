@@ -3,9 +3,10 @@
     "target": "ES2022",
     "module": "CommonJS",
     "moduleResolution": "node",
-    "lib": ["ES2022"],
+    "lib": [
+      "ES2022"
+    ],
     "outDir": "./dist",
-    "rootDir": "./src",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -19,9 +20,21 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "paths": {
-      "@shared/*": ["../../shared/src/*"]
-    }
+      "@shared/*": [
+        "../../shared/src/*"
+      ]
+    },
+    "rootDirs": [
+      "./src",
+      "../shared/src"
+    ]
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "include": [
+    "src/**/*",
+    "../shared/src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }

@@ -8,7 +8,7 @@ export async function seasonRoutes(fastify: FastifyInstance): Promise<void> {
 
   // GET /seasons/current
   fastify.get(
-    '/seasons/current',
+    '/current',
     { preHandler: [requireAuth] },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const result = await query(
@@ -33,7 +33,7 @@ export async function seasonRoutes(fastify: FastifyInstance): Promise<void> {
 
   // GET /seasons/history
   fastify.get(
-    '/seasons/history',
+    '/history',
     { preHandler: [requireAuth] },
     async (_request: FastifyRequest, reply: FastifyReply) => {
       const result = await query(

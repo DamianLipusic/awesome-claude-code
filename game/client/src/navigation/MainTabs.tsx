@@ -3,8 +3,10 @@ import { View, Text, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { DashboardScreen } from '../screens/DashboardScreen';
 import { MarketStack } from './MarketStack';
+import { LogisticsStack } from './LogisticsStack';
 import { BusinessStack } from './BusinessStack';
 import { CrimeStack } from './CrimeStack';
+import { StrategyStack } from './StrategyStack';
 import { ProfileScreen } from '../screens/ProfileScreen';
 import { useAlertStore } from '../stores/alertStore';
 import { useAuthStore } from '../stores/authStore';
@@ -12,8 +14,10 @@ import { useAuthStore } from '../stores/authStore';
 export type MainTabParamList = {
   Dashboard: undefined;
   Market: undefined;
+  Logistics: undefined;
   Business: undefined;
   Crime: undefined;
+  Strategy: undefined;
   Profile: undefined;
 };
 
@@ -79,19 +83,19 @@ export function MainTabs() {
   return (
     <Tab.Navigator
       screenOptions={{
-        headerStyle: { backgroundColor: '#030712' },
-        headerTintColor: '#f9fafb',
+        headerStyle: { backgroundColor: '#0a0a0f' },
+        headerTintColor: '#e0e0e0',
         headerShadowVisible: false,
         tabBarStyle: {
-          backgroundColor: '#0a0f1a',
-          borderTopColor: '#1f2937',
+          backgroundColor: '#12121a',
+          borderTopColor: '#2a2a3e',
           borderTopWidth: 1,
           paddingBottom: 6,
           paddingTop: 6,
           height: 64,
         },
-        tabBarActiveTintColor: '#22c55e',
-        tabBarInactiveTintColor: '#4b5563',
+        tabBarActiveTintColor: '#6c5ce7',
+        tabBarInactiveTintColor: '#a0a0b0',
         tabBarLabelStyle: {
           fontSize: 10,
           fontWeight: '600',
@@ -119,6 +123,14 @@ export function MainTabs() {
         }}
       />
       <Tab.Screen
+        name="Logistics"
+        component={LogisticsStack}
+        options={{
+          title: 'Logistics',
+          tabBarIcon: () => <TabIcon emoji="🚚" label="Logistics" />,
+        }}
+      />
+      <Tab.Screen
         name="Business"
         component={BusinessStack}
         options={{
@@ -134,13 +146,20 @@ export function MainTabs() {
           tabBarIcon: ({ focused }) => (
             <BadgeIcon
               emoji="🔥"
-              // Show a red dot badge if player has criminal activity
               count={hasCriminalActivity && !focused ? 1 : undefined}
             />
           ),
           tabBarItemStyle: hasCriminalActivity
             ? {}
             : { opacity: 0.5 },
+        }}
+      />
+      <Tab.Screen
+        name="Strategy"
+        component={StrategyStack}
+        options={{
+          title: 'Strategy',
+          tabBarIcon: () => <TabIcon emoji="🎯" label="Strategy" />,
         }}
       />
       <Tab.Screen

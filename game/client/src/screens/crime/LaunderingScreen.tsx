@@ -20,6 +20,7 @@ import { CurrencyText } from '../../components/ui/CurrencyText';
 import { formatCurrency } from '../../lib/format';
 import type { LaunderingProcess, LaunderingMethod, DirtyMoneyBalance } from '@economy-game/shared';
 import { LAUNDERING_METHODS } from '@economy-game/shared';
+import { useToast } from '../../components/Toast';
 
 interface LaunderingMethodConfig {
   key: LaunderingMethod;
@@ -192,26 +193,42 @@ interface LaunderingHubData {
 
 export function LaunderingScreen() {
   const queryClient = useQueryClient();
+  const toast = useToast();
   const [selectedMethod, setSelectedMethod] = useState<LaunderingMethod>('BUSINESS_REVENUE');
   const [amount, setAmount] = useState('');
 
   const { data, isLoading } = useQuery<LaunderingHubData>({
     queryKey: ['laundering-hub'],
-    queryFn: () => api.get<LaunderingHubData>('/crime/laundering'),
+    queryFn: async () => {
+      const [dirtyBalance, activeLaundering, businesses] = await Promise.all([
+        api.get<DirtyMoneyBalance>('/crime/dirty-money'),
+        api.get<LaunderingProcess[]>('/crime/laundering/active'),
+        api.get<Array<{ id: string; is_front: boolean }>>('/businesses'),
+      ]);
+      // Store first business id for laundering
+      const biz = businesses.find(b => b.is_front) ?? businesses[0];
+      if (biz) setLaunderBusinessId(biz.id);
+      return {
+        dirty_balance: dirtyBalance ?? { total_dirty: 0, total_earned: 0, total_laundered: 0, flagged: false },
+        active_laundering: activeLaundering ?? [],
+      };
+    },
     staleTime: 15_000,
   });
 
+  const [launderBusinessId, setLaunderBusinessId] = useState<string | null>(null);
+
   const launderMutation = useMutation({
     mutationFn: (payload: { method: LaunderingMethod; amount: number }) =>
-      api.post<LaunderingProcess>('/crime/laundering', payload),
+      api.post<LaunderingProcess>('/crime/laundering', { ...payload, business_id: launderBusinessId }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['laundering-hub'] });
       queryClient.invalidateQueries({ queryKey: ['crime-hub'] });
       setAmount('');
-      Alert.alert('Laundering Started', 'Your funds are being processed.');
+      toast.show('Laundering started! Your funds are being processed.', 'success');
     },
     onError: (err) => {
-      Alert.alert('Failed', err instanceof Error ? err.message : 'Laundering failed');
+      toast.show(err instanceof Error ? err.message : 'Laundering failed', 'error');
     },
   });
 
