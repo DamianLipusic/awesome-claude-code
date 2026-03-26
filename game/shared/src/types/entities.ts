@@ -361,6 +361,7 @@ export interface BusinessDetail {
   inventory_count: number;
   inventory_items: Record<string, number>;
   inventory_value: number;
+  auto_sell: boolean;
   lifetime_revenue: number;
   lifetime_expenses: number;
   production: BusinessProductionInfo | null;

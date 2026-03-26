@@ -34,6 +34,7 @@ export async function runGameTick(): Promise<void> {
     // ── Core economy (runs every tick) ──
     await runSafe('BusinessRevenue', processBusinessRevenue);
     await runSafe('Production', processProduction);
+    await runSafe('AutoSell', processAutoSell);
     await runSafe('EmployeeMorale', processEmployeeMorale);
     await runSafe('MarketPrices', processMarketPrices);
     await runSafe('AIBuyOrders', processAIBuyOrders);
@@ -49,9 +50,10 @@ export async function runGameTick(): Promise<void> {
     await runSafe('Deliveries', processDeliveries);
     await runSafe('ContractSettlement', processContractSettlement);
 
-    // ── Periodic alerts (every 12 ticks = ~1 hour) ──
+    // ── Periodic alerts ──
     await runSafe('RevenueAlerts', processRevenueAlerts);
     await runSafe('HeatWarnings', processHeatWarnings);
+    await runSafe('Milestones', processMilestones);
     tickCount++;
 
     // ── Disabled: systems not yet connected to core loop ──
@@ -261,7 +263,73 @@ async function processProduction(): Promise<void> {
   }
 }
 
-// ─── 2. Employee Morale & Loyalty Decay ��──────────────────────
+// ─── 1c. Auto-Sell — sell inventory from businesses with auto_sell enabled ──
+
+async function processAutoSell(): Promise<void> {
+  await withTransaction(async (client) => {
+    const businesses = await client.query<{
+      id: string; owner_id: string; season_id: string; inventory: Record<string, number>; name: string;
+    }>(
+      `SELECT id, owner_id, season_id, inventory, name
+         FROM businesses
+        WHERE auto_sell = true AND status = 'ACTIVE'
+          AND inventory != '{}'::jsonb
+          AND inventory != 'null'::jsonb`,
+    );
+
+    if (businesses.rows.length === 0) return;
+
+    const priceRes = await client.query<{ name: string; current_ai_price: string; id: string }>(
+      `SELECT name, current_ai_price::text, id FROM resources`,
+    );
+    const prices: Record<string, { price: number; id: string }> = {};
+    for (const r of priceRes.rows) {
+      prices[r.name] = { price: parseFloat(r.current_ai_price), id: r.id };
+    }
+
+    const QUICK_SELL_DISCOUNT = 0.85;
+    let totalSold = 0;
+
+    for (const biz of businesses.rows) {
+      const inventory = biz.inventory as Record<string, number>;
+      const items = Object.entries(inventory).filter(([, qty]) => qty > 0);
+      if (items.length === 0) continue;
+
+      let bizEarned = 0;
+
+      for (const [name, qty] of items) {
+        const resource = prices[name];
+        if (!resource) continue;
+        const sellPrice = resource.price * QUICK_SELL_DISCOUNT;
+        bizEarned += sellPrice * qty;
+        inventory[name] = 0;
+      }
+
+      if (bizEarned > 0) {
+        const cleanInv: Record<string, number> = {};
+        for (const [k, v] of Object.entries(inventory)) {
+          if (v > 0) cleanInv[k] = v;
+        }
+
+        await client.query(
+          `UPDATE businesses SET inventory = $1, total_revenue = total_revenue + $2 WHERE id = $3`,
+          [JSON.stringify(cleanInv), bizEarned, biz.id],
+        );
+        await client.query(
+          `UPDATE players SET cash = cash + $1 WHERE id = $2`,
+          [bizEarned, biz.owner_id],
+        );
+        totalSold++;
+      }
+    }
+
+    if (totalSold > 0) {
+      console.log(`[GameTick:AutoSell] ${totalSold} businesses auto-sold inventory`);
+    }
+  });
+}
+
+// ─── 2. Employee Morale & Loyalty Decay ──────────────────────
 
 async function processEmployeeMorale(): Promise<void> {
   await withTransaction(async (client) => {
@@ -1275,6 +1343,90 @@ async function processRevenueAlerts(): Promise<void> {
         `${row.biz_count} businesses: ${sign}$${net.toFixed(0)} net ($${rev.toFixed(0)} rev, $${exp.toFixed(0)} costs).${invNote}`,
         { revenue: rev, expenses: exp, net, businesses: Number(row.biz_count), inventory: totalInv },
       );
+    }
+  });
+}
+
+// ─── Milestone Achievements ──────────────────────────────────
+
+const MILESTONES = [
+  { key: 'cash_10k', check: (d: MilestoneData) => d.cash >= 10000, msg: 'Your empire is growing! Cash reached $10,000.' },
+  { key: 'cash_100k', check: (d: MilestoneData) => d.cash >= 100000, msg: 'Major milestone! Cash reached $100,000!' },
+  { key: 'cash_500k', check: (d: MilestoneData) => d.cash >= 500000, msg: 'Half a million in cash! You\'re a serious player.' },
+  { key: 'cash_1m', check: (d: MilestoneData) => d.cash >= 1000000, msg: 'MILLIONAIRE! Your cash hit $1,000,000!' },
+  { key: 'biz_1', check: (d: MilestoneData) => d.bizCount >= 1, msg: 'First business opened! Your empire begins.' },
+  { key: 'biz_3', check: (d: MilestoneData) => d.bizCount >= 3, msg: 'Business mogul! You now own 3 businesses.' },
+  { key: 'biz_5', check: (d: MilestoneData) => d.bizCount >= 5, msg: 'Empire expanding! 5 businesses under your control.' },
+  { key: 'emp_5', check: (d: MilestoneData) => d.empCount >= 5, msg: 'Growing workforce! You employ 5 people.' },
+  { key: 'emp_20', check: (d: MilestoneData) => d.empCount >= 20, msg: 'Major employer! 20 workers in your empire.' },
+  { key: 'tier2', check: (d: MilestoneData) => d.maxTier >= 2, msg: 'First upgrade complete! A business reached Tier 2.' },
+  { key: 'tier3', check: (d: MilestoneData) => d.maxTier >= 3, msg: 'Advanced operations! A business reached Tier 3.' },
+  { key: 'tier4', check: (d: MilestoneData) => d.maxTier >= 4, msg: 'Maximum power! A business reached Tier 4!' },
+  { key: 'nw_200k', check: (d: MilestoneData) => d.netWorth >= 200000, msg: 'Net worth passed $200,000! Keep building.' },
+  { key: 'nw_1m', check: (d: MilestoneData) => d.netWorth >= 1000000, msg: 'Net worth hit $1M! You\'re in the big leagues.' },
+  { key: 'rank_top10', check: (d: MilestoneData) => d.rank <= 10 && d.rank > 0, msg: 'TOP 10! You\'re one of the most powerful players.' },
+  { key: 'rank_1', check: (d: MilestoneData) => d.rank === 1, msg: '#1 RANKED! You are the most powerful player!' },
+];
+
+interface MilestoneData {
+  cash: number; bizCount: number; empCount: number; maxTier: number;
+  netWorth: number; rank: number;
+}
+
+async function processMilestones(): Promise<void> {
+  // Check milestones every 6 ticks (~30 minutes)
+  if (tickCount % 6 !== 0) return;
+
+  await withTransaction(async (client) => {
+    const players = await client.query<{
+      id: string; season_id: string; cash: string; net_worth: string;
+      biz_count: string; emp_count: string; max_tier: string;
+    }>(
+      `SELECT p.id, p.season_id, p.cash::text, p.net_worth::text,
+              COALESCE(bc.cnt, 0)::text AS biz_count,
+              COALESCE(ec.cnt, 0)::text AS emp_count,
+              COALESCE(bt.max_tier, 1)::text AS max_tier
+         FROM players p
+         LEFT JOIN (SELECT owner_id, COUNT(*) AS cnt FROM businesses WHERE status != 'BANKRUPT' GROUP BY owner_id) bc ON bc.owner_id = p.id
+         LEFT JOIN (SELECT b.owner_id, COUNT(*) AS cnt FROM employees e JOIN businesses b ON b.id = e.business_id GROUP BY b.owner_id) ec ON ec.owner_id = p.id
+         LEFT JOIN (SELECT owner_id, MAX(tier) AS max_tier FROM businesses WHERE status != 'BANKRUPT' GROUP BY owner_id) bt ON bt.owner_id = p.id
+         JOIN season_profiles sp ON sp.id = p.season_id AND sp.status = 'ACTIVE'`,
+    );
+
+    for (const p of players.rows) {
+      // Get player's rank
+      const rankRes = await client.query<{ rank: string }>(
+        `SELECT COUNT(*) + 1 AS rank FROM players WHERE season_id = $1 AND net_worth > $2`,
+        [p.season_id, p.net_worth],
+      );
+
+      const data: MilestoneData = {
+        cash: parseFloat(p.cash),
+        bizCount: parseInt(p.biz_count),
+        empCount: parseInt(p.emp_count),
+        maxTier: parseInt(p.max_tier),
+        netWorth: parseFloat(p.net_worth),
+        rank: parseInt(rankRes.rows[0]?.rank ?? '999'),
+      };
+
+      for (const milestone of MILESTONES) {
+        if (!milestone.check(data)) continue;
+
+        // Check if this milestone was already awarded
+        const existing = await client.query(
+          `SELECT 1 FROM alerts
+            WHERE player_id = $1 AND type = 'REVENUE_REPORT'
+              AND data->>'milestone' = $2
+            LIMIT 1`,
+          [p.id, milestone.key],
+        );
+        if (existing.rows.length > 0) continue;
+
+        await createAlert(client, p.id, p.season_id, 'REVENUE_REPORT',
+          `Achievement unlocked: ${milestone.msg}`,
+          { milestone: milestone.key, type: 'achievement' },
+        );
+      }
     }
   });
 }

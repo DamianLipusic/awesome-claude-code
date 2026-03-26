@@ -57,11 +57,24 @@ export async function playerRoutes(app: FastifyInstance): Promise<void> {
 
     if (playerRes.rows.length === 0) return reply.status(404).send({ error: 'Not found' });
 
-    const rankRes = await query<{ rank: string }>(
-      `SELECT COUNT(*) + 1 AS rank FROM players
-        WHERE season_id = $1 AND net_worth > $2`,
-      [seasonId, playerRes.rows[0].net_worth],
-    );
+    const [rankRes, competitionRes, totalPlayersRes] = await Promise.all([
+      query<{ rank: string }>(
+        `SELECT COUNT(*) + 1 AS rank FROM players
+          WHERE season_id = $1 AND net_worth > $2`,
+        [seasonId, playerRes.rows[0].net_worth],
+      ),
+      // Get the player just above us for competitive context
+      query<{ username: string; net_worth: string }>(
+        `SELECT username, net_worth::text FROM players
+          WHERE season_id = $1 AND net_worth > $2
+          ORDER BY net_worth ASC LIMIT 1`,
+        [seasonId, playerRes.rows[0].net_worth],
+      ),
+      query<{ count: string }>(
+        `SELECT COUNT(*) as count FROM players WHERE season_id = $1`,
+        [seasonId],
+      ),
+    ]);
 
     const alerts = await getPlayerAlerts(playerId, 10);
 
@@ -70,11 +83,13 @@ export async function playerRoutes(app: FastifyInstance): Promise<void> {
       id: string; name: string; type: string; tier: number; city: string;
       efficiency: string; daily_operating_cost: string; inventory: Record<string, number>;
       employee_count: string; total_revenue: string; total_expenses: string;
+      auto_sell: boolean;
     }>(
       `SELECT b.id, b.name, b.type::text, b.tier, b.city,
               b.efficiency, b.daily_operating_cost, b.inventory,
               COALESCE(ec.cnt, 0)::text AS employee_count,
-              b.total_revenue::text, b.total_expenses::text
+              b.total_revenue::text, b.total_expenses::text,
+              b.auto_sell
          FROM businesses b
          LEFT JOIN (SELECT business_id, COUNT(*) AS cnt FROM employees GROUP BY business_id) ec ON ec.business_id = b.id
         WHERE b.owner_id = $1 AND b.status != 'BANKRUPT'
@@ -131,6 +146,7 @@ export async function playerRoutes(app: FastifyInstance): Promise<void> {
         inventory_count: totalInventory,
         inventory_items: invItems.length > 0 ? Object.fromEntries(invItems) : {},
         inventory_value: parseFloat(invValue.toFixed(2)),
+        auto_sell: b.auto_sell,
         lifetime_revenue: parseFloat(b.total_revenue),
         lifetime_expenses: parseFloat(b.total_expenses),
       };
@@ -220,6 +236,19 @@ export async function playerRoutes(app: FastifyInstance): Promise<void> {
           action: `Sell inventory (worth $${totalValue.toFixed(0)})`,
           detail: `${totalInv} items across ${bizWithInventory.length} business(es). Use Quick Sell for instant cash at 85% market rate.`,
           category: 'revenue',
+        });
+      }
+
+      // Suggest enabling auto-sell for businesses that produce goods but don't have it enabled
+      const bizCanAutoSell = businessDetails.filter(b =>
+        b.production && b.production.status === 'producing' && !b.auto_sell
+      );
+      if (bizCanAutoSell.length > 0) {
+        actions.push({
+          priority: 3,
+          action: `Enable auto-sell for ${bizCanAutoSell[0].name}`,
+          detail: `Automatically sell produced goods each tick for passive income. No manual selling needed.`,
+          category: 'optimization',
         });
       }
 
@@ -314,6 +343,12 @@ export async function playerRoutes(app: FastifyInstance): Promise<void> {
         player: playerRes.rows[0],
         season,
         rank: Number(rankRes.rows[0]?.rank ?? 1),
+        total_players: Number(totalPlayersRes.rows[0]?.count ?? 1),
+        next_rank: competitionRes.rows.length > 0 ? {
+          username: competitionRes.rows[0].username,
+          net_worth: parseFloat(competitionRes.rows[0].net_worth),
+          gap: parseFloat(competitionRes.rows[0].net_worth) - parseFloat(playerRes.rows[0].net_worth),
+        } : null,
         alerts,
         next_actions: actions.slice(0, 3),
         income: {

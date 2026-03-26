@@ -258,6 +258,26 @@ export async function businessRoutes(app: FastifyInstance): Promise<void> {
     return reply.send({ data: res.rows });
   });
 
+  // POST /businesses/:id/auto-sell — toggle auto-sell for a business
+  app.post('/:id/auto-sell', { preHandler: [requireAuth] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    const { id } = request.params as { id: string };
+    const { enabled } = (request.body as { enabled?: boolean }) ?? {};
+    const check = await query<{ auto_sell: boolean }>(
+      `SELECT auto_sell FROM businesses WHERE id = $1 AND owner_id = $2`,
+      [id, request.player.id],
+    );
+    if (!check.rows.length) return reply.status(404).send({ error: 'Business not found' });
+
+    const newVal = enabled !== undefined ? enabled : !check.rows[0].auto_sell;
+    await query(`UPDATE businesses SET auto_sell = $1 WHERE id = $2`, [newVal, id]);
+    return reply.send({
+      data: { auto_sell: newVal },
+      message: newVal
+        ? 'Auto-sell enabled! Produced goods will be sold automatically each tick at 85% market rate.'
+        : 'Auto-sell disabled. Produced goods will be stored in inventory.',
+    });
+  });
+
   // POST /businesses/:id/produce — manual production trigger
   app.post('/:id/produce', { preHandler: [requireAuth] }, async (request: FastifyRequest, reply: FastifyReply) => {
     const { id } = request.params as { id: string };
@@ -274,31 +294,78 @@ export async function businessRoutes(app: FastifyInstance): Promise<void> {
     return reply.send({ data: { inventory: res.rows[0]?.inventory ?? {} } });
   });
 
-  // GET /businesses/:id/upgrade-info
+  // GET /businesses/:id/upgrade-info — with before/after economic preview
   app.get('/:id/upgrade-info', { preHandler: [requireAuth] }, async (request: FastifyRequest, reply: FastifyReply) => {
     const { id } = request.params as { id: string };
-    const res = await query(
-      `SELECT type, tier, storage_cap FROM businesses WHERE id = $1 AND owner_id = $2`,
+    const res = await query<{
+      type: string; tier: number; storage_cap: number; efficiency: string;
+      daily_operating_cost: string; name: string;
+    }>(
+      `SELECT type, tier, storage_cap, efficiency, daily_operating_cost, name
+         FROM businesses WHERE id = $1 AND owner_id = $2`,
       [id, request.player.id],
     );
     if (!res.rows.length) return reply.status(404).send({ error: 'Business not found' });
-    const { type, tier, storage_cap } = res.rows[0] as { type: string; tier: number; storage_cap: number };
+    const biz = res.rows[0];
 
-    const nextTier = tier < 4 ? tier + 1 : null;
-    const upgradeCosts = UPGRADE_COSTS[type as BusinessType];
+    // Get current employee count
+    const empRes = await query<{ count: string }>(
+      `SELECT COUNT(*) as count FROM employees WHERE business_id = $1`, [id],
+    );
+    const empCount = parseInt(empRes.rows[0]?.count ?? '0', 10);
+
+    const nextTier = biz.tier < 4 ? biz.tier + 1 : null;
+    const upgradeCosts = UPGRADE_COSTS[biz.type as BusinessType];
     const upgrade_cost = nextTier ? (upgradeCosts?.[nextTier] ?? 0) : 0;
-    const baseCapacity = BASE_CAPACITY[type as BusinessType] ?? 200;
+    const baseCapacity = BASE_CAPACITY[biz.type as BusinessType] ?? 200;
     const nextCapacity = nextTier ? Math.round(baseCapacity * (TIER_CAPACITY_MULTIPLIER[nextTier] ?? 1)) : 0;
-    const capacity_increase = nextCapacity - storage_cap;
-    const efficiency_boost = nextTier ? 0.05 : 0;
+
+    // Current economics
+    const eff = parseFloat(biz.efficiency);
+    const currentDailyRev = biz.tier * GAME_BALANCE.BUSINESS_BASE_REVENUE * eff * (1 + empCount * 0.1);
+    const currentDailyCost = parseFloat(biz.daily_operating_cost);
+    const currentDailyNet = currentDailyRev - currentDailyCost;
+
+    // Next tier economics (estimate: tier increases, cost stays same)
+    const nextDailyCost = nextTier ? (BUSINESS_DAILY_COSTS[biz.type] ?? currentDailyCost) : 0;
+    const nextDailyRev = nextTier ? nextTier * GAME_BALANCE.BUSINESS_BASE_REVENUE * eff * (1 + empCount * 0.1) : 0;
+    const nextDailyNet = nextDailyRev - nextDailyCost;
+
+    // Production comparison
+    const currentRecipe = PRODUCTION_RECIPES[biz.type as BusinessType]?.[biz.tier];
+    const nextRecipe = nextTier ? PRODUCTION_RECIPES[biz.type as BusinessType]?.[nextTier] : null;
+
+    const nextMaxEmp = nextTier ? (MAX_EMPLOYEES_PER_TIER[nextTier] ?? 10) : 0;
+
+    // Time to pay off the upgrade
+    const profitIncrease = nextDailyNet - currentDailyNet;
+    const payoffDays = profitIncrease > 0 ? Math.ceil(upgrade_cost / profitIncrease) : null;
 
     return reply.send({
       data: {
-        current_tier: tier,
+        business_name: biz.name,
+        current_tier: biz.tier,
         next_tier: nextTier,
         upgrade_cost,
-        capacity_increase,
-        efficiency_boost,
+        current: {
+          daily_revenue: parseFloat(currentDailyRev.toFixed(2)),
+          daily_cost: parseFloat(currentDailyCost.toFixed(2)),
+          daily_net: parseFloat(currentDailyNet.toFixed(2)),
+          max_employees: MAX_EMPLOYEES_PER_TIER[biz.tier] ?? 10,
+          capacity: biz.storage_cap,
+          produces: currentRecipe?.outputs.filter(o => o.quantity > 0).map(o => o.resource_name) ?? [],
+        },
+        after_upgrade: nextTier ? {
+          daily_revenue: parseFloat(nextDailyRev.toFixed(2)),
+          daily_cost: parseFloat(nextDailyCost.toFixed(2)),
+          daily_net: parseFloat(nextDailyNet.toFixed(2)),
+          revenue_increase: parseFloat((nextDailyRev - currentDailyRev).toFixed(2)),
+          profit_increase: parseFloat(profitIncrease.toFixed(2)),
+          max_employees: nextMaxEmp,
+          capacity: nextCapacity,
+          produces: nextRecipe?.outputs.filter(o => o.quantity > 0).map(o => o.resource_name) ?? [],
+          payoff_days: payoffDays,
+        } : null,
       },
     });
   });

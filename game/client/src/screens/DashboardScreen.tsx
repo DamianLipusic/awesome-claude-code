@@ -89,8 +89,8 @@ const HEAT_COLORS: Record<string, string> = {
 
 // ─── Player Stats Header ──────────────────────────────────────
 
-function PlayerStatsHeader({ data }: { data: DashboardData }) {
-  const { player, rank } = data;
+function PlayerStatsHeader({ data }: { data: DashboardData & { total_players?: number; next_rank?: { username: string; net_worth: number; gap: number } | null } }) {
+  const { player, rank, total_players, next_rank } = data;
   return (
     <Card style={styles.card}>
       <View style={styles.headerRow}>
@@ -101,6 +101,9 @@ function PlayerStatsHeader({ data }: { data: DashboardData }) {
         <View style={styles.rankBadge}>
           <Text style={styles.rankLabel}>RANK</Text>
           <Text style={styles.rankValue}>#{rank}</Text>
+          {total_players && (
+            <Text style={styles.rankTotal}>of {total_players}</Text>
+          )}
         </View>
       </View>
       <View style={styles.statsRow}>
@@ -114,6 +117,13 @@ function PlayerStatsHeader({ data }: { data: DashboardData }) {
           <CurrencyText amount={player.net_worth} variant="clean" size="md" style={{ color: COLORS.primary }} />
         </View>
       </View>
+      {next_rank && (
+        <View style={styles.nextRankRow}>
+          <Text style={styles.nextRankText}>
+            {formatCurrency(next_rank.gap)} to overtake {next_rank.username}
+          </Text>
+        </View>
+      )}
     </Card>
   );
 }
@@ -205,6 +215,11 @@ function BusinessOverviewCard({ data }: { data: DashboardData }) {
             {biz.inventory_count > 0 && (
               <Text style={[styles.bizCardStat, { color: COLORS.warning }]}>
                 {biz.inventory_count} items (${formatCurrency(biz.inventory_value)})
+              </Text>
+            )}
+            {biz.auto_sell && (
+              <Text style={[styles.bizCardStat, { color: COLORS.success }]}>
+                AUTO-SELL
               </Text>
             )}
           </View>
@@ -646,6 +661,23 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '800',
     color: COLORS.primary,
+  },
+  rankTotal: {
+    fontSize: 9,
+    color: COLORS.textDim,
+    textAlign: 'center',
+  },
+  nextRankRow: {
+    marginTop: 8,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.cardBorder,
+  },
+  nextRankText: {
+    fontSize: 12,
+    color: COLORS.accent,
+    fontWeight: '600',
+    textAlign: 'center',
   },
   statsRow: {
     flexDirection: 'row',
