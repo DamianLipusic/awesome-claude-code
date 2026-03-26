@@ -127,6 +127,12 @@ function ListingCard({ listing, onBuy }: { listing: BusinessListing; onBuy: () =
   );
 }
 
+interface BusinessTypeInfo {
+  type: string; startup_cost: number; daily_cost: number;
+  daily_net_base: number; daily_net_with_worker: number;
+  produces: string[]; requires_inputs: boolean; description: string;
+}
+
 function CreateBusinessModal({
   visible, onClose, playerCash,
 }: { visible: boolean; onClose: () => void; playerCash: number }) {
@@ -137,6 +143,14 @@ function CreateBusinessModal({
   const [selectedCity, setSelectedCity] = useState<string>('Ironport');
   const cost = BUSINESS_BASE_COSTS[selectedType as keyof typeof BUSINESS_BASE_COSTS];
   const canAfford = playerCash >= cost.startup;
+
+  // Fetch business type details from API
+  const { data: typesData } = useQuery<BusinessTypeInfo[]>({
+    queryKey: ['business-types'],
+    queryFn: () => api.get<BusinessTypeInfo[]>('/businesses/types'),
+    staleTime: 300_000,
+  });
+  const selectedInfo = typesData?.find(t => t.type === selectedType);
 
   const mutation = useMutation({
     mutationFn: () => api.post('/businesses', { name: name.trim(), type: selectedType, city: selectedCity }),
@@ -190,6 +204,30 @@ function CreateBusinessModal({
             <View style={modalStyles.summaryRow}><Text style={modalStyles.summaryLabel}>Daily Operating</Text><Text style={modalStyles.summaryValue}>{formatCurrency(cost.daily_operating)}/day</Text></View>
             <View style={modalStyles.summaryRow}><Text style={modalStyles.summaryLabel}>Your Cash</Text><Text style={[modalStyles.summaryValue, { color: canAfford ? '#00d2d3' : '#ff6b6b' }]}>{formatCurrency(playerCash)}</Text></View>
           </View>
+          {selectedInfo && (
+            <View style={modalStyles.projections}>
+              <Text style={modalStyles.projectionsTitle}>Projected Economics</Text>
+              <View style={modalStyles.summaryRow}>
+                <Text style={modalStyles.summaryLabel}>Net Profit (base)</Text>
+                <Text style={[modalStyles.summaryValue, { color: selectedInfo.daily_net_base >= 0 ? '#00d2d3' : '#ff6b6b' }]}>
+                  {selectedInfo.daily_net_base >= 0 ? '+' : ''}{formatCurrency(selectedInfo.daily_net_base)}/day
+                </Text>
+              </View>
+              <View style={modalStyles.summaryRow}>
+                <Text style={modalStyles.summaryLabel}>Net Profit (1 worker)</Text>
+                <Text style={[modalStyles.summaryValue, { color: selectedInfo.daily_net_with_worker >= 0 ? '#00d2d3' : '#ff6b6b' }]}>
+                  {selectedInfo.daily_net_with_worker >= 0 ? '+' : ''}{formatCurrency(selectedInfo.daily_net_with_worker)}/day
+                </Text>
+              </View>
+              {selectedInfo.produces.length > 0 && (
+                <View style={modalStyles.summaryRow}>
+                  <Text style={modalStyles.summaryLabel}>Produces</Text>
+                  <Text style={[modalStyles.summaryValue, { color: '#a29bfe' }]}>{selectedInfo.produces.join(', ')}</Text>
+                </View>
+              )}
+              <Text style={modalStyles.descriptionText}>{selectedInfo.description}</Text>
+            </View>
+          )}
           <TouchableOpacity style={[modalStyles.createBtn, (!canAfford || mutation.isPending) && modalStyles.createBtnDisabled]} onPress={handleCreate} disabled={!canAfford || mutation.isPending}>
             {mutation.isPending ? <ActivityIndicator color="#0a0a0f" /> : (
               <Text style={modalStyles.createBtnText}>{canAfford ? 'Open Business — ' + formatCurrency(cost.startup) : 'Insufficient Funds'}</Text>
@@ -440,6 +478,9 @@ const modalStyles = StyleSheet.create({
   summaryRow: { flexDirection: 'row', justifyContent: 'space-between' },
   summaryLabel: { fontSize: 13, color: '#a0a0b0' },
   summaryValue: { fontSize: 13, fontWeight: '700', color: '#e0e0e0' },
+  projections: { backgroundColor: '#0d1117', borderRadius: 10, padding: 16, marginTop: 12, borderWidth: 1, borderColor: '#1a2e1a', gap: 8 },
+  projectionsTitle: { fontSize: 12, fontWeight: '700', color: '#00d2d3', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 },
+  descriptionText: { fontSize: 12, color: '#6b7280', marginTop: 6, lineHeight: 17, fontStyle: 'italic' },
   createBtn: { backgroundColor: '#6c5ce7', borderRadius: 10, padding: 16, alignItems: 'center', marginTop: 20, marginBottom: 40 },
   createBtnDisabled: { backgroundColor: '#2a2a3e', opacity: 0.6 },
   createBtnText: { color: '#0a0a0f', fontSize: 16, fontWeight: '700' },

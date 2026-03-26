@@ -172,6 +172,29 @@ function IncomeSummaryCard({ data }: { data: DashboardData }) {
 
 function BusinessOverviewCard({ data }: { data: DashboardData }) {
   const { businesses } = data;
+  const queryClient = useQueryClient();
+
+  const quickHireMutation = useMutation({
+    mutationFn: (businessId: string) => api.post('/employees/quick-hire', { business_id: businessId, count: 1 }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
+  });
+
+  const autoSellMutation = useMutation({
+    mutationFn: ({ businessId, enabled }: { businessId: string; enabled: boolean }) =>
+      api.post(`/businesses/${businessId}/auto-sell`, { enabled }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
+  });
+
+  const quickSellMutation = useMutation({
+    mutationFn: (businessId: string) => api.post('/market/quick-sell', { business_id: businessId }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
+  });
+
+  const produceMutation = useMutation({
+    mutationFn: (businessId: string) => api.post(`/businesses/${businessId}/produce`, {}),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
+  });
+
   if (!businesses || businesses.total === 0) return null;
 
   return (
@@ -240,6 +263,51 @@ function BusinessOverviewCard({ data }: { data: DashboardData }) {
               )}
             </View>
           )}
+
+          {/* Quick action buttons */}
+          <View style={styles.bizActionRow}>
+            <TouchableOpacity
+              style={styles.bizActionBtn}
+              onPress={() => quickHireMutation.mutate(biz.id)}
+              disabled={quickHireMutation.isPending}
+            >
+              <Text style={styles.bizActionBtnText}>
+                {quickHireMutation.isPending ? '...' : '+ Hire'}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.bizActionBtn}
+              onPress={() => produceMutation.mutate(biz.id)}
+              disabled={produceMutation.isPending}
+            >
+              <Text style={styles.bizActionBtnText}>
+                {produceMutation.isPending ? '...' : 'Produce'}
+              </Text>
+            </TouchableOpacity>
+
+            {biz.inventory_count > 0 && (
+              <TouchableOpacity
+                style={[styles.bizActionBtn, { backgroundColor: COLORS.warning + '22', borderColor: COLORS.warning + '44' }]}
+                onPress={() => quickSellMutation.mutate(biz.id)}
+                disabled={quickSellMutation.isPending}
+              >
+                <Text style={[styles.bizActionBtnText, { color: COLORS.warning }]}>
+                  {quickSellMutation.isPending ? '...' : 'Sell All'}
+                </Text>
+              </TouchableOpacity>
+            )}
+
+            <TouchableOpacity
+              style={[styles.bizActionBtn, biz.auto_sell && { backgroundColor: COLORS.success + '22', borderColor: COLORS.success + '44' }]}
+              onPress={() => autoSellMutation.mutate({ businessId: biz.id, enabled: !biz.auto_sell })}
+              disabled={autoSellMutation.isPending}
+            >
+              <Text style={[styles.bizActionBtnText, biz.auto_sell && { color: COLORS.success }]}>
+                {biz.auto_sell ? 'Auto: ON' : 'Auto: OFF'}
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
       ))}
     </Card>
@@ -840,6 +908,28 @@ const styles = StyleSheet.create({
   productionText: {
     fontSize: 11,
     fontWeight: '600',
+  },
+  bizActionRow: {
+    flexDirection: 'row',
+    gap: 6,
+    marginTop: 8,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.cardBorder,
+    flexWrap: 'wrap',
+  },
+  bizActionBtn: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: COLORS.cardBorder,
+    backgroundColor: COLORS.card,
+  },
+  bizActionBtnText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: COLORS.textDim,
   },
 
   // Events Banner
