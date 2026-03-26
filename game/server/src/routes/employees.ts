@@ -147,6 +147,108 @@ export async function employeeRoutes(fastify: FastifyInstance): Promise<void> {
     },
   );
 
+  // POST /employees/quick-hire — hire the best available worker for a business
+  fastify.post(
+    '/quick-hire',
+    { preHandler: [requireAuth] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const playerId = request.player.id;
+      const seasonId = request.player.season_id;
+      const { business_id, count: hireCount = 1 } = (request.body as { business_id: string; count?: number }) ?? {};
+      if (!business_id) return reply.status(400).send({ error: 'business_id is required' });
+
+      const maxHire = Math.min(hireCount, 5); // Cap at 5 per request
+
+      try {
+        const result = await withTransaction(async (client) => {
+          // Validate business
+          const bizRow = await client.query<{ id: string; tier: number; name: string }>(
+            `SELECT id, tier, name FROM businesses WHERE id = $1 AND owner_id = $2 AND season_id = $3 FOR UPDATE`,
+            [business_id, playerId, seasonId],
+          );
+          if (!bizRow.rows.length) throw Object.assign(new Error('Business not found'), { statusCode: 404 });
+
+          const biz = bizRow.rows[0];
+          const maxEmp = MAX_EMPLOYEES_PER_TIER[biz.tier] ?? 10;
+          const empCountRow = await client.query<{ count: string }>(
+            `SELECT COUNT(*) as count FROM employees WHERE business_id = $1`,
+            [business_id],
+          );
+          const currentEmp = parseInt(empCountRow.rows[0]?.count ?? '0', 10);
+          const slotsAvailable = maxEmp - currentEmp;
+          if (slotsAvailable <= 0) throw Object.assign(new Error('Business at max capacity'), { statusCode: 400 });
+
+          const toHire = Math.min(maxHire, slotsAvailable);
+
+          // Get best available workers sorted by efficiency
+          const workersRes = await client.query<{ id: string; name: string; efficiency: string }>(
+            `SELECT id, name, efficiency FROM employees
+              WHERE business_id IS NULL AND season_id = $1 AND role = 'WORKER'
+              ORDER BY efficiency DESC
+              LIMIT $2
+              FOR UPDATE SKIP LOCKED`,
+            [seasonId, toHire],
+          );
+          if (workersRes.rows.length === 0) throw Object.assign(new Error('No workers available'), { statusCode: 400 });
+
+          // Calculate costs
+          const countsRow = await client.query<{ business_count: string; employee_count: string }>(
+            `SELECT
+               (SELECT COUNT(*) FROM businesses WHERE owner_id = $1 AND season_id = $2) AS business_count,
+               (SELECT COUNT(*) FROM employees e2 JOIN businesses b2 ON b2.id = e2.business_id
+                 WHERE b2.owner_id = $1 AND b2.season_id = $2) AS employee_count`,
+            [playerId, seasonId],
+          );
+          const bc = parseInt(countsRow.rows[0].business_count, 10);
+          let ec = parseInt(countsRow.rows[0].employee_count, 10);
+
+          let totalCost = 0;
+          const hired: Array<{ name: string; efficiency: string }> = [];
+
+          for (const worker of workersRes.rows) {
+            const cost = calculateHireCost(bc, ec);
+            totalCost += cost;
+            ec++;
+            hired.push({ name: worker.name, efficiency: worker.efficiency });
+
+            await client.query(
+              `UPDATE employees SET business_id = $1, hired_at = NOW() WHERE id = $2`,
+              [business_id, worker.id],
+            );
+          }
+
+          // Check cash
+          const playerRow = await client.query<{ cash: string }>(
+            `SELECT cash FROM players WHERE id = $1 FOR UPDATE`, [playerId],
+          );
+          if (Number(playerRow.rows[0]?.cash ?? 0) < totalCost) {
+            throw Object.assign(new Error(`Need $${totalCost}, have $${playerRow.rows[0]?.cash}`), { statusCode: 400 });
+          }
+
+          await client.query(`UPDATE players SET cash = cash - $1 WHERE id = $2`, [totalCost, playerId]);
+          await recalcBusinessEfficiency(client as Parameters<typeof recalcBusinessEfficiency>[0], business_id);
+
+          return {
+            hired: hired.length,
+            total_cost: totalCost,
+            workers: hired,
+            business_name: biz.name,
+            employees_now: currentEmp + hired.length,
+            max_employees: maxEmp,
+          };
+        });
+
+        return reply.status(201).send({
+          data: result,
+          message: `Hired ${result.hired} worker(s) for ${result.business_name}! (${result.employees_now}/${result.max_employees} slots)`,
+        });
+      } catch (err: unknown) {
+        const e = err as { statusCode?: number; message: string };
+        return reply.status(e.statusCode ?? 500).send({ error: e.message });
+      }
+    },
+  );
+
   // POST /employees/hire
   fastify.post(
     '/hire',

@@ -32,6 +32,42 @@ const BASE_CAPACITY: Record<BusinessType, number> = {
 };
 
 export async function businessRoutes(app: FastifyInstance): Promise<void> {
+  // GET /businesses/types — available business types with costs and production info
+  app.get('/types', { preHandler: [requireAuth] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    const types = Object.entries(BUSINESS_STARTUP_COSTS).map(([type, startupCost]) => {
+      const dailyCost = BUSINESS_DAILY_COSTS[type] ?? 800;
+      const recipe = PRODUCTION_RECIPES[type as BusinessType]?.[1];
+      const baseRev = 1 * GAME_BALANCE.BUSINESS_BASE_REVENUE * 1.0; // tier 1, eff 1.0, 0 workers
+      const revWith1Worker = 1 * GAME_BALANCE.BUSINESS_BASE_REVENUE * 1.0 * 1.1;
+      const capacity = BASE_CAPACITY[type as BusinessType] ?? 200;
+
+      return {
+        type,
+        startup_cost: startupCost,
+        daily_cost: dailyCost,
+        daily_revenue_base: parseFloat(baseRev.toFixed(2)),
+        daily_revenue_with_worker: parseFloat(revWith1Worker.toFixed(2)),
+        daily_net_base: parseFloat((baseRev - dailyCost).toFixed(2)),
+        daily_net_with_worker: parseFloat((revWith1Worker - dailyCost).toFixed(2)),
+        capacity,
+        max_employees_tier_1: MAX_EMPLOYEES_PER_TIER[1] ?? 10,
+        produces: recipe?.outputs.filter(o => o.quantity > 0).map(o => o.resource_name) ?? [],
+        requires_inputs: recipe?.inputs && recipe.inputs.length > 0,
+        description: {
+          RETAIL: 'Steady revenue, no production. Great starter business.',
+          FACTORY: 'Converts raw materials into valuable goods. Needs inputs.',
+          MINE: 'Extracts Coal and Metals. No input costs.',
+          FARM: 'Produces Wheat and Lumber. No input costs.',
+          LOGISTICS: 'Enables shipping between cities.',
+          SECURITY_FIRM: 'Protects businesses from raids and theft.',
+          FRONT_COMPANY: 'Launders dirty money. Criminal alignment required.',
+        }[type] ?? '',
+      };
+    });
+
+    return reply.send({ data: types });
+  });
+
   // GET /businesses
   app.get('/', { preHandler: [requireAuth] }, async (request: FastifyRequest, reply: FastifyReply) => {
     const res = await query(
