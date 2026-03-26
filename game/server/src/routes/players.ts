@@ -344,6 +344,22 @@ export async function playerRoutes(app: FastifyInstance): Promise<void> {
     // Sort by priority
     actions.sort((a, b) => a.priority - b.priority);
 
+    // ── Performance rating per business (1-5 stars) ──
+    function calcRating(b: typeof businessDetails[0]): number {
+      let score = 0;
+      // Profitability (0-2 points)
+      if (b.daily_net > 0) score += 1;
+      if (b.daily_net > 500) score += 1;
+      // Employee utilization (0-1 point)
+      const maxEmp = MAX_EMPLOYEES_PER_TIER[bizDetailRes.rows.find(r => r.id === b.id)?.tier ?? 1] ?? 10;
+      if (b.employees >= maxEmp * 0.5) score += 1;
+      // Efficiency (0-1 point)
+      if (b.efficiency >= 70) score += 1;
+      // Auto-sell enabled (0-1 point for optimization)
+      if (b.auto_sell) score += 1;
+      return Math.min(5, Math.max(1, score));
+    }
+
     // ── Production info per business ──
     const businessDetailsWithProduction = businessDetails.map(b => {
       const recipe = PRODUCTION_RECIPES[b.type as BusinessType]?.[b.tier];
@@ -366,7 +382,7 @@ export async function playerRoutes(app: FastifyInstance): Promise<void> {
           status: workerCount === 0 ? 'idle_no_workers' : 'producing',
         };
       }
-      return { ...b, production };
+      return { ...b, production, rating: calcRating(b) };
     });
 
     return reply.send({
@@ -559,6 +575,61 @@ export async function playerRoutes(app: FastifyInstance): Promise<void> {
     activity.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
     return reply.send({ data: { activity: activity.slice(0, limit) } });
+  });
+
+  // GET /players/daily-goals — generate daily challenges based on player state
+  app.get('/daily-goals', { preHandler: [requireAuth] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    const playerId = request.player.id;
+
+    // Use the date as a seed for consistent goals per day per player
+    const today = new Date().toISOString().split('T')[0];
+    const seed = today + playerId;
+    const hash = seed.split('').reduce((a, c) => ((a << 5) - a + c.charCodeAt(0)) | 0, 0);
+
+    // Get player state to scale goals appropriately
+    const playerRes = await query<{ cash: string; net_worth: string }>(
+      `SELECT cash::text, net_worth::text FROM players WHERE id = $1`, [playerId],
+    );
+    const bizRes = await query<{ count: string; total_rev: string }>(
+      `SELECT COUNT(*)::text as count, COALESCE(SUM(total_revenue), 0)::text as total_rev
+         FROM businesses WHERE owner_id = $1 AND status != 'BANKRUPT'`, [playerId],
+    );
+    const empRes = await query<{ count: string }>(
+      `SELECT COUNT(*)::text as count FROM employees e
+         JOIN businesses b ON b.id = e.business_id WHERE b.owner_id = $1`, [playerId],
+    );
+
+    const cash = parseFloat(playerRes.rows[0]?.cash ?? '0');
+    const bizCount = parseInt(bizRes.rows[0]?.count ?? '0');
+    const empCount = parseInt(empRes.rows[0]?.count ?? '0');
+
+    // Define goal templates scaled by player progression
+    const goalPool = [
+      { id: 'earn_revenue', title: 'Earn Revenue', target: Math.max(500, Math.round(cash * 0.05)), unit: 'cash', reward: Math.round(cash * 0.02), desc: 'Earn from business revenue' },
+      { id: 'produce_items', title: 'Produce Goods', target: Math.max(10, bizCount * 20), unit: 'items', reward: Math.round(200 + bizCount * 100), desc: 'Produce items across your businesses' },
+      { id: 'sell_items', title: 'Sell Inventory', target: Math.max(5, bizCount * 10), unit: 'items', reward: Math.round(150 + bizCount * 75), desc: 'Sell goods on the market' },
+      { id: 'hire_worker', title: 'Hire Workers', target: Math.max(1, Math.min(3, 5 - empCount)), unit: 'workers', reward: 500, desc: 'Hire new workers' },
+      { id: 'upgrade_biz', title: 'Upgrade a Business', target: 1, unit: 'upgrades', reward: Math.round(1000 + bizCount * 500), desc: 'Upgrade any business to the next tier' },
+      { id: 'reach_cash', title: 'Reach Cash Target', target: Math.round(cash * 1.1), unit: 'cash', reward: Math.round(cash * 0.03), desc: 'Grow your cash reserves' },
+    ];
+
+    // Select 3 goals using the hash as a seed
+    const selected = [];
+    const pool = [...goalPool];
+    for (let i = 0; i < 3 && pool.length > 0; i++) {
+      const idx = Math.abs((hash + i * 7919) % pool.length);
+      selected.push(pool.splice(idx, 1)[0]);
+    }
+
+    return reply.send({
+      data: {
+        date: today,
+        goals: selected.map(g => ({
+          ...g,
+          reward_text: `+$${g.reward.toLocaleString()}`,
+        })),
+      },
+    });
   });
 
   // GET /players/leaderboard

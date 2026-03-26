@@ -229,7 +229,9 @@ function BusinessOverviewCard({ data }: { data: DashboardData }) {
         <View key={biz.id} style={styles.bizCard}>
           <View style={styles.bizCardHeader}>
             <View style={{ flex: 1 }}>
-              <Text style={styles.bizCardName}>{biz.name}</Text>
+              <Text style={styles.bizCardName}>
+                {biz.name} {'★'.repeat((biz as any).rating ?? 0)}{'☆'.repeat(5 - ((biz as any).rating ?? 0))}
+              </Text>
               <Text style={styles.bizCardMeta}>
                 {biz.type.replace(/_/g, ' ')} \u00B7 Tier {biz.tier} \u00B7 {biz.city}
               </Text>

@@ -34,6 +34,7 @@ export async function runGameTick(): Promise<void> {
     // ── Core economy (runs every tick) ──
     await runSafe('BusinessRevenue', processBusinessRevenue);
     await runSafe('Production', processProduction);
+    await runSafe('SupplyChainTransfer', processSupplyChainTransfer);
     await runSafe('AutoSell', processAutoSell);
     await runSafe('EmployeeMorale', processEmployeeMorale);
     await runSafe('MarketPrices', processMarketPrices);
@@ -344,6 +345,76 @@ async function processAutoSell(): Promise<void> {
 
     if (totalSold > 0) {
       console.log(`[GameTick:AutoSell] ${totalSold} businesses auto-sold inventory`);
+    }
+  });
+}
+
+// ─── 1d. Supply Chain Auto-Transfer ──────────────────────────
+// Transfers raw materials from producer businesses (Mine/Farm) to
+// consumer businesses (Factory) when both are owned by the same player
+// and in the same city.
+
+async function processSupplyChainTransfer(): Promise<void> {
+  await withTransaction(async (client) => {
+    // Find all players who have both producers (MINE/FARM) and consumers (FACTORY) in the same city
+    const chains = await client.query<{
+      owner_id: string; city: string;
+      producer_id: string; producer_type: string; producer_inventory: Record<string, number>;
+      consumer_id: string; consumer_inventory: Record<string, number>; consumer_storage_cap: number;
+    }>(
+      `SELECT p.owner_id, p.city,
+              p.id AS producer_id, p.type::text AS producer_type, p.inventory AS producer_inventory,
+              c.id AS consumer_id, c.inventory AS consumer_inventory, c.storage_cap AS consumer_storage_cap
+         FROM businesses p
+         JOIN businesses c ON c.owner_id = p.owner_id AND c.city = p.city
+                           AND c.type = 'FACTORY' AND c.status = 'ACTIVE'
+        WHERE p.type IN ('MINE', 'FARM') AND p.status = 'ACTIVE'
+          AND p.inventory != '{}'::jsonb`,
+    );
+
+    if (chains.rows.length === 0) return;
+
+    // Resources that factories consume
+    const factoryInputs = new Set(['Coal', 'Metals', 'Fuel']);
+    let transfers = 0;
+
+    for (const chain of chains.rows) {
+      const prodInv = chain.producer_inventory as Record<string, number>;
+      const consInv = chain.consumer_inventory as Record<string, number>;
+      const consSpace = chain.consumer_storage_cap - Object.values(consInv).reduce((a, b) => a + b, 0);
+
+      if (consSpace <= 0) continue;
+
+      let transferred = false;
+      let spaceLeft = consSpace;
+
+      for (const [resource, qty] of Object.entries(prodInv)) {
+        if (qty <= 0 || !factoryInputs.has(resource)) continue;
+        const transferQty = Math.min(qty, spaceLeft);
+        if (transferQty <= 0) continue;
+
+        prodInv[resource] = (prodInv[resource] ?? 0) - transferQty;
+        if (prodInv[resource] <= 0) delete prodInv[resource];
+        consInv[resource] = (consInv[resource] ?? 0) + transferQty;
+        spaceLeft -= transferQty;
+        transferred = true;
+      }
+
+      if (transferred) {
+        await client.query(
+          `UPDATE businesses SET inventory = $1 WHERE id = $2`,
+          [JSON.stringify(prodInv), chain.producer_id],
+        );
+        await client.query(
+          `UPDATE businesses SET inventory = $1 WHERE id = $2`,
+          [JSON.stringify(consInv), chain.consumer_id],
+        );
+        transfers++;
+      }
+    }
+
+    if (transfers > 0) {
+      console.log(`[GameTick:SupplyChain] ${transfers} transfers between producers and factories`);
     }
   });
 }
