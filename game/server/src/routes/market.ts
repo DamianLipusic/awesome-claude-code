@@ -742,6 +742,96 @@ export async function marketRoutes(fastify: FastifyInstance): Promise<void> {
     },
   );
 
+  // POST /market/batch-quick-sell — Sell all inventory from ALL businesses at once
+  fastify.post(
+    '/batch-quick-sell',
+    { preHandler: [requireAuth] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const playerId = request.player.id;
+      const seasonId = request.player.season_id;
+
+      try {
+        const result = await withTransaction(async (client) => {
+          const bizRes = await client.query<{
+            id: string; inventory: Record<string, number>; name: string;
+          }>(
+            `SELECT id, inventory, name FROM businesses
+              WHERE owner_id = $1 AND status = 'ACTIVE' AND inventory != '{}'::jsonb
+              FOR UPDATE`,
+            [playerId],
+          );
+
+          if (bizRes.rows.length === 0) {
+            throw Object.assign(new Error('No inventory to sell'), { statusCode: 400 });
+          }
+
+          const priceRes = await client.query<{ name: string; current_ai_price: string; id: string }>(
+            `SELECT name, current_ai_price::text, id FROM resources WHERE season_id = $1`,
+            [seasonId],
+          );
+          const prices: Record<string, { price: number; id: string }> = {};
+          for (const r of priceRes.rows) {
+            prices[r.name] = { price: parseFloat(r.current_ai_price), id: r.id };
+          }
+
+          const DISCOUNT = 0.85;
+          let totalEarned = 0;
+          let totalItems = 0;
+          const bizSummaries: Array<{ name: string; items: number; earned: number }> = [];
+
+          for (const biz of bizRes.rows) {
+            const inventory = biz.inventory as Record<string, number>;
+            let bizEarned = 0;
+            let bizItems = 0;
+
+            for (const [name, qty] of Object.entries(inventory)) {
+              if (qty <= 0) continue;
+              const resource = prices[name];
+              if (!resource) continue;
+              const sellPrice = resource.price * DISCOUNT;
+              bizEarned += sellPrice * qty;
+              bizItems += qty;
+              inventory[name] = 0;
+            }
+
+            if (bizEarned > 0) {
+              await client.query(
+                `UPDATE businesses SET inventory = '{}', total_revenue = total_revenue + $1 WHERE id = $2`,
+                [bizEarned, biz.id],
+              );
+              totalEarned += bizEarned;
+              totalItems += bizItems;
+              bizSummaries.push({ name: biz.name, items: bizItems, earned: parseFloat(bizEarned.toFixed(2)) });
+            }
+          }
+
+          if (totalEarned > 0) {
+            await client.query(
+              `UPDATE players SET cash = cash + $1 WHERE id = $2`,
+              [totalEarned, playerId],
+            );
+          }
+
+          return {
+            total_earned: parseFloat(totalEarned.toFixed(2)),
+            total_items: totalItems,
+            businesses: bizSummaries,
+          };
+        });
+
+        await recalculateNetWorth(playerId);
+
+        return reply.send({
+          data: result,
+          message: `Sold ${result.total_items} items across ${result.businesses.length} businesses for $${result.total_earned.toFixed(2)}!`,
+        });
+      } catch (err: unknown) {
+        const e = err as { statusCode?: number; message: string };
+        return reply.status(e.statusCode ?? 500).send({ error: e.message });
+      }
+    },
+  );
+
   // POST /market/quick-sell — Instantly sell inventory at AI buy price (discounted)
   // Removes friction from the core loop: produce → quick-sell → profit
   const QuickSellSchema = z.object({

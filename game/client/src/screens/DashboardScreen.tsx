@@ -650,6 +650,62 @@ function AlertsFeed({ data }: { data: DashboardData }) {
   );
 }
 
+// ─── Empire Quick Actions Bar ─────────────────────────────────
+
+function EmpireActionsBar() {
+  const queryClient = useQueryClient();
+
+  const batchProduceMutation = useMutation({
+    mutationFn: () => api.post('/businesses/batch-produce', {}),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
+  });
+
+  const batchSellMutation = useMutation({
+    mutationFn: () => api.post('/market/batch-quick-sell', {}),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
+  });
+
+  const batchMaintainMutation = useMutation({
+    mutationFn: () => api.post('/businesses/batch-maintain', {}),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
+  });
+
+  return (
+    <View style={styles.empireActionsBar}>
+      <TouchableOpacity
+        style={styles.empireActionBtn}
+        onPress={() => batchProduceMutation.mutate()}
+        disabled={batchProduceMutation.isPending}
+      >
+        <Text style={styles.empireActionIcon}>{'\u2699\uFE0F'}</Text>
+        <Text style={styles.empireActionLabel}>
+          {batchProduceMutation.isPending ? '...' : 'Produce All'}
+        </Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.empireActionBtn}
+        onPress={() => batchSellMutation.mutate()}
+        disabled={batchSellMutation.isPending}
+      >
+        <Text style={styles.empireActionIcon}>{'\u{1F4B0}'}</Text>
+        <Text style={styles.empireActionLabel}>
+          {batchSellMutation.isPending ? '...' : 'Sell All'}
+        </Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.empireActionBtn}
+        onPress={() => batchMaintainMutation.mutate()}
+        disabled={batchMaintainMutation.isPending}
+      >
+        <Text style={styles.empireActionIcon}>{'\u{1F527}'}</Text>
+        <Text style={styles.empireActionLabel}>
+          {batchMaintainMutation.isPending ? '...' : 'Maintain All'}
+        </Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
 // ─── Main Dashboard Screen ────────────────────────────────────
 
 export function DashboardScreen() {
@@ -711,6 +767,9 @@ export function DashboardScreen() {
 
       {/* Income Summary */}
       <IncomeSummaryCard data={data} />
+
+      {/* Empire Quick Actions */}
+      {data.businesses.total > 0 && <EmpireActionsBar />}
 
       {/* Business Overview with per-business breakdown */}
       <BusinessOverviewCard data={data} />
@@ -835,6 +894,32 @@ const styles = StyleSheet.create({
     height: 32,
     backgroundColor: COLORS.cardBorder,
     marginHorizontal: 12,
+  },
+
+  // Empire Actions Bar
+  empireActionsBar: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  empireActionBtn: {
+    flex: 1,
+    backgroundColor: COLORS.card,
+    borderRadius: 10,
+    paddingVertical: 10,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: COLORS.cardBorder,
+    gap: 3,
+  },
+  empireActionIcon: {
+    fontSize: 18,
+  },
+  empireActionLabel: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: COLORS.textDim,
+    textTransform: 'uppercase',
+    letterSpacing: 0.3,
   },
 
   // Tutorial

@@ -32,6 +32,91 @@ const BASE_CAPACITY: Record<BusinessType, number> = {
 };
 
 export async function businessRoutes(app: FastifyInstance): Promise<void> {
+  // POST /businesses/batch-produce — trigger production across all owned businesses
+  app.post('/batch-produce', { preHandler: [requireAuth] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    const playerId = request.player.id;
+    const bizRes = await query<{ id: string; name: string }>(
+      `SELECT id, name FROM businesses WHERE owner_id = $1 AND status = 'ACTIVE'`,
+      [playerId],
+    );
+
+    let produced = 0;
+    const results: Array<{ name: string; inventory: Record<string, number> }> = [];
+
+    for (const biz of bizRes.rows) {
+      try {
+        await employee_production(biz.id);
+        const invRes = await query(`SELECT inventory FROM businesses WHERE id = $1`, [biz.id]);
+        results.push({ name: biz.name, inventory: invRes.rows[0]?.inventory ?? {} });
+        produced++;
+      } catch {
+        // Skip failed production
+      }
+    }
+
+    return reply.send({
+      data: { produced, total: bizRes.rows.length, results },
+      message: `Production triggered for ${produced}/${bizRes.rows.length} businesses.`,
+    });
+  });
+
+  // POST /businesses/batch-maintain — maintain all businesses at once
+  app.post('/batch-maintain', { preHandler: [requireAuth] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    const playerId = request.player.id;
+
+    try {
+      const result = await withTransaction(async (client) => {
+        const bizRes = await client.query<{
+          id: string; name: string; efficiency: string; daily_operating_cost: string;
+        }>(
+          `SELECT id, name, efficiency, daily_operating_cost
+             FROM businesses WHERE owner_id = $1 AND status = 'ACTIVE'`,
+          [playerId],
+        );
+
+        let totalCost = 0;
+        const maintained: Array<{ name: string; boost: number }> = [];
+
+        for (const biz of bizRes.rows) {
+          const cost = Math.max(200, parseFloat(biz.daily_operating_cost) * 0.1);
+          totalCost += cost;
+        }
+
+        const playerRow = await client.query<{ cash: string }>(
+          `SELECT cash FROM players WHERE id = $1 FOR UPDATE`, [playerId],
+        );
+        if (parseFloat(playerRow.rows[0]?.cash ?? '0') < totalCost) {
+          throw Object.assign(new Error(`Need $${totalCost.toFixed(0)} for all maintenance`), { statusCode: 400 });
+        }
+
+        await client.query(`UPDATE players SET cash = cash - $1 WHERE id = $2`, [totalCost, playerId]);
+
+        for (const biz of bizRes.rows) {
+          const cost = Math.max(200, parseFloat(biz.daily_operating_cost) * 0.1);
+          const currentEff = parseFloat(biz.efficiency);
+          const boost = 0.02 + Math.random() * 0.03;
+          const newEff = Math.min(1.0, currentEff + boost);
+
+          await client.query(
+            `UPDATE businesses SET efficiency = $1, total_expenses = total_expenses + $2 WHERE id = $3`,
+            [newEff.toFixed(4), cost, biz.id],
+          );
+          maintained.push({ name: biz.name, boost: parseFloat((boost * 100).toFixed(1)) });
+        }
+
+        return { total_cost: totalCost, maintained };
+      });
+
+      return reply.send({
+        data: result,
+        message: `All ${result.maintained.length} businesses maintained for $${result.total_cost.toFixed(0)}.`,
+      });
+    } catch (err: unknown) {
+      const e = err as { statusCode?: number; message: string };
+      return reply.status(e.statusCode ?? 500).send({ error: e.message });
+    }
+  });
+
   // GET /businesses/types — available business types with costs and production info
   app.get('/types', { preHandler: [requireAuth] }, async (request: FastifyRequest, reply: FastifyReply) => {
     const types = Object.entries(BUSINESS_STARTUP_COSTS).map(([type, startupCost]) => {
