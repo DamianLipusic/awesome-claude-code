@@ -2,6 +2,7 @@ import { query, withTransaction } from '../db/client';
 import type { PoolClient } from 'pg';
 import { CITIES } from '../../../shared/src/types/entities';
 import { GAME_BALANCE } from './constants';
+import { secureRandom, secureRandomInt } from './random';
 
 // ─── Event Templates ──────────────────────────────────────────
 
@@ -132,11 +133,11 @@ export async function rollRandomEvents(): Promise<void> {
     if (activeCount >= GAME_BALANCE.MAX_CONCURRENT_EVENTS) continue;
 
     // Roll for event
-    if (Math.random() >= GAME_BALANCE.EVENT_CHANCE_PER_CITY) continue;
+    if (secureRandom() >= GAME_BALANCE.EVENT_CHANCE_PER_CITY) continue;
 
     // Pick a random event template
     const templateKeys = Object.keys(EVENT_TEMPLATES);
-    const key = templateKeys[Math.floor(Math.random() * templateKeys.length)];
+    const key = templateKeys[secureRandomInt(0, templateKeys.length)];
     const template = EVENT_TEMPLATES[key];
 
     // Convert duration_ticks to hours (5 min per tick => ticks * 5 / 60)
@@ -174,9 +175,20 @@ export async function rollRandomEvents(): Promise<void> {
   }
 }
 
+// ─── Event Modifier Cache (cleared per game tick) ─────────────
+
+const _eventModCache = new Map<string, EventModifiers>();
+
+export function clearEventModifierCache(): void {
+  _eventModCache.clear();
+}
+
 // ─── Get Active Event Modifiers for a City ────────────────────
 
 export async function getActiveEventModifiers(seasonId: string, cityName?: string): Promise<EventModifiers> {
+  const cacheKey = `${seasonId}:${cityName || '_global'}`;
+  const cached = _eventModCache.get(cacheKey);
+  if (cached) return cached;
   const result = await query<{ impact_json: Record<string, any> }>(
     `SELECT impact_json FROM seasonal_events
       WHERE season_id = $1
@@ -222,6 +234,7 @@ export async function getActiveEventModifiers(seasonId: string, cityName?: strin
     }
   }
 
+  _eventModCache.set(cacheKey, mods);
   return mods;
 }
 
@@ -255,7 +268,7 @@ async function checkCascadeEffects(
   if (!rules) return;
 
   for (const rule of rules) {
-    if (Math.random() >= rule.chance) continue;
+    if (secureRandom() >= rule.chance) continue;
 
     const cascadeTemplate = EVENT_TEMPLATES[rule.triggers];
     if (!cascadeTemplate) continue;

@@ -4,6 +4,7 @@ import { query, withTransaction } from '../db/client';
 import { requireAuth } from '../middleware/auth';
 import { LISTING_FEE_PERCENT } from '../lib/constants';
 import { emitToMarket } from '../websocket/handler';
+import { recalculateNetWorth } from '../lib/networth';
 
 // ─── Input schemas ────────────────────────────────────────────
 
@@ -170,11 +171,15 @@ export async function marketRoutes(fastify: FastifyInstance): Promise<void> {
     { preHandler: [requireAuth] },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const playerSeasonId = request.player.season_id;
-      const { city, resource_id, listing_type } = request.query as {
+      const { city, resource_id, listing_type, limit, offset } = request.query as {
         city?: string;
         resource_id?: string;
         listing_type?: string;
+        limit?: string;
+        offset?: string;
       };
+      const limitVal = Math.min(Math.max(parseInt(limit ?? '100', 10) || 100, 1), 200);
+      const offsetVal = Math.max(parseInt(offset ?? '0', 10) || 0, 0);
 
       if (!city) {
         return reply.status(400).send({ error: 'city query param is required' });
@@ -231,8 +236,9 @@ export async function marketRoutes(fastify: FastifyInstance): Promise<void> {
            CASE
              WHEN ml.listing_type IN ('PLAYER_BUY', 'AI_BUY') THEN ml.price_per_unit END DESC,
            CASE
-             WHEN ml.listing_type IN ('PLAYER_SELL', 'AI_SELL') THEN ml.price_per_unit END ASC`,
-        params,
+             WHEN ml.listing_type IN ('PLAYER_SELL', 'AI_SELL') THEN ml.price_per_unit END ASC
+         LIMIT $${paramIndex++} OFFSET $${paramIndex++}`,
+        [...params, limitVal, offsetVal],
       );
 
       return reply.send({ data: result.rows });
@@ -423,7 +429,7 @@ export async function marketRoutes(fastify: FastifyInstance): Promise<void> {
           }
           const listing = listingRow.rows[0];
 
-          if (listing.status !== 'OPEN') {
+          if (listing.status !== 'OPEN' && listing.status !== 'PARTIALLY_FILLED') {
             throw Object.assign(new Error('Listing is no longer open'), { statusCode: 400 });
           }
           if (listing.listing_type === 'AI_BUY' || listing.listing_type === 'PLAYER_BUY') {
@@ -530,50 +536,12 @@ export async function marketRoutes(fastify: FastifyInstance): Promise<void> {
             [listing.resource_id, listing.season_id, listing.price_per_unit],
           );
 
-          // Recalculate net worth for buyer
-          await client.query(
-            `UPDATE players
-             SET net_worth = cash + (
-               SELECT COALESCE(SUM(
-                 CASE b.type
-                   WHEN 'RETAIL'        THEN 5000
-                   WHEN 'FACTORY'       THEN 20000
-                   WHEN 'MINE'          THEN 15000
-                   WHEN 'FARM'          THEN 8000
-                   WHEN 'LOGISTICS'     THEN 12000
-                   WHEN 'SECURITY_FIRM' THEN 10000
-                   WHEN 'FRONT_COMPANY' THEN 18000
-                   ELSE 5000
-                 END * CASE b.tier WHEN 1 THEN 1.0 WHEN 2 THEN 1.5 WHEN 3 THEN 2.5 WHEN 4 THEN 4.0 ELSE 1.0 END * 0.7
-               ), 0)
-               FROM businesses b WHERE b.owner_id = $1 AND b.season_id = $2
-             )
-             WHERE id = $1`,
-            [playerId, playerSeasonId],
-          );
+          // Recalculate net worth for buyer (uses proper formula with inventory value)
+          await recalculateNetWorth(playerId);
 
           // Recalculate net worth for seller if player listing
           if (listing.listing_type === 'PLAYER_SELL' && listing.seller_id) {
-            await client.query(
-              `UPDATE players
-               SET net_worth = cash + (
-                 SELECT COALESCE(SUM(
-                   CASE b.type
-                     WHEN 'RETAIL'        THEN 5000
-                     WHEN 'FACTORY'       THEN 20000
-                     WHEN 'MINE'          THEN 15000
-                     WHEN 'FARM'          THEN 8000
-                     WHEN 'LOGISTICS'     THEN 12000
-                     WHEN 'SECURITY_FIRM' THEN 10000
-                     WHEN 'FRONT_COMPANY' THEN 18000
-                     ELSE 5000
-                   END * CASE b.tier WHEN 1 THEN 1.0 WHEN 2 THEN 1.5 WHEN 3 THEN 2.5 WHEN 4 THEN 4.0 ELSE 1.0 END * 0.7
-                 ), 0)
-                 FROM businesses b WHERE b.owner_id = $1 AND b.season_id = $2
-               )
-               WHERE id = $1`,
-              [listing.seller_id, playerSeasonId],
-            );
+            await recalculateNetWorth(listing.seller_id);
           }
 
           // Emit WebSocket update to market channel
@@ -634,7 +602,7 @@ export async function marketRoutes(fastify: FastifyInstance): Promise<void> {
           if (listing.seller_id !== playerId) {
             throw Object.assign(new Error('Not the listing owner'), { statusCode: 403 });
           }
-          if (listing.status !== 'OPEN') {
+          if (listing.status !== 'OPEN' && listing.status !== 'PARTIALLY_FILLED') {
             throw Object.assign(
               new Error(`Cannot cancel a listing with status '${listing.status}'`),
               { statusCode: 400 },
@@ -657,6 +625,21 @@ export async function marketRoutes(fastify: FastifyInstance): Promise<void> {
                )
                WHERE id = $4 AND owner_id = $5`,
               [`{${rName}}`, rName, listing.quantity_remaining, listing.business_id, playerId],
+            );
+          }
+
+          // Refund listing fee (proportional to remaining quantity)
+          const listingFull = listingRow.rows[0] as Record<string, unknown>;
+          const originalQty = Number(listingFull.quantity) || 0;
+          const remainingQty = Number(listingFull.quantity_remaining) || 0;
+          const pricePerUnit = Number(listingFull.price_per_unit) || 0;
+          const isAnon = Boolean(listingFull.is_anonymous);
+          if (remainingQty > 0 && pricePerUnit > 0) {
+            const surcharge = isAnon ? 0.01 : 0;
+            const refundFee = remainingQty * pricePerUnit * (LISTING_FEE_PERCENT + surcharge);
+            await client.query(
+              `UPDATE players SET cash = cash + $1 WHERE id = $2`,
+              [refundFee, playerId],
             );
           }
 

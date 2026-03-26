@@ -35,28 +35,46 @@ export async function recalculateNetWorth(playerId: string): Promise<number> {
     businessValue += tierCost * 0.7; // 70% book value
   }
 
-  // Inventory value: sum all business inventories × current AI price
+  // Inventory value: batch-fetch all resource prices in one query, then compute in-memory
   const inventoryRes = await query(
-    `SELECT b.inventory, s.id as season_id
+    `SELECT b.inventory
      FROM businesses b
-     JOIN players p ON b.owner_id = p.id
-     JOIN season_profiles s ON s.id = p.season_id
      WHERE b.owner_id = $1 AND b.status != 'BANKRUPT'`,
     [playerId],
   );
 
+  // Collect all unique resource names across inventories
+  // (inventory keys are resource names, not UUIDs)
+  const resourceNames = new Set<string>();
+  for (const row of inventoryRes.rows) {
+    const inventory = row.inventory as Record<string, number>;
+    for (const [resourceName, qty] of Object.entries(inventory)) {
+      if (qty > 0) resourceNames.add(resourceName);
+    }
+  }
+
+  // Single query to fetch all prices at once by name
+  const priceMap = new Map<string, number>();
+  if (resourceNames.size > 0) {
+    const names = Array.from(resourceNames);
+    const placeholders = names.map((_, i) => `$${i + 1}`).join(',');
+    const priceRes = await query<{ name: string; current_ai_price: string }>(
+      `SELECT name, current_ai_price FROM resources WHERE name IN (${placeholders})`,
+      names,
+    );
+    for (const row of priceRes.rows) {
+      priceMap.set(row.name, Number(row.current_ai_price));
+    }
+  }
+
+  // Compute inventory value from in-memory price map
   let inventoryValue = 0;
   for (const row of inventoryRes.rows) {
     const inventory = row.inventory as Record<string, number>;
-    for (const [resourceId, qty] of Object.entries(inventory)) {
+    for (const [resourceName, qty] of Object.entries(inventory)) {
       if (qty <= 0) continue;
-      const priceRes = await query(
-        'SELECT current_ai_price FROM resources WHERE id = $1',
-        [resourceId],
-      );
-      if (priceRes.rows.length > 0) {
-        inventoryValue += qty * Number(priceRes.rows[0].current_ai_price);
-      }
+      const price = priceMap.get(resourceName);
+      if (price) inventoryValue += qty * price;
     }
   }
 

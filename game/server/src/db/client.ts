@@ -5,6 +5,8 @@ const pool = new Pool({
   max: 20,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 5000,
+  statement_timeout: 30000,                   // Kill queries after 30s
+  idle_in_transaction_session_timeout: 60000,  // Kill idle-in-transaction after 60s
 });
 
 pool.on('error', (err) => {

@@ -82,15 +82,7 @@ export async function scheduleRepeatingJobs(): Promise<void> {
     await dailyQueue.removeRepeatableByKey(job.key);
   }
 
-  // Economy tick every 5 minutes
-  await simulationQueue.add(
-    'economy_tick',
-    { type: 'economy_tick' },
-    {
-      repeat: { every: 5 * 60 * 1000 }, // 5 min in ms
-      jobId: 'economy_tick_repeat',
-    }
-  );
+  // NOTE: economy_tick removed — processMarketPrices in gameTick handles pricing + supply regen
 
   // Market refresh every 60 minutes
   await simulationQueue.add(
@@ -218,9 +210,6 @@ function startWorkersInternal(): void {
         return;
       }
       switch (job.data.type ?? job.name) {
-        case 'economy_tick':
-          if (seasonId) await economy_update(seasonId);
-          break;
         case 'market_refresh':
           if (seasonId) await market_refresh(seasonId);
           break;

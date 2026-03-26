@@ -161,38 +161,44 @@ export async function logisticsRoutes(fastify: FastifyInstance): Promise<void> {
         }
 
         // Verify items exist in player's business inventory in origin city
-        for (const item of items) {
-          const invRow = await client.query<{ quantity: number }>(
-            `SELECT bi.quantity
-               FROM business_inventory bi
-               JOIN businesses b ON b.id = bi.business_id
-              WHERE bi.resource_id = $1
-                AND b.owner_id = $2
-                AND b.city = $3
-              ORDER BY bi.quantity DESC
-              LIMIT 1`,
-            [item.resource_id, playerId, route.origin_city],
+        // Inventory is stored as JSONB on businesses table, keyed by resource name
+        const originBizRow = await client.query<{ id: string; inventory: Record<string, number> }>(
+          `SELECT id, inventory FROM businesses
+            WHERE owner_id = $1 AND city = $2 AND status = 'ACTIVE'
+            ORDER BY established_at ASC LIMIT 1 FOR UPDATE`,
+          [playerId, route.origin_city],
+        );
+        if (!originBizRow.rows.length) {
+          throw Object.assign(
+            new Error(`No active business in ${route.origin_city}`),
+            { statusCode: 400 },
           );
-          if (!invRow.rows.length || invRow.rows[0].quantity < item.quantity) {
+        }
+        const originBiz = originBizRow.rows[0];
+        const inv = originBiz.inventory as Record<string, number>;
+
+        // Resolve resource IDs to names and validate quantities
+        for (const item of items) {
+          const resRow = await client.query<{ name: string }>(
+            `SELECT name FROM resources WHERE id = $1`,
+            [item.resource_id],
+          );
+          const resName = resRow.rows[0]?.name ?? item.resource_id;
+          const available = inv[resName] ?? 0;
+          if (available < item.quantity) {
             throw Object.assign(
-              new Error(`Insufficient inventory for resource ${item.resource_id}`),
+              new Error(`Insufficient inventory for ${resName}: have ${available}, need ${item.quantity}`),
               { statusCode: 400 },
             );
           }
-
-          // Deduct from inventory
-          await client.query(
-            `UPDATE business_inventory bi
-                SET quantity = quantity - $1
-               FROM businesses b
-              WHERE bi.business_id = b.id
-                AND bi.resource_id = $2
-                AND b.owner_id = $3
-                AND b.city = $4
-                AND bi.quantity >= $1`,
-            [item.quantity, item.resource_id, playerId, route.origin_city],
-          );
+          inv[resName] = available - item.quantity;
         }
+
+        // Persist updated inventory
+        await client.query(
+          `UPDATE businesses SET inventory = $1 WHERE id = $2`,
+          [JSON.stringify(inv), originBiz.id],
+        );
 
         // Deduct cost
         await client.query(`UPDATE players SET cash = cash - $1 WHERE id = $2`, [totalCost, playerId]);

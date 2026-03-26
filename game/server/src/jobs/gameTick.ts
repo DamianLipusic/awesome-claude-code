@@ -2,15 +2,17 @@ import { processNPCTick } from './npcAI';
 import { query, withTransaction } from '../db/client';
 import type { PoolClient } from 'pg';
 import { getHeatLevel } from '../lib/detection';
+import { secureRandom } from '../lib/random';
 import { emitToPlayer } from '../websocket/handler';
 import {
   ZONE_BONUSES,
   BUSINESS_BASE_COSTS,
 } from '../../../shared/src/types/entities';
 import type { LocationZone, BusinessType } from '../../../shared/src/types/entities';
-import { rollRandomEvents, getActiveEventModifiers, expireOldEvents } from '../lib/events';
+import { rollRandomEvents, getActiveEventModifiers, expireOldEvents, clearEventModifierCache } from '../lib/events';
 import type { EventModifiers } from '../lib/events';
-import { GAME_BALANCE } from '../lib/constants';
+import { GAME_BALANCE, PRODUCTION_RECIPES } from '../lib/constants';
+import { employee_production } from './simulation';
 
 // Tick counter for periodic alerts (resets on server restart)
 let tickCount = 0;
@@ -24,19 +26,23 @@ export async function runGameTick(): Promise<void> {
   const tickStart = Date.now();
 
   try {
-    // ── START OF TICK: Roll for random events ──
+    // ── START OF TICK: Clear caches, roll events ──
+    clearEventModifierCache();
     await runSafe('RandomEvents', rollRandomEvents);
 
     // Each sub-system runs in its own transaction for isolation.
     // A failure in one system should not block the others.
     await runSafe('BusinessRevenue', processBusinessRevenue);
+    await runSafe('Production', processProduction);
     await runSafe('EmployeeMorale', processEmployeeMorale);
     await runSafe('HeatDecay', processHeatDecay);
     await runSafe('MarketPrices', processMarketPrices);
+    await runSafe('AIBuyOrders', processAIBuyOrders);
     await runSafe('CrimeOperations', processCrimeOperations);
     await runSafe('Laundering', processLaundering);
     await runSafe('Shipments', processShipments);
     await runSafe('Deliveries', processDeliveries);
+    await runSafe('ContractSettlement', processContractSettlement);
     await runSafe('SpyDiscovery', processSpyDiscovery);
     await runSafe('Embezzlement', processEmbezzlement);
     await runSafe('BlockadeCosts', processBlockadeCosts);
@@ -48,6 +54,9 @@ export async function runGameTick(): Promise<void> {
     await runSafe('EventAlerts', processEventAlerts);
     tickCount++;
 
+    // ── Market listing expiration ──
+    await runSafe('ExpiredListings', processExpiredListings);
+
     // ── END OF TICK: Expire old events + check cascades ──
     await runSafe('EventExpiry', processEventExpiry);
 
@@ -58,6 +67,9 @@ export async function runGameTick(): Promise<void> {
     } catch (err) {
       console.error('[GameTick:NPC] Error:', err);
     }
+
+    // Worker recruitment runs AFTER NPCs so new workers are available for players
+    await runSafe('WorkerRecruitment', processWorkerRecruitment);
 
     const elapsed = Date.now() - tickStart;
 
@@ -120,19 +132,26 @@ async function getActiveSeasonId(): Promise<string | null> {
 
 async function processBusinessRevenue(): Promise<void> {
   await withTransaction(async (client) => {
-    // Fetch all active businesses with their location zone (if any)
+    // Fetch all active businesses with employee count, manager bonus, and location zone in one query
     const businesses = await client.query<{
       id: string; owner_id: string; season_id: string; type: string;
       tier: number; efficiency: string; daily_operating_cost: string;
       total_revenue: string; total_expenses: string;
       zone: string | null; city: string;
+      employee_count: string; mgr_efficiency_bonus: string | null;
     }>(
       `SELECT b.id, b.owner_id, b.season_id, b.type, b.tier,
               b.efficiency, b.daily_operating_cost,
               b.total_revenue, b.total_expenses,
-              gl.zone, b.city
+              gl.zone, b.city,
+              COALESCE(ec.cnt, 0) AS employee_count,
+              ma.efficiency_bonus AS mgr_efficiency_bonus
          FROM businesses b
          LEFT JOIN locations gl ON gl.player_id = b.owner_id AND gl.city = b.city AND gl.status = 'ACTIVE'
+         LEFT JOIN (
+           SELECT business_id, COUNT(*)::int AS cnt FROM employees GROUP BY business_id
+         ) ec ON ec.business_id = b.id
+         LEFT JOIN manager_assignments ma ON ma.business_id = b.id
         WHERE b.status = 'ACTIVE'`,
     );
 
@@ -146,15 +165,10 @@ async function processBusinessRevenue(): Promise<void> {
       }
       const eventMods = modCache[biz.city];
 
-      // Count employees for this business
-      const empRes = await client.query<{ count: string }>(
-        `SELECT COUNT(*) as count FROM employees WHERE business_id = $1`,
-        [biz.id],
-      );
-      const employeeCount = parseInt(empRes.rows[0].count);
+      const employeeCount = parseInt(biz.employee_count);
 
-      // Base revenue = tier * 500 * efficiency * (1 + employeeCount * 0.1)
-      const efficiency = parseFloat(biz.efficiency) / 100;
+      // Base revenue = tier * BASE_REVENUE * efficiency * (1 + employeeCount * 0.1)
+      const efficiency = parseFloat(biz.efficiency);
       let revenue = biz.tier * GAME_BALANCE.BUSINESS_BASE_REVENUE * efficiency * (1 + employeeCount * 0.1);
 
       // Apply event efficiency bonus
@@ -170,14 +184,9 @@ async function processBusinessRevenue(): Promise<void> {
         }
       }
 
-      // Check for manager efficiency bonus
-      const mgrRes = await client.query<{ efficiency_bonus: string }>(
-        `SELECT efficiency_bonus FROM manager_assignments
-          WHERE business_id = $1 LIMIT 1`,
-        [biz.id],
-      );
-      if (mgrRes.rows.length > 0) {
-        revenue *= (1 + parseFloat(mgrRes.rows[0].efficiency_bonus));
+      // Apply manager efficiency bonus
+      if (biz.mgr_efficiency_bonus !== null) {
+        revenue *= (1 + parseFloat(biz.mgr_efficiency_bonus));
       }
 
       // Apply event revenue multiplier
@@ -216,7 +225,41 @@ async function processBusinessRevenue(): Promise<void> {
   });
 }
 
-// ─── 2. Employee Morale & Loyalty Decay ───────────────────────
+// ─── 1b. Automatic Production ─────────────────────────────────
+
+async function processProduction(): Promise<void> {
+  // Find all active businesses that have production recipes and at least one WORKER
+  const eligible = await query<{ id: string; type: string }>(
+    `SELECT b.id, b.type::text
+       FROM businesses b
+      WHERE b.status = 'ACTIVE'
+        AND EXISTS (
+          SELECT 1 FROM employees e
+          WHERE e.business_id = b.id AND e.role = 'WORKER'
+        )`,
+  );
+
+  // Filter to types that have production recipes
+  const producible = eligible.rows.filter(
+    (b) => PRODUCTION_RECIPES[b.type as keyof typeof PRODUCTION_RECIPES],
+  );
+
+  let produced = 0;
+  for (const biz of producible) {
+    try {
+      await employee_production(biz.id);
+      produced++;
+    } catch (err) {
+      console.error(`[GameTick:Production] Error for business ${biz.id}:`, err);
+    }
+  }
+
+  if (produced > 0) {
+    console.log(`[GameTick:Production] ${produced}/${producible.length} businesses produced goods`);
+  }
+}
+
+// ─── 2. Employee Morale & Loyalty Decay ��──────────────────────
 
 async function processEmployeeMorale(): Promise<void> {
   await withTransaction(async (client) => {
@@ -270,9 +313,10 @@ async function processEmployeeMorale(): Promise<void> {
     // Random chance of quitting if loyalty < 20 (2% per tick)
     const lowLoyalty = await client.query<{
       id: string; business_id: string; name: string;
-      loyalty: number;
+      loyalty: number; owner_id: string; season_id: string;
     }>(
-      `SELECT e.id, e.business_id, e.name, e.loyalty
+      `SELECT e.id, e.business_id, e.name, e.loyalty,
+              b.owner_id, b.season_id
          FROM employees e
          JOIN businesses b ON b.id = e.business_id
         WHERE e.loyalty < 20
@@ -280,28 +324,19 @@ async function processEmployeeMorale(): Promise<void> {
     );
 
     for (const emp of lowLoyalty.rows) {
-      if (Math.random() < 0.02) {
-        // Employee quits
-        const bizRes = await client.query<{ owner_id: string; season_id: string }>(
-          `SELECT owner_id, season_id FROM businesses WHERE id = $1`,
-          [emp.business_id],
+      if (secureRandom() < 0.02) {
+        await client.query(
+          `DELETE FROM employees WHERE id = $1`,
+          [emp.id],
         );
-        if (bizRes.rows.length > 0) {
-          const { owner_id, season_id } = bizRes.rows[0];
 
-          await client.query(
-            `DELETE FROM employees WHERE id = $1`,
-            [emp.id],
-          );
-
-          await createAlert(client, owner_id, season_id, 'EMPLOYEE_QUIT',
-            `${emp.name} quit due to low morale (loyalty: ${emp.loyalty}).`,
-            { employee_id: emp.id, business_id: emp.business_id },
-          );
-          emitToPlayer(owner_id, 'employee_quit', {
-            employee_id: emp.id, name: emp.name,
-          });
-        }
+        await createAlert(client, emp.owner_id, emp.season_id, 'EMPLOYEE_QUIT',
+          `${emp.name} quit due to low morale (loyalty: ${emp.loyalty}).`,
+          { employee_id: emp.id, business_id: emp.business_id },
+        );
+        emitToPlayer(emp.owner_id, 'employee_quit', {
+          employee_id: emp.id, name: emp.name,
+        });
       }
     }
   });
@@ -323,6 +358,9 @@ async function processHeatDecay(): Promise<void> {
          JOIN season_profiles sp ON sp.id = hs.season_id
         WHERE sp.status = 'ACTIVE'`,
     );
+
+    // Cache event modifiers per season to avoid N+1
+    const heatEventCache: Record<string, EventModifiers> = {};
 
     for (const hs of scores.rows) {
       let score = parseFloat(hs.score);
@@ -349,7 +387,10 @@ async function processHeatDecay(): Promise<void> {
       }
 
       // Apply event heat multiplier (slows decay when crackdown active)
-      const eventMods = await getActiveEventModifiers(hs.season_id);
+      if (!heatEventCache[hs.season_id]) {
+        heatEventCache[hs.season_id] = await getActiveEventModifiers(hs.season_id);
+      }
+      const eventMods = heatEventCache[hs.season_id];
       if (eventMods.heat_multiplier > 1.0) {
         // During crackdowns, decay is reduced
         decay /= eventMods.heat_multiplier;
@@ -419,13 +460,16 @@ async function processMarketPrices(): Promise<void> {
       AUTUMN: { Steel: 1.2, Metals: 1.2 },
     };
 
+    // Cache event modifiers per season (global, no city)
+    const seasonEventCache: Record<string, EventModifiers> = {};
+
     for (const res of resources.rows) {
       const currentPrice = parseFloat(res.current_ai_price);
       const baseValue = parseFloat(res.base_value);
       const globalSupply = parseFloat(res.global_supply);
 
       // 1. Base random fluctuation (-3% to +3%)
-      let fluctuation = 1 + (Math.random() * 0.06 - 0.03);
+      let fluctuation = 1 + (secureRandom() * 0.06 - 0.03);
 
       // 2. Supply/demand volume adjustment (±2-5%)
       const trades = tradeMap[res.id];
@@ -447,8 +491,11 @@ async function processMarketPrices(): Promise<void> {
         fluctuation += (seasonalMod - 1.0) * 0.01; // Gentle seasonal push
       }
 
-      // 5. Event-based supply reduction
-      const eventMods = await getActiveEventModifiers(res.season_id);
+      // 5. Event-based supply reduction (cached per season)
+      if (!seasonEventCache[res.season_id]) {
+        seasonEventCache[res.season_id] = await getActiveEventModifiers(res.season_id);
+      }
+      const eventMods = seasonEventCache[res.season_id];
       if (eventMods.supply_reduction > 0) {
         // Supply reduction drives prices up
         fluctuation += eventMods.supply_reduction * 0.03;
@@ -484,6 +531,118 @@ async function processMarketPrices(): Promise<void> {
         [res.id, res.season_id, newPrice],
       );
     }
+
+    // Supply regeneration per tick (markets recover slowly)
+    if (seasonId) {
+      await client.query(
+        `UPDATE resources
+            SET global_supply = LEAST(global_supply * 1.005, base_value * 2000)
+          WHERE season_id = $1`,
+        [seasonId],
+      );
+    }
+  });
+}
+
+// ─── 4b. AI Buy Orders — fill PLAYER_SELL listings against AI demand ──
+
+async function processAIBuyOrders(): Promise<void> {
+  await withTransaction(async (client) => {
+    // Step 1: Get all open PLAYER_SELL listings
+    const playerSells = await client.query<{
+      id: string; seller_id: string; resource_id: string;
+      quantity_remaining: number; price_per_unit: string;
+      city: string; season_id: string;
+    }>(
+      `SELECT id, seller_id, resource_id, quantity_remaining::int,
+              price_per_unit::text, city, season_id
+         FROM market_listings
+        WHERE listing_type = 'PLAYER_SELL'
+          AND (status = 'OPEN' OR status = 'PARTIALLY_FILLED')
+          AND quantity_remaining > 0
+        ORDER BY created_at ASC
+        FOR UPDATE`,
+    );
+
+    let filled = 0;
+
+    for (const sell of playerSells.rows) {
+      const sellPrice = parseFloat(sell.price_per_unit);
+      // Step 2: Find matching AI_BUY listing in same city+resource with price >= seller's price
+      const buyRow = await client.query<{
+        id: string; quantity_remaining: number; price_per_unit: string;
+      }>(
+        `SELECT id, quantity_remaining::int, price_per_unit::text
+           FROM market_listings
+          WHERE listing_type = 'AI_BUY'
+            AND status = 'OPEN'
+            AND resource_id = $1
+            AND city = $2
+            AND season_id = $3
+            AND quantity_remaining > 0
+            AND price_per_unit >= $4::numeric
+          LIMIT 1`,
+        [sell.resource_id, sell.city, sell.season_id, sellPrice],
+      );
+
+      if (!buyRow.rows.length) continue;
+      const aiBuy = buyRow.rows[0];
+
+      const fillQty = Math.min(sell.quantity_remaining, aiBuy.quantity_remaining);
+      if (fillQty <= 0) continue;
+
+      const totalPayment = fillQty * sellPrice;
+
+      // Credit seller cash
+      await client.query(
+        `UPDATE players SET cash = cash + $1 WHERE id = $2`,
+        [totalPayment, sell.seller_id],
+      );
+
+      // Update player sell listing
+      const newSellerRemaining = sell.quantity_remaining - fillQty;
+      const sellerStatus = newSellerRemaining === 0 ? 'FILLED' : 'PARTIALLY_FILLED';
+      await client.query(
+        `UPDATE market_listings
+         SET quantity_remaining = $1::int,
+             status = $2::listing_status,
+             filled_at = CASE WHEN $4 THEN NOW() ELSE filled_at END
+         WHERE id = $3`,
+        [newSellerRemaining, sellerStatus, sell.id, newSellerRemaining === 0],
+      );
+
+      // Reduce AI_BUY listing quantity (AI absorbs the goods)
+      const newBuyRemaining = aiBuy.quantity_remaining - fillQty;
+      await client.query(
+        `UPDATE market_listings SET quantity_remaining = $1 WHERE id = $2`,
+        [newBuyRemaining, aiBuy.id],
+      );
+
+      // Record price history
+      await client.query(
+        `INSERT INTO price_history (resource_id, season_id, price)
+         VALUES ($1, $2, $3)`,
+        [sell.resource_id, sell.season_id, sellPrice],
+      );
+
+      // Alert seller
+      const resRow = await client.query<{ name: string }>(
+        `SELECT name FROM resources WHERE id = $1`,
+        [sell.resource_id],
+      );
+      const resName = resRow.rows[0]?.name ?? 'goods';
+
+      await createAlert(client, sell.seller_id, sell.season_id, 'MARKET_SOLD',
+        `Sold ${fillQty} ${resName} at $${sellPrice.toFixed(2)}/unit for $${totalPayment.toFixed(2)} to AI market.`,
+        { listing_id: sell.id, quantity: fillQty, total: totalPayment },
+      );
+
+      filled++;
+    }
+
+    if (filled > 0) {
+      console.log(`[GameTick:AIBuyOrders] Filled ${filled} player sell listings`);
+    }
   });
 }
 
@@ -497,31 +656,25 @@ async function processCrimeOperations(): Promise<void> {
       op_type: string; risk_level: number;
       dirty_money_yield: string;
       business_id: string | null;
+      biz_city: string | null;
     }>(
       `SELECT co.id, co.player_id, co.season_id, co.op_type, co.risk_level,
-              co.dirty_money_yield, co.business_id
+              co.dirty_money_yield, co.business_id, b.city AS biz_city
          FROM criminal_operations co
+         LEFT JOIN businesses b ON b.id = co.business_id
         WHERE co.status = 'ACTIVE' AND co.completes_at <= NOW()`,
     );
 
     for (const op of ops.rows) {
       // Get event modifiers for crime success rate
-      let cityName: string | undefined;
-      if (op.business_id) {
-        const bizCityRes = await client.query<{ city: string }>(
-          `SELECT city FROM businesses WHERE id = $1`,
-          [op.business_id],
-        );
-        cityName = bizCityRes.rows[0]?.city;
-      }
-      const eventMods = await getActiveEventModifiers(op.season_id, cityName);
+      const eventMods = await getActiveEventModifiers(op.season_id, op.biz_city ?? undefined);
 
       // Success chance inversely proportional to risk (risk 1-10 maps to 90%-10%)
       let successChance = Math.max(0.1, 1 - op.risk_level * 0.09);
       // Apply event modifier to crime success rate
       successChance = Math.max(0.05, Math.min(0.95, successChance + eventMods.crime_success_rate_modifier));
 
-      const roll = Math.random();
+      const roll = secureRandom();
 
       if (roll < successChance) {
         // Success: add dirty money, moderate heat
@@ -645,10 +798,13 @@ async function processShipments(): Promise<void> {
     const arrivals = await client.query<{
       id: string; player_id: string; items_json: Record<string, any>;
       loss_rate: number; route_id: string; season_id: string;
+      destination_city: string;
     }>(
-      `SELECT s.id, s.player_id, s.items_json, s.loss_rate, s.route_id, p.season_id
+      `SELECT s.id, s.player_id, s.items_json, s.loss_rate, s.route_id, p.season_id,
+              tr.destination_city
          FROM shipments s
          JOIN players p ON p.id = s.player_id
+         LEFT JOIN transport_routes tr ON tr.id = s.route_id
         WHERE s.status = 'IN_TRANSIT' AND s.arrives_at <= NOW()`,
     );
 
@@ -657,17 +813,12 @@ async function processShipments(): Promise<void> {
       const delivered: Record<string, number> = {};
       const lost: Record<string, number> = {};
 
-      // Get event modifiers for logistics cost
-      const routeRes = await client.query<{ destination_city: string; origin_city: string }>(
-        `SELECT destination_city, origin_city FROM transport_routes WHERE id = $1`,
-        [ship.route_id],
-      );
-      const destCity = routeRes.rows[0]?.destination_city ?? 'Unknown';
+      const destCity = ship.destination_city ?? 'Unknown';
       const eventMods = await getActiveEventModifiers(ship.season_id, destCity);
 
       // Roll loss for each item type (event supply reduction increases loss)
       for (const [itemName, quantity] of Object.entries(items)) {
-        const lossRoll = Math.random();
+        const lossRoll = secureRandom();
         let effectiveLossRate = ship.loss_rate;
         // Event logistics disruption increases loss rate
         if (eventMods.logistics_cost_multiplier > 1.0) {
@@ -707,12 +858,8 @@ async function processShipments(): Promise<void> {
         [ship.id],
       );
 
-      // Get season_id for alerts
-      const playerRes = await client.query<{ season_id: string }>(
-        `SELECT season_id FROM players WHERE id = $1`,
-        [ship.player_id],
-      );
-      const seasonId = playerRes.rows[0]?.season_id ?? '';
+      // season_id already available from main query join
+      const seasonId = ship.season_id;
 
       const lostSummary = Object.keys(lost).length > 0
         ? ` Lost in transit: ${Object.entries(lost).map(([k, v]) => `${v} ${k}`).join(', ')}.`
@@ -743,7 +890,7 @@ async function processSpyDiscovery(): Promise<void> {
     );
 
     for (const spy of spies.rows) {
-      const roll = Math.random();
+      const roll = secureRandom();
 
       if (roll < spy.discovery_risk) {
         // Spy discovered
@@ -814,7 +961,7 @@ async function processEmbezzlement(): Promise<void> {
     );
 
     for (const mgr of managers.rows) {
-      const roll = Math.random();
+      const roll = secureRandom();
       if (roll >= mgr.embezzlement_risk) continue;
 
       // Get last day's revenue from business_ledger
@@ -828,7 +975,7 @@ async function processEmbezzlement(): Promise<void> {
       if (lastRevenue <= 0) continue;
 
       // Steal 5-15% of last tick's revenue
-      const stealPercent = 0.05 + Math.random() * 0.10;
+      const stealPercent = 0.05 + secureRandom() * 0.10;
       const stolenAmount = lastRevenue * stealPercent;
 
       // Deduct from player
@@ -838,7 +985,7 @@ async function processEmbezzlement(): Promise<void> {
       );
 
       // Detection chance (50%)
-      const detected = Math.random() < 0.5;
+      const detected = secureRandom() < 0.5;
 
       // Log embezzlement
       await client.query(
@@ -894,6 +1041,61 @@ async function processEventExpiry(): Promise<void> {
       );
 
       console.log(`[GameTick:EventExpiry] Event "${evt.title}" (${evt.id}) resolved.`);
+    }
+  });
+}
+
+// ─── Expired Market Listings ──────────────────────────────────
+
+async function processExpiredListings(): Promise<void> {
+  await withTransaction(async (client) => {
+    // Find expired OPEN or PARTIALLY_FILLED listings
+    const expired = await client.query<{
+      id: string; listing_type: string; seller_id: string | null;
+      business_id: string | null; resource_id: string;
+      quantity_remaining: number; season_id: string;
+    }>(
+      `SELECT id, listing_type, seller_id, business_id, resource_id,
+              quantity_remaining, season_id
+         FROM market_listings
+        WHERE status IN ('OPEN', 'PARTIALLY_FILLED')
+          AND expires_at <= NOW()
+        FOR UPDATE`,
+    );
+
+    for (const listing of expired.rows) {
+      // Mark as EXPIRED
+      await client.query(
+        `UPDATE market_listings SET status = 'EXPIRED' WHERE id = $1`,
+        [listing.id],
+      );
+
+      // Return unsold inventory to seller's business for PLAYER_SELL listings
+      if (
+        (listing.listing_type === 'PLAYER_SELL') &&
+        listing.business_id &&
+        listing.quantity_remaining > 0
+      ) {
+        const resRow = await client.query<{ name: string }>(
+          `SELECT name FROM resources WHERE id = $1`,
+          [listing.resource_id],
+        );
+        const resName = resRow.rows[0]?.name ?? listing.resource_id;
+        await client.query(
+          `UPDATE businesses
+           SET inventory = jsonb_set(
+             inventory,
+             $1,
+             to_jsonb((COALESCE((inventory->$2)::int, 0) + $3)::int)
+           )
+           WHERE id = $4`,
+          [`{${resName}}`, resName, listing.quantity_remaining, listing.business_id],
+        );
+      }
+    }
+
+    if (expired.rows.length > 0) {
+      console.log(`[GameTick:ExpiredListings] Expired ${expired.rows.length} listings`);
     }
   });
 }
@@ -968,6 +1170,68 @@ async function processLocationCosts(): Promise<void> {
       );
     }
   });
+}
+
+// ─── Worker Recruitment (replenish employee pool) ─────────────
+
+const FIRST_NAMES = ['Alex','Sam','Jordan','Morgan','Riley','Quinn','Blake','Casey','Dana','Drew','Eli','Finn','Gray','Harper','Kai','Lane','Max','Noel','Pat','Reese','Robin','Sage','Sky','Taylor','Val'];
+const LAST_NAMES = ['Smith','Jones','Chen','Patel','Kim','Lee','Garcia','Wilson','Brown','Singh','Costa','Volkov','Murphy','Novak','Berg','Torres','Nash','Reed','Stone','Wells'];
+
+async function processWorkerRecruitment(): Promise<void> {
+  const seasonRes = await query<{ id: string }>(
+    "SELECT id FROM season_profiles WHERE status = 'ACTIVE' LIMIT 1",
+  );
+  const seasonId = seasonRes.rows[0]?.id;
+  if (!seasonId) return;
+
+  // Count available (unhired) employees
+  const poolRes = await query<{ count: string }>(
+    "SELECT COUNT(*) as count FROM employees WHERE business_id IS NULL AND season_id = $1",
+    [seasonId],
+  );
+  const poolSize = parseInt(poolRes.rows[0].count);
+
+  // Target: maintain 30+ workers in the pool. Spawn up to 8 per tick if low.
+  const TARGET_MIN = 30;
+  if (poolSize >= TARGET_MIN) return;
+
+  const toSpawn = Math.min(8, TARGET_MIN - poolSize);
+  const roles = ['WORKER','WORKER','WORKER','WORKER','WORKER','WORKER','DRIVER','ACCOUNTANT','MANAGER','SECURITY'];
+
+  for (let i = 0; i < toSpawn; i++) {
+    const role = roles[Math.floor(secureRandom() * roles.length)];
+    const eff = 0.30 + secureRandom() * 0.60; // 0.30-0.90
+    const isCriminal = role === 'ENFORCER' || (role === 'DRIVER' && secureRandom() < 0.5);
+    const corr = role === 'ENFORCER' ? 0.4 + secureRandom() * 0.4 : 0.05 + secureRandom() * 0.55;
+    const baseSalary = role === 'WORKER' ? 150 : role === 'MANAGER' ? 400 : role === 'DRIVER' ? 200 : role === 'SECURITY' ? 250 : 180;
+    const salary = Math.round(baseSalary + eff * 200);
+    const name = FIRST_NAMES[Math.floor(secureRandom() * FIRST_NAMES.length)] + ' ' +
+                 LAST_NAMES[Math.floor(secureRandom() * LAST_NAMES.length)];
+
+    await query(
+      `INSERT INTO employees
+         (season_id, name, role, efficiency, speed, loyalty, reliability,
+          corruption_risk, criminal_capable, salary, experience_points,
+          morale, bribe_resistance, business_id, hired_at)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,0,$11,$12,NULL,NULL)`,
+      [
+        seasonId, name, role,
+        parseFloat(eff.toFixed(4)),
+        parseFloat((0.30 + secureRandom() * 0.60).toFixed(4)),
+        parseFloat((0.20 + secureRandom() * 0.65).toFixed(4)),
+        parseFloat((0.40 + secureRandom() * 0.55).toFixed(4)),
+        parseFloat(corr.toFixed(4)),
+        isCriminal,
+        salary,
+        parseFloat((0.60 + secureRandom() * 0.40).toFixed(4)),
+        parseFloat((0.20 + secureRandom() * 0.70).toFixed(4)),
+      ],
+    );
+  }
+
+  if (toSpawn > 0) {
+    console.log(`[GameTick:Recruitment] Spawned ${toSpawn} new employees (pool was ${poolSize})`);
+  }
 }
 
 // ─── Revenue Report Alerts (every 12 ticks = ~1 hour) ─────────
@@ -1282,6 +1546,160 @@ async function processDeliveries(): Promise<void> {
       } catch {
         // Non-critical
       }
+    }
+  });
+}
+
+// ─── Contract Settlement ──────────────────────────────────────
+
+async function processContractSettlement(): Promise<void> {
+  await withTransaction(async (client) => {
+    // Find ACTIVE contracts due for settlement
+    const contracts = await client.query<{
+      id: string; season_id: string; initiator_id: string; counterparty_id: string;
+      resource_id: string; quantity_per_period: number; price_per_unit: number;
+      period: string; duration_periods: number; periods_completed: number;
+      breach_penalty: number; delivery_city: string; auto_renew: boolean;
+    }>(
+      `SELECT * FROM trade_contracts
+        WHERE status = 'ACTIVE'
+          AND next_settlement <= NOW()
+        FOR UPDATE`,
+    );
+
+    for (const ct of contracts.rows) {
+      const totalCost = ct.quantity_per_period * ct.price_per_unit;
+
+      // Resolve resource name for inventory operations
+      const resRow = await client.query<{ name: string }>(
+        `SELECT name FROM resources WHERE id = $1`,
+        [ct.resource_id],
+      );
+      const resName = resRow.rows[0]?.name ?? ct.resource_id;
+
+      // Check initiator has inventory to fulfill
+      const sellerBizRow = await client.query<{ id: string; inventory: Record<string, number> }>(
+        `SELECT id, inventory FROM businesses
+          WHERE owner_id = $1 AND city = $2 AND status = 'ACTIVE'
+          ORDER BY established_at ASC LIMIT 1 FOR UPDATE`,
+        [ct.initiator_id, ct.delivery_city],
+      );
+
+      const sellerHasInventory = sellerBizRow.rows.length > 0 &&
+        ((sellerBizRow.rows[0].inventory as Record<string, number>)[resName] ?? 0) >= ct.quantity_per_period;
+
+      // Check counterparty has cash
+      const buyerRow = await client.query<{ cash: string }>(
+        `SELECT cash FROM players WHERE id = $1 FOR UPDATE`,
+        [ct.counterparty_id],
+      );
+      const buyerHasCash = buyerRow.rows.length > 0 && Number(buyerRow.rows[0].cash) >= totalCost;
+
+      if (!sellerHasInventory || !buyerHasCash) {
+        // Breach: apply penalty to the breaching party
+        const breacherId = !sellerHasInventory ? ct.initiator_id : ct.counterparty_id;
+        const penalty = ct.breach_penalty;
+
+        if (penalty > 0) {
+          await client.query(
+            `UPDATE players SET cash = GREATEST(cash - $1, 0) WHERE id = $2`,
+            [penalty, breacherId],
+          );
+        }
+
+        await client.query(
+          `UPDATE trade_contracts SET status = 'BREACHED' WHERE id = $1`,
+          [ct.id],
+        );
+
+        // Alert both parties
+        const reason = !sellerHasInventory ? 'seller lacked inventory' : 'buyer lacked funds';
+        await createAlert(client, ct.initiator_id, ct.season_id, 'CONTRACT_BREACHED',
+          `Contract breached: ${reason}. Penalty: $${penalty.toFixed(2)}`,
+          { contract_id: ct.id, reason },
+        );
+        await createAlert(client, ct.counterparty_id, ct.season_id, 'CONTRACT_BREACHED',
+          `Contract breached: ${reason}. Penalty: $${penalty.toFixed(2)}`,
+          { contract_id: ct.id, reason },
+        );
+        continue;
+      }
+
+      // Execute settlement: deduct buyer cash, credit seller
+      await client.query(
+        `UPDATE players SET cash = cash - $1 WHERE id = $2`,
+        [totalCost, ct.counterparty_id],
+      );
+      await client.query(
+        `UPDATE players SET cash = cash + $1 WHERE id = $2`,
+        [totalCost, ct.initiator_id],
+      );
+
+      // Transfer inventory: deduct from seller, credit buyer's business in delivery city
+      const sellerBiz = sellerBizRow.rows[0];
+      const sellerInv = sellerBiz.inventory as Record<string, number>;
+      sellerInv[resName] = (sellerInv[resName] ?? 0) - ct.quantity_per_period;
+      await client.query(
+        `UPDATE businesses SET inventory = $1 WHERE id = $2`,
+        [JSON.stringify(sellerInv), sellerBiz.id],
+      );
+
+      // Credit buyer's business in delivery city
+      const buyerBizRow = await client.query<{ id: string; inventory: Record<string, number> }>(
+        `SELECT id, inventory FROM businesses
+          WHERE owner_id = $1 AND city = $2 AND status = 'ACTIVE'
+          ORDER BY established_at ASC LIMIT 1 FOR UPDATE`,
+        [ct.counterparty_id, ct.delivery_city],
+      );
+      if (buyerBizRow.rows.length > 0) {
+        const buyerBiz = buyerBizRow.rows[0];
+        const buyerInv = buyerBiz.inventory as Record<string, number>;
+        buyerInv[resName] = (buyerInv[resName] ?? 0) + ct.quantity_per_period;
+        await client.query(
+          `UPDATE businesses SET inventory = $1 WHERE id = $2`,
+          [JSON.stringify(buyerInv), buyerBiz.id],
+        );
+      }
+
+      // Advance contract
+      const newPeriods = ct.periods_completed + 1;
+      const settlementInterval = ct.period === 'DAILY' ? '1 day' : '7 days';
+
+      if (newPeriods >= ct.duration_periods) {
+        // Contract complete
+        if (ct.auto_renew) {
+          await client.query(
+            `UPDATE trade_contracts
+                SET periods_completed = 0,
+                    next_settlement = NOW() + $1::interval
+              WHERE id = $2`,
+            [settlementInterval, ct.id],
+          );
+        } else {
+          await client.query(
+            `UPDATE trade_contracts SET status = 'COMPLETED', periods_completed = $1 WHERE id = $2`,
+            [newPeriods, ct.id],
+          );
+        }
+      } else {
+        await client.query(
+          `UPDATE trade_contracts
+              SET periods_completed = $1,
+                  next_settlement = NOW() + $2::interval
+            WHERE id = $3`,
+          [newPeriods, settlementInterval, ct.id],
+        );
+      }
+
+      // Alert both parties
+      await createAlert(client, ct.initiator_id, ct.season_id, 'CONTRACT_SETTLED',
+        `Contract settlement: sold ${ct.quantity_per_period} ${resName} for $${totalCost.toFixed(2)}. Period ${newPeriods}/${ct.duration_periods}.`,
+        { contract_id: ct.id, period: newPeriods },
+      );
+      await createAlert(client, ct.counterparty_id, ct.season_id, 'CONTRACT_SETTLED',
+        `Contract settlement: received ${ct.quantity_per_period} ${resName} for $${totalCost.toFixed(2)}. Period ${newPeriods}/${ct.duration_periods}.`,
+        { contract_id: ct.id, period: newPeriods },
+      );
     }
   });
 }

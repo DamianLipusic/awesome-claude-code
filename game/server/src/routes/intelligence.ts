@@ -2,6 +2,7 @@ import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { z } from "zod";
 import { query, withTransaction } from "../db/client";
 import { requireAuth } from "../middleware/auth";
+import { secureRandom, secureRandomInt } from "../lib/random";
 
 const PLACE_SPY_COST = 5000;
 const COUNTER_INTEL_COST = 3000;
@@ -151,7 +152,7 @@ export async function intelligenceRoutes(fastify: FastifyInstance): Promise<void
           const daysActive = (Date.now() - new Date(spy.placed_at).getTime()) / (86400 * 1000);
           const currentRisk = Math.min(1.0, Number(spy.discovery_risk) + daysActive * DAILY_RISK_INCREMENT);
           const detectChance = COUNTER_INTEL_BASE_CHANCE + currentRisk * 0.3;
-          if (Math.random() < detectChance) {
+          if (secureRandom() < detectChance) {
             await client.query("UPDATE spies SET status = 'DISCOVERED' WHERE id = $1", [spy.id]);
             // trust_levels: player_a, player_b
             const [pA, pB] = [playerId, spy.owner_player_id].sort();
@@ -250,7 +251,7 @@ export async function intelligenceRoutes(fastify: FastifyInstance): Promise<void
         if (Number(playerRow.rows[0].cash) < RUMOR_BASE_COST) throw Object.assign(new Error("Insufficient cash: need " + RUMOR_BASE_COST), { statusCode: 400 });
         await client.query("UPDATE players SET cash = cash - $1 WHERE id = $2", [RUMOR_BASE_COST, playerId]);
         // Decrease target's reputation across multiple axes
-        const reputationImpact = Math.floor(Math.random() * 5) + 3; // 3-7 points
+        const reputationImpact = secureRandomInt(3, 8); // 3-7 points
         await client.query(
           "UPDATE reputation_profiles SET score = GREATEST(0, score - $1), updated_at = NOW() WHERE player_id = $2 AND axis IN ('COMMUNITY', 'BUSINESS')",
           [reputationImpact, target_player_id]
@@ -296,7 +297,7 @@ export async function intelligenceRoutes(fastify: FastifyInstance): Promise<void
           const daysActive = (Date.now() - new Date(spy.placed_at).getTime()) / (86400 * 1000);
           const currentRisk = Math.min(1.0, Number(spy.discovery_risk) + daysActive * DAILY_RISK_INCREMENT);
           const detectChance = SWEEP_BASE_CHANCE + currentRisk * 0.25;
-          if (Math.random() < detectChance) {
+          if (secureRandom() < detectChance) {
             await client.query("UPDATE spies SET status = 'DISCOVERED' WHERE id = $1", [spy.id]);
             const [pA, pB] = [playerId, spy.owner_player_id].sort();
             await client.query(

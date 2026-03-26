@@ -2,6 +2,7 @@ import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { z } from "zod";
 import { query, withTransaction } from "../db/client";
 import { requireAuth } from "../middleware/auth";
+import { secureRandom, secureRandomInt } from "../lib/random";
 
 const RIVALRY_LEVELS = {
   NEUTRAL:     { min: 0,  max: 20 },
@@ -100,7 +101,7 @@ export async function rivalryRoutes(fastify: FastifyInstance): Promise<void> {
         const playerRow = await client.query<{ cash: string }>("SELECT cash FROM players WHERE id = $1 FOR UPDATE", [playerId]);
         if (Number(playerRow.rows[0].cash) < config.cost) throw Object.assign(new Error("Insufficient cash: need " + config.cost), { statusCode: 400 });
         await client.query("UPDATE players SET cash = cash - $1 WHERE id = $2", [config.cost, playerId]);
-        const success = Math.random() < config.success_chance;
+        const success = secureRandom() < config.success_chance;
         if (!success) {
           // heat_scores: score column (not heat)
           await client.query(
@@ -114,7 +115,7 @@ export async function rivalryRoutes(fastify: FastifyInstance): Promise<void> {
               [target_player_id]
             );
           } else if (sabotage_type === 'THEFT') {
-            const stolen = Math.floor(Math.random() * 5000) + 1000;
+            const stolen = secureRandomInt(1000, 6000);
             await client.query("UPDATE players SET cash = GREATEST(0, cash - $1) WHERE id = $2", [stolen, target_player_id]);
             await client.query("UPDATE players SET cash = cash + $1 WHERE id = $2", [stolen, playerId]);
           } else if (sabotage_type === 'SPREAD_RUMORS') {

@@ -1,5 +1,6 @@
 import { query, withTransaction } from '../db/client';
 import type { PoolClient } from 'pg';
+import { secureRandom, secureRandomInt } from '../lib/random';
 
 // ── NPC Personality Types ────────────────────────────────────
 
@@ -52,12 +53,12 @@ const ARCHETYPE_CONFIGS: Record<NpcArchetype, NpcPersonality> = {
 // ── Helpers ──────────────────────────────────────────────────
 
 function rand(min: number, max: number): number {
-  return Math.random() * (max - min) + min;
+  return secureRandom() * (max - min) + min;
 }
 
 function weightedPick<T>(items: T[], weights: number[]): T {
   const total = weights.reduce((s, w) => s + w, 0);
-  let r = Math.random() * total;
+  let r = secureRandom() * total;
   for (let i = 0; i < items.length; i++) {
     r -= weights[i];
     if (r <= 0) return items[i];
@@ -83,14 +84,14 @@ async function npcInvest(client: PoolClient, npc: NpcState): Promise<number> {
   const currentBizCount = parseInt(bizCount.rows[0].count);
 
   if (currentBizCount >= npc.business_slots) return 0;
-  if (Math.random() > personality.expansionRate * 0.3) return 0;
+  if (secureRandom() > personality.expansionRate * 0.3) return 0;
 
   const types = Object.keys(personality.investmentBias);
   const weights = Object.values(personality.investmentBias);
   const bizType = weightedPick(types, weights);
 
   const cities = ['Ironport', 'Duskfield', 'Ashvale', 'Coldmarsh', 'Farrow'];
-  const city = cities[Math.floor(Math.random() * cities.length)];
+  const city = cities[secureRandomInt(0, cities.length - 1)];
 
   const baseCosts: Record<string, number> = {
     RETAIL: 5000, FACTORY: 15000, MINE: 12000, FARM: 8000,
@@ -106,7 +107,7 @@ async function npcInvest(client: PoolClient, npc: NpcState): Promise<number> {
 
   const adjectives = ['Iron', 'Golden', 'Shadow', 'Northern', 'Prime', 'Apex', 'Crown', 'Steel'];
   const nouns = ['Works', 'Trading Co.', 'Ventures', 'Industries', 'Group', 'Holdings'];
-  const bizName = adjectives[Math.floor(Math.random() * adjectives.length)] + ' ' + nouns[Math.floor(Math.random() * nouns.length)];
+  const bizName = adjectives[secureRandomInt(0, adjectives.length - 1)] + ' ' + nouns[secureRandomInt(0, nouns.length - 1)];
 
   await client.query(
     `INSERT INTO businesses
@@ -192,7 +193,7 @@ async function npcTrade(client: PoolClient, npc: NpcState): Promise<number> {
   const personality = getPersonality(npc.npc_personality);
   if (!personality) return 0;
 
-  if (Math.random() > personality.marketAggression * 0.5) return 0;
+  if (secureRandom() > personality.marketAggression * 0.5) return 0;
 
   const businesses = await client.query<{
     id: string; inventory: Record<string, number>; city: string;
@@ -301,7 +302,7 @@ async function npcCrimeOps(client: PoolClient, npc: NpcState): Promise<number> {
   const personality = getPersonality(npc.npc_personality);
   if (!personality) return 0;
 
-  if (Math.random() > personality.crimeWillingness * 0.2) return 0;
+  if (secureRandom() > personality.crimeWillingness * 0.2) return 0;
 
   const activeCrime = await client.query<{ count: string }>(
     `SELECT COUNT(*) as count FROM criminal_operations
@@ -310,17 +311,17 @@ async function npcCrimeOps(client: PoolClient, npc: NpcState): Promise<number> {
   );
   if (parseInt(activeCrime.rows[0].count) >= 2) return 0;
 
-  const heatRow = await client.query<{ heat: string }>(
-    'SELECT COALESCE(heat, 0) as heat FROM heat_scores WHERE player_id = $1',
-    [npc.id]
+  const heatRow = await client.query<{ score: string }>(
+    'SELECT COALESCE(score, 0) as score FROM heat_scores WHERE player_id = $1 AND season_id = $2',
+    [npc.id, npc.season_id]
   );
-  const heat = parseFloat(heatRow.rows[0]?.heat ?? '0');
+  const heat = parseFloat(heatRow.rows[0]?.score ?? '0');
   if (heat > 500) return 0;
 
   const crimeTypes = personality.archetype === 'SHADOW_KING'
     ? ['SMUGGLING', 'EXTORTION', 'FRAUD']
     : ['SMUGGLING', 'THEFT'];
-  const crimeType = crimeTypes[Math.floor(Math.random() * crimeTypes.length)];
+  const crimeType = crimeTypes[secureRandomInt(0, crimeTypes.length - 1)];
 
   const biz = await client.query<{ id: string; city: string }>(
     `SELECT id, city FROM businesses
@@ -355,10 +356,8 @@ async function npcCrimeOps(client: PoolClient, npc: NpcState): Promise<number> {
   // Add heat
   const heatGain = Math.floor(rand(10, 80));
   await client.query(
-    `INSERT INTO heat_scores (player_id, heat)
-     VALUES ($1, $2)
-     ON CONFLICT (player_id) DO UPDATE SET heat = heat_scores.heat + $2`,
-    [npc.id, heatGain]
+    `UPDATE heat_scores SET score = LEAST(score + $1, 1000) WHERE player_id = $2 AND season_id = $3`,
+    [heatGain, npc.id, npc.season_id]
   );
 
   actions++;

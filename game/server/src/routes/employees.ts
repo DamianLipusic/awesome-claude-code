@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { query, withTransaction } from '../db/client';
 import { requireAuth } from '../middleware/auth';
 import { calculateHireCost, MAX_EMPLOYEES_PER_TIER } from '../lib/constants';
+import { secureRandom, secureRandomInt } from '../lib/random';
 import type { EmployeeRole } from '../../../shared/src/types/entities';
 import { adjustReputation } from '../lib/reputation';
 
@@ -127,13 +128,17 @@ export async function employeeRoutes(fastify: FastifyInstance): Promise<void> {
       }
 
       const where = conditions.join(' AND ');
+      const limit = Math.min(Math.max(parseInt((request.query as { limit?: string }).limit ?? '50', 10) || 50, 1), 100);
+      const offset = Math.max(parseInt((request.query as { offset?: string }).offset ?? '0', 10) || 0, 0);
+      params.push(limit, offset);
       const result = await query(
         `SELECT e.id, e.name, e.role, e.efficiency, e.speed, e.loyalty, e.reliability,
                 e.corruption_risk, e.salary, e.morale, e.criminal_capable, e.bribe_resistance,
                 e.experience_points
            FROM employees e
           WHERE ${where}
-          ORDER BY e.efficiency DESC`,
+          ORDER BY e.efficiency DESC
+          LIMIT $${paramIndex++} OFFSET $${paramIndex++}`,
         params,
       );
 
@@ -379,7 +384,7 @@ export async function employeeRoutes(fastify: FastifyInstance): Promise<void> {
           const loyaltyFactor = 1 - (emp.loyalty / 100);
           const successChance = Math.min(0.9, salaryRatio * 0.3 * (0.5 + loyaltyFactor * 0.5));
 
-          const roll = Math.random();
+          const roll = secureRandom();
           if (roll >= successChance) {
             await adjustReputation(playerId, 'EMPLOYEE', -2, 'Failed poach attempt on ' + emp.name);
             return { success: false, message: emp.name + ' rejected your offer.' };
@@ -450,7 +455,7 @@ export async function employeeRoutes(fastify: FastifyInstance): Promise<void> {
 
           await client.query('UPDATE players SET cash = cash - $1 WHERE id = $2', [TRAINING_COST, playerId]);
 
-          const boost = 5 + Math.floor(Math.random() * 6);
+          const boost = secureRandomInt(5, 11);
           const columnMap: Record<string, string> = {
             efficiency: 'efficiency',
             speed: 'speed',

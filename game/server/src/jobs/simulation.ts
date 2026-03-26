@@ -1,4 +1,5 @@
 import { query, withTransaction } from '../db/client';
+import { secureRandom } from '../lib/random';
 import type { PoolClient } from 'pg';
 import {
   calculateAiPrice,
@@ -147,7 +148,7 @@ export async function employee_production(business_id: string): Promise<void> {
     }
 
     // Corruption check
-    if (Math.random() < corruptionRisk * 0.01) {
+    if (secureRandom() < corruptionRisk * 0.01) {
       // Employee theft: lose up to 5% of first inventory item
       const items = Object.entries(inventory).filter(([, v]) => v > 0);
       if (items.length > 0) {
@@ -292,7 +293,7 @@ export async function crime_action_resolve(operation_id: string): Promise<void> 
       score: string; informant_active: boolean;
     }>(
       `SELECT score, informant_active FROM heat_scores
-        WHERE player_id=$1 AND season_id=$2 LIMIT 1`,
+        WHERE player_id=$1 AND season_id=$2 LIMIT 1 FOR UPDATE`,
       [op.player_id, op.season_id]
     );
     const heatScore = heatRes.rows.length > 0 ? parseFloat(heatRes.rows[0].score) : 0;
@@ -389,7 +390,7 @@ export async function laundering_tick(): Promise<void> {
       // Detection check for laundering
       const heatRes = await client.query<{ score: string; informant_active: boolean }>(
         `SELECT score, informant_active FROM heat_scores
-          WHERE player_id=$1 AND season_id=$2 LIMIT 1`,
+          WHERE player_id=$1 AND season_id=$2 LIMIT 1 FOR UPDATE`,
         [proc.player_id, proc.season_id]
       );
       const heatScore = heatRes.rows.length > 0 ? parseFloat(heatRes.rows[0].score) : 0;
@@ -591,6 +592,11 @@ export async function daily_costs(season_id: string): Promise<void> {
         [liability, bal.player_id]
       );
     }
+
+    // Prune old price_history records (keep last 7 days)
+    await client.query(
+      `DELETE FROM price_history WHERE recorded_at < NOW() - INTERVAL '7 days'`,
+    );
 
     console.log('[sim] Daily costs applied.');
   });

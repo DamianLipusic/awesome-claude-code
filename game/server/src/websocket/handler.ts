@@ -47,15 +47,21 @@ export async function registerWebSocketHandler(app: FastifyInstance): Promise<vo
     const url = new URL(request.url, 'http://localhost');
     const token = url.searchParams.get('token');
 
-    if (token) {
-      try {
-        const payload = app.jwt.verify(token) as { sub: string; type?: string };
-        if (!payload.type || payload.type === 'access') {
-          player_id = payload.sub;
-        }
-      } catch {
-        // Invalid or expired token — allow connection as anonymous
+    if (!token) {
+      socket.close(1008, 'Authentication required');
+      return;
+    }
+
+    try {
+      const payload = app.jwt.verify(token) as { sub: string; type?: string };
+      if (payload.type && payload.type !== 'access') {
+        socket.close(1008, 'Invalid token type');
+        return;
       }
+      player_id = payload.sub;
+    } catch {
+      socket.close(1008, 'Invalid or expired token');
+      return;
     }
 
     clients.set(client_id, { ws: socket, player_id, subscriptions: new Set() });

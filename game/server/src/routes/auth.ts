@@ -56,8 +56,26 @@ async function issueTokenPair(
 }
 
 export async function authRoutes(app: FastifyInstance): Promise<void> {
+  const authRateLimit = {
+    config: {
+      rateLimit: {
+        max: 5,
+        timeWindow: '15 minutes',
+      },
+    },
+  };
+
+  const registerRateLimit = {
+    config: {
+      rateLimit: {
+        max: 3,
+        timeWindow: '1 hour',
+      },
+    },
+  };
+
   // POST /auth/register
-  app.post('/register', async (request: FastifyRequest, reply: FastifyReply) => {
+  app.post('/register', registerRateLimit, async (request: FastifyRequest, reply: FastifyReply) => {
     const parsed = RegisterSchema.safeParse(request.body);
     if (!parsed.success) {
       return reply.status(400).send({ error: parsed.error.errors[0].message });
@@ -117,7 +135,7 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
   });
 
   // POST /auth/login
-  app.post('/login', async (request: FastifyRequest, reply: FastifyReply) => {
+  app.post('/login', authRateLimit, async (request: FastifyRequest, reply: FastifyReply) => {
     const parsed = LoginSchema.safeParse(request.body);
     if (!parsed.success) {
       return reply.status(400).send({ error: parsed.error.errors[0].message });
@@ -144,7 +162,7 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
   });
 
   // POST /auth/refresh
-  app.post('/refresh', async (request: FastifyRequest, reply: FastifyReply) => {
+  app.post('/refresh', authRateLimit, async (request: FastifyRequest, reply: FastifyReply) => {
     const parsed = RefreshSchema.safeParse(request.body);
     if (!parsed.success) {
       return reply.status(400).send({ error: 'refresh_token required' });

@@ -1,6 +1,7 @@
 import type { HeatLevel } from '../../../shared/src/types/entities';
 import { DETECTION_BASE_RATE, BRIBE_DISCOUNT } from './constants';
 import { query } from '../db/client';
+import { secureRandom } from './random';
 
 export interface DetectionContext {
   risk_level: number;           // 1–10 from CRIME_OP_CONFIGS
@@ -57,7 +58,7 @@ export function detection_check(
   ctx: DetectionContext
 ): { detected: boolean; roll: number; probability: number } {
   const probability = calcDetectionProbability(heatScore, ctx);
-  const roll = Math.random();
+  const roll = secureRandom();
   return {
     detected: roll < probability,
     roll,

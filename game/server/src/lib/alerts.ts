@@ -47,10 +47,10 @@ export async function getUnreadAlertCount(
   return parseInt(res.rows[0]?.count ?? '0', 10);
 }
 
-export async function markAlertRead(alertId: string): Promise<boolean> {
+export async function markAlertRead(alertId: string, playerId: string): Promise<boolean> {
   const res = await query(
-    `UPDATE alerts SET read = true WHERE id = $1 RETURNING id`,
-    [alertId],
+    `UPDATE alerts SET read = true WHERE id = $1 AND player_id = $2 RETURNING id`,
+    [alertId, playerId],
   );
   return res.rows.length > 0;
 }

@@ -2,6 +2,7 @@ import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { z } from 'zod';
 import { query, withTransaction } from '../db/client';
 import { requireAuth } from '../middleware/auth';
+import { secureRandomInt } from '../lib/random';
 
 // ─── Constants ────────────────────────────────────────────────
 
@@ -188,7 +189,7 @@ export async function locationRoutes(fastify: FastifyInstance): Promise<void> {
         await client.query(`UPDATE players SET cash = cash - $1 WHERE id = $2`, [setupCost, playerId]);
 
         // Assign a random traffic level 1-10
-        const trafficLevel = Math.floor(Math.random() * 10) + 1;
+        const trafficLevel = secureRandomInt(1, 11);
 
         // Create location
         const locRow = await client.query(

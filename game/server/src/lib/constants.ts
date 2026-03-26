@@ -284,7 +284,7 @@ export const SECURITY_TIER_STATS: Record<number, {
 export const GAME_BALANCE = {
   // Economy
   STARTING_CASH: 50000,
-  BUSINESS_BASE_REVENUE: 500,     // per tick
+  BUSINESS_BASE_REVENUE: 1400,    // daily base (revenue = tier * this * efficiency)
   UPGRADE_COST_MULTIPLIER: 1.8,   // each level costs 1.8x more
   MAX_BUSINESS_LEVEL: 10,
 
@@ -316,13 +316,13 @@ export const MAX_EMPLOYEES_PER_TIER: Record<number, number> = {
 };
 
 export const BUSINESS_STARTUP_COSTS: Record<string, number> = {
-  RETAIL: 25000, FACTORY: 150000, MINE: 80000, FARM: 40000,
+  RETAIL: 15000, FACTORY: 120000, MINE: 50000, FARM: 25000,
   LOGISTICS: 60000, SECURITY_FIRM: 45000, FRONT_COMPANY: 100000
 };
 
 export const BUSINESS_DAILY_COSTS: Record<string, number> = {
-  RETAIL: 800, FACTORY: 3000, MINE: 2000, FARM: 1200,
-  LOGISTICS: 1800, SECURITY_FIRM: 1500, FRONT_COMPANY: 2500
+  RETAIL: 600, FACTORY: 2500, MINE: 1200, FARM: 800,
+  LOGISTICS: 1500, SECURITY_FIRM: 1200, FRONT_COMPANY: 2000
 };
 
 export const DISTRICT_REVENUE_MULTIPLIER: Record<number, number> = {

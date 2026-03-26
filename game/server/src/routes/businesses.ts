@@ -283,9 +283,9 @@ export async function businessRoutes(app: FastifyInstance): Promise<void> {
       `SELECT day::text, revenue, expenses
          FROM business_ledger
         WHERE business_id = $1
-          AND day >= CURRENT_DATE - INTERVAL '${numDays} days'
+          AND day >= CURRENT_DATE - make_interval(days => $2)
         ORDER BY day ASC`,
-      [id],
+      [id, numDays],
     );
 
     // Build a full array covering the last N days (fill gaps with 0)

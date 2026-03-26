@@ -208,7 +208,7 @@ export async function playerRoutes(app: FastifyInstance): Promise<void> {
   // POST /players/notifications/:id/read — mark single notification as read
   app.post('/notifications/:id/read', { preHandler: [requireAuth] }, async (request: FastifyRequest, reply: FastifyReply) => {
     const { id } = request.params as { id: string };
-    const success = await markAlertRead(id);
+    const success = await markAlertRead(id, request.player.id);
     if (!success) return reply.status(404).send({ error: 'Notification not found' });
     return reply.send({ data: { success: true } });
   });
