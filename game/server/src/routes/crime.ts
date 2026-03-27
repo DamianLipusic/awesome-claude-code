@@ -143,7 +143,16 @@ export async function crimeRoutes(fastify: FastifyInstance): Promise<void> {
     async (request: FastifyRequest, reply: FastifyReply) => {
       const playerId = request.player.id; const playerSeasonId = request.player.season_id;
       const result = await query(
-        `SELECT * FROM criminal_operations
+        `SELECT *,
+                EXTRACT(EPOCH FROM (completes_at - NOW()))::int AS seconds_remaining,
+                CASE WHEN completes_at > started_at
+                  THEN ROUND(
+                    (EXTRACT(EPOCH FROM (NOW() - started_at)) /
+                     EXTRACT(EPOCH FROM (completes_at - started_at))) * 100
+                  )::int
+                  ELSE 100
+                END AS progress_pct
+         FROM criminal_operations
          WHERE player_id = $1 AND season_id = $2 AND status = 'ACTIVE'
          ORDER BY started_at DESC`,
         [playerId, playerSeasonId],

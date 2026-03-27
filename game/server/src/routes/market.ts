@@ -725,12 +725,22 @@ export async function marketRoutes(fastify: FastifyInstance): Promise<void> {
         if (change1h > 1) direction = 'up';
         else if (change1h < -1) direction = 'down';
 
+        // Fair value signal: compare current price to base value
+        const baseVal = parseFloat(r.base_value);
+        const priceRatio = baseVal > 0 ? currentPrice / baseVal : 1;
+        let valueSignal: 'underpriced' | 'fair' | 'overpriced' = 'fair';
+        if (priceRatio < 0.8) valueSignal = 'underpriced';
+        else if (priceRatio > 1.3) valueSignal = 'overpriced';
+
         return {
           resource_id: r.id,
           name: r.name,
           category: r.category,
           current_price: currentPrice,
-          base_value: parseFloat(r.base_value),
+          base_value: baseVal,
+          fair_value: baseVal,
+          value_signal: valueSignal,
+          price_vs_fair_pct: Math.round((priceRatio - 1) * 100),
           change_24h_pct: parseFloat(change24h.toFixed(1)),
           change_1h_pct: parseFloat(change1h.toFixed(1)),
           high_24h: r.high_24h ? parseFloat(r.high_24h) : currentPrice,

@@ -101,14 +101,24 @@ export async function runGameTick(): Promise<void> {
     try {
       const playerSummaries = await query<{
         id: string; cash: string; net_worth: string;
+        biz_count: string; emp_count: string; rank: string;
       }>(
-        `SELECT id, cash::text, net_worth::text FROM players
-          WHERE last_active > NOW() - INTERVAL '30 minutes'`,
+        `SELECT p.id, p.cash::text, p.net_worth::text,
+                COALESCE(bc.cnt, 0)::text AS biz_count,
+                COALESCE(ec.cnt, 0)::text AS emp_count,
+                (ROW_NUMBER() OVER (ORDER BY p.net_worth DESC))::text AS rank
+           FROM players p
+           LEFT JOIN (SELECT owner_id, COUNT(*) AS cnt FROM businesses WHERE status = 'ACTIVE' GROUP BY owner_id) bc ON bc.owner_id = p.id
+           LEFT JOIN (SELECT b.owner_id, COUNT(*) AS cnt FROM employees e JOIN businesses b ON b.id = e.business_id GROUP BY b.owner_id) ec ON ec.owner_id = p.id
+          WHERE p.last_active > NOW() - INTERVAL '30 minutes'`,
       );
       for (const p of playerSummaries.rows) {
         emitToPlayer(p.id, 'tick_update', {
           cash: parseFloat(p.cash),
           net_worth: parseFloat(p.net_worth),
+          rank: parseInt(p.rank),
+          businesses: parseInt(p.biz_count),
+          employees: parseInt(p.emp_count),
           tick_time: new Date().toISOString(),
         });
       }
