@@ -12,6 +12,7 @@ import { api } from '../lib/api';
 import { formatCurrency } from '../components/ui/CurrencyText';
 import { LoadingSkeleton } from '../components/ui/LoadingScreen';
 import { EmptyState } from '../components/ui/EmptyState';
+import { useToast } from '../components/Toast';
 
 // ─── V2 Types (match /game/dashboard response) ──────────────
 interface V2Business {
@@ -205,6 +206,7 @@ function BusinessCard({ biz, onHire, onSell }: {
 // ─── Create Business ─────────────────────────────────────────
 function CreateBusinessSection() {
   const queryClient = useQueryClient();
+  const { show } = useToast();
 
   const types = [
     { type: 'FARM', emoji: '🌾', cost: 5000, product: 'Food' },
@@ -215,7 +217,14 @@ function CreateBusinessSection() {
   const createMut = useMutation({
     mutationFn: ({ name, type }: { name: string; type: string }) =>
       api.post('/game/businesses', { name, type }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
+    onSuccess: (data: any) => {
+      const d = data?.data || data;
+      const xp = d?.xp_earned ? ` (+${d.xp_earned} XP)` : '';
+      show(`Business created!${xp}`, 'success');
+      if (d?.leveled_up) show(`Level Up! You're now Level ${d.new_level}!`, 'info');
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+    },
+    onError: (err: any) => show(err?.message || 'Failed to create business', 'error'),
   });
 
   return (
@@ -243,9 +252,17 @@ function CreateBusinessSection() {
 // ─── Sell All Button ─────────────────────────────────────────
 function SellAllButton({ totalInventory }: { totalInventory: number }) {
   const queryClient = useQueryClient();
+  const { show } = useToast();
   const sellAllMut = useMutation({
     mutationFn: () => api.post('/game/sell-all'),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
+    onSuccess: (data: any) => {
+      const d = data?.data || data;
+      const xp = d?.xp_earned ? ` (+${d.xp_earned} XP)` : '';
+      show(`Sold ${d?.total_units || totalInventory} items for ${formatCurrency(d?.total_revenue || 0)}!${xp}`, 'success');
+      if (d?.leveled_up) show(`Level Up! You're now Level ${d.new_level}!`, 'info');
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+    },
+    onError: (err: any) => show(err?.message || 'Failed to sell', 'error'),
   });
 
   if (totalInventory === 0) return null;
@@ -298,6 +315,7 @@ function ActivityFeed({ activity }: { activity: V2Dashboard['activity'] }) {
 // ─── Main Dashboard ──────────────────────────────────────────
 export function DashboardScreen() {
   const queryClient = useQueryClient();
+  const { show } = useToast();
 
   const { data, isLoading, refetch, isRefetching } = useQuery<V2Dashboard>({
     queryKey: ['dashboard'],
@@ -308,13 +326,27 @@ export function DashboardScreen() {
 
   const hireMut = useMutation({
     mutationFn: (bizId: string) => api.post(`/game/businesses/${bizId}/hire`),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
+    onSuccess: (data: any) => {
+      const d = data?.data || data;
+      const xp = d?.xp_earned ? ` (+${d.xp_earned} XP)` : '';
+      show(`Hired ${d?.name || 'worker'} (skill ${d?.skill || '?'})!${xp}`, 'success');
+      if (d?.leveled_up) show(`Level Up! You're now Level ${d.new_level}!`, 'info');
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+    },
+    onError: (err: any) => show(err?.message || 'Failed to hire', 'error'),
   });
 
   const sellMut = useMutation({
     mutationFn: ({ bizId, qty }: { bizId: string; qty: number }) =>
       api.post('/game/sell', { business_id: bizId, quantity: qty }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
+    onSuccess: (data: any) => {
+      const d = data?.data || data;
+      const xp = d?.xp_earned ? ` (+${d.xp_earned} XP)` : '';
+      show(`Sold ${d?.quantity || '?'} ${d?.product || 'items'} for ${formatCurrency(d?.revenue || 0)}!${xp}`, 'success');
+      if (d?.leveled_up) show(`Level Up! You're now Level ${d.new_level}!`, 'info');
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+    },
+    onError: (err: any) => show(err?.message || 'Failed to sell', 'error'),
   });
 
   const onRefresh = useCallback(() => { refetch(); }, [refetch]);

@@ -1,11 +1,11 @@
 {
   "meta": {
     "total": 30,
-    "done": 19,
+    "done": 20,
     "running": 0,
-    "pending": 11,
+    "pending": 10,
     "failed": 0,
-    "last_updated": "2026-03-27T09:02:54.936813"
+    "last_updated": "2026-03-27T09:06:45.107972"
   },
   "tasks": [
     {
@@ -194,7 +194,7 @@
     {
       "id": "T019",
       "title": "Toast notifications for all player actions",
-      "status": "pending",
+      "status": "done",
       "priority": "high",
       "phase": "feedback",
       "created_at": "2026-03-27",
@@ -204,7 +204,9 @@
           "client/src/screens/DashboardScreen.tsx"
         ],
         "pattern": "In each useMutation onSuccess callback, call show() with contextual message"
-      }
+      },
+      "completed_at": "2026-03-27",
+      "notes": "Toasts wired into all mutations: hire, sell, sell-all, create-biz. Shows XP earned, level-up celebration. Error toasts on failures."
     },
     {
       "id": "T020",
