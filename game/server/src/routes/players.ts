@@ -979,6 +979,49 @@ export async function playerRoutes(app: FastifyInstance): Promise<void> {
     return reply.send({ data: { marked_read: count } });
   });
 
+  // GET /players/cash-forecast — Projected cash based on current income
+  app.get('/cash-forecast', { preHandler: [requireAuth] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    const playerId = request.player.id;
+
+    const playerRes = await query<{ cash: string }>(
+      'SELECT cash FROM players WHERE id = $1', [playerId]);
+    if (!playerRes.rows.length) return reply.status(404).send({ error: 'Player not found' });
+    const cash = parseFloat(playerRes.rows[0].cash);
+
+    // Calculate current daily income from businesses
+    const bizRes = await query<{ daily_rev: string; daily_cost: string; daily_salary: string }>(
+      `SELECT
+         COALESCE(SUM(b.tier * 1400 * b.efficiency * (1 + COALESCE(ec.cnt, 0) * 0.1)), 0)::text AS daily_rev,
+         COALESCE(SUM(b.daily_operating_cost), 0)::text AS daily_cost,
+         COALESCE(SUM(sc.total_salary), 0)::text AS daily_salary
+       FROM businesses b
+       LEFT JOIN (SELECT business_id, COUNT(*) AS cnt FROM employees GROUP BY business_id) ec ON ec.business_id = b.id
+       LEFT JOIN (SELECT business_id, SUM(salary) AS total_salary FROM employees GROUP BY business_id) sc ON sc.business_id = b.id
+       WHERE b.owner_id = $1 AND b.status = 'ACTIVE'`,
+      [playerId],
+    );
+
+    const dailyRev = parseFloat(bizRes.rows[0]?.daily_rev ?? '0');
+    const dailyCost = parseFloat(bizRes.rows[0]?.daily_cost ?? '0');
+    const dailySalary = parseFloat(bizRes.rows[0]?.daily_salary ?? '0');
+    const dailyNet = dailyRev - dailyCost - dailySalary;
+
+    return reply.send({
+      data: {
+        current_cash: cash,
+        daily_revenue: parseFloat(dailyRev.toFixed(2)),
+        daily_costs: parseFloat((dailyCost + dailySalary).toFixed(2)),
+        daily_net: parseFloat(dailyNet.toFixed(2)),
+        forecast: [
+          { period: '1d', projected_cash: parseFloat((cash + dailyNet).toFixed(2)) },
+          { period: '3d', projected_cash: parseFloat((cash + dailyNet * 3).toFixed(2)) },
+          { period: '7d', projected_cash: parseFloat((cash + dailyNet * 7).toFixed(2)) },
+        ],
+        per_tick: parseFloat((dailyNet / 288).toFixed(2)),
+      },
+    });
+  });
+
   // GET /players/daily-summary — What happened since last login
   app.get('/daily-summary', { preHandler: [requireAuth] }, async (request: FastifyRequest, reply: FastifyReply) => {
     const playerId = request.player.id;

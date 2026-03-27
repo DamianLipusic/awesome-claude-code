@@ -322,7 +322,29 @@ export async function businessRoutes(app: FastifyInstance): Promise<void> {
       `SELECT * FROM employees WHERE business_id = $1 ORDER BY hired_at ASC`,
       [id],
     );
-    return reply.send({ data: { ...res.rows[0], employees: empRes.rows } });
+
+    // Production input needs vs current stock
+    const biz = res.rows[0];
+    const recipe = PRODUCTION_RECIPES[biz.type as BusinessType]?.[biz.tier];
+    const workerCount = empRes.rows.filter((e: any) => e.role === 'WORKER').length;
+    const inventory = biz.inventory as Record<string, number> ?? {};
+
+    let inputNeeds: Array<{ resource: string; need_per_tick: number; have: number; ticks_remaining: number }> = [];
+    if (recipe && recipe.inputs.length > 0 && workerCount > 0) {
+      inputNeeds = recipe.inputs.map(input => {
+        const needPerTick = input.quantity * workerCount;
+        const have = inventory[input.resource_name] ?? 0;
+        const ticksRemaining = needPerTick > 0 ? Math.floor(have / needPerTick) : 999;
+        return {
+          resource: input.resource_name,
+          need_per_tick: needPerTick,
+          have,
+          ticks_remaining: ticksRemaining,
+        };
+      });
+    }
+
+    return reply.send({ data: { ...biz, employees: empRes.rows, input_needs: inputNeeds } });
   });
 
   // PUT /businesses/:id

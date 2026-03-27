@@ -23,13 +23,6 @@ interface StrategyItem {
 
 const ITEMS: StrategyItem[] = [
   {
-    key: 'Alliance',
-    icon: '\u{1F91D}',
-    title: 'Alliances',
-    description: 'Form syndicates, build trust, and coordinate with allies',
-    color: '#22c55e',
-  },
-  {
     key: 'Rivalry',
     icon: '\u{2694}\uFE0F',
     title: 'Rivalries & War',
@@ -37,38 +30,31 @@ const ITEMS: StrategyItem[] = [
     color: '#ef4444',
   },
   {
-    key: 'Intelligence',
-    icon: '\u{1F575}\uFE0F',
-    title: 'Intelligence',
-    description: 'Deploy spies, gather intel, and run counter-intelligence',
-    color: '#3b82f6',
-  },
-  {
     key: 'Logistics',
     icon: '\u{1F69A}',
     title: 'Logistics',
-    description: 'Manage shipments, routes, and set up blockades',
+    description: 'Manage shipments and supply routes between cities',
     color: '#f97316',
   },
   {
     key: 'Events',
     icon: '\u{1F30D}',
     title: 'World Events',
-    description: 'Monitor global events affecting the economy',
+    description: 'Monitor events affecting prices and crime rates',
     color: '#a855f7',
   },
   {
     key: 'Managers',
     icon: '\u{1F454}',
     title: 'Managers',
-    description: 'Assign managers, audit for embezzlement, and track efficiency',
+    description: 'Assign managers to boost business efficiency',
     color: '#06b6d4',
   },
   {
     key: 'Locations',
     icon: '\u{1F4CD}',
     title: 'Locations',
-    description: 'Manage properties, upgrade locations, and transform to dual-use',
+    description: 'Manage properties and zone bonuses',
     color: '#eab308',
   },
 ];
