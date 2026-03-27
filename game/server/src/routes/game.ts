@@ -11,6 +11,48 @@ const BUSINESS_CONFIG = {
 } as const;
 
 const WORKER_COST = 2000;
+
+// ─── XP / Level System ─────────────────────────────────────────
+const XP_REWARDS = {
+  CREATE_BIZ: 100,
+  HIRE: 50,
+  UPGRADE: 200,
+  SELL_PER_1000: 10, // 10 XP per $1,000 revenue
+} as const;
+
+const LEVEL_THRESHOLDS = [0, 100, 300, 600, 1000, 1500, 2500, 4000, 6000, 10000];
+
+function calculateLevel(xp: number): { level: number; xp_current: number; xp_for_next: number | null } {
+  let level = 1;
+  for (let i = 1; i < LEVEL_THRESHOLDS.length; i++) {
+    if (xp >= LEVEL_THRESHOLDS[i]) level = i + 1;
+    else break;
+  }
+  const currentThreshold = LEVEL_THRESHOLDS[level - 1] || 0;
+  const nextThreshold = LEVEL_THRESHOLDS[level] ?? null;
+  return {
+    level,
+    xp_current: xp - currentThreshold,
+    xp_for_next: nextThreshold !== null ? nextThreshold - currentThreshold : null,
+  };
+}
+
+async function awardXP(client: any, playerId: string, amount: number): Promise<{ new_xp: number; new_level: number; leveled_up: boolean }> {
+  const res = await client.query<{ xp: number; level: number }>(
+    `UPDATE players SET xp = xp + $1 WHERE id = $2 RETURNING xp, level`, [amount, playerId]
+  );
+  const { xp, level: oldLevel } = res.rows[0];
+  const { level: newLevel } = calculateLevel(xp);
+  if (newLevel !== oldLevel) {
+    await client.query(`UPDATE players SET level = $1 WHERE id = $2`, [newLevel, playerId]);
+    await client.query(
+      `INSERT INTO activity_log (player_id, type, message, amount) VALUES ($1, 'LEVEL_UP', $2, $3)`,
+      [playerId, `Reached Level ${newLevel}!`, amount]
+    );
+  }
+  return { new_xp: xp, new_level: newLevel, leveled_up: newLevel > oldLevel };
+}
+
 const WORKER_NAMES = [
   'Alex', 'Jordan', 'Sam', 'Casey', 'Riley', 'Morgan', 'Taylor', 'Quinn',
   'Avery', 'Blake', 'Charlie', 'Drew', 'Ellis', 'Frankie', 'Gray', 'Harper',
@@ -41,8 +83,8 @@ export async function gameRoutes(app: FastifyInstance): Promise<void> {
     const pid = req.player.id;
 
     const [playerRes, bizRes, activityRes, earningsRes, lastTickRes] = await Promise.all([
-      query<{ cash: string; net_worth: string; created_at: string }>(
-        `SELECT cash, net_worth, created_at FROM players WHERE id = $1`, [pid]
+      query<{ cash: string; net_worth: string; created_at: string; xp: number; level: number }>(
+        `SELECT cash, net_worth, created_at, xp, level FROM players WHERE id = $1`, [pid]
       ),
       query<{
         id: string; name: string; type: BizType; tier: number;
@@ -154,12 +196,18 @@ export async function gameRoutes(app: FastifyInstance): Promise<void> {
     const expenses = Number(earnings.total_expenses);
     const profit = income - expenses;
 
+    const xpInfo = calculateLevel(player.xp);
+
     return reply.send({
       data: {
         player: {
           cash,
           net_worth: netWorth,
           joined: player.created_at,
+          level: xpInfo.level,
+          xp: player.xp,
+          xp_current: xpInfo.xp_current,
+          xp_for_next: xpInfo.xp_for_next,
           rank: currentMilestone,
           next_milestone: nextMilestone ? { name: nextMilestone.name, req: nextMilestone.req, icon: nextMilestone.icon } : null,
           milestones_completed: completedCount,
@@ -223,11 +271,12 @@ export async function gameRoutes(app: FastifyInstance): Promise<void> {
         [pid, `Created ${BUSINESS_CONFIG[type].emoji} ${name} (${type})`, -cost]
       );
 
-      return { id: bizRes.rows[0].id };
+      const xpResult = await awardXP(client, pid, XP_REWARDS.CREATE_BIZ);
+      return { id: bizRes.rows[0].id, xp: xpResult };
     });
 
     if ('error' in result) return reply.status(400).send(result);
-    return reply.status(201).send({ data: { business_id: result.id, cost } });
+    return reply.status(201).send({ data: { business_id: result.id, cost, xp_earned: XP_REWARDS.CREATE_BIZ, leveled_up: result.xp.leveled_up, new_level: result.xp.new_level } });
   });
 
   // ═══════════════════════════════════════════════════════════════
@@ -273,11 +322,12 @@ export async function gameRoutes(app: FastifyInstance): Promise<void> {
         [pid, `Hired ${workerName} (skill ${skill}) at ${biz.name}`, -WORKER_COST]
       );
 
-      return { worker: { id: wRes.rows[0].id, name: workerName, skill } };
+      const xpResult = await awardXP(client, pid, XP_REWARDS.HIRE);
+      return { worker: { id: wRes.rows[0].id, name: workerName, skill }, xp: xpResult };
     });
 
     if ('error' in result) return reply.status(400).send(result);
-    return reply.status(201).send({ data: result.worker });
+    return reply.status(201).send({ data: { ...result.worker, xp_earned: XP_REWARDS.HIRE, leveled_up: result.xp.leveled_up, new_level: result.xp.new_level } });
   });
 
   // ═══════════════════════════════════════════════════════════════
@@ -314,11 +364,13 @@ export async function gameRoutes(app: FastifyInstance): Promise<void> {
         [pid, `Sold ${quantity} ${cfg.product} from ${biz.name} at $${unitPrice}/unit`, revenue]
       );
 
-      return { revenue, quantity, unit_price: unitPrice, product: cfg.product };
+      const xpAmount = Math.max(1, Math.floor(revenue / 1000) * XP_REWARDS.SELL_PER_1000);
+      const xpResult = await awardXP(client, pid, xpAmount);
+      return { revenue, quantity, unit_price: unitPrice, product: cfg.product, xp: xpResult, xp_earned: xpAmount };
     });
 
     if ('error' in result) return reply.status(400).send(result);
-    return reply.send({ data: result });
+    return reply.send({ data: { revenue: result.revenue, quantity: result.quantity, unit_price: result.unit_price, product: result.product, xp_earned: result.xp_earned, leveled_up: result.xp.leveled_up, new_level: result.xp.new_level } });
   });
 
   // ═══════════════════════════════════════════════════════════════
@@ -354,11 +406,12 @@ export async function gameRoutes(app: FastifyInstance): Promise<void> {
         [pid, `Upgraded ${biz.name} to Tier ${biz.tier + 1}`, -cost]
       );
 
-      return { new_tier: biz.tier + 1, cost };
+      const xpResult = await awardXP(client, pid, XP_REWARDS.UPGRADE);
+      return { new_tier: biz.tier + 1, cost, xp: xpResult };
     });
 
     if ('error' in result) return reply.status(400).send(result);
-    return reply.send({ data: result });
+    return reply.send({ data: { new_tier: result.new_tier, cost: result.cost, xp_earned: XP_REWARDS.UPGRADE, leveled_up: result.xp.leveled_up, new_level: result.xp.new_level } });
   });
 
   // ═══════════════════════════════════════════════════════════════
@@ -396,11 +449,13 @@ export async function gameRoutes(app: FastifyInstance): Promise<void> {
 
       await client.query(`UPDATE players SET cash = cash + $1, net_worth = net_worth + $1 WHERE id = $2`, [totalRevenue, pid]);
 
-      return { total_revenue: totalRevenue, total_units: totalUnits, sales };
+      const xpAmount = Math.max(1, Math.floor(totalRevenue / 1000) * XP_REWARDS.SELL_PER_1000);
+      const xpResult = await awardXP(client, pid, xpAmount);
+      return { total_revenue: totalRevenue, total_units: totalUnits, sales, xp: xpResult, xp_earned: xpAmount };
     });
 
     if ('error' in result) return reply.status(400).send(result);
-    return reply.send({ data: result });
+    return reply.send({ data: { total_revenue: result.total_revenue, total_units: result.total_units, sales: result.sales, xp_earned: result.xp_earned, leveled_up: result.xp.leveled_up, new_level: result.xp.new_level } });
   });
 
   // ═══════════════════════════════════════════════════════════════

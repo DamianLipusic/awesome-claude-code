@@ -30,7 +30,10 @@ interface V2Business {
 }
 
 interface V2Dashboard {
-  player: { cash: number; net_worth: number; joined: string };
+  player: {
+    cash: number; net_worth: number; joined: string;
+    level: number; xp: number; xp_current: number; xp_for_next: number | null;
+  };
   businesses: V2Business[];
   activity: { type: string; message: string; amount: number | null; time: string }[];
   stats: { total_businesses: number; total_workers: number; income_per_tick: number };
@@ -52,6 +55,28 @@ const C = {
   accent: '#a29bfe',
 };
 
+// ─── XP Bar ─────────────────────────────────────────────────
+function XPBar({ player }: { player: V2Dashboard['player'] }) {
+  const progress = player.xp_for_next ? Math.min(player.xp_current / player.xp_for_next, 1) : 1;
+  const isMaxLevel = player.xp_for_next === null;
+
+  return (
+    <View style={s.xpContainer}>
+      <View style={s.xpHeader}>
+        <View style={s.levelBadge}>
+          <Text style={s.levelText}>LV {player.level}</Text>
+        </View>
+        <Text style={s.xpLabel}>
+          {isMaxLevel ? `${player.xp} XP — MAX LEVEL` : `${player.xp_current} / ${player.xp_for_next} XP`}
+        </Text>
+      </View>
+      <View style={s.xpBarBg}>
+        <View style={[s.xpBarFill, { width: `${Math.round(progress * 100)}%` }]} />
+      </View>
+    </View>
+  );
+}
+
 // ─── Hero: Cash (BIG) + Stats ────────────────────────────────
 function HeroSection({ data }: { data: V2Dashboard }) {
   const { player, stats } = data;
@@ -59,6 +84,9 @@ function HeroSection({ data }: { data: V2Dashboard }) {
 
   return (
     <View style={s.hero}>
+      {/* Level + XP */}
+      <XPBar player={player} />
+
       <Text style={s.cashLabel}>CASH</Text>
       <Text style={s.cashAmount}>{formatCurrency(player.cash)}</Text>
 
@@ -246,6 +274,7 @@ function ActivityFeed({ activity }: { activity: V2Dashboard['activity'] }) {
     CREATE_BIZ: '🏗️',
     UPGRADE: '⬆️',
     TICK: '🔄',
+    LEVEL_UP: '🎉',
   };
 
   return (
@@ -352,6 +381,47 @@ export function DashboardScreen() {
 const s = StyleSheet.create({
   screen: { flex: 1, backgroundColor: C.bg },
   content: { padding: 16, paddingBottom: 40, gap: 12 },
+
+  // XP Bar
+  xpContainer: {
+    width: '100%',
+    marginBottom: 12,
+  },
+  xpHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 6,
+  },
+  levelBadge: {
+    backgroundColor: C.primary,
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+  },
+  levelText: {
+    fontSize: 12,
+    fontWeight: '900',
+    color: '#fff',
+    letterSpacing: 0.5,
+  },
+  xpLabel: {
+    fontSize: 11,
+    color: C.dim,
+    fontWeight: '600',
+  },
+  xpBarBg: {
+    width: '100%',
+    height: 6,
+    backgroundColor: C.cardBorder,
+    borderRadius: 3,
+    overflow: 'hidden',
+  },
+  xpBarFill: {
+    height: '100%',
+    backgroundColor: C.primary,
+    borderRadius: 3,
+  },
 
   // Hero
   hero: {

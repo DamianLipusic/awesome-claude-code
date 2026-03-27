@@ -1,11 +1,11 @@
 {
   "meta": {
     "total": 30,
-    "done": 17,
+    "done": 19,
     "running": 0,
-    "pending": 13,
+    "pending": 11,
     "failed": 0,
-    "last_updated": "2026-03-27T09:00:00+00:00"
+    "last_updated": "2026-03-27T09:02:54.936813"
   },
   "tasks": [
     {
@@ -28,7 +28,7 @@
     },
     {
       "id": "T003",
-      "title": "Cleanup — disable dead tick subsystems (CORE-010)",
+      "title": "Cleanup \u2014 disable dead tick subsystems (CORE-010)",
       "status": "done",
       "priority": "high",
       "phase": "v2-rebuild",
@@ -83,7 +83,7 @@
       "phase": "stabilization",
       "created_at": "2026-03-27",
       "completed_at": "2026-03-27",
-      "notes": "/players/me → /auth/me, simplified PlayerV2 type"
+      "notes": "/players/me \u2192 /auth/me, simplified PlayerV2 type"
     },
     {
       "id": "T009",
@@ -113,7 +113,7 @@
       "phase": "security",
       "created_at": "2026-03-27",
       "completed_at": "2026-03-27",
-      "notes": "Resolved — was in _legacy/ code, not imported by V2"
+      "notes": "Resolved \u2014 was in _legacy/ code, not imported by V2"
     },
     {
       "id": "T012",
@@ -177,7 +177,7 @@
     {
       "id": "T018",
       "title": "XP/Level system with milestone rewards",
-      "status": "pending",
+      "status": "done",
       "priority": "high",
       "phase": "progression",
       "created_at": "2026-03-27",
@@ -187,7 +187,9 @@
         "server_changes": "Add XP award logic after each action in game routes. Add level calculation helper. Include xp/level in dashboard response and /auth/me.",
         "client_changes": "Add XP bar + level badge to dashboard header. Toast on level up.",
         "validation": "Extend validate.sh to check XP increments after actions"
-      }
+      },
+      "completed_at": "2026-03-27",
+      "notes": "XP/Level system: DB migration, XP awards on all actions (create=100, hire=50, sell=revenue/1000*10, upgrade=200), level thresholds, level-up activity log, dashboard XP bar, /auth/me includes xp/level"
     },
     {
       "id": "T019",
@@ -198,7 +200,9 @@
       "created_at": "2026-03-27",
       "spec": {
         "summary": "Wire useToast() into all mutation callbacks in DashboardScreen. Show success toast with details on hire/sell/create/upgrade/sell-all. Show error toast on failures. Add level-up celebration toast.",
-        "files": ["client/src/screens/DashboardScreen.tsx"],
+        "files": [
+          "client/src/screens/DashboardScreen.tsx"
+        ],
         "pattern": "In each useMutation onSuccess callback, call show() with contextual message"
       }
     },
@@ -224,7 +228,9 @@
       "created_at": "2026-03-27",
       "spec": {
         "summary": "Replace origin:true with whitelist: localhost:8080, localhost:19006, VPS IP. Use env var ALLOWED_ORIGINS.",
-        "files": ["server/src/index.ts"]
+        "files": [
+          "server/src/index.ts"
+        ]
       }
     },
     {
@@ -236,7 +242,10 @@
       "created_at": "2026-03-27",
       "spec": {
         "summary": "Generate new random JWT_SECRET and REFRESH_SECRET. Update .env. Invalidate all existing refresh tokens in DB. Document in .env.example.",
-        "files": ["server/.env", "server/.env.example"]
+        "files": [
+          "server/.env",
+          "server/.env.example"
+        ]
       }
     },
     {
@@ -248,7 +257,9 @@
       "created_at": "2026-03-27",
       "spec": {
         "summary": "Find all Math.random() calls in server code, replace with crypto.randomInt() or crypto.randomUUID(). Affects worker naming, skill generation.",
-        "files": ["server/src/routes/game.ts"]
+        "files": [
+          "server/src/routes/game.ts"
+        ]
       }
     },
     {
@@ -323,7 +334,10 @@
       "created_at": "2026-03-27",
       "spec": {
         "summary": "Add manifest.json with app name, icons, theme color. Generate icon set (192x192, 512x512). Add to Expo web config for installable PWA.",
-        "files": ["client/app.json", "client/assets/"]
+        "files": [
+          "client/app.json",
+          "client/assets/"
+        ]
       }
     },
     {

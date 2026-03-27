@@ -145,7 +145,7 @@ case "${1:-help}" in
   agent-status)
     bash "$GAME_DIR/.intel/agent-runner.sh" --status
     echo ""
-    echo -e "${BOLD}Agent Logs (last 10):${N}"
+    echo -e "\nAgent Logs (last 10):"
     tail -10 "$GAME_DIR/.intel/agent-runs.log" 2>/dev/null || echo "No runs yet"
     ;;
   agent-run)

@@ -148,7 +148,7 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
 
   // GET /me
   app.get('/me', { preHandler: [requireAuth] }, async (req: FastifyRequest, reply: FastifyReply) => {
-    const res = await query(`SELECT id, username, cash, net_worth, created_at FROM players WHERE id = $1`, [req.player.id]);
+    const res = await query(`SELECT id, username, cash, net_worth, xp, level, created_at FROM players WHERE id = $1`, [req.player.id]);
     if (!res.rows.length) return reply.status(404).send({ error: 'Not found' });
     return reply.send({ data: res.rows[0] });
   });
