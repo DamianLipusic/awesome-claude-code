@@ -235,6 +235,29 @@ export async function businessRoutes(app: FastifyInstance): Promise<void> {
         return businessId;
       });
 
+      // Auto-hire first worker for first business so production starts immediately
+      const bizCountRes = await query<{ cnt: string }>(
+        `SELECT COUNT(*) AS cnt FROM businesses WHERE owner_id = $1 AND status != 'BANKRUPT'`,
+        [playerId],
+      );
+      const isFirstBusiness = parseInt(bizCountRes.rows[0]?.cnt ?? '0') === 1;
+      let autoHired = false;
+
+      if (isFirstBusiness) {
+        // Find an available worker
+        const availWorker = await query<{ id: string }>(
+          `SELECT id FROM employees WHERE business_id IS NULL AND season_id = $1 LIMIT 1`,
+          [seasonId],
+        );
+        if (availWorker.rows.length > 0) {
+          await query(
+            `UPDATE employees SET business_id = $1, hired_at = NOW() WHERE id = $2`,
+            [biz, availWorker.rows[0].id],
+          );
+          autoHired = true;
+        }
+      }
+
       await recalculateNetWorth(playerId);
       const res = await query(`SELECT * FROM businesses WHERE id = $1`, [biz]);
       const business = res.rows[0];
@@ -271,7 +294,10 @@ export async function businessRoutes(app: FastifyInstance): Promise<void> {
         data: business,
         projections,
         next_steps: nextSteps,
-        message: `${name} is now open for business! Hire workers to maximize your profits.`,
+        auto_hired: autoHired,
+        message: autoHired
+          ? `${name} is open and a worker has been hired! Production will start next tick.`
+          : `${name} is now open for business! Hire workers to maximize your profits.`,
       });
     } catch (err: unknown) {
       const e = err as { statusCode?: number; message: string };

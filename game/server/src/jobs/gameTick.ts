@@ -33,6 +33,7 @@ export async function runGameTick(): Promise<void> {
     // Each sub-system runs in its own transaction for isolation.
     // ── Core economy (runs every tick) ──
     await runSafe('BusinessRevenue', processBusinessRevenue);
+    await runSafe('EfficiencyDecay', processEfficiencyDecay);
     await runSafe('Production', processProduction);
     await runSafe('SupplyChainTransfer', processSupplyChainTransfer);
     await runSafe('AutoSell', processAutoSell);
@@ -250,6 +251,18 @@ async function processBusinessRevenue(): Promise<void> {
       );
     }
   });
+}
+
+// ─── 1a-2. Efficiency Decay ──────────────────────────────────
+// Businesses slowly lose efficiency without maintenance (~5% per day)
+// Maintenance button in UI restores to 100%
+
+async function processEfficiencyDecay(): Promise<void> {
+  // Decay all businesses by 0.0002 per tick (~5.8%/day)
+  await query(
+    `UPDATE businesses SET efficiency = GREATEST(efficiency - 0.0002, 0.3)
+     WHERE status = 'ACTIVE' AND efficiency > 0.3`,
+  );
 }
 
 // ─── 1b. Automatic Production ─────────────────────────────────
