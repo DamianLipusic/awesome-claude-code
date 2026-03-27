@@ -68,6 +68,12 @@ interface AvailableOp {
   op_type: CrimeOpType;
   available: boolean;
   disabled_reason?: string;
+  success_chance?: number;
+  heat_on_success?: number;
+  heat_on_fail?: number;
+  fine_on_fail?: number;
+  event_modifier_active?: boolean;
+  event_modifier_pct?: number;
 }
 
 interface LaunchOpPayload {
@@ -138,6 +144,38 @@ function OpDetailModal({
                 <Text style={styles.opStatValue}>{config.requires_criminal_employees}</Text>
               </View>
             </View>
+
+            {/* Risk Preview from API */}
+            {op.success_chance != null && (
+              <View style={styles.riskPreview}>
+                <View style={styles.riskPreviewRow}>
+                  <Text style={styles.riskLabel}>Success Chance</Text>
+                  <Text style={[styles.riskValue, {
+                    color: op.success_chance >= 60 ? '#22c55e' : op.success_chance >= 40 ? '#f97316' : '#ef4444'
+                  }]}>{op.success_chance}%</Text>
+                </View>
+                <View style={styles.riskPreviewRow}>
+                  <Text style={styles.riskLabel}>Heat if success</Text>
+                  <Text style={styles.riskValue}>+{op.heat_on_success}</Text>
+                </View>
+                <View style={styles.riskPreviewRow}>
+                  <Text style={styles.riskLabel}>Heat if busted</Text>
+                  <Text style={[styles.riskValue, { color: '#ef4444' }]}>+{op.heat_on_fail}</Text>
+                </View>
+                <View style={styles.riskPreviewRow}>
+                  <Text style={styles.riskLabel}>Fine if busted</Text>
+                  <Text style={[styles.riskValue, { color: '#ef4444' }]}>{formatCurrency(op.fine_on_fail ?? 0)}</Text>
+                </View>
+                {op.event_modifier_active && (
+                  <View style={[styles.riskPreviewRow, { backgroundColor: '#6c5ce722', borderRadius: 6, padding: 6 }]}>
+                    <Text style={[styles.riskLabel, { color: '#a29bfe' }]}>Event modifier</Text>
+                    <Text style={[styles.riskValue, { color: '#a29bfe' }]}>
+                      {(op.event_modifier_pct ?? 0) > 0 ? '+' : ''}{op.event_modifier_pct}%
+                    </Text>
+                  </View>
+                )}
+              </View>
+            )}
 
             {config.requires_criminal_employees > 0 && (
               <View style={styles.employeeSection}>
@@ -244,6 +282,12 @@ export function CrimeOperationsScreen() {
       return res.operations.map(op => ({
         op_type: op.op_type,
         available: op.can_perform,
+        success_chance: op.success_chance as number | undefined,
+        heat_on_success: op.heat_on_success as number | undefined,
+        heat_on_fail: op.heat_on_fail as number | undefined,
+        fine_on_fail: op.fine_on_fail as number | undefined,
+        event_modifier_active: op.event_modifier_active as boolean | undefined,
+        event_modifier_pct: op.event_modifier_pct as number | undefined,
       }));
     },
     staleTime: 30_000,
@@ -310,9 +354,15 @@ export function CrimeOperationsScreen() {
                   <Text style={[styles.opYield, { color: isDisabled ? '#6b7280' : '#22c55e' }]}>
                     ~{formatCurrency(config.base_yield)}
                   </Text>
-                  <Text style={styles.opDuration}>{config.duration_hours}h</Text>
+                  {item.success_chance != null && (
+                    <Text style={[styles.opDuration, {
+                      color: item.success_chance >= 60 ? '#22c55e' : item.success_chance >= 40 ? '#f97316' : '#ef4444'
+                    }]}>
+                      {item.success_chance}% success
+                    </Text>
+                  )}
                   <Text style={styles.opCrew}>
-                    {config.requires_criminal_employees > 0
+                    {config.duration_hours}h \u00B7 {config.requires_criminal_employees > 0
                       ? `${config.requires_criminal_employees} crew`
                       : 'Solo'}
                   </Text>
@@ -445,6 +495,11 @@ const styles = StyleSheet.create({
   riskWarningText: { fontSize: 12, fontWeight: '600' },
   highRiskWarning: { backgroundColor: '#450a0a', borderRadius: 8, padding: 10, marginBottom: 12 },
   highRiskText: { fontSize: 12, color: '#ef4444', fontWeight: '600', lineHeight: 18 },
+
+  riskPreview: { backgroundColor: '#0f0f1a', borderRadius: 8, padding: 10, marginBottom: 12, gap: 6 },
+  riskPreviewRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  riskLabel: { fontSize: 12, color: '#9ca3af' },
+  riskValue: { fontSize: 13, fontWeight: '700', color: '#e0e0e0' },
 
   launchButton: { borderRadius: 12, padding: 16, alignItems: 'center', marginTop: 4 },
   launchButtonDisabled: { opacity: 0.45 },

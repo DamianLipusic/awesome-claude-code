@@ -50,10 +50,14 @@ interface MarketStat {
   category: string;
   base_value: number;
   current_price: number;
+  price_24h_ago?: number;
+  direction?: 'up' | 'down' | 'stable';
   volume_24h: number;
   price_change_percent: number;
   high_24h: number;
   low_24h: number;
+  value_signal?: 'underpriced' | 'fair' | 'overpriced';
+  price_vs_fair_pct?: number;
 }
 
 interface RecentTrade {
@@ -192,6 +196,17 @@ function ResourceCard({ stat, onBuy, onSell }: { stat: MarketStat; onBuy: () => 
         <Text style={styles.metaText}>H: {formatCurrency(stat.high_24h)}</Text>
         <Text style={styles.metaDivider}>/</Text>
         <Text style={styles.metaText}>L: {formatCurrency(stat.low_24h)}</Text>
+        {stat.value_signal && stat.value_signal !== 'fair' && (
+          <>
+            <Text style={styles.metaDivider}>|</Text>
+            <Text style={[styles.metaText, {
+              color: stat.value_signal === 'underpriced' ? T.success : T.error,
+              fontWeight: '700',
+            }]}>
+              {stat.value_signal === 'underpriced' ? 'BUY' : 'SELL'}
+            </Text>
+          </>
+        )}
       </View>
 
       {/* Mini bar indicator */}
