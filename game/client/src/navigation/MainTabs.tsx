@@ -2,40 +2,17 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { DashboardScreen } from '../screens/DashboardScreen';
-import { MarketStack } from './MarketStack';
-import { BusinessStack } from './BusinessStack';
-import { CrimeStack } from './CrimeStack';
-import { StrategyStack } from './StrategyStack';
-import { useAlertStore } from '../stores/alertStore';
-import { useAuthStore } from '../stores/authStore';
 
 export type MainTabParamList = {
   Dashboard: undefined;
-  Market: undefined;
-  Business: undefined;
-  Crime: undefined;
-  Strategy: undefined;
 };
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
-function TabIcon({ emoji, label }: { emoji: string; label: string }) {
+function TabIcon({ emoji }: { emoji: string }) {
   return (
     <View style={tabStyles.iconContainer}>
       <Text style={tabStyles.emoji}>{emoji}</Text>
-    </View>
-  );
-}
-
-function BadgeIcon({ emoji, count }: { emoji: string; count?: number }) {
-  return (
-    <View style={tabStyles.iconContainer}>
-      <Text style={tabStyles.emoji}>{emoji}</Text>
-      {count != null && count > 0 && (
-        <View style={tabStyles.badge}>
-          <Text style={tabStyles.badgeText}>{count > 99 ? '99+' : count}</Text>
-        </View>
-      )}
     </View>
   );
 }
@@ -50,32 +27,9 @@ const tabStyles = StyleSheet.create({
   emoji: {
     fontSize: 22,
   },
-  badge: {
-    position: 'absolute',
-    top: -2,
-    right: -6,
-    backgroundColor: '#ef4444',
-    borderRadius: 8,
-    minWidth: 16,
-    height: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 3,
-  },
-  badgeText: {
-    color: '#fff',
-    fontSize: 9,
-    fontWeight: '700',
-  },
 });
 
 export function MainTabs() {
-  const unreadCount = useAlertStore((s) => s.unreadCount);
-  const player = useAuthStore((s) => s.player);
-
-  const hasCriminalActivity =
-    player?.alignment === 'CRIMINAL' || player?.alignment === 'MIXED';
-
   return (
     <Tab.Navigator
       screenOptions={{
@@ -104,50 +58,8 @@ export function MainTabs() {
         name="Dashboard"
         component={DashboardScreen}
         options={{
-          title: 'Home',
-          tabBarIcon: ({ focused }) => (
-            <BadgeIcon emoji="🏠" count={focused ? 0 : unreadCount} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Market"
-        component={MarketStack}
-        options={{
-          title: 'Market',
-          tabBarIcon: () => <TabIcon emoji="📊" label="Market" />,
-        }}
-      />
-      <Tab.Screen
-        name="Business"
-        component={BusinessStack}
-        options={{
-          title: 'Business',
-          tabBarIcon: () => <TabIcon emoji="🏢" label="Business" />,
-        }}
-      />
-      <Tab.Screen
-        name="Crime"
-        component={CrimeStack}
-        options={{
-          title: 'Crime',
-          tabBarIcon: ({ focused }) => (
-            <BadgeIcon
-              emoji="🔥"
-              count={hasCriminalActivity && !focused ? 1 : undefined}
-            />
-          ),
-          tabBarItemStyle: hasCriminalActivity
-            ? {}
-            : { opacity: 0.5 },
-        }}
-      />
-      <Tab.Screen
-        name="Strategy"
-        component={StrategyStack}
-        options={{
-          title: 'More',
-          tabBarIcon: () => <TabIcon emoji="⚙️" label="More" />,
+          title: 'EmpireOS',
+          tabBarIcon: () => <TabIcon emoji="🏠" />,
         }}
       />
     </Tab.Navigator>

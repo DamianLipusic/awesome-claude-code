@@ -20,8 +20,8 @@ export function LoginScreen() {
 
   const handleEnter = async () => {
     const trimmed = name.trim().toLowerCase().replace(/\s+/g, '_');
-    if (!trimmed || trimmed.length < 2) {
-      setError('Name must be at least 2 characters.');
+    if (!trimmed || trimmed.length < 3) {
+      setError('Name must be at least 3 characters.');
       return;
     }
     if (trimmed.length > 20) {

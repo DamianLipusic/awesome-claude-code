@@ -129,9 +129,50 @@ case "${1:-help}" in
     ;;
   dash-stop) pkill -f "dashboard-server.js" 2>/dev/null && echo -e "${G}Dashboard stopped${N}" || echo -e "${Y}Not running${N}" ;;
 
+  validate)
+    bash "$GAME_DIR/tests/validate.sh" "${2:-}"
+    bash "$GAME_DIR/.intel/update.sh" validate > /dev/null 2>&1 ;;
+  validate-json)
+    bash "$GAME_DIR/tests/validate.sh" --json ;;
+
+  # Project intelligence
+  intel)        bash "$GAME_DIR/.intel/update.sh" status ;;
+  intel-full)   bash "$GAME_DIR/.intel/update.sh" full ;;
+  intel-health) bash "$GAME_DIR/.intel/update.sh" health ;;
+  recover)      bash "$GAME_DIR/.intel/recover.sh" ;;
+
+  # Autonomous agent commands
+  agent-status)
+    bash "$GAME_DIR/.intel/agent-runner.sh" --status
+    echo ""
+    echo -e "${BOLD}Agent Logs (last 10):${N}"
+    tail -10 "$GAME_DIR/.intel/agent-runs.log" 2>/dev/null || echo "No runs yet"
+    ;;
+  agent-run)
+    echo -e "${Y}Starting autonomous agent...${N}"
+    bash "$GAME_DIR/.intel/agent-runner.sh"
+    ;;
+  agent-dry)
+    bash "$GAME_DIR/.intel/agent-runner.sh" --dry-run
+    ;;
+  agent-logs)
+    tail -${2:-30} "$GAME_DIR/.intel/agent-runs.log" 2>/dev/null || echo "No logs"
+    ;;
+  agent-cron-install)
+    crontab "$GAME_DIR/.intel/crontab.txt"
+    echo -e "${G}Crontab installed. Agent runs every 3h, health watchdog every 1h.${N}"
+    crontab -l
+    ;;
+  agent-cron-remove)
+    crontab -r 2>/dev/null
+    echo -e "${Y}Crontab removed${N}"
+    ;;
+
   help|*) echo "Server:  start|stop|restart|supervise|logs [n]|logsf|errors [n]"
           echo "Web:     web-start|web-stop|web-restart|web-build"
           echo "Infra:   status|health|db|redis|dash-start|dash-stop"
           echo "Data:    migrate|seed"
-          echo "Test:    quick-test" ;;
+          echo "Test:    quick-test|validate [level1|level2]|validate-json"
+          echo "Intel:   intel|intel-full|intel-health|recover"
+          echo "Agent:   agent-status|agent-run|agent-dry|agent-logs [n]|agent-cron-install|agent-cron-remove" ;;
 esac

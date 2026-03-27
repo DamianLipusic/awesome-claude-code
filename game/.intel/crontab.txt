@@ -1,0 +1,6 @@
+# EmpireOS Autonomous Agent — runs every 3 hours
+# Picks next task from queue, implements, validates, commits
+17 */3 * * * /home/claude/awesome-claude-code/game/.intel/agent-runner.sh >> /home/claude/awesome-claude-code/game/.intel/agent-runs.log 2>&1
+
+# Health watchdog — every hour, restarts server if down
+47 * * * * cd /home/claude/awesome-claude-code/game && ./dev.sh health > /dev/null 2>&1 || ./dev.sh restart >> /home/claude/awesome-claude-code/game/.intel/agent-runs.log 2>&1

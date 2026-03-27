@@ -6,10 +6,17 @@ import {
   clearStoredTokens,
   getStoredToken,
 } from '../lib/api';
-import type { Player } from '@economy-game/shared';
+// V2 simplified player (matches /auth/me response)
+interface PlayerV2 {
+  id: string;
+  username: string;
+  cash: number;
+  net_worth: number;
+  created_at: string;
+}
 
 interface AuthState {
-  player: Player | null;
+  player: PlayerV2 | null;
   token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
@@ -21,7 +28,7 @@ interface AuthActions {
   register: (email: string, username: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   refreshSession: () => Promise<void>;
-  setPlayer: (player: Player) => void;
+  setPlayer: (player: PlayerV2) => void;
   clearError: () => void;
 }
 
@@ -52,7 +59,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       await setStoredToken(response.access_token);
       await setStoredRefreshToken(response.refresh_token);
       // Fetch player profile after storing token
-      const player = await api.get<Player>('/players/me');
+      const player = await api.get<PlayerV2>('/auth/me');
       set({
         player,
         token: response.access_token,
@@ -104,7 +111,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         return;
       }
 
-      const player = await api.get<Player>('/players/me');
+      const player = await api.get<PlayerV2>('/auth/me');
       set({
         player,
         token: storedToken,
