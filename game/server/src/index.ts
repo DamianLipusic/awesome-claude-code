@@ -15,7 +15,17 @@ const app = Fastify({
 });
 
 async function main() {
-  await app.register(fastifyCors, { origin: true, credentials: true });
+  const defaultOrigins = [
+    'http://localhost:8080',
+    'http://localhost:19006',
+    'http://187.124.18.170',
+    'http://187.124.18.170:8080',
+    'https://187.124.18.170',
+  ];
+  const allowedOrigins = process.env.ALLOWED_ORIGINS
+    ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
+    : defaultOrigins;
+  await app.register(fastifyCors, { origin: allowedOrigins, credentials: true });
   await app.register(fastifyJwt, {
     secret: process.env.JWT_SECRET || 'dev-only-secret-not-for-production',
   });

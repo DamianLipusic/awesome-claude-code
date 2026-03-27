@@ -1,9 +1,9 @@
 {
   "meta": {
     "total": 30,
-    "done": 21,
+    "done": 22,
     "running": 0,
-    "pending": 9,
+    "pending": 8,
     "failed": 0,
     "last_updated": "2026-03-27T09:09:57.816177"
   },
@@ -226,16 +226,18 @@
     {
       "id": "T021",
       "title": "Lock down CORS to specific origins",
-      "status": "pending",
+      "status": "done",
       "priority": "medium",
       "phase": "security",
       "created_at": "2026-03-27",
+      "completed_at": "2026-03-27",
       "spec": {
         "summary": "Replace origin:true with whitelist: localhost:8080, localhost:19006, VPS IP. Use env var ALLOWED_ORIGINS.",
         "files": [
           "server/src/index.ts"
         ]
-      }
+      },
+      "notes": "CORS locked to whitelist: localhost:8080, localhost:19006, VPS IP (http+https). Configurable via ALLOWED_ORIGINS env var (comma-separated)."
     },
     {
       "id": "T022",
