@@ -12,6 +12,7 @@ import {
 } from '../../../shared/src/types/entities';
 import { scheduleCrimeResolveJob } from '../jobs/queue';
 import { adjustReputation } from '../lib/reputation';
+import { getActiveEventModifiers } from '../lib/events';
 
 // ─── Input schemas ────────────────────────────────────────────
 
@@ -101,15 +102,35 @@ export async function crimeRoutes(fastify: FastifyInstance): Promise<void> {
       );
       const criminalEmployeeCount = parseInt(criminalEmpRow.rows[0]?.count ?? '0', 10);
 
-      // Filter CRIME_OP_CONFIGS by heat level
+      // Get event modifiers for crime success preview
+      const eventMods = await getActiveEventModifiers(playerSeasonId);
+
+      // Filter CRIME_OP_CONFIGS by heat level, include risk preview
       const available = (Object.entries(CRIME_OP_CONFIGS) as [CrimeOpType, typeof CRIME_OP_CONFIGS[CrimeOpType]][])
         .filter(([, config]) => config.risk_level <= maxRisk)
-        .map(([op_type, config]) => ({
-          op_type,
-          ...config,
-          can_perform: criminalEmployeeCount >= config.requires_criminal_employees,
-          criminal_employees_available: criminalEmployeeCount,
-        }));
+        .map(([op_type, config]) => {
+          // Same formula as gameTick processCrimeOperations
+          const baseSuccess = Math.max(0.1, 1 - config.risk_level * 0.09);
+          const successChance = Math.max(0.05, Math.min(0.95, baseSuccess + eventMods.crime_success_rate_modifier));
+          const heatOnSuccess = config.risk_level * 10 * eventMods.heat_multiplier;
+          const heatOnFail = config.risk_level * 30 * eventMods.heat_multiplier;
+          const fineOnFail = config.risk_level * 1000;
+
+          return {
+            op_type,
+            ...config,
+            can_perform: criminalEmployeeCount >= config.requires_criminal_employees,
+            criminal_employees_available: criminalEmployeeCount,
+            // Risk preview
+            success_chance: Math.round(successChance * 100),
+            expected_payout: config.base_yield,
+            heat_on_success: Math.round(heatOnSuccess),
+            heat_on_fail: Math.round(heatOnFail),
+            fine_on_fail: fineOnFail,
+            event_modifier_active: eventMods.crime_success_rate_modifier !== 0,
+            event_modifier_pct: Math.round(eventMods.crime_success_rate_modifier * 100),
+          };
+        });
 
       return reply.send({ data: { heat_level: heatLevel, operations: available } });
     },

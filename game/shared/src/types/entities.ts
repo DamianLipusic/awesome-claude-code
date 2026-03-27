@@ -453,7 +453,8 @@ export type AlertType =
   | 'SPY_DISCOVERED'
   | 'SPY_LOST'
   | 'EMBEZZLEMENT_DETECTED'
-  | 'BLOCKADE_COLLAPSED';
+  | 'BLOCKADE_COLLAPSED'
+  | 'EVENT_ENDED';
 
 // ─── Game constants ───────────────────────────────────────────
 

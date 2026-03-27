@@ -57,13 +57,15 @@ export async function runGameTick(): Promise<void> {
     await runSafe('Milestones', processMilestones);
     tickCount++;
 
+    // ── Events: alerts to players + expiry ──
+    await runSafe('EventAlerts', processEventAlerts);
+    await runSafe('EventExpiry', processEventExpiry);
+
     // ── Disabled: systems not yet connected to core loop ──
     // await runSafe('SpyDiscovery', processSpyDiscovery);
     // await runSafe('Embezzlement', processEmbezzlement);
     // await runSafe('BlockadeCosts', processBlockadeCosts);
     // await runSafe('LocationCosts', processLocationCosts);
-    // await runSafe('EventAlerts', processEventAlerts);
-    // await runSafe('EventExpiry', processEventExpiry);
 
     // ── NPC AI Competitors ──
     let npcActions = 0;
@@ -1206,6 +1208,18 @@ async function processEventExpiry(): Promise<void> {
         `UPDATE event_impacts SET resolved = true WHERE event_id = $1`,
         [evt.id],
       );
+
+      // Alert all players in this season that the event ended
+      const players = await client.query<{ id: string }>(
+        `SELECT id FROM players WHERE season_id = $1`,
+        [evt.season_id],
+      );
+      for (const p of players.rows) {
+        await createAlert(client, p.id, evt.season_id, 'EVENT_ENDED',
+          `Event ended: ${evt.title}`,
+          { event_id: evt.id, category: evt.category },
+        );
+      }
 
       console.log(`[GameTick:EventExpiry] Event "${evt.title}" (${evt.id}) resolved.`);
     }

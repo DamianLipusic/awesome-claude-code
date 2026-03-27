@@ -118,6 +118,32 @@ export async function rivalryRoutes(fastify: FastifyInstance): Promise<void> {
             const stolen = secureRandomInt(1000, 6000);
             await client.query("UPDATE players SET cash = GREATEST(0, cash - $1) WHERE id = $2", [stolen, target_player_id]);
             await client.query("UPDATE players SET cash = cash + $1 WHERE id = $2", [stolen, playerId]);
+          } else if (sabotage_type === 'POACH_EMPLOYEE') {
+            // Steal the target's highest-skill employee
+            const bestEmp = await client.query<{ id: string; business_id: string; name: string }>(
+              `SELECT e.id, e.business_id, e.name
+               FROM employees e
+               JOIN businesses b ON b.id = e.business_id
+               WHERE b.owner_id = $1 AND b.status = 'ACTIVE'
+               ORDER BY (e.efficiency + e.speed + e.reliability) DESC
+               LIMIT 1
+               FOR UPDATE OF e`,
+              [target_player_id]
+            );
+            if (bestEmp.rows.length > 0) {
+              const emp = bestEmp.rows[0];
+              // Find attacker's first business to assign the poached employee
+              const attackerBiz = await client.query<{ id: string }>(
+                "SELECT id FROM businesses WHERE owner_id = $1 AND status = 'ACTIVE' LIMIT 1",
+                [playerId]
+              );
+              if (attackerBiz.rows.length > 0) {
+                await client.query(
+                  "UPDATE employees SET business_id = $1, loyalty = GREATEST(0, loyalty - 30) WHERE id = $2",
+                  [attackerBiz.rows[0].id, emp.id]
+                );
+              }
+            }
           } else if (sabotage_type === 'SPREAD_RUMORS') {
             await client.query(
               "UPDATE reputation_profiles SET score = GREATEST(0, score - 5), updated_at = NOW() WHERE player_id = $1 AND axis = 'COMMUNITY'",
@@ -178,6 +204,33 @@ export async function rivalryRoutes(fastify: FastifyInstance): Promise<void> {
       level: getRivalryLevel(Number(row.points)),
     }));
     return reply.send({ data: leaderboard });
+  });
+
+  // GET /history — Recent sabotage events involving this player
+  fastify.get("/history", { preHandler: [requireAuth] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    const playerId = request.player.id;
+    const { limit: limitStr } = request.query as { limit?: string };
+    const limit = Math.min(50, parseInt(limitStr ?? '20', 10));
+
+    const result = await query(
+      `SELECT sh.id, sh.sabotage_type, sh.damage, sh.success, sh.created_at,
+              sh.attacker_id, pa.username AS attacker_username,
+              sh.target_id, pt.username AS target_username
+         FROM sabotage_history sh
+         JOIN players pa ON pa.id = sh.attacker_id
+         JOIN players pt ON pt.id = sh.target_id
+        WHERE sh.attacker_id = $1 OR sh.target_id = $1
+        ORDER BY sh.created_at DESC
+        LIMIT $2`,
+      [playerId, limit]
+    );
+
+    const history = result.rows.map((row: any) => ({
+      ...row,
+      role: row.attacker_id === playerId ? 'attacker' : 'target',
+    }));
+
+    return reply.send({ data: history });
   });
 
   // ─── Phase 3: Hostile Takeover System ──────────────────────

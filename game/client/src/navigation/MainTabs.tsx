@@ -3,22 +3,18 @@ import { View, Text, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { DashboardScreen } from '../screens/DashboardScreen';
 import { MarketStack } from './MarketStack';
-import { LogisticsStack } from './LogisticsStack';
 import { BusinessStack } from './BusinessStack';
 import { CrimeStack } from './CrimeStack';
 import { StrategyStack } from './StrategyStack';
-import { ProfileScreen } from '../screens/ProfileScreen';
 import { useAlertStore } from '../stores/alertStore';
 import { useAuthStore } from '../stores/authStore';
 
 export type MainTabParamList = {
   Dashboard: undefined;
   Market: undefined;
-  Logistics: undefined;
   Business: undefined;
   Crime: undefined;
   Strategy: undefined;
-  Profile: undefined;
 };
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -123,14 +119,6 @@ export function MainTabs() {
         }}
       />
       <Tab.Screen
-        name="Logistics"
-        component={LogisticsStack}
-        options={{
-          title: 'Logistics',
-          tabBarIcon: () => <TabIcon emoji="🚚" label="Logistics" />,
-        }}
-      />
-      <Tab.Screen
         name="Business"
         component={BusinessStack}
         options={{
@@ -158,16 +146,8 @@ export function MainTabs() {
         name="Strategy"
         component={StrategyStack}
         options={{
-          title: 'Strategy',
-          tabBarIcon: () => <TabIcon emoji="🎯" label="Strategy" />,
-        }}
-      />
-      <Tab.Screen
-        name="Profile"
-        component={ProfileScreen}
-        options={{
-          title: 'Profile',
-          tabBarIcon: () => <TabIcon emoji="👤" label="Profile" />,
+          title: 'More',
+          tabBarIcon: () => <TabIcon emoji="⚙️" label="More" />,
         }}
       />
     </Tab.Navigator>

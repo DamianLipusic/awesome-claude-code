@@ -966,4 +966,78 @@ export async function playerRoutes(app: FastifyInstance): Promise<void> {
     const count = await markAllAlertsRead(playerId);
     return reply.send({ data: { marked_read: count } });
   });
+
+  // GET /players/networth-breakdown — Detailed net worth composition
+  app.get('/networth-breakdown', { preHandler: [requireAuth] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    const playerId = request.player.id;
+
+    const playerRes = await query<{ cash: string; net_worth: string }>(
+      'SELECT cash, net_worth FROM players WHERE id = $1', [playerId]);
+    if (!playerRes.rows.length) return reply.status(404).send({ error: 'Player not found' });
+    const cash = parseFloat(playerRes.rows[0].cash);
+
+    // Business values
+    const STARTUP: Record<string, number[]> = {
+      RETAIL: [5000, 30000, 170000, 600000, 1800000],
+      FACTORY: [20000, 120000, 680000, 2400000, 7200000],
+      MINE: [15000, 90000, 510000, 1800000, 5400000],
+      FARM: [8000, 48000, 272000, 960000, 2880000],
+      LOGISTICS: [12000, 72000, 408000, 1440000, 4320000],
+      SECURITY_FIRM: [10000, 60000, 340000, 1200000, 3600000],
+      FRONT_COMPANY: [18000, 108000, 612000, 2160000, 6480000],
+    };
+    const bizRes = await query<{ id: string; name: string; type: string; tier: number; inventory: Record<string, number> }>(
+      "SELECT id, name, type, tier, inventory FROM businesses WHERE owner_id = $1 AND status != 'BANKRUPT'",
+      [playerId]);
+
+    // Resource prices
+    const priceRes = await query<{ name: string; current_ai_price: string }>(
+      'SELECT name, current_ai_price FROM resources');
+    const priceMap = new Map(priceRes.rows.map(r => [r.name, parseFloat(r.current_ai_price)]));
+
+    let totalBizValue = 0;
+    let totalInvValue = 0;
+    const businesses = bizRes.rows.map(b => {
+      const costs = STARTUP[b.type] ?? [5000];
+      const bookValue = (costs[Math.min(b.tier - 1, costs.length - 1)] ?? 5000) * 0.7;
+      totalBizValue += bookValue;
+
+      let invValue = 0;
+      const inv: Array<{ resource: string; qty: number; value: number }> = [];
+      for (const [name, qty] of Object.entries(b.inventory ?? {})) {
+        if (qty <= 0) continue;
+        const price = priceMap.get(name) ?? 0;
+        const val = qty * price;
+        invValue += val;
+        inv.push({ resource: name, qty, value: parseFloat(val.toFixed(2)) });
+      }
+      totalInvValue += invValue;
+
+      return {
+        id: b.id, name: b.name, type: b.type, tier: b.tier,
+        book_value: parseFloat(bookValue.toFixed(2)),
+        inventory_value: parseFloat(invValue.toFixed(2)),
+        inventory: inv,
+      };
+    });
+
+    // Dirty money
+    const dirtyRes = await query<{ total_dirty: string }>(
+      'SELECT total_dirty FROM dirty_money_balances WHERE player_id = $1',
+      [playerId]);
+    const dirtyMoney = dirtyRes.rows.length ? parseFloat(dirtyRes.rows[0].total_dirty) : 0;
+
+    const total = cash + totalBizValue + totalInvValue;
+
+    return reply.send({
+      data: {
+        cash, business_value: parseFloat(totalBizValue.toFixed(2)),
+        inventory_value: parseFloat(totalInvValue.toFixed(2)),
+        dirty_money: dirtyMoney,
+        total: parseFloat(total.toFixed(2)),
+        cash_pct: total > 0 ? Math.round((cash / total) * 100) : 100,
+        businesses,
+      },
+    });
+  });
 }

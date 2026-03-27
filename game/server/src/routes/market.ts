@@ -108,12 +108,15 @@ export async function marketRoutes(fastify: FastifyInstance): Promise<void> {
           ? ((currentPrice - price24hAgo) / price24hAgo) * 100
           : 0;
 
+        const direction = priceChangePercent > 2 ? 'up' : priceChangePercent < -2 ? 'down' : 'stable';
         return {
           resource_id: row.id,
           resource_name: row.resource_name,
           category: row.category,
           base_value: row.base_value,
           current_price: currentPrice,
+          price_24h_ago: price24hAgo,
+          direction,
           volume_24h: row.volume_24h,
           price_change_percent: Math.round(priceChangePercent * 10) / 10,
           high_24h: row.high_24h ?? currentPrice,
@@ -977,6 +980,65 @@ export async function marketRoutes(fastify: FastifyInstance): Promise<void> {
         const e = err as { statusCode?: number; message: string };
         return reply.status(e.statusCode ?? 500).send({ error: e.message });
       }
+    },
+  );
+
+  // GET /market/trade-history — Player's completed trades with P&L
+  fastify.get(
+    '/trade-history',
+    { preHandler: [requireAuth] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const playerId = request.player.id;
+      const seasonId = request.player.season_id;
+      const { limit: limitStr } = request.query as { limit?: string };
+      const limit = Math.min(50, parseInt(limitStr ?? '20', 10));
+
+      const result = await query<{
+        id: string; listing_type: string; resource_name: string;
+        price_per_unit: string; quantity: number; quantity_remaining: number;
+        status: string; city: string; created_at: string; filled_at: string | null;
+      }>(
+        `SELECT ml.id, ml.listing_type, r.name AS resource_name,
+                ml.price_per_unit::text, ml.quantity, ml.quantity_remaining,
+                ml.status, ml.city, ml.created_at::text, ml.filled_at::text
+           FROM market_listings ml
+           JOIN resources r ON r.id = ml.resource_id
+          WHERE ml.seller_id = $1
+            AND ml.season_id = $2
+            AND ml.status IN ('FILLED', 'PARTIALLY_FILLED', 'EXPIRED', 'CANCELLED')
+          ORDER BY COALESCE(ml.filled_at, ml.created_at) DESC
+          LIMIT $3`,
+        [playerId, seasonId, limit],
+      );
+
+      // Compute P&L summary
+      let totalSold = 0;
+      let totalBought = 0;
+      const trades = result.rows.map(row => {
+        const filled = row.quantity - row.quantity_remaining;
+        const total = filled * parseFloat(row.price_per_unit);
+        const isSell = row.listing_type === 'PLAYER_SELL';
+        if (isSell) totalSold += total;
+        else totalBought += total;
+        return {
+          ...row,
+          filled_quantity: filled,
+          total_value: parseFloat(total.toFixed(2)),
+          side: isSell ? 'SELL' : 'BUY',
+        };
+      });
+
+      return reply.send({
+        data: {
+          trades,
+          summary: {
+            total_sold: parseFloat(totalSold.toFixed(2)),
+            total_bought: parseFloat(totalBought.toFixed(2)),
+            net_pnl: parseFloat((totalSold - totalBought).toFixed(2)),
+            trade_count: trades.length,
+          },
+        },
+      });
     },
   );
 }

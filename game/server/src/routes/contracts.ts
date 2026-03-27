@@ -82,7 +82,21 @@ export async function contractRoutes(fastify: FastifyInstance): Promise<void> {
         [playerSeasonId, playerId],
       );
 
-      return reply.send({ data: result.rows });
+      // Enhance with computed lifecycle fields
+      const enhanced = result.rows.map((c: any) => {
+        const periodsRemaining = c.duration_periods - (c.periods_completed ?? 0);
+        const totalValue = c.quantity_per_period * parseFloat(c.price_per_unit) * c.duration_periods;
+        const earnedSoFar = c.quantity_per_period * parseFloat(c.price_per_unit) * (c.periods_completed ?? 0);
+        return {
+          ...c,
+          periods_remaining: periodsRemaining,
+          total_contract_value: parseFloat(totalValue.toFixed(2)),
+          earned_so_far: parseFloat(earnedSoFar.toFixed(2)),
+          completion_pct: c.duration_periods > 0 ? Math.round(((c.periods_completed ?? 0) / c.duration_periods) * 100) : 0,
+        };
+      });
+
+      return reply.send({ data: enhanced });
     },
   );
 

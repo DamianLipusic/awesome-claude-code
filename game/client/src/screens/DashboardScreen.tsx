@@ -14,11 +14,10 @@ import { api } from '../lib/api';
 import { useAlertStore } from '../stores/alertStore';
 import { useAuthStore } from '../stores/authStore';
 import { Card } from '../components/ui/Card';
-import { Badge, HeatBadge, AlignmentBadge } from '../components/ui/Badge';
 import { CurrencyText, formatCurrency } from '../components/ui/CurrencyText';
 import { LoadingSkeleton } from '../components/ui/LoadingScreen';
 import { EmptyState } from '../components/ui/EmptyState';
-import { formatTimestamp, formatDaysRemaining } from '../lib/format';
+import { formatTimestamp } from '../lib/format';
 import type {
   DashboardData,
   GameAlert,
@@ -31,7 +30,7 @@ import type { MainTabParamList } from '../navigation/MainTabs';
 type NavProp = BottomTabNavigationProp<MainTabParamList>;
 
 // ─── Theme Colors ─────────────────────────────────────────────
-const COLORS = {
+const C = {
   bg: '#0a0a0f',
   card: '#1a1a2e',
   cardBorder: '#2a2a3e',
@@ -40,410 +39,121 @@ const COLORS = {
   error: '#ff6b6b',
   warning: '#ffa502',
   text: '#e0e0e0',
-  textDim: '#6b7280',
-  textBright: '#f9fafb',
+  dim: '#6b7280',
+  bright: '#f9fafb',
   accent: '#a29bfe',
 };
 
-const ALERT_ICONS: Record<AlertType, string> = {
-  CONTRACT_SETTLED: '\u{1F91D}',
-  CONTRACT_BREACHED: '\u{1F494}',
-  EMPLOYEE_THEFT: '\u{1F575}\uFE0F',
-  DETECTION_WARNING: '\u{1F6A8}',
-  CRIME_COMPLETED: '\u{1F4B0}',
-  CRIME_BUSTED: '\u{1F694}',
-  LAUNDERING_COMPLETE: '\u2705',
-  LAUNDERING_SEIZED: '\u26A0\uFE0F',
-  BUSINESS_RAIDED: '\u{1F534}',
-  SEASON_ENDING: '\u23F3',
-  EMPLOYEE_QUIT: '\u{1F6AA}',
-  MARKET_CONTRACT_OFFER: '\u{1F4CB}',
-  REVENUE_REPORT: '\u{1F4C8}',
-  HEAT_WARNING: '\u{1F525}',
-  EVENT_STARTED: '\u26A1',
-  SHIPMENT_ARRIVED: '\u{1F4E6}',
-  SPY_DISCOVERED: '\u{1F440}',
-  SPY_LOST: '\u{1F47B}',
-  EMBEZZLEMENT_DETECTED: '\u{1F4B8}',
-  BLOCKADE_COLLAPSED: '\u{1F6E1}\uFE0F',
-};
-
-const EVENT_CATEGORY_COLORS: Record<string, string> = {
-  MARKET_CRASH: COLORS.error,
-  SUPPLY_SURGE: COLORS.success,
-  POLICE_CRACKDOWN: COLORS.warning,
-  EMPLOYEE_STRIKE: COLORS.warning,
-  RIVAL_COLLAPSE: COLORS.primary,
-  DISASTER: COLORS.error,
-  POLITICAL: COLORS.accent,
-  BOOM: COLORS.success,
-};
-
 const HEAT_COLORS: Record<string, string> = {
-  COLD: COLORS.success,
-  WARM: '#ffd93d',
-  HOT: COLORS.warning,
-  BURNING: '#ff6348',
-  FUGITIVE: COLORS.error,
+  COLD: C.success, WARM: '#ffd93d', HOT: C.warning, BURNING: '#ff6348', FUGITIVE: C.error,
 };
 
-// ─── Player Stats Header ──────────────────────────────────────
+const ALERT_ICONS: Record<AlertType, string> = {
+  CONTRACT_SETTLED: '\u{1F91D}', CONTRACT_BREACHED: '\u{1F494}',
+  EMPLOYEE_THEFT: '\u{1F575}\uFE0F', DETECTION_WARNING: '\u{1F6A8}',
+  CRIME_COMPLETED: '\u{1F4B0}', CRIME_BUSTED: '\u{1F694}',
+  LAUNDERING_COMPLETE: '\u2705', LAUNDERING_SEIZED: '\u26A0\uFE0F',
+  BUSINESS_RAIDED: '\u{1F534}', SEASON_ENDING: '\u23F3',
+  EMPLOYEE_QUIT: '\u{1F6AA}', MARKET_CONTRACT_OFFER: '\u{1F4CB}',
+  REVENUE_REPORT: '\u{1F4C8}', HEAT_WARNING: '\u{1F525}',
+  EVENT_STARTED: '\u26A1', SHIPMENT_ARRIVED: '\u{1F4E6}',
+  SPY_DISCOVERED: '\u{1F440}', SPY_LOST: '\u{1F47B}',
+  EMBEZZLEMENT_DETECTED: '\u{1F4B8}', BLOCKADE_COLLAPSED: '\u{1F6E1}\uFE0F',
+  EVENT_ENDED: '\u{1F3C1}',
+};
 
-function PlayerStatsHeader({ data }: { data: DashboardData & { total_players?: number; next_rank?: { username: string; net_worth: number; gap: number } | null } }) {
-  const { player, rank, total_players, next_rank } = data;
+// ─── Hero: Cash + Trend + Key Stats ─────────────────────────
+
+function HeroSection({ data }: { data: DashboardData }) {
+  const { player, rank, income } = data;
+  const netColor = income.daily_net >= 0 ? C.success : C.error;
+  const trendArrow = income.cash_trend === 'growing' ? '\u25B2' : income.cash_trend === 'declining' ? '\u25BC' : '\u25B6';
+  const heat = data.crime?.heat;
+  const heatLevel = heat?.level ?? 'COLD';
+  const heatColor = HEAT_COLORS[heatLevel] ?? C.success;
+
   return (
-    <Card style={styles.card}>
-      <View style={styles.headerRow}>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.playerName}>{player.username}</Text>
-          <AlignmentBadge alignment={player.alignment} />
-        </View>
-        <View style={styles.rankBadge}>
-          <Text style={styles.rankLabel}>RANK</Text>
-          <Text style={styles.rankValue}>#{rank}</Text>
-          {total_players && (
-            <Text style={styles.rankTotal}>of {total_players}</Text>
-          )}
-        </View>
-      </View>
-      <View style={styles.statsRow}>
-        <View style={styles.statItem}>
-          <Text style={styles.statLabel}>Cash</Text>
-          <CurrencyText amount={player.cash} variant="clean" size="md" />
-        </View>
-        <View style={styles.statDivider} />
-        <View style={styles.statItem}>
-          <Text style={styles.statLabel}>Net Worth</Text>
-          <CurrencyText amount={player.net_worth} variant="clean" size="md" style={{ color: COLORS.primary }} />
-        </View>
-      </View>
-      {next_rank && (
-        <View style={styles.nextRankRow}>
-          <Text style={styles.nextRankText}>
-            {formatCurrency(next_rank.gap)} to overtake {next_rank.username}
+    <View style={s.hero}>
+      {/* Cash - BIG */}
+      <View style={s.cashRow}>
+        <CurrencyText amount={player.cash} variant="clean" size="lg" style={s.cashAmount} />
+        <View style={[s.trendPill, { backgroundColor: netColor + '22' }]}>
+          <Text style={[s.trendText, { color: netColor }]}>
+            {trendArrow} {income.daily_net >= 0 ? '+' : ''}{formatCurrency(income.per_tick_net)}/tick
           </Text>
         </View>
-      )}
-    </Card>
+      </View>
+
+      {/* Stats row */}
+      <View style={s.statsRow}>
+        <View style={s.statBox}>
+          <Text style={s.statLabel}>NET WORTH</Text>
+          <Text style={[s.statValue, { color: C.primary }]}>{formatCurrency(player.net_worth)}</Text>
+        </View>
+        <View style={s.statDivider} />
+        <View style={s.statBox}>
+          <Text style={s.statLabel}>RANK</Text>
+          <Text style={[s.statValue, { color: C.accent }]}>#{rank}</Text>
+        </View>
+        <View style={s.statDivider} />
+        <View style={s.statBox}>
+          <Text style={s.statLabel}>INCOME</Text>
+          <Text style={[s.statValue, { color: netColor }]}>
+            {income.daily_net >= 0 ? '+' : ''}{formatCurrency(income.daily_net)}/d
+          </Text>
+        </View>
+        {heatLevel !== 'COLD' && (
+          <>
+            <View style={s.statDivider} />
+            <View style={s.statBox}>
+              <Text style={s.statLabel}>HEAT</Text>
+              <Text style={[s.statValue, { color: heatColor }]}>{heatLevel}</Text>
+            </View>
+          </>
+        )}
+      </View>
+    </View>
   );
 }
 
-// ─── Income Summary Card ──────────────────────────────────────
+// ─── Getting Started (new players only) ─────────────────────
 
-function IncomeSummaryCard({ data }: { data: DashboardData & { income: { daily_salaries?: number; daily_total_costs?: number; inventory_value?: number } } }) {
-  const { income } = data;
-  if (!income) return null;
-  const { daily_revenue, daily_net, per_tick_net, cash_trend } = income;
-  const totalCosts = (income as any).daily_total_costs ?? income.daily_expenses;
-  const salaries = (income as any).daily_salaries ?? 0;
-  const netColor = daily_net >= 0 ? COLORS.success : COLORS.error;
-  const trendIcon = cash_trend === 'growing' ? '\u2191' : cash_trend === 'declining' ? '\u2193' : '\u2192';
-
-  return (
-    <Card style={styles.card}>
-      <View style={styles.cardHeader}>
-        <Text style={styles.cardTitle}>Daily Income</Text>
-        <Text style={[styles.trendBadge, { color: netColor }]}>{trendIcon} {cash_trend}</Text>
-      </View>
-      <View style={styles.incomeRow}>
-        <View style={styles.incomeItem}>
-          <Text style={styles.incomeLabel}>Revenue</Text>
-          <Text style={[styles.incomeValue, { color: COLORS.success }]}>
-            +{formatCurrency(daily_revenue)}
-          </Text>
-        </View>
-        <View style={styles.incomeItem}>
-          <Text style={styles.incomeLabel}>Costs</Text>
-          <Text style={[styles.incomeValue, { color: COLORS.error }]}>
-            -{formatCurrency(totalCosts)}
-          </Text>
-        </View>
-        <View style={styles.incomeItem}>
-          <Text style={styles.incomeLabel}>Net/Day</Text>
-          <Text style={[styles.incomeValue, { color: netColor, fontWeight: '800' }]}>
-            {daily_net >= 0 ? '+' : ''}{formatCurrency(daily_net)}
-          </Text>
-        </View>
-      </View>
-      <View style={styles.incomeBreakdown}>
-        <Text style={styles.incomeBreakdownText}>
-          Operating: {formatCurrency(income.daily_expenses)}
-          {salaries > 0 ? ` | Salaries: ${formatCurrency(salaries)}` : ''}
-          {(income as any).inventory_value > 0 ? ` | Stock: ${formatCurrency((income as any).inventory_value)}` : ''}
-        </Text>
-        <Text style={styles.perTickNote}>({formatCurrency(per_tick_net)}/tick)</Text>
-      </View>
-    </Card>
-  );
-}
-
-// ─── Business Overview Card ───────────────────────────────────
-
-function BusinessOverviewCard({ data }: { data: DashboardData }) {
-  const { businesses } = data;
-  const queryClient = useQueryClient();
-
-  const quickHireMutation = useMutation({
-    mutationFn: (businessId: string) => api.post('/employees/quick-hire', { business_id: businessId, count: 1 }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
-  });
-
-  const autoSellMutation = useMutation({
-    mutationFn: ({ businessId, enabled }: { businessId: string; enabled: boolean }) =>
-      api.post(`/businesses/${businessId}/auto-sell`, { enabled }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
-  });
-
-  const quickSellMutation = useMutation({
-    mutationFn: (businessId: string) => api.post('/market/quick-sell', { business_id: businessId }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
-  });
-
-  const produceMutation = useMutation({
-    mutationFn: (businessId: string) => api.post(`/businesses/${businessId}/produce`, {}),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
-  });
-
-  const trainMutation = useMutation({
-    mutationFn: (businessId: string) => api.post('/employees/quick-train', { business_id: businessId }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
-  });
-
-  if (!businesses || businesses.total === 0) return null;
-
-  return (
-    <Card style={styles.card}>
-      <Text style={styles.cardTitle}>Your Businesses</Text>
-      <View style={styles.bizStatsRow}>
-        <View style={styles.bizStatBox}>
-          <Text style={styles.bizStatValue}>{businesses.total}</Text>
-          <Text style={styles.bizStatLabel}>Businesses</Text>
-        </View>
-        <View style={styles.bizStatBox}>
-          <Text style={styles.bizStatValue}>{businesses.total_employees}</Text>
-          <Text style={styles.bizStatLabel}>Employees</Text>
-        </View>
-        <View style={styles.bizStatBox}>
-          <Text style={styles.bizStatValue}>{businesses.avg_efficiency}%</Text>
-          <Text style={styles.bizStatLabel}>Avg Efficiency</Text>
-        </View>
-      </View>
-
-      {/* Per-business breakdown */}
-      {businesses.list.map((biz: BusinessDetail) => (
-        <View key={biz.id} style={styles.bizCard}>
-          <View style={styles.bizCardHeader}>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.bizCardName}>
-                {biz.name} {'★'.repeat((biz as any).rating ?? 0)}{'☆'.repeat(5 - ((biz as any).rating ?? 0))}
-              </Text>
-              <Text style={styles.bizCardMeta}>
-                {biz.type.replace(/_/g, ' ')} \u00B7 Tier {biz.tier} \u00B7 {biz.city}
-              </Text>
-            </View>
-            <View style={[styles.profitBadge, { backgroundColor: biz.profitable ? COLORS.success + '22' : COLORS.error + '22' }]}>
-              <Text style={[styles.profitBadgeText, { color: biz.profitable ? COLORS.success : COLORS.error }]}>
-                {biz.daily_net >= 0 ? '+' : ''}{formatCurrency(biz.daily_net)}/d
-              </Text>
-            </View>
-          </View>
-
-          <View style={styles.bizCardStats}>
-            <Text style={styles.bizCardStat}>{biz.employees} workers</Text>
-            <Text style={styles.bizCardStat}>{biz.efficiency}% eff</Text>
-            {biz.inventory_count > 0 && (
-              <Text style={[styles.bizCardStat, { color: COLORS.warning }]}>
-                {biz.inventory_count} items (${formatCurrency(biz.inventory_value)})
-              </Text>
-            )}
-            {biz.auto_sell && (
-              <Text style={[styles.bizCardStat, { color: COLORS.success }]}>
-                AUTO-SELL
-              </Text>
-            )}
-          </View>
-
-          {/* Production info */}
-          {biz.production && (
-            <View style={styles.productionRow}>
-              {biz.production.status === 'idle_no_workers' ? (
-                <Text style={[styles.productionText, { color: COLORS.error }]}>
-                  No workers - not producing
-                </Text>
-              ) : (
-                <Text style={[styles.productionText, { color: COLORS.success }]}>
-                  Producing: {biz.production.produces.map(p =>
-                    `${p.per_tick} ${p.resource}/tick`
-                  ).join(', ')}
-                </Text>
-              )}
-            </View>
-          )}
-
-          {/* Quick action buttons */}
-          <View style={styles.bizActionRow}>
-            <TouchableOpacity
-              style={styles.bizActionBtn}
-              onPress={() => quickHireMutation.mutate(biz.id)}
-              disabled={quickHireMutation.isPending}
-            >
-              <Text style={styles.bizActionBtnText}>
-                {quickHireMutation.isPending ? '...' : '+ Hire'}
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.bizActionBtn}
-              onPress={() => produceMutation.mutate(biz.id)}
-              disabled={produceMutation.isPending}
-            >
-              <Text style={styles.bizActionBtnText}>
-                {produceMutation.isPending ? '...' : 'Produce'}
-              </Text>
-            </TouchableOpacity>
-
-            {biz.inventory_count > 0 && (
-              <TouchableOpacity
-                style={[styles.bizActionBtn, { backgroundColor: COLORS.warning + '22', borderColor: COLORS.warning + '44' }]}
-                onPress={() => quickSellMutation.mutate(biz.id)}
-                disabled={quickSellMutation.isPending}
-              >
-                <Text style={[styles.bizActionBtnText, { color: COLORS.warning }]}>
-                  {quickSellMutation.isPending ? '...' : 'Sell All'}
-                </Text>
-              </TouchableOpacity>
-            )}
-
-            {biz.employees > 0 && (
-              <TouchableOpacity
-                style={[styles.bizActionBtn, { backgroundColor: COLORS.accent + '22', borderColor: COLORS.accent + '44' }]}
-                onPress={() => trainMutation.mutate(biz.id)}
-                disabled={trainMutation.isPending}
-              >
-                <Text style={[styles.bizActionBtnText, { color: COLORS.accent }]}>
-                  {trainMutation.isPending ? '...' : 'Train $5k'}
-                </Text>
-              </TouchableOpacity>
-            )}
-
-            <TouchableOpacity
-              style={[styles.bizActionBtn, biz.auto_sell && { backgroundColor: COLORS.success + '22', borderColor: COLORS.success + '44' }]}
-              onPress={() => autoSellMutation.mutate({ businessId: biz.id, enabled: !biz.auto_sell })}
-              disabled={autoSellMutation.isPending}
-            >
-              <Text style={[styles.bizActionBtnText, biz.auto_sell && { color: COLORS.success }]}>
-                {biz.auto_sell ? 'Auto: ON' : 'Auto: OFF'}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      ))}
-    </Card>
-  );
-}
-
-// ─── Getting Started Tutorial ─────────────────────────────────
-
-function GettingStartedCard({ data }: { data: DashboardData }) {
+function GettingStartedCard() {
   const navigation = useNavigation<NavProp>();
-  if (data.businesses.total > 0) return null;
-
-  const steps = [
-    { num: '1', title: 'Create a Business', desc: 'Open your first business to start earning revenue', done: false },
-    { num: '2', title: 'Hire Workers', desc: 'Workers boost production and revenue by 10% each', done: false },
-    { num: '3', title: 'Produce & Sell', desc: 'Make goods and sell them on the market for profit', done: false },
-    { num: '4', title: 'Upgrade & Expand', desc: 'Upgrade to higher tiers and open more businesses', done: false },
-  ];
-
   return (
-    <Card style={{...styles.card, borderColor: COLORS.primary + '66', borderWidth: 1}}>
-      <Text style={[styles.cardTitle, { color: COLORS.primary }]}>Welcome to EmpireOS</Text>
-      <Text style={styles.tutorialSubtitle}>Build your business empire in 4 steps:</Text>
-      {steps.map((step) => (
-        <View key={step.num} style={styles.tutorialStep}>
-          <View style={styles.tutorialStepNum}>
-            <Text style={styles.tutorialStepNumText}>{step.num}</Text>
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.tutorialStepTitle}>{step.title}</Text>
-            <Text style={styles.tutorialStepDesc}>{step.desc}</Text>
-          </View>
-        </View>
-      ))}
-      <TouchableOpacity
-        style={styles.tutorialBtn}
-        onPress={() => navigation.navigate('Business')}
-      >
-        <Text style={styles.tutorialBtnText}>Create Your First Business</Text>
+    <Card style={{...s.card, borderColor: C.primary + '66', borderWidth: 1}}>
+      <Text style={[s.cardTitle, { color: C.primary, marginBottom: 8 }]}>Build Your Empire</Text>
+      <Text style={s.tipText}>1. Create a business  2. Hire workers  3. Produce & sell  4. Upgrade</Text>
+      <TouchableOpacity style={s.ctaBtn} onPress={() => navigation.navigate('Business')}>
+        <Text style={s.ctaBtnText}>Create Your First Business</Text>
       </TouchableOpacity>
     </Card>
   );
 }
 
-// ─── Next Actions Card ───────────────────────────────────────
+// ─── Next Action (single most important) ────────────────────
 
-const ACTION_CATEGORY_COLORS: Record<string, string> = {
-  getting_started: COLORS.primary,
-  growth: COLORS.success,
-  revenue: COLORS.warning,
-  expansion: COLORS.accent,
-  optimization: '#00cec9',
-  warning: COLORS.error,
+const ACTION_COLORS: Record<string, string> = {
+  getting_started: C.primary, growth: C.success, revenue: C.warning,
+  expansion: C.accent, optimization: '#00cec9', warning: C.error,
 };
 
-const ACTION_CATEGORY_ICONS: Record<string, string> = {
-  getting_started: '\u{1F680}',
-  growth: '\u{1F4C8}',
-  revenue: '\u{1F4B0}',
-  expansion: '\u{1F3D7}\uFE0F',
-  optimization: '\u2699\uFE0F',
-  warning: '\u26A0\uFE0F',
-};
-
-function NextActionsCard({ data }: { data: DashboardData }) {
+function NextActionBanner({ data }: { data: DashboardData }) {
   const actions = data.next_actions;
   if (!actions || actions.length === 0) return null;
 
+  // Show top 2 actions max
+  const top = actions.slice(0, 2);
   return (
-    <Card style={{...styles.card, ...styles.nextActionsCard}}>
-      <Text style={styles.cardTitle}>What To Do Next</Text>
-      {actions.map((action: NextAction, idx: number) => {
-        const color = ACTION_CATEGORY_COLORS[action.category] ?? COLORS.primary;
-        const icon = ACTION_CATEGORY_ICONS[action.category] ?? '\u27A1\uFE0F';
+    <View style={s.nextActionContainer}>
+      {top.map((action: NextAction, idx: number) => {
+        const color = ACTION_COLORS[action.category] ?? C.primary;
         return (
-          <View key={idx} style={[styles.actionRow, idx === 0 && styles.actionRowFirst]}>
-            <Text style={styles.actionIcon}>{icon}</Text>
+          <View key={idx} style={[s.nextActionBanner, { borderLeftColor: color }]}>
             <View style={{ flex: 1 }}>
-              <Text style={[styles.actionTitle, { color }]}>{action.action}</Text>
-              <Text style={styles.actionDetail}>{action.detail}</Text>
+              <Text style={[s.nextActionTitle, { color }]}>{action.action}</Text>
+              <Text style={s.nextActionDetail} numberOfLines={1}>{action.detail}</Text>
             </View>
-          </View>
-        );
-      })}
-    </Card>
-  );
-}
-
-// ─── Active Events Banner ─────────────────────────────────────
-
-function ActiveEventsBanner({ data }: { data: DashboardData & { active_events?: Array<{ id: string; category: string; title: string; description: string }> } }) {
-  const events = data.active_events;
-  if (!events || events.length === 0) return null;
-
-  return (
-    <View style={styles.eventsContainer}>
-      {events.map((evt) => {
-        const color = EVENT_CATEGORY_COLORS[evt.category] ?? COLORS.primary;
-        return (
-          <View key={evt.id} style={[styles.eventBanner, { borderLeftColor: color }]}>
-            <View style={[styles.eventDot, { backgroundColor: color }]} />
-            <View style={{ flex: 1 }}>
-              <Text style={styles.eventTitle}>{evt.title}</Text>
-              <Text style={styles.eventDesc} numberOfLines={1}>{evt.description}</Text>
-            </View>
-            <Text style={[styles.eventCategory, { color }]}>
-              {evt.category.replace(/_/g, ' ')}
-            </Text>
           </View>
         );
       })}
@@ -451,266 +161,199 @@ function ActiveEventsBanner({ data }: { data: DashboardData & { active_events?: 
   );
 }
 
-// ─── Progression Card ────────────────────────────────────────
+// ─── Empire Actions Bar ─────────────────────────────────────
 
-function ProgressionCard({ data }: { data: DashboardData }) {
-  const { progression } = data;
-  if (!progression || !progression.next_upgrade) return null;
+function EmpireBar() {
+  const queryClient = useQueryClient();
+
+  const produceMut = useMutation({
+    mutationFn: () => api.post('/businesses/batch-produce', {}),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
+  });
+  const sellMut = useMutation({
+    mutationFn: () => api.post('/market/batch-quick-sell', {}),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
+  });
+  const maintainMut = useMutation({
+    mutationFn: () => api.post('/businesses/batch-maintain', {}),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
+  });
 
   return (
-    <Card style={styles.card}>
-      <Text style={styles.cardTitle}>Upgrade Available</Text>
-      <View style={styles.actionRow}>
-        <Text style={styles.actionIcon}>{'\u2B06\uFE0F'}</Text>
+    <View style={s.empireBar}>
+      <TouchableOpacity style={s.empireBtn} onPress={() => produceMut.mutate()} disabled={produceMut.isPending}>
+        <Text style={s.empireBtnIcon}>{'\u2699\uFE0F'}</Text>
+        <Text style={s.empireBtnLabel}>{produceMut.isPending ? '...' : 'Produce All'}</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={s.empireBtn} onPress={() => sellMut.mutate()} disabled={sellMut.isPending}>
+        <Text style={s.empireBtnIcon}>{'\u{1F4B0}'}</Text>
+        <Text style={s.empireBtnLabel}>{sellMut.isPending ? '...' : 'Sell All'}</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={s.empireBtn} onPress={() => maintainMut.mutate()} disabled={maintainMut.isPending}>
+        <Text style={s.empireBtnIcon}>{'\u{1F527}'}</Text>
+        <Text style={s.empireBtnLabel}>{maintainMut.isPending ? '...' : 'Maintain'}</Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
+// ─── Business Card (simplified) ─────────────────────────────
+
+function BusinessCard({ biz }: { biz: BusinessDetail }) {
+  const queryClient = useQueryClient();
+
+  const hireMut = useMutation({
+    mutationFn: () => api.post('/employees/quick-hire', { business_id: biz.id, count: 1 }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
+  });
+  const sellMut = useMutation({
+    mutationFn: () => api.post('/market/quick-sell', { business_id: biz.id }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
+  });
+  const autoSellMut = useMutation({
+    mutationFn: () => api.post(`/businesses/${biz.id}/auto-sell`, { enabled: !biz.auto_sell }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
+  });
+
+  const profitColor = biz.profitable ? C.success : C.error;
+  const hasInventory = biz.inventory_count > 0;
+  const needsWorkers = biz.production?.status === 'idle_no_workers';
+
+  return (
+    <View style={s.bizCard}>
+      {/* Header: name + profit */}
+      <View style={s.bizHeader}>
         <View style={{ flex: 1 }}>
-          <Text style={[styles.actionTitle, { color: COLORS.success }]}>
-            {progression.next_upgrade.business_name} → Tier {progression.next_upgrade.next_tier}
+          <Text style={s.bizName}>{biz.name}</Text>
+          <Text style={s.bizMeta}>
+            {biz.type.replace(/_/g, ' ')} T{biz.tier} \u00B7 {biz.city} \u00B7 {biz.employees}W
           </Text>
-          <Text style={styles.actionDetail}>
-            Cost: {formatCurrency(progression.next_upgrade.cost)}
-            {progression.can_afford_upgrade ? ' (can afford!)' : ''}
+        </View>
+        <View style={[s.profitPill, { backgroundColor: profitColor + '22' }]}>
+          <Text style={[s.profitText, { color: profitColor }]}>
+            {biz.daily_net >= 0 ? '+' : ''}{formatCurrency(biz.daily_net)}/d
           </Text>
         </View>
       </View>
-    </Card>
-  );
-}
 
-// ─── Heat Level Indicator ─────────────────────────────────────
-
-function HeatIndicator({ data }: { data: DashboardData }) {
-  const heat = data.crime?.heat;
-  if (!heat) return null;
-
-  const level = heat.level ?? 'COLD';
-  const score = Number(heat.score ?? 0);
-  const color = HEAT_COLORS[level] ?? COLORS.success;
-  const pct = Math.min(100, (score / 1000) * 100);
-
-  return (
-    <Card style={styles.card}>
-      <View style={styles.cardHeader}>
-        <Text style={styles.cardTitle}>Heat Level</Text>
-        <View style={[styles.heatBadge, { backgroundColor: color + '22', borderColor: color }]}>
-          <Text style={[styles.heatBadgeText, { color }]}>{level}</Text>
-        </View>
-      </View>
-      <View style={styles.heatBarTrack}>
-        <View style={[styles.heatBarFill, { width: `${pct}%`, backgroundColor: color }]} />
-      </View>
-      <View style={styles.heatMeta}>
-        <Text style={styles.heatMetaText}>Score: {score.toFixed(0)}/1000</Text>
-        {heat.under_investigation && (
-          <Text style={[styles.heatMetaText, { color: COLORS.error }]}>
-            UNDER INVESTIGATION
-          </Text>
-        )}
-      </View>
-    </Card>
-  );
-}
-
-// ─── Season Countdown ─────────────────────────────────────────
-
-function SeasonCountdown({ data }: { data: DashboardData }) {
-  const { season } = data;
-  const daysLeft = formatDaysRemaining(season.ends_at);
-  return (
-    <Card style={styles.card}>
-      <View style={styles.cardHeader}>
-        <Text style={styles.cardTitle}>Season {season.season_number}</Text>
-        <Badge
-          label={season.status}
-          variant={season.status === 'ENDING' ? 'orange' : 'green'}
-        />
-      </View>
-      <Text style={styles.seasonName}>{season.name}</Text>
-      <View style={styles.seasonRow}>
-        <View>
-          <Text style={styles.statLabel}>Days Remaining</Text>
-          <Text style={styles.daysLeft}>{daysLeft}d</Text>
-        </View>
-        {season.special_rule && (
-          <View style={styles.specialRule}>
-            <Text style={styles.specialRuleText}>{season.special_rule}</Text>
-          </View>
-        )}
-      </View>
-    </Card>
-  );
-}
-
-// ─── Quick Actions Grid ───────────────────────────────────────
-
-function QuickActionsGrid() {
-  const navigation = useNavigation<NavProp>();
-
-  const actions = [
-    { icon: '\u{1F3E2}', label: 'Create\nBusiness', tab: 'Business' as const },
-    { icon: '\u{1F477}', label: 'Hire\nEmployee', tab: 'Business' as const },
-    { icon: '\u{1F4CA}', label: 'Market', tab: 'Market' as const },
-    { icon: '\u{1F525}', label: 'Crime\nOps', tab: 'Crime' as const },
-  ];
-
-  return (
-    <Card style={styles.card}>
-      <Text style={styles.cardTitle}>Quick Actions</Text>
-      <View style={styles.quickActionsGrid}>
-        {actions.map((action) => (
-          <TouchableOpacity
-            key={action.label}
-            style={styles.quickBtn}
-            onPress={() => navigation.navigate(action.tab)}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.quickBtnIcon}>{action.icon}</Text>
-            <Text style={styles.quickBtnLabel}>{action.label}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-    </Card>
-  );
-}
-
-// ─── Alert Row ────────────────────────────────────────────────
-
-function AlertRow({ alert, onPress }: { alert: GameAlert; onPress: () => void }) {
-  const icon = ALERT_ICONS[alert.type] ?? '\u{1F4E3}';
-  return (
-    <TouchableOpacity
-      style={[styles.alertRow, !alert.read && styles.alertUnread]}
-      onPress={onPress}
-      activeOpacity={0.7}
-    >
-      <Text style={styles.alertIcon}>{icon}</Text>
-      <View style={styles.alertContent}>
-        <Text style={[styles.alertMessage, alert.read && styles.alertMessageRead]} numberOfLines={2}>
-          {alert.message}
+      {/* Production status */}
+      {biz.production && (
+        <Text style={[s.prodText, { color: needsWorkers ? C.error : C.success }]}>
+          {needsWorkers ? 'No workers!' :
+            `Producing: ${biz.production.produces.map(p => `${p.per_tick} ${p.resource}/tick`).join(', ')}`}
         </Text>
-        <Text style={styles.alertTime}>{formatTimestamp(alert.created_at)}</Text>
+      )}
+
+      {/* Inventory indicator */}
+      {hasInventory && (
+        <Text style={[s.invText, { color: C.warning }]}>
+          {biz.inventory_count} items ({formatCurrency(biz.inventory_value)})
+          {biz.auto_sell ? ' \u2022 AUTO-SELL' : ''}
+        </Text>
+      )}
+
+      {/* Actions - contextual, only show what matters */}
+      <View style={s.bizActions}>
+        {needsWorkers && (
+          <TouchableOpacity style={[s.actionBtn, { borderColor: C.success + '66' }]} onPress={() => hireMut.mutate()} disabled={hireMut.isPending}>
+            <Text style={[s.actionBtnText, { color: C.success }]}>{hireMut.isPending ? '...' : '+ Hire'}</Text>
+          </TouchableOpacity>
+        )}
+        {hasInventory && !biz.auto_sell && (
+          <TouchableOpacity style={[s.actionBtn, { borderColor: C.warning + '66' }]} onPress={() => sellMut.mutate()} disabled={sellMut.isPending}>
+            <Text style={[s.actionBtnText, { color: C.warning }]}>{sellMut.isPending ? '...' : 'Sell'}</Text>
+          </TouchableOpacity>
+        )}
+        <TouchableOpacity
+          style={[s.actionBtn, biz.auto_sell && { borderColor: C.success + '66', backgroundColor: C.success + '11' }]}
+          onPress={() => autoSellMut.mutate()} disabled={autoSellMut.isPending}
+        >
+          <Text style={[s.actionBtnText, { color: biz.auto_sell ? C.success : C.dim }]}>
+            Auto: {biz.auto_sell ? 'ON' : 'OFF'}
+          </Text>
+        </TouchableOpacity>
+        {!needsWorkers && (
+          <TouchableOpacity style={s.actionBtn} onPress={() => hireMut.mutate()} disabled={hireMut.isPending}>
+            <Text style={s.actionBtnText}>{hireMut.isPending ? '...' : '+ Hire'}</Text>
+          </TouchableOpacity>
+        )}
       </View>
-      {!alert.read && <View style={styles.unreadDot} />}
-    </TouchableOpacity>
+    </View>
   );
 }
 
-// ─── Alerts Feed ──────────────────────────────────────────────
+function BusinessList({ data }: { data: DashboardData }) {
+  const { businesses } = data;
+  if (!businesses || businesses.total === 0) return null;
+
+  return (
+    <View>
+      <Text style={s.sectionTitle}>
+        Businesses ({businesses.total}) \u00B7 {businesses.total_employees} workers
+      </Text>
+      {businesses.list.map((biz: BusinessDetail) => (
+        <BusinessCard key={biz.id} biz={biz} />
+      ))}
+    </View>
+  );
+}
+
+// ─── Alerts (compact) ───────────────────────────────────────
 
 function AlertsFeed({ data }: { data: DashboardData }) {
   const { alerts: storeAlerts, markRead, markAllRead, setAlerts } = useAlertStore();
   const queryClient = useQueryClient();
 
   React.useEffect(() => {
-    if (data.alerts?.length) {
-      setAlerts(data.alerts);
-    }
+    if (data.alerts?.length) setAlerts(data.alerts);
   }, [data.alerts, setAlerts]);
 
-  const markReadMutation = useMutation({
+  const markReadMut = useMutation({
     mutationFn: (id: string) => api.post(`/players/notifications/${id}/read`),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
   });
-
-  const markAllReadMutation = useMutation({
+  const markAllMut = useMutation({
     mutationFn: () => api.post('/players/notifications/read-all'),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
   });
 
-  const alerts = storeAlerts.length > 0 ? storeAlerts.slice(0, 8) : (data.alerts ?? []).slice(0, 8);
-  const unread = alerts.filter((a) => !a.read).length;
-
-  const handleMarkRead = (id: string) => {
-    markRead(id);
-    markReadMutation.mutate(id);
-  };
-
-  const handleMarkAllRead = () => {
-    markAllRead();
-    markAllReadMutation.mutate();
-  };
+  const alerts = storeAlerts.length > 0 ? storeAlerts.slice(0, 6) : (data.alerts ?? []).slice(0, 6);
+  const unread = alerts.filter(a => !a.read).length;
 
   return (
-    <Card style={styles.card}>
-      <View style={styles.cardHeader}>
-        <Text style={styles.cardTitle}>Recent Activity</Text>
+    <Card style={s.card}>
+      <View style={s.cardHeader}>
+        <Text style={s.cardTitle}>Activity</Text>
         {unread > 0 && (
-          <TouchableOpacity onPress={handleMarkAllRead}>
-            <Text style={styles.markAllRead}>Mark all read</Text>
+          <TouchableOpacity onPress={() => { markAllRead(); markAllMut.mutate(); }}>
+            <Text style={s.markAllRead}>Clear ({unread})</Text>
           </TouchableOpacity>
         )}
       </View>
       {alerts.length === 0 ? (
-        <Text style={styles.emptyText}>No activity yet</Text>
+        <Text style={s.emptyText}>No activity yet</Text>
       ) : (
-        alerts.map((alert) => (
-          <AlertRow key={alert.id} alert={alert} onPress={() => handleMarkRead(alert.id)} />
+        alerts.map(alert => (
+          <TouchableOpacity
+            key={alert.id}
+            style={[s.alertRow, !alert.read && s.alertUnread]}
+            onPress={() => { markRead(alert.id); markReadMut.mutate(alert.id); }}
+          >
+            <Text style={s.alertIcon}>{ALERT_ICONS[alert.type] ?? '\u{1F4E3}'}</Text>
+            <Text style={[s.alertMsg, alert.read && { color: C.dim }]} numberOfLines={1}>
+              {alert.message}
+            </Text>
+            <Text style={s.alertTime}>{formatTimestamp(alert.created_at)}</Text>
+          </TouchableOpacity>
         ))
       )}
     </Card>
   );
 }
 
-// ─── Empire Quick Actions Bar ─────────────────────────────────
-
-function EmpireActionsBar() {
-  const queryClient = useQueryClient();
-
-  const batchProduceMutation = useMutation({
-    mutationFn: () => api.post('/businesses/batch-produce', {}),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
-  });
-
-  const batchSellMutation = useMutation({
-    mutationFn: () => api.post('/market/batch-quick-sell', {}),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
-  });
-
-  const batchMaintainMutation = useMutation({
-    mutationFn: () => api.post('/businesses/batch-maintain', {}),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
-  });
-
-  return (
-    <View style={styles.empireActionsBar}>
-      <TouchableOpacity
-        style={styles.empireActionBtn}
-        onPress={() => batchProduceMutation.mutate()}
-        disabled={batchProduceMutation.isPending}
-      >
-        <Text style={styles.empireActionIcon}>{'\u2699\uFE0F'}</Text>
-        <Text style={styles.empireActionLabel}>
-          {batchProduceMutation.isPending ? '...' : 'Produce All'}
-        </Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.empireActionBtn}
-        onPress={() => batchSellMutation.mutate()}
-        disabled={batchSellMutation.isPending}
-      >
-        <Text style={styles.empireActionIcon}>{'\u{1F4B0}'}</Text>
-        <Text style={styles.empireActionLabel}>
-          {batchSellMutation.isPending ? '...' : 'Sell All'}
-        </Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.empireActionBtn}
-        onPress={() => batchMaintainMutation.mutate()}
-        disabled={batchMaintainMutation.isPending}
-      >
-        <Text style={styles.empireActionIcon}>{'\u{1F527}'}</Text>
-        <Text style={styles.empireActionLabel}>
-          {batchMaintainMutation.isPending ? '...' : 'Maintain All'}
-        </Text>
-      </TouchableOpacity>
-    </View>
-  );
-}
-
-// ─── Main Dashboard Screen ────────────────────────────────────
+// ─── Main Dashboard ──────────────────────────────────────────
 
 export function DashboardScreen() {
-  const navigation = useNavigation<NavProp>();
-
   const { data, isLoading, refetch, isRefetching } = useQuery<DashboardData>({
     queryKey: ['dashboard'],
     queryFn: () => api.get<DashboardData>('/players/dashboard'),
@@ -718,615 +361,271 @@ export function DashboardScreen() {
     staleTime: 15_000,
   });
 
-  const onRefresh = useCallback(() => {
-    refetch();
-  }, [refetch]);
+  const onRefresh = useCallback(() => { refetch(); }, [refetch]);
 
   if (isLoading) {
     return (
-      <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
-        <LoadingSkeleton rows={5} />
+      <ScrollView style={s.screen} contentContainerStyle={s.content}>
+        <LoadingSkeleton rows={4} />
       </ScrollView>
     );
   }
 
   if (!data) {
-    return (
-      <EmptyState
-        icon="\u26A0\uFE0F"
-        title="Failed to load dashboard"
-        subtitle="Pull down to try again"
-      />
-    );
+    return <EmptyState icon="\u26A0\uFE0F" title="Failed to load" subtitle="Pull down to retry" />;
   }
+
+  const isNewPlayer = data.businesses.total === 0;
 
   return (
     <ScrollView
-      style={styles.screen}
-      contentContainerStyle={styles.content}
+      style={s.screen}
+      contentContainerStyle={s.content}
       refreshControl={
-        <RefreshControl
-          refreshing={isRefetching}
-          onRefresh={onRefresh}
-          tintColor={COLORS.primary}
-        />
+        <RefreshControl refreshing={isRefetching} onRefresh={onRefresh} tintColor={C.primary} />
       }
     >
-      <Text style={styles.screenTitle}>
-        Welcome back, {data.player.username}
-      </Text>
+      {/* Hero: Cash + Stats */}
+      <HeroSection data={data} />
 
-      {/* Getting Started Tutorial for new players */}
-      <GettingStartedCard data={data} />
+      {/* New player tutorial */}
+      {isNewPlayer && <GettingStartedCard />}
 
-      {/* Next Actions - HIGHEST PRIORITY - tell the player what to do */}
-      <NextActionsCard data={data} />
+      {/* What to do next */}
+      <NextActionBanner data={data} />
 
-      {/* Player Stats Header */}
-      <PlayerStatsHeader data={data} />
+      {/* Empire batch actions */}
+      {!isNewPlayer && <EmpireBar />}
 
-      {/* Income Summary */}
-      <IncomeSummaryCard data={data} />
+      {/* Business list */}
+      <BusinessList data={data} />
 
-      {/* Empire Quick Actions */}
-      {data.businesses.total > 0 && <EmpireActionsBar />}
-
-      {/* Business Overview with per-business breakdown */}
-      <BusinessOverviewCard data={data} />
-
-      {/* Heat Level Indicator */}
-      <HeatIndicator data={data} />
-
-      {/* Quick Actions */}
-      <QuickActionsGrid />
-
-      {/* Season Info */}
-      <SeasonCountdown data={data} />
-
-      {/* Recent Activity Feed */}
+      {/* Recent activity */}
       <AlertsFeed data={data} />
     </ScrollView>
   );
 }
 
-// ─── Styles ───────────────────────────────────────────────────
+// ─── Styles ──────────────────────────────────────────────────
 
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: COLORS.bg,
-  },
-  content: {
+const s = StyleSheet.create({
+  screen: { flex: 1, backgroundColor: C.bg },
+  content: { padding: 16, paddingBottom: 32, gap: 12 },
+
+  // Hero
+  hero: {
+    backgroundColor: C.card,
+    borderRadius: 14,
     padding: 16,
-    paddingBottom: 32,
-    gap: 12,
+    borderWidth: 1,
+    borderColor: C.cardBorder,
   },
-  screenTitle: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: COLORS.textBright,
-    marginBottom: 4,
-  },
-
-  // Card base
-  card: {
-    marginBottom: 0,
-    backgroundColor: COLORS.card,
-    borderColor: COLORS.cardBorder,
-  },
-  cardHeader: {
+  cashRow: {
     flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  cardTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: COLORS.textBright,
-  },
-
-  // Player Stats Header
-  headerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
     marginBottom: 12,
   },
-  playerName: {
-    fontSize: 20,
+  cashAmount: {
+    fontSize: 32,
+    fontWeight: '900',
+    color: C.bright,
+  },
+  trendPill: {
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+  },
+  trendText: {
+    fontSize: 13,
     fontWeight: '800',
-    color: COLORS.textBright,
-    marginBottom: 4,
-  },
-  rankBadge: {
-    backgroundColor: COLORS.primary + '22',
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: COLORS.primary + '44',
-  },
-  rankLabel: {
-    fontSize: 9,
-    fontWeight: '700',
-    color: COLORS.primary,
-    letterSpacing: 1,
-  },
-  rankValue: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: COLORS.primary,
-  },
-  rankTotal: {
-    fontSize: 9,
-    color: COLORS.textDim,
-    textAlign: 'center',
-  },
-  nextRankRow: {
-    marginTop: 8,
-    paddingTop: 8,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.cardBorder,
-  },
-  nextRankText: {
-    fontSize: 12,
-    color: COLORS.accent,
-    fontWeight: '600',
-    textAlign: 'center',
   },
   statsRow: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  statItem: {
-    flex: 1,
-  },
+  statBox: { flex: 1, alignItems: 'center' },
   statLabel: {
-    fontSize: 11,
-    color: COLORS.textDim,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    fontSize: 9,
+    color: C.dim,
+    fontWeight: '700',
+    letterSpacing: 0.8,
     marginBottom: 2,
+  },
+  statValue: {
+    fontSize: 14,
+    fontWeight: '800',
   },
   statDivider: {
     width: 1,
-    height: 32,
-    backgroundColor: COLORS.cardBorder,
-    marginHorizontal: 12,
-  },
-
-  // Empire Actions Bar
-  empireActionsBar: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  empireActionBtn: {
-    flex: 1,
-    backgroundColor: COLORS.card,
-    borderRadius: 10,
-    paddingVertical: 10,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: COLORS.cardBorder,
-    gap: 3,
-  },
-  empireActionIcon: {
-    fontSize: 18,
-  },
-  empireActionLabel: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: COLORS.textDim,
-    textTransform: 'uppercase',
-    letterSpacing: 0.3,
-  },
-
-  // Tutorial
-  tutorialSubtitle: {
-    fontSize: 13,
-    color: COLORS.textDim,
-    marginBottom: 12,
-  },
-  tutorialStep: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    paddingVertical: 8,
-  },
-  tutorialStepNum: {
-    width: 28,
     height: 28,
-    borderRadius: 14,
-    backgroundColor: COLORS.primary + '33',
+    backgroundColor: C.cardBorder,
+    marginHorizontal: 4,
+  },
+
+  // Card base
+  card: {
+    backgroundColor: C.card,
+    borderColor: C.cardBorder,
+    marginBottom: 0,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    justifyContent: 'center',
+    marginBottom: 8,
   },
-  tutorialStepNumText: {
-    fontSize: 14,
-    fontWeight: '800',
-    color: COLORS.primary,
+  cardTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: C.bright,
   },
-  tutorialStepTitle: {
+  sectionTitle: {
     fontSize: 14,
     fontWeight: '700',
-    color: COLORS.textBright,
+    color: C.dim,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 8,
   },
-  tutorialStepDesc: {
-    fontSize: 11,
-    color: COLORS.textDim,
-    marginTop: 1,
+  tipText: {
+    fontSize: 13,
+    color: C.dim,
+    lineHeight: 20,
+    marginBottom: 10,
   },
-  tutorialBtn: {
-    backgroundColor: COLORS.primary,
+  ctaBtn: {
+    backgroundColor: C.primary,
     borderRadius: 10,
     paddingVertical: 12,
     alignItems: 'center',
-    marginTop: 12,
   },
-  tutorialBtnText: {
+  ctaBtnText: {
     color: '#0a0a0f',
     fontSize: 14,
     fontWeight: '700',
   },
 
-  // Next Actions Card
-  nextActionsCard: {
-    borderColor: COLORS.primary + '44',
-    borderWidth: 1,
-  },
-  actionRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 10,
-    paddingVertical: 10,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.cardBorder,
-  },
-  actionRowFirst: {
-    borderTopWidth: 0,
-    paddingTop: 4,
-  },
-  actionIcon: {
-    fontSize: 20,
-    width: 28,
-    textAlign: 'center',
-    marginTop: 1,
-  },
-  actionTitle: {
-    fontSize: 14,
-    fontWeight: '700',
-    marginBottom: 2,
-  },
-  actionDetail: {
-    fontSize: 12,
-    color: COLORS.textDim,
-    lineHeight: 17,
-  },
-
-  // Trend badge
-  trendBadge: {
-    fontSize: 12,
-    fontWeight: '700',
-    textTransform: 'capitalize',
-  },
-  incomeBreakdown: {
-    marginTop: 8,
-    paddingTop: 8,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.cardBorder,
-    alignItems: 'center',
-  },
-  incomeBreakdownText: {
-    fontSize: 10,
-    color: COLORS.textDim,
-  },
-  perTickNote: {
-    fontSize: 11,
-    color: COLORS.textDim,
-    textAlign: 'center',
-    marginTop: 4,
-  },
-
-  // Income Summary
-  incomeRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 8,
-  },
-  incomeItem: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  incomeLabel: {
-    fontSize: 10,
-    color: COLORS.textDim,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginBottom: 4,
-  },
-  incomeValue: {
-    fontSize: 15,
-    fontWeight: '700',
-  },
-
-  // Business Overview
-  bizStatsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginTop: 8,
-    marginBottom: 8,
-  },
-  bizStatBox: {
-    alignItems: 'center',
-  },
-  bizStatValue: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: COLORS.primary,
-  },
-  bizStatLabel: {
-    fontSize: 10,
-    color: COLORS.textDim,
-    textTransform: 'uppercase',
-    marginTop: 2,
-  },
-  bizCard: {
-    backgroundColor: COLORS.bg,
-    borderRadius: 10,
-    padding: 12,
-    marginTop: 8,
-    borderWidth: 1,
-    borderColor: COLORS.cardBorder,
-  },
-  bizCardHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 6,
-  },
-  bizCardName: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: COLORS.textBright,
-  },
-  bizCardMeta: {
-    fontSize: 11,
-    color: COLORS.textDim,
-    marginTop: 1,
-  },
-  profitBadge: {
-    borderRadius: 6,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-  },
-  profitBadgeText: {
-    fontSize: 12,
-    fontWeight: '800',
-  },
-  bizCardStats: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  bizCardStat: {
-    fontSize: 11,
-    color: COLORS.text,
-    fontWeight: '600',
-  },
-  productionRow: {
-    marginTop: 6,
-    paddingTop: 6,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.cardBorder,
-  },
-  productionText: {
-    fontSize: 11,
-    fontWeight: '600',
-  },
-  bizActionRow: {
-    flexDirection: 'row',
-    gap: 6,
-    marginTop: 8,
-    paddingTop: 8,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.cardBorder,
-    flexWrap: 'wrap',
-  },
-  bizActionBtn: {
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: COLORS.cardBorder,
-    backgroundColor: COLORS.card,
-  },
-  bizActionBtnText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: COLORS.textDim,
-  },
-
-  // Events Banner
-  eventsContainer: {
-    gap: 6,
-  },
-  eventBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: COLORS.card,
+  // Next Action
+  nextActionContainer: { gap: 6 },
+  nextActionBanner: {
+    backgroundColor: C.card,
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 10,
     borderLeftWidth: 4,
-    gap: 8,
     borderWidth: 1,
-    borderColor: COLORS.cardBorder,
+    borderColor: C.cardBorder,
   },
-  eventDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
-  eventTitle: {
+  nextActionTitle: {
     fontSize: 13,
     fontWeight: '700',
-    color: COLORS.textBright,
   },
-  eventDesc: {
+  nextActionDetail: {
     fontSize: 11,
-    color: COLORS.textDim,
-    marginTop: 1,
-  },
-  eventCategory: {
-    fontSize: 9,
-    fontWeight: '700',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    color: C.dim,
+    marginTop: 2,
   },
 
-
-  // Heat Indicator
-  heatBadge: {
-    borderRadius: 6,
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-    borderWidth: 1,
-  },
-  heatBadgeText: {
-    fontSize: 11,
-    fontWeight: '800',
-    letterSpacing: 0.5,
-  },
-  heatBarTrack: {
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#1f1f3a',
-    overflow: 'hidden',
-    marginTop: 8,
-  },
-  heatBarFill: {
-    height: '100%',
-    borderRadius: 3,
-  },
-  heatMeta: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 6,
-  },
-  heatMetaText: {
-    fontSize: 11,
-    color: COLORS.textDim,
-    fontWeight: '600',
-  },
-
-  // Season
-  seasonName: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: COLORS.text,
-    marginBottom: 8,
-  },
-  seasonRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  daysLeft: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: COLORS.warning,
-  },
-  specialRule: {
-    backgroundColor: COLORS.primary + '1a',
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    maxWidth: '60%',
-    borderWidth: 1,
-    borderColor: COLORS.primary + '33',
-  },
-  specialRuleText: {
-    color: COLORS.accent,
-    fontSize: 12,
-    fontWeight: '600',
-  },
-
-  // Quick Actions
-  quickActionsGrid: {
-    flexDirection: 'row',
-    gap: 10,
-    marginTop: 8,
-  },
-  quickBtn: {
+  // Empire Bar
+  empireBar: { flexDirection: 'row', gap: 8 },
+  empireBtn: {
     flex: 1,
-    backgroundColor: COLORS.bg,
-    borderRadius: 12,
-    padding: 14,
+    backgroundColor: C.card,
+    borderRadius: 10,
+    paddingVertical: 10,
     alignItems: 'center',
-    gap: 6,
     borderWidth: 1,
-    borderColor: COLORS.cardBorder,
+    borderColor: C.cardBorder,
+    gap: 2,
   },
-  quickBtnIcon: {
-    fontSize: 24,
-  },
-  quickBtnLabel: {
+  empireBtnIcon: { fontSize: 16 },
+  empireBtnLabel: {
     fontSize: 10,
-    color: COLORS.textDim,
-    textAlign: 'center',
     fontWeight: '700',
+    color: C.dim,
     textTransform: 'uppercase',
     letterSpacing: 0.3,
+  },
+
+  // Business Card
+  bizCard: {
+    backgroundColor: C.card,
+    borderRadius: 10,
+    padding: 12,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: C.cardBorder,
+  },
+  bizHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  bizName: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: C.bright,
+  },
+  bizMeta: {
+    fontSize: 11,
+    color: C.dim,
+    marginTop: 1,
+  },
+  profitPill: {
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+  },
+  profitText: {
+    fontSize: 12,
+    fontWeight: '800',
+  },
+  prodText: {
+    fontSize: 11,
+    fontWeight: '600',
+    marginTop: 4,
+  },
+  invText: {
+    fontSize: 11,
+    fontWeight: '600',
+    marginTop: 2,
+  },
+  bizActions: {
+    flexDirection: 'row',
+    gap: 6,
+    marginTop: 8,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: C.cardBorder,
+    flexWrap: 'wrap',
+  },
+  actionBtn: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: C.cardBorder,
+  },
+  actionBtnText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: C.dim,
   },
 
   // Alerts
   alertRow: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    paddingVertical: 8,
+    alignItems: 'center',
+    paddingVertical: 6,
     borderTopWidth: 1,
-    borderTopColor: COLORS.cardBorder,
-    gap: 10,
+    borderTopColor: C.cardBorder,
+    gap: 8,
   },
-  alertUnread: {},
-  alertIcon: {
-    fontSize: 18,
-    width: 24,
-    textAlign: 'center',
-    marginTop: 1,
-  },
-  alertContent: {
-    flex: 1,
-  },
-  alertMessage: {
-    fontSize: 13,
-    color: COLORS.text,
-    lineHeight: 18,
-  },
-  alertMessageRead: {
-    color: COLORS.textDim,
-  },
-  alertTime: {
-    fontSize: 11,
-    color: '#4b5563',
-    marginTop: 2,
-  },
-  unreadDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: COLORS.primary,
-    marginTop: 4,
-  },
-  emptyText: {
-    color: COLORS.textDim,
-    fontSize: 13,
-    textAlign: 'center',
-    paddingVertical: 8,
-  },
-  markAllRead: {
-    color: COLORS.primary,
-    fontSize: 13,
-    fontWeight: '600',
-  },
-
+  alertUnread: { backgroundColor: C.primary + '08' },
+  alertIcon: { fontSize: 16, width: 22, textAlign: 'center' },
+  alertMsg: { flex: 1, fontSize: 12, color: C.text, lineHeight: 16 },
+  alertTime: { fontSize: 10, color: '#4b5563' },
+  markAllRead: { color: C.primary, fontSize: 12, fontWeight: '600' },
+  emptyText: { color: C.dim, fontSize: 13, textAlign: 'center', paddingVertical: 8 },
 });
