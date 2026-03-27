@@ -919,12 +919,24 @@ export async function playerRoutes(app: FastifyInstance): Promise<void> {
       business_count: Number(row.business_count),
     }));
 
+    // Get requesting player's rank
+    const playerId = request.player.id;
+    const myRankRes = await query<{ rank: string }>(
+      `SELECT rank FROM (
+         SELECT id, ROW_NUMBER() OVER (ORDER BY net_worth DESC) AS rank
+         FROM players WHERE season_id = $1
+       ) ranked WHERE id = $2`,
+      [season.id, playerId],
+    );
+    const myRank = myRankRes.rows[0] ? parseInt(myRankRes.rows[0].rank) : null;
+
     return reply.send({
       data: {
         items: entries,
         total: Number(countRes.rows[0]?.count ?? 0),
         page: parseInt(page, 10) || 1,
         per_page: limit,
+        my_rank: myRank,
       },
     });
   });
@@ -965,6 +977,72 @@ export async function playerRoutes(app: FastifyInstance): Promise<void> {
     const playerId = request.player.id;
     const count = await markAllAlertsRead(playerId);
     return reply.send({ data: { marked_read: count } });
+  });
+
+  // GET /players/daily-summary — What happened since last login
+  app.get('/daily-summary', { preHandler: [requireAuth] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    const playerId = request.player.id;
+    const seasonId = request.player.season_id;
+
+    // Revenue earned in last 24h (from cash_history or alerts)
+    const revenueAlerts = await query<{ data: Record<string, unknown>; created_at: string }>(
+      `SELECT data, created_at FROM alerts
+       WHERE player_id = $1 AND type = 'REVENUE_REPORT' AND created_at > NOW() - INTERVAL '24 hours'
+       ORDER BY created_at DESC`,
+      [playerId],
+    );
+
+    // Crime results in last 24h
+    const crimeResults = await query<{ status: string; op_type: string; dirty_money_yield: string }>(
+      `SELECT status, op_type, dirty_money_yield::text FROM criminal_operations
+       WHERE player_id = $1 AND (completes_at > NOW() - INTERVAL '24 hours' OR started_at > NOW() - INTERVAL '24 hours')
+       ORDER BY completes_at DESC`,
+      [playerId],
+    );
+
+    // Market activity
+    const trades = await query<{ listing_type: string; total: string }>(
+      `SELECT listing_type,
+              SUM((quantity - quantity_remaining) * price_per_unit)::text AS total
+       FROM market_listings
+       WHERE seller_id = $1 AND season_id = $2
+         AND (filled_at > NOW() - INTERVAL '24 hours' OR created_at > NOW() - INTERVAL '24 hours')
+         AND status IN ('FILLED', 'PARTIALLY_FILLED')
+       GROUP BY listing_type`,
+      [playerId, seasonId],
+    );
+
+    // Employee changes
+    const empQuit = await query<{ count: string }>(
+      `SELECT COUNT(*) as count FROM alerts
+       WHERE player_id = $1 AND type = 'EMPLOYEE_QUIT' AND created_at > NOW() - INTERVAL '24 hours'`,
+      [playerId],
+    );
+
+    // Achievements
+    const achievements = await query<{ message: string }>(
+      `SELECT message FROM alerts
+       WHERE player_id = $1 AND type = 'REVENUE_REPORT' AND data->>'type' = 'achievement'
+         AND created_at > NOW() - INTERVAL '24 hours'`,
+      [playerId],
+    );
+
+    const soldTotal = trades.rows.find(r => r.listing_type === 'PLAYER_SELL');
+    const crimeComplete = crimeResults.rows.filter(r => r.status === 'COMPLETED');
+    const crimeBusted = crimeResults.rows.filter(r => r.status === 'BUSTED');
+
+    return reply.send({
+      data: {
+        period: '24h',
+        market_sold: soldTotal ? parseFloat(soldTotal.total) : 0,
+        crimes_completed: crimeComplete.length,
+        crimes_busted: crimeBusted.length,
+        dirty_money_earned: crimeComplete.reduce((s, c) => s + parseFloat(c.dirty_money_yield), 0),
+        employees_lost: parseInt(empQuit.rows[0]?.count ?? '0'),
+        achievements: achievements.rows.map(a => a.message),
+        alert_count: revenueAlerts.rows.length,
+      },
+    });
   });
 
   // GET /players/networth-breakdown — Detailed net worth composition

@@ -1510,22 +1510,22 @@ async function processRevenueAlerts(): Promise<void> {
 // ─── Milestone Achievements ──────────────────────────────────
 
 const MILESTONES = [
-  { key: 'cash_10k', check: (d: MilestoneData) => d.cash >= 10000, msg: 'Your empire is growing! Cash reached $10,000.' },
-  { key: 'cash_100k', check: (d: MilestoneData) => d.cash >= 100000, msg: 'Major milestone! Cash reached $100,000!' },
-  { key: 'cash_500k', check: (d: MilestoneData) => d.cash >= 500000, msg: 'Half a million in cash! You\'re a serious player.' },
-  { key: 'cash_1m', check: (d: MilestoneData) => d.cash >= 1000000, msg: 'MILLIONAIRE! Your cash hit $1,000,000!' },
-  { key: 'biz_1', check: (d: MilestoneData) => d.bizCount >= 1, msg: 'First business opened! Your empire begins.' },
-  { key: 'biz_3', check: (d: MilestoneData) => d.bizCount >= 3, msg: 'Business mogul! You now own 3 businesses.' },
-  { key: 'biz_5', check: (d: MilestoneData) => d.bizCount >= 5, msg: 'Empire expanding! 5 businesses under your control.' },
-  { key: 'emp_5', check: (d: MilestoneData) => d.empCount >= 5, msg: 'Growing workforce! You employ 5 people.' },
-  { key: 'emp_20', check: (d: MilestoneData) => d.empCount >= 20, msg: 'Major employer! 20 workers in your empire.' },
-  { key: 'tier2', check: (d: MilestoneData) => d.maxTier >= 2, msg: 'First upgrade complete! A business reached Tier 2.' },
-  { key: 'tier3', check: (d: MilestoneData) => d.maxTier >= 3, msg: 'Advanced operations! A business reached Tier 3.' },
-  { key: 'tier4', check: (d: MilestoneData) => d.maxTier >= 4, msg: 'Maximum power! A business reached Tier 4!' },
-  { key: 'nw_200k', check: (d: MilestoneData) => d.netWorth >= 200000, msg: 'Net worth passed $200,000! Keep building.' },
-  { key: 'nw_1m', check: (d: MilestoneData) => d.netWorth >= 1000000, msg: 'Net worth hit $1M! You\'re in the big leagues.' },
-  { key: 'rank_top10', check: (d: MilestoneData) => d.rank <= 10 && d.rank > 0, msg: 'TOP 10! You\'re one of the most powerful players.' },
-  { key: 'rank_1', check: (d: MilestoneData) => d.rank === 1, msg: '#1 RANKED! You are the most powerful player!' },
+  { key: 'cash_10k', check: (d: MilestoneData) => d.cash >= 10000, msg: 'Cash reached $10,000!', reward: 1000 },
+  { key: 'cash_100k', check: (d: MilestoneData) => d.cash >= 100000, msg: 'Cash reached $100,000!', reward: 5000 },
+  { key: 'cash_500k', check: (d: MilestoneData) => d.cash >= 500000, msg: 'Half a million in cash!', reward: 15000 },
+  { key: 'cash_1m', check: (d: MilestoneData) => d.cash >= 1000000, msg: 'MILLIONAIRE! Cash hit $1,000,000!', reward: 50000 },
+  { key: 'biz_1', check: (d: MilestoneData) => d.bizCount >= 1, msg: 'First business opened!', reward: 2000 },
+  { key: 'biz_3', check: (d: MilestoneData) => d.bizCount >= 3, msg: 'Business mogul! 3 businesses.', reward: 8000 },
+  { key: 'biz_5', check: (d: MilestoneData) => d.bizCount >= 5, msg: 'Empire expanding! 5 businesses.', reward: 20000 },
+  { key: 'emp_5', check: (d: MilestoneData) => d.empCount >= 5, msg: 'Growing workforce! 5 employees.', reward: 3000 },
+  { key: 'emp_20', check: (d: MilestoneData) => d.empCount >= 20, msg: 'Major employer! 20 workers.', reward: 10000 },
+  { key: 'tier2', check: (d: MilestoneData) => d.maxTier >= 2, msg: 'A business reached Tier 2!', reward: 5000 },
+  { key: 'tier3', check: (d: MilestoneData) => d.maxTier >= 3, msg: 'A business reached Tier 3!', reward: 15000 },
+  { key: 'tier4', check: (d: MilestoneData) => d.maxTier >= 4, msg: 'Maximum power! Tier 4!', reward: 50000 },
+  { key: 'nw_200k', check: (d: MilestoneData) => d.netWorth >= 200000, msg: 'Net worth passed $200,000!', reward: 5000 },
+  { key: 'nw_1m', check: (d: MilestoneData) => d.netWorth >= 1000000, msg: 'Net worth hit $1M!', reward: 25000 },
+  { key: 'rank_top10', check: (d: MilestoneData) => d.rank <= 10 && d.rank > 0, msg: 'TOP 10! One of the most powerful.', reward: 10000 },
+  { key: 'rank_1', check: (d: MilestoneData) => d.rank === 1, msg: '#1 RANKED! The most powerful player!', reward: 50000 },
 ];
 
 interface MilestoneData {
@@ -1582,9 +1582,17 @@ async function processMilestones(): Promise<void> {
         );
         if (existing.rows.length > 0) continue;
 
+        // Grant cash reward
+        if (milestone.reward > 0) {
+          await client.query(
+            'UPDATE players SET cash = cash + $1 WHERE id = $2',
+            [milestone.reward, p.id],
+          );
+        }
+
         await createAlert(client, p.id, p.season_id, 'REVENUE_REPORT',
-          `Achievement unlocked: ${milestone.msg}`,
-          { milestone: milestone.key, type: 'achievement' },
+          `Achievement: ${milestone.msg} Bonus: +$${milestone.reward.toLocaleString()}!`,
+          { milestone: milestone.key, type: 'achievement', reward: milestone.reward },
         );
       }
     }
