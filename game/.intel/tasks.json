@@ -1,11 +1,11 @@
 {
   "meta": {
     "total": 30,
-    "done": 20,
+    "done": 21,
     "running": 0,
-    "pending": 10,
+    "pending": 9,
     "failed": 0,
-    "last_updated": "2026-03-27T09:06:45.107972"
+    "last_updated": "2026-03-27T09:09:57.816177"
   },
   "tasks": [
     {
@@ -211,7 +211,7 @@
     {
       "id": "T020",
       "title": "Leaderboard endpoint and UI",
-      "status": "pending",
+      "status": "done",
       "priority": "medium",
       "phase": "social",
       "created_at": "2026-03-27",
@@ -219,7 +219,9 @@
         "summary": "GET /game/leaderboard returns top 20 players by net_worth. Add LeaderboardScreen to client with rank/name/net_worth/level. Add tab in navigation.",
         "server_changes": "New route: SELECT username, net_worth, level, xp FROM players ORDER BY net_worth DESC LIMIT 20",
         "client_changes": "New screen + navigation tab. Pull-to-refresh. Highlight current player."
-      }
+      },
+      "completed_at": "2026-03-27",
+      "notes": "GET /game/leaderboard (top 20 by net_worth + your rank). LeaderboardScreen with medals, level display, your-highlight. Tab navigation added."
     },
     {
       "id": "T021",

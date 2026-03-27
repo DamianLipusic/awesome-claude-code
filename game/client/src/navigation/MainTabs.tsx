@@ -2,9 +2,11 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { DashboardScreen } from '../screens/DashboardScreen';
+import { LeaderboardScreen } from '../screens/LeaderboardScreen';
 
 export type MainTabParamList = {
   Dashboard: undefined;
+  Leaderboard: undefined;
 };
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -60,6 +62,14 @@ export function MainTabs() {
         options={{
           title: 'EmpireOS',
           tabBarIcon: () => <TabIcon emoji="🏠" />,
+        }}
+      />
+      <Tab.Screen
+        name="Leaderboard"
+        component={LeaderboardScreen}
+        options={{
+          title: 'Rankings',
+          tabBarIcon: () => <TabIcon emoji="🏆" />,
         }}
       />
     </Tab.Navigator>

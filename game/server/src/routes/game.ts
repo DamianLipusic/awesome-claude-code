@@ -511,4 +511,39 @@ export async function gameRoutes(app: FastifyInstance): Promise<void> {
       },
     });
   });
+
+  // ═══════════════════════════════════════════════════════════════
+  // LEADERBOARD — top players by net worth
+  // ═══════════════════════════════════════════════════════════════
+  app.get('/leaderboard', async (req: FastifyRequest, reply: FastifyReply) => {
+    const pid = req.player.id;
+
+    const [topRes, rankRes] = await Promise.all([
+      query<{ id: string; username: string; net_worth: string; level: number; xp: number }>(
+        `SELECT id, username, net_worth, level, xp FROM players
+         ORDER BY net_worth DESC LIMIT 20`
+      ),
+      query<{ rank: string }>(
+        `SELECT COUNT(*) + 1 AS rank FROM players WHERE net_worth > (SELECT net_worth FROM players WHERE id = $1)`,
+        [pid]
+      ),
+    ]);
+
+    const players = topRes.rows.map((p, i) => ({
+      rank: i + 1,
+      id: p.id,
+      username: p.username,
+      net_worth: Number(p.net_worth),
+      level: p.level,
+      xp: p.xp,
+      is_you: p.id === pid,
+    }));
+
+    return reply.send({
+      data: {
+        leaderboard: players,
+        your_rank: Number(rankRes.rows[0].rank),
+      },
+    });
+  });
 }

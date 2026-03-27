@@ -49,3 +49,5 @@
 [2026-03-27 09:03] T018 — XP/Level system: migration, XP awards on all actions, level calc, dashboard XP bar, level-up activity log
 [2026-03-27T09:05] VALIDATION — PASS (21/21)
 [2026-03-27 09:06] T019 — Toast notifications wired into all player action mutations
+[2026-03-27T09:09] VALIDATION — PASS (21/21)
+[2026-03-27 09:09] T020 — Leaderboard: endpoint + screen + tab navigation
