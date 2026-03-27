@@ -82,7 +82,29 @@ export async function employeeRoutes(fastify: FastifyInstance): Promise<void> {
          WHERE b.owner_id = $1`,
         [playerId],
       );
-      return reply.send({ data: result.rows });
+      // Add level info to each employee
+      const XP_LEVELS = [
+        { min: 0, title: 'Rookie' },
+        { min: 100, title: 'Experienced' },
+        { min: 500, title: 'Veteran' },
+        { min: 2000, title: 'Expert' },
+        { min: 5000, title: 'Master' },
+      ];
+      const withLevels = result.rows.map((e: any) => {
+        const xp = e.experience_points ?? 0;
+        let level = 0; let title = 'Rookie';
+        for (let i = XP_LEVELS.length - 1; i >= 0; i--) {
+          if (xp >= XP_LEVELS[i].min) { level = i; title = XP_LEVELS[i].title; break; }
+        }
+        const nextLevel = XP_LEVELS[level + 1];
+        return {
+          ...e,
+          level, title,
+          xp_to_next: nextLevel ? nextLevel.min - xp : 0,
+          next_title: nextLevel?.title ?? null,
+        };
+      });
+      return reply.send({ data: withLevels });
     },
   );
 

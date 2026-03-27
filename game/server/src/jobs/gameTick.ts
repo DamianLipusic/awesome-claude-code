@@ -37,6 +37,7 @@ export async function runGameTick(): Promise<void> {
     await runSafe('SupplyChainTransfer', processSupplyChainTransfer);
     await runSafe('AutoSell', processAutoSell);
     await runSafe('EmployeeMorale', processEmployeeMorale);
+    await runSafe('EmployeeXP', processEmployeeXP);
     await runSafe('MarketPrices', processMarketPrices);
     await runSafe('AIBuyOrders', processAIBuyOrders);
     await runSafe('ExpiredListings', processExpiredListings);
@@ -507,6 +508,54 @@ async function processEmployeeMorale(): Promise<void> {
           employee_id: emp.id, name: emp.name,
         });
       }
+    }
+  });
+}
+
+// ─── 2b. Employee XP & Level-Up ──────────────────────────────
+// Employees gain 1 XP per tick worked. Level thresholds grant skill boosts.
+// Levels: Rookie(0) → Experienced(100) → Veteran(500) → Expert(2000) → Master(5000)
+
+const XP_LEVEL_THRESHOLDS = [
+  { min: 0, title: 'Rookie' },
+  { min: 100, title: 'Experienced' },
+  { min: 500, title: 'Veteran' },
+  { min: 2000, title: 'Expert' },
+  { min: 5000, title: 'Master' },
+];
+
+export function getEmployeeLevel(xp: number): { level: number; title: string } {
+  let level = 0;
+  let title = 'Rookie';
+  for (let i = XP_LEVEL_THRESHOLDS.length - 1; i >= 0; i--) {
+    if (xp >= XP_LEVEL_THRESHOLDS[i].min) {
+      level = i;
+      title = XP_LEVEL_THRESHOLDS[i].title;
+      break;
+    }
+  }
+  return { level, title };
+}
+
+async function processEmployeeXP(): Promise<void> {
+  await withTransaction(async (client) => {
+    // Grant 1 XP to all employed workers/managers each tick
+    await client.query(
+      `UPDATE employees SET experience_points = experience_points + 1
+       WHERE business_id IS NOT NULL`,
+    );
+
+    // Level-up skill boosts: when crossing a threshold, boost efficiency by 2%
+    // Check employees who just crossed a threshold this tick
+    for (const threshold of XP_LEVEL_THRESHOLDS) {
+      if (threshold.min === 0) continue;
+      await client.query(
+        `UPDATE employees
+            SET efficiency = LEAST(efficiency + 0.02, 2.0)
+          WHERE experience_points = $1
+            AND business_id IS NOT NULL`,
+        [threshold.min],
+      );
     }
   });
 }
