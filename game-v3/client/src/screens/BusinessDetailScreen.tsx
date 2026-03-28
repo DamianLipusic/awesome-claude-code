@@ -98,6 +98,9 @@ interface BusinessDetail {
   base_rate: number | null;
   cycle_minutes: number | null;
   storage_cap: number;
+  security_physical: number;
+  security_cyber: number;
+  security_legal: number;
   max_employees: number;
   inventory: InventoryItem[];
   employees: Employee[];
@@ -337,6 +340,17 @@ export function BusinessDetailScreen({ route, navigation }: Props) {
     onError: (err: Error) => show(err.message, 'error'),
   });
 
+  const securityMutation = useMutation({
+    mutationFn: (type: 'physical' | 'cyber' | 'legal') =>
+      api.post(`/businesses/${businessId}/security`, { type }),
+    onSuccess: () => {
+      show('Security upgraded!', 'success');
+      queryClient.invalidateQueries({ queryKey: ['business', businessId] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+    },
+    onError: (err: Error) => show(err.message, 'error'),
+  });
+
   if (isLoading || !biz) {
     return <LoadingScreen message="Loading business..." />;
   }
@@ -506,6 +520,43 @@ export function BusinessDetailScreen({ route, navigation }: Props) {
           </TouchableOpacity>
         </Card>
       ) : null}
+
+      {/* Security Section */}
+      <Text style={styles.sectionTitle}>Security</Text>
+      <Card style={styles.sectionCard}>
+        {([
+          { type: 'physical' as const, label: 'Physical', icon: '\u{1F6E1}\u{FE0F}', value: biz.security_physical ?? 0, color: '#3b82f6' },
+          { type: 'cyber' as const, label: 'Cyber', icon: '\u{1F512}', value: biz.security_cyber ?? 0, color: '#8b5cf6' },
+          { type: 'legal' as const, label: 'Legal', icon: '\u{2696}\u{FE0F}', value: biz.security_legal ?? 0, color: '#f59e0b' },
+        ]).map((sec) => {
+          const cost = 1000 + sec.value * 50;
+          return (
+            <View key={sec.type} style={styles.securityRow}>
+              <Text style={styles.securityIcon}>{sec.icon}</Text>
+              <View style={{ flex: 1 }}>
+                <View style={styles.securityLabelRow}>
+                  <Text style={styles.securityLabel}>{sec.label}</Text>
+                  <Text style={styles.securityValue}>{sec.value}/100</Text>
+                </View>
+                <ProgressBar
+                  progress={sec.value / 100}
+                  color={sec.color}
+                  height={6}
+                />
+              </View>
+              <TouchableOpacity
+                style={styles.securityUpgradeBtn}
+                onPress={() => securityMutation.mutate(sec.type)}
+                disabled={securityMutation.isPending || sec.value >= 100}
+              >
+                <Text style={styles.securityUpgradeText}>
+                  {sec.value >= 100 ? 'MAX' : `+1 ${formatCurrency(cost)}`}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          );
+        })}
+      </Card>
 
       <View style={styles.buttonRow}>
         <TouchableOpacity
@@ -1426,6 +1477,47 @@ const styles = StyleSheet.create({
   mgrFireText: {
     color: '#ef4444',
     fontSize: 13,
+    fontWeight: '700' as const,
+  },
+  // Security section
+  securityRow: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: 10,
+    marginBottom: 10,
+  },
+  securityIcon: {
+    fontSize: 18,
+    width: 24,
+    textAlign: 'center' as const,
+  },
+  securityLabelRow: {
+    flexDirection: 'row' as const,
+    justifyContent: 'space-between' as const,
+    marginBottom: 4,
+  },
+  securityLabel: {
+    fontSize: 13,
+    color: '#d1d5db',
+    fontWeight: '600' as const,
+  },
+  securityValue: {
+    fontSize: 12,
+    color: '#6b7280',
+    fontWeight: '600' as const,
+  },
+  securityUpgradeBtn: {
+    backgroundColor: '#1f2937',
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    borderWidth: 1,
+    borderColor: '#374151',
+    marginLeft: 8,
+  },
+  securityUpgradeText: {
+    color: '#22c55e',
+    fontSize: 11,
     fontWeight: '700' as const,
   },
 });

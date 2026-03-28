@@ -263,14 +263,18 @@ export async function runDailyTick(): Promise<{
       const raidChance = (hp.heat_police - 60) / 100;
       if (Math.random() >= raidChance) continue;
 
-      // Pick a random active business to raid
+      // Pick a random active business to raid (prefer low-security ones)
       const bizRes = await client.query(
-        "SELECT id, name FROM businesses WHERE owner_id = $1 AND status = 'active' ORDER BY RANDOM() LIMIT 1",
+        "SELECT id, name, security_physical, security_legal FROM businesses WHERE owner_id = $1 AND status = 'active' ORDER BY (security_physical + security_legal) ASC, RANDOM() LIMIT 1",
         [hp.id],
       );
       if (!bizRes.rows.length) continue;
 
       const biz = bizRes.rows[0];
+      // Security reduces raid success: high security can block the raid
+      const securityDefense = (Number(biz.security_physical ?? 0) + Number(biz.security_legal ?? 0)) / 200;
+      if (Math.random() < securityDefense) continue; // Security blocked the raid
+
       const fine = 2000 + Math.floor(hp.heat_police * 50);
 
       // Freeze business for 30 minutes
@@ -304,7 +308,16 @@ export async function runDailyTick(): Promise<{
     );
 
     // ═══════════════════════════════════════════════════════════════
-    // STEP 5: Cleanup
+    // STEP 5: Fulfill contracts
+    try {
+      const { fulfillContracts } = await import('../routes/contracts.js');
+      const contractsFulfilled = await fulfillContracts((sql, params) => client.query(sql, params) as any);
+      if (contractsFulfilled > 0) console.log(`[daily] ${contractsFulfilled} contract(s) fulfilled`);
+    } catch (err) {
+      console.error('[daily] Contract fulfillment error:', err);
+    }
+
+    // STEP 6: Cleanup
     // ═══════════════════════════════════════════════════════════════
 
     await client.query(

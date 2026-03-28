@@ -138,3 +138,10 @@
 [2026-03-28T10:03] TESTS — 24/24 PASS
 [2026-03-28T10:04] GIT — Commit v4.3
 [2026-03-28T10:04] DEPLOY — Web client rebuilt and deployed (v4.3.0)
+
+[2026-03-28T10:06] PRICE HISTORY — price_history table, recorded in economy tick, GET /market/history/:itemKey
+[2026-03-28T10:07] RELOCATION — POST /businesses/:id/relocate (50% location cost)
+[2026-03-28T10:08] POACHING — POST /employees/poach (2x salary, 50% success, +10 rival heat)
+[2026-03-28T10:12] TESTS — 24/24 PASS
+[2026-03-28T10:13] GIT — Commit v4.4
+[2026-03-28T10:13] DEPLOY — Web client rebuilt and deployed (v4.4.0)

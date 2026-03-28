@@ -387,6 +387,49 @@ export async function businessRoutes(app: FastifyInstance): Promise<void> {
     return reply.send({ data: { id, name, message: `Renamed to "${name}"` } });
   });
 
+  // POST /:id/security — upgrade security level
+  const SecuritySchema = z.object({
+    type: z.enum(['physical', 'cyber', 'legal']),
+  });
+
+  app.post('/:id/security', async (req: FastifyRequest, reply: FastifyReply) => {
+    const { id } = req.params as { id: string };
+    const { type } = SecuritySchema.parse(req.body);
+    const playerId = req.player.id;
+
+    const col = `security_${type}`;
+    const bizRes = await query<{ id: string; name: string; [key: string]: unknown }>(
+      `SELECT id, name, security_physical, security_cyber, security_legal FROM businesses WHERE id = $1 AND owner_id = $2 AND status != 'shutdown'`,
+      [id, playerId],
+    );
+    if (!bizRes.rows.length) return reply.status(404).send({ error: 'Business not found' });
+
+    const current = Number(bizRes.rows[0][col] ?? 0);
+    if (current >= 100) return reply.status(400).send({ error: `${type} security already maxed out` });
+
+    const cost = 1000 + current * 50; // Gets more expensive as it increases
+    const gain = 10;
+
+    const cashRes = await query<{ cash: string }>('SELECT cash FROM players WHERE id = $1', [playerId]);
+    if (Number(cashRes.rows[0]?.cash ?? 0) < cost) {
+      return reply.status(400).send({ error: `Need $${cost}. Security upgrades get more expensive.` });
+    }
+
+    await query('UPDATE players SET cash = cash - $1 WHERE id = $2', [cost, playerId]);
+    await query(`UPDATE businesses SET ${col} = LEAST(100, ${col} + $1) WHERE id = $2`, [gain, id]);
+    await query(
+      "INSERT INTO activity_log (player_id, business_id, type, message, amount) VALUES ($1, $2, 'SECURITY_UPGRADE', $3, $4)",
+      [playerId, id, `Upgraded ${type} security (+${gain}) on "${bizRes.rows[0].name}"`, -cost],
+    );
+
+    return reply.send({
+      data: {
+        type, new_level: Math.min(100, current + gain), cost,
+        message: `${type} security upgraded to ${Math.min(100, current + gain)}`,
+      },
+    });
+  });
+
   // POST /:id/relocate — move business to new location
   app.post('/:id/relocate', async (req: FastifyRequest, reply: FastifyReply) => {
     const { id } = req.params as { id: string };

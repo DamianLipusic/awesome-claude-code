@@ -101,7 +101,36 @@ interface MyListing {
   expires_at: string;
 }
 
-type SectionKey = 'prices' | 'buy' | 'sell' | 'listings';
+interface Contract {
+  id: string;
+  supplier_id: string;
+  buyer_id: string;
+  item_name: string;
+  supplier_name: string;
+  buyer_name: string;
+  quantity_per_cycle: number;
+  cycle_hours: number;
+  price_per_unit: number;
+  penalty_per_miss: number;
+  cycles_completed: number;
+  cycles_missed: number;
+  status: string;
+  next_delivery_at: string | null;
+}
+
+interface IntelPlayer {
+  id: string;
+  username: string;
+}
+
+interface GameItem {
+  id: string;
+  key: string;
+  name: string;
+  category: string;
+}
+
+type SectionKey = 'prices' | 'buy' | 'sell' | 'listings' | 'contracts';
 
 const STAGE_LABELS: Record<number, string> = {
   1: 'Raw Materials',
@@ -131,6 +160,18 @@ export function MarketScreen() {
   const [listItem, setListItem] = useState<InventoryItem | null>(null);
   const [listQty, setListQty] = useState('');
   const [listPrice, setListPrice] = useState('');
+
+  // Contract modal state
+  const [showCreateContract, setShowCreateContract] = useState(false);
+  const [contractBuyerId, setContractBuyerId] = useState<string | null>(null);
+  const [contractItemId, setContractItemId] = useState<string | null>(null);
+  const [contractSupplierBizId, setContractSupplierBizId] = useState<string | null>(null);
+  const [contractQty, setContractQty] = useState('');
+  const [contractCycleHours, setContractCycleHours] = useState('24');
+  const [contractPrice, setContractPrice] = useState('');
+  const [contractPenalty, setContractPenalty] = useState('');
+  const [acceptBizId, setAcceptBizId] = useState<string | null>(null);
+  const [acceptContractId, setAcceptContractId] = useState<string | null>(null);
 
   // ─── Queries ─────────────────────────────────────
 
@@ -182,12 +223,46 @@ export function MarketScreen() {
     enabled: !!listBizId,
   });
 
-  const isRefetching = pricesRefetching || listingsRefetching || myListingsRefetching;
+  // Contracts
+  const { data: myContracts, isLoading: contractsLoading, refetch: refetchContracts, isRefetching: contractsRefetching } =
+    useQuery<Contract[]>({
+      queryKey: ['contracts'],
+      queryFn: () => api.get<Contract[]>('/contracts'),
+      refetchInterval: 30000,
+    });
+
+  const { data: incomingContracts, refetch: refetchIncoming, isRefetching: incomingRefetching } =
+    useQuery<Contract[]>({
+      queryKey: ['contractsIncoming'],
+      queryFn: () => api.get<Contract[]>('/contracts/incoming'),
+      refetchInterval: 30000,
+    });
+
+  // Players list for contract creation
+  const { data: intelPlayers } = useQuery<IntelPlayer[]>({
+    queryKey: ['intelPlayers'],
+    queryFn: () => api.get<IntelPlayer[]>('/intel/players'),
+    enabled: showCreateContract,
+  });
+
+  // Items list for contract creation (from game info items)
+  const { data: gameItems } = useQuery<GameItem[]>({
+    queryKey: ['gameItems'],
+    queryFn: async () => {
+      const info = await api.get<{ items: GameItem[] }>('/game/info');
+      return info.items ?? [];
+    },
+    enabled: showCreateContract,
+  });
+
+  const isRefetching = pricesRefetching || listingsRefetching || myListingsRefetching || contractsRefetching || incomingRefetching;
 
   const refetchAll = () => {
     refetchPrices();
     refetchListings();
     refetchMyListings();
+    refetchContracts();
+    refetchIncoming();
   };
 
   // ─── Mutations ───────────────────────────────────
@@ -251,6 +326,49 @@ export function MarketScreen() {
       queryClient.invalidateQueries({ queryKey: ['myListings'] });
       queryClient.invalidateQueries({ queryKey: ['marketListings'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+    },
+    onError: (err: Error) => show(err.message, 'error'),
+  });
+
+  // ─── Contract Mutations ─────────────────────────
+
+  const createContractMutation = useMutation({
+    mutationFn: (body: { buyer_id: string; item_id: string; supplier_business_id: string; quantity_per_cycle: number; cycle_hours: number; price_per_unit: number; penalty_per_miss: number }) =>
+      api.post('/contracts/offer', body),
+    onSuccess: () => {
+      show('Contract offer sent!', 'success');
+      queryClient.invalidateQueries({ queryKey: ['contracts'] });
+      setShowCreateContract(false);
+      setContractBuyerId(null);
+      setContractItemId(null);
+      setContractSupplierBizId(null);
+      setContractQty('');
+      setContractPrice('');
+      setContractPenalty('');
+      setContractCycleHours('24');
+    },
+    onError: (err: Error) => show(err.message, 'error'),
+  });
+
+  const acceptContractMutation = useMutation({
+    mutationFn: ({ contractId, business_id }: { contractId: string; business_id: string }) =>
+      api.post(`/contracts/${contractId}/accept`, { business_id }),
+    onSuccess: () => {
+      show('Contract accepted!', 'success');
+      queryClient.invalidateQueries({ queryKey: ['contracts'] });
+      queryClient.invalidateQueries({ queryKey: ['contractsIncoming'] });
+      setAcceptContractId(null);
+      setAcceptBizId(null);
+    },
+    onError: (err: Error) => show(err.message, 'error'),
+  });
+
+  const cancelContractMutation = useMutation({
+    mutationFn: (contractId: string) => api.post(`/contracts/${contractId}/cancel`),
+    onSuccess: () => {
+      show('Contract declined', 'success');
+      queryClient.invalidateQueries({ queryKey: ['contracts'] });
+      queryClient.invalidateQueries({ queryKey: ['contractsIncoming'] });
     },
     onError: (err: Error) => show(err.message, 'error'),
   });
@@ -629,6 +747,112 @@ export function MarketScreen() {
     );
   };
 
+  // ─── Section: Contracts ─────────────────────────
+
+  const renderContracts = () => {
+    const statusVariant: Record<string, 'green' | 'blue' | 'gray' | 'orange'> = {
+      active: 'green',
+      pending: 'orange',
+      completed: 'blue',
+      cancelled: 'gray',
+      breached: 'gray',
+    };
+
+    const incoming = incomingContracts ?? [];
+    const all = myContracts ?? [];
+
+    return (
+      <View>
+        {/* Create Offer Button */}
+        <TouchableOpacity
+          style={styles.createListingBtn}
+          onPress={() => {
+            setShowCreateContract(true);
+            setContractBuyerId(null);
+            setContractItemId(null);
+            setContractSupplierBizId(null);
+            setContractQty('');
+            setContractPrice('');
+            setContractPenalty('');
+            setContractCycleHours('24');
+          }}
+        >
+          <Text style={styles.createListingBtnText}>+ Create Offer</Text>
+        </TouchableOpacity>
+
+        {/* Incoming Offers */}
+        {incoming.length > 0 && (
+          <>
+            <Text style={styles.groupTitle}>Incoming Offers</Text>
+            {incoming.map((c) => (
+              <Card key={c.id} style={styles.myListingCard}>
+                <View style={styles.myListingRow}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.myListingName}>{c.supplier_name}</Text>
+                    <Text style={styles.myListingMeta}>
+                      {c.item_name}: {c.quantity_per_cycle}/cycle @ {formatCurrency(c.price_per_unit)}/ea
+                    </Text>
+                    <Text style={styles.myListingDate}>
+                      Every {c.cycle_hours}h | Penalty: {formatCurrency(c.penalty_per_miss)}
+                    </Text>
+                  </View>
+                  <View style={styles.myListingRight}>
+                    <TouchableOpacity
+                      style={styles.actionBtn}
+                      onPress={() => { setAcceptContractId(c.id); setAcceptBizId(null); }}
+                    >
+                      <Text style={styles.actionBtnText}>Accept</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.cancelListingBtn}
+                      onPress={() => cancelContractMutation.mutate(c.id)}
+                      disabled={cancelContractMutation.isPending}
+                    >
+                      <Text style={styles.cancelListingBtnText}>Decline</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </Card>
+            ))}
+          </>
+        )}
+
+        {/* My Contracts */}
+        <Text style={styles.groupTitle}>My Contracts</Text>
+        {contractsLoading ? (
+          <Text style={styles.hintText}>Loading contracts...</Text>
+        ) : all.length === 0 ? (
+          <EmptyState icon="$" title="No contracts" subtitle="Create an offer or wait for incoming offers" />
+        ) : (
+          all.map((c) => (
+            <Card key={c.id} style={styles.myListingCard}>
+              <View style={styles.myListingRow}>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.myListingName}>
+                    {c.supplier_name} {'\u2192'} {c.buyer_name}
+                  </Text>
+                  <Text style={styles.myListingMeta}>
+                    {c.item_name}: {c.quantity_per_cycle}/cycle @ {formatCurrency(c.price_per_unit)}/ea
+                  </Text>
+                  <Text style={styles.myListingDate}>
+                    {c.cycles_completed} cycles done{c.cycles_missed > 0 ? ` | ${c.cycles_missed} missed` : ''}
+                  </Text>
+                </View>
+                <View style={styles.myListingRight}>
+                  <Badge
+                    label={c.status}
+                    variant={statusVariant[c.status] ?? 'gray'}
+                    size="sm"
+                  />
+                </View>
+              </View>
+            </Card>
+          ))
+        )}
+      </View>
+    );
+  };
+
   // ─── Computed values for modals ───────────────────
 
   const buyQtyNum = Math.max(1, parseInt(buyQty, 10) || 0);
@@ -655,6 +879,7 @@ export function MarketScreen() {
     { key: 'buy', label: 'Buy' },
     { key: 'sell', label: 'Sell' },
     { key: 'listings', label: 'Listings' },
+    { key: 'contracts', label: 'Contracts' },
   ];
 
   const sectionContent: Record<SectionKey, () => React.ReactNode> = {
@@ -662,6 +887,7 @@ export function MarketScreen() {
     buy: renderBuy,
     sell: renderSell,
     listings: renderMyListings,
+    contracts: renderContracts,
   };
 
   return (
@@ -814,6 +1040,193 @@ export function MarketScreen() {
               </TouchableOpacity>
             </View>
           </View>
+        </View>
+      </Modal>
+
+      {/* ─── Accept Contract Modal ─────────────────── */}
+      <Modal visible={acceptContractId !== null} transparent animationType="fade" onRequestClose={() => setAcceptContractId(null)}>
+        <View style={styles.modalBackdrop}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Accept Contract</Text>
+            <Text style={styles.modalSub}>Select a business to fulfill this contract:</Text>
+            {businesses && businesses.length > 0 ? (
+              businesses.map((biz) => (
+                <TouchableOpacity
+                  key={biz.id}
+                  style={[styles.bizOption, acceptBizId === biz.id && styles.bizOptionSelected]}
+                  onPress={() => setAcceptBizId(biz.id)}
+                >
+                  <Text style={styles.bizOptionName}>{biz.name}</Text>
+                  <Text style={styles.bizOptionMeta}>{biz.type} T{biz.tier}</Text>
+                </TouchableOpacity>
+              ))
+            ) : (
+              <Text style={styles.modalSub}>No businesses available.</Text>
+            )}
+            <View style={styles.modalButtons}>
+              <TouchableOpacity style={styles.modalCancel} onPress={() => { setAcceptContractId(null); setAcceptBizId(null); }}>
+                <Text style={styles.modalCancelText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalConfirm, !acceptBizId && { opacity: 0.5 }]}
+                disabled={!acceptBizId || acceptContractMutation.isPending}
+                onPress={() => {
+                  if (acceptContractId && acceptBizId) {
+                    acceptContractMutation.mutate({ contractId: acceptContractId, business_id: acceptBizId });
+                  }
+                }}
+              >
+                <Text style={styles.modalConfirmText}>
+                  {acceptContractMutation.isPending ? 'Accepting...' : 'Accept'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* ─── Create Contract Offer Modal ─────────────── */}
+      <Modal visible={showCreateContract} transparent animationType="fade" onRequestClose={() => setShowCreateContract(false)}>
+        <View style={styles.modalBackdrop}>
+          <ScrollView contentContainerStyle={styles.createListingModalScroll}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Create Contract Offer</Text>
+
+              {/* Target player */}
+              <Text style={styles.inputLabel}>Target Player (Buyer):</Text>
+              {intelPlayers && intelPlayers.length > 0 ? (
+                <View style={styles.bizSelector}>
+                  {intelPlayers.map((p) => (
+                    <TouchableOpacity
+                      key={p.id}
+                      style={[styles.bizChip, contractBuyerId === p.id && styles.bizChipActive]}
+                      onPress={() => setContractBuyerId(p.id)}
+                    >
+                      <Text style={[styles.bizChipText, contractBuyerId === p.id && styles.bizChipTextActive]}>
+                        {p.username}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              ) : (
+                <Text style={styles.modalSub}>Loading players...</Text>
+              )}
+
+              {/* Item */}
+              <Text style={styles.inputLabel}>Item:</Text>
+              {gameItems && gameItems.length > 0 ? (
+                <View style={styles.bizSelector}>
+                  {gameItems.map((item) => (
+                    <TouchableOpacity
+                      key={item.id}
+                      style={[styles.bizChip, contractItemId === item.id && styles.bizChipActive]}
+                      onPress={() => setContractItemId(item.id)}
+                    >
+                      <Text style={[styles.bizChipText, contractItemId === item.id && styles.bizChipTextActive]}>
+                        {item.name}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              ) : (
+                <Text style={styles.modalSub}>Loading items...</Text>
+              )}
+
+              {/* Supplier business */}
+              <Text style={styles.inputLabel}>Your Business (Supplier):</Text>
+              {businesses && businesses.length > 0 ? (
+                <View style={styles.bizSelector}>
+                  {businesses.map((biz) => (
+                    <TouchableOpacity
+                      key={biz.id}
+                      style={[styles.bizChip, contractSupplierBizId === biz.id && styles.bizChipActive]}
+                      onPress={() => setContractSupplierBizId(biz.id)}
+                    >
+                      <Text style={[styles.bizChipText, contractSupplierBizId === biz.id && styles.bizChipTextActive]}>
+                        {biz.name}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              ) : (
+                <Text style={styles.modalSub}>No businesses available.</Text>
+              )}
+
+              {/* Qty / Cycle / Price / Penalty */}
+              <Text style={styles.inputLabel}>Quantity per cycle:</Text>
+              <TextInput
+                style={styles.input}
+                value={contractQty}
+                onChangeText={setContractQty}
+                keyboardType="number-pad"
+                placeholder="10"
+                placeholderTextColor="#4b5563"
+              />
+
+              <Text style={styles.inputLabel}>Cycle hours:</Text>
+              <TextInput
+                style={styles.input}
+                value={contractCycleHours}
+                onChangeText={setContractCycleHours}
+                keyboardType="number-pad"
+                placeholder="24"
+                placeholderTextColor="#4b5563"
+              />
+
+              <Text style={styles.inputLabel}>Price per unit:</Text>
+              <TextInput
+                style={styles.input}
+                value={contractPrice}
+                onChangeText={setContractPrice}
+                keyboardType="decimal-pad"
+                placeholder="0.00"
+                placeholderTextColor="#4b5563"
+              />
+
+              <Text style={styles.inputLabel}>Penalty per miss:</Text>
+              <TextInput
+                style={styles.input}
+                value={contractPenalty}
+                onChangeText={setContractPenalty}
+                keyboardType="decimal-pad"
+                placeholder="0.00"
+                placeholderTextColor="#4b5563"
+              />
+
+              <View style={styles.modalButtons}>
+                <TouchableOpacity
+                  style={styles.modalCancel}
+                  onPress={() => setShowCreateContract(false)}
+                >
+                  <Text style={styles.modalCancelText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.modalConfirm,
+                    (!contractBuyerId || !contractItemId || !contractSupplierBizId || !contractQty || !contractPrice) && { opacity: 0.5 },
+                  ]}
+                  disabled={!contractBuyerId || !contractItemId || !contractSupplierBizId || !contractQty || !contractPrice || createContractMutation.isPending}
+                  onPress={() => {
+                    if (contractBuyerId && contractItemId && contractSupplierBizId) {
+                      createContractMutation.mutate({
+                        buyer_id: contractBuyerId,
+                        item_id: contractItemId,
+                        supplier_business_id: contractSupplierBizId,
+                        quantity_per_cycle: parseInt(contractQty, 10) || 1,
+                        cycle_hours: parseInt(contractCycleHours, 10) || 24,
+                        price_per_unit: parseFloat(contractPrice) || 0,
+                        penalty_per_miss: parseFloat(contractPenalty) || 0,
+                      });
+                    }
+                  }}
+                >
+                  <Text style={styles.modalConfirmText}>
+                    {createContractMutation.isPending ? 'Sending...' : 'Send Offer'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </ScrollView>
         </View>
       </Modal>
 
@@ -972,7 +1385,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#1f2937', alignItems: 'center',
   },
   sectionTabActive: { backgroundColor: '#22c55e' },
-  sectionTabText: { color: '#9ca3af', fontSize: 12, fontWeight: '700' },
+  sectionTabText: { color: '#9ca3af', fontSize: 11, fontWeight: '700' },
   sectionTabTextActive: { color: '#030712' },
 
   groupTitle: {
