@@ -1,0 +1,155 @@
+# EmpireOS V3 Execution Log
+
+[2026-03-27] V3 PROJECT CREATED — Separate game-v3/ directory, new DB schema (17 tables), server on :3001
+[2026-03-27] CORE BUILD — Auth, businesses (MINE/FACTORY/SHOP), locations, employees, inventory, market, discovery, production/economy/autosell/daily ticks
+[2026-03-27] CLIENT BUILD — Login, Register, Dashboard, BusinessList, BusinessDetail, Employee, Market screens
+[2026-03-27] PLAYTEST — 17/20 passed, 3 failures due to tight cash balance
+
+[2026-03-28T05:00] SESSION START — Diagnosed V3 exists in game-v3/, server running on :3001
+[2026-03-28T05:02] FIX — Starting cash 50K→75K (auth.ts:25), updated test-playtest.sh
+[2026-03-28T05:04] FIX — Playtest now 20/20 PASS
+[2026-03-28T05:05] MIGRATION — V3 server port 3001→3000 (.env + index.ts)
+[2026-03-28T05:05] MIGRATION — V2 stopped, V3 now primary on :3000
+[2026-03-28T05:06] CORS — Added VPS IP (187.124.18.170) to allowed origins
+[2026-03-28T05:07] CLIENT — Fixed app.config.js API URLs to point to :3000
+[2026-03-28T05:07] CLIENT — Fixed registerRootComponent (was missing — app never mounted on web)
+[2026-03-28T05:08] DEPLOY — Web client on :8080, API on :3000, both verified
+[2026-03-28T05:20] NEW ENDPOINT — GET /api/v1/game/info (wiki: business types, items, recipes, chains, locations, employee tiers, training, tips)
+[2026-03-28T05:25] ENHANCED — Dashboard API: per-business profit, dailyCosts, suggestions (next actions)
+[2026-03-28T05:27] ENHANCED — Business detail API: recipe_info (inputs, output price, profit/unit), costs breakdown
+[2026-03-28T05:28] NEW SCREEN — GameInfoScreen with 8 sections (tips, chains, recipes, prices, businesses, locations, employees, training)
+[2026-03-28T05:29] ENHANCED — DashboardScreen: next steps section, daily costs card, per-biz profit display
+[2026-03-28T05:30] ENHANCED — BusinessDetailScreen: recipe chain visualization, input status, cost breakdown
+[2026-03-28T05:31] ENHANCED — MarketScreen: business needs section, chain context, quick buy buttons
+[2026-03-28T05:32] NAVIGATION — Added Info tab to MainTabs (5 tabs total)
+[2026-03-28T05:33] TESTS — Extended test-playtest.sh: 20→24 tests, all passing
+[2026-03-28T05:34] DEPLOY — Web client rebuilt and deployed, all services verified
+
+[2026-03-28T07:35] NEW RECIPES — Wheat (MINE), Bread (SHOP, 2x Flour), Tools (SHOP, 2x Steel)
+[2026-03-28T07:35] UPDATED — Production chains in game-info: full 3-step (Mine→Factory→Shop)
+[2026-03-28T07:37] NEW ENDPOINT — GET /api/v1/leaderboard (top 20 by net worth)
+[2026-03-28T07:37] NEW ENDPOINT — GET /api/v1/leaderboard/me (player rank + net worth)
+[2026-03-28T07:38] ENHANCED — Dashboard API: added net_worth to player data
+[2026-03-28T07:38] NEW SCREEN — LeaderboardScreen with rank badges, net worth display
+[2026-03-28T07:39] NAVIGATION — Added Ranking tab (6 tabs: Dashboard, Businesses, Market, Employees, Ranking, Info)
+[2026-03-28T07:40] TESTS — 24/24 PASS
+[2026-03-28T07:41] DEPLOY — Web client rebuilt and deployed
+
+[2026-03-28T07:42] NEW RECIPES — Wheat (MINE), Bread (SHOP 2xFlour), Tools (SHOP 2xSteel). Full chains: Mine→Factory→Shop
+[2026-03-28T07:43] NEW ENDPOINT — GET /api/v1/leaderboard (top 20 net worth), GET /leaderboard/me (player rank)
+[2026-03-28T07:44] ENHANCED — Dashboard: net_worth in player data
+[2026-03-28T07:44] NEW SCREEN — LeaderboardScreen with rankings, net worth, gold/silver/bronze
+[2026-03-28T07:45] NAVIGATION — Added Ranking tab (6 tabs total)
+[2026-03-28T07:46] NEW ENDPOINTS — POST /actions/sell-all, POST /actions/auto-supply
+[2026-03-28T07:47] WEBSOCKET — All 4 tick jobs now broadcast to connected clients
+[2026-03-28T07:48] ENHANCED — Dashboard: Sell All + Auto-Supply quick action buttons
+[2026-03-28T07:49] TESTS — 24/24 PASS
+[2026-03-28T07:50] DEPLOY — Web client rebuilt and deployed
+
+[2026-03-28T07:52] TICKS — BullMQ confirmed running (production 1m, economy 5m, autosell 30m, daily 24h). Changed autosell from 3h→30m.
+[2026-03-28T07:53] NEW ENDPOINTS — POST /actions/sell-all, POST /actions/auto-supply (quick actions)
+[2026-03-28T07:54] WEBSOCKET — Broadcasts from all 4 tick jobs (production, economy, autosell, daily)
+[2026-03-28T07:55] ENHANCED — Dashboard: Sell All + Auto-Supply buttons
+[2026-03-28T07:56] NEW ENDPOINTS — POST /market/list (create player listing), GET /market/my-listings, DELETE /market/listings/:id
+[2026-03-28T07:57] NEW ENDPOINT — PATCH /businesses/:id/rename
+[2026-03-28T07:58] NEW SCREEN — ProfileScreen (stats, net worth, rank, logout)
+[2026-03-28T07:59] ENHANCED — MarketScreen: 4th tab "Listings" with create/cancel listings
+[2026-03-28T08:00] NAVIGATION — Profile accessible from Dashboard rank badge
+[2026-03-28T08:03] TESTS — 24/24 PASS
+[2026-03-28T08:03] DEPLOY — Web client rebuilt and deployed
+
+[2026-03-28T08:10] MIGRATION — 002_events_achievements.sql (game_events + achievements tables)
+[2026-03-28T08:11] NEW SYSTEM — Random Events engine (7 event types, 15% chance per economy tick, max 2 concurrent)
+[2026-03-28T08:12] NEW SYSTEM — Achievements (13 definitions, auto-check on actions, XP rewards)
+[2026-03-28T08:13] NEW ENDPOINTS — GET /events, GET /achievements/me, GET /achievements/all
+[2026-03-28T08:14] ENHANCED — Dashboard: Active Events section with amber cards and countdown
+[2026-03-28T08:15] ENHANCED — ProfileScreen: Achievements section (unlocked/locked with progress)
+[2026-03-28T08:16] ENHANCED — Economy tick: event creation + expiry integrated
+[2026-03-28T08:18] TESTS — 24/24 PASS
+[2026-03-28T08:18] DEPLOY — Web client rebuilt and deployed (v3.5.0)
+
+[2026-03-28T08:20] RESET — All player data wiped, re-seeded (clean slate)
+[2026-03-28T08:30] NEW ENDPOINTS — POST /actions/deposit, POST /actions/withdraw (banking)
+[2026-03-28T08:31] ENHANCED — sell-all now checks achievements after selling
+[2026-03-28T08:32] PWA — manifest.json, SVG icons, meta tags for installable PWA
+[2026-03-28T08:33] ENHANCED — Dashboard: Deposit/Withdraw buttons on bank balance
+[2026-03-28T08:38] TESTS — 24/24 PASS
+[2026-03-28T08:39] DEPLOY — Web client rebuilt and deployed (v3.6.0)
+
+[2026-03-28T08:42] ACHIEVEMENTS — Wired into: business create, upgrade, hire, market sell (not just sell-all)
+[2026-03-28T08:44] DASHBOARD — Tick countdown timer with pulsing green dot
+[2026-03-28T08:45] DASHBOARD — last_tick_at in API response
+[2026-03-28T08:46] NEW ENDPOINT — GET /leaderboard/stats (world stats: players, businesses, volume, events)
+[2026-03-28T08:47] LEADERBOARD — World Stats card (blue border)
+[2026-03-28T08:48] MIGRATION — 003_auto_sell.sql (auto_sell column on businesses)
+[2026-03-28T08:49] NEW ENDPOINT — PATCH /businesses/:id/auto-sell toggle
+[2026-03-28T08:50] BUSINESS DETAIL — Auto-sell ON/OFF toggle in Overview tab
+[2026-03-28T08:57] TESTS — 24/24 PASS + world stats verified + event created
+[2026-03-28T08:58] DEPLOY — Web client rebuilt and deployed (v3.7.0)
+
+[2026-03-28T09:00] ACHIEVEMENTS — Wired into all actions (create biz, upgrade, hire, sell)
+[2026-03-28T09:01] DASHBOARD — Tick countdown timer with pulsing dot, last_tick_at in API
+[2026-03-28T09:02] LEADERBOARD — World stats endpoint + UI card (players, businesses, volume, events)
+[2026-03-28T09:03] BUSINESS — Auto-sell toggle (PATCH endpoint + UI switch)
+[2026-03-28T09:04] BALANCE — Fixed steel $35→$45, flour $20→$22, bread $50→$60, tools $80→$120
+[2026-03-28T09:08] MIGRATION — 004_crime_system.sql (crime_operations + laundering_jobs)
+[2026-03-28T09:10] CRIME SYSTEM — 4 crime types (theft/robbery/fraud/smuggling), risk/reward, dirty money, heat
+[2026-03-28T09:12] LAUNDERING — Start laundering through businesses, efficiency based on biz type, detection risk
+[2026-03-28T09:14] CRIME ENDPOINTS — 8 new endpoints (/crime/types, /active, /start, /resolve, /status, /launder, /laundering, /laundering/resolve)
+[2026-03-28T09:15] NEW SCREEN — CrimeScreen (3 tabs: Operations, Laundering, History)
+[2026-03-28T09:16] NAVIGATION — Added Crime tab (8 tabs total)
+[2026-03-28T09:17] TESTS — 24/24 PASS
+[2026-03-28T09:18] DEPLOY — Web client rebuilt and deployed (v3.8.0)
+
+[2026-03-28T09:20] HEAT — Decay -1 per production tick. Police raids at heat >= 70 (daily tick). Business freeze + fine.
+[2026-03-28T09:21] AUTO-RESOLVE — Crime ops + laundering auto-resolve in production tick. WebSocket notifications.
+[2026-03-28T09:22] DASHBOARD — Dirty money (red) + heat bar now shown in hero card
+[2026-03-28T09:23] TRAITS — Hidden employee traits revealed (10% chance/tick after 5min). Activity log + WebSocket notification.
+[2026-03-28T09:25] TESTS — 24/24 PASS
+[2026-03-28T09:26] DEPLOY — Web client rebuilt and deployed (v3.9.0)
+
+[2026-03-28T09:28] FIX — Autosell now respects per-business auto_sell toggle
+[2026-03-28T09:30] MANAGER SYSTEM — Policy engine: auto_buy_inputs, auto_sell_output, auto_train, risk_mode. 3 endpoints. Executes during production tick.
+[2026-03-28T09:32] REPUTATION — rep_business +1/$1000 sold, rep_underworld +2/crime success, rep_street -5/raid. Exposed in dashboard API.
+[2026-03-28T09:34] SEASON — Season name/number/end date in dashboard. "Iron Dawn" season 1, 180 days.
+[2026-03-28T09:40] TESTS — 24/24 PASS
+[2026-03-28T09:41] DEPLOY — Web client rebuilt and deployed (v4.0.0)
+
+[2026-03-28T09:42] MANAGER UI — Hire/fire/configure managers in BusinessDetail Overview tab. Auto-buy, auto-sell, risk mode toggles.
+[2026-03-28T09:43] DASHBOARD — Season display ("Season 1: Iron Dawn — 180 days left"), compact reputation bars (Street/Business/Underworld)
+[2026-03-28T09:44] PROFILE — Reputation section with 3 colored progress bars
+[2026-03-28T09:46] TESTS — 24/24 PASS
+[2026-03-28T09:46] DEPLOY — Web client rebuilt and deployed (v4.1.0)
+
+[2026-03-28T09:47] GIT — First commit: 87 files, 35,458 lines (v4.1.0)
+[2026-03-28T09:48] DOCS — CLAUDE.md with full project docs
+[2026-03-28T09:49] NEW BIZ TYPE — WAREHOUSE ($10K, $150/day, 3x storage capacity)
+[2026-03-28T09:50] SPY SYSTEM — /intel/spy ($2K cost, fuzzy reports), /intel/players, /intel/reports
+[2026-03-28T09:51] NEW SCREEN — IntelScreen (spy on rivals, view reports)
+[2026-03-28T09:52] NAVIGATION — Consolidated: 5 main tabs + 4 modal screens (Profile, Leaderboard, GameInfo, Intel)
+[2026-03-28T09:53] DASHBOARD — Quick nav buttons (Ranking, Info, Intel) at bottom
+[2026-03-28T09:55] TESTS — 24/24 PASS
+[2026-03-28T09:56] GIT — Second commit: v4.2.0
+[2026-03-28T09:56] DEPLOY — Web client rebuilt and deployed (v4.2.0)
+
+[2026-03-28T09:58] BUG FIX — WAREHOUSE type now accepted in Zod schema + storageCap gets business type
+[2026-03-28T09:59] ACHIEVEMENTS — 6 new: Logistics King, Criminal Mind, Crime Lord, Dirty Rich, Spy Master, Millionaire (total: 19)
+[2026-03-28T10:00] FULL TEST — Complete gameplay flow verified (register → mine → hire → produce → sell → warehouse → crime → spy)
+[2026-03-28T10:03] TESTS — 24/24 PASS
+[2026-03-28T10:04] GIT — Commit v4.3
+[2026-03-28T10:04] DEPLOY — Web client rebuilt and deployed (v4.3.0)
+
+[2026-03-28T10:06] PRICE HISTORY — price_history table, recorded in economy tick, GET /market/history/:itemKey
+[2026-03-28T10:07] RELOCATION — POST /businesses/:id/relocate (50% location cost)
+[2026-03-28T10:08] POACHING — POST /employees/poach (2x salary, 50% success, +10 rival heat)
+[2026-03-28T10:12] TESTS — 24/24 PASS
+[2026-03-28T10:13] GIT — Commit v4.4
+[2026-03-28T10:13] DEPLOY — Web client rebuilt and deployed (v4.4.0)
+
+[2026-03-28T10:15] CONTRACTS — Full system: offer/accept/cancel, auto-fulfillment in daily tick, penalties, rep boost
+[2026-03-28T10:17] SECURITY — 3 layers (physical/cyber/legal), upgrade endpoint ($1K+level*50), blocks raids
+[2026-03-28T10:19] MARKET UI — 5th tab "Contracts": incoming offers, my contracts, create offer modal
+[2026-03-28T10:20] BUSINESS UI — Security section with 3 bars + upgrade buttons
+[2026-03-28T10:25] TESTS — 24/24 PASS
+[2026-03-28T10:26] GIT — Commit v4.5 (5th commit)
+[2026-03-28T10:26] DEPLOY — Web client rebuilt and deployed (v4.5.0)

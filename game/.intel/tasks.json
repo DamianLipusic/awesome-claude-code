@@ -1,0 +1,360 @@
+{
+  "meta": {
+    "total": 30,
+    "done": 22,
+    "running": 0,
+    "pending": 8,
+    "failed": 0,
+    "last_updated": "2026-03-27T09:09:57.816177"
+  },
+  "tasks": [
+    {
+      "id": "T001",
+      "title": "Core gameplay loop rebuild (CORE-001 to CORE-008)",
+      "status": "done",
+      "priority": "critical",
+      "phase": "foundation",
+      "created_at": "2026-03-24",
+      "completed_at": "2026-03-26"
+    },
+    {
+      "id": "T002",
+      "title": "Enhanced dashboard API (CORE-009)",
+      "status": "done",
+      "priority": "critical",
+      "phase": "foundation",
+      "created_at": "2026-03-26",
+      "completed_at": "2026-03-26"
+    },
+    {
+      "id": "T003",
+      "title": "Cleanup \u2014 disable dead tick subsystems (CORE-010)",
+      "status": "done",
+      "priority": "high",
+      "phase": "v2-rebuild",
+      "created_at": "2026-03-26",
+      "completed_at": "2026-03-26"
+    },
+    {
+      "id": "T004",
+      "title": "Build validation system (Level 1 + Level 2)",
+      "status": "done",
+      "priority": "critical",
+      "phase": "validation",
+      "created_at": "2026-03-27",
+      "completed_at": "2026-03-27",
+      "notes": "21-test suite: health, auth, full gameplay loop simulation"
+    },
+    {
+      "id": "T005",
+      "title": "Run validation and fix failures",
+      "status": "done",
+      "priority": "critical",
+      "phase": "validation",
+      "created_at": "2026-03-27",
+      "completed_at": "2026-03-27",
+      "notes": "Fixed: empty JSON body on hire, cleanup node query, set -e removed"
+    },
+    {
+      "id": "T006",
+      "title": "Add validation status to dashboard API",
+      "status": "done",
+      "priority": "high",
+      "phase": "validation",
+      "created_at": "2026-03-27",
+      "completed_at": "2026-03-27",
+      "notes": "GET /dev/validation endpoint, dev.sh validate command"
+    },
+    {
+      "id": "T007",
+      "title": "Rewrite dashboard for V2 API",
+      "status": "done",
+      "priority": "critical",
+      "phase": "stabilization",
+      "created_at": "2026-03-27",
+      "completed_at": "2026-03-27",
+      "notes": "New V2 types, /game/dashboard, inline business actions, create business, activity feed"
+    },
+    {
+      "id": "T008",
+      "title": "Fix authStore for V2 endpoints",
+      "status": "done",
+      "priority": "critical",
+      "phase": "stabilization",
+      "created_at": "2026-03-27",
+      "completed_at": "2026-03-27",
+      "notes": "/players/me \u2192 /auth/me, simplified PlayerV2 type"
+    },
+    {
+      "id": "T009",
+      "title": "Simplify navigation (Dashboard-only)",
+      "status": "done",
+      "priority": "high",
+      "phase": "stabilization",
+      "created_at": "2026-03-27",
+      "completed_at": "2026-03-27",
+      "notes": "Removed Market/Crime/Strategy tabs (called legacy APIs)"
+    },
+    {
+      "id": "T010",
+      "title": "Rebuild web client and validate",
+      "status": "done",
+      "priority": "high",
+      "phase": "stabilization",
+      "created_at": "2026-03-27",
+      "completed_at": "2026-03-27",
+      "notes": "Expo web export, mobile meta tags, 21/21 tests pass"
+    },
+    {
+      "id": "T011",
+      "title": "Fix SQL injection (legacy route)",
+      "status": "done",
+      "priority": "critical",
+      "phase": "security",
+      "created_at": "2026-03-27",
+      "completed_at": "2026-03-27",
+      "notes": "Resolved \u2014 was in _legacy/ code, not imported by V2"
+    },
+    {
+      "id": "T012",
+      "title": "Add rate limiting to auth endpoints",
+      "status": "done",
+      "priority": "high",
+      "phase": "security",
+      "created_at": "2026-03-27",
+      "completed_at": "2026-03-27",
+      "notes": "@fastify/rate-limit, 10 req/min on register+login"
+    },
+    {
+      "id": "T013",
+      "title": "Fix gameTick N+1 queries",
+      "status": "done",
+      "priority": "high",
+      "phase": "performance",
+      "created_at": "2026-03-27",
+      "completed_at": "2026-03-27",
+      "notes": "UNNEST batch queries: 1 SELECT + 1 transaction for all businesses"
+    },
+    {
+      "id": "T014",
+      "title": "Mobile-first UI polish",
+      "status": "done",
+      "priority": "medium",
+      "phase": "ui",
+      "created_at": "2026-03-27",
+      "completed_at": "2026-03-27",
+      "notes": "viewport meta, PWA tags, scrollbar hiding, touch optimization"
+    },
+    {
+      "id": "T015",
+      "title": "Create project intelligence system",
+      "status": "done",
+      "priority": "critical",
+      "phase": "intelligence",
+      "created_at": "2026-03-27",
+      "completed_at": "2026-03-27",
+      "notes": "project_state.json, roadmap.md, tasks.json, decisions.md, known_issues.md, execution.log"
+    },
+    {
+      "id": "T016",
+      "title": "Integrate intelligence with validation/server",
+      "status": "done",
+      "priority": "critical",
+      "phase": "intelligence",
+      "created_at": "2026-03-27",
+      "completed_at": "2026-03-27",
+      "notes": "Auto-update hooks, API endpoint, dev.sh integration"
+    },
+    {
+      "id": "T017",
+      "title": "Build auto-update hooks for intelligence",
+      "status": "done",
+      "priority": "high",
+      "phase": "intelligence",
+      "created_at": "2026-03-27",
+      "completed_at": "2026-03-27"
+    },
+    {
+      "id": "T018",
+      "title": "XP/Level system with milestone rewards",
+      "status": "done",
+      "priority": "high",
+      "phase": "progression",
+      "created_at": "2026-03-27",
+      "spec": {
+        "summary": "Add XP column to players table. Award XP for actions (hire=50, sell=amount/10, create_biz=100, upgrade=200). Level thresholds: 0/100/300/600/1000/1500/2500/4000/6000/10000. Existing 10 milestones give cash bonus on completion. Show level + XP bar on dashboard.",
+        "db_changes": "ALTER TABLE players ADD COLUMN xp INTEGER DEFAULT 0; ALTER TABLE players ADD COLUMN level INTEGER DEFAULT 1;",
+        "server_changes": "Add XP award logic after each action in game routes. Add level calculation helper. Include xp/level in dashboard response and /auth/me.",
+        "client_changes": "Add XP bar + level badge to dashboard header. Toast on level up.",
+        "validation": "Extend validate.sh to check XP increments after actions"
+      },
+      "completed_at": "2026-03-27",
+      "notes": "XP/Level system: DB migration, XP awards on all actions (create=100, hire=50, sell=revenue/1000*10, upgrade=200), level thresholds, level-up activity log, dashboard XP bar, /auth/me includes xp/level"
+    },
+    {
+      "id": "T019",
+      "title": "Toast notifications for all player actions",
+      "status": "done",
+      "priority": "high",
+      "phase": "feedback",
+      "created_at": "2026-03-27",
+      "spec": {
+        "summary": "Wire useToast() into all mutation callbacks in DashboardScreen. Show success toast with details on hire/sell/create/upgrade/sell-all. Show error toast on failures. Add level-up celebration toast.",
+        "files": [
+          "client/src/screens/DashboardScreen.tsx"
+        ],
+        "pattern": "In each useMutation onSuccess callback, call show() with contextual message"
+      },
+      "completed_at": "2026-03-27",
+      "notes": "Toasts wired into all mutations: hire, sell, sell-all, create-biz. Shows XP earned, level-up celebration. Error toasts on failures."
+    },
+    {
+      "id": "T020",
+      "title": "Leaderboard endpoint and UI",
+      "status": "done",
+      "priority": "medium",
+      "phase": "social",
+      "created_at": "2026-03-27",
+      "spec": {
+        "summary": "GET /game/leaderboard returns top 20 players by net_worth. Add LeaderboardScreen to client with rank/name/net_worth/level. Add tab in navigation.",
+        "server_changes": "New route: SELECT username, net_worth, level, xp FROM players ORDER BY net_worth DESC LIMIT 20",
+        "client_changes": "New screen + navigation tab. Pull-to-refresh. Highlight current player."
+      },
+      "completed_at": "2026-03-27",
+      "notes": "GET /game/leaderboard (top 20 by net_worth + your rank). LeaderboardScreen with medals, level display, your-highlight. Tab navigation added."
+    },
+    {
+      "id": "T021",
+      "title": "Lock down CORS to specific origins",
+      "status": "done",
+      "priority": "medium",
+      "phase": "security",
+      "created_at": "2026-03-27",
+      "completed_at": "2026-03-27",
+      "spec": {
+        "summary": "Replace origin:true with whitelist: localhost:8080, localhost:19006, VPS IP. Use env var ALLOWED_ORIGINS.",
+        "files": [
+          "server/src/index.ts"
+        ]
+      },
+      "notes": "CORS locked to whitelist: localhost:8080, localhost:19006, VPS IP (http+https). Configurable via ALLOWED_ORIGINS env var (comma-separated)."
+    },
+    {
+      "id": "T022",
+      "title": "Rotate JWT secrets",
+      "status": "pending",
+      "priority": "medium",
+      "phase": "security",
+      "created_at": "2026-03-27",
+      "spec": {
+        "summary": "Generate new random JWT_SECRET and REFRESH_SECRET. Update .env. Invalidate all existing refresh tokens in DB. Document in .env.example.",
+        "files": [
+          "server/.env",
+          "server/.env.example"
+        ]
+      }
+    },
+    {
+      "id": "T023",
+      "title": "Replace Math.random with crypto RNG",
+      "status": "pending",
+      "priority": "low",
+      "phase": "security",
+      "created_at": "2026-03-27",
+      "spec": {
+        "summary": "Find all Math.random() calls in server code, replace with crypto.randomInt() or crypto.randomUUID(). Affects worker naming, skill generation.",
+        "files": [
+          "server/src/routes/game.ts"
+        ]
+      }
+    },
+    {
+      "id": "T024",
+      "title": "Clean up _legacy/ directory",
+      "status": "pending",
+      "priority": "low",
+      "phase": "cleanup",
+      "created_at": "2026-03-27",
+      "spec": {
+        "summary": "Remove server/src/routes/_legacy/ directory entirely. Verify no imports reference it. Remove any dead shared types."
+      }
+    },
+    {
+      "id": "T025",
+      "title": "WebSocket for real-time tick updates",
+      "status": "pending",
+      "priority": "medium",
+      "phase": "realtime",
+      "created_at": "2026-03-27",
+      "spec": {
+        "summary": "Add WebSocket endpoint that broadcasts after each game tick. Client subscribes and auto-refreshes dashboard on tick event instead of 30s polling. Use fastify-websocket.",
+        "server_changes": "Add WS route /ws/game. After gameTick completes, broadcast {type:'tick', data:{produced, duration}} to all connected clients.",
+        "client_changes": "Connect WS in DashboardScreen. On tick message, invalidate dashboard query."
+      }
+    },
+    {
+      "id": "T026",
+      "title": "Daily operating costs for businesses",
+      "status": "pending",
+      "priority": "medium",
+      "phase": "economy",
+      "created_at": "2026-03-27",
+      "spec": {
+        "summary": "Add maintenance costs per tick: each worker costs $50/tick, each business costs $100*tier/tick. Deduct in gameTick. If player cash < 0, workers quit (lowest skill first). Activity log entry for costs.",
+        "server_changes": "In gameTick.ts, after production phase, calculate and deduct costs. Handle negative cash by firing workers.",
+        "client_changes": "Show cost/tick in business card alongside production/tick."
+      }
+    },
+    {
+      "id": "T027",
+      "title": "Business detail screen with history",
+      "status": "pending",
+      "priority": "medium",
+      "phase": "ui",
+      "created_at": "2026-03-27",
+      "spec": {
+        "summary": "Tap a business card to see detail screen. Shows worker list with skills, production history chart (last 20 ticks), upgrade path, and manage actions.",
+        "server_changes": "GET /game/businesses/:bizId already exists, extend with production history from activity_log.",
+        "client_changes": "New BusinessDetailScreen. Navigate from DashboardScreen business card tap."
+      }
+    },
+    {
+      "id": "T028",
+      "title": "Random events system",
+      "status": "pending",
+      "priority": "low",
+      "phase": "economy",
+      "created_at": "2026-03-27",
+      "spec": {
+        "summary": "Every 10th tick, roll for random event (10% chance per player). Events: Boom (+50% production 5 ticks), Bust (-30% production 5 ticks), Lucky Find (+$5000 cash), Equipment Break (-1 tier on random biz). Activity log + toast.",
+        "db_changes": "CREATE TABLE active_events (id UUID, player_id UUID, type VARCHAR, expires_at TIMESTAMPTZ)",
+        "server_changes": "Event roll in gameTick. Apply modifiers during production calc. Clean expired events."
+      }
+    },
+    {
+      "id": "T029",
+      "title": "PWA manifest and app icons",
+      "status": "pending",
+      "priority": "low",
+      "phase": "polish",
+      "created_at": "2026-03-27",
+      "spec": {
+        "summary": "Add manifest.json with app name, icons, theme color. Generate icon set (192x192, 512x512). Add to Expo web config for installable PWA.",
+        "files": [
+          "client/app.json",
+          "client/assets/"
+        ]
+      }
+    },
+    {
+      "id": "T030",
+      "title": "Autonomous infrastructure setup",
+      "status": "done",
+      "priority": "critical",
+      "phase": "automation",
+      "created_at": "2026-03-27",
+      "completed_at": "2026-03-27",
+      "notes": "CLAUDE.md, enhanced task queue, agent runner script, scheduled triggers"
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "project": "EmpireOS",
+  "version": "2.0.0",
+  "phase": {
+    "id": "v2-stabilized",
+    "name": "V2 Core Loop Stabilized",
+    "description": "Core gameplay loop fully rebuilt and validated. Dashboard rewritten for V2. Security and performance fixes applied.",
+    "started": "2026-03-26",
+    "status": "active"
+  },
+  "health": {
+    "overall": "ok",
+    "api": "ok",
+    "web": "ok",
+    "database": "ok",
+    "redis": "ok",
+    "game_loop": "ok"
+  },
+  "services": {
+    "api_server": {
+      "port": 3000,
+      "status": "running",
+      "entry": "server/src/index.ts"
+    },
+    "web_client": {
+      "port": 8080,
+      "status": "running",
+      "type": "static-expo-export"
+    },
+    "postgres": {
+      "port": 5432,
+      "status": "running",
+      "db": "economy_game"
+    },
+    "redis": {
+      "port": 6379,
+      "status": "running"
+    }
+  },
+  "validation": {
+    "last_run": "2026-03-27T09:17:33+00:00",
+    "status": "PASS",
+    "total": 21,
+    "passed": 21,
+    "failed": 0,
+    "duration_seconds": 1,
+    "script": "tests/validate.sh"
+  },
+  "current_task": null,
+  "last_completed_task": "T021",
+  "active_work": [],
+  "game_stats": {
+    "players": 7,
+    "businesses": 14,
+    "workers": 27,
+    "tick_interval_ms": 120000,
+    "last_tick_duration_ms": 6,
+    "last_tick_produced": 203
+  },
+  "last_updated": "2026-03-27T09:17:32+00:00"
+}
