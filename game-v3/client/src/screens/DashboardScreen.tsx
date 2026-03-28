@@ -655,6 +655,19 @@ export function DashboardScreen() {
           ))
         )}
 
+        {/* Quick Nav */}
+        <View style={{ flexDirection: 'row', gap: 8, marginBottom: 16 }}>
+          <TouchableOpacity style={{ flex: 1, backgroundColor: '#1e3a5f', borderRadius: 10, padding: 12, alignItems: 'center' }} onPress={() => navigation.navigate('Leaderboard')}>
+            <Text style={{ color: '#3b82f6', fontWeight: '700', fontSize: 13 }}>🏆 Ranking</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={{ flex: 1, backgroundColor: '#1a2e1a', borderRadius: 10, padding: 12, alignItems: 'center' }} onPress={() => navigation.navigate('GameInfo')}>
+            <Text style={{ color: '#22c55e', fontWeight: '700', fontSize: 13 }}>📚 Info</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={{ flex: 1, backgroundColor: '#2a1a3a', borderRadius: 10, padding: 12, alignItems: 'center' }} onPress={() => navigation.navigate('Intel')}>
+            <Text style={{ color: '#a855f7', fontWeight: '700', fontSize: 13 }}>🔍 Intel</Text>
+          </TouchableOpacity>
+        </View>
+
         <View style={styles.footer} />
       </ScrollView>
     </View>

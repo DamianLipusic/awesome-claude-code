@@ -18,6 +18,7 @@ import { actionRoutes } from './routes/actions.js';
 import { eventsRoutes } from './routes/events.js';
 import { crimeRoutes } from './routes/crime.js';
 import { managerRoutes } from './routes/managers.js';
+import { intelRoutes } from './routes/intel.js';
 import { setupQueues, shutdownQueues } from './jobs/queue.js';
 import pool from './db/client.js';
 import { addClient, removeClient, getConnectionCount } from './websocket/connections.js';
@@ -102,6 +103,7 @@ async function main() {
   await app.register(eventsRoutes, { prefix: '/api/v1' });
   await app.register(crimeRoutes, { prefix: '/api/v1/crime' });
   await app.register(managerRoutes, { prefix: '/api/v1' });
+  await app.register(intelRoutes, { prefix: '/api/v1/intel' });
 
   // ─── Health ────────────────────────────────────────────────────
   app.get('/health', async () => ({

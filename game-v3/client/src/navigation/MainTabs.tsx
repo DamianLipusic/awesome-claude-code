@@ -5,8 +5,6 @@ import { DashboardScreen } from '../screens/DashboardScreen';
 import { BusinessStack } from './BusinessStack';
 import { EmployeeScreen } from '../screens/EmployeeScreen';
 import { MarketScreen } from '../screens/MarketScreen';
-import { GameInfoScreen } from '../screens/GameInfoScreen';
-import { LeaderboardScreen } from '../screens/LeaderboardScreen';
 import { CrimeScreen } from '../screens/CrimeScreen';
 
 export type MainTabParamList = {
@@ -15,8 +13,6 @@ export type MainTabParamList = {
   Market: undefined;
   Employees: undefined;
   Crime: undefined;
-  Ranking: undefined;
-  Info: undefined;
 };
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -64,21 +60,8 @@ export function MainTabs() {
         name="Crime"
         component={CrimeScreen}
         options={{
+          tabBarLabel: 'Underworld',
           tabBarIcon: ({ color }) => <Text style={[styles.tabIcon, { color }]}>&#128123;</Text>,
-        }}
-      />
-      <Tab.Screen
-        name="Ranking"
-        component={LeaderboardScreen}
-        options={{
-          tabBarIcon: ({ color }) => <Text style={[styles.tabIcon, { color }]}>&#127942;</Text>,
-        }}
-      />
-      <Tab.Screen
-        name="Info"
-        component={GameInfoScreen}
-        options={{
-          tabBarIcon: ({ color }) => <Text style={[styles.tabIcon, { color }]}>&#128218;</Text>,
         }}
       />
     </Tab.Navigator>

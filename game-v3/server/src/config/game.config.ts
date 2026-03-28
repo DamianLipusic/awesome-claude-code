@@ -3,9 +3,10 @@
 
 // ─── Business Types ──────────────────────────────────────────────────
 export const BUSINESS_TYPES = {
-  SHOP:    { cost: 8000,  dailyCost: 200, category: 'sales',      emoji: '\u{1F3EA}' },
-  FACTORY: { cost: 15000, dailyCost: 400, category: 'production', emoji: '\u{1F3ED}' },
-  MINE:    { cost: 12000, dailyCost: 350, category: 'resource',   emoji: '\u{26CF}\u{FE0F}' },
+  SHOP:      { cost: 8000,  dailyCost: 200, category: 'sales',      emoji: '\u{1F3EA}' },
+  FACTORY:   { cost: 15000, dailyCost: 400, category: 'production', emoji: '\u{1F3ED}' },
+  MINE:      { cost: 12000, dailyCost: 350, category: 'resource',   emoji: '\u{26CF}\u{FE0F}' },
+  WAREHOUSE: { cost: 10000, dailyCost: 150, category: 'storage',    emoji: '\u{1F4E6}' },
 } as const;
 
 export type BusinessType = keyof typeof BUSINESS_TYPES;
@@ -53,8 +54,9 @@ export function upgradeCost(businessType: BusinessType, tier: number): number {
   return BUSINESS_TYPES[businessType].cost * tier * 1.5;
 }
 
-export function storageCap(tier: number): number {
-  return 100 * tier * tier;
+export function storageCap(tier: number, businessType?: string): number {
+  const base = 100 * tier * tier;
+  return businessType === 'WAREHOUSE' ? base * 3 : base;
 }
 
 export function maxEmployees(tier: number): number {
