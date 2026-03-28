@@ -109,7 +109,7 @@ export async function marketRoutes(app: FastifyInstance): Promise<void> {
       const listing = listingRes.rows[0];
 
       if (quantity > listing.quantity) {
-        throw new Error(`Only ${listing.quantity} available on this listing`);
+        throw { statusCode: 400, message: `Only ${listing.quantity} available on this listing` };
       }
 
       // Check business ownership

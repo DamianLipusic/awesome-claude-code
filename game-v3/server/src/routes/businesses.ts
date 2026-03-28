@@ -114,17 +114,28 @@ export async function businessRoutes(app: FastifyInstance): Promise<void> {
         return reply.status(400).send({ error: 'Recipe is not a FACTORY recipe' });
       }
       recipeId = recipeRes.rows[0].id;
-    } else if (type === 'MINE') {
-      // Auto-assign the ore recipe
-      const oreRecipeRes = await query<{ id: string }>(
-        `SELECT r.id FROM recipes r JOIN items i ON i.id = r.output_item_id WHERE r.business_type = 'MINE' AND i.key = 'ore' LIMIT 1`,
+    } else if (type === 'MINE' || type === 'FARM') {
+      // Auto-assign first recipe for this type
+      const autoRecipeRes = await query<{ id: string }>(
+        `SELECT id FROM recipes WHERE business_type = $1 LIMIT 1`,
+        [type],
       );
-      if (!oreRecipeRes.rows.length) {
-        return reply.status(500).send({ error: 'Mine recipe not found in database' });
+      if (autoRecipeRes.rows.length) {
+        recipeId = autoRecipeRes.rows[0].id;
       }
-      recipeId = oreRecipeRes.rows[0].id;
+    } else if (type === 'SHOP' || type === 'RESTAURANT') {
+      // Auto-assign first recipe for this type if not provided
+      if (!inputRecipeId) {
+        const autoRecipeRes = await query<{ id: string }>(
+          `SELECT id FROM recipes WHERE business_type = $1 LIMIT 1`,
+          [type],
+        );
+        if (autoRecipeRes.rows.length) {
+          recipeId = autoRecipeRes.rows[0].id;
+        }
+      }
     }
-    // SHOP: no recipe (null)
+    // WAREHOUSE: no recipe (null)
 
     // Create business in transaction
     const result = await withTransaction(async (client) => {
