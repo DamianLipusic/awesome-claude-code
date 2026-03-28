@@ -7,194 +7,150 @@ SERVER_DIR="$DIR/server"
 CLIENT_DIR="$DIR/client"
 SERVER_LOG="$HOME/v3-server.log"
 WEB_LOG="$HOME/v3-web.log"
-SERVER_PORT=3001
-WEB_PORT=8081
+API_PORT=3000
+WEB_PORT=8080
+DB_URL="postgresql://postgres:postgres@localhost:5432/empireos_v3"
 
-# Colors
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-CYAN='\033[0;36m'
-NC='\033[0m'
+G='\033[0;32m'; R='\033[0;31m'; Y='\033[1;33m'; C='\033[0;36m'; N='\033[0m'
+ok()   { echo -e "${G}[v3]${N} $*"; }
+err()  { echo -e "${R}[v3]${N} $*"; }
+info() { echo -e "${C}[v3]${N} $*"; }
 
-info()  { echo -e "${CYAN}[v3]${NC} $*"; }
-ok()    { echo -e "${GREEN}[v3]${NC} $*"; }
-warn()  { echo -e "${YELLOW}[v3]${NC} $*"; }
-err()   { echo -e "${RED}[v3]${NC} $*"; }
+server_pid() { ss -tlnp 2>/dev/null | grep ":${API_PORT} " | grep -oP 'pid=\K[0-9]+' | head -1; }
+web_pid()    { ss -tlnp 2>/dev/null | grep ":${WEB_PORT} " | grep -oP 'pid=\K[0-9]+' | head -1; }
 
 case "${1:-help}" in
 
   start)
-    if lsof -i ":$SERVER_PORT" &>/dev/null; then
-      warn "Server already running on port $SERVER_PORT"
-    else
-      info "Starting server on port $SERVER_PORT..."
-      cd "$SERVER_DIR"
-      nohup npx tsx watch src/index.ts >> "$SERVER_LOG" 2>&1 &
-      sleep 2
-      if lsof -i ":$SERVER_PORT" &>/dev/null; then
-        ok "Server started (PID $(lsof -ti ":$SERVER_PORT" | head -1))"
-      else
-        err "Server failed to start. Check $SERVER_LOG"
-      fi
+    if [ -n "$(server_pid)" ]; then ok "Server already running (PID $(server_pid))"; else
+      info "Starting server on :$API_PORT..."
+      cd "$SERVER_DIR" && PORT=$API_PORT nohup npx tsx src/index.ts >> "$SERVER_LOG" 2>&1 &
+      sleep 4
+      [ -n "$(server_pid)" ] && ok "Server started (PID $(server_pid))" || err "Failed. Check: tail $SERVER_LOG"
     fi
     ;;
 
   stop)
-    info "Stopping server..."
-    pkill -f "tsx watch src/index.ts.*v3" 2>/dev/null || true
-    # Also kill by port
-    lsof -ti ":$SERVER_PORT" 2>/dev/null | xargs -r kill 2>/dev/null || true
-    sleep 1
-    if lsof -i ":$SERVER_PORT" &>/dev/null; then
-      err "Server still running, force killing..."
-      lsof -ti ":$SERVER_PORT" | xargs -r kill -9 2>/dev/null || true
-    fi
-    ok "Server stopped"
+    pkill -9 -f "game-v3/server.*tsx" 2>/dev/null || true
+    sleep 1; ok "Server stopped"
     ;;
 
   restart)
-    "$0" stop
-    sleep 1
-    "$0" start
-    sleep 1
-    "$0" health
+    "$0" stop; sleep 2; "$0" start; sleep 2; "$0" health
     ;;
 
   health)
-    info "Checking health..."
-    # API
-    if curl -sf "http://localhost:$SERVER_PORT/health" -o /dev/null 2>/dev/null; then
-      HEALTH=$(curl -sf "http://localhost:$SERVER_PORT/health")
-      ok "API: $HEALTH"
-    else
-      err "API: not responding on port $SERVER_PORT"
-    fi
-    # Web
-    if curl -sf "http://localhost:$WEB_PORT/" -o /dev/null 2>/dev/null; then
-      ok "Web: running on port $WEB_PORT"
-    else
-      warn "Web: not running on port $WEB_PORT"
-    fi
-    # DB
-    if psql "postgresql://postgres:postgres@localhost:5432/empireos_v3" -c "SELECT 1" &>/dev/null; then
-      ok "DB: empireos_v3 connected"
-    else
-      err "DB: cannot connect to empireos_v3"
-    fi
-    # Redis
-    if redis-cli ping &>/dev/null 2>&1; then
-      ok "Redis: connected"
-    else
-      warn "Redis: not available"
-    fi
+    echo -n "API:   "; curl -sf "http://localhost:$API_PORT/health" > /dev/null 2>&1 && echo -e "${G}OK${N}" || echo -e "${R}DOWN${N}"
+    echo -n "Web:   "; curl -sf "http://localhost:$WEB_PORT/" > /dev/null 2>&1 && echo -e "${G}OK${N}" || echo -e "${R}DOWN${N}"
+    echo -n "DB:    "; ss -tlnp | grep -q ":5432 " && echo -e "${G}OK${N}" || echo -e "${R}DOWN${N}"
+    echo -n "Redis: "; ss -tlnp | grep -q ":6379 " && echo -e "${G}OK${N}" || echo -e "${R}DOWN${N}"
     ;;
+
+  status)
+    "$0" health
+    echo ""
+    info "Server PID: $(server_pid || echo 'not running')"
+    info "Web PID: $(web_pid || echo 'not running')"
+    curl -sf "http://localhost:$API_PORT/dev/snapshot" 2>/dev/null | jq '.' || true
+    ;;
+
+  logs)   tail -${2:-30} "$SERVER_LOG" 2>/dev/null || echo "No log" ;;
+  logsf)  tail -f "$SERVER_LOG" ;;
 
   migrate)
     info "Running migrations..."
-    cd "$SERVER_DIR"
-    npx tsx src/db/migrate.ts
+    cd "$SERVER_DIR" && DATABASE_URL="$DB_URL" npx tsx src/db/migrate.ts
     ;;
 
   seed)
-    info "Running seeds..."
+    info "Seeding..."
     cd "$SERVER_DIR"
-    npx tsx src/db/seed.ts
+    DATABASE_URL="$DB_URL" npx tsx src/db/seed.ts
+    DATABASE_URL="$DB_URL" npx tsx src/db/add-recipes.ts
+    DATABASE_URL="$DB_URL" npx tsx src/db/seed-discovery.ts
+    ok "Seed complete"
     ;;
 
-  logs)
-    LINES="${2:-30}"
-    tail -n "$LINES" "$SERVER_LOG"
+  reset)
+    info "Wiping all player data..."
+    cd "$SERVER_DIR" && DATABASE_URL="$DB_URL" npx tsx src/db/reset.ts
+    "$0" seed
+    ok "Reset complete"
     ;;
 
-  logsf)
-    tail -f "$SERVER_LOG"
+  test)
+    info "Running playtest..."
+    cd "$DIR" && bash test-playtest.sh
     ;;
 
-  web-build)
-    info "Building web export..."
-    cd "$CLIENT_DIR"
-    npx expo export --platform web
-    ok "Web build complete"
+  build)
+    info "Building web client..."
+    cd "$CLIENT_DIR" && npx expo export --platform web
+    # Restore PWA files
+    cp /tmp/manifest.json dist/ 2>/dev/null || true
+    cp /tmp/icon-192.svg dist/ 2>/dev/null || true
+    cp /tmp/icon-512.svg dist/ 2>/dev/null || true
+    # Add PWA meta to index.html
+    sed -i 's|<title>EmpireOS V3</title>|<title>EmpireOS V3</title>\n    <link rel="manifest" href="/manifest.json" /><meta name="theme-color" content="#030712" /><meta name="apple-mobile-web-app-capable" content="yes" /><link rel="icon" type="image/svg+xml" href="/icon-192.svg" />|' dist/index.html
+    ok "Build complete"
     ;;
 
   web-start)
-    if lsof -i ":$WEB_PORT" &>/dev/null; then
-      warn "Web server already running on port $WEB_PORT"
-    else
-      info "Starting web server on port $WEB_PORT..."
-      cd "$CLIENT_DIR"
-      nohup npx serve dist -l "$WEB_PORT" >> "$WEB_LOG" 2>&1 &
+    if [ -n "$(web_pid)" ]; then ok "Web already running (PID $(web_pid))"; else
+      info "Starting web on :$WEB_PORT..."
+      cd "$CLIENT_DIR" && nohup npx serve dist -l $WEB_PORT -s >> "$WEB_LOG" 2>&1 &
       sleep 2
-      if lsof -i ":$WEB_PORT" &>/dev/null; then
-        ok "Web server started"
-      else
-        err "Web server failed to start. Check $WEB_LOG"
-      fi
+      [ -n "$(web_pid)" ] && ok "Web started" || err "Failed. Check: tail $WEB_LOG"
     fi
     ;;
 
   web-stop)
-    info "Stopping web server..."
-    lsof -ti ":$WEB_PORT" 2>/dev/null | xargs -r kill 2>/dev/null || true
-    ok "Web server stopped"
+    pkill -f "serve.*$WEB_PORT" 2>/dev/null || true
+    sleep 1; ok "Web stopped"
     ;;
 
-  web-restart)
+  web-restart) "$0" web-stop; sleep 1; "$0" web-start ;;
+
+  deploy)
+    info "Full deploy..."
+    "$0" stop
+    "$0" build
+    "$0" start
     "$0" web-stop
-    sleep 1
     "$0" web-start
+    sleep 2
+    "$0" health
+    ok "Deploy complete"
     ;;
 
-  db)
-    info "Opening psql shell..."
-    psql "postgresql://postgres:postgres@localhost:5432/empireos_v3"
-    ;;
-
-  status)
-    info "=== EmpireOS V3 Status ==="
-    echo ""
-    # Server
-    if lsof -i ":$SERVER_PORT" &>/dev/null; then
-      ok "Server: running on port $SERVER_PORT (PID $(lsof -ti ":$SERVER_PORT" | head -1))"
-    else
-      warn "Server: not running"
-    fi
-    # Web
-    if lsof -i ":$WEB_PORT" &>/dev/null; then
-      ok "Web: running on port $WEB_PORT"
-    else
-      warn "Web: not running"
-    fi
-    # Docker
-    echo ""
-    info "Docker containers:"
-    docker ps --format "  {{.Names}}\t{{.Status}}\t{{.Ports}}" 2>/dev/null || warn "Docker not available"
-    echo ""
-    info "Ports:"
-    echo "  $SERVER_PORT (API)  $WEB_PORT (Web)  5432 (DB)  6379 (Redis)"
+  quick-test)
+    info "Quick smoke test..."
+    curl -sf "http://localhost:$API_PORT/health" | jq -r '.status' || { err "API down"; exit 1; }
+    T=$(curl -sf "http://localhost:$API_PORT/api/v1/auth/register" -H "Content-Type: application/json" -d "{\"username\":\"smoke_$RANDOM\",\"password\":\"test12345\",\"email\":\"smoke_$RANDOM@t.com\"}" | jq -r '.data.access_token')
+    curl -sf "http://localhost:$API_PORT/api/v1/dashboard" -H "Authorization: Bearer $T" | jq -r '.data.player.cash' | grep -q "75000" && ok "Smoke test PASS" || err "Smoke test FAIL"
     ;;
 
   help|*)
-    echo "EmpireOS V3 Dev Helper"
-    echo ""
-    echo "Usage: $0 <command>"
-    echo ""
-    echo "Commands:"
-    echo "  start        Start the game server"
-    echo "  stop         Stop the game server"
-    echo "  restart      Restart server + health check"
-    echo "  health       Check all services"
-    echo "  migrate      Run DB migrations"
-    echo "  seed         Run DB seeds"
-    echo "  logs [N]     Show last N lines of server log"
-    echo "  logsf        Follow server log"
-    echo "  web-build    Build Expo web export"
-    echo "  web-start    Start web static server"
-    echo "  web-stop     Stop web static server"
-    echo "  web-restart  Restart web static server"
-    echo "  db           Open psql shell"
-    echo "  status       Show system status"
-    ;;
+    cat <<HELP
+EmpireOS V3 Dev Helper
 
+  start         Start game server (:$API_PORT)
+  stop          Stop game server
+  restart       Stop + start + health
+  health        Check all services
+  status        Full status + snapshot
+  logs [N]      Last N lines of server log
+  logsf         Follow server log
+  migrate       Run DB migrations
+  seed          Seed DB (items, recipes, locations, employees, discovery)
+  reset         Wipe all players + re-seed
+  test          Run 24-test integration suite
+  build         Build Expo web export + PWA
+  web-start     Start web server (:$WEB_PORT)
+  web-stop      Stop web server
+  web-restart   Restart web server
+  deploy        Full deploy (stop → build → start → web)
+  quick-test    Smoke test (register + dashboard)
+HELP
+    ;;
 esac

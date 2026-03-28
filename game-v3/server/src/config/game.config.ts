@@ -3,10 +3,12 @@
 
 // ─── Business Types ──────────────────────────────────────────────────
 export const BUSINESS_TYPES = {
-  SHOP:      { cost: 8000,  dailyCost: 200, category: 'sales',      emoji: '\u{1F3EA}' },
-  FACTORY:   { cost: 15000, dailyCost: 400, category: 'production', emoji: '\u{1F3ED}' },
-  MINE:      { cost: 12000, dailyCost: 350, category: 'resource',   emoji: '\u{26CF}\u{FE0F}' },
-  WAREHOUSE: { cost: 10000, dailyCost: 150, category: 'storage',    emoji: '\u{1F4E6}' },
+  SHOP:       { cost: 8000,  dailyCost: 200, category: 'sales',      emoji: '\u{1F3EA}' },
+  FACTORY:    { cost: 15000, dailyCost: 400, category: 'production', emoji: '\u{1F3ED}' },
+  MINE:       { cost: 12000, dailyCost: 350, category: 'resource',   emoji: '\u{26CF}\u{FE0F}' },
+  WAREHOUSE:  { cost: 10000, dailyCost: 150, category: 'storage',    emoji: '\u{1F4E6}' },
+  FARM:       { cost: 6000,  dailyCost: 180, category: 'resource',   emoji: '\u{1F33E}' },
+  RESTAURANT: { cost: 20000, dailyCost: 500, category: 'premium',    emoji: '\u{1F37D}\u{FE0F}' },
 } as const;
 
 export type BusinessType = keyof typeof BUSINESS_TYPES;
@@ -19,6 +21,7 @@ export const ITEMS = {
   steel: { name: 'Steel', basePrice: 45,  category: 'intermediate', stage: 2 },
   bread: { name: 'Bread', basePrice: 60,  category: 'finished',     stage: 3 },
   tools: { name: 'Tools', basePrice: 120, category: 'finished',     stage: 3 },
+  meals: { name: 'Meals', basePrice: 200, category: 'finished',     stage: 4 },
 } as const;
 
 export type ItemKey = keyof typeof ITEMS;
@@ -47,6 +50,10 @@ export const RECIPES: readonly RecipeDef[] = [
   // Finished goods (SHOP)
   { businessType: 'SHOP',    outputItem: 'bread', baseRate: 2, cycleMinutes: 1, inputs: [{ item: 'flour', qtyPerUnit: 2 }] },
   { businessType: 'SHOP',    outputItem: 'tools', baseRate: 1, cycleMinutes: 1, inputs: [{ item: 'steel', qtyPerUnit: 2 }] },
+  // Farm (cheap wheat producer)
+  { businessType: 'FARM',    outputItem: 'wheat', baseRate: 8, cycleMinutes: 1, inputs: [] },
+  // Restaurant (premium finished goods)
+  { businessType: 'RESTAURANT', outputItem: 'meals', baseRate: 1, cycleMinutes: 1, inputs: [{ item: 'bread', qtyPerUnit: 2 }, { item: 'flour', qtyPerUnit: 1 }] },
 ] as const;
 
 // ─── Business helper functions ───────────────────────────────────────

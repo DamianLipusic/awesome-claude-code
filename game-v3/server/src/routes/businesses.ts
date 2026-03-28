@@ -14,7 +14,7 @@ import {
 import { awardXP, XP_REWARDS } from '../lib/xp.js';
 
 const CreateBusinessSchema = z.object({
-  type: z.enum(['SHOP', 'FACTORY', 'MINE', 'WAREHOUSE']),
+  type: z.enum(['SHOP', 'FACTORY', 'MINE', 'WAREHOUSE', 'FARM', 'RESTAURANT']),
   name: z.string().min(2).max(50),
   location_id: z.string().uuid(),
   recipe_id: z.string().uuid().optional(),
