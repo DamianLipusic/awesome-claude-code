@@ -277,6 +277,18 @@ export async function marketRoutes(app: FastifyInstance): Promise<void> {
     return reply.send({ data: result });
   });
 
+  // ─── GET /history/:itemKey — price history (24h) ──────────────
+  app.get('/history/:itemKey', async (req: FastifyRequest, reply: FastifyReply) => {
+    const { itemKey } = req.params as { itemKey: string };
+    const res = await query(
+      `SELECT price, recorded_at FROM price_history
+       WHERE item_key = $1 AND recorded_at > NOW() - INTERVAL '24 hours'
+       ORDER BY recorded_at ASC`,
+      [itemKey],
+    );
+    return reply.send({ data: res.rows });
+  });
+
   // ─── POST /list — create a player market listing ──────────────
   app.post('/list', async (req: FastifyRequest, reply: FastifyReply) => {
     const { business_id, item_id, quantity, price_per_unit } = ListSchema.parse(req.body);

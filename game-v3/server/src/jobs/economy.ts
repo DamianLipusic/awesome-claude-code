@@ -78,7 +78,24 @@ export async function runEconomyTick(): Promise<{ prices_updated: number; listin
       console.error('[economy] Discovery evaluation error:', err);
     }
 
-    // ─── 5. Events: expire old + maybe create new ───────────────
+    // ─── 5. Record price snapshots ────────────────────────────────
+    try {
+      await client.query(`
+        INSERT INTO price_history (item_id, item_key, price)
+        SELECT i.id, i.key,
+          COALESCE(
+            (SELECT AVG(ml.price_per_unit) FROM market_listings ml
+             WHERE ml.item_id = i.id AND ml.status IN ('open','sold')
+             AND ml.created_at > NOW() - INTERVAL '1 day'),
+            i.base_price
+          )::numeric(18,2)
+        FROM items i
+      `);
+    } catch (err) {
+      console.error('[economy] Price history error:', err);
+    }
+
+    // ─── 6. Events: expire old + maybe create new ───────────────
     try {
       const expired = await expireEvents(client);
       if (expired > 0) console.log(`[economy] Expired ${expired} event(s)`);

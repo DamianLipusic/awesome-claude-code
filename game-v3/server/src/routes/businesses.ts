@@ -387,6 +387,40 @@ export async function businessRoutes(app: FastifyInstance): Promise<void> {
     return reply.send({ data: { id, name, message: `Renamed to "${name}"` } });
   });
 
+  // POST /:id/relocate — move business to new location
+  app.post('/:id/relocate', async (req: FastifyRequest, reply: FastifyReply) => {
+    const { id } = req.params as { id: string };
+    const { location_id } = z.object({ location_id: z.string().uuid() }).parse(req.body);
+    const playerId = req.player.id;
+
+    const bizRes = await query<{ id: string; name: string; location_id: string }>(
+      "SELECT id, name, location_id FROM businesses WHERE id = $1 AND owner_id = $2 AND status != 'shutdown'",
+      [id, playerId],
+    );
+    if (!bizRes.rows.length) return reply.status(404).send({ error: 'Business not found' });
+    if (bizRes.rows[0].location_id === location_id) return reply.status(400).send({ error: 'Already at this location' });
+
+    const locRes = await query<{ price: string; name: string }>(
+      'SELECT price, name FROM locations WHERE id = $1 AND available = TRUE', [location_id],
+    );
+    if (!locRes.rows.length) return reply.status(404).send({ error: 'Location not available' });
+
+    const cost = Math.floor(Number(locRes.rows[0].price) * 0.5);
+    const playerRes = await query<{ cash: string }>('SELECT cash FROM players WHERE id = $1', [playerId]);
+    if (Number(playerRes.rows[0]?.cash ?? 0) < cost) {
+      return reply.status(400).send({ error: `Not enough cash. Need $${cost}` });
+    }
+
+    await query('UPDATE players SET cash = cash - $1 WHERE id = $2', [cost, playerId]);
+    await query('UPDATE businesses SET location_id = $1 WHERE id = $2', [location_id, id]);
+    await query(
+      "INSERT INTO activity_log (player_id, business_id, type, message, amount) VALUES ($1, $2, 'RELOCATE', $3, $4)",
+      [playerId, id, `Relocated "${bizRes.rows[0].name}" to ${locRes.rows[0].name}`, -cost],
+    );
+
+    return reply.send({ data: { id, new_location: locRes.rows[0].name, cost, message: `Relocated to ${locRes.rows[0].name} for $${cost}` } });
+  });
+
   // PATCH /:id/auto-sell — toggle auto-sell
   app.patch('/:id/auto-sell', async (req: FastifyRequest, reply: FastifyReply) => {
     const { id } = req.params as { id: string };

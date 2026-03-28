@@ -341,4 +341,91 @@ export async function employeeRoutes(app: FastifyInstance): Promise<void> {
       },
     });
   });
+
+  // POST /poach — steal employee from another player
+  const PoachSchema = z.object({
+    employee_id: z.string().uuid(),
+    business_id: z.string().uuid(), // your business to assign to
+  });
+
+  app.post('/poach', async (req: FastifyRequest, reply: FastifyReply) => {
+    const { employee_id, business_id } = PoachSchema.parse(req.body);
+    const playerId = req.player.id;
+
+    const result = await withTransaction(async (client) => {
+      // Check target employee exists and belongs to another player
+      const empRes = await client.query<{ id: string; name: string; salary: number; business_id: string }>(
+        `SELECT e.id, e.name, e.salary, e.business_id FROM employees e
+         JOIN businesses b ON b.id = e.business_id
+         WHERE e.id = $1 AND e.status = 'active' AND b.owner_id != $2`,
+        [employee_id, playerId],
+      );
+      if (!empRes.rows.length) throw { statusCode: 404, message: 'Employee not found or belongs to you' };
+
+      const emp = empRes.rows[0];
+      const poachCost = Math.round(Number(emp.salary) * 2);
+
+      // Check cash
+      const cashRes = await client.query<{ cash: string }>('SELECT cash FROM players WHERE id = $1 FOR UPDATE', [playerId]);
+      if (Number(cashRes.rows[0]?.cash ?? 0) < poachCost) {
+        throw { statusCode: 400, message: `Need $${poachCost} to poach (2x salary)` };
+      }
+
+      // Check your business capacity
+      const bizRes = await client.query(
+        "SELECT id, tier FROM businesses WHERE id = $1 AND owner_id = $2 AND status = 'active'",
+        [business_id, playerId],
+      );
+      if (!bizRes.rows.length) throw { statusCode: 404, message: 'Your business not found' };
+      const tier = Number(bizRes.rows[0].tier);
+      const empCount = await client.query(
+        "SELECT COUNT(*)::int AS cnt FROM employees WHERE business_id = $1 AND status IN ('active','training')",
+        [business_id],
+      );
+      if (Number(empCount.rows[0].cnt) >= maxEmployees(tier)) {
+        throw { statusCode: 400, message: 'Business at max employee capacity' };
+      }
+
+      // 50% success chance
+      const success = Math.random() < 0.5;
+
+      // Always pay the cost
+      await client.query('UPDATE players SET cash = cash - $1 WHERE id = $2', [poachCost, playerId]);
+
+      if (success) {
+        // Move employee
+        await client.query(
+          'UPDATE employees SET business_id = $1 WHERE id = $2',
+          [business_id, employee_id],
+        );
+
+        // Increase rivalry heat for victim
+        const victimBiz = await client.query<{ owner_id: string }>(
+          'SELECT owner_id FROM businesses WHERE id = $1', [emp.business_id],
+        );
+        if (victimBiz.rows.length) {
+          await client.query(
+            'UPDATE players SET heat_rival = LEAST(100, heat_rival + 10) WHERE id = $1',
+            [victimBiz.rows[0].owner_id],
+          );
+        }
+
+        await client.query(
+          "INSERT INTO activity_log (player_id, type, message, amount) VALUES ($1, 'POACH_SUCCESS', $2, $3)",
+          [playerId, `Poached ${emp.name} for $${poachCost}`, -poachCost],
+        );
+
+        return { success: true, employee: emp.name, cost: poachCost, message: `Successfully poached ${emp.name}!` };
+      } else {
+        await client.query(
+          "INSERT INTO activity_log (player_id, type, message, amount) VALUES ($1, 'POACH_FAILED', $2, $3)",
+          [playerId, `Failed to poach ${emp.name}. Lost $${poachCost}`, -poachCost],
+        );
+
+        return { success: false, employee: emp.name, cost: poachCost, message: `Failed to poach ${emp.name}. Lost $${poachCost}.` };
+      }
+    });
+
+    return reply.send({ data: result });
+  });
 }

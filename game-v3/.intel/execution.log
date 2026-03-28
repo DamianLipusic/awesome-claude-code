@@ -131,3 +131,10 @@
 [2026-03-28T09:55] TESTS — 24/24 PASS
 [2026-03-28T09:56] GIT — Second commit: v4.2.0
 [2026-03-28T09:56] DEPLOY — Web client rebuilt and deployed (v4.2.0)
+
+[2026-03-28T09:58] BUG FIX — WAREHOUSE type now accepted in Zod schema + storageCap gets business type
+[2026-03-28T09:59] ACHIEVEMENTS — 6 new: Logistics King, Criminal Mind, Crime Lord, Dirty Rich, Spy Master, Millionaire (total: 19)
+[2026-03-28T10:00] FULL TEST — Complete gameplay flow verified (register → mine → hire → produce → sell → warehouse → crime → spy)
+[2026-03-28T10:03] TESTS — 24/24 PASS
+[2026-03-28T10:04] GIT — Commit v4.3
+[2026-03-28T10:04] DEPLOY — Web client rebuilt and deployed (v4.3.0)
