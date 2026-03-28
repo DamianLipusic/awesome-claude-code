@@ -104,7 +104,7 @@ export async function marketRoutes(app: FastifyInstance): Promise<void> {
         [listing_id],
       );
       if (!listingRes.rows.length) {
-        throw new Error('Listing not found or no longer open');
+        throw { statusCode: 404, message: 'Listing not found or no longer open' };
       }
       const listing = listingRes.rows[0];
 
@@ -118,7 +118,7 @@ export async function marketRoutes(app: FastifyInstance): Promise<void> {
         [business_id, req.player.id],
       );
       if (!bizRes.rows.length) {
-        throw new Error('Business not found or not owned by you');
+        throw { statusCode: 404, message: 'Business not found or not owned by you' };
       }
 
       const pricePerUnit = Number(listing.price_per_unit);
@@ -131,7 +131,7 @@ export async function marketRoutes(app: FastifyInstance): Promise<void> {
       );
       const playerCash = Number(playerRes.rows[0].cash);
       if (playerCash < totalCost) {
-        throw new Error(`Not enough cash. Need $${totalCost.toFixed(2)}, have $${playerCash.toFixed(2)}`);
+        throw { statusCode: 400, message: `Not enough cash. Need $${totalCost.toFixed(2)}, have $${playerCash.toFixed(2)}` };
       }
 
       // Deduct cash
@@ -204,7 +204,7 @@ export async function marketRoutes(app: FastifyInstance): Promise<void> {
         [business_id, req.player.id],
       );
       if (!bizRes.rows.length) {
-        throw new Error('Business not found or not owned by you');
+        throw { statusCode: 404, message: 'Business not found or not owned by you' };
       }
 
       // Check inventory
@@ -213,11 +213,11 @@ export async function marketRoutes(app: FastifyInstance): Promise<void> {
         [business_id, item_id],
       );
       if (!invRes.rows.length) {
-        throw new Error('Item not found in inventory');
+        throw { statusCode: 400, message: 'Item not found in inventory' };
       }
       const available = Number(invRes.rows[0].amount) - Number(invRes.rows[0].reserved);
       if (available < quantity) {
-        throw new Error(`Not enough available. Have ${available}, need ${quantity}`);
+        throw { statusCode: 400, message: `Not enough available. Have ${available}, need ${quantity}` };
       }
 
       // Get current price + apply 95% modifier for player direct sell
