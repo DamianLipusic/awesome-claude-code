@@ -14,7 +14,7 @@ import {
 import { awardXP, XP_REWARDS } from '../lib/xp.js';
 
 const CreateBusinessSchema = z.object({
-  type: z.enum(['SHOP', 'FACTORY', 'MINE']),
+  type: z.enum(['SHOP', 'FACTORY', 'MINE', 'WAREHOUSE']),
   name: z.string().min(2).max(50),
   location_id: z.string().uuid(),
   recipe_id: z.string().uuid().optional(),
@@ -291,7 +291,7 @@ export async function businessRoutes(app: FastifyInstance): Promise<void> {
     return reply.send({
       data: {
         ...biz,
-        storage_cap: storageCap(tier),
+        storage_cap: storageCap(tier, biz.type as string),
         max_employees: maxEmployees(tier),
         inventory: invRes.rows,
         employees: empRes.rows,

@@ -120,3 +120,14 @@
 [2026-03-28T09:44] PROFILE — Reputation section with 3 colored progress bars
 [2026-03-28T09:46] TESTS — 24/24 PASS
 [2026-03-28T09:46] DEPLOY — Web client rebuilt and deployed (v4.1.0)
+
+[2026-03-28T09:47] GIT — First commit: 87 files, 35,458 lines (v4.1.0)
+[2026-03-28T09:48] DOCS — CLAUDE.md with full project docs
+[2026-03-28T09:49] NEW BIZ TYPE — WAREHOUSE ($10K, $150/day, 3x storage capacity)
+[2026-03-28T09:50] SPY SYSTEM — /intel/spy ($2K cost, fuzzy reports), /intel/players, /intel/reports
+[2026-03-28T09:51] NEW SCREEN — IntelScreen (spy on rivals, view reports)
+[2026-03-28T09:52] NAVIGATION — Consolidated: 5 main tabs + 4 modal screens (Profile, Leaderboard, GameInfo, Intel)
+[2026-03-28T09:53] DASHBOARD — Quick nav buttons (Ranking, Info, Intel) at bottom
+[2026-03-28T09:55] TESTS — 24/24 PASS
+[2026-03-28T09:56] GIT — Second commit: v4.2.0
+[2026-03-28T09:56] DEPLOY — Web client rebuilt and deployed (v4.2.0)

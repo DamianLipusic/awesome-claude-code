@@ -140,7 +140,7 @@ export async function dashboardRoutes(app: FastifyInstance): Promise<void> {
         employee_count: empCount,
         max_employees: maxEmployees(tier),
         total_inventory: Number(b.total_inventory),
-        storage_cap: storageCap(tier),
+        storage_cap: storageCap(tier, b.type as string),
         production_per_tick: Math.round(productionPerTick * 100) / 100,
         location_name: b.location_name,
         emoji,

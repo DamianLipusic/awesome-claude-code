@@ -14,12 +14,16 @@ interface AchievementDef {
 interface PlayerAchState {
   cash: number;
   netWorth: number;
+  dirtyMoney: number;
   businessCount: number;
   employeeCount: number;
   hasMine: boolean;
   hasFactory: boolean;
   hasShop: boolean;
+  hasWarehouse: boolean;
   totalSold: number;
+  totalCrimes: number;
+  totalSpyReports: number;
   maxTier: number;
   level: number;
 }
@@ -38,6 +42,12 @@ const ACHIEVEMENT_DEFS: AchievementDef[] = [
   { key: 'tier_5', title: 'Maxed Out', description: 'Upgrade a business to Tier 5', icon: '🔥', xpReward: 500, check: (s) => s.maxTier >= 5 },
   { key: 'level_5', title: 'Experienced', description: 'Reach Level 5', icon: '⭐', xpReward: 100, check: (s) => s.level >= 5 },
   { key: 'level_10', title: 'Master', description: 'Reach Level 10', icon: '👑', xpReward: 500, check: (s) => s.level >= 10 },
+  { key: 'warehouse', title: 'Logistics King', description: 'Own a Warehouse', icon: '📦', xpReward: 100, check: (s) => s.hasWarehouse },
+  { key: 'first_crime', title: 'Criminal Mind', description: 'Complete your first crime', icon: '🔫', xpReward: 100, check: (s) => s.totalCrimes >= 1 },
+  { key: 'crime_lord', title: 'Crime Lord', description: 'Complete 10 crimes', icon: '💀', xpReward: 300, check: (s) => s.totalCrimes >= 10 },
+  { key: 'dirty_rich', title: 'Dirty Rich', description: 'Accumulate $50,000 dirty money', icon: '💸', xpReward: 200, check: (s) => s.dirtyMoney >= 50000 },
+  { key: 'spy_master', title: 'Spy Master', description: 'Gather 5 intel reports', icon: '🔍', xpReward: 150, check: (s) => s.totalSpyReports >= 5 },
+  { key: 'net_worth_1m', title: 'Millionaire', description: 'Net worth exceeds $1,000,000', icon: '🏆', xpReward: 1000, check: (s) => s.netWorth >= 1000000 },
 ];
 
 /**
@@ -55,7 +65,7 @@ export async function checkAchievements(client: PoolClient, playerId: string): P
   // Build player state
   const stateRes = await client.query(`
     SELECT
-      p.cash::numeric AS cash, p.level,
+      p.cash::numeric AS cash, p.dirty_money::numeric AS dirty_money, p.level,
       (p.cash + p.bank_balance +
         COALESCE((SELECT SUM(inv.amount * i.base_price) FROM inventory inv JOIN businesses b ON b.id = inv.business_id JOIN items i ON i.id = inv.item_id WHERE b.owner_id = p.id AND b.status != 'shutdown'), 0) +
         COALESCE((SELECT SUM(CASE b.type WHEN 'MINE' THEN 12000 WHEN 'FACTORY' THEN 15000 WHEN 'SHOP' THEN 8000 ELSE 10000 END * b.tier) FROM businesses b WHERE b.owner_id = p.id AND b.status != 'shutdown'), 0)
@@ -65,7 +75,10 @@ export async function checkAchievements(client: PoolClient, playerId: string): P
       EXISTS(SELECT 1 FROM businesses b WHERE b.owner_id = p.id AND b.type = 'MINE' AND b.status != 'shutdown') AS has_mine,
       EXISTS(SELECT 1 FROM businesses b WHERE b.owner_id = p.id AND b.type = 'FACTORY' AND b.status != 'shutdown') AS has_factory,
       EXISTS(SELECT 1 FROM businesses b WHERE b.owner_id = p.id AND b.type = 'SHOP' AND b.status != 'shutdown') AS has_shop,
+      EXISTS(SELECT 1 FROM businesses b WHERE b.owner_id = p.id AND b.type = 'WAREHOUSE' AND b.status != 'shutdown') AS has_warehouse,
       (SELECT COUNT(*) FROM activity_log WHERE player_id = p.id AND type IN ('SALE','SELL_ALL','AUTOSELL'))::int AS total_sold,
+      (SELECT COUNT(*) FROM crime_operations WHERE player_id = p.id AND status = 'success')::int AS total_crimes,
+      (SELECT COUNT(*) FROM intel_reports WHERE player_id = p.id)::int AS total_spy_reports,
       COALESCE((SELECT MAX(b.tier) FROM businesses b WHERE b.owner_id = p.id AND b.status != 'shutdown'), 0)::int AS max_tier
     FROM players p WHERE p.id = $1
   `, [playerId]);
@@ -76,12 +89,16 @@ export async function checkAchievements(client: PoolClient, playerId: string): P
   const state: PlayerAchState = {
     cash: Number(row.cash),
     netWorth: Number(row.net_worth),
+    dirtyMoney: Number(row.dirty_money ?? 0),
     businessCount: Number(row.biz_count),
     employeeCount: Number(row.emp_count),
     hasMine: Boolean(row.has_mine),
     hasFactory: Boolean(row.has_factory),
     hasShop: Boolean(row.has_shop),
+    hasWarehouse: Boolean(row.has_warehouse),
     totalSold: Number(row.total_sold),
+    totalCrimes: Number(row.total_crimes),
+    totalSpyReports: Number(row.total_spy_reports),
     maxTier: Number(row.max_tier),
     level: Number(row.level),
   };

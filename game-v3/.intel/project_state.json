@@ -1,32 +1,20 @@
 {
   "project": "EmpireOS V3",
-  "version": "4.1.0",
+  "version": "4.2.0",
   "phase": {
-    "id": "v4-ui-complete",
-    "name": "V4 UI Complete",
-    "description": "All backend systems now have client UI. Manager config, reputation bars, season timer, crime dashboard, achievements on profile. Feature + UI complete.",
+    "id": "v4-espionage",
+    "name": "V4 Espionage & Logistics",
+    "description": "Spy intel system, WAREHOUSE type, consolidated 5-tab navigation, git committed. 59 endpoints, 23 tables, 12 screens.",
     "status": "active"
   },
   "validation": { "status": "PASS", "total": 24, "passed": 24, "failed": 0 },
-  "api_endpoints": 56,
-  "client_screens": 11,
-  "db_tables": 22,
-  "sessions_today": 11,
-  "systems_with_ui": [
-    "Economy + Production Chains (Dashboard, BusinessDetail, Market)",
-    "Market (4 tabs: Prices, Buy, Sell, Listings)",
-    "Employees (Pool, My Employees, Training)",
-    "Crime (3 tabs: Operations, Laundering, History)",
-    "Managers (Hire/Fire/Config in BusinessDetail)",
-    "Reputation (Dashboard bars + Profile section)",
-    "Heat + Dirty Money (Dashboard hero card)",
-    "Events (Dashboard amber cards)",
-    "Achievements (Profile unlocked/locked)",
-    "Banking (Dashboard deposit/withdraw)",
-    "Season (Dashboard timer)",
-    "Leaderboard (World Stats + Rankings)",
-    "Game Info Wiki (8 sections)",
-    "Profile (Stats, Finance, Reputation, Achievements)"
-  ],
-  "last_updated": "2026-03-28T09:46:00+00:00"
+  "api_endpoints": 59,
+  "client_screens": 12,
+  "db_tables": 23,
+  "business_types": ["MINE", "FACTORY", "SHOP", "WAREHOUSE"],
+  "sessions_today": 12,
+  "git_commits": 2,
+  "tabs": ["Dashboard", "Businesses", "Market", "Employees", "Underworld"],
+  "modal_screens": ["Profile", "Leaderboard", "GameInfo", "Intel"],
+  "last_updated": "2026-03-28T09:56:00+00:00"
 }
