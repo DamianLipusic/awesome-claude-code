@@ -29,3 +29,7 @@ coverage.xml
 !.claude/commands/
 .claude/commands/*
 !.claude/commands/evaluate-repository.md
+game-v3/server/node_modules/
+game-v3/client/node_modules/
+game-v3/client/dist/
+game-v3/server/.env
