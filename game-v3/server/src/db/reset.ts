@@ -4,6 +4,14 @@ async function reset() {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
+    // New tables first (FK deps)
+    await client.query('DELETE FROM player_trust');
+    await client.query('DELETE FROM intel_reports');
+    await client.query('DELETE FROM bulk_orders');
+    await client.query('DELETE FROM contracts');
+    await client.query('DELETE FROM laundering_jobs');
+    await client.query('DELETE FROM crime_operations');
+    await client.query('DELETE FROM price_history');
     await client.query('DELETE FROM achievements');
     await client.query('DELETE FROM discovery_progress');
     await client.query('DELETE FROM training');
