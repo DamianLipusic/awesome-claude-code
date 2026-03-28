@@ -58,6 +58,18 @@ async function main() {
     secret: process.env.JWT_SECRET || 'dev-only-secret-not-for-production',
   });
 
+  // Global error handler: Zod errors → 400, custom errors with statusCode → proper status
+  app.setErrorHandler((error, _req, reply) => {
+    if (error.name === 'ZodError' || error.message?.startsWith('[')) {
+      return reply.status(400).send({ error: 'Validation error', details: error.message });
+    }
+    if ((error as any).statusCode && (error as any).statusCode < 500) {
+      return reply.status((error as any).statusCode).send({ error: (error as any).message ?? 'Error' });
+    }
+    app.log.error(error);
+    return reply.status(500).send({ error: 'Internal Server Error' });
+  });
+
   // Rate limit (global: false — only applied per-route)
   await app.register(fastifyRateLimit, {
     global: false,
