@@ -145,3 +145,11 @@
 [2026-03-28T10:12] TESTS — 24/24 PASS
 [2026-03-28T10:13] GIT — Commit v4.4
 [2026-03-28T10:13] DEPLOY — Web client rebuilt and deployed (v4.4.0)
+
+[2026-03-28T10:15] CONTRACTS — Full system: offer/accept/cancel, auto-fulfillment in daily tick, penalties, rep boost
+[2026-03-28T10:17] SECURITY — 3 layers (physical/cyber/legal), upgrade endpoint ($1K+level*50), blocks raids
+[2026-03-28T10:19] MARKET UI — 5th tab "Contracts": incoming offers, my contracts, create offer modal
+[2026-03-28T10:20] BUSINESS UI — Security section with 3 bars + upgrade buttons
+[2026-03-28T10:25] TESTS — 24/24 PASS
+[2026-03-28T10:26] GIT — Commit v4.5 (5th commit)
+[2026-03-28T10:26] DEPLOY — Web client rebuilt and deployed (v4.5.0)

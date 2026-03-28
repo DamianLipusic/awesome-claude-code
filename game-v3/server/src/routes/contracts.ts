@@ -189,6 +189,11 @@ export async function fulfillContracts(dbQuery: (sql: string, params?: unknown[]
 
       // Rep boost
       await dbQuery('UPDATE players SET rep_business = LEAST(100, rep_business + 1) WHERE id = $1', [supplierId]);
+      // Trust boost
+      try {
+        const { adjustTrust } = await import('../lib/trust.js');
+        await adjustTrust(dbQuery, supplierId, buyerId, 3, 'contract_completed');
+      } catch { /* non-critical */ }
       fulfilled++;
     } else {
       // Miss: penalty
@@ -198,6 +203,10 @@ export async function fulfillContracts(dbQuery: (sql: string, params?: unknown[]
       }
       await dbQuery('UPDATE contracts SET cycles_missed = cycles_missed + 1, next_delivery_at = NOW() + ($1 || \' hours\')::interval WHERE id = $2', [String(cycleHours), contract.id]);
       await dbQuery("INSERT INTO activity_log (player_id, type, message, amount) VALUES ($1, 'CONTRACT_MISS', $2, $3)", [supplierId, `Missed delivery on contract #${(contract.id as string).slice(0, 8)}`, -penalty]);
+      try {
+        const { adjustTrust } = await import('../lib/trust.js');
+        await adjustTrust(dbQuery, supplierId, buyerId, -5, 'contract_missed');
+      } catch { /* non-critical */ }
     }
   }
 

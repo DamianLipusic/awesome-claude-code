@@ -277,6 +277,122 @@ export async function marketRoutes(app: FastifyInstance): Promise<void> {
     return reply.send({ data: result });
   });
 
+  // ─── Bulk Orders ──────────────────────────────────────────────
+
+  const BulkOrderSchema = z.object({
+    business_id: z.string().uuid(),
+    item_id: z.string().uuid(),
+    quantity: z.number().int().positive(),
+    max_price_per_unit: z.number().positive(),
+  });
+
+  // POST /bulk-order — place a standing buy order
+  app.post('/bulk-order', async (req: FastifyRequest, reply: FastifyReply) => {
+    const { business_id, item_id, quantity, max_price_per_unit } = BulkOrderSchema.parse(req.body);
+    const playerId = req.player.id;
+
+    // Verify business
+    const bizRes = await query("SELECT id FROM businesses WHERE id = $1 AND owner_id = $2 AND status = 'active'", [business_id, playerId]);
+    if (!bizRes.rows.length) return reply.status(404).send({ error: 'Business not found' });
+
+    // Verify item
+    const itemRes = await query<{ name: string }>('SELECT name FROM items WHERE id = $1', [item_id]);
+    if (!itemRes.rows.length) return reply.status(404).send({ error: 'Item not found' });
+
+    const res = await query(
+      `INSERT INTO bulk_orders (player_id, business_id, item_id, quantity_wanted, max_price_per_unit)
+       VALUES ($1, $2, $3, $4, $5) RETURNING id`,
+      [playerId, business_id, item_id, quantity, max_price_per_unit],
+    );
+
+    await query("INSERT INTO activity_log (player_id, type, message, amount) VALUES ($1, 'BULK_ORDER', $2, 0)",
+      [playerId, `Placed bulk order: ${quantity} ${itemRes.rows[0].name} at max $${max_price_per_unit}/unit`]);
+
+    return reply.send({ data: { order_id: res.rows[0].id, message: `Bulk order placed for ${quantity} ${itemRes.rows[0].name}` } });
+  });
+
+  // GET /bulk-orders — active bulk orders (all players, for sellers to fill)
+  app.get('/bulk-orders', async (req: FastifyRequest, reply: FastifyReply) => {
+    const res = await query(`
+      SELECT bo.id, bo.quantity_wanted, bo.quantity_filled, bo.max_price_per_unit, bo.status, bo.created_at, bo.expires_at,
+             i.key AS item_key, i.name AS item_name, p.username AS buyer_name
+      FROM bulk_orders bo
+      JOIN items i ON i.id = bo.item_id
+      JOIN players p ON p.id = bo.player_id
+      WHERE bo.status = 'open' AND bo.expires_at > NOW()
+      ORDER BY bo.max_price_per_unit DESC
+    `);
+    return reply.send({ data: res.rows });
+  });
+
+  // GET /my-bulk-orders — my own bulk orders
+  app.get('/my-bulk-orders', async (req: FastifyRequest, reply: FastifyReply) => {
+    const res = await query(`
+      SELECT bo.*, i.name AS item_name
+      FROM bulk_orders bo JOIN items i ON i.id = bo.item_id
+      WHERE bo.player_id = $1 ORDER BY bo.created_at DESC LIMIT 20
+    `, [req.player.id]);
+    return reply.send({ data: res.rows });
+  });
+
+  // POST /bulk-orders/:id/fill — fill someone's bulk order
+  app.post('/bulk-orders/:id/fill', async (req: FastifyRequest, reply: FastifyReply) => {
+    const { id } = req.params as { id: string };
+    const { business_id, quantity } = z.object({ business_id: z.string().uuid(), quantity: z.number().int().positive() }).parse(req.body);
+    const playerId = req.player.id;
+
+    const result = await withTransaction(async (client) => {
+      const orderRes = await client.query("SELECT * FROM bulk_orders WHERE id = $1 AND status = 'open' FOR UPDATE", [id]);
+      if (!orderRes.rows.length) throw { statusCode: 404, message: 'Order not found or closed' };
+      const order = orderRes.rows[0];
+
+      if (order.player_id === playerId) throw { statusCode: 400, message: "Can't fill your own order" };
+
+      const remaining = Number(order.quantity_wanted) - Number(order.quantity_filled);
+      const fillQty = Math.min(quantity, remaining);
+      if (fillQty <= 0) throw { statusCode: 400, message: 'Order already filled' };
+
+      // Check seller inventory
+      const invRes = await client.query('SELECT amount, reserved FROM inventory WHERE business_id = $1 AND item_id = $2 FOR UPDATE', [business_id, order.item_id]);
+      const available = invRes.rows.length ? Number(invRes.rows[0].amount) - Number(invRes.rows[0].reserved) : 0;
+      if (available < fillQty) throw { statusCode: 400, message: `Only ${available} available` };
+
+      const totalPayment = fillQty * Number(order.max_price_per_unit);
+
+      // Check buyer cash
+      const buyerCash = await client.query('SELECT cash FROM players WHERE id = $1 FOR UPDATE', [order.player_id]);
+      if (Number(buyerCash.rows[0]?.cash ?? 0) < totalPayment) throw { statusCode: 400, message: 'Buyer lacks funds' };
+
+      // Transfer: seller inventory → buyer business, buyer cash → seller
+      await client.query('UPDATE inventory SET amount = amount - $1, updated_at = NOW() WHERE business_id = $2 AND item_id = $3', [fillQty, business_id, order.item_id]);
+      await client.query(`INSERT INTO inventory (business_id, item_id, amount) VALUES ($1, $2, $3)
+        ON CONFLICT (business_id, item_id) DO UPDATE SET amount = inventory.amount + $3, updated_at = NOW()`, [order.business_id, order.item_id, fillQty]);
+      await client.query('UPDATE players SET cash = cash - $1 WHERE id = $2', [totalPayment, order.player_id]);
+      await client.query('UPDATE players SET cash = cash + $1 WHERE id = $2', [totalPayment, playerId]);
+
+      // Update order
+      const newFilled = Number(order.quantity_filled) + fillQty;
+      const done = newFilled >= Number(order.quantity_wanted);
+      await client.query('UPDATE bulk_orders SET quantity_filled = $1, status = $2 WHERE id = $3',
+        [newFilled, done ? 'filled' : 'open', id]);
+
+      return { filled: fillQty, total_payment: totalPayment, order_complete: done };
+    });
+
+    return reply.send({ data: result });
+  });
+
+  // DELETE /bulk-orders/:id — cancel own order
+  app.delete('/bulk-orders/:id', async (req: FastifyRequest, reply: FastifyReply) => {
+    const { id } = req.params as { id: string };
+    const res = await query(
+      "UPDATE bulk_orders SET status = 'cancelled' WHERE id = $1 AND player_id = $2 AND status = 'open' RETURNING id",
+      [id, req.player.id],
+    );
+    if (!res.rows.length) return reply.status(404).send({ error: 'Order not found' });
+    return reply.send({ data: { message: 'Bulk order cancelled' } });
+  });
+
   // ─── GET /history/:itemKey — price history (24h) ──────────────
   app.get('/history/:itemKey', async (req: FastifyRequest, reply: FastifyReply) => {
     const { itemKey } = req.params as { itemKey: string };

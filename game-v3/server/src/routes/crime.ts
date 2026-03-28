@@ -209,6 +209,113 @@ export async function crimeRoutes(app: FastifyInstance): Promise<void> {
     }
   });
 
+  // ─── POST /sabotage — attack rival's business ──────────────────
+  const SabotageSchema = z.object({
+    target_business_id: z.string().uuid(),
+    type: z.enum(['disruption', 'arson', 'data_leak']),
+  });
+
+  app.post('/sabotage', async (req: FastifyRequest, reply: FastifyReply) => {
+    const { target_business_id, type } = SabotageSchema.parse(req.body);
+    const playerId = req.player.id;
+
+    const costs = { disruption: 5000, arson: 15000, data_leak: 8000 };
+    const heatGains = { disruption: 10, arson: 25, data_leak: 15 };
+    const descriptions = {
+      disruption: 'Supply Disruption — stops production for 30 minutes',
+      arson: 'Arson — damages business tier',
+      data_leak: 'Data Leak — reveals business finances to you',
+    };
+
+    const cost = costs[type];
+
+    // Check cash
+    const playerRes = await query<{ cash: string; heat_police: number }>(
+      'SELECT cash, heat_police FROM players WHERE id = $1', [playerId],
+    );
+    if (Number(playerRes.rows[0]?.cash ?? 0) < cost) {
+      return reply.status(400).send({ error: `Need $${cost}` });
+    }
+
+    // Check target business (must belong to another player)
+    const targetRes = await query(
+      `SELECT b.id, b.name, b.type, b.tier, b.owner_id, b.security_physical, b.security_cyber,
+              p.username AS owner_name
+       FROM businesses b JOIN players p ON p.id = b.owner_id
+       WHERE b.id = $1 AND b.status = 'active' AND b.owner_id != $2`,
+      [target_business_id, playerId],
+    );
+    if (!targetRes.rows.length) return reply.status(404).send({ error: 'Target not found or is yours' });
+    const target = targetRes.rows[0];
+
+    // Require spy report on target player
+    const spyCheck = await query(
+      'SELECT COUNT(*)::int AS cnt FROM intel_reports WHERE player_id = $1 AND target_id = $2',
+      [playerId, target.owner_id],
+    );
+    if (Number(spyCheck.rows[0].cnt) === 0) {
+      return reply.status(400).send({ error: 'Need intel on this player first. Spy on them.' });
+    }
+
+    // Pay cost
+    await query('UPDATE players SET cash = cash - $1 WHERE id = $2', [cost, playerId]);
+
+    // Security defense check
+    const secType = type === 'data_leak' ? 'security_cyber' : 'security_physical';
+    const secLevel = Number(target[secType] ?? 0);
+    const blocked = Math.random() * 100 < secLevel;
+
+    if (blocked) {
+      await query('UPDATE players SET heat_police = LEAST(100, heat_police + $1) WHERE id = $2', [Math.floor(heatGains[type] / 2), playerId]);
+      await query("INSERT INTO activity_log (player_id, type, message, amount) VALUES ($1, 'SABOTAGE_BLOCKED', $2, $3)",
+        [playerId, `Sabotage on "${target.name}" blocked by security!`, -cost]);
+
+      // Trust penalty
+      const { adjustTrust } = await import('../lib/trust.js');
+      await adjustTrust((sql, params) => query(sql, params) as any, playerId, target.owner_id as string, -10, 'sabotage');
+
+      return reply.send({ data: { success: false, message: `Blocked by ${target.name}'s security! Lost $${cost}.` } });
+    }
+
+    // Execute sabotage
+    let resultMsg = '';
+    if (type === 'disruption') {
+      await query("UPDATE businesses SET status = 'idle' WHERE id = $1", [target_business_id]);
+      resultMsg = `Production disrupted at "${target.name}" for 30 minutes.`;
+      // Auto-restore after 30min (handled by next daily tick unfreeze logic — reuse raided→active pattern)
+      await query("INSERT INTO activity_log (player_id, business_id, type, message, amount) VALUES ($1, $2, 'SABOTAGED', $3, 0)",
+        [target.owner_id, target_business_id, `"${target.name}" was sabotaged! Production halted.`]);
+    } else if (type === 'arson') {
+      if (Number(target.tier) > 1) {
+        await query('UPDATE businesses SET tier = tier - 1 WHERE id = $1', [target_business_id]);
+        resultMsg = `Arson on "${target.name}" — downgraded from Tier ${target.tier} to ${Number(target.tier) - 1}.`;
+      } else {
+        resultMsg = `Arson on "${target.name}" — damaged but already Tier 1.`;
+      }
+      await query("INSERT INTO activity_log (player_id, business_id, type, message, amount) VALUES ($1, $2, 'SABOTAGED', $3, 0)",
+        [target.owner_id, target_business_id, `"${target.name}" was attacked! Tier damaged.`]);
+    } else if (type === 'data_leak') {
+      // Return financial info about the target business
+      const finRes = await query(`
+        SELECT COALESCE(SUM(inv.amount * i.base_price), 0)::numeric AS inventory_value
+        FROM inventory inv JOIN items i ON i.id = inv.item_id
+        WHERE inv.business_id = $1
+      `, [target_business_id]);
+      resultMsg = `Data leak from "${target.name}": inventory value $${Number(finRes.rows[0]?.inventory_value ?? 0).toFixed(2)}, Tier ${target.tier}, ${target.type}`;
+    }
+
+    // Heat + trust
+    await query('UPDATE players SET heat_police = LEAST(100, heat_police + $1), heat_rival = LEAST(100, heat_rival + $2) WHERE id = $3',
+      [heatGains[type], 5, playerId]);
+    const { adjustTrust } = await import('../lib/trust.js');
+    await adjustTrust((sql, params) => query(sql, params) as any, playerId, target.owner_id as string, -15, 'sabotage');
+
+    await query("INSERT INTO activity_log (player_id, type, message, amount) VALUES ($1, 'SABOTAGE', $2, $3)",
+      [playerId, resultMsg, -cost]);
+
+    return reply.send({ data: { success: true, type, target: target.name, cost, message: resultMsg } });
+  });
+
   // GET /status — player's crime stats (dirty money, heat)
   app.get('/status', async (req: FastifyRequest, reply: FastifyReply) => {
     const res = await query(

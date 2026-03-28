@@ -90,4 +90,16 @@ export async function intelRoutes(app: FastifyInstance): Promise<void> {
     );
     return reply.send({ data: res.rows });
   });
+
+  // GET /trust/:targetId — trust level with another player
+  app.get('/trust/:targetId', async (req: FastifyRequest, reply: FastifyReply) => {
+    const { targetId } = req.params as { targetId: string };
+    const { getTrust } = await import('../lib/trust.js');
+    const trust = await getTrust(
+      (sql, params) => query(sql, params) as any,
+      req.player.id,
+      targetId,
+    );
+    return reply.send({ data: trust });
+  });
 }
