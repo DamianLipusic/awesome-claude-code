@@ -130,7 +130,20 @@ interface GameItem {
   category: string;
 }
 
-type SectionKey = 'prices' | 'buy' | 'sell' | 'listings' | 'contracts';
+interface BulkOrder {
+  id: string;
+  business_id: string;
+  item_id: string;
+  item_name: string;
+  quantity: number;
+  quantity_remaining: number;
+  max_price_per_unit: number;
+  buyer_name: string;
+  status: string;
+  created_at: string;
+}
+
+type SectionKey = 'prices' | 'buy' | 'sell' | 'listings' | 'contracts' | 'orders';
 
 const STAGE_LABELS: Record<number, string> = {
   1: 'Raw Materials',
@@ -172,6 +185,16 @@ export function MarketScreen() {
   const [contractPenalty, setContractPenalty] = useState('');
   const [acceptBizId, setAcceptBizId] = useState<string | null>(null);
   const [acceptContractId, setAcceptContractId] = useState<string | null>(null);
+
+  // Bulk order state
+  const [showCreateOrder, setShowCreateOrder] = useState(false);
+  const [orderItemId, setOrderItemId] = useState<string | null>(null);
+  const [orderQty, setOrderQty] = useState('');
+  const [orderMaxPrice, setOrderMaxPrice] = useState('');
+  const [orderBizId, setOrderBizId] = useState<string | null>(null);
+  const [fillOrderId, setFillOrderId] = useState<string | null>(null);
+  const [fillBizId, setFillBizId] = useState<string | null>(null);
+  const [fillQty, setFillQty] = useState('');
 
   // ─── Queries ─────────────────────────────────────
 
@@ -238,6 +261,21 @@ export function MarketScreen() {
       refetchInterval: 30000,
     });
 
+  // Bulk orders
+  const { data: openOrders, isLoading: ordersLoading, refetch: refetchOrders, isRefetching: ordersRefetching } =
+    useQuery<BulkOrder[]>({
+      queryKey: ['bulkOrders'],
+      queryFn: () => api.get<BulkOrder[]>('/market/bulk-orders'),
+      refetchInterval: 30000,
+    });
+
+  const { data: myOrders, refetch: refetchMyOrders, isRefetching: myOrdersRefetching } =
+    useQuery<BulkOrder[]>({
+      queryKey: ['myBulkOrders'],
+      queryFn: () => api.get<BulkOrder[]>('/market/my-bulk-orders'),
+      refetchInterval: 30000,
+    });
+
   // Players list for contract creation
   const { data: intelPlayers } = useQuery<IntelPlayer[]>({
     queryKey: ['intelPlayers'],
@@ -245,17 +283,17 @@ export function MarketScreen() {
     enabled: showCreateContract,
   });
 
-  // Items list for contract creation (from game info items)
+  // Items list for contract/order creation (from game info items)
   const { data: gameItems } = useQuery<GameItem[]>({
     queryKey: ['gameItems'],
     queryFn: async () => {
       const info = await api.get<{ items: GameItem[] }>('/game/info');
       return info.items ?? [];
     },
-    enabled: showCreateContract,
+    enabled: showCreateContract || showCreateOrder,
   });
 
-  const isRefetching = pricesRefetching || listingsRefetching || myListingsRefetching || contractsRefetching || incomingRefetching;
+  const isRefetching = pricesRefetching || listingsRefetching || myListingsRefetching || contractsRefetching || incomingRefetching || ordersRefetching || myOrdersRefetching;
 
   const refetchAll = () => {
     refetchPrices();
@@ -263,6 +301,8 @@ export function MarketScreen() {
     refetchMyListings();
     refetchContracts();
     refetchIncoming();
+    refetchOrders();
+    refetchMyOrders();
   };
 
   // ─── Mutations ───────────────────────────────────
@@ -369,6 +409,41 @@ export function MarketScreen() {
       show('Contract declined', 'success');
       queryClient.invalidateQueries({ queryKey: ['contracts'] });
       queryClient.invalidateQueries({ queryKey: ['contractsIncoming'] });
+    },
+    onError: (err: Error) => show(err.message, 'error'),
+  });
+
+  // ─── Bulk Order Mutations ──────────────────────────
+
+  const createOrderMutation = useMutation({
+    mutationFn: (body: { business_id: string; item_id: string; quantity: number; max_price_per_unit: number }) =>
+      api.post('/market/bulk-order', body),
+    onSuccess: () => {
+      show('Buy order created!', 'success');
+      queryClient.invalidateQueries({ queryKey: ['bulkOrders'] });
+      queryClient.invalidateQueries({ queryKey: ['myBulkOrders'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      setShowCreateOrder(false);
+      setOrderItemId(null);
+      setOrderQty('');
+      setOrderMaxPrice('');
+      setOrderBizId(null);
+    },
+    onError: (err: Error) => show(err.message, 'error'),
+  });
+
+  const fillOrderMutation = useMutation({
+    mutationFn: ({ orderId, business_id, quantity }: { orderId: string; business_id: string; quantity: number }) =>
+      api.post(`/market/bulk-orders/${orderId}/fill`, { business_id, quantity }),
+    onSuccess: () => {
+      show('Order filled!', 'success');
+      queryClient.invalidateQueries({ queryKey: ['bulkOrders'] });
+      queryClient.invalidateQueries({ queryKey: ['myBulkOrders'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['businesses'] });
+      setFillOrderId(null);
+      setFillBizId(null);
+      setFillQty('');
     },
     onError: (err: Error) => show(err.message, 'error'),
   });
@@ -853,6 +928,95 @@ export function MarketScreen() {
     );
   };
 
+  // ─── Section: Orders ──────────────────────────────
+
+  const renderOrders = () => {
+    const statusVariant: Record<string, 'green' | 'blue' | 'gray' | 'orange'> = {
+      open: 'blue',
+      filled: 'green',
+      partial: 'orange',
+      cancelled: 'gray',
+    };
+
+    return (
+      <View>
+        {/* Create Buy Order Button */}
+        <TouchableOpacity
+          style={styles.createListingBtn}
+          onPress={() => {
+            setShowCreateOrder(true);
+            setOrderItemId(null);
+            setOrderQty('');
+            setOrderMaxPrice('');
+            setOrderBizId(null);
+          }}
+        >
+          <Text style={styles.createListingBtnText}>+ Create Buy Order</Text>
+        </TouchableOpacity>
+
+        {/* Open Orders */}
+        <Text style={styles.groupTitle}>Open Orders</Text>
+        {ordersLoading ? (
+          <Text style={styles.hintText}>Loading orders...</Text>
+        ) : !openOrders || openOrders.length === 0 ? (
+          <EmptyState icon="$" title="No open orders" subtitle="No bulk buy orders from any players yet" />
+        ) : (
+          openOrders.map((order) => (
+            <Card key={order.id} style={styles.myListingCard}>
+              <View style={styles.myListingRow}>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.myListingName}>{order.item_name}</Text>
+                  <Text style={styles.myListingMeta}>
+                    {order.quantity_remaining} remaining (of {order.quantity}) @ max {formatCurrency(order.max_price_per_unit)}/ea
+                  </Text>
+                  <Text style={styles.myListingDate}>Buyer: {order.buyer_name}</Text>
+                </View>
+                <View style={styles.myListingRight}>
+                  <Badge label={order.status} variant={statusVariant[order.status] ?? 'gray'} size="sm" />
+                  {order.status === 'open' && (
+                    <TouchableOpacity
+                      style={styles.actionBtn}
+                      onPress={() => {
+                        setFillOrderId(order.id);
+                        setFillBizId(null);
+                        setFillQty(String(order.quantity_remaining));
+                      }}
+                    >
+                      <Text style={styles.actionBtnText}>Fill</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              </View>
+            </Card>
+          ))
+        )}
+
+        {/* My Orders */}
+        <Text style={[styles.groupTitle, { marginTop: 16 }]}>My Orders</Text>
+        {!myOrders || myOrders.length === 0 ? (
+          <EmptyState icon="$" title="No orders" subtitle="Create a buy order to request items from other players" />
+        ) : (
+          myOrders.map((order) => (
+            <Card key={order.id} style={styles.myListingCard}>
+              <View style={styles.myListingRow}>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.myListingName}>{order.item_name}</Text>
+                  <Text style={styles.myListingMeta}>
+                    {order.quantity_remaining}/{order.quantity} remaining @ max {formatCurrency(order.max_price_per_unit)}/ea
+                  </Text>
+                  <Text style={styles.myListingDate}>
+                    Created: {new Date(order.created_at).toLocaleDateString()}
+                  </Text>
+                </View>
+                <Badge label={order.status} variant={statusVariant[order.status] ?? 'gray'} size="sm" />
+              </View>
+            </Card>
+          ))
+        )}
+      </View>
+    );
+  };
+
   // ─── Computed values for modals ───────────────────
 
   const buyQtyNum = Math.max(1, parseInt(buyQty, 10) || 0);
@@ -880,6 +1044,7 @@ export function MarketScreen() {
     { key: 'sell', label: 'Sell' },
     { key: 'listings', label: 'Listings' },
     { key: 'contracts', label: 'Contracts' },
+    { key: 'orders', label: 'Orders' },
   ];
 
   const sectionContent: Record<SectionKey, () => React.ReactNode> = {
@@ -888,6 +1053,7 @@ export function MarketScreen() {
     sell: renderSell,
     listings: renderMyListings,
     contracts: renderContracts,
+    orders: renderOrders,
   };
 
   return (
@@ -1367,6 +1533,166 @@ export function MarketScreen() {
               </View>
             </View>
           </ScrollView>
+        </View>
+      </Modal>
+
+      {/* ─── Create Bulk Order Modal ──────────────────── */}
+      <Modal visible={showCreateOrder} transparent animationType="fade" onRequestClose={() => setShowCreateOrder(false)}>
+        <View style={styles.modalBackdrop}>
+          <ScrollView contentContainerStyle={styles.createListingModalScroll}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Create Buy Order</Text>
+
+              {/* Item selector */}
+              <Text style={styles.inputLabel}>Item:</Text>
+              {gameItems && gameItems.length > 0 ? (
+                <View style={styles.bizSelector}>
+                  {gameItems.map((item) => (
+                    <TouchableOpacity
+                      key={item.id}
+                      style={[styles.bizChip, orderItemId === item.id && styles.bizChipActive]}
+                      onPress={() => setOrderItemId(item.id)}
+                    >
+                      <Text style={[styles.bizChipText, orderItemId === item.id && styles.bizChipTextActive]}>
+                        {item.name}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              ) : (
+                <Text style={styles.modalSub}>Loading items...</Text>
+              )}
+
+              {/* Quantity */}
+              <Text style={styles.inputLabel}>Quantity:</Text>
+              <TextInput
+                style={styles.input}
+                value={orderQty}
+                onChangeText={setOrderQty}
+                keyboardType="number-pad"
+                placeholder="10"
+                placeholderTextColor="#4b5563"
+              />
+
+              {/* Max price per unit */}
+              <Text style={styles.inputLabel}>Max Price per Unit:</Text>
+              <TextInput
+                style={styles.input}
+                value={orderMaxPrice}
+                onChangeText={setOrderMaxPrice}
+                keyboardType="decimal-pad"
+                placeholder="0.00"
+                placeholderTextColor="#4b5563"
+              />
+
+              {/* Business to receive items */}
+              <Text style={styles.inputLabel}>Receive at Business:</Text>
+              {businesses && businesses.length > 0 ? (
+                <View style={styles.bizSelector}>
+                  {businesses.map((biz) => (
+                    <TouchableOpacity
+                      key={biz.id}
+                      style={[styles.bizChip, orderBizId === biz.id && styles.bizChipActive]}
+                      onPress={() => setOrderBizId(biz.id)}
+                    >
+                      <Text style={[styles.bizChipText, orderBizId === biz.id && styles.bizChipTextActive]}>
+                        {biz.name}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              ) : (
+                <Text style={styles.modalSub}>No businesses available.</Text>
+              )}
+
+              <View style={styles.modalButtons}>
+                <TouchableOpacity
+                  style={styles.modalCancel}
+                  onPress={() => setShowCreateOrder(false)}
+                >
+                  <Text style={styles.modalCancelText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.modalConfirm,
+                    (!orderItemId || !orderBizId || !orderQty || !orderMaxPrice) && { opacity: 0.5 },
+                  ]}
+                  disabled={!orderItemId || !orderBizId || !orderQty || !orderMaxPrice || createOrderMutation.isPending}
+                  onPress={() => {
+                    if (orderItemId && orderBizId) {
+                      createOrderMutation.mutate({
+                        business_id: orderBizId,
+                        item_id: orderItemId,
+                        quantity: parseInt(orderQty, 10) || 1,
+                        max_price_per_unit: parseFloat(orderMaxPrice) || 0,
+                      });
+                    }
+                  }}
+                >
+                  <Text style={styles.modalConfirmText}>
+                    {createOrderMutation.isPending ? 'Creating...' : 'Create Order'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </ScrollView>
+        </View>
+      </Modal>
+
+      {/* ─── Fill Order Modal ─────────────────────────── */}
+      <Modal visible={fillOrderId !== null} transparent animationType="fade" onRequestClose={() => setFillOrderId(null)}>
+        <View style={styles.modalBackdrop}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Fill Order</Text>
+            <Text style={styles.modalSub}>Select a business to fill from:</Text>
+            {businesses && businesses.length > 0 ? (
+              businesses.map((biz) => (
+                <TouchableOpacity
+                  key={biz.id}
+                  style={[styles.bizOption, fillBizId === biz.id && styles.bizOptionSelected]}
+                  onPress={() => setFillBizId(biz.id)}
+                >
+                  <Text style={styles.bizOptionName}>{biz.name}</Text>
+                  <Text style={styles.bizOptionMeta}>{biz.type} T{biz.tier}</Text>
+                </TouchableOpacity>
+              ))
+            ) : (
+              <Text style={styles.modalSub}>No businesses available.</Text>
+            )}
+
+            <Text style={styles.inputLabel}>Quantity to fill:</Text>
+            <TextInput
+              style={styles.input}
+              value={fillQty}
+              onChangeText={setFillQty}
+              keyboardType="number-pad"
+              placeholder="1"
+              placeholderTextColor="#4b5563"
+            />
+
+            <View style={styles.modalButtons}>
+              <TouchableOpacity style={styles.modalCancel} onPress={() => { setFillOrderId(null); setFillBizId(null); setFillQty(''); }}>
+                <Text style={styles.modalCancelText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalConfirm, (!fillBizId || !fillQty) && { opacity: 0.5 }]}
+                disabled={!fillBizId || !fillQty || fillOrderMutation.isPending}
+                onPress={() => {
+                  if (fillOrderId && fillBizId) {
+                    fillOrderMutation.mutate({
+                      orderId: fillOrderId,
+                      business_id: fillBizId,
+                      quantity: parseInt(fillQty, 10) || 1,
+                    });
+                  }
+                }}
+              >
+                <Text style={styles.modalConfirmText}>
+                  {fillOrderMutation.isPending ? 'Filling...' : 'Fill Order'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
       </Modal>
     </View>

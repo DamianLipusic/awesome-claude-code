@@ -105,13 +105,61 @@ interface LaunderResult {
   estimated_clean: number;
 }
 
+interface RivalPlayer {
+  id: string;
+  username: string;
+  level: number;
+  business_count: number;
+}
+
+interface SabotageResult {
+  success: boolean;
+  type?: string;
+  target?: string;
+  cost?: number;
+  message: string;
+}
+
+interface SabotageDef {
+  type: 'disruption' | 'arson' | 'data_leak';
+  name: string;
+  description: string;
+  icon: string;
+  cost: number;
+}
+
+const SABOTAGE_TYPES: SabotageDef[] = [
+  {
+    type: 'disruption',
+    name: 'Supply Disruption',
+    description: 'Disrupt supply lines, halting production for 30 minutes.',
+    icon: '\u26A0\uFE0F',
+    cost: 5000,
+  },
+  {
+    type: 'arson',
+    name: 'Arson',
+    description: 'Set fire to downgrade a business tier. High heat gain.',
+    icon: '\uD83D\uDD25',
+    cost: 15000,
+  },
+  {
+    type: 'data_leak',
+    name: 'Data Leak',
+    description: 'Hack systems to reveal inventory value and business details.',
+    icon: '\uD83D\uDCBB',
+    cost: 8000,
+  },
+];
+
 // ─── Tab definition ─────────────────────────────────
 
-type TabKey = 'operations' | 'laundering' | 'history';
+type TabKey = 'operations' | 'laundering' | 'sabotage' | 'history';
 
 const TABS: { key: TabKey; label: string }[] = [
   { key: 'operations', label: 'Operations' },
   { key: 'laundering', label: 'Laundering' },
+  { key: 'sabotage', label: 'Sabotage' },
   { key: 'history', label: 'History' },
 ];
 
@@ -166,6 +214,11 @@ export function CrimeScreen() {
   // Confirm start crime
   const [confirmCrime, setConfirmCrime] = useState<CrimeType | null>(null);
 
+  // Sabotage state
+  const [selectedSabotageType, setSelectedSabotageType] = useState<SabotageDef | null>(null);
+  const [selectedTargetPlayer, setSelectedTargetPlayer] = useState<RivalPlayer | null>(null);
+  const [sabotageConfirmVisible, setSabotageConfirmVisible] = useState(false);
+
   // ─── Queries ─────────────────────────────────────
 
   const {
@@ -214,6 +267,17 @@ export function CrimeScreen() {
     queryKey: ['businesses'],
     queryFn: () => api.get<Business[]>('/businesses'),
     refetchInterval: 30000,
+  });
+
+  const {
+    data: rivalPlayers,
+    isLoading: rivalsLoading,
+    refetch: refetchRivals,
+  } = useQuery<RivalPlayer[]>({
+    queryKey: ['rivalPlayers'],
+    queryFn: () => api.get<RivalPlayer[]>('/intel/players'),
+    enabled: activeTab === 'sabotage',
+    staleTime: 30000,
   });
 
   const isRefetching = statusRefetching || opsRefetching || launderingRefetching;
@@ -340,6 +404,23 @@ export function CrimeScreen() {
       queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
     onError: (err: Error) => show(err.message, 'error'),
+  });
+
+  const sabotageMutation = useMutation({
+    mutationFn: (body: { target_player_id: string; type: string }) =>
+      api.post<SabotageResult>('/crime/sabotage', body),
+    onSuccess: (data) => {
+      show(data.message, data.success ? 'success' : 'error');
+      queryClient.invalidateQueries({ queryKey: ['crimeStatus'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      setSabotageConfirmVisible(false);
+      setSelectedSabotageType(null);
+      setSelectedTargetPlayer(null);
+    },
+    onError: (err: Error) => {
+      show(err.message, 'error');
+      setSabotageConfirmVisible(false);
+    },
   });
 
   // ─── Loading ─────────────────────────────────────
@@ -690,11 +771,121 @@ export function CrimeScreen() {
     );
   };
 
+  // ─── Tab: Sabotage ──────────────────────────────
+
+  const renderSabotage = () => (
+    <View>
+      {/* Sabotage type cards */}
+      <Text style={styles.sectionTitle}>Select Sabotage Type</Text>
+      {SABOTAGE_TYPES.map((sab) => (
+        <TouchableOpacity
+          key={sab.type}
+          onPress={() => setSelectedSabotageType(
+            selectedSabotageType?.type === sab.type ? null : sab,
+          )}
+          activeOpacity={0.7}
+        >
+          <Card
+            style={[
+              styles.sabotageTypeCard,
+              selectedSabotageType?.type === sab.type && styles.sabotageTypeCardSelected,
+            ]}
+          >
+            <View style={styles.crimeHeader}>
+              <Text style={styles.crimeIcon}>{sab.icon}</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.crimeName}>{sab.name}</Text>
+                <Text style={styles.crimeDesc}>{sab.description}</Text>
+              </View>
+            </View>
+            <View style={styles.sabotageTypeMeta}>
+              <Text style={styles.sabotageCost}>
+                Cost: {formatCurrency(sab.cost)}
+              </Text>
+              {selectedSabotageType?.type === sab.type && (
+                <Badge label="SELECTED" variant="red" size="sm" />
+              )}
+            </View>
+          </Card>
+        </TouchableOpacity>
+      ))}
+
+      {/* Target player selection */}
+      <Text style={styles.sectionTitle}>Select Target</Text>
+      {rivalsLoading ? (
+        <Text style={styles.sabotageHint}>Loading players...</Text>
+      ) : !rivalPlayers || rivalPlayers.length === 0 ? (
+        <EmptyState
+          icon={"\uD83D\uDC64"}
+          title="No rivals found"
+          subtitle="No other players to target"
+        />
+      ) : (
+        <>
+          <Text style={styles.sabotageHint}>
+            A random business owned by the target will be attacked
+          </Text>
+          {rivalPlayers.map((player) => (
+            <TouchableOpacity
+              key={player.id}
+              onPress={() =>
+                setSelectedTargetPlayer(
+                  selectedTargetPlayer?.id === player.id ? null : player,
+                )
+              }
+              activeOpacity={0.7}
+            >
+              <Card
+                style={[
+                  styles.targetPlayerCard,
+                  selectedTargetPlayer?.id === player.id && styles.targetPlayerCardSelected,
+                ]}
+              >
+                <View style={styles.targetPlayerRow}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.targetPlayerName}>
+                      {player.username}
+                    </Text>
+                    <Text style={styles.targetPlayerMeta}>
+                      Level {player.level} | {player.business_count} business{player.business_count !== 1 ? 'es' : ''}
+                    </Text>
+                  </View>
+                  {selectedTargetPlayer?.id === player.id && (
+                    <Badge label="TARGET" variant="red" size="sm" />
+                  )}
+                </View>
+              </Card>
+            </TouchableOpacity>
+          ))}
+        </>
+      )}
+
+      {/* Launch button */}
+      <TouchableOpacity
+        style={[
+          styles.sabotageBtn,
+          (!selectedSabotageType || !selectedTargetPlayer || sabotageMutation.isPending) && {
+            opacity: 0.5,
+          },
+        ]}
+        disabled={!selectedSabotageType || !selectedTargetPlayer || sabotageMutation.isPending}
+        onPress={() => setSabotageConfirmVisible(true)}
+      >
+        <Text style={styles.sabotageBtnText}>
+          {selectedSabotageType && selectedTargetPlayer
+            ? `Launch ${selectedSabotageType.name} on ${selectedTargetPlayer.username} (${formatCurrency(selectedSabotageType.cost)})`
+            : 'Select type and target above'}
+        </Text>
+      </TouchableOpacity>
+    </View>
+  );
+
   // ─── Tab content map ─────────────────────────────
 
   const tabContent: Record<TabKey, () => React.ReactNode> = {
     operations: renderOperations,
     laundering: renderLaundering,
+    sabotage: renderSabotage,
     history: renderHistory,
   };
 
@@ -892,6 +1083,29 @@ export function CrimeScreen() {
           </View>
         </View>
       </Modal>
+
+      {/* ─── Sabotage Confirm Modal ────────────────── */}
+      <ConfirmModal
+        visible={sabotageConfirmVisible}
+        title={`Launch ${selectedSabotageType?.name ?? ''}?`}
+        message={
+          selectedSabotageType && selectedTargetPlayer
+            ? `${selectedSabotageType.description}\n\nTarget: ${selectedTargetPlayer.username}\nCost: ${formatCurrency(selectedSabotageType.cost)}\n\nA random active business will be targeted.`
+            : ''
+        }
+        confirmLabel="Launch"
+        confirmVariant="danger"
+        onConfirm={() => {
+          if (selectedSabotageType && selectedTargetPlayer) {
+            sabotageMutation.mutate({
+              target_player_id: selectedTargetPlayer.id,
+              type: selectedSabotageType.type,
+            });
+          }
+        }}
+        onCancel={() => setSabotageConfirmVisible(false)}
+        isLoading={sabotageMutation.isPending}
+      />
     </View>
   );
 }
@@ -1035,6 +1249,75 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   launderArrow: { fontSize: 16, color: '#6b7280' },
+
+  // Sabotage tab
+  sabotageTypeCard: {
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: 'transparent',
+  },
+  sabotageTypeCardSelected: {
+    borderColor: '#ef4444',
+    backgroundColor: '#1a0a0a',
+  },
+  sabotageTypeMeta: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 8,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: '#1f2937',
+  },
+  sabotageCost: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#f59e0b',
+  },
+  sabotageHint: {
+    fontSize: 12,
+    color: '#6b7280',
+    marginBottom: 8,
+    fontStyle: 'italic',
+  },
+  targetPlayerCard: {
+    marginBottom: 6,
+    borderWidth: 1,
+    borderColor: 'transparent',
+  },
+  targetPlayerCardSelected: {
+    borderColor: '#ef4444',
+    backgroundColor: '#1a0a0a',
+  },
+  targetPlayerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  targetPlayerName: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#f9fafb',
+  },
+  targetPlayerMeta: {
+    fontSize: 12,
+    color: '#6b7280',
+    marginTop: 2,
+  },
+  sabotageBtn: {
+    backgroundColor: '#7f1d1d',
+    borderRadius: 10,
+    paddingVertical: 14,
+    alignItems: 'center',
+    marginTop: 16,
+    borderWidth: 1,
+    borderColor: '#ef4444',
+  },
+  sabotageBtnText: {
+    color: '#ef4444',
+    fontSize: 13,
+    fontWeight: '700',
+    textAlign: 'center',
+  },
 
   // History cards
   historyCard: { marginBottom: 6 },

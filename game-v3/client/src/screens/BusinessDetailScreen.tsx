@@ -166,6 +166,7 @@ export function BusinessDetailScreen({ route, navigation }: Props) {
   const [closeConfirmVisible, setCloseConfirmVisible] = useState(false);
   const [fireConfirmId, setFireConfirmId] = useState<string | null>(null);
   const [trainModalId, setTrainModalId] = useState<string | null>(null);
+  const [showRelocateModal, setShowRelocateModal] = useState(false);
 
   // ─── Discovery Hints ────────────────────────────
   const { data: hints } = useQuery<DiscoveryHint[]>({
@@ -295,6 +296,22 @@ export function BusinessDetailScreen({ route, navigation }: Props) {
     refetchInterval: 30000,
   });
 
+  interface LocationOption {
+    id: string;
+    name: string;
+    zone: string;
+    type: string;
+    purchase_price: number;
+    daily_cost: number;
+    traffic: number;
+  }
+
+  const { data: locations } = useQuery<LocationOption[]>({
+    queryKey: ['locations'],
+    queryFn: () => api.get<LocationOption[]>('/locations'),
+    enabled: showRelocateModal,
+  });
+
   const [mgrConfig, setMgrConfig] = useState<ManagerConfig | null>(null);
   const mgrCfg = mgrConfig ?? managerData?.config ?? null;
 
@@ -346,6 +363,19 @@ export function BusinessDetailScreen({ route, navigation }: Props) {
     onSuccess: () => {
       show('Security upgraded!', 'success');
       queryClient.invalidateQueries({ queryKey: ['business', businessId] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+    },
+    onError: (err: Error) => show(err.message, 'error'),
+  });
+
+  const relocateMutation = useMutation({
+    mutationFn: (locationId: string) =>
+      api.post(`/businesses/${businessId}/relocate`, { location_id: locationId }),
+    onSuccess: () => {
+      show('Business relocated!', 'success');
+      setShowRelocateModal(false);
+      queryClient.invalidateQueries({ queryKey: ['business', businessId] });
+      queryClient.invalidateQueries({ queryKey: ['businesses'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
     onError: (err: Error) => show(err.message, 'error'),
@@ -557,6 +587,14 @@ export function BusinessDetailScreen({ route, navigation }: Props) {
           );
         })}
       </Card>
+
+      {/* Relocate */}
+      <TouchableOpacity
+        style={styles.relocateButton}
+        onPress={() => setShowRelocateModal(true)}
+      >
+        <Text style={styles.relocateText}>Relocate Business</Text>
+      </TouchableOpacity>
 
       <View style={styles.buttonRow}>
         <TouchableOpacity
@@ -1154,6 +1192,65 @@ export function BusinessDetailScreen({ route, navigation }: Props) {
           </View>
         </View>
       </Modal>
+
+      {/* Relocate Modal */}
+      <Modal visible={showRelocateModal} transparent animationType="fade" onRequestClose={() => setShowRelocateModal(false)}>
+        <View style={styles.modalBackdrop}>
+          <ScrollView contentContainerStyle={styles.relocateModalScroll}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Relocate Business</Text>
+              <Text style={styles.relocateHint}>
+                Moving costs 50% of the location price. Current: {biz.location_name}
+              </Text>
+              {!locations ? (
+                <Text style={styles.relocateHint}>Loading locations...</Text>
+              ) : (
+                locations.map((loc) => {
+                  const isCurrent = loc.name === biz.location_name;
+                  const moveCost = Math.round(loc.purchase_price * 0.5);
+                  return (
+                    <View
+                      key={loc.id}
+                      style={[
+                        styles.locationCard,
+                        isCurrent && styles.locationCardCurrent,
+                      ]}
+                    >
+                      <View style={{ flex: 1 }}>
+                        <Text style={[styles.locationName, isCurrent && { color: '#22c55e' }]}>
+                          {loc.name} {isCurrent ? '(current)' : ''}
+                        </Text>
+                        <Text style={styles.locationMeta}>
+                          {loc.zone} | {formatCurrency(loc.daily_cost)}/day | Traffic: {loc.traffic}
+                        </Text>
+                        {!isCurrent && (
+                          <Text style={styles.locationCost}>
+                            Move cost: {formatCurrency(moveCost)}
+                          </Text>
+                        )}
+                      </View>
+                      {!isCurrent && (
+                        <TouchableOpacity
+                          style={styles.moveHereBtn}
+                          onPress={() => relocateMutation.mutate(loc.id)}
+                          disabled={relocateMutation.isPending}
+                        >
+                          <Text style={styles.moveHereText}>
+                            {relocateMutation.isPending ? '...' : 'Move Here'}
+                          </Text>
+                        </TouchableOpacity>
+                      )}
+                    </View>
+                  );
+                })
+              )}
+              <TouchableOpacity style={styles.cancelBtn} onPress={() => setShowRelocateModal(false)}>
+                <Text style={styles.cancelText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -1518,6 +1615,76 @@ const styles = StyleSheet.create({
   securityUpgradeText: {
     color: '#22c55e',
     fontSize: 11,
+    fontWeight: '700' as const,
+  },
+  // Relocate
+  relocateButton: {
+    backgroundColor: '#0c1a2e',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#3b82f6',
+    paddingVertical: 12,
+    alignItems: 'center' as const,
+    marginBottom: 12,
+  },
+  relocateText: {
+    color: '#3b82f6',
+    fontSize: 14,
+    fontWeight: '700' as const,
+  },
+  relocateHint: {
+    fontSize: 13,
+    color: '#9ca3af',
+    marginBottom: 12,
+  },
+  relocateModalScroll: {
+    flexGrow: 1,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+    padding: 24,
+  },
+  locationCard: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    backgroundColor: '#1f2937',
+    borderRadius: 10,
+    padding: 12,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: '#374151',
+  },
+  locationCardCurrent: {
+    borderColor: '#22c55e',
+    backgroundColor: '#052e16',
+  },
+  locationName: {
+    fontSize: 14,
+    fontWeight: '700' as const,
+    color: '#f9fafb',
+  },
+  locationMeta: {
+    fontSize: 12,
+    color: '#6b7280',
+    marginTop: 2,
+  },
+  locationCost: {
+    fontSize: 11,
+    color: '#f59e0b',
+    marginTop: 2,
+    fontWeight: '600' as const,
+  },
+  moveHereBtn: {
+    backgroundColor: '#1e3a5f',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderWidth: 1,
+    borderColor: '#3b82f6',
+    marginLeft: 10,
+  },
+  moveHereText: {
+    color: '#3b82f6',
+    fontSize: 12,
     fontWeight: '700' as const,
   },
 });

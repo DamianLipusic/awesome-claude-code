@@ -304,6 +304,7 @@ export function IntelScreen() {
                   {isExpanded && (
                     <View style={styles.expandedReport}>
                       <ReportCard report={report.report_data} />
+                      <Text style={styles.trustNote}>Trust level: check via Intel actions</Text>
                     </View>
                   )}
                 </TouchableOpacity>
@@ -550,5 +551,12 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     borderTopWidth: 1,
     borderTopColor: '#1f2937',
+  },
+  trustNote: {
+    fontSize: 11,
+    color: '#6b7280',
+    fontStyle: 'italic',
+    marginTop: 8,
+    textAlign: 'right',
   },
 });

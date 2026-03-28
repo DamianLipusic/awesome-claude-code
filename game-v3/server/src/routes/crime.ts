@@ -211,12 +211,17 @@ export async function crimeRoutes(app: FastifyInstance): Promise<void> {
 
   // ─── POST /sabotage — attack rival's business ──────────────────
   const SabotageSchema = z.object({
-    target_business_id: z.string().uuid(),
+    target_business_id: z.string().uuid().optional(),
+    target_player_id: z.string().uuid().optional(),
     type: z.enum(['disruption', 'arson', 'data_leak']),
-  });
+  }).refine(
+    (d) => d.target_business_id || d.target_player_id,
+    { message: 'Either target_business_id or target_player_id is required' },
+  );
 
   app.post('/sabotage', async (req: FastifyRequest, reply: FastifyReply) => {
-    const { target_business_id, type } = SabotageSchema.parse(req.body);
+    const parsed = SabotageSchema.parse(req.body);
+    const type = parsed.type;
     const playerId = req.player.id;
 
     const costs = { disruption: 5000, arson: 15000, data_leak: 8000 };
@@ -235,6 +240,22 @@ export async function crimeRoutes(app: FastifyInstance): Promise<void> {
     );
     if (Number(playerRes.rows[0]?.cash ?? 0) < cost) {
       return reply.status(400).send({ error: `Need $${cost}` });
+    }
+
+    // Resolve target_business_id: if target_player_id given, pick a random active business
+    let target_business_id = parsed.target_business_id;
+    if (!target_business_id && parsed.target_player_id) {
+      if (parsed.target_player_id === playerId) {
+        return reply.status(400).send({ error: "Can't sabotage yourself" });
+      }
+      const bizRes = await query(
+        `SELECT id FROM businesses WHERE owner_id = $1 AND status = 'active' ORDER BY random() LIMIT 1`,
+        [parsed.target_player_id],
+      );
+      if (!bizRes.rows.length) {
+        return reply.status(404).send({ error: 'Target player has no active businesses' });
+      }
+      target_business_id = bizRes.rows[0].id as string;
     }
 
     // Check target business (must belong to another player)
