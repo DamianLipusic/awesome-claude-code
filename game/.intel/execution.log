@@ -1,0 +1,50 @@
+# EmpireOS Execution Log
+
+---
+
+## 2026-04-08 — Session 1
+
+**Tasks completed:** T001, T002, T003, T004, T005, T006 (partial), T010, T016
+
+**Summary:**
+Bootstrapped the entire EmpireOS project from scratch. No prior game/ directory existed.
+
+**Files created:**
+- `game/CLAUDE.md` — coding standards and architecture guide
+- `game/.intel/roadmap.md` — 6-phase roadmap (T001–T024)
+- `game/.intel/tasks.json` — full task backlog with priorities
+- `game/.intel/execution.log` — this log
+- `game/index.html` — entry point with HUD, tab bar, content panels
+- `game/styles/main.css` — full dark-theme CSS (BEM, CSS custom properties)
+- `game/src/main.js` — boot sequence, save/load, control binding
+- `game/src/core/state.js` — central state object and initState()
+- `game/src/core/events.js` — pub/sub bus with Events constants
+- `game/src/core/tick.js` — 250ms game loop with registerSystem()
+- `game/src/core/actions.js` — buildBuilding, demolishBuilding, trainUnit, addMessage
+- `game/src/systems/resources.js` — recalcRates(), resourceTick(), training queue
+- `game/src/systems/research.js` — startResearch(), researchTick()
+- `game/src/ui/hud.js` — 6-resource HUD bar
+- `game/src/ui/buildingPanel.js` — grid of building cards with build/demolish
+- `game/src/ui/messageLog.js` — scrolling event log
+- `game/src/ui/researchPanel.js` — tech tree with progress bar
+- `game/src/ui/tabs.js` — Buildings / Research / Log tab switcher
+- `game/src/data/buildings.js` — 12 buildings with full stat definitions
+- `game/src/data/units.js` — 4 units (soldier, archer, knight, mage)
+- `game/src/data/techs.js` — 6 technologies with prerequisite graph
+- `game/src/utils/logger.js` — debug logger (no-op in production)
+- `game/src/utils/fmt.js` — fmtNum(), fmtRate(), fmtTime()
+
+**Architecture decisions:**
+- Vanilla ES modules, no build step — opens directly in browser
+- 250ms tick loop (4 ticks/s) with pluggable system registration
+- Single state object, all mutations via actions.js
+- Pub/sub events decouple systems from UI
+- 15% per-building cost scaling for build inflation
+- Save/load via localStorage with auto-save every 60s
+
+**Next session should tackle:**
+- T007: Canvas map grid (20×20) with fog of war
+- T008: Combat resolution engine
+- Military unit training UI panel (tab in sidebar)
+
+---

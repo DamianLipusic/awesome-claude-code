@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EmpireOS</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚔️</text></svg>">
+  <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+
+  <!-- Title bar -->
+  <div id="title-bar">
+    <span id="empire-name" title="Click to rename" id="btn-empire-name">My Empire</span>
+    <div class="title-bar__controls">
+      <button class="btn btn--sm" id="btn-save">💾 Save</button>
+      <button class="btn btn--sm" id="btn-new-game">🆕 New Game</button>
+    </div>
+  </div>
+
+  <!-- Resource HUD -->
+  <div id="hud"><!-- populated by hud.js --></div>
+
+  <!-- Tab bar -->
+  <div id="tab-bar">
+    <button data-tab="buildings">🏗️ Buildings</button>
+    <button data-tab="research">🔬 Research</button>
+    <button data-tab="log">📜 Log</button>
+  </div>
+
+  <!-- Main content -->
+  <div id="content">
+    <div data-panel="buildings" id="panel-buildings">
+      <!-- populated by buildingPanel.js -->
+    </div>
+
+    <div data-panel="research" id="panel-research" class="panel--hidden">
+      <!-- populated by researchPanel.js -->
+    </div>
+
+    <div data-panel="log" class="panel--hidden">
+      <div id="message-log">
+        <!-- populated by messageLog.js -->
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>

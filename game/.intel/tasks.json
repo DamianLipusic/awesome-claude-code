@@ -1,0 +1,114 @@
+[
+  {
+    "id": "T001",
+    "title": "scaffold project structure",
+    "description": "Create index.html, main.css skeleton, and all src/ module stubs so imports resolve.",
+    "priority": 1,
+    "status": "done",
+    "phase": 1,
+    "notes": "Created full project scaffold: index.html, styles/main.css, src/main.js, src/core/{state,events,tick,actions}.js, src/systems/{resources,research}.js, src/ui/{hud,buildingPanel,messageLog,researchPanel,tabs}.js, src/data/{buildings,units,techs}.js, src/utils/{logger,fmt}.js. Also created CLAUDE.md, roadmap.md, tasks.json, execution.log."
+  },
+  {
+    "id": "T002",
+    "title": "implement state, events, and tick loop",
+    "description": "state.js (initial state), events.js (pub/sub), tick.js (setInterval 250ms emitting tick).",
+    "priority": 2,
+    "status": "done",
+    "phase": 1,
+    "notes": "state.js: full initial state with resources/rates/caps/buildings/units/techs/queues/messages. events.js: tiny pub/sub (on/off/emit) with Events constants. tick.js: 250ms interval loop with registerSystem(), startLoop(), stopLoop(). All systems registered in main.js."
+  },
+  {
+    "id": "T003",
+    "title": "implement resource system with production/consumption rates",
+    "description": "resources.js system: on each tick, apply rates to state.resources. Rates derived from buildings and techs.",
+    "priority": 3,
+    "status": "done",
+    "phase": 1,
+    "notes": "Implemented as part of T001/T002 bootstrap. resources.js: recalcRates() sums building production/consumption with tech multipliers and unit upkeep; resourceTick() applies per-tick delta capped at caps; advances training queue. Integrated into tick loop via registerSystem()."
+  },
+  {
+    "id": "T004",
+    "title": "implement building system (build, upgrade, demolish)",
+    "description": "buildings data file, actions for build/upgrade/demolish, cost deduction, rate recalculation.",
+    "priority": 4,
+    "status": "done",
+    "phase": 1,
+    "notes": "data/buildings.js: 12 buildings with icon/cost/production/consumption/capBonus/requires. actions.js: buildBuilding() with 15%-per-level cost scaling, demolishBuilding(), trainUnit(). All trigger recalcRates() and emit events."
+  },
+  {
+    "id": "T005",
+    "title": "render resource HUD and building panel UI",
+    "description": "UI components: resource bar at top, building cards panel, message log at bottom.",
+    "priority": 5,
+    "status": "done",
+    "phase": 1,
+    "notes": "hud.js: 6-resource HUD bar with icon/value/cap/rate, updates throttled to 1s. buildingPanel.js: grid of building cards with locked state, cost display, build/demolish buttons, click delegation. messageLog.js: scrolling event log, 15 visible entries. tabs.js: tab switcher for Buildings/Research/Log panels. researchPanel.js: tech tree with progress bar, research button, prerequisite gating."
+  },
+  {
+    "id": "T006",
+    "title": "add unit data and training queue",
+    "description": "units.js data, training queue system, UI panel for military.",
+    "priority": 6,
+    "status": "done",
+    "phase": 2,
+    "notes": "Implemented as part of bootstrap. units.js: 4 units (soldier, archer, knight, mage) with cost/trainTicks/attack/defense/upkeep/requires. Training queue processed in resourceTick()._advanceTrainingQueue(). trainUnit() action in actions.js. Military unit panel deferred to T006 UI work (units.js and queue logic complete, UI tab pending)."
+  },
+  {
+    "id": "T007",
+    "title": "implement map grid (20x20 tiles, fog of war)",
+    "description": "Canvas-based 20x20 tile map with fog of war reveal on territory capture.",
+    "priority": 7,
+    "status": "pending",
+    "phase": 2
+  },
+  {
+    "id": "T008",
+    "title": "basic combat resolution engine",
+    "description": "Attack action, power calculation, outcome resolution, resource loot.",
+    "priority": 8,
+    "status": "pending",
+    "phase": 2
+  },
+  {
+    "id": "T009",
+    "title": "territory capture and expansion mechanics",
+    "description": "Capture adjacent tiles, apply territory bonuses to resource rates.",
+    "priority": 9,
+    "status": "pending",
+    "phase": 2
+  },
+  {
+    "id": "T010",
+    "title": "tech tree data and research system",
+    "description": "techs.js data with prerequisites, research action, tick-based progress.",
+    "priority": 10,
+    "status": "done",
+    "phase": 3,
+    "notes": "Implemented as part of bootstrap. data/techs.js: 6 techs with cost/researchTicks/effectDesc/requires. systems/research.js: startResearch() validates prereqs and deducts cost; researchTick() advances queue and applies tech. ui/researchPanel.js: full tech tree UI with progress bar and gating."
+  },
+  {
+    "id": "T016",
+    "title": "save/load via localStorage (auto-save every 60s)",
+    "description": "Serialize state to localStorage on interval, load on page open, manual save/load buttons.",
+    "priority": 16,
+    "status": "done",
+    "phase": 5,
+    "notes": "Implemented in main.js: _save() serializes state to localStorage key 'empireos-save'; _loadSave()/_applySave() restore on boot. Auto-save every 60s via setInterval. Manual Save button in title bar. New Game button clears save and reinits state."
+  },
+  {
+    "id": "T020",
+    "title": "diplomacy system (alliances, trade routes)",
+    "description": "AI empires, alliance/war status, trade route resource exchange per tick.",
+    "priority": 20,
+    "status": "pending",
+    "phase": 6
+  },
+  {
+    "id": "T024",
+    "title": "export/import save as JSON string",
+    "description": "Encode state as base64 JSON, provide copy/paste import modal.",
+    "priority": 24,
+    "status": "pending",
+    "phase": 6
+  }
+]
