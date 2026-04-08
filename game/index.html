@@ -24,6 +24,8 @@
   <!-- Tab bar -->
   <div id="tab-bar">
     <button data-tab="buildings">🏗️ Buildings</button>
+    <button data-tab="military">⚔️ Military</button>
+    <button data-tab="map">🗺️ Map</button>
     <button data-tab="research">🔬 Research</button>
     <button data-tab="log">📜 Log</button>
   </div>
@@ -32,6 +34,14 @@
   <div id="content">
     <div data-panel="buildings" id="panel-buildings">
       <!-- populated by buildingPanel.js -->
+    </div>
+
+    <div data-panel="military" id="panel-military" class="panel--hidden">
+      <!-- populated by militaryPanel.js -->
+    </div>
+
+    <div data-panel="map" id="panel-map" class="panel--hidden">
+      <!-- populated by mapPanel.js -->
     </div>
 
     <div data-panel="research" id="panel-research" class="panel--hidden">

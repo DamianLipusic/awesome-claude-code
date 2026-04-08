@@ -12,6 +12,7 @@ import { emit, Events } from '../core/events.js';
 import { BUILDINGS } from '../data/buildings.js';
 import { UNITS } from '../data/units.js';
 import { TICKS_PER_SECOND } from '../core/tick.js';
+import { territoryRateBonus } from './map.js';
 
 const RESOURCE_KEYS = ['gold', 'food', 'wood', 'stone', 'iron', 'mana'];
 
@@ -42,6 +43,12 @@ export function recalcRates() {
       if (def.consumption[res]) rates[res] -= def.consumption[res] * count;
       if (def.capBonus[res])   caps[res]  += def.capBonus[res] * count;
     }
+  }
+
+  // Territory bonuses from captured map tiles
+  const territory = territoryRateBonus();
+  for (const res of RESOURCE_KEYS) {
+    if (territory[res]) rates[res] += territory[res];
   }
 
   // Unit upkeep

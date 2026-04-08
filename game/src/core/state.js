@@ -57,6 +57,10 @@ export const state = {
   // Recent messages for the event log (max 50)
   messages: [],
 
+  // Map state — populated by systems/map.js initMap()
+  // { width, height, tiles: [[{type,owner,revealed,defense,loot}]], capital }
+  map: null,
+
   // Current game tick count (increments every 250ms)
   tick: 0,
 
@@ -81,6 +85,7 @@ export function initState(empireName = 'My Empire') {
   state.trainingQueue  = [];
   state.researchQueue  = [];
   state.messages       = [];
+  state.map            = null;
   state.tick           = 0;
   state.running        = false;
 }

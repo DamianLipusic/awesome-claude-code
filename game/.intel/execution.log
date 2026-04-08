@@ -48,3 +48,38 @@ Bootstrapped the entire EmpireOS project from scratch. No prior game/ directory 
 - Military unit training UI panel (tab in sidebar)
 
 ---
+
+## 2026-04-08 — Session 2
+
+**Tasks completed:** T007, T008, T009 (T009 territory bonuses implemented as part of T007/T008)
+
+**Summary:**
+Implemented the full military expansion layer: map grid, fog of war, combat engine, territory bonuses, and military UI panel.
+
+**Files created:**
+- `game/src/systems/map.js` — initMap() generates 20×20 tile grid with 5 terrain types; fog-of-war reveal; ~20 enemy settlements seeded; territoryRateBonus() computes per-second rate bonuses from owned terrain
+- `game/src/systems/combat.js` — attackTile(x,y) validates adjacency/fog/ownership, sums unit attack with tech multipliers (tactics ×1.25, steel ×1.5, engineering ×1.1), probabilistic outcome (win chance = power/(power+defense)), captures tile + grants loot on win, loses 1 unit on defeat
+- `game/src/ui/mapPanel.js` — 480×480 canvas (24px tiles), terrain colour coding, player/enemy tints, fog-of-war blackout, hover highlight on attackable tiles, click-to-attack, live stats bar showing territory/enemy/explored counts
+- `game/src/ui/militaryPanel.js` — army summary with total attack power, training queue progress bar, unit training cards (cost/stats/requirements/Train button), building-gate enforcement
+
+**Files modified:**
+- `game/src/core/state.js` — added `state.map = null` field; initState() resets it
+- `game/src/core/events.js` — added MAP_CHANGED and COMBAT event constants
+- `game/src/systems/resources.js` — imported territoryRateBonus(); integrated into recalcRates()
+- `game/index.html` — added ⚔️ Military and 🗺️ Map tabs and panels
+- `game/src/main.js` — imports initMap, initMilitaryPanel, initMapPanel; calls them in boot(); re-generates map on New Game; saves/loads map in localStorage; save version bumped to 2
+- `game/styles/main.css` — full styles for .map-wrap, #map-canvas, .map-legend, .map-stats, .mil-*, .unit-card variants, .log-entry--combat-win/loss
+
+**Architecture decisions:**
+- Tile defense scales linearly with distance: `15 + dist * 6` (reachable with 3–5 units at start)
+- Combat is probabilistic: `winChance = clamp(0.1, 0.9, power / (power + defense))`
+- Territory bonuses are stateless — recalcRates() recomputes from scratch each time; no delta tracking needed
+- Map stored in localStorage as part of save state (version 2); backwards compat: if no map in save, initMap() generates fresh one
+- Military panel UI fully reactive via existing UNIT_CHANGED / BUILDING_CHANGED events
+
+**Next session should tackle:**
+- T011: Tech effects applied more broadly (unit unlock gates, combat tech bonuses visible in UI)
+- T013: Random event system (raids, windfalls, droughts)
+- T014: Quest/objective system with rewards
+
+---

@@ -42,7 +42,7 @@
     "priority": 5,
     "status": "done",
     "phase": 1,
-    "notes": "hud.js: 6-resource HUD bar with icon/value/cap/rate, updates throttled to 1s. buildingPanel.js: grid of building cards with locked state, cost display, build/demolish buttons, click delegation. messageLog.js: scrolling event log, 15 visible entries. tabs.js: tab switcher for Buildings/Research/Log panels. researchPanel.js: tech tree with progress bar, research button, prerequisite gating."
+    "notes": "hud.js: 6-resource HUD bar with icon/value/cap/rate, updates throttled to 1s. buildingPanel.js: grid of building cards with locked state, cost display, build/demolish buttons, click delegation. messageLog.js: scrolling event log, 15 visible entries. tabs.js: tab switcher for Buildings/Research/Log panels. researchPanel.js: tech tree with progress bar, prerequisite gating."
   },
   {
     "id": "T006",
@@ -51,31 +51,34 @@
     "priority": 6,
     "status": "done",
     "phase": 2,
-    "notes": "Implemented as part of bootstrap. units.js: 4 units (soldier, archer, knight, mage) with cost/trainTicks/attack/defense/upkeep/requires. Training queue processed in resourceTick()._advanceTrainingQueue(). trainUnit() action in actions.js. Military unit panel deferred to T006 UI work (units.js and queue logic complete, UI tab pending)."
+    "notes": "units.js: 4 units (soldier, archer, knight, mage) with cost/trainTicks/attack/defense/upkeep/requires. Training queue processed in resourceTick()._advanceTrainingQueue(). trainUnit() action in actions.js. Military panel (T007 session): militaryPanel.js added with army summary, training queue progress bar, and unit cards with cost/stat display and Train buttons."
   },
   {
     "id": "T007",
     "title": "implement map grid (20x20 tiles, fog of war)",
     "description": "Canvas-based 20x20 tile map with fog of war reveal on territory capture.",
     "priority": 7,
-    "status": "pending",
-    "phase": 2
+    "status": "done",
+    "phase": 2,
+    "notes": "systems/map.js: initMap() generates 20x20 tile grid with 5 terrain types (grass/forest/hills/river/mountain), player 3x3 capital at (10,10), ~20 enemy settlements. revealAround() expands fog on capture. territoryRateBonus() returns per-second rate bonuses for captured terrain (forest +wood, hills +stone, river +food, mountain +iron, grass +gold). ui/mapPanel.js: 480x480 canvas with terrain colours, player/enemy tints, fog-of-war, hover highlight for attackable tiles, click-to-attack. events.js: MAP_CHANGED, COMBAT added. state.js: map field added. index.html: Map and Military tabs added. main.js: initMap() called on boot/new-game, map saved/loaded."
   },
   {
     "id": "T008",
     "title": "basic combat resolution engine",
     "description": "Attack action, power calculation, outcome resolution, resource loot.",
     "priority": 8,
-    "status": "pending",
-    "phase": 2
+    "status": "done",
+    "phase": 2,
+    "notes": "systems/combat.js: attackTile(x,y) validates adjacency/fog/owner, sums unit attack values (with tech multipliers for tactics/steel/engineering), resolves combat probabilistically (win chance = power/(power+defense)), victory captures tile + grants loot + reveals neighbors, defeat loses 1 random unit. Defense scales with distance from capital (15 + dist*6). Log messages use combat-win/combat-loss types with matching CSS border colours."
   },
   {
     "id": "T009",
     "title": "territory capture and expansion mechanics",
     "description": "Capture adjacent tiles, apply territory bonuses to resource rates.",
     "priority": 9,
-    "status": "pending",
-    "phase": 2
+    "status": "done",
+    "phase": 2,
+    "notes": "Implemented as part of T007/T008. territoryRateBonus() in map.js returns rate bonuses integrated into recalcRates() in resources.js. Capturing tiles via attackTile() immediately triggers recalcRates() so bonuses apply. Map stats bar shows live territory/enemy/explored tile counts."
   },
   {
     "id": "T010",
@@ -93,13 +96,101 @@
     "priority": 16,
     "status": "done",
     "phase": 5,
-    "notes": "Implemented in main.js: _save() serializes state to localStorage key 'empireos-save'; _loadSave()/_applySave() restore on boot. Auto-save every 60s via setInterval. Manual Save button in title bar. New Game button clears save and reinits state."
+    "notes": "Implemented in main.js: _save() serializes state to localStorage key 'empireos-save'; _loadSave()/_applySave() restore on boot. Auto-save every 60s via setInterval. Manual Save button in title bar. New Game button clears save and reinits state. Version bumped to 2 to include map state."
+  },
+  {
+    "id": "T011",
+    "title": "tech effects applied to rates and unlock gates",
+    "description": "Apply tech research bonuses to building multipliers, unit attack, and unlock requirements.",
+    "priority": 11,
+    "status": "pending",
+    "phase": 3
+  },
+  {
+    "id": "T012",
+    "title": "prestige / age advancement mechanic",
+    "description": "Age system (Stone/Bronze/Iron/Medieval), unlock new buildings/units per age, prestige button.",
+    "priority": 12,
+    "status": "pending",
+    "phase": 3
+  },
+  {
+    "id": "T013",
+    "title": "random event system (raids, windfalls, disasters)",
+    "description": "Time-triggered random events that affect resources, units, or territory.",
+    "priority": 13,
+    "status": "pending",
+    "phase": 4
+  },
+  {
+    "id": "T014",
+    "title": "quest/objective system with rewards",
+    "description": "Milestone objectives (first building, first unit, first capture, etc.) with resource rewards.",
+    "priority": 14,
+    "status": "pending",
+    "phase": 4
+  },
+  {
+    "id": "T015",
+    "title": "empire log / story panel",
+    "description": "Narrative story panel showing empire history milestones.",
+    "priority": 15,
+    "status": "pending",
+    "phase": 4
+  },
+  {
+    "id": "T017",
+    "title": "settings panel (speed, sound toggle)",
+    "description": "Settings tab with game speed slider (0.5×/1×/2×/4×) and placeholder sound toggle.",
+    "priority": 17,
+    "status": "pending",
+    "phase": 5
+  },
+  {
+    "id": "T018",
+    "title": "visual polish — CSS animations, transitions",
+    "description": "Resource gain/loss flash, building card pop-in, combat flash on map tiles.",
+    "priority": 18,
+    "status": "pending",
+    "phase": 5
+  },
+  {
+    "id": "T019",
+    "title": "responsive layout for mobile",
+    "description": "Map canvas scales down, HUD wraps gracefully, panels usable on 375px width.",
+    "priority": 19,
+    "status": "pending",
+    "phase": 5
   },
   {
     "id": "T020",
     "title": "diplomacy system (alliances, trade routes)",
     "description": "AI empires, alliance/war status, trade route resource exchange per tick.",
     "priority": 20,
+    "status": "pending",
+    "phase": 6
+  },
+  {
+    "id": "T021",
+    "title": "seasons cycle affecting resource rates",
+    "description": "4-season cycle (90s each), rate modifiers per season per resource.",
+    "priority": 21,
+    "status": "pending",
+    "phase": 6
+  },
+  {
+    "id": "T022",
+    "title": "hero unit with special abilities",
+    "description": "Hero unit with unique abilities (battle cry, inspire, siege), recruit once per game.",
+    "priority": 22,
+    "status": "pending",
+    "phase": 6
+  },
+  {
+    "id": "T023",
+    "title": "leaderboard (localStorage high scores)",
+    "description": "Track best territory count and gold earned per session, display top 5.",
+    "priority": 23,
     "status": "pending",
     "phase": 6
   },

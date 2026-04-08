@@ -8,10 +8,13 @@ import { emit, Events } from './core/events.js';
 import { registerSystem, startLoop } from './core/tick.js';
 import { resourceTick, recalcRates } from './systems/resources.js';
 import { researchTick } from './systems/research.js';
+import { initMap } from './systems/map.js';
 import { initHUD } from './ui/hud.js';
 import { initBuildingPanel } from './ui/buildingPanel.js';
 import { initMessageLog } from './ui/messageLog.js';
 import { initResearchPanel } from './ui/researchPanel.js';
+import { initMilitaryPanel } from './ui/militaryPanel.js';
+import { initMapPanel } from './ui/mapPanel.js';
 import { initTabs } from './ui/tabs.js';
 import { addMessage } from './core/actions.js';
 
@@ -22,11 +25,15 @@ function boot() {
   const saved = _loadSave();
   if (saved) {
     _applySave(saved);
+    // Generate fresh map if save predates map system
+    if (!state.map) initMap();
     emit(Events.GAME_LOADED, {});
   } else {
     initState('My Empire');
+    initMap();
     addMessage('Welcome to EmpireOS. Build your empire!', 'info');
     addMessage('Start by constructing Farms and Lumber Mills.', 'info');
+    addMessage('Train soldiers and open the Map tab to expand your territory!', 'info');
   }
 
   // Register tick systems (order matters)
@@ -37,6 +44,8 @@ function boot() {
   initHUD();
   initTabs();
   initBuildingPanel();
+  initMilitaryPanel();
+  initMapPanel();
   initResearchPanel();
   initMessageLog();
 
@@ -57,7 +66,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 1,
+      version: 2,
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -70,6 +79,7 @@ function _save() {
         trainingQueue: state.trainingQueue,
         researchQueue: state.researchQueue,
         messages:      state.messages.slice(0, 20),
+        map:           state.map,
         tick:          state.tick,
       }
     }));
@@ -98,6 +108,7 @@ function _applySave(save) {
   state.trainingQueue = s.trainingQueue ?? [];
   state.researchQueue = s.researchQueue ?? [];
   state.messages      = s.messages      ?? [];
+  state.map           = s.map           ?? null;
   state.tick          = s.tick          ?? 0;
   recalcRates();
   addMessage('Game loaded.', 'info');
@@ -115,7 +126,9 @@ function _bindControls() {
     if (confirm('Start a new game? This will erase your current progress.')) {
       localStorage.removeItem('empireos-save');
       initState('My Empire');
+      initMap();
       recalcRates();
+      emit(Events.MAP_CHANGED, {});
       addMessage('New game started. Build your empire!', 'info');
       emit(Events.STATE_CHANGED, {});
       emit(Events.RESOURCE_CHANGED, {});

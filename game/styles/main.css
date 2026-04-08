@@ -301,9 +301,190 @@ body {
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
 
+/* ── Map panel ───────────────────────────────────────────────────────────── */
+
+#panel-map {
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.map-wrap {
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  line-height: 0; /* removes gap below canvas */
+  max-width: 100%;
+}
+
+#map-canvas {
+  display: block;
+  image-rendering: pixelated;
+  max-width: 100%;
+  height: auto;
+}
+
+.map-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  font-size: 12px;
+}
+
+.map-legend__item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--text-dim);
+}
+
+.map-legend__swatch {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.map-legend__bonus {
+  color: var(--green);
+  font-size: 11px;
+}
+
+.map-legend__hint {
+  color: var(--accent);
+  font-size: 11px;
+}
+
+.map-stats {
+  font-size: 12px;
+  color: var(--text-dim);
+  padding: 4px 0;
+}
+
+/* ── Military panel ──────────────────────────────────────────────────────── */
+
+#panel-military {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mil-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.mil-total-power {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--accent);
+}
+
+.mil-army {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 10px 14px;
+}
+
+.mil-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.mil-unit-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
+.mil-power {
+  color: var(--red);
+  font-size: 11px;
+}
+
+.mil-empty {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.mil-queue {
+  background: var(--bg-panel);
+  border: 1px solid var(--purple);
+  border-radius: var(--radius-lg);
+  padding: 10px 14px;
+}
+
+.mil-queue-rest {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+
+.unit-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+.unit-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  transition: border-color .2s;
+}
+.unit-card:hover              { border-color: var(--border-h); }
+.unit-card--locked            { opacity: .45; filter: grayscale(.8); }
+.unit-card--cant-afford       { opacity: .7; }
+
+.unit-card__header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.unit-card__icon  { font-size: 20px; }
+.unit-card__name  { font-weight: 600; flex: 1; }
+.unit-card__count { color: var(--accent); font-weight: 700; }
+
+.unit-card__desc   { font-size: 11px; color: var(--text-dim); }
+.unit-card__stats  { font-size: 12px; color: var(--text); }
+.unit-card__cost   { font-size: 11px; color: var(--text-dim); }
+.unit-card__upkeep { font-size: 11px; color: var(--red); }
+
+.unit-card__actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+/* Combat message colours in log */
+.log-entry--combat-win  { border-color: var(--green); }
+.log-entry--combat-loss { border-color: var(--red); }
+
 /* ── Responsive tweaks ───────────────────────────────────────────────────── */
 
 @media (max-width: 600px) {
   .hud__resource { min-width: 90px; }
   #panel-buildings { grid-template-columns: 1fr 1fr; }
+  .unit-grid { grid-template-columns: 1fr 1fr; }
 }
