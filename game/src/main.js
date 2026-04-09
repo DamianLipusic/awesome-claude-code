@@ -9,6 +9,8 @@ import { registerSystem, startLoop } from './core/tick.js';
 import { resourceTick, recalcRates } from './systems/resources.js';
 import { researchTick } from './systems/research.js';
 import { initMap } from './systems/map.js';
+import { initRandomEvents, randomEventTick } from './systems/randomEvents.js';
+import { initQuests } from './systems/quests.js';
 import { AGES } from './data/ages.js';
 import { initHUD } from './ui/hud.js';
 import { initBuildingPanel } from './ui/buildingPanel.js';
@@ -16,6 +18,7 @@ import { initMessageLog } from './ui/messageLog.js';
 import { initResearchPanel } from './ui/researchPanel.js';
 import { initMilitaryPanel } from './ui/militaryPanel.js';
 import { initMapPanel } from './ui/mapPanel.js';
+import { initQuestPanel } from './ui/questPanel.js';
 import { initTabs } from './ui/tabs.js';
 import { addMessage } from './core/actions.js';
 
@@ -40,6 +43,11 @@ function boot() {
   // Register tick systems (order matters)
   registerSystem(resourceTick);
   registerSystem(researchTick);
+  registerSystem(randomEventTick);
+
+  // Init event-driven systems
+  initRandomEvents();
+  initQuests();
 
   // Init UI
   initHUD();
@@ -48,6 +56,7 @@ function boot() {
   initMilitaryPanel();
   initMapPanel();
   initResearchPanel();
+  initQuestPanel();
   initMessageLog();
 
   // Bind top-level controls
@@ -71,7 +80,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 3,
+      version: 4,
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -86,6 +95,8 @@ function _save() {
         messages:      state.messages.slice(0, 20),
         map:           state.map,
         age:           state.age,
+        randomEvents:  state.randomEvents,
+        quests:        state.quests,
         tick:          state.tick,
       }
     }));
@@ -111,12 +122,14 @@ function _applySave(save) {
   Object.assign(state.buildings,     s.buildings     ?? {});
   Object.assign(state.units,         s.units         ?? {});
   Object.assign(state.techs,         s.techs         ?? {});
-  state.trainingQueue = s.trainingQueue ?? [];
-  state.researchQueue = s.researchQueue ?? [];
-  state.messages      = s.messages      ?? [];
-  state.map           = s.map           ?? null;
-  state.age           = s.age           ?? 0;
-  state.tick          = s.tick          ?? 0;
+  state.trainingQueue  = s.trainingQueue  ?? [];
+  state.researchQueue  = s.researchQueue  ?? [];
+  state.messages       = s.messages       ?? [];
+  state.map            = s.map            ?? null;
+  state.age            = s.age            ?? 0;
+  state.randomEvents   = s.randomEvents   ?? null;
+  state.quests         = s.quests         ?? null;
+  state.tick           = s.tick           ?? 0;
   recalcRates();
   addMessage('Game loaded.', 'info');
 }
@@ -143,6 +156,7 @@ function _bindControls() {
       localStorage.removeItem('empireos-save');
       initState('My Empire');
       initMap();
+      initRandomEvents();
       recalcRates();
       emit(Events.MAP_CHANGED, {});
       addMessage('New game started. Build your empire!', 'info');

@@ -595,6 +595,105 @@ body {
 /* Log colours for age events */
 .log-entry--age { border-color: var(--gold); }
 
+/* Log colours for random events */
+.log-entry--raid     { border-color: var(--red); }
+.log-entry--windfall { border-color: var(--green); }
+.log-entry--disaster { border-color: #ff9800; }
+.log-entry--quest    { border-color: #ffd700; background: rgba(255,215,0,.05); }
+
+/* ── Quest panel ─────────────────────────────────────────────────────────── */
+
+#panel-quests {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.quest-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px 0 4px;
+  border-bottom: 1px solid var(--border);
+}
+
+.quest-header__title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.quest-header__meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.quest-header__count {
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+.progress-bar__fill--quest {
+  background: #ffd700;
+}
+
+.quest-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 10px;
+}
+
+.quest-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  transition: border-color .2s;
+}
+
+.quest-card--done {
+  border-color: #ffd700;
+  opacity: .85;
+}
+
+.quest-card--pending {
+  opacity: 1;
+}
+
+.quest-card:hover { border-color: var(--border-h); }
+
+.quest-card__header {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.quest-card__icon  { font-size: 18px; line-height: 1; }
+.quest-card__title { font-weight: 600; font-size: 13px; flex: 1; }
+.quest-card__check {
+  color: #ffd700;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.quest-card__desc {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.quest-card__reward {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.quest-reward-text { color: var(--green); }
+
 /* ── Responsive tweaks ───────────────────────────────────────────────────── */
 
 @media (max-width: 600px) {

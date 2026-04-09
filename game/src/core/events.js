@@ -37,4 +37,6 @@ export const Events = Object.freeze({
   MAP_CHANGED:       'mapChanged',
   COMBAT:            'combat',
   AGE_CHANGED:       'ageChanged',
+  RANDOM_EVENT:      'randomEvent',
+  QUEST_COMPLETED:   'questCompleted',
 });

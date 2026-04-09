@@ -121,16 +121,18 @@
     "title": "random event system (raids, windfalls, disasters)",
     "description": "Time-triggered random events that affect resources, units, or territory.",
     "priority": 13,
-    "status": "pending",
-    "phase": 4
+    "status": "done",
+    "phase": 4,
+    "notes": "Created src/systems/randomEvents.js with 10 events (3 raids: bandit_raid/goblin_attack/pirates; 4 windfalls: merchant_caravan/bountiful_harvest/ore_vein/mana_surge; 3 disasters: drought/mine_collapse/plague). Disasters push temporary rate modifiers into state.randomEvents.activeModifiers, consumed by recalcRates() in resources.js. Events fire on a weighted-random 120–240s interval. initRandomEvents() wired in main.js boot; randomEventTick() registered as a tick system. state.randomEvents saved/loaded (save version 4). Log colours: raid=red, windfall=green, disaster=orange."
   },
   {
     "id": "T014",
     "title": "quest/objective system with rewards",
     "description": "Milestone objectives (first building, first unit, first capture, etc.) with resource rewards.",
     "priority": 14,
-    "status": "pending",
-    "phase": 4
+    "status": "done",
+    "phase": 4,
+    "notes": "Created src/systems/quests.js with 11 milestone quests (first_building/first_unit/five_buildings/first_research/first_capture/army_ten/ten_buildings/twenty_territory/age_bronze/age_iron/age_medieval). Each quest has a check() predicate, icon, and resource reward. initQuests() subscribes to BUILDING_CHANGED/UNIT_CHANGED/TECH_CHANGED/AGE_CHANGED/MAP_CHANGED. Created src/ui/questPanel.js rendering a card grid with completion progress bar; added 🏆 Quests tab in index.html. Added QUEST_COMPLETED event constant. state.quests saved/loaded. CSS: quest-card, quest-header, progress bar gold fill, log-entry--quest."
   },
   {
     "id": "T015",

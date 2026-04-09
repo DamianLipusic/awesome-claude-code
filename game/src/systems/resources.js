@@ -65,6 +65,14 @@ export function recalcRates() {
     }
   }
 
+  // Apply active disaster modifiers (from random event system)
+  const mods = state.randomEvents?.activeModifiers ?? [];
+  for (const mod of mods) {
+    if (mod.expiresAt > state.tick && rates[mod.resource] !== undefined) {
+      rates[mod.resource] *= mod.rateMult;
+    }
+  }
+
   Object.assign(state.rates, rates);
   Object.assign(state.caps, caps);
 }

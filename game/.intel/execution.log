@@ -146,3 +146,37 @@ Implemented full age advancement system — 4 ages with production multipliers, 
 - T014: Quest/objective system with rewards
 
 ---
+
+## 2026-04-09 — Session 4
+
+**Tasks completed:** T013, T014
+
+**Summary:**
+Implemented the full random event system and quest/objective system, completing Phase 4's two gameplay-enriching features.
+
+**Files created:**
+- `game/src/systems/randomEvents.js` — 10 weighted random events (raids/windfalls/disasters), 120–240s interval timer, temporary rate modifier system
+- `game/src/systems/quests.js` — 11 milestone quests with check predicates and resource rewards; event-driven completion detection; `setQuestPanelRenderer()` hook avoids circular imports
+- `game/src/ui/questPanel.js` — Card grid UI with per-quest completion badge and overall progress bar; wired to QUEST_COMPLETED + relevant events
+
+**Files modified:**
+- `game/src/core/state.js` — Added `randomEvents: null` and `quests: null` fields; reset in initState()
+- `game/src/core/events.js` — Added `RANDOM_EVENT` and `QUEST_COMPLETED` event constants
+- `game/src/systems/resources.js` — `recalcRates()` now applies `state.randomEvents.activeModifiers` rate multipliers (disaster effects); no import needed, reads state directly
+- `game/src/main.js` — Imports and wires initRandomEvents/randomEventTick/initQuests/initQuestPanel; registers randomEventTick as 3rd tick system; initRandomEvents() on New Game reset; save version bumped to 4 (adds randomEvents + quests fields)
+- `game/index.html` — Added 🏆 Quests tab button and #panel-quests div
+- `game/styles/main.css` — Added styles for .log-entry--raid/windfall/disaster/quest, .quest-header, .quest-list, .quest-card (done/pending variants), .quest-card__* elements, .progress-bar__fill--quest
+
+**Architecture decisions:**
+- Disaster modifiers stored in `state.randomEvents.activeModifiers` as `{id, resource, rateMult, expiresAt}` entries; recalcRates() reads them directly — avoids any circular import between randomEvents.js and resources.js
+- randomEvents.js imports recalcRates() for immediate effect; recalcRates() reads state.randomEvents without importing the module
+- Quest system uses `setQuestPanelRenderer()` callback pattern to let quests.js trigger a UI re-render without importing from questPanel.js
+- Quests check on a deferred setTimeout(500ms) after boot so welcome messages appear before any quest rewards that might trigger immediately on load
+- Save version 4 is additive; _applySave() uses ?? null defaults so v3 saves load cleanly (just without pre-existing quest/event state)
+- Goblin attack has a 40% chance to kill a random unit, making raids have meaningful military consequence; windfalls scale with game tick so late-game rewards stay relevant
+
+**Next session should tackle:**
+- T015: Empire log / story panel (narrative history milestones)
+- T017: Settings panel (speed slider 0.5×/1×/2×/4×, sound toggle placeholder)
+
+---

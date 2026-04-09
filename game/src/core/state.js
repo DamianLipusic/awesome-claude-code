@@ -64,6 +64,14 @@ export const state = {
   // Current age (0=Stone, 1=Bronze, 2=Iron, 3=Medieval)
   age: 0,
 
+  // Random event state — populated by systems/randomEvents.js initRandomEvents()
+  // { nextEventTick, activeModifiers: [{id, resource, rateMult, expiresAt}] }
+  randomEvents: null,
+
+  // Quest state — populated by systems/quests.js initQuests()
+  // { completed: { [questId]: tick } }
+  quests: null,
+
   // Current game tick count (increments every 250ms)
   tick: 0,
 
@@ -90,6 +98,8 @@ export function initState(empireName = 'My Empire') {
   state.messages       = [];
   state.map            = null;
   state.age            = 0;
+  state.randomEvents   = null;
+  state.quests         = null;
   state.tick           = 0;
   state.running        = false;
 }
