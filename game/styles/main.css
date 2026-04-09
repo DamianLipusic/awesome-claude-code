@@ -888,10 +888,134 @@ body {
   color: var(--text-dim);
 }
 
+/* ── Animation keyframes ─────────────────────────────────────────────────── */
+
+@keyframes flash-gain {
+  0%   { background: rgba(63, 185, 80, 0.4); }
+  100% { background: transparent; }
+}
+
+@keyframes flash-loss {
+  0%   { background: rgba(248, 81, 73, 0.4); }
+  100% { background: transparent; }
+}
+
+@keyframes pop-in {
+  0%   { transform: scale(0.88); opacity: 0; }
+  60%  { transform: scale(1.04); opacity: 1; }
+  100% { transform: scale(1);    opacity: 1; }
+}
+
+@keyframes slide-in {
+  0%   { transform: translateY(-6px); opacity: 0; }
+  100% { transform: translateY(0);    opacity: 1; }
+}
+
+/* Resource HUD flash (applied/removed via JS) */
+.hud__value--gain {
+  animation: flash-gain 0.55s ease-out forwards;
+  border-radius: 3px;
+  padding: 0 2px;
+}
+
+.hud__value--loss {
+  animation: flash-loss 0.55s ease-out forwards;
+  border-radius: 3px;
+  padding: 0 2px;
+}
+
+/* Building card pop-in on build/demolish */
+.building-card--popin {
+  animation: pop-in 0.22s ease-out;
+}
+
+/* Newest log entry slides in */
+.log-entry:first-child {
+  animation: slide-in 0.18s ease-out;
+}
+
 /* ── Responsive tweaks ───────────────────────────────────────────────────── */
 
 @media (max-width: 600px) {
   .hud__resource { min-width: 90px; }
   #panel-buildings { grid-template-columns: 1fr 1fr; }
   .unit-grid { grid-template-columns: 1fr 1fr; }
+}
+
+/* ── Mobile layout (≤480px) ──────────────────────────────────────────────── */
+
+@media (max-width: 480px) {
+  /* Title bar */
+  #title-bar { padding: 4px 8px; gap: 4px; }
+  #empire-name { font-size: 13px; }
+  .age-badge   { font-size: 10px; padding: 2px 6px; }
+  .title-bar__controls { gap: 3px; }
+  .btn--sm { padding: 2px 6px; font-size: 10px; }
+
+  /* HUD: smaller, tighter */
+  #hud { padding: 3px 6px; gap: 2px; }
+  .hud__resource {
+    min-width: 0;
+    flex: 1 1 30%;
+    padding: 3px 5px;
+    font-size: 10px;
+  }
+  .hud__icon  { font-size: 13px; }
+  .hud__value { font-size: 10px; }
+  .hud__rate  { font-size: 9px; }
+
+  /* Tab bar: horizontally scrollable, no scrollbar */
+  #tab-bar {
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding: 4px 6px 0;
+    gap: 1px;
+    flex-wrap: nowrap;
+  }
+  #tab-bar::-webkit-scrollbar { display: none; }
+  [data-tab] {
+    padding: 5px 9px;
+    font-size: 11px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* Content panels: tighter padding */
+  [data-panel] { padding: 8px 6px; gap: 8px; }
+
+  /* All card grids: single column */
+  #panel-buildings      { grid-template-columns: 1fr; }
+  .unit-grid            { grid-template-columns: 1fr; }
+  .tech-grid            { grid-template-columns: 1fr; }
+  .quest-list           { grid-template-columns: 1fr; }
+
+  /* Building / unit / tech / quest cards: tighter */
+  .building-card,
+  .unit-card,
+  .tech-card,
+  .quest-card { padding: 8px 10px; }
+
+  /* Map: fill width, prevent overflow */
+  .map-wrap { overflow: hidden; }
+  #map-canvas {
+    width: 100% !important;
+    height: auto !important;
+    touch-action: none;
+  }
+  .map-legend { font-size: 11px; gap: 6px; }
+
+  /* Settings: full width */
+  #panel-settings { max-width: 100%; }
+
+  /* Story timeline: narrower icon offset */
+  .story-timeline::before { left: 14px; }
+  .story-entry__icon { font-size: 18px; width: 22px; }
+  .story-entry { padding: 8px 8px; gap: 8px; }
+
+  /* Research active bar */
+  .research-active { flex-direction: column; align-items: flex-start; }
+
+  /* Age panel: tighter */
+  .age-panel { padding: 10px 12px; }
 }

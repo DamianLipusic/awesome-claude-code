@@ -16,6 +16,11 @@ const RESOURCES = [
   { id: 'mana',  label: 'Mana',  icon: '✨' },
 ];
 
+// Minimum change to trigger a flash (filters out normal per-tick increments)
+const FLASH_THRESHOLD = 40;
+// Snapshot of resource values from last render (for delta detection)
+const _prevValues = {};
+
 export function initHUD() {
   const container = document.getElementById('hud');
   if (!container) return;
@@ -43,10 +48,28 @@ function renderHUD() {
     const cap  = state.caps[r.id] ?? 500;
     const rate = state.rates[r.id] ?? 0;
 
+    // Flash on significant change (skip tiny per-tick increments)
+    const prev  = _prevValues[r.id] ?? val;
+    const delta = val - prev;
+    _prevValues[r.id] = val;
+
+    if (delta > FLASH_THRESHOLD) {
+      _flashEl(valEl, 'hud__value--gain');
+    } else if (delta < -FLASH_THRESHOLD) {
+      _flashEl(valEl, 'hud__value--loss');
+    }
+
     valEl.textContent  = `${fmtNum(val)}/${fmtNum(cap)}`;
     rateEl.textContent = fmtRate(rate);
     rateEl.className   = `hud__rate ${rate >= 0 ? 'hud__rate--pos' : 'hud__rate--neg'}`;
   }
+}
+
+function _flashEl(el, cls) {
+  el.classList.remove('hud__value--gain', 'hud__value--loss');
+  void el.offsetWidth; // force reflow so animation restarts
+  el.classList.add(cls);
+  el.addEventListener('animationend', () => el.classList.remove(cls), { once: true });
 }
 
 // Throttle HUD re-render to every 4 ticks (1s) to avoid flicker

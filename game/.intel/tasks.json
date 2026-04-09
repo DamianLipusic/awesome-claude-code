@@ -157,16 +157,18 @@
     "title": "visual polish — CSS animations, transitions",
     "description": "Resource gain/loss flash, building card pop-in, combat flash on map tiles.",
     "priority": 18,
-    "status": "pending",
-    "phase": 5
+    "status": "done",
+    "phase": 5,
+    "notes": "Added @keyframes flash-gain/flash-loss/pop-in/slide-in to main.css. hud.js: tracks _prevValues per resource; flashes .hud__value--gain/.hud__value--loss when |delta| > 40 (filters per-tick noise). buildingPanel.js: added data-building-id attr to all cards; BUILDING_CHANGED handler calls _popCard(id) which applies .building-card--popin animation. mapPanel.js: _combatFlash module var + rAF-driven _animateFlash() fades an rgba overlay on the attacked tile over ~315ms (19 frames); MAP_CHANGED listener branches on data.outcome to trigger flash vs plain re-render. CSS: .log-entry:first-child gets slide-in so newest log entries animate in."
   },
   {
     "id": "T019",
     "title": "responsive layout for mobile",
     "description": "Map canvas scales down, HUD wraps gracefully, panels usable on 375px width.",
     "priority": 19,
-    "status": "pending",
-    "phase": 5
+    "status": "done",
+    "phase": 5,
+    "notes": "Added @media (max-width: 480px) block to main.css: title bar condensed (font-size, padding); HUD resources shrink to flex: 1 1 30% with 10px font; tab bar uses overflow-x:auto + scrollbar-width:none (hidden scrollbar on all platforms); all card grids (buildings, units, techs, quests) collapse to single column; map canvas uses width:100%/height:auto with touch-action:none; story timeline icon offset reduced; research-active stacks vertically; age-panel tighter padding. Also enhanced existing 600px breakpoint."
   },
   {
     "id": "T020",

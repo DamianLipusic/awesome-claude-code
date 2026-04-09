@@ -210,3 +210,29 @@ Implemented the Empire Chronicle story panel (narrative milestone history) and t
 - T018: Visual polish — CSS animations, transitions (resource gain flash, building card pop-in, combat map flash)
 - T019: Responsive layout for mobile (375px width)
 
+---
+
+## 2026-04-09 — Session 6
+
+**Tasks completed:** T018, T019
+
+**Summary:**
+Implemented all Phase 5 visual polish — CSS animations with JS hooks for meaningful feedback — and a full mobile-responsive layout down to 375px.
+
+**Files modified:**
+- `game/styles/main.css` — Added 4 keyframe animations (`flash-gain`, `flash-loss`, `pop-in`, `slide-in`); utility classes `.hud__value--gain/--loss`, `.building-card--popin`, `.log-entry:first-child` animation; full `@media (max-width: 480px)` block for mobile layout (compact HUD, scrollable tab bar, single-column grids, full-width canvas).
+- `game/src/ui/hud.js` — Added `_prevValues` snapshot map and `FLASH_THRESHOLD = 40`. `renderHUD()` computes delta vs previous value per resource; calls `_flashEl()` with gain/loss class when `|delta| > 40`. `_flashEl()` force-reflows via `offsetWidth` to restart CSS animation and auto-removes class on `animationend`.
+- `game/src/ui/buildingPanel.js` — Added `data-building-id` attribute to all building card divs (locked and unlocked). `initBuildingPanel()` now wraps `BUILDING_CHANGED` handler to call `_popCard(id)` after re-render, applying `.building-card--popin` animation via reflow trick.
+- `game/src/ui/mapPanel.js` — Added `_combatFlash` and `_flashRafId` module vars. `_startCombatFlash(x,y,outcome)` seeds the flash; `_animateFlash()` decrements alpha by 0.04/frame (~19 frames at 60fps ≈ 315ms) using `requestAnimationFrame`, calling `_render()` each frame. Flash drawn in `_drawTile()` as rgba overlay after border, before icons. `MAP_CHANGED` listener branches: outcome present → flash, else plain re-render.
+
+**Architecture decisions:**
+- Flash threshold (40) chosen to pass building costs (≥50 resources) and loot grants (≥50) while filtering per-tick income deltas (typically < 25 at max production).
+- `void el.offsetWidth` (force reflow) is the standard CSS-only technique to restart a running animation without removing/re-adding the element.
+- rAF loop in mapPanel is self-terminating (alpha ≤ 0 → clears `_flashRafId`) and guards against stacking loops with the `if (!_flashRafId)` check before starting.
+- Mobile layout uses `overflow-x: auto` + `scrollbar-width: none` (with `::webkit-scrollbar: display:none` for WebKit) on the tab bar — no JS needed for horizontal scroll.
+- Canvas `width: 100% !important; height: auto` at 480px ensures the map fills the screen while the intrinsic aspect ratio is preserved by the browser.
+
+**Next session should tackle:**
+- T020: Diplomacy system (alliances, trade routes)
+- T021: Seasons cycle affecting resource rates
+

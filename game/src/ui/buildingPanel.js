@@ -15,10 +15,23 @@ export function initBuildingPanel() {
 
   renderBuildingPanel();
 
-  on(Events.BUILDING_CHANGED, renderBuildingPanel);
+  on(Events.BUILDING_CHANGED, (data) => {
+    renderBuildingPanel();
+    // Pop-in the card that just changed
+    if (data?.id) _popCard(data.id);
+  });
   on(Events.TECH_CHANGED,     renderBuildingPanel);
   on(Events.AGE_CHANGED,      renderBuildingPanel);
   on(Events.RESOURCE_CHANGED, _throttleRender());
+}
+
+function _popCard(id) {
+  const card = document.querySelector(`#panel-buildings [data-building-id="${id}"]`);
+  if (!card) return;
+  card.classList.remove('building-card--popin');
+  void card.offsetWidth; // restart animation
+  card.classList.add('building-card--popin');
+  card.addEventListener('animationend', () => card.classList.remove('building-card--popin'), { once: true });
 }
 
 function renderBuildingPanel() {
@@ -32,7 +45,7 @@ function renderBuildingPanel() {
     const locked  = !meetsRequirements(def.requires);
 
     if (locked) return `
-      <div class="building-card building-card--locked" title="Locked: build prerequisites first">
+      <div class="building-card building-card--locked" data-building-id="${id}" title="Locked: build prerequisites first">
         <span class="building-card__icon">${def.icon}</span>
         <span class="building-card__name">${def.name}</span>
         <span class="building-card__count">🔒</span>
@@ -45,6 +58,7 @@ function renderBuildingPanel() {
 
     return `
       <div class="building-card ${canBuy ? '' : 'building-card--cant-afford'}"
+           data-building-id="${id}"
            title="${def.description}">
         <div class="building-card__header">
           <span class="building-card__icon">${def.icon}</span>

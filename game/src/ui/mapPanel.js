@@ -48,7 +48,9 @@ const TERRAIN_LABEL = {
 };
 
 let canvas, ctx;
-let hoveredTile = null;  // { x, y } | null
+let hoveredTile  = null;  // { x, y } | null
+let _combatFlash = null;  // { x, y, alpha, outcome } | null
+let _flashRafId  = null;  // requestAnimationFrame id
 
 // ── Public API ─────────────────────────────────────────────────────────────
 
@@ -66,7 +68,13 @@ export function initMapPanel() {
   canvas.addEventListener('mouseleave', _onMouseleave);
 
   // Re-render on relevant state changes
-  on(Events.MAP_CHANGED,  _render);
+  on(Events.MAP_CHANGED, (data) => {
+    if (data?.outcome) {
+      _startCombatFlash(data.x, data.y, data.outcome);
+    } else {
+      _render();
+    }
+  });
   on(Events.UNIT_CHANGED, _render);
   on(Events.GAME_LOADED,  _render);
 
@@ -98,6 +106,26 @@ function _buildHTML() {
     </div>
     <div id="map-stats" class="map-stats"></div>
   `;
+}
+
+// ── Combat flash (rAF-driven) ──────────────────────────────────────────────
+
+function _startCombatFlash(x, y, outcome) {
+  _combatFlash = { x, y, alpha: 0.75, outcome };
+  if (!_flashRafId) _animateFlash();
+}
+
+function _animateFlash() {
+  if (!_combatFlash) { _flashRafId = null; return; }
+  _combatFlash.alpha -= 0.04;  // ~19 frames ≈ 315ms at 60 fps
+  if (_combatFlash.alpha <= 0) {
+    _combatFlash = null;
+    _flashRafId  = null;
+    _render();
+    return;
+  }
+  _render();
+  _flashRafId = requestAnimationFrame(_animateFlash);
 }
 
 // ── Rendering ──────────────────────────────────────────────────────────────
@@ -161,6 +189,13 @@ function _drawTile(tile, x, y, capital) {
   ctx.strokeStyle = borderColor;
   ctx.lineWidth   = tile.owner ? 1.5 : 0.5;
   ctx.strokeRect(px + 0.75, py + 0.75, TILE_PX - 1.5, TILE_PX - 1.5);
+
+  // Combat flash overlay (fades out over ~315ms after attack)
+  if (_combatFlash && _combatFlash.x === x && _combatFlash.y === y) {
+    const rgb = _combatFlash.outcome === 'win' ? '88,166,255' : '248,81,73';
+    ctx.fillStyle = `rgba(${rgb},${_combatFlash.alpha})`;
+    ctx.fillRect(px, py, TILE_PX, TILE_PX);
+  }
 
   // Icons: capital castle and enemy sword
   if (x === capital.x && y === capital.y) {
