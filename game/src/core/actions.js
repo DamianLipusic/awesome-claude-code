@@ -7,6 +7,8 @@ import { state } from './state.js';
 import { emit, Events } from './events.js';
 import { BUILDINGS } from '../data/buildings.js';
 import { UNITS } from '../data/units.js';
+import { TECHS } from '../data/techs.js';
+import { AGES } from '../data/ages.js';
 import { recalcRates } from '../systems/resources.js';
 import { log } from '../utils/logger.js';
 
@@ -91,6 +93,85 @@ export function trainUnit(id) {
   emit(Events.UNIT_CHANGED, {});
   addMessage(`Training ${def.name}…`, 'train');
   return { ok: true };
+}
+
+// ---------------------------------------------------------------------------
+// Age advancement
+// ---------------------------------------------------------------------------
+
+/**
+ * Attempt to advance to the next age.
+ * Returns { ok, reason? }
+ */
+export function advanceAge() {
+  const currentAge = state.age ?? 0;
+  const nextAgeDef = AGES[currentAge + 1];
+
+  if (!nextAgeDef) {
+    return { ok: false, reason: 'Already at the maximum age.' };
+  }
+
+  // Check non-resource requirements
+  const reqCheck = _checkAgeRequirements(nextAgeDef);
+  if (!reqCheck.ok) return reqCheck;
+
+  // Check resource cost
+  if (!canAfford(nextAgeDef.cost)) {
+    return { ok: false, reason: 'Insufficient resources to advance.' };
+  }
+
+  deductCost(nextAgeDef.cost);
+  state.age = currentAge + 1;
+  recalcRates();
+
+  emit(Events.AGE_CHANGED, { age: state.age });
+  emit(Events.BUILDING_CHANGED, {});   // re-check age-gated building locks
+  emit(Events.UNIT_CHANGED, {});       // re-check age-gated unit locks
+  emit(Events.RESOURCE_CHANGED, {});
+  addMessage(`⚔️ Empire advanced to the ${nextAgeDef.name}! ${nextAgeDef.description}`, 'age');
+  log('age advanced to', state.age, nextAgeDef.name);
+  return { ok: true };
+}
+
+function _checkAgeRequirements(ageDef) {
+  for (const req of ageDef.requires) {
+    if (req.type === 'totalBuildings') {
+      const total = Object.values(state.buildings).reduce((s, c) => s + c, 0);
+      if (total < req.count) {
+        return { ok: false, reason: `Need ${req.count} buildings (have ${total}).` };
+      }
+    }
+    if (req.type === 'totalUnits') {
+      const total = Object.values(state.units).reduce((s, c) => s + c, 0);
+      if (total < req.count) {
+        return { ok: false, reason: `Need ${req.count} trained units (have ${total}).` };
+      }
+    }
+    if (req.type === 'territory') {
+      const count = _countPlayerTiles();
+      if (count < req.count) {
+        return { ok: false, reason: `Need ${req.count} territories (have ${count}).` };
+      }
+    }
+    if (req.type === 'tech') {
+      if (!state.techs[req.id]) {
+        const name = TECHS[req.id]?.name ?? req.id;
+        return { ok: false, reason: `Requires research: ${name}.` };
+      }
+    }
+  }
+  return { ok: true };
+}
+
+function _countPlayerTiles() {
+  if (!state.map) return 0;
+  let count = 0;
+  for (const row of state.map.tiles) {
+    for (const tile of row) {
+      if (tile.owner === 'player') count++;
+    }
+  }
+  return count;
 }
 
 // ---------------------------------------------------------------------------

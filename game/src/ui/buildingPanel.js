@@ -17,6 +17,7 @@ export function initBuildingPanel() {
 
   on(Events.BUILDING_CHANGED, renderBuildingPanel);
   on(Events.TECH_CHANGED,     renderBuildingPanel);
+  on(Events.AGE_CHANGED,      renderBuildingPanel);
   on(Events.RESOURCE_CHANGED, _throttleRender());
 }
 
@@ -96,6 +97,9 @@ function meetsRequirements(requires) {
     }
     if (req.type === 'tech') {
       if (!state.techs[req.id]) return false;
+    }
+    if (req.type === 'age') {
+      if ((state.age ?? 0) < req.minAge) return false;
     }
   }
   return true;

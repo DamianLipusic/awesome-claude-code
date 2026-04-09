@@ -110,12 +110,15 @@ export const BUILDINGS = Object.freeze({
   archeryRange: {
     name: 'Archery Range',
     icon: '🏹',
-    description: 'Unlocks ranged unit training.',
+    description: 'Unlocks ranged unit training. Requires Bronze Age.',
     baseCost: { wood: 120, gold: 100, iron: 40 },
     production: {},
     consumption: { food: 1 },
     capBonus: {},
-    requires: [{ type: 'building', id: 'barracks', count: 1 }],
+    requires: [
+      { type: 'building', id: 'barracks', count: 1 },
+      { type: 'age',      minAge: 1 },
+    ],
   },
 
   // ── Magic ─────────────────────────────────────────────────────────────────

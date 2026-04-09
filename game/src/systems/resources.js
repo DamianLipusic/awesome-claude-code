@@ -11,6 +11,7 @@ import { state } from '../core/state.js';
 import { emit, Events } from '../core/events.js';
 import { BUILDINGS } from '../data/buildings.js';
 import { UNITS } from '../data/units.js';
+import { AGES } from '../data/ages.js';
 import { TICKS_PER_SECOND } from '../core/tick.js';
 import { territoryRateBonus } from './map.js';
 
@@ -29,14 +30,17 @@ export function recalcRates() {
   rates.gold += 0.5;
   rates.food += 0.5;
 
+  // Age production multiplier (applies to all building output)
+  const ageMult = AGES[state.age ?? 0]?.productionMult ?? 1.0;
+
   // Sum building contributions
   for (const [id, count] of Object.entries(state.buildings)) {
     if (count <= 0) continue;
     const def = BUILDINGS[id];
     if (!def) continue;
 
-    // Tech multipliers
-    const prodMult = _buildingProdMultiplier(id);
+    // Tech + age multipliers
+    const prodMult = _buildingProdMultiplier(id) * ageMult;
 
     for (const res of RESOURCE_KEYS) {
       if (def.production[res]) rates[res] += def.production[res] * count * prodMult;

@@ -41,7 +41,7 @@ export const UNITS = Object.freeze({
   knight: {
     name: 'Knight',
     icon: '🛡️',
-    description: 'Heavy cavalry. Expensive but powerful.',
+    description: 'Heavy cavalry. Expensive but powerful. Requires Bronze Age.',
     cost: { gold: 100, iron: 50, food: 30 },
     trainTicks: 40,   // 10 seconds
     attack: 25,
@@ -51,6 +51,7 @@ export const UNITS = Object.freeze({
       { type: 'building', id: 'barracks' },
       { type: 'building', id: 'ironFoundry' },
       { type: 'tech',     id: 'metalworking' },
+      { type: 'age',      minAge: 1 },
     ],
   },
 

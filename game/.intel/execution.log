@@ -109,3 +109,40 @@ Completed tech effects system — all research bonuses are now fully wired into 
 - T013: Random event system (raids, windfalls, disasters)
 
 ---
+
+## 2026-04-09 — Session 3 (continued)
+
+**Tasks completed:** T012
+
+**Summary:**
+Implemented full age advancement system — 4 ages with production multipliers, unlock gates, advancement requirements, and integrated UI.
+
+**Files created:**
+- `game/src/data/ages.js` — 4 age definitions (Stone/Bronze/Iron/Medieval) with productionMult (1.0/1.25/1.5/2.0), resource cost, and requirements (totalBuildings, totalUnits, territory, tech)
+
+**Files modified:**
+- `game/src/core/state.js` — added `age: 0` field; initState() resets it
+- `game/src/core/events.js` — added `AGE_CHANGED: 'ageChanged'` event constant
+- `game/src/core/actions.js` — added `advanceAge()` with full requirement checking (_checkAgeRequirements checks totalBuildings/totalUnits/territory/tech), cost deduction, recalcRates(), and event emission; imported TECHS and AGES
+- `game/src/systems/resources.js` — applied `AGES[state.age].productionMult` to building production in recalcRates(); imported AGES
+- `game/src/data/buildings.js` — archery range now requires Bronze Age (minAge: 1)
+- `game/src/data/units.js` — knight now requires Bronze Age (minAge: 1)
+- `game/src/ui/buildingPanel.js` — meetsRequirements() handles type:'age'; subscribes to AGE_CHANGED
+- `game/src/ui/militaryPanel.js` — _isUnlocked() handles type:'age'; imported AGES for reqStr display; subscribes to AGE_CHANGED
+- `game/src/ui/researchPanel.js` — added _ageSection() rendering current age info + next age requirements checklist + Advance button; subscribes to AGE_CHANGED, BUILDING_CHANGED, UNIT_CHANGED for live requirement updates; onclick wired to advanceAge()
+- `game/src/main.js` — imported AGES and on; added _updateAgeBadge() on boot and AGE_CHANGED; saves/loads age in save state (version 3); emits AGE_CHANGED on new game reset
+- `game/index.html` — added age-badge span in title bar
+- `game/styles/main.css` — full styles for .age-badge, .age-panel, .age-current, .age-icon, .age-info, .age-name, .age-desc, .age-max, .age-next, .age-reqs, .age-req--met/unmet, .age-cost, .btn--advance, .log-entry--age
+
+**Architecture decisions:**
+- Age productionMult is cumulative per age (Stone=1.0, Bronze=1.25, Iron=1.5, Medieval=2.0) — not stacking per age step
+- Age mult applied ONLY to building production (not baseline income, territory bonuses, or consumption) for clean separation
+- Requirements are checked at click time (no pre-check flag), keeping state minimal
+- Age badge in title bar provides ambient awareness without cluttering gameplay panels
+- Research panel is the natural home for age advancement (progression/research theme)
+
+**Next session should tackle:**
+- T013: Random event system (raids, windfalls, disasters)
+- T014: Quest/objective system with rewards
+
+---

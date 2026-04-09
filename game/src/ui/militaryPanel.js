@@ -15,6 +15,7 @@ import { trainUnit } from '../core/actions.js';
 import { UNITS } from '../data/units.js';
 import { BUILDINGS } from '../data/buildings.js';
 import { TECHS } from '../data/techs.js';
+import { AGES } from '../data/ages.js';
 import { fmtNum } from '../utils/fmt.js';
 
 const UNIT_ORDER = ['soldier', 'archer', 'knight', 'mage'];
@@ -30,6 +31,7 @@ export function initMilitaryPanel() {
   on(Events.UNIT_CHANGED,     () => _render(panel));
   on(Events.BUILDING_CHANGED, () => _render(panel));
   on(Events.TECH_CHANGED,     () => _render(panel));
+  on(Events.AGE_CHANGED,      () => _render(panel));
   on(Events.RESOURCE_CHANGED, () => _renderCosts(panel));
   on(Events.GAME_LOADED,      () => _render(panel));
 }
@@ -129,6 +131,10 @@ function _unitCard(id) {
           const tech = TECHS[r.id];
           return tech ? `${tech.icon} ${tech.name}` : r.id;
         }
+        if (r.type === 'age') {
+          const age = AGES[r.minAge];
+          return age ? `${age.icon} ${age.name}` : `Age ${r.minAge}`;
+        }
         const bld = BUILDINGS[r.id];
         return bld ? `${bld.icon} ${bld.name}` : r.id;
       }).join(', ')
@@ -183,7 +189,8 @@ function _isUnlocked(unitId) {
   if (!def) return false;
   return def.requires.every(req => {
     if (req.type === 'building') return (state.buildings[req.id] ?? 0) >= (req.count ?? 1);
-    if (req.type === 'tech')    return state.techs[req.id];
+    if (req.type === 'tech')     return !!state.techs[req.id];
+    if (req.type === 'age')      return (state.age ?? 0) >= req.minAge;
     return true;
   });
 }

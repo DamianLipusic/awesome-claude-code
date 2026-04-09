@@ -61,6 +61,9 @@ export const state = {
   // { width, height, tiles: [[{type,owner,revealed,defense,loot}]], capital }
   map: null,
 
+  // Current age (0=Stone, 1=Bronze, 2=Iron, 3=Medieval)
+  age: 0,
+
   // Current game tick count (increments every 250ms)
   tick: 0,
 
@@ -86,6 +89,7 @@ export function initState(empireName = 'My Empire') {
   state.researchQueue  = [];
   state.messages       = [];
   state.map            = null;
+  state.age            = 0;
   state.tick           = 0;
   state.running        = false;
 }

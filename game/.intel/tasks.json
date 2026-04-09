@@ -112,8 +112,9 @@
     "title": "prestige / age advancement mechanic",
     "description": "Age system (Stone/Bronze/Iron/Medieval), unlock new buildings/units per age, prestige button.",
     "priority": 12,
-    "status": "pending",
-    "phase": 3
+    "status": "done",
+    "phase": 3,
+    "notes": "Created data/ages.js with 4 ages (Stone/Bronze/Iron/Medieval) each with productionMult (1.0/1.25/1.5/2.0), resource cost, and requirements (totalBuildings, totalUnits, territory, tech). Added state.age=0 to state.js. Added AGE_CHANGED event. Added advanceAge() to actions.js with full requirement checking + cost deduction. Applied age productionMult to building production in resources.js recalcRates(). Added age requirements to archeryRange (Bronze) and knight unit (Bronze). Building and military panels handle type:'age' in unlock logic and re-render on AGE_CHANGED. Research panel shows age section at top with current age, next age requirements checklist, cost, and Advance button. Age badge in title bar. Save/load includes age field (version 3)."
   },
   {
     "id": "T013",

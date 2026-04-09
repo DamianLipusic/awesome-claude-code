@@ -36,4 +36,5 @@ export const Events = Object.freeze({
   GAME_LOADED:       'gameLoaded',
   MAP_CHANGED:       'mapChanged',
   COMBAT:            'combat',
+  AGE_CHANGED:       'ageChanged',
 });
