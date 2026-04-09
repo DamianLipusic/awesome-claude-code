@@ -152,6 +152,9 @@ export const BUILDINGS = Object.freeze({
     production: { gold: 1 },
     consumption: {},
     capBonus: {},
-    requires: [{ type: 'building', id: 'wall', count: 1 }],
+    requires: [
+      { type: 'building', id: 'wall', count: 1 },
+      { type: 'tech',     id: 'engineering' },
+    ],
   },
 });

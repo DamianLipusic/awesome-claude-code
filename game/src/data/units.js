@@ -47,7 +47,11 @@ export const UNITS = Object.freeze({
     attack: 25,
     defense: 25,
     upkeep: { food: 0.5, gold: 0.2 },
-    requires: [{ type: 'building', id: 'barracks' }, { type: 'building', id: 'ironFoundry' }],
+    requires: [
+      { type: 'building', id: 'barracks' },
+      { type: 'building', id: 'ironFoundry' },
+      { type: 'tech',     id: 'metalworking' },
+    ],
   },
 
   mage: {
@@ -59,7 +63,10 @@ export const UNITS = Object.freeze({
     attack: 35,
     defense: 5,
     upkeep: { food: 0.3, mana: 0.3 },
-    requires: [{ type: 'building', id: 'manaWell' }],
+    requires: [
+      { type: 'building', id: 'manaWell' },
+      { type: 'tech',     id: 'arcane' },
+    ],
   },
 
 });

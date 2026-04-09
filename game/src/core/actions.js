@@ -82,7 +82,11 @@ export function trainUnit(id) {
   }
 
   deductCost(def.cost);
-  state.trainingQueue.push({ unitId: id, remaining: def.trainTicks });
+  // Warcraft tech: -25% training time
+  const totalTicks = state.techs.warcraft
+    ? Math.ceil(def.trainTicks * 0.75)
+    : def.trainTicks;
+  state.trainingQueue.push({ unitId: id, remaining: totalTicks, totalTicks });
 
   emit(Events.UNIT_CHANGED, {});
   addMessage(`Training ${def.name}…`, 'train');

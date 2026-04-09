@@ -16,6 +16,7 @@ export function initBuildingPanel() {
   renderBuildingPanel();
 
   on(Events.BUILDING_CHANGED, renderBuildingPanel);
+  on(Events.TECH_CHANGED,     renderBuildingPanel);
   on(Events.RESOURCE_CHANGED, _throttleRender());
 }
 

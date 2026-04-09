@@ -83,3 +83,29 @@ Implemented the full military expansion layer: map grid, fog of war, combat engi
 - T014: Quest/objective system with rewards
 
 ---
+
+## 2026-04-09 — Session 3
+
+**Tasks completed:** T011
+
+**Summary:**
+Completed tech effects system — all research bonuses are now fully wired into gameplay mechanics, UI gates, and display.
+
+**Files modified:**
+- `game/src/data/techs.js` — Added 3 new combat techs: `tactics` (+25% attack, requires warcraft), `steel` (+50% attack, requires tactics), `engineering` (+10% attack + Watchtower unlock, requires masonry). Updated `arcane` effectDesc to mention Mage unlock.
+- `game/src/data/units.js` — Knight now requires `metalworking` tech; Mage now requires `arcane` tech.
+- `game/src/data/buildings.js` — Watchtower now requires `engineering` tech in addition to Wall building.
+- `game/src/core/actions.js` — `trainUnit()` applies warcraft -25% speed: `totalTicks = ceil(trainTicks * 0.75)` when warcraft is researched; stores `totalTicks` in queue entry.
+- `game/src/ui/buildingPanel.js` — Added `on(Events.TECH_CHANGED, renderBuildingPanel)` so tech-gated buildings unlock immediately on research.
+- `game/src/ui/militaryPanel.js` — Imported TECHS; fixed `reqStr` to display tech requirements with icon+name (not raw ID); progress bar uses `current.totalTicks` to handle warcraft speed reduction correctly; army panel now shows tech-multiplied combat power (applying tactics/steel/engineering multipliers).
+
+**Architecture decisions:**
+- Combat techs (tactics/steel/engineering) mirror exactly what combat.js already expected — no combat.js changes needed.
+- Storing `totalTicks` in the training queue entry is essential: without it, warcraft-trained units start the progress bar at 25% because `done = def.trainTicks - remaining` would mismatch.
+- Tech-gated unlock display in military panel now handles mixed building+tech requirement arrays cleanly via type dispatch.
+
+**Next session should tackle:**
+- T012: Age advancement / prestige mechanic (Stone → Bronze → Iron → Medieval)
+- T013: Random event system (raids, windfalls, disasters)
+
+---

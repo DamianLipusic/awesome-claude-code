@@ -103,8 +103,9 @@
     "title": "tech effects applied to rates and unlock gates",
     "description": "Apply tech research bonuses to building multipliers, unit attack, and unlock requirements.",
     "priority": 11,
-    "status": "pending",
-    "phase": 3
+    "status": "done",
+    "phase": 3,
+    "notes": "Added 3 combat techs (tactics +25% attack, steel +50% attack, engineering +10% attack + unlocks Watchtower) to techs.js. Added tech requirements: knight requires metalworking, mage requires arcane, watchtower requires engineering. Wired warcraft -25% training speed in trainUnit() with totalTicks stored in queue entry for correct progress bar. buildingPanel now re-renders on TECH_CHANGED. militaryPanel reqStr shows tech icons/names via TECHS lookup. Army display shows tech-boosted combat power."
   },
   {
     "id": "T012",

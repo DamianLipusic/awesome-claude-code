@@ -14,6 +14,7 @@ import { on, Events } from '../core/events.js';
 import { trainUnit } from '../core/actions.js';
 import { UNITS } from '../data/units.js';
 import { BUILDINGS } from '../data/buildings.js';
+import { TECHS } from '../data/techs.js';
 import { fmtNum } from '../utils/fmt.js';
 
 const UNIT_ORDER = ['soldier', 'archer', 'knight', 'mage'];
@@ -66,14 +67,18 @@ function _armySection() {
     </span>`;
   }).join('');
 
-  const totalPower = UNIT_ORDER.reduce((sum, id) => {
+  let totalPower = UNIT_ORDER.reduce((sum, id) => {
     const count = state.units[id] ?? 0;
     const def   = UNITS[id];
     return sum + (def ? def.attack * count : 0);
   }, 0);
+  // Apply combat tech multipliers (mirrors combat.js logic)
+  if (state.techs.tactics)     totalPower *= 1.25;
+  if (state.techs.steel)       totalPower *= 1.5;
+  if (state.techs.engineering) totalPower *= 1.1;
 
   return `<div class="mil-army">
-    <span class="mil-section-title">⚔️ Army <span class="mil-total-power">Total power: ${totalPower}</span></span>
+    <span class="mil-section-title">⚔️ Army <span class="mil-total-power">Combat power: ${Math.round(totalPower)}</span></span>
     <div class="mil-badges">${items}</div>
   </div>`;
 }
@@ -83,7 +88,7 @@ function _queueSection() {
 
   const current = state.trainingQueue[0];
   const def     = UNITS[current.unitId];
-  const total   = def?.trainTicks ?? 1;
+  const total   = current.totalTicks ?? def?.trainTicks ?? 1;
   const pct     = Math.round(((total - current.remaining) / total) * 100);
 
   const rest = state.trainingQueue.slice(1).map(e =>
@@ -120,6 +125,10 @@ function _unitCard(id) {
 
   const reqStr = def.requires.length
     ? def.requires.map(r => {
+        if (r.type === 'tech') {
+          const tech = TECHS[r.id];
+          return tech ? `${tech.icon} ${tech.name}` : r.id;
+        }
         const bld = BUILDINGS[r.id];
         return bld ? `${bld.icon} ${bld.name}` : r.id;
       }).join(', ')
