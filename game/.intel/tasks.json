@@ -175,16 +175,18 @@
     "title": "diplomacy system (alliances, trade routes)",
     "description": "AI empires, alliance/war status, trade route resource exchange per tick.",
     "priority": 20,
-    "status": "pending",
-    "phase": 6
+    "status": "done",
+    "phase": 6,
+    "notes": "Created data/empires.js with 3 AI empires (Iron Horde/Mage Council/Sea Wolves), each with tradeGift rates and AI probability params. Created systems/diplomacy.js: initDiplomacy(), diplomacyTick() with AI stance changes (neutral↔allied↔war) and war raids; player actions proposeAlliance/openTradeRoute/closeTradeRoute/declareWar/proposePeace with gold costs (200/100/—/—/300). Created ui/diplomacyPanel.js: empire cards showing relation badge, specialty, live trade income, context-sensitive action buttons. Trade income integrated into resources.js recalcRates() by reading state.diplomacy directly (no circular import). Added DIPLOMACY_CHANGED event. Added Diplomacy tab to index.html. Save version bumped to 7."
   },
   {
     "id": "T021",
     "title": "seasons cycle affecting resource rates",
     "description": "4-season cycle (90s each), rate modifiers per season per resource.",
     "priority": 21,
-    "status": "pending",
-    "phase": 6
+    "status": "done",
+    "phase": 6,
+    "notes": "Created data/seasons.js with 4 seasons (Spring/Summer/Autumn/Winter, 90s each). Spring: food +25%, wood +10%. Summer: wood +20%, food +10%, gold +10%. Autumn: food +15%, stone +20%, gold +20%. Winter: food -30%, wood -20%. Created systems/seasons.js: initSeasons(), seasonTick() advances season and emits SEASON_CHANGED; currentSeason()/seasonTicksRemaining() helpers. Season multipliers applied in resources.js recalcRates() to positive rates only (unit upkeep unaffected). Added season badge in title bar with live countdown tooltip. Added SEASON_CHANGED event. Save version 7."
   },
   {
     "id": "T022",

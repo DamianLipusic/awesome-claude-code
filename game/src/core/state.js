@@ -76,6 +76,14 @@ export const state = {
   // [{ milestoneId, tick, icon, title, desc, type }]  newest first
   story: [],
 
+  // Diplomacy state — populated by systems/diplomacy.js initDiplomacy()
+  // { empires: [{ id, relations, tradeRoutes, nextAITick, nextWarRaidTick }] }
+  diplomacy: null,
+
+  // Season state — populated by systems/seasons.js initSeasons()
+  // { index: 0-3 (Spring/Summer/Autumn/Winter), tick: elapsed ticks in season }
+  season: null,
+
   // Current game tick count (increments every 250ms)
   tick: 0,
 
@@ -105,6 +113,8 @@ export function initState(empireName = 'My Empire') {
   state.randomEvents   = null;
   state.quests         = null;
   state.story          = [];
+  state.diplomacy      = null;
+  state.season         = null;
   state.tick           = 0;
   state.running        = false;
 }

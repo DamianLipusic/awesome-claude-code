@@ -12,6 +12,8 @@ import { emit, Events } from '../core/events.js';
 import { BUILDINGS } from '../data/buildings.js';
 import { UNITS } from '../data/units.js';
 import { AGES } from '../data/ages.js';
+import { EMPIRES } from '../data/empires.js';
+import { SEASONS } from '../data/seasons.js';
 import { TICKS_PER_SECOND } from '../core/tick.js';
 import { territoryRateBonus } from './map.js';
 
@@ -53,6 +55,27 @@ export function recalcRates() {
   const territory = territoryRateBonus();
   for (const res of RESOURCE_KEYS) {
     if (territory[res]) rates[res] += territory[res];
+  }
+
+  // Trade route income from allied empires (reads state directly — no circular import)
+  if (state.diplomacy) {
+    for (const emp of state.diplomacy.empires) {
+      if (emp.relations !== 'allied' || emp.tradeRoutes <= 0) continue;
+      const gift = EMPIRES[emp.id]?.tradeGift ?? {};
+      for (const [res, rate] of Object.entries(gift)) {
+        if (rates[res] !== undefined) rates[res] += rate * emp.tradeRoutes;
+      }
+    }
+  }
+
+  // Season multipliers — applied to positive rates only (production, not upkeep)
+  if (state.season) {
+    const mods = SEASONS[state.season.index]?.modifiers ?? {};
+    for (const res of RESOURCE_KEYS) {
+      if (mods[res] !== undefined && rates[res] > 0) {
+        rates[res] *= mods[res];
+      }
+    }
   }
 
   // Unit upkeep

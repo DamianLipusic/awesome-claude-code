@@ -236,3 +236,38 @@ Implemented all Phase 5 visual polish — CSS animations with JS hooks for meani
 - T020: Diplomacy system (alliances, trade routes)
 - T021: Seasons cycle affecting resource rates
 
+
+---
+
+## 2026-04-09 — Session 7
+
+**Tasks completed:** T020, T021
+
+**Summary:**
+Implemented Phase 6 diplomacy system with 3 AI empires and a 4-season cycle that modifies resource production rates.
+
+**Files created:**
+- `game/src/data/empires.js` — Empire template data (Iron Horde, Mage Council, Sea Wolves) with trade gift rates and AI probability params. Shared between diplomacy.js and resources.js to avoid circular imports.
+- `game/src/data/seasons.js` — Season definitions (Spring/Summer/Autumn/Winter) with per-resource rate multipliers. Shared between seasons.js and resources.js.
+- `game/src/systems/diplomacy.js` — Full diplomacy engine: initDiplomacy() seeds state; diplomacyTick() drives AI stance changes (neutral↔allied↔war, probability-based) and war raids (50% chance per interval, 45-90s). Player actions: proposeAlliance (200g), openTradeRoute (100g, max 3/empire), closeTradeRoute, declareWar, proposePeace (300g). War raids drain 8% gold and 5% food. AI-declared wars/alliances/peace logged in message log.
+- `game/src/systems/seasons.js` — Season cycle engine: initSeasons(), seasonTick() advances 90s timer and emits SEASON_CHANGED on transition. Exports currentSeason() and seasonTicksRemaining() for badge display.
+- `game/src/ui/diplomacyPanel.js` — 3-card diplomacy UI. Each empire card shows relation badge (neutral/allied/war), specialty resources, trade route count + live income display, context-sensitive buttons. Click delegation survives innerHTML re-renders.
+
+**Files modified:**
+- `game/src/core/events.js` — Added DIPLOMACY_CHANGED, SEASON_CHANGED event constants.
+- `game/src/core/state.js` — Added diplomacy: null, season: null fields; reset in initState().
+- `game/src/systems/resources.js` — Imported EMPIRES and SEASONS data files. recalcRates() now: (1) sums trade gift rates from allied empires × trade route count; (2) applies season rate multipliers to positive rates only (unit upkeep unaffected, so winter food penalty only hits production).
+- `game/src/main.js` — Imports and wires initDiplomacy/diplomacyTick, initSeasons/seasonTick; registers both as tick systems; calls initDiplomacyPanel; adds _updateSeasonBadge() with live countdown tooltip refreshed every 4 ticks; includes diplomacy/season in save/load (version 7); reinit on New Game.
+- `game/index.html` — Added season-badge span in title bar; added 🤝 Diplomacy tab button; added panel-diplomacy div.
+- `game/styles/main.css` — Full diplomacy CSS: .dipl-empire-card (with --allied/--war color variants), .dipl-badge (neutral/allied/war pill), .dipl-trade (green tinted income row), action button variants (.btn--ally, .btn--war-btn, .btn--peace, .btn--trade-open, .btn--trade-close); .season-badge; log entry colors (diplomacy=blue, season=blue); mobile responsive rules.
+
+**Architecture decisions:**
+- Data-over-function for circular import avoidance: both resources.js and the system modules import from data/ files; resources.js reads state.diplomacy/state.season directly rather than calling functions from systems that would import recalcRates back.
+- Season multipliers applied after territory+trade bonuses but before unit upkeep: winter food penalty only penalizes production, not consumption, making it challenging but not punishing.
+- War raids use a two-step check (tick interval + 50% roll) to smooth out raid frequency — players experience ~1 raid per 90-180s per war empire.
+- AI alliance proposals are free for the player (neutral → allied by AI) to balance against the high cost of player-initiated alliances.
+- Trade route income (0.2-0.3/s per route per empire) is intentionally modest at 1 route, meaningful at 3 routes — scales with game progression.
+
+**Next session should tackle:**
+- T022: Hero unit with special abilities
+- T023: Leaderboard (localStorage high scores)

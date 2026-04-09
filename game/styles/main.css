@@ -888,6 +888,161 @@ body {
   color: var(--text-dim);
 }
 
+/* ── Diplomacy panel ─────────────────────────────────────────────────────── */
+
+#panel-diplomacy {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dipl-header {
+  padding: 8px 0 4px;
+  border-bottom: 1px solid var(--border);
+}
+
+.dipl-header__title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.dipl-header__sub {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-top: 2px;
+  line-height: 1.5;
+}
+
+.dipl-empire-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dipl-empire-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  transition: border-color .2s;
+}
+
+.dipl-empire-card:hover             { border-color: var(--border-h); }
+.dipl-empire-card--allied           { border-color: var(--green); }
+.dipl-empire-card--war              { border-color: var(--red); }
+
+.dipl-empire-card__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dipl-empire-card__icon { font-size: 22px; line-height: 1; flex-shrink: 0; }
+.dipl-empire-card__name { font-weight: 700; font-size: 14px; flex: 1; }
+
+.dipl-badge {
+  font-size: 11px;
+  padding: 2px 9px;
+  border-radius: 99px;
+  font-weight: 600;
+  border: 1px solid;
+  flex-shrink: 0;
+}
+
+.dipl-badge--neutral { color: var(--text-dim); border-color: var(--border); }
+.dipl-badge--allied  { color: var(--green);    border-color: var(--green); }
+.dipl-badge--war     { color: var(--red);      border-color: var(--red); }
+
+.dipl-empire-card__desc      { font-size: 12px; color: var(--text-dim); }
+.dipl-empire-card__specialty { font-size: 11px; color: var(--text-dim); }
+
+.dipl-trade {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  background: rgba(63, 185, 80, 0.07);
+  border: 1px solid rgba(63, 185, 80, 0.2);
+  border-radius: var(--radius);
+  padding: 5px 10px;
+}
+
+.dipl-trade__label  { color: var(--text-dim); }
+.dipl-trade__income { color: var(--green); font-weight: 600; }
+
+.dipl-empire-card__actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+
+.btn--ally {
+  background: var(--green);
+  color: #000;
+  border-color: var(--green);
+}
+.btn--ally:hover:not(:disabled) { filter: brightness(1.1); }
+
+.btn--war-btn {
+  background: transparent;
+  color: var(--red);
+  border-color: var(--red);
+}
+.btn--war-btn:hover { background: var(--red); color: #fff; }
+
+.btn--peace {
+  background: var(--blue);
+  color: #fff;
+  border-color: var(--blue);
+}
+.btn--peace:hover:not(:disabled) { filter: brightness(1.1); }
+
+.btn--trade-open {
+  background: var(--accent);
+  color: #000;
+  border-color: var(--accent);
+}
+.btn--trade-open:hover:not(:disabled) { background: var(--accent-h); border-color: var(--accent-h); }
+
+.btn--trade-close {
+  background: transparent;
+  color: var(--text-dim);
+  border-color: var(--border);
+}
+.btn--trade-close:hover { color: var(--red); border-color: var(--red); }
+
+.dipl-empty {
+  font-size: 13px;
+  color: var(--text-dim);
+  padding: 16px 0;
+  text-align: center;
+}
+
+/* Log colours for diplomacy events */
+.log-entry--diplomacy { border-color: var(--blue); background: rgba(88, 166, 255, 0.05); }
+
+/* ── Season badge ─────────────────────────────────────────────────────────── */
+
+.season-badge {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--blue);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 3px 10px;
+  cursor: default;
+}
+
+/* Log colours for season events */
+.log-entry--season { border-color: var(--blue); }
+
 /* ── Animation keyframes ─────────────────────────────────────────────────── */
 
 @keyframes flash-gain {
@@ -1004,6 +1159,11 @@ body {
     touch-action: none;
   }
   .map-legend { font-size: 11px; gap: 6px; }
+
+  /* Diplomacy: full width empire cards */
+  .dipl-empire-card { padding: 10px 10px; }
+  .dipl-empire-card__actions { flex-direction: column; }
+  .season-badge { font-size: 10px; padding: 2px 6px; }
 
   /* Settings: full width */
   #panel-settings { max-width: 100%; }

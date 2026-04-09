@@ -12,7 +12,11 @@ import { initMap } from './systems/map.js';
 import { initRandomEvents, randomEventTick } from './systems/randomEvents.js';
 import { initQuests } from './systems/quests.js';
 import { initStory } from './systems/story.js';
+import { initDiplomacy, diplomacyTick } from './systems/diplomacy.js';
+import { initSeasons, seasonTick, currentSeason, seasonTicksRemaining } from './systems/seasons.js';
+import { SEASONS } from './data/seasons.js';
 import { AGES } from './data/ages.js';
+import { TICKS_PER_SECOND } from './core/tick.js';
 import { initHUD } from './ui/hud.js';
 import { initBuildingPanel } from './ui/buildingPanel.js';
 import { initMessageLog } from './ui/messageLog.js';
@@ -22,6 +26,7 @@ import { initMapPanel } from './ui/mapPanel.js';
 import { initQuestPanel } from './ui/questPanel.js';
 import { initStoryPanel } from './ui/storyPanel.js';
 import { initSettingsPanel } from './ui/settingsPanel.js';
+import { initDiplomacyPanel } from './ui/diplomacyPanel.js';
 import { initTabs } from './ui/tabs.js';
 import { addMessage } from './core/actions.js';
 
@@ -47,11 +52,15 @@ function boot() {
   registerSystem(resourceTick);
   registerSystem(researchTick);
   registerSystem(randomEventTick);
+  registerSystem(diplomacyTick);
+  registerSystem(seasonTick);
 
   // Init event-driven systems
   initRandomEvents();
   initQuests();
   initStory();
+  initDiplomacy();
+  initSeasons();
 
   // Init UI
   initHUD();
@@ -63,6 +72,7 @@ function boot() {
   initQuestPanel();
   initStoryPanel();
   initSettingsPanel();
+  initDiplomacyPanel();
   initMessageLog();
 
   // Bind top-level controls
@@ -71,6 +81,13 @@ function boot() {
   // Update age badge on changes
   _updateAgeBadge();
   on(Events.AGE_CHANGED, _updateAgeBadge);
+
+  // Update season badge on changes (also on TICK for countdown display)
+  _updateSeasonBadge();
+  on(Events.SEASON_CHANGED, _updateSeasonBadge);
+  // Refresh season badge every 4 ticks (~1 s) for countdown accuracy
+  let _seasonBadgeTick = 0;
+  on(Events.TICK, () => { if (++_seasonBadgeTick % 4 === 0) _updateSeasonBadge(); });
 
   // Start auto-save every 60 seconds
   setInterval(_save, 60_000);
@@ -86,7 +103,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 5,
+      version: 7,
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -104,6 +121,8 @@ function _save() {
         randomEvents:  state.randomEvents,
         quests:        state.quests,
         story:         state.story,
+        diplomacy:     state.diplomacy,
+        season:        state.season,
         tick:          state.tick,
       }
     }));
@@ -137,6 +156,8 @@ function _applySave(save) {
   state.randomEvents   = s.randomEvents   ?? null;
   state.quests         = s.quests         ?? null;
   state.story          = s.story          ?? [];
+  state.diplomacy      = s.diplomacy      ?? null;
+  state.season         = s.season         ?? null;
   state.tick           = s.tick           ?? 0;
   recalcRates();
   addMessage('Game loaded.', 'info');
@@ -149,6 +170,21 @@ function _updateAgeBadge() {
   if (!el) return;
   const age = AGES[state.age ?? 0];
   el.textContent = age ? `${age.icon} ${age.name}` : '';
+}
+
+// ── Season badge ──────────────────────────────────────────────────────────
+
+function _updateSeasonBadge() {
+  const el = document.getElementById('season-badge');
+  if (!el) return;
+  const s = currentSeason();
+  const remaining = seasonTicksRemaining();
+  const secsLeft  = Math.ceil(remaining / TICKS_PER_SECOND);
+  const mins = Math.floor(secsLeft / 60);
+  const secs = secsLeft % 60;
+  const timeStr = mins > 0 ? `${mins}m${String(secs).padStart(2,'0')}s` : `${secs}s`;
+  el.textContent = `${s.icon} ${s.name}`;
+  el.title = `${s.name}: ${s.desc} — Changes in ${timeStr}`;
 }
 
 // ── UI Controls ───────────────────────────────────────────────────────────
@@ -165,6 +201,8 @@ function _bindControls() {
       initState('My Empire');
       initMap();
       initRandomEvents();
+      initDiplomacy();
+      initSeasons();
       recalcRates();
       emit(Events.MAP_CHANGED, {});
       addMessage('New game started. Build your empire!', 'info');
