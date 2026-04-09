@@ -12,10 +12,11 @@ import { state } from './state.js';
 import { emit, Events } from './events.js';
 import { log } from '../utils/logger.js';
 
-export const TICK_MS   = 250;            // wall-clock ms per game tick
+export const TICK_MS   = 250;            // base wall-clock ms per game tick (at 1× speed)
 export const TICKS_PER_SECOND = 1000 / TICK_MS;  // 4
 
 let intervalId    = null;
+let _speedMult    = 1;                   // current speed multiplier
 const systems     = [];
 
 /**
@@ -29,7 +30,7 @@ export function registerSystem(fn) {
 export function startLoop() {
   if (intervalId !== null) return;
   state.running = true;
-  intervalId = setInterval(_tick, TICK_MS);
+  intervalId = setInterval(_tick, TICK_MS / _speedMult);
   log('tick loop started');
 }
 
@@ -40,6 +41,22 @@ export function stopLoop() {
   state.running = false;
   log('tick loop stopped');
 }
+
+/**
+ * Change the game speed multiplier (0.5 / 1 / 2 / 4).
+ * Restarts the interval immediately if the loop is running.
+ */
+export function setTickSpeed(mult) {
+  _speedMult = mult;
+  if (intervalId !== null) {
+    clearInterval(intervalId);
+    intervalId = setInterval(_tick, TICK_MS / _speedMult);
+    log('tick speed set to', mult);
+  }
+}
+
+/** Returns the current speed multiplier. */
+export function getTickSpeed() { return _speedMult; }
 
 function _tick() {
   state.tick++;

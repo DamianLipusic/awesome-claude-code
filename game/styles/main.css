@@ -694,6 +694,200 @@ body {
 
 .quest-reward-text { color: var(--green); }
 
+/* ── Empire Chronicle / Story panel ─────────────────────────────────────── */
+
+#panel-story {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.story-header {
+  padding: 8px 0 4px;
+  border-bottom: 1px solid var(--border);
+}
+
+.story-header__title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.story-header__sub {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+.story-empty {
+  font-size: 13px;
+  color: var(--text-dim);
+  padding: 16px 0;
+  text-align: center;
+}
+
+.story-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  position: relative;
+}
+
+/* Vertical connector line */
+.story-timeline::before {
+  content: '';
+  position: absolute;
+  left: 20px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--border);
+}
+
+.story-entry {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 12px;
+  position: relative;
+  border-radius: var(--radius);
+  transition: background .15s;
+}
+
+.story-entry:hover { background: var(--bg-card); }
+
+.story-entry__icon {
+  font-size: 22px;
+  line-height: 1;
+  width: 28px;
+  text-align: center;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+  /* Small circle background to sit on top of the timeline line */
+  background: var(--bg);
+  border-radius: 50%;
+  padding: 1px;
+}
+
+.story-entry__body {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.story-entry__title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.story-entry__desc {
+  font-size: 12px;
+  color: var(--text-dim);
+  line-height: 1.4;
+}
+
+.story-entry__time {
+  font-size: 11px;
+  color: var(--text-dim);
+  opacity: .6;
+}
+
+/* Type-based left accent colours */
+.story-entry--founding  { border-left: 3px solid var(--gold); }
+.story-entry--building  { border-left: 3px solid var(--gold); }
+.story-entry--military  { border-left: 3px solid var(--red); }
+.story-entry--research  { border-left: 3px solid var(--purple); }
+.story-entry--age       { border-left: 3px solid var(--accent-h); }
+.story-entry--territory { border-left: 3px solid var(--blue); }
+.story-entry--quest     { border-left: 3px solid #ffd700; }
+
+/* ── Settings panel ──────────────────────────────────────────────────────── */
+
+#panel-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 520px;
+}
+
+.settings-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.settings-section__title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.settings-section__desc {
+  font-size: 12px;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+.speed-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btn--speed {
+  background: var(--bg);
+  color: var(--text-dim);
+  border-color: var(--border);
+  min-width: 52px;
+  text-align: center;
+  font-size: 13px;
+}
+
+.btn--speed:hover { border-color: var(--border-h); color: var(--text); }
+
+.btn--speed-active {
+  background: var(--accent);
+  color: #000;
+  border-color: var(--accent);
+  font-weight: 700;
+}
+
+.btn--speed-active:hover { background: var(--accent-h); border-color: var(--accent-h); }
+
+.settings-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: not-allowed;
+}
+
+.settings-toggle input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+}
+
+.settings-toggle__label {
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+.settings-badge {
+  font-size: 10px;
+  padding: 2px 6px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  color: var(--text-dim);
+}
+
 /* ── Responsive tweaks ───────────────────────────────────────────────────── */
 
 @media (max-width: 600px) {

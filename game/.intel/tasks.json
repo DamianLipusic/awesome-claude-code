@@ -139,16 +139,18 @@
     "title": "empire log / story panel",
     "description": "Narrative story panel showing empire history milestones.",
     "priority": 15,
-    "status": "pending",
-    "phase": 4
+    "status": "done",
+    "phase": 4,
+    "notes": "Created src/systems/story.js: initStory() registers dedup-safe milestone entries on GAME_STARTED/BUILDING_CHANGED/UNIT_CHANGED/TECH_CHANGED/AGE_CHANGED/MAP_CHANGED/QUEST_COMPLETED events. 16 milestone checks (founding, building x4, military x3, research x3, age x3, territory x4, quest per-completion). Created src/ui/storyPanel.js: vertical timeline with icon, title, desc, tick-to-time footer; type-based left border accent colours. Added state.story=[] to state.js (reset in initState). Included in save/load (version 5). Added '📖 History' tab in index.html. Wired initStory+initStoryPanel in main.js. Added full CSS: .story-header, .story-timeline (::before vertical line), .story-entry (icon on line, body), type-accent border colours."
   },
   {
     "id": "T017",
     "title": "settings panel (speed, sound toggle)",
     "description": "Settings tab with game speed slider (0.5×/1×/2×/4×) and placeholder sound toggle.",
     "priority": 17,
-    "status": "pending",
-    "phase": 5
+    "status": "done",
+    "phase": 5,
+    "notes": "Extended src/core/tick.js: added _speedMult module var; setTickSpeed(mult) restarts interval at TICK_MS/mult; getTickSpeed() returns current mult; startLoop uses _speedMult so loops started after a speed change use the right interval. Created src/ui/settingsPanel.js: speed button row (½×/1×/2×/4×) with active highlight, disabled sound checkbox with 'Coming soon' badge, About section. Added '⚙️ Settings' tab in index.html. Wired initSettingsPanel in main.js. Added full CSS in main.css: .settings-section, .speed-buttons, .btn--speed, .btn--speed-active, .settings-toggle."
   },
   {
     "id": "T018",

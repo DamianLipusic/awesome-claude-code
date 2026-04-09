@@ -11,6 +11,7 @@ import { researchTick } from './systems/research.js';
 import { initMap } from './systems/map.js';
 import { initRandomEvents, randomEventTick } from './systems/randomEvents.js';
 import { initQuests } from './systems/quests.js';
+import { initStory } from './systems/story.js';
 import { AGES } from './data/ages.js';
 import { initHUD } from './ui/hud.js';
 import { initBuildingPanel } from './ui/buildingPanel.js';
@@ -19,6 +20,8 @@ import { initResearchPanel } from './ui/researchPanel.js';
 import { initMilitaryPanel } from './ui/militaryPanel.js';
 import { initMapPanel } from './ui/mapPanel.js';
 import { initQuestPanel } from './ui/questPanel.js';
+import { initStoryPanel } from './ui/storyPanel.js';
+import { initSettingsPanel } from './ui/settingsPanel.js';
 import { initTabs } from './ui/tabs.js';
 import { addMessage } from './core/actions.js';
 
@@ -48,6 +51,7 @@ function boot() {
   // Init event-driven systems
   initRandomEvents();
   initQuests();
+  initStory();
 
   // Init UI
   initHUD();
@@ -57,6 +61,8 @@ function boot() {
   initMapPanel();
   initResearchPanel();
   initQuestPanel();
+  initStoryPanel();
+  initSettingsPanel();
   initMessageLog();
 
   // Bind top-level controls
@@ -80,7 +86,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 4,
+      version: 5,
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -97,6 +103,7 @@ function _save() {
         age:           state.age,
         randomEvents:  state.randomEvents,
         quests:        state.quests,
+        story:         state.story,
         tick:          state.tick,
       }
     }));
@@ -129,6 +136,7 @@ function _applySave(save) {
   state.age            = s.age            ?? 0;
   state.randomEvents   = s.randomEvents   ?? null;
   state.quests         = s.quests         ?? null;
+  state.story          = s.story          ?? [];
   state.tick           = s.tick           ?? 0;
   recalcRates();
   addMessage('Game loaded.', 'info');

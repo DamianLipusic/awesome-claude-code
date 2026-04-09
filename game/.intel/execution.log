@@ -180,3 +180,33 @@ Implemented the full random event system and quest/objective system, completing 
 - T017: Settings panel (speed slider 0.5×/1×/2×/4×, sound toggle placeholder)
 
 ---
+
+## 2026-04-09 — Session 5
+
+**Tasks completed:** T015, T017
+
+**Summary:**
+Implemented the Empire Chronicle story panel (narrative milestone history) and the Settings panel (game speed + sound placeholder), completing all Phase 4 and Phase 5 polish items in scope.
+
+**Files created:**
+- `game/src/systems/story.js` — `initStory()` wires event listeners and records narrative entries into `state.story[]`. 16 milestone checks across 7 categories (founding, building ×4, military ×3, research ×3, age ×3, territory ×4, one per quest). Dedup via `_recorded` Set rebuilt from `state.story` on load. Entries capped at 100.
+- `game/src/ui/storyPanel.js` — `initStoryPanel()` subscribes to 8 events and re-renders a vertical timeline. Each entry shows icon, title, desc, and tick-to-minutes-seconds time. Empty-state message for new games.
+- `game/src/ui/settingsPanel.js` — `initSettingsPanel()` renders speed buttons (½×/1×/2×/4×) with active highlight, a disabled sound checkbox with "Coming soon" badge, and an About section.
+
+**Files modified:**
+- `game/src/core/tick.js` — Added `_speedMult` var; `setTickSpeed(mult)` restarts interval at `TICK_MS / mult`; `getTickSpeed()` accessor; `startLoop()` already uses `_speedMult` so speed persists across stop/start.
+- `game/src/core/state.js` — Added `story: []` field; `initState()` resets it.
+- `game/src/main.js` — Imports `initStory`/`initStoryPanel`/`initSettingsPanel`; calls `initStory()` after `initQuests()`; calls `initStoryPanel()`/`initSettingsPanel()` in UI init block; saves/loads `state.story` (save version bumped to 5); `_applySave` restores `story` with `?? []` fallback.
+- `game/index.html` — Added `📖 History` and `⚙️ Settings` tab buttons; added `#panel-story` and `#panel-settings` divs.
+- `game/styles/main.css` — Full styles: `.story-header`, `.story-timeline` (vertical `::before` line), `.story-entry` (icon on line, body), type-accent border colours (founding/building/military/research/age/territory/quest); `.settings-section`, `.speed-buttons`, `.btn--speed`, `.btn--speed-active`, `.settings-toggle`, `.settings-badge`.
+
+**Architecture decisions:**
+- `story.js` imports `QUESTS` from `quests.js` to look up quest title/icon on `QUEST_COMPLETED` — no circular dependency because `quests.js` does not import `story.js`.
+- `_recorded` Set is module-level (not in state) — it's rebuilt from `state.story` on every `initStory()` call, so saves restore correctly without serialising a redundant dedup structure.
+- Speed multiplier lives only in `tick.js` — not persisted to save, so game always starts at 1× on load (intentional; saves should not carry a "paused at 4× speed" state).
+- Settings panel re-renders on every speed button click rather than mutating DOM — keeps it stateless and simple given it's rarely visited.
+
+**Next session should tackle:**
+- T018: Visual polish — CSS animations, transitions (resource gain flash, building card pop-in, combat map flash)
+- T019: Responsive layout for mobile (375px width)
+

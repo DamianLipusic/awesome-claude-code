@@ -72,6 +72,10 @@ export const state = {
   // { completed: { [questId]: tick } }
   quests: null,
 
+  // Empire story entries — populated by systems/story.js initStory()
+  // [{ milestoneId, tick, icon, title, desc, type }]  newest first
+  story: [],
+
   // Current game tick count (increments every 250ms)
   tick: 0,
 
@@ -100,6 +104,7 @@ export function initState(empireName = 'My Empire') {
   state.age            = 0;
   state.randomEvents   = null;
   state.quests         = null;
+  state.story          = [];
   state.tick           = 0;
   state.running        = false;
 }
