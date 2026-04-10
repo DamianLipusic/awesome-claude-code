@@ -423,3 +423,31 @@ Added Phase 7 content: victory/defeat end conditions with a full-screen result s
 - Wonder buildings use existing `production` map so their output is handled by the same `recalcRates()` building loop with no special-casing — only their side-effects (research speed, training speed, disaster attenuation) need explicit branches.
 - Colosseum and Library bonuses are applied at queue-push time (stored `totalTicks`) matching the Warcraft/Inspire pattern — avoids per-tick branching and keeps progress bars accurate.
 - Grand Cathedral reads `state.buildings` directly inside `recalcRates()` with a `?? 0` guard, consistent with how other state is read inside that function.
+
+---
+
+## 2026-04-10 — Session 11
+
+**Tasks completed:** T031, T032
+
+**Summary:**
+Added Phase 8 quality-of-life polish: global keyboard shortcuts for all tab navigation plus game control hotkeys, and real-time SVG sparkline trend graphs in the resource HUD showing the last 60 seconds of history per resource.
+
+**Files modified:**
+
+- `game/src/ui/tabs.js` — Exported `switchTab(panelId)` which simulates a tab-button click programmatically; used by the keyboard handler to avoid duplicating tab-switching logic.
+
+- `game/src/main.js` — Imported `stopLoop` from tick.js and `switchTab` from tabs.js. Added `_TAB_KEYS` constant mapping digit/symbol keys to panel IDs (`1→summary … 0→settings, -→log`). Added `_bindKeyboard()` with a global `keydown` listener: guards against input/textarea/select targets and Ctrl/Meta/Alt modifiers; tab switching via `_TAB_KEYS`; `Space`/`P` toggles pause/resume with `addMessage` feedback; `S` quick-saves; `Escape` closes the save modal. `_bindKeyboard()` called from `_bindControls()`.
+
+- `game/src/ui/settingsPanel.js` — Added `_shortcutsSection()` building a `.kbd-grid` table of `<kbd>`-styled shortcut rows; injected into `_render()` between the leaderboard section and save-portability section.
+
+- `game/src/ui/hud.js` — Added 60-sample ring buffer (`_history`) sampled once per second (every 4 ticks) via `_sampleHistory()`. Added `_sparkSVG(values, positiveRate)` which generates a `60×18px` inline SVG `<polyline>` with min/max normalisation (1px padding), flat `<line>` for zero-range data, green stroke for positive-rate resources and red for negative. Each HUD resource div now includes a `<span class="hud__spark-wrap">` container updated in `renderHUD()`; `_throttledRender()` calls `_sampleHistory()` before `renderHUD()` each second.
+
+- `game/styles/main.css` — Added `kbd` element style (inline-block, monospace, bg-card background, 2px bottom border, 3px radius); `.kbd-grid` / `.kbd-row` / `.kbd-keys` layout. Added `.hud__spark-wrap` (flex, opacity 0.75) and `.hud__spark` (display block, overflow visible); `@media (max-width: 600px)` hides spark wraps on narrow screens.
+
+**Architecture decisions:**
+- `switchTab()` reuses the existing click handler via `btn.click()` — no duplication of the panel-toggle logic, and tab-specific side-effects (if any are added later) remain in one place.
+- Keyboard guard skips `Ctrl/Meta/Alt` so browser shortcuts (Ctrl+S, Cmd+R, etc.) still work; only plain or Shift-modified keys are intercepted.
+- Sparkline history is module-level in `hud.js` (not in `state`) — it is ephemeral session data that would be meaningless after a reload and doesn't need persistence.
+- Sampling at the throttled 1-second boundary means sparklines stay in sync with the visible HUD values with no extra timers.
+- SVG polyline is regenerated as innerHTML each second; at 60 points × 6 resources this is negligible DOM work.

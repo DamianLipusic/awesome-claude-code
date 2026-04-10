@@ -5,7 +5,7 @@
 
 import { state, initState } from './core/state.js';
 import { emit, on, Events } from './core/events.js';
-import { registerSystem, startLoop } from './core/tick.js';
+import { registerSystem, startLoop, stopLoop } from './core/tick.js';
 import { resourceTick, recalcRates } from './systems/resources.js';
 import { researchTick } from './systems/research.js';
 import { initMap } from './systems/map.js';
@@ -33,7 +33,7 @@ import { initMarketPanel } from './ui/marketPanel.js';
 import { initSaveModal } from './ui/saveModal.js';
 import { initGameOverPanel } from './ui/gameOverPanel.js';
 import { initDiplomacyPanel } from './ui/diplomacyPanel.js';
-import { initTabs } from './ui/tabs.js';
+import { initTabs, switchTab } from './ui/tabs.js';
 import { initToasts } from './ui/toastManager.js';
 import { initSummaryPanel } from './ui/summaryPanel.js';
 import { addMessage } from './core/actions.js';
@@ -318,6 +318,79 @@ function _bindControls() {
       state.empire.name = name.trim();
       const el = document.getElementById('empire-name');
       if (el) el.textContent = state.empire.name;
+    }
+  });
+
+  _bindKeyboard();
+}
+
+// ── Keyboard shortcuts ────────────────────────────────────────────────────
+
+/**
+ * Map number/symbol keys to tab panel ids.
+ * Mirrors the tab order in index.html.
+ */
+const _TAB_KEYS = {
+  '1': 'summary',
+  '2': 'buildings',
+  '3': 'military',
+  '4': 'map',
+  '5': 'research',
+  '6': 'diplomacy',
+  '7': 'market',
+  '8': 'quests',
+  '9': 'story',
+  '0': 'settings',
+  '-': 'log',
+};
+
+function _bindKeyboard() {
+  document.addEventListener('keydown', (e) => {
+    // Never fire shortcuts when the user is typing in a form element
+    const tag = e.target.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || e.target.isContentEditable) return;
+
+    // Skip if any system modifier is held (keeps browser shortcuts intact)
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+    // Tab switching: 1-0 and -
+    if (_TAB_KEYS[e.key] !== undefined) {
+      e.preventDefault();
+      switchTab(_TAB_KEYS[e.key]);
+      return;
+    }
+
+    switch (e.key) {
+      // Pause / resume
+      case ' ':
+      case 'p':
+      case 'P':
+        e.preventDefault();
+        if (state.running) {
+          stopLoop();
+          addMessage('⏸ Game paused. Press Space or P to resume.', 'info');
+        } else {
+          startLoop();
+          addMessage('▶ Game resumed.', 'info');
+        }
+        break;
+
+      // Quick save
+      case 's':
+      case 'S':
+        e.preventDefault();
+        _save();
+        addMessage('💾 Game saved. [S]', 'info');
+        break;
+
+      // Close the save/export modal if open
+      case 'Escape': {
+        const modal = document.getElementById('save-modal');
+        if (modal && !modal.classList.contains('modal--hidden')) {
+          document.getElementById('save-modal-close')?.click();
+        }
+        break;
+      }
     }
   });
 }

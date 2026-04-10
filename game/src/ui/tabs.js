@@ -26,3 +26,14 @@ export function initTabs() {
   // Activate the first tab by default
   tabBar.querySelector('[data-tab]')?.click();
 }
+
+/**
+ * Programmatically switch to a tab by panel id.
+ * Equivalent to clicking the tab button.
+ */
+export function switchTab(panelId) {
+  const tabBar = document.getElementById('tab-bar');
+  if (!tabBar) return;
+  const btn = tabBar.querySelector(`[data-tab="${panelId}"]`);
+  if (btn) btn.click();
+}

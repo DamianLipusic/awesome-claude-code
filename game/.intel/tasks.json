@@ -268,5 +268,23 @@
     "status": "done",
     "phase": 7,
     "notes": "Added 3 wonder buildings to data/buildings.js with unique:true, wonder:true flags: greatLibrary (🏛️, Iron Age, arcane+manaWell×2, cost 500g/300s/200i/100m, +1 mana/s, +300 mana cap), colosseum (🏟️, Bronze Age, barracks×2, cost 400g/350s/120i, +3 food/s), grandCathedral (⛪, Medieval Age, manaWell×2+wall×2, cost 600g/400s/200i/150m, +8 gold/s, +500 gold cap). actions.js: buildBuilding() rejects unique buildings when count≥1; trainUnit() chains Colosseum -33% speed after warcraft -25%. research.js: startResearch() applies -25% totalTicks when greatLibrary built; totalTicks stored in queue entry. resources.js: grandCathedral halves disaster penalty in activeModifiers loop (1-(1-rateMult)*0.5). buildingPanel.js: rewritten to for-loop; injects '🏛️ Wonders' section header before first wonder; shows 'Built ✓' badge + description for already-built unique buildings (no actions); wonder cards get .building-card--wonder gold border class; Construct button uses .btn--wonder. researchPanel.js: progress bar uses active.totalTicks ?? def.researchTicks for Library-adjusted display. CSS: .wonder-section-header (grid-column:1/-1, gold text), .building-card--wonder (gold border tint), .building-card--wonder-built (solid gold border), .btn--wonder (gold gradient button)."
+  },
+  {
+    "id": "T031",
+    "title": "keyboard shortcuts (tab switching, pause, save)",
+    "description": "Global keydown handler: 1-0 switch tabs, Space/P pause/resume, S quick-save, Escape close modal. Guard against input fields. Show shortcut legend in Settings panel.",
+    "priority": 31,
+    "status": "done",
+    "phase": 8,
+    "notes": "tabs.js: exported switchTab(panelId) that simulates a tab-button click programmatically. main.js: imported stopLoop and switchTab; added _TAB_KEYS map (1→summary…0→settings, -→log); _bindKeyboard() registers a global keydown handler with input-field guard and modifier-key guard; tab keys call switchTab(); Space/P toggles pause/resume (stopLoop/startLoop) with addMessage feedback; S quick-saves; Escape closes the save modal. _bindKeyboard() called from _bindControls(). settingsPanel.js: added _shortcutsSection() rendering a .kbd-grid table with <kbd> elements for each binding; section injected into _render() between leaderboard and save-portability sections. CSS: kbd element style (inline-block, monospace, bg-card, border-bottom-2px, border-radius 3px); .kbd-grid flex column; .kbd-row 2-col grid (150px keys + 1fr desc); .kbd-keys flex row with gap."
+  },
+  {
+    "id": "T032",
+    "title": "resource sparklines in HUD (60-second rolling SVG trends)",
+    "description": "Keep a 60-sample ring buffer (one per second) for each resource. Render inline SVG polyline sparklines in each HUD resource cell showing the last 60 seconds of history. Green for positive-rate resources, red for negative. Hidden on mobile ≤600px.",
+    "priority": 32,
+    "status": "done",
+    "phase": 8,
+    "notes": "hud.js: added HISTORY_LEN=60, SPARK_W=60, SPARK_H=18 constants; _history object (one array per resource); _sampleHistory() pushes current value and shifts when >60 entries; _sparkSVG(values, positiveRate) generates inline SVG polyline with min/max normalisation (1px padding on all edges), flat line for zero-range data, green stroke for positive-rate resources, red for negative; initHUD() adds <span class=hud__spark-wrap id=hud-spark-{id}> to each resource div; renderHUD() updates sparkEl innerHTML; _throttledRender() now calls _sampleHistory() before renderHUD() so history is always fresh at the render boundary. CSS: .hud__spark-wrap flex align-center margin-left:2px opacity:0.75 flex-shrink:0; .hud__spark display:block overflow:visible; @media (max-width:600px) hides spark wraps."
   }
 ]

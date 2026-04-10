@@ -2041,3 +2041,61 @@ body {
 @media (max-width: 480px) {
   .summary-grid { grid-template-columns: 1fr; }
 }
+
+/* ── Keyboard shortcuts section (T031) ───────────────────────────────────── */
+
+kbd {
+  display: inline-block;
+  padding: 1px 5px;
+  font-family: monospace;
+  font-size: 0.75rem;
+  background: var(--bg-2, var(--bg-card));
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 3px;
+  color: var(--text-bright, var(--text));
+  line-height: 1.4;
+}
+
+.kbd-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.kbd-row {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
+.kbd-keys {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex-wrap: wrap;
+}
+
+/* ── Resource sparklines in HUD (T032) ───────────────────────────────────── */
+
+.hud__spark-wrap {
+  display: flex;
+  align-items: center;
+  margin-left: 2px;
+  opacity: 0.75;
+  flex-shrink: 0;
+}
+
+.hud__spark {
+  display: block;
+  overflow: visible;
+}
+
+/* Hide sparklines on small screens where HUD space is tight */
+@media (max-width: 600px) {
+  .hud__spark-wrap { display: none; }
+}

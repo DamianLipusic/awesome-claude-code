@@ -60,6 +60,8 @@ function _render(panel) {
 
     ${_leaderboardSection()}
 
+    ${_shortcutsSection()}
+
     <div class="settings-section">
       <div class="settings-section__title">💾 Save Portability</div>
       <div class="settings-section__desc">
@@ -211,6 +213,31 @@ function _leaderboardSection() {
     <button class="btn btn--sm" id="btn-clear-lb" style="margin-top:8px;color:var(--red);border-color:var(--red)">
       🗑️ Clear Scores
     </button>
+  </div>`;
+}
+
+// ---------------------------------------------------------------------------
+// Keyboard shortcuts section
+// ---------------------------------------------------------------------------
+
+function _shortcutsSection() {
+  const rows = [
+    { keys: ['1', '–', '0'],   desc: 'Switch tabs (Empire → Settings)' },
+    { keys: ['-'],              desc: 'Open Log tab' },
+    { keys: ['Space', 'P'],    desc: 'Pause / Resume game' },
+    { keys: ['S'],             desc: 'Quick save' },
+    { keys: ['Esc'],           desc: 'Close save/export modal' },
+  ].map(({ keys, desc }) => {
+    const kbds = keys.map(k => `<kbd>${k}</kbd>`).join(' ');
+    return `<div class="kbd-row"><span class="kbd-keys">${kbds}</span><span>${_escHtml(desc)}</span></div>`;
+  }).join('');
+
+  return `<div class="settings-section">
+    <div class="settings-section__title">⌨️ Keyboard Shortcuts</div>
+    <div class="settings-section__desc">
+      Active when not typing in an input field. Tab keys match the tab bar order.
+    </div>
+    <div class="kbd-grid">${rows}</div>
   </div>`;
 }
 
