@@ -34,6 +34,8 @@ import { initSaveModal } from './ui/saveModal.js';
 import { initGameOverPanel } from './ui/gameOverPanel.js';
 import { initDiplomacyPanel } from './ui/diplomacyPanel.js';
 import { initTabs } from './ui/tabs.js';
+import { initToasts } from './ui/toastManager.js';
+import { initSummaryPanel } from './ui/summaryPanel.js';
 import { addMessage } from './core/actions.js';
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
@@ -91,6 +93,8 @@ function boot() {
   initMessageLog();
   initSaveModal(_applySave);
   initGameOverPanel(_newGame);
+  initToasts();
+  initSummaryPanel();
 
   // Bind top-level controls
   _bindControls();

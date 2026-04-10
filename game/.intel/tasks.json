@@ -243,6 +243,24 @@
     "notes": "Created src/systems/achievements.js: 15 achievement definitions (founder/builder/warlord/scholar/bronze_dawn/medieval/conqueror/diplomat/champion/wonder_built/quest_master/millionaire/trader/emperor/comeback). loadAchievements() reads empireos-achievements localStorage key; initAchievements() rebuilds in-memory _unlocked Set and registers event listeners on BUILDING_CHANGED/UNIT_CHANGED/TECH_CHANGED/AGE_CHANGED/MAP_CHANGED/DIPLOMACY_CHANGED/HERO_CHANGED/QUEST_COMPLETED/MARKET_CHANGED/RESOURCE_CHANGED/GAME_OVER/MESSAGE. _checkAndUnlock(id) calls predicate then _unlock() which persists to localStorage, adds achievement log message (type='achievement'), emits ACHIEVEMENT_UNLOCKED, calls _renderer callback. setAchievementRenderer() allows settingsPanel to register a re-render hook without circular imports. Updated settingsPanel.js: imports ACHIEVEMENTS/loadAchievements/setAchievementRenderer; _achievementsSection() builds ach-card grid with unlocked (gold border, unlock date) and locked (greyed, lock icon) states; 'X / 15 unlocked' progress count; registered _renderer in initSettingsPanel. main.js: imports+calls initAchievements() on boot and newGame. CSS: ach-grid (auto-fill 220px), ach-card (unlocked=gold border+tint, locked=55% opacity), ach-icon/body/title/desc/date/locked-label; log-entry--achievement (gold border + faint gold bg)."
   },
   {
+    "id": "T029",
+    "title": "toast notification system",
+    "description": "Slide-in toasts for key game events (quest complete, achievement, age advance, raid, windfall, disaster). Show for 3.5s then fade out. Fixed bottom-right position, event-type colour coding.",
+    "priority": 29,
+    "status": "done",
+    "phase": 8,
+    "notes": "Created src/ui/toastManager.js: initToasts() creates #toast-container and subscribes to MESSAGE events; shows toast only for types in TOAST_TYPES set (quest/achievement/age/raid/windfall/disaster); showToast() creates .toast div with type modifier class, auto-dismisses after 3.5s via setTimeout; click dismisses immediately; _dismissToast() adds .toast--exiting class for exit animation then removes from DOM on animationend (with 400ms fallback). CSS: #toast-container fixed bottom-right z-900; @keyframes toast-in (translateX slide from right) / toast-out (reverse); 8 type colour variants via border-left-color; mobile shrinks to calc(100vw-24px). Wired in main.js boot sequence."
+  },
+  {
+    "id": "T030",
+    "title": "empire summary dashboard panel",
+    "description": "New '📊 Empire' tab with at-a-glance overview: resource rates, territory, army power, diplomacy status, season, quest/achievement progress, lifetime stats.",
+    "priority": 30,
+    "status": "done",
+    "phase": 8,
+    "notes": "Created src/ui/summaryPanel.js with 6 summary cards in a responsive auto-fill grid. Empire header shows name/age/season badges. Resources card: all 6 with icon/name/value:cap/rate (positive=green, negative=red). Military card: unit rows with count+attack, hero row, training queue count, total attack power (with tech multipliers applied). Territory card: player tiles/%, enemy tiles, explored count. Diplomacy card: 3 empire rows with relation badge (neutral/allied/war colour coded) and trade route count. Progression card: quest progress bar (X/N + % fill), achievements bar (reads empireos-achievements localStorage, X/15), victory conditions checklist (Medieval Age + 80 territory + 10 quests) with green/red check icons. Lifetime Stats card: gold earned, peak territory, market trades, time played. Panel re-renders on 12 event types; RESOURCE_CHANGED throttled 4-tick; TICK drives a visibility-gated countdown re-render for time + season freshness. Added '📊 Empire' as first tab in tab bar (auto-activated by tabs.js). CSS: summary-grid auto-fill 230px; summary-card; sum-res-row/sum-stat-row/sum-dipl-row; sum-progress with quest/ach/victory fill variants; summary-empire-header/name/meta/badge. Mobile: single column at ≤480px."
+  },
+  {
     "id": "T026",
     "title": "wonder buildings (3 unique late-game structures)",
     "description": "Great Library (-25% research time, +1 mana/s), Colosseum (-33% training time, +3 food/s), Grand Cathedral (+8 gold/s, -50% disaster severity). Each unique (max 1 per game).",

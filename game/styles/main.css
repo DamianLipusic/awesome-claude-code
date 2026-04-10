@@ -1834,3 +1834,210 @@ body {
 
   .ach-grid { grid-template-columns: 1fr; }
 }
+
+/* ── Toast notifications (T029) ──────────────────────────────────────────── */
+
+@keyframes toast-in {
+  from { transform: translateX(24px); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+
+@keyframes toast-out {
+  from { transform: translateX(0);    opacity: 1; }
+  to   { transform: translateX(24px); opacity: 0; }
+}
+
+#toast-container {
+  position: fixed;
+  bottom: 20px;
+  right: 16px;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 8px;
+  z-index: 900;
+  pointer-events: none;
+}
+
+.toast {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--text-dim);
+  border-radius: var(--radius-lg);
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  max-width: 300px;
+  word-wrap: break-word;
+  box-shadow: 0 4px 16px rgba(0,0,0,.5);
+  animation: toast-in .22s ease-out;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.toast--exiting { animation: toast-out .25s ease-in forwards; }
+
+/* Type colour coding — matches log-entry border colours */
+.toast--quest       { border-left-color: #ffd700; }
+.toast--achievement { border-left-color: var(--gold); background: rgba(240,180,41,.07); }
+.toast--age         { border-left-color: var(--accent-h); }
+.toast--windfall    { border-left-color: var(--green); }
+.toast--raid        { border-left-color: var(--red); }
+.toast--disaster    { border-left-color: #ff9800; }
+.toast--diplomacy   { border-left-color: var(--blue); }
+.toast--hero        { border-left-color: var(--purple); }
+
+@media (max-width: 480px) {
+  #toast-container { right: 8px; bottom: 12px; }
+  .toast { max-width: calc(100vw - 24px); font-size: 12px; padding: 7px 11px; }
+}
+
+/* ── Empire Summary panel (T030) ─────────────────────────────────────────── */
+
+#panel-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 10px;
+}
+
+.summary-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.summary-card__title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.summary-card__title-icon { font-size: 14px; }
+
+.summary-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+/* Resources mini-table inside summary card */
+.sum-res-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.sum-res-icon  { font-size: 14px; width: 20px; text-align: center; flex-shrink: 0; }
+.sum-res-name  { flex: 1; color: var(--text-dim); }
+.sum-res-val   { font-weight: 600; min-width: 60px; text-align: right; }
+.sum-res-rate  { font-size: 11px; min-width: 52px; text-align: right; }
+.sum-res-rate--pos { color: var(--green); }
+.sum-res-rate--neg { color: var(--red); }
+
+/* Stat rows (territory, army, season, etc.) */
+.sum-stat-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  gap: 8px;
+}
+
+.sum-stat-label { color: var(--text-dim); }
+.sum-stat-value { font-weight: 600; color: var(--text); text-align: right; }
+.sum-stat-value--accent { color: var(--accent); }
+.sum-stat-value--green  { color: var(--green); }
+.sum-stat-value--red    { color: var(--red); }
+.sum-stat-value--blue   { color: var(--blue); }
+.sum-stat-value--purple { color: var(--purple); }
+
+/* Diplomacy mini-rows inside summary */
+.sum-dipl-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.sum-dipl-name   { flex: 1; }
+.sum-dipl-badge  {
+  font-size: 10px;
+  padding: 1px 7px;
+  border-radius: 99px;
+  border: 1px solid;
+  font-weight: 600;
+}
+.sum-dipl-badge--neutral { color: var(--text-dim); border-color: var(--border); }
+.sum-dipl-badge--allied  { color: var(--green);    border-color: var(--green); }
+.sum-dipl-badge--war     { color: var(--red);      border-color: var(--red); }
+
+/* Progress bars inside summary */
+.sum-progress {
+  height: 6px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  overflow: hidden;
+  margin-top: 2px;
+}
+
+.sum-progress__fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width .6s ease;
+}
+
+.sum-progress__fill--quest   { background: #ffd700; }
+.sum-progress__fill--ach     { background: var(--gold); }
+.sum-progress__fill--victory { background: var(--green); }
+
+/* Empire header inside summary */
+.summary-empire-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0 2px;
+}
+
+.summary-empire-name {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.summary-empire-meta {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+
+.summary-empire-badge {
+  font-size: 12px;
+  padding: 2px 9px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  background: var(--bg-panel);
+}
+
+@media (max-width: 480px) {
+  .summary-grid { grid-template-columns: 1fr; }
+}

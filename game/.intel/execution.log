@@ -340,6 +340,36 @@ Added Phase 7 content: a live resource trading market with fluctuating prices an
 
 ---
 
+## 2026-04-10 — Session 12
+
+**Tasks completed:** T029, T030
+
+**Summary:**
+Added Phase 8 polish: a toast notification system for high-importance game events and a comprehensive Empire Summary dashboard as the new first tab.
+
+**Files created:**
+- `game/src/ui/toastManager.js` — `initToasts()` creates `#toast-container` DOM node and subscribes to `MESSAGE` events; filters by `TOAST_TYPES` set (quest/achievement/age/raid/windfall/disaster); `showToast(text, type, duration)` creates `.toast.toast--{type}` div, auto-dismisses after 3.5 s via `setTimeout`; click-to-dismiss; `_dismissToast()` adds `.toast--exiting` for the exit animation then removes on `animationend` (400 ms fallback guard). Exported `showToast()` for potential external callers.
+- `game/src/ui/summaryPanel.js` — Empire dashboard with 6 summary cards: (1) Empire Header — name, age/season/time badges; (2) Resources — all 6 with icon/name/value:cap/rate, positive=green/negative=red; (3) Military — unit rows with ×count + attack, hero row, training queue count, total power (tech multipliers applied); (4) Territory — player tiles+%, enemy tiles, explored count; (5) Diplomacy — 3 empire rows with relation badge (neutral/allied/war colour coded) + trade route count; (6) Progression — quest progress bar, achievement progress bar (reads `empireos-achievements` localStorage directly), victory conditions checklist (Medieval + 80 tiles + 10 quests); (7) Lifetime Stats — gold earned, peak territory, market trades, time played. Panel re-renders on 12 event types; `RESOURCE_CHANGED` throttled to 4-tick; `TICK` drives a visibility-gated countdown re-render.
+
+**Files modified:**
+- `game/src/main.js` — Imported `initToasts` and `initSummaryPanel`; both called in boot sequence after other UI inits.
+- `game/index.html` — Added `📊 Empire` tab button as first tab (auto-activated by `tabs.js`'s `firstTab.click()` logic); added `#panel-summary` div in content area.
+- `game/styles/main.css` — Toast CSS: `#toast-container` fixed bottom-right z-900; `@keyframes toast-in/toast-out` (translateX slide); `.toast` + 8 type variant classes (border-left colour coding); mobile shrinks to full width. Summary CSS: `.summary-grid` auto-fill 230px; `.summary-card` + `__title`/`__body`; `.sum-res-row`, `.sum-stat-row`, `.sum-dipl-row` flex rows; `.sum-dipl-badge--neutral/allied/war`; `.sum-progress` + fill variants (quest=gold, ach=gold, victory=green); `.summary-empire-header/name/meta/badge`; mobile collapses to single column at ≤480px.
+- `game/.intel/tasks.json` — Added T029 and T030 task entries; marked both done.
+
+**Architecture decisions:**
+- Toast system subscribes to the existing `MESSAGE` event bus rather than new event types — all high-importance messages already go through `addMessage()` with typed categories, so filtering by type is a clean zero-coupling approach.
+- `showToast()` is exported for potential future callers (e.g., game-over panel) but initToasts() self-wires all subscriptions — consumers don't need to wire anything themselves.
+- Summary panel reads `empireos-achievements` localStorage directly (same pattern as settingsPanel.js) to avoid importing achievements.js (which registers event listeners and could cause duplicate subscriptions if imported multiple times).
+- `_tickCountdown()` handler checks panel visibility before re-rendering — avoids wasted renders when the panel is hidden (e.g., user is on Buildings tab). This is the first panel to use this pattern.
+- Victory condition thresholds are local constants mirroring systems/victory.js — no import needed and no tight coupling to the victory system.
+
+**Next session should tackle:**
+- T031: Keyboard shortcuts (tab navigation 1-8, space pause/resume, ? help overlay)
+- T032: Minimap / map terrain resource overlay
+
+---
+
 ## 2026-04-10 — Session 9
 
 **Tasks completed:** T024

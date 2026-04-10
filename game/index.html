@@ -25,6 +25,7 @@
 
   <!-- Tab bar -->
   <div id="tab-bar">
+    <button data-tab="summary">📊 Empire</button>
     <button data-tab="buildings">🏗️ Buildings</button>
     <button data-tab="military">⚔️ Military</button>
     <button data-tab="map">🗺️ Map</button>
@@ -39,6 +40,10 @@
 
   <!-- Main content -->
   <div id="content">
+    <div data-panel="summary" id="panel-summary" class="panel--hidden">
+      <!-- populated by summaryPanel.js -->
+    </div>
+
     <div data-panel="buildings" id="panel-buildings">
       <!-- populated by buildingPanel.js -->
     </div>
