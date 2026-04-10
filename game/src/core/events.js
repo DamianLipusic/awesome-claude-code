@@ -42,4 +42,5 @@ export const Events = Object.freeze({
   DIPLOMACY_CHANGED:  'diplomacyChanged',
   SEASON_CHANGED:     'seasonChanged',
   HERO_CHANGED:       'heroChanged',
+  GAME_OVER:          'gameOver',
 });

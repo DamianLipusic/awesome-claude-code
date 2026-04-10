@@ -160,4 +160,57 @@ export const BUILDINGS = Object.freeze({
       { type: 'tech',     id: 'engineering' },
     ],
   },
+
+  // ── Wonders ───────────────────────────────────────────────────────────────
+  // Unique (max 1 per game). Provide powerful late-game bonuses.
+
+  greatLibrary: {
+    name: 'Great Library',
+    icon: '🏛️',
+    description: 'Centre of learning. Cuts research time by 25%. Generates mana.',
+    baseCost: { gold: 500, stone: 300, iron: 200, mana: 100 },
+    production: { mana: 1 },
+    consumption: {},
+    capBonus: { mana: 300 },
+    requires: [
+      { type: 'age',      minAge: 2 },
+      { type: 'tech',     id: 'arcane' },
+      { type: 'building', id: 'manaWell', count: 2 },
+    ],
+    unique: true,
+    wonder: true,
+  },
+
+  colosseum: {
+    name: 'Colosseum',
+    icon: '🏟️',
+    description: 'Grand arena. Cuts unit training time by 33%. Feeds your people.',
+    baseCost: { gold: 400, stone: 350, iron: 120 },
+    production: { food: 3 },
+    consumption: {},
+    capBonus: {},
+    requires: [
+      { type: 'age',      minAge: 1 },
+      { type: 'building', id: 'barracks', count: 2 },
+    ],
+    unique: true,
+    wonder: true,
+  },
+
+  grandCathedral: {
+    name: 'Grand Cathedral',
+    icon: '⛪',
+    description: 'Sacred seat of power. +8 gold/s. Halves disaster severity.',
+    baseCost: { gold: 600, stone: 400, iron: 200, mana: 150 },
+    production: { gold: 8 },
+    consumption: {},
+    capBonus: { gold: 500 },
+    requires: [
+      { type: 'age',      minAge: 3 },
+      { type: 'building', id: 'manaWell', count: 2 },
+      { type: 'building', id: 'wall',     count: 2 },
+    ],
+    unique: true,
+    wonder: true,
+  },
 });

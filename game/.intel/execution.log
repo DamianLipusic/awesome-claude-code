@@ -328,3 +328,35 @@ Implemented full export/import save portability. Players can now export their sa
 - The action button node is replaced (via `cloneNode + replaceChild`) on each modal open to avoid stacking old click listeners without needing `removeEventListener`.
 - Import callback is `_applySave` from main.js — reuses all existing save hydration logic (Object.assign fields, recalcRates(), addMessage) with no duplication.
 - All 24 roadmap tasks are now complete. The game is feature-complete per the Phase 1–6 roadmap.
+
+---
+
+## 2026-04-10 — Session 10
+
+**Tasks completed:** T025, T026
+
+**Summary:**
+Added Phase 7 content: victory/defeat end conditions with a full-screen result screen, and three unique Wonder buildings that give powerful late-game bonuses.
+
+**Files created:**
+- `game/src/systems/victory.js` — `initVictory()` resets module-level counters; `victoryTick()` checks win (Medieval Age + ≥80 territory tiles + ≥10 quests) and lose (food = 0 + negative food rate for 120 ticks / 30 s). Issues a starvation warning at 60 ticks, then calls `stopLoop()` and emits `GAME_OVER` on threshold.
+- `game/src/ui/gameOverPanel.js` — Appends a full-screen overlay to `<body>` on init; subscribes to `GAME_OVER`; renders win (gold border, 🏆) or lose (red border, 💀) box with age / territory / quests / gold / time stats and a Play Again button that calls `_newGame()`.
+
+**Files modified:**
+- `game/src/core/events.js` — Added `GAME_OVER: 'gameOver'` event constant.
+- `game/src/core/state.js` — Added `gameOver: null` field; reset in `initState()`.
+- `game/src/main.js` — Extracted `_newGame()` helper (resets state + all systems + restarts loop); old New Game button now calls it; `initGameOverPanel(_newGame)` wired after UI init; `victoryTick` registered as 6th tick system; `initVictory()` called on boot and in `_newGame()`.
+- `game/src/data/buildings.js` — Added 3 wonder definitions (`greatLibrary` / `colosseum` / `grandCathedral`) with `unique: true, wonder: true` flags and appropriate Age + building + tech requirements.
+- `game/src/core/actions.js` — `buildBuilding()` now rejects `unique` buildings when `count ≥ 1`; `trainUnit()` chains Colosseum −33% speed after the existing Warcraft −25%.
+- `game/src/systems/research.js` — `startResearch()` applies −25% `totalTicks` when Great Library is built; stores `totalTicks` in queue entry for accurate progress display.
+- `game/src/systems/resources.js` — Grand Cathedral attenuates disaster `rateMult` by 50% in the `activeModifiers` loop.
+- `game/src/ui/buildingPanel.js` — Rewritten to `for` loop; inserts `🏛️ Wonders` section header before first wonder entry; renders `Built ✓` badge with no actions for already-built unique buildings; wonder cards get `.building-card--wonder` class; uses `btn--wonder` button.
+- `game/src/ui/researchPanel.js` — Progress bar now uses `active.totalTicks ?? def.researchTicks` to account for Library-adjusted durations.
+- `game/styles/main.css` — Wonder card CSS (`.wonder-section-header`, `.building-card--wonder`, `.building-card--wonder-built`, `.btn--wonder`); game-over overlay CSS (`.game-over-overlay`, `.game-over-box`, `.game-over-stats`, `.go-stat-*`, `.game-over-btn`; win/lose colour variants; `fade-in` animation).
+
+**Architecture decisions:**
+- Victory module state (`_triggered`, `_starvationTicks`) is module-level, not in `state` — it's reset via `initVictory()` on every new game and is never serialised (no need to save "currently starving for 8 seconds" across reloads).
+- `stopLoop()` in `_trigger()` halts the tick loop so no further system ticks run after game over; `_newGame()` calls `startLoop()` to resume without re-registering systems (systems array is module-level and persists).
+- Wonder buildings use existing `production` map so their output is handled by the same `recalcRates()` building loop with no special-casing — only their side-effects (research speed, training speed, disaster attenuation) need explicit branches.
+- Colosseum and Library bonuses are applied at queue-push time (stored `totalTicks`) matching the Warcraft/Inspire pattern — avoids per-tick branching and keeps progress bars accurate.
+- Grand Cathedral reads `state.buildings` directly inside `recalcRates()` with a `?? 0` guard, consistent with how other state is read inside that function.

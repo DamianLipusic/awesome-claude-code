@@ -214,5 +214,23 @@
     "status": "done",
     "phase": 6,
     "notes": "Created src/ui/saveModal.js: initSaveModal(onImport) injects modal DOM + close handlers (X button, Cancel, Esc, click-outside); exportSave() builds payload, base64-encodes with Unicode-safe btoa(unescape(encodeURIComponent(json))), shows modal with clipboard copy (with execCommand fallback); importSave() shows paste textarea, decodes with decodeURIComponent(escape(atob())), validates save.state field, calls onImport callback. Updated settingsPanel.js: imports exportSave/importSave; added '💾 Save Portability' section with Export and Import buttons; binds them in _render(). Updated main.js: imports initSaveModal; calls initSaveModal(_applySave) after UI init. CSS: .modal-overlay (fixed inset, backdrop-filter blur), .modal--hidden (display:none), .modal-box, .modal-header/.title/.close, .modal-body/.desc/.textarea/.error, .modal-footer, .btn--ghost, .save-port-buttons; responsive mobile rules."
+  },
+  {
+    "id": "T025",
+    "title": "victory and defeat conditions with endgame screen",
+    "description": "Win by reaching Medieval Age + 80 territory + 10 quests. Lose by starvation (food=0 for 30s). Game-over overlay shows stats and Play Again button.",
+    "priority": 25,
+    "status": "done",
+    "phase": 7,
+    "notes": "Created systems/victory.js: initVictory() resets module-level counters; victoryTick() checks win (age≥3 + tiles≥80 + quests≥10), lose (food=0 + negative rate for 120 ticks / 30s); warns at 60 starvation ticks; calls stopLoop() + emits GAME_OVER on trigger. Created ui/gameOverPanel.js: appends overlay to body; subscribes to GAME_OVER; renders win/lose box with stats (age, territory, quests, gold earned, time played), Play Again button which calls _newGame(). Added GAME_OVER event to events.js. Added state.gameOver field to state.js initState(). main.js: extracted _newGame() function (startLoop() + initVictory() + all system resets); old New Game button handler calls _newGame(); initGameOverPanel(_newGame) wired after UI init; victoryTick registered as 6th tick system; initVictory() called on boot. CSS: .game-over-overlay (fixed, z-2000, blur backdrop, fade-in animation), .game-over-box (win=gold border, lose=red border, pop-in animation), .game-over-stats (3-col grid), .go-stat-* cells, .game-over-btn."
+  },
+  {
+    "id": "T026",
+    "title": "wonder buildings (3 unique late-game structures)",
+    "description": "Great Library (-25% research time, +1 mana/s), Colosseum (-33% training time, +3 food/s), Grand Cathedral (+8 gold/s, -50% disaster severity). Each unique (max 1 per game).",
+    "priority": 26,
+    "status": "done",
+    "phase": 7,
+    "notes": "Added 3 wonder buildings to data/buildings.js with unique:true, wonder:true flags: greatLibrary (🏛️, Iron Age, arcane+manaWell×2, cost 500g/300s/200i/100m, +1 mana/s, +300 mana cap), colosseum (🏟️, Bronze Age, barracks×2, cost 400g/350s/120i, +3 food/s), grandCathedral (⛪, Medieval Age, manaWell×2+wall×2, cost 600g/400s/200i/150m, +8 gold/s, +500 gold cap). actions.js: buildBuilding() rejects unique buildings when count≥1; trainUnit() chains Colosseum -33% speed after warcraft -25%. research.js: startResearch() applies -25% totalTicks when greatLibrary built; totalTicks stored in queue entry. resources.js: grandCathedral halves disaster penalty in activeModifiers loop (1-(1-rateMult)*0.5). buildingPanel.js: rewritten to for-loop; injects '🏛️ Wonders' section header before first wonder; shows 'Built ✓' badge + description for already-built unique buildings (no actions); wonder cards get .building-card--wonder gold border class; Construct button uses .btn--wonder. researchPanel.js: progress bar uses active.totalTicks ?? def.researchTicks for Library-adjusted display. CSS: .wonder-section-header (grid-column:1/-1, gold text), .building-card--wonder (gold border tint), .building-card--wonder-built (solid gold border), .btn--wonder (gold gradient button)."
   }
 ]

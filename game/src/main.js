@@ -14,6 +14,7 @@ import { initQuests } from './systems/quests.js';
 import { initStory } from './systems/story.js';
 import { initDiplomacy, diplomacyTick } from './systems/diplomacy.js';
 import { initSeasons, seasonTick, currentSeason, seasonTicksRemaining } from './systems/seasons.js';
+import { initVictory, victoryTick } from './systems/victory.js';
 import { SEASONS } from './data/seasons.js';
 import { AGES } from './data/ages.js';
 import { TICKS_PER_SECOND } from './core/tick.js';
@@ -27,6 +28,7 @@ import { initQuestPanel } from './ui/questPanel.js';
 import { initStoryPanel } from './ui/storyPanel.js';
 import { initSettingsPanel } from './ui/settingsPanel.js';
 import { initSaveModal } from './ui/saveModal.js';
+import { initGameOverPanel } from './ui/gameOverPanel.js';
 import { initDiplomacyPanel } from './ui/diplomacyPanel.js';
 import { initTabs } from './ui/tabs.js';
 import { addMessage } from './core/actions.js';
@@ -58,6 +60,7 @@ function boot() {
   registerSystem(randomEventTick);
   registerSystem(diplomacyTick);
   registerSystem(seasonTick);
+  registerSystem(victoryTick);
 
   // Init event-driven systems
   initRandomEvents();
@@ -65,6 +68,7 @@ function boot() {
   initStory();
   initDiplomacy();
   initSeasons();
+  initVictory();
 
   // Init UI
   initHUD();
@@ -79,6 +83,7 @@ function boot() {
   initDiplomacyPanel();
   initMessageLog();
   initSaveModal(_applySave);
+  initGameOverPanel(_newGame);
 
   // Bind top-level controls
   _bindControls();
@@ -251,6 +256,33 @@ function _updatePeakTerritory() {
   if (count > state.stats.peakTerritory) state.stats.peakTerritory = count;
 }
 
+// ── New Game ──────────────────────────────────────────────────────────────
+
+/**
+ * Reset all state and start a fresh game.
+ * Called from both the New Game button and the game-over Play Again button.
+ */
+function _newGame() {
+  _saveToLeaderboard();
+  localStorage.removeItem('empireos-save');
+  initState('My Empire');
+  initMap();
+  initRandomEvents();
+  initDiplomacy();
+  initSeasons();
+  initVictory();
+  recalcRates();
+  startLoop();  // restart loop in case it was stopped by game-over
+  emit(Events.MAP_CHANGED, {});
+  emit(Events.HERO_CHANGED, {});
+  addMessage('New game started. Build your empire!', 'info');
+  emit(Events.STATE_CHANGED, {});
+  emit(Events.RESOURCE_CHANGED, {});
+  emit(Events.BUILDING_CHANGED, {});
+  emit(Events.TECH_CHANGED, {});
+  emit(Events.AGE_CHANGED, { age: 0 });
+}
+
 // ── UI Controls ───────────────────────────────────────────────────────────
 
 function _bindControls() {
@@ -261,23 +293,7 @@ function _bindControls() {
 
   document.getElementById('btn-new-game')?.addEventListener('click', () => {
     if (confirm('Start a new game? This will erase your current progress.')) {
-      // Save current session score to the leaderboard before wiping
-      _saveToLeaderboard();
-      localStorage.removeItem('empireos-save');
-      initState('My Empire');
-      initMap();
-      initRandomEvents();
-      initDiplomacy();
-      initSeasons();
-      recalcRates();
-      emit(Events.MAP_CHANGED, {});
-      emit(Events.HERO_CHANGED, {});
-      addMessage('New game started. Build your empire!', 'info');
-      emit(Events.STATE_CHANGED, {});
-      emit(Events.RESOURCE_CHANGED, {});
-      emit(Events.BUILDING_CHANGED, {});
-      emit(Events.TECH_CHANGED, {});
-      emit(Events.AGE_CHANGED, { age: 0 });
+      _newGame();
     }
   });
 

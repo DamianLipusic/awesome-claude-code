@@ -36,6 +36,12 @@ export function buildBuilding(id) {
   if (!def) return { ok: false, reason: `Unknown building: ${id}` };
 
   const count = state.buildings[id] ?? 0;
+
+  // Unique (wonder) buildings can only be built once
+  if (def.unique && count >= 1) {
+    return { ok: false, reason: `${def.name} has already been built.` };
+  }
+
   const cost  = scaledCost(def.baseCost, count);
 
   if (!canAfford(cost)) {
@@ -85,10 +91,10 @@ export function trainUnit(id) {
   }
 
   deductCost(def.cost);
-  // Warcraft tech: -25% training time
-  const totalTicks = state.techs.warcraft
-    ? Math.ceil(def.trainTicks * 0.75)
-    : def.trainTicks;
+  // Warcraft tech: -25% training time; Colosseum wonder: additional -33%
+  let totalTicks = def.trainTicks;
+  if (state.techs.warcraft)               totalTicks = Math.ceil(totalTicks * 0.75);
+  if ((state.buildings.colosseum ?? 0) >= 1) totalTicks = Math.ceil(totalTicks * 0.67);
   state.trainingQueue.push({ unitId: id, remaining: totalTicks, totalTicks });
 
   emit(Events.UNIT_CHANGED, {});

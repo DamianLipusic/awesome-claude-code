@@ -94,6 +94,10 @@ export const state = {
   // { goldEarned: number, peakTerritory: number }
   stats: null,
 
+  // Game-over state: null while playing, set when win/lose triggered
+  // { outcome: 'win'|'lose', reason: string, tick: number }
+  gameOver: null,
+
   // Current game tick count (increments every 250ms)
   tick: 0,
 
@@ -127,6 +131,7 @@ export function initState(empireName = 'My Empire') {
   state.season         = null;
   state.hero           = null;
   state.stats          = { goldEarned: 0, peakTerritory: 0 };
+  state.gameOver       = null;
   state.tick           = 0;
   state.running        = false;
 }

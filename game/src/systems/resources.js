@@ -97,10 +97,15 @@ export function recalcRates() {
   }
 
   // Apply active disaster modifiers (from random event system)
+  // Grand Cathedral wonder: halves disaster severity (attenuates penalty by 50%)
+  const cathedralBuilt = (state.buildings?.grandCathedral ?? 0) >= 1;
   const mods = state.randomEvents?.activeModifiers ?? [];
   for (const mod of mods) {
     if (mod.expiresAt > state.tick && rates[mod.resource] !== undefined) {
-      rates[mod.resource] *= mod.rateMult;
+      const effectiveMult = cathedralBuilt
+        ? 1 - (1 - mod.rateMult) * 0.5   // half the penalty
+        : mod.rateMult;
+      rates[mod.resource] *= effectiveMult;
     }
   }
 

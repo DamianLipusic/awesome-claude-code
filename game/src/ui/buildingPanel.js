@@ -38,26 +38,53 @@ function renderBuildingPanel() {
   const panel = document.getElementById('panel-buildings');
   if (!panel) return;
 
-  panel.innerHTML = Object.entries(BUILDINGS).map(([id, def]) => {
-    const count   = state.buildings[id] ?? 0;
-    const cost    = scaledCost(def.baseCost, count);
-    const canBuy  = canAfford(cost);
-    const locked  = !meetsRequirements(def.requires);
+  let html = '';
+  let wonderHeaderAdded = false;
 
-    if (locked) return `
-      <div class="building-card building-card--locked" data-building-id="${id}" title="Locked: build prerequisites first">
-        <span class="building-card__icon">${def.icon}</span>
-        <span class="building-card__name">${def.name}</span>
-        <span class="building-card__count">🔒</span>
-      </div>`;
+  for (const [id, def] of Object.entries(BUILDINGS)) {
+    const count  = state.buildings[id] ?? 0;
+    const locked = !meetsRequirements(def.requires);
 
-    const costStr = Object.entries(cost)
-      .map(([r, a]) => `${_resIcon(r)}${fmtNum(a)}`).join(' ');
-    const prodStr = Object.entries(def.production)
-      .map(([r, a]) => `+${a}/s ${_resIcon(r)}`).join(' ');
+    // Insert Wonders section header before first wonder building
+    if (def.wonder && !wonderHeaderAdded) {
+      wonderHeaderAdded = true;
+      html += `<div class="wonder-section-header">🏛️ Wonders</div>`;
+    }
 
-    return `
-      <div class="building-card ${canBuy ? '' : 'building-card--cant-afford'}"
+    if (locked) {
+      html += `
+        <div class="building-card building-card--locked${def.wonder ? ' building-card--wonder' : ''}"
+             data-building-id="${id}" title="Locked: build prerequisites first">
+          <span class="building-card__icon">${def.icon}</span>
+          <span class="building-card__name">${def.name}</span>
+          <span class="building-card__count">🔒</span>
+        </div>`;
+      continue;
+    }
+
+    // Unique building already built — show "Built" state, no actions
+    if (def.unique && count >= 1) {
+      html += `
+        <div class="building-card building-card--wonder building-card--wonder-built"
+             data-building-id="${id}" title="${def.description}">
+          <div class="building-card__header">
+            <span class="building-card__icon">${def.icon}</span>
+            <span class="building-card__name">${def.name}</span>
+            <span class="building-card__count building-card__count--built">✓ Built</span>
+          </div>
+          <div class="building-card__prod">${Object.entries(def.production).map(([r,a]) => `+${a}/s ${_resIcon(r)}`).join(' ')}</div>
+          <div class="building-card__cost building-card__cost--wonder">${def.description}</div>
+        </div>`;
+      continue;
+    }
+
+    const cost   = scaledCost(def.baseCost, count);
+    const canBuy = canAfford(cost);
+    const costStr = Object.entries(cost).map(([r, a]) => `${_resIcon(r)}${fmtNum(a)}`).join(' ');
+    const prodStr = Object.entries(def.production).map(([r, a]) => `+${a}/s ${_resIcon(r)}`).join(' ');
+
+    html += `
+      <div class="building-card ${def.wonder ? 'building-card--wonder' : ''} ${canBuy ? '' : 'building-card--cant-afford'}"
            data-building-id="${id}"
            title="${def.description}">
         <div class="building-card__header">
@@ -68,13 +95,15 @@ function renderBuildingPanel() {
         ${prodStr ? `<div class="building-card__prod">${prodStr}</div>` : ''}
         <div class="building-card__cost">${costStr}</div>
         <div class="building-card__actions">
-          <button class="btn btn--build ${canBuy ? '' : 'btn--disabled'}"
+          <button class="btn ${def.wonder ? 'btn--wonder' : 'btn--build'} ${canBuy ? '' : 'btn--disabled'}"
                   data-action="build" data-id="${id}"
-                  ${canBuy ? '' : 'disabled'}>Build</button>
-          ${count > 0 ? `<button class="btn btn--demolish" data-action="demolish" data-id="${id}">−</button>` : ''}
+                  ${canBuy ? '' : 'disabled'}>${def.wonder ? 'Construct' : 'Build'}</button>
+          ${!def.unique && count > 0 ? `<button class="btn btn--demolish" data-action="demolish" data-id="${id}">−</button>` : ''}
         </div>
       </div>`;
-  }).join('');
+  }
+
+  panel.innerHTML = html;
 
   // Delegate click events
   panel.onclick = (e) => {

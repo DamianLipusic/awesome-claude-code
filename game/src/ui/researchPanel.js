@@ -33,7 +33,8 @@ function renderResearchPanel() {
   const progressHtml = active
     ? (() => {
         const def = TECHS[active.techId];
-        const total = def.researchTicks;
+        // Use stored totalTicks (accounts for Great Library speed bonus)
+        const total = active.totalTicks ?? def.researchTicks;
         const done  = total - active.remaining;
         const pct   = Math.floor((done / total) * 100);
         const secsLeft = Math.ceil(active.remaining / TICKS_PER_SECOND);

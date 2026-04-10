@@ -59,7 +59,11 @@ export function startResearch(techId) {
     state.resources[res] -= amt;
   }
 
-  state.researchQueue.push({ techId, remaining: def.researchTicks });
+  // Great Library wonder: -25% research time
+  const libraryBuilt = (state.buildings?.greatLibrary ?? 0) >= 1;
+  const totalTicks = libraryBuilt ? Math.ceil(def.researchTicks * 0.75) : def.researchTicks;
+
+  state.researchQueue.push({ techId, remaining: totalTicks, totalTicks });
   addMessage(`Researching ${def.name}…`, 'research');
   emit(Events.TECH_CHANGED, {});
   return { ok: true };
