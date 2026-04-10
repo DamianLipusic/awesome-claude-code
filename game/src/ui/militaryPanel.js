@@ -2,20 +2,20 @@
  * EmpireOS — Military panel UI.
  *
  * Shows:
+ *   - Hero section (recruit / active abilities)
  *   - Current army composition (trained units)
  *   - Training queue with progress
  *   - Unit cards with costs, stats, and Train button
- *
- * Gated on building requirements (same as T006 unit data).
  */
 
 import { state } from '../core/state.js';
 import { on, Events } from '../core/events.js';
-import { trainUnit } from '../core/actions.js';
+import { trainUnit, recruitHero, useHeroAbility, addMessage } from '../core/actions.js';
 import { UNITS } from '../data/units.js';
 import { BUILDINGS } from '../data/buildings.js';
 import { TECHS } from '../data/techs.js';
 import { AGES } from '../data/ages.js';
+import { HERO_DEF } from '../data/hero.js';
 import { fmtNum } from '../utils/fmt.js';
 
 const UNIT_ORDER = ['soldier', 'archer', 'knight', 'mage'];
@@ -32,14 +32,29 @@ export function initMilitaryPanel() {
   on(Events.BUILDING_CHANGED, () => _render(panel));
   on(Events.TECH_CHANGED,     () => _render(panel));
   on(Events.AGE_CHANGED,      () => _render(panel));
+  on(Events.HERO_CHANGED,     () => _render(panel));
   on(Events.RESOURCE_CHANGED, () => _renderCosts(panel));
   on(Events.GAME_LOADED,      () => _render(panel));
+
+  // Refresh hero ability cooldown countdowns every ~4 seconds while panel visible
+  let _tickCount = 0;
+  on(Events.TICK, () => {
+    if (state.hero?.recruited && ++_tickCount % 16 === 0) {
+      const h = state.hero;
+      const hasActivity = h.activeEffects.battleCry ||
+        h.activeEffects.inspire > state.tick ||
+        h.activeEffects.siege ||
+        Object.values(h.abilityCooldowns).some(cd => cd > state.tick);
+      if (hasActivity) _render(panel);
+    }
+  });
 }
 
 // ── Rendering ──────────────────────────────────────────────────────────────
 
 function _render(panel) {
   panel.innerHTML = `
+    ${_heroSection()}
     ${_armySection()}
     ${_queueSection()}
     <div class="unit-grid" id="unit-grid">
@@ -50,9 +65,98 @@ function _render(panel) {
   panel.addEventListener('click', _handleClick);
 }
 
+// ── Hero section ───────────────────────────────────────────────────────────
+
+function _heroSection() {
+  if (state.hero?.recruited) return _heroActiveSection();
+
+  // Recruit card
+  const ageReq    = HERO_DEF.requires.find(r => r.type === 'age');
+  const ageOk     = !ageReq || (state.age ?? 0) >= ageReq.minAge;
+  const affordable = Object.entries(HERO_DEF.cost).every(([r, a]) => (state.resources[r] ?? 0) >= a);
+  const disabled  = !ageOk || !affordable;
+
+  const costStr = Object.entries(HERO_DEF.cost)
+    .map(([r, a]) => `${_resIcon(r)}${fmtNum(a)}`).join(' ');
+
+  const reqLine = !ageOk
+    ? `<div class="hero-card__req">🔒 Requires ${AGES[ageReq.minAge]?.name ?? `Age ${ageReq.minAge}`}</div>`
+    : `<div class="hero-card__cost">Cost: ${costStr}</div>`;
+
+  return `<div class="hero-card hero-card--recruit">
+    <div class="hero-card__header">
+      <span class="hero-card__icon">${HERO_DEF.icon}</span>
+      <span class="hero-card__name">${HERO_DEF.name}</span>
+      <span class="hero-card__subtitle">Hero Unit — once per game</span>
+    </div>
+    <div class="hero-card__desc">${HERO_DEF.description}</div>
+    <div class="hero-card__stats">⚔ +${HERO_DEF.attack} combat power &nbsp; 🛡 ${HERO_DEF.defense}</div>
+    <div class="hero-card__upkeep">Upkeep: ${Object.entries(HERO_DEF.upkeep).map(([r,a]) => `${_resIcon(r)}${a}/s`).join(' ')}</div>
+    ${reqLine}
+    <button class="btn btn--hero ${disabled ? 'btn--disabled' : ''}"
+      data-action="recruit-hero" ${disabled ? 'disabled' : ''}>
+      ⭐ Recruit Champion
+    </button>
+  </div>`;
+}
+
+function _heroActiveSection() {
+  const h   = state.hero;
+  const now = state.tick;
+
+  const abilities = Object.values(HERO_DEF.abilities).map(ab => {
+    const cdExpires = h.abilityCooldowns[ab.id] ?? 0;
+    const onCd      = now < cdExpires;
+
+    // Check if this ability's effect is currently pending / active
+    let effectLabel = '';
+    if (ab.id === 'battleCry' && h.activeEffects.battleCry) {
+      effectLabel = `<span class="hero-effect--active">⚡ Primed!</span>`;
+    } else if (ab.id === 'inspire' && h.activeEffects.inspire > now) {
+      const secsLeft = Math.ceil((h.activeEffects.inspire - now) / 4);
+      effectLabel = `<span class="hero-effect--active">✅ Active ${secsLeft}s</span>`;
+    } else if (ab.id === 'siege' && h.activeEffects.siege) {
+      effectLabel = `<span class="hero-effect--active">⚡ Primed!</span>`;
+    } else if (onCd) {
+      const secsLeft = Math.ceil((cdExpires - now) / 4);
+      effectLabel = `<span class="hero-effect--cd">⏱ ${secsLeft}s</span>`;
+    }
+
+    const effectPending =
+      (ab.id === 'battleCry' && h.activeEffects.battleCry) ||
+      (ab.id === 'inspire'   && h.activeEffects.inspire > now) ||
+      (ab.id === 'siege'     && h.activeEffects.siege);
+    const disabled = onCd || effectPending;
+
+    return `<div class="hero-ability">
+      <button class="btn btn--ability ${disabled ? 'btn--disabled' : ''}"
+        data-action="hero-ability" data-ability="${ab.id}" ${disabled ? 'disabled' : ''}>
+        ${ab.icon} ${ab.name}
+      </button>
+      <span class="hero-ability__desc">${ab.desc}</span>
+      ${effectLabel}
+    </div>`;
+  }).join('');
+
+  const upkeepStr = Object.entries(HERO_DEF.upkeep)
+    .map(([r, a]) => `${_resIcon(r)}${a}/s`).join(' ');
+
+  return `<div class="hero-card hero-card--active">
+    <div class="hero-card__header">
+      <span class="hero-card__icon">${HERO_DEF.icon}</span>
+      <span class="hero-card__name">${HERO_DEF.name}</span>
+      <span class="hero-card__badge">Active</span>
+    </div>
+    <div class="hero-card__stats">⚔ +${HERO_DEF.attack} combat power &nbsp; Upkeep: ${upkeepStr}</div>
+    <div class="hero-abilities">${abilities}</div>
+  </div>`;
+}
+
+// ── Army summary ───────────────────────────────────────────────────────────
+
 function _armySection() {
   const entries = UNIT_ORDER.filter(id => (state.units[id] ?? 0) > 0);
-  if (entries.length === 0) {
+  if (entries.length === 0 && !state.hero?.recruited) {
     return `<div class="mil-army">
       <span class="mil-section-title">⚔️ Army</span>
       <span class="mil-empty">No units trained yet.</span>
@@ -78,12 +182,21 @@ function _armySection() {
   if (state.techs.tactics)     totalPower *= 1.25;
   if (state.techs.steel)       totalPower *= 1.5;
   if (state.techs.engineering) totalPower *= 1.1;
+  // Hero bonus
+  if (state.hero?.recruited) totalPower += HERO_DEF.attack;
+
+  const heroEntry = state.hero?.recruited ? `<span class="mil-unit-badge mil-unit-badge--hero">
+    ${HERO_DEF.icon} <strong>1</strong> ${HERO_DEF.name}
+    <span class="mil-power">⚔ ${HERO_DEF.attack}</span>
+  </span>` : '';
 
   return `<div class="mil-army">
     <span class="mil-section-title">⚔️ Army <span class="mil-total-power">Combat power: ${Math.round(totalPower)}</span></span>
-    <div class="mil-badges">${items}</div>
+    <div class="mil-badges">${heroEntry}${items}</div>
   </div>`;
 }
+
+// ── Training queue ─────────────────────────────────────────────────────────
 
 function _queueSection() {
   if (state.trainingQueue.length === 0) return '';
@@ -97,8 +210,14 @@ function _queueSection() {
     `<span>${UNITS[e.unitId]?.icon ?? '?'} ${UNITS[e.unitId]?.name ?? e.unitId}</span>`
   ).join('');
 
+  const inspireActive = state.hero?.recruited &&
+    state.hero.activeEffects?.inspire > state.tick;
+  const speedNote = inspireActive
+    ? ' <span class="hero-effect--active">✨ 2× speed</span>'
+    : '';
+
   return `<div class="mil-queue">
-    <span class="mil-section-title">🔄 Training</span>
+    <span class="mil-section-title">🔄 Training${speedNote}</span>
     <div class="research-active">
       <span>${def?.icon ?? '?'} <strong>${def?.name ?? current.unitId}</strong></span>
       <div class="progress-bar">
@@ -110,11 +229,13 @@ function _queueSection() {
   </div>`;
 }
 
+// ── Unit cards ─────────────────────────────────────────────────────────────
+
 function _unitCard(id) {
   const def    = UNITS[id];
   if (!def) return '';
 
-  const unlocked = _isUnlocked(id);
+  const unlocked  = _isUnlocked(id);
   const canAfford = unlocked && _canAfford(def.cost);
 
   const costStr = Object.entries(def.cost)
@@ -163,7 +284,6 @@ function _unitCard(id) {
 }
 
 function _renderCosts(panel) {
-  // Lightweight refresh: just update disabled state of Train buttons
   panel.querySelectorAll('[data-train]').forEach(btn => {
     const id  = btn.dataset.train;
     const def = UNITS[id];
@@ -177,9 +297,22 @@ function _renderCosts(panel) {
 // ── Interaction ────────────────────────────────────────────────────────────
 
 function _handleClick(e) {
-  const btn = e.target.closest('[data-train]');
-  if (!btn || btn.disabled) return;
-  trainUnit(btn.dataset.train);
+  const trainBtn = e.target.closest('[data-train]');
+  if (trainBtn && !trainBtn.disabled) {
+    trainUnit(trainBtn.dataset.train);
+    return;
+  }
+
+  const actionBtn = e.target.closest('[data-action]');
+  if (!actionBtn || actionBtn.disabled) return;
+
+  if (actionBtn.dataset.action === 'recruit-hero') {
+    const result = recruitHero();
+    if (!result.ok) addMessage(result.reason, 'info');
+  } else if (actionBtn.dataset.action === 'hero-ability') {
+    const result = useHeroAbility(actionBtn.dataset.ability);
+    if (!result.ok) addMessage(result.reason, 'info');
+  }
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────

@@ -30,6 +30,9 @@ import { initDiplomacyPanel } from './ui/diplomacyPanel.js';
 import { initTabs } from './ui/tabs.js';
 import { addMessage } from './core/actions.js';
 
+// Leaderboard localStorage key (shared with settingsPanel.js)
+const LB_KEY = 'empireos-leaderboard';
+
 // ── Boot sequence ─────────────────────────────────────────────────────────
 
 function boot() {
@@ -78,6 +81,9 @@ function boot() {
   // Bind top-level controls
   _bindControls();
 
+  // Track peak territory for leaderboard
+  on(Events.MAP_CHANGED, _updatePeakTerritory);
+
   // Update age badge on changes
   _updateAgeBadge();
   on(Events.AGE_CHANGED, _updateAgeBadge);
@@ -103,7 +109,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 7,
+      version: 8,
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -123,6 +129,8 @@ function _save() {
         story:         state.story,
         diplomacy:     state.diplomacy,
         season:        state.season,
+        hero:          state.hero,
+        stats:         state.stats,
         tick:          state.tick,
       }
     }));
@@ -158,6 +166,8 @@ function _applySave(save) {
   state.story          = s.story          ?? [];
   state.diplomacy      = s.diplomacy      ?? null;
   state.season         = s.season         ?? null;
+  state.hero           = s.hero           ?? null;
+  state.stats          = s.stats          ?? { goldEarned: 0, peakTerritory: 0 };
   state.tick           = s.tick           ?? 0;
   recalcRates();
   addMessage('Game loaded.', 'info');
@@ -187,6 +197,58 @@ function _updateSeasonBadge() {
   el.title = `${s.name}: ${s.desc} — Changes in ${timeStr}`;
 }
 
+// ── Leaderboard ───────────────────────────────────────────────────────────
+
+/**
+ * Persist the current session's stats to the shared leaderboard in localStorage.
+ * Called before wiping state on New Game.
+ * Only records if the player has done something meaningful (tick > 0).
+ */
+function _saveToLeaderboard() {
+  if (!state.tick || state.tick < 40) return; // ignore trivially-short sessions
+  try {
+    const raw = localStorage.getItem(LB_KEY);
+    const lb  = (raw ? JSON.parse(raw) : null) ?? { scores: [] };
+
+    const quests = Object.keys(state.quests?.completed ?? {}).length;
+    lb.scores.push({
+      name:       state.empire.name,
+      territory:  state.stats?.peakTerritory ?? 0,
+      goldEarned: Math.round(state.stats?.goldEarned ?? 0),
+      age:        state.age ?? 0,
+      quests,
+      tick:       state.tick,
+      date:       new Date().toLocaleDateString(),
+    });
+
+    // Keep top 10 ranked by territory (primary) then gold (secondary)
+    lb.scores.sort((a, b) =>
+      b.territory !== a.territory
+        ? b.territory - a.territory
+        : b.goldEarned - a.goldEarned
+    );
+    lb.scores = lb.scores.slice(0, 10);
+
+    localStorage.setItem(LB_KEY, JSON.stringify(lb));
+  } catch (e) {
+    console.error('[leaderboard save error]', e);
+  }
+}
+
+/**
+ * Keep state.stats.peakTerritory up to date after every map change.
+ */
+function _updatePeakTerritory() {
+  if (!state.stats || !state.map) return;
+  let count = 0;
+  for (const row of state.map.tiles) {
+    for (const tile of row) {
+      if (tile.owner === 'player') count++;
+    }
+  }
+  if (count > state.stats.peakTerritory) state.stats.peakTerritory = count;
+}
+
 // ── UI Controls ───────────────────────────────────────────────────────────
 
 function _bindControls() {
@@ -197,6 +259,8 @@ function _bindControls() {
 
   document.getElementById('btn-new-game')?.addEventListener('click', () => {
     if (confirm('Start a new game? This will erase your current progress.')) {
+      // Save current session score to the leaderboard before wiping
+      _saveToLeaderboard();
       localStorage.removeItem('empireos-save');
       initState('My Empire');
       initMap();
@@ -205,6 +269,7 @@ function _bindControls() {
       initSeasons();
       recalcRates();
       emit(Events.MAP_CHANGED, {});
+      emit(Events.HERO_CHANGED, {});
       addMessage('New game started. Build your empire!', 'info');
       emit(Events.STATE_CHANGED, {});
       emit(Events.RESOURCE_CHANGED, {});

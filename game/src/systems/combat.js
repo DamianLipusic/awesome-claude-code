@@ -11,6 +11,7 @@
 import { state } from '../core/state.js';
 import { emit, Events } from '../core/events.js';
 import { UNITS } from '../data/units.js';
+import { HERO_DEF } from '../data/hero.js';
 import { addMessage } from '../core/actions.js';
 import { revealAround } from './map.js';
 import { recalcRates } from './resources.js';
@@ -57,9 +58,32 @@ export function attackTile(x, y) {
   if (state.techs.steel)       attackPower *= 1.5;
   if (state.techs.engineering) attackPower *= 1.1;
 
+  // Hero bonus: flat attack power + Battle Cry (×2) on next attack
+  if (state.hero?.recruited) {
+    attackPower += HERO_DEF.attack;
+    if (state.hero.activeEffects?.battleCry) {
+      attackPower *= 2;
+      state.hero.activeEffects.battleCry = false;
+      emit(Events.HERO_CHANGED, {});
+      addMessage('📣 Battle Cry: attack power doubled this strike!', 'hero');
+    }
+  }
+
   // ── Probabilistic resolution ─────────────────────────────────────────────
-  const defense   = tile.defense;
-  const winChance = Math.min(0.9, Math.max(0.1, attackPower / (attackPower + defense)));
+  // Siege Master: guaranteed victory this attack, ignores tile defense
+  let siegeActive = false;
+  let defense = tile.defense;
+  if (state.hero?.recruited && state.hero.activeEffects?.siege) {
+    siegeActive = true;
+    defense = 0;
+    state.hero.activeEffects.siege = false;
+    emit(Events.HERO_CHANGED, {});
+    addMessage('🏰 Siege Master: tile defenses bypassed!', 'hero');
+  }
+
+  const winChance = siegeActive
+    ? 1.0
+    : Math.min(0.9, Math.max(0.1, attackPower / (attackPower + defense)));
   const roll      = Math.random();
 
   if (roll < winChance) {

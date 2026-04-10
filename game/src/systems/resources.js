@@ -14,6 +14,7 @@ import { UNITS } from '../data/units.js';
 import { AGES } from '../data/ages.js';
 import { EMPIRES } from '../data/empires.js';
 import { SEASONS } from '../data/seasons.js';
+import { HERO_DEF } from '../data/hero.js';
 import { TICKS_PER_SECOND } from '../core/tick.js';
 import { territoryRateBonus } from './map.js';
 
@@ -88,6 +89,13 @@ export function recalcRates() {
     }
   }
 
+  // Hero upkeep (flat, not scaled by count)
+  if (state.hero?.recruited) {
+    for (const [res, amt] of Object.entries(HERO_DEF.upkeep)) {
+      rates[res] = (rates[res] ?? 0) - amt;
+    }
+  }
+
   // Apply active disaster modifiers (from random event system)
   const mods = state.randomEvents?.activeModifiers ?? [];
   for (const mod of mods) {
@@ -122,6 +130,12 @@ export function resourceTick() {
   // Advance training queue
   _advanceTrainingQueue();
 
+  // Track lifetime gold earned for leaderboard
+  if (state.stats) {
+    const goldDelta = (state.rates.gold ?? 0) / TICKS_PER_SECOND;
+    if (goldDelta > 0) state.stats.goldEarned += goldDelta;
+  }
+
   if (changed) emit(Events.RESOURCE_CHANGED, {});
 }
 
@@ -129,7 +143,10 @@ function _advanceTrainingQueue() {
   if (state.trainingQueue.length === 0) return;
 
   const entry = state.trainingQueue[0];
-  entry.remaining--;
+  // Inspire ability: double training speed while active
+  const inspireActive = state.hero?.recruited &&
+    state.hero.activeEffects?.inspire > state.tick;
+  entry.remaining -= inspireActive ? 2 : 1;
 
   if (entry.remaining <= 0) {
     state.trainingQueue.shift();

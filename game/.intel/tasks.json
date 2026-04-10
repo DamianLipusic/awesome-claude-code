@@ -193,16 +193,18 @@
     "title": "hero unit with special abilities",
     "description": "Hero unit with unique abilities (battle cry, inspire, siege), recruit once per game.",
     "priority": 22,
-    "status": "pending",
-    "phase": 6
+    "status": "done",
+    "phase": 6,
+    "notes": "Created data/hero.js with HERO_DEF (Champion, +60 attack, 3 abilities). recruitHero()/useHeroAbility() in actions.js. Hero upkeep in recalcRates(); Inspire doubles training speed in _advanceTrainingQueue(). Combat: hero adds flat +60 power; Battle Cry ×2 attack on next strike (consumed); Siege Master guarantees win (winChance=1.0, consumed). militaryPanel.js: hero section shows recruit card (age-gated, cost-gated) or active hero with ability buttons + cooldown countdowns (16-tick refresh). army section shows hero badge. HERO_CHANGED event. state.hero saved/loaded (version 8). CSS: .hero-card, .hero-card--active, .btn--hero, .hero-ability, .btn--ability, .hero-effect--active/--cd, .mil-unit-badge--hero, .log-entry--hero."
   },
   {
     "id": "T023",
     "title": "leaderboard (localStorage high scores)",
     "description": "Track best territory count and gold earned per session, display top 5.",
     "priority": 23,
-    "status": "pending",
-    "phase": 6
+    "status": "done",
+    "phase": 6,
+    "notes": "state.stats = {goldEarned, peakTerritory} added to state.js+initState(). goldEarned tracked in resourceTick() (adds gold rate/tick when positive). peakTerritory updated on MAP_CHANGED in main.js._updatePeakTerritory(). _saveToLeaderboard() called on New Game before wipe; saves {name, territory, goldEarned, age, quests, tick, date} to 'empireos-leaderboard' localStorage key; keeps top 10 sorted by territory then gold. settingsPanel.js: leaderboard section renders top-5 rows in a grid table with clear button. state.stats saved/loaded (save version 8). CSS: .lb-table, .lb-header, .lb-row (--gold for #1), .lb-rank/name/territory/gold/age/date."
   },
   {
     "id": "T024",

@@ -41,4 +41,5 @@ export const Events = Object.freeze({
   QUEST_COMPLETED:    'questCompleted',
   DIPLOMACY_CHANGED:  'diplomacyChanged',
   SEASON_CHANGED:     'seasonChanged',
+  HERO_CHANGED:       'heroChanged',
 });

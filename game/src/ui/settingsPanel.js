@@ -3,13 +3,16 @@
  *
  * Provides:
  *   - Game speed control: 0.5× / 1× / 2× / 4×
+ *   - Leaderboard: top 5 scores from past sessions
  *   - Sound toggle placeholder (disabled — no audio implemented yet)
  *   - About section
  */
 
 import { setTickSpeed, getTickSpeed } from '../core/tick.js';
 
-const PANEL_ID = 'panel-settings';
+const PANEL_ID   = 'panel-settings';
+const LB_KEY     = 'empireos-leaderboard';
+const AGE_NAMES  = ['Stone', 'Bronze', 'Iron', 'Medieval'];
 
 const SPEEDS = [
   { label: '½×', value: 0.5 },
@@ -49,6 +52,8 @@ function _render(panel) {
       </div>
     </div>
 
+    ${_leaderboardSection()}
+
     <div class="settings-section">
       <div class="settings-section__title">🔊 Sound Effects</div>
       <div class="settings-section__desc">
@@ -76,7 +81,86 @@ function _render(panel) {
   panel.querySelectorAll('.btn--speed').forEach(btn => {
     btn.addEventListener('click', () => {
       setTickSpeed(parseFloat(btn.dataset.speed));
-      _render(panel);   // re-render to update active highlight
+      _render(panel);
     });
   });
+
+  // Bind clear-leaderboard button (if present)
+  panel.querySelector('#btn-clear-lb')?.addEventListener('click', () => {
+    if (confirm('Clear all leaderboard scores? This cannot be undone.')) {
+      localStorage.removeItem(LB_KEY);
+      _render(panel);
+    }
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Leaderboard section
+// ---------------------------------------------------------------------------
+
+function _leaderboardSection() {
+  let lb;
+  try {
+    const raw = localStorage.getItem(LB_KEY);
+    lb = raw ? JSON.parse(raw) : { scores: [] };
+  } catch {
+    lb = { scores: [] };
+  }
+
+  if (lb.scores.length === 0) {
+    return `<div class="settings-section">
+      <div class="settings-section__title">🏆 Leaderboard</div>
+      <div class="settings-section__desc">
+        No scores recorded yet. Start a New Game after playing to save your current
+        session score to the leaderboard.
+      </div>
+    </div>`;
+  }
+
+  const rows = lb.scores.slice(0, 5).map((s, i) => {
+    const ageName = AGE_NAMES[s.age] ?? 'Stone';
+    const gold    = Math.round(s.goldEarned).toLocaleString();
+    return `<div class="lb-row ${i === 0 ? 'lb-row--gold' : ''}">
+      <span class="lb-rank">#${i + 1}</span>
+      <span class="lb-name">${_escHtml(s.name)}</span>
+      <span class="lb-territory">🗺️ ${s.territory}</span>
+      <span class="lb-gold">🪙 ${gold}</span>
+      <span class="lb-age">${ageName}</span>
+      <span class="lb-date">${_escHtml(s.date)}</span>
+    </div>`;
+  }).join('');
+
+  return `<div class="settings-section">
+    <div class="settings-section__title">🏆 Leaderboard</div>
+    <div class="settings-section__desc">
+      Top sessions ranked by peak territory, then total gold earned.
+      Score is saved when you start a New Game.
+    </div>
+    <div class="lb-table">
+      <div class="lb-header">
+        <span>Rank</span>
+        <span>Empire</span>
+        <span>Territory</span>
+        <span>Gold Earned</span>
+        <span>Age Reached</span>
+        <span>Date</span>
+      </div>
+      ${rows}
+    </div>
+    <button class="btn btn--sm" id="btn-clear-lb" style="margin-top:8px;color:var(--red);border-color:var(--red)">
+      🗑️ Clear Scores
+    </button>
+  </div>`;
+}
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+function _escHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }

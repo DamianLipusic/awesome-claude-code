@@ -84,6 +84,16 @@ export const state = {
   // { index: 0-3 (Spring/Summer/Autumn/Winter), tick: elapsed ticks in season }
   season: null,
 
+  // Hero state — null until recruited via recruitHero()
+  // { recruited: true,
+  //   abilityCooldowns: { battleCry, inspire, siege } — tick when cooldown expires,
+  //   activeEffects: { battleCry: bool, inspire: tickExpiry, siege: bool } }
+  hero: null,
+
+  // Session statistics for the leaderboard
+  // { goldEarned: number, peakTerritory: number }
+  stats: null,
+
   // Current game tick count (increments every 250ms)
   tick: 0,
 
@@ -115,6 +125,8 @@ export function initState(empireName = 'My Empire') {
   state.story          = [];
   state.diplomacy      = null;
   state.season         = null;
+  state.hero           = null;
+  state.stats          = { goldEarned: 0, peakTerritory: 0 };
   state.tick           = 0;
   state.running        = false;
 }

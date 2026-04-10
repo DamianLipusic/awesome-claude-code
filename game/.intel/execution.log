@@ -271,3 +271,36 @@ Implemented Phase 6 diplomacy system with 3 AI empires and a 4-season cycle that
 **Next session should tackle:**
 - T022: Hero unit with special abilities
 - T023: Leaderboard (localStorage high scores)
+
+---
+
+## 2026-04-10 — Session 8
+
+**Tasks completed:** T022, T023
+
+**Summary:**
+Implemented the Champion hero unit with three active abilities and a session leaderboard backed by localStorage.
+
+**Files created:**
+- `game/src/data/hero.js` — HERO_DEF: Champion hero (icon ⭐, +60 attack, +30 defense, 0.5g+0.3f/s upkeep, Bronze Age gate). Three abilities: Battle Cry (×2 attack on next strike, 120s CD), Inspire (2× training speed for 60s, 180s CD), Siege Master (guaranteed win, 300s CD).
+
+**Files modified:**
+- `game/src/core/state.js` — Added `hero: null` and `stats: null` fields; initState() initialises `hero=null`, `stats={goldEarned:0, peakTerritory:0}`.
+- `game/src/core/events.js` — Added `HERO_CHANGED: 'heroChanged'` event constant.
+- `game/src/core/actions.js` — Imported HERO_DEF; added `recruitHero()` (age check + canAfford + state.hero init + HERO_CHANGED); added `useHeroAbility(id)` (cooldown check + effect activation + cooldown set + HERO_CHANGED).
+- `game/src/systems/resources.js` — Imported HERO_DEF; hero upkeep deducted in `recalcRates()` when recruited; `_advanceTrainingQueue()` decrements by 2 when Inspire is active. Tracks `state.stats.goldEarned` per resourceTick when gold rate > 0.
+- `game/src/systems/combat.js` — Imported HERO_DEF; hero adds HERO_DEF.attack to power; Battle Cry doubles power and resets flag; Siege Master sets winChance=1.0 (guaranteed win), resets flag; both emit HERO_CHANGED.
+- `game/src/ui/militaryPanel.js` — Full rewrite: `_heroSection()` shows recruit card (age/resource gated) or `_heroActiveSection()` (3 ability buttons with primed/active/cooldown labels); army section includes hero badge; training queue section shows Inspire speedup indicator; HERO_CHANGED + throttled TICK re-renders for cooldown countdown.
+- `game/src/ui/settingsPanel.js` — Added `_leaderboardSection()`: reads `empireos-leaderboard` localStorage, renders top-5 rows in a CSS grid table; clear button with confirm. Included in panel HTML above Sound section.
+- `game/src/main.js` — Save version 8 includes hero+stats; `_applySave` restores them; `_updatePeakTerritory()` registered on MAP_CHANGED; `_saveToLeaderboard()` called before New Game wipe; HERO_CHANGED emitted on new game reset; LB_KEY constant.
+- `game/styles/main.css` — Added hero card CSS (.hero-card, .hero-card--active, .hero-card__*, .btn--hero, .hero-abilities, .hero-ability, .btn--ability, .hero-effect--active/--cd, .mil-unit-badge--hero, .log-entry--hero); leaderboard CSS (.lb-table, .lb-header, .lb-row, .lb-row--gold, .lb-rank/name/territory/gold/age/date); mobile responsive rules for hero abilities (stack) and leaderboard (overflow-x scroll).
+
+**Architecture decisions:**
+- Hero abilities are consumed immediately on use (one-shot for Battle Cry + Siege) or expire by tick (Inspire) — no separate "active ability tick" system needed; combat.js and resources.js read state.hero directly.
+- Cooldown countdowns refresh every 16 ticks (~4s) only when the hero has active state, keeping re-render frequency low.
+- Leaderboard lives in a separate `empireos-leaderboard` key so it survives New Game wipes of `empireos-save`. settingsPanel.js reads it directly from localStorage to avoid any import coupling.
+- `_saveToLeaderboard()` ignores sessions shorter than 40 ticks (~10s) to avoid polluting the board with accidental resets.
+- Save version bumped to 8 (additive; v7 saves load cleanly with hero=null, stats defaulting to zeroes).
+
+**Next session should tackle:**
+- T024: Export/import save as JSON string (base64 modal)

@@ -9,6 +9,7 @@ import { BUILDINGS } from '../data/buildings.js';
 import { UNITS } from '../data/units.js';
 import { TECHS } from '../data/techs.js';
 import { AGES } from '../data/ages.js';
+import { HERO_DEF } from '../data/hero.js';
 import { recalcRates } from '../systems/resources.js';
 import { log } from '../utils/logger.js';
 
@@ -172,6 +173,87 @@ function _countPlayerTiles() {
     }
   }
   return count;
+}
+
+// ---------------------------------------------------------------------------
+// Hero
+// ---------------------------------------------------------------------------
+
+/**
+ * Recruit the Champion hero (once per game).
+ * Requires Bronze Age and sufficient resources.
+ */
+export function recruitHero() {
+  if (state.hero?.recruited) {
+    return { ok: false, reason: 'Your Champion is already with your army.' };
+  }
+
+  // Age requirement
+  const ageReq = HERO_DEF.requires.find(r => r.type === 'age');
+  if (ageReq && (state.age ?? 0) < ageReq.minAge) {
+    const ageName = AGES[ageReq.minAge]?.name ?? `Age ${ageReq.minAge}`;
+    return { ok: false, reason: `Requires ${ageName} to recruit a Champion.` };
+  }
+
+  if (!canAfford(HERO_DEF.cost)) {
+    return { ok: false, reason: 'Insufficient resources to recruit Champion.' };
+  }
+
+  deductCost(HERO_DEF.cost);
+  state.hero = {
+    recruited: true,
+    abilityCooldowns: { battleCry: 0, inspire: 0, siege: 0 },
+    activeEffects:    { battleCry: false, inspire: 0, siege: false },
+  };
+  recalcRates();
+
+  emit(Events.HERO_CHANGED, {});
+  emit(Events.RESOURCE_CHANGED, {});
+  addMessage(`⭐ ${HERO_DEF.name} has joined your empire!`, 'hero');
+  log('hero recruited');
+  return { ok: true };
+}
+
+/**
+ * Activate a hero ability by id.
+ * Returns { ok, reason? }
+ */
+export function useHeroAbility(abilityId) {
+  if (!state.hero?.recruited) {
+    return { ok: false, reason: 'No Champion to command.' };
+  }
+  const ability = HERO_DEF.abilities[abilityId];
+  if (!ability) return { ok: false, reason: `Unknown ability: ${abilityId}` };
+
+  const cdExpires = state.hero.abilityCooldowns[abilityId] ?? 0;
+  if (state.tick < cdExpires) {
+    const secsLeft = Math.ceil((cdExpires - state.tick) / 4);
+    return { ok: false, reason: `${ability.name} is on cooldown (${secsLeft}s remaining).` };
+  }
+
+  // Check if effect is already pending (one-shot abilities can't stack)
+  if (abilityId === 'battleCry' && state.hero.activeEffects.battleCry) {
+    return { ok: false, reason: 'Battle Cry is already primed for the next attack.' };
+  }
+  if (abilityId === 'siege' && state.hero.activeEffects.siege) {
+    return { ok: false, reason: 'Siege Master is already primed for the next attack.' };
+  }
+
+  // Activate
+  if (abilityId === 'battleCry') {
+    state.hero.activeEffects.battleCry = true;
+  } else if (abilityId === 'inspire') {
+    state.hero.activeEffects.inspire = state.tick + ability.durationTicks;
+  } else if (abilityId === 'siege') {
+    state.hero.activeEffects.siege = true;
+  }
+
+  // Set cooldown from now
+  state.hero.abilityCooldowns[abilityId] = state.tick + ability.cooldownTicks;
+
+  emit(Events.HERO_CHANGED, {});
+  addMessage(`${ability.icon} ${HERO_DEF.name} used ${ability.name}!`, 'hero');
+  return { ok: true };
 }
 
 // ---------------------------------------------------------------------------
