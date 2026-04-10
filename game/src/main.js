@@ -15,6 +15,8 @@ import { initStory } from './systems/story.js';
 import { initDiplomacy, diplomacyTick } from './systems/diplomacy.js';
 import { initSeasons, seasonTick, currentSeason, seasonTicksRemaining } from './systems/seasons.js';
 import { initVictory, victoryTick } from './systems/victory.js';
+import { initMarket, marketTick } from './systems/market.js';
+import { initAchievements } from './systems/achievements.js';
 import { SEASONS } from './data/seasons.js';
 import { AGES } from './data/ages.js';
 import { TICKS_PER_SECOND } from './core/tick.js';
@@ -27,6 +29,7 @@ import { initMapPanel } from './ui/mapPanel.js';
 import { initQuestPanel } from './ui/questPanel.js';
 import { initStoryPanel } from './ui/storyPanel.js';
 import { initSettingsPanel } from './ui/settingsPanel.js';
+import { initMarketPanel } from './ui/marketPanel.js';
 import { initSaveModal } from './ui/saveModal.js';
 import { initGameOverPanel } from './ui/gameOverPanel.js';
 import { initDiplomacyPanel } from './ui/diplomacyPanel.js';
@@ -61,6 +64,7 @@ function boot() {
   registerSystem(diplomacyTick);
   registerSystem(seasonTick);
   registerSystem(victoryTick);
+  registerSystem(marketTick);
 
   // Init event-driven systems
   initRandomEvents();
@@ -69,6 +73,8 @@ function boot() {
   initDiplomacy();
   initSeasons();
   initVictory();
+  initMarket();
+  initAchievements();
 
   // Init UI
   initHUD();
@@ -80,6 +86,7 @@ function boot() {
   initQuestPanel();
   initStoryPanel();
   initSettingsPanel();
+  initMarketPanel();
   initDiplomacyPanel();
   initMessageLog();
   initSaveModal(_applySave);
@@ -116,7 +123,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 8,
+      version: 9,
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -138,6 +145,7 @@ function _save() {
         season:        state.season,
         hero:          state.hero,
         stats:         state.stats,
+        market:        state.market,
         tick:          state.tick,
       }
     }));
@@ -175,6 +183,7 @@ function _applySave(save) {
   state.season         = s.season         ?? null;
   state.hero           = s.hero           ?? null;
   state.stats          = s.stats          ?? { goldEarned: 0, peakTerritory: 0 };
+  state.market         = s.market         ?? null;
   state.tick           = s.tick           ?? 0;
   recalcRates();
   addMessage('Game loaded.', 'info');
@@ -271,6 +280,8 @@ function _newGame() {
   initDiplomacy();
   initSeasons();
   initVictory();
+  initMarket();
+  initAchievements();
   recalcRates();
   startLoop();  // restart loop in case it was stopped by game-over
   emit(Events.MAP_CHANGED, {});

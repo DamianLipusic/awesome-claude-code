@@ -10,6 +10,7 @@
 
 import { setTickSpeed, getTickSpeed } from '../core/tick.js';
 import { exportSave, importSave } from './saveModal.js';
+import { ACHIEVEMENTS, loadAchievements, setAchievementRenderer } from '../systems/achievements.js';
 
 const PANEL_ID   = 'panel-settings';
 const LB_KEY     = 'empireos-leaderboard';
@@ -25,6 +26,8 @@ const SPEEDS = [
 export function initSettingsPanel() {
   const panel = document.getElementById(PANEL_ID);
   if (!panel) return;
+  // Let the achievements system trigger a re-render when an achievement unlocks
+  setAchievementRenderer(() => _render(panel));
   _render(panel);
 }
 
@@ -52,6 +55,8 @@ function _render(panel) {
         `).join('')}
       </div>
     </div>
+
+    ${_achievementsSection()}
 
     ${_leaderboardSection()}
 
@@ -109,6 +114,45 @@ function _render(panel) {
       _render(panel);
     }
   });
+}
+
+// ---------------------------------------------------------------------------
+// Achievements section
+// ---------------------------------------------------------------------------
+
+function _achievementsSection() {
+  const saved    = loadAchievements();
+  const unlocked = saved.unlocked ?? {};
+  const total    = Object.keys(ACHIEVEMENTS).length;
+  const count    = Object.keys(unlocked).length;
+
+  const cards = Object.entries(ACHIEVEMENTS).map(([id, def]) => {
+    const u = unlocked[id];
+    if (u) {
+      return `<div class="ach-card ach-card--unlocked">
+        <span class="ach-icon">${def.icon}</span>
+        <div class="ach-body">
+          <div class="ach-title">${_escHtml(def.title)}</div>
+          <div class="ach-desc">${_escHtml(def.desc)}</div>
+          <div class="ach-date">Unlocked ${_escHtml(u.date)}</div>
+        </div>
+      </div>`;
+    }
+    return `<div class="ach-card ach-card--locked">
+      <span class="ach-icon">🔒</span>
+      <div class="ach-body">
+        <div class="ach-title">${_escHtml(def.title)}</div>
+        <div class="ach-desc">${_escHtml(def.desc)}</div>
+        <div class="ach-locked-label">Not yet unlocked</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  return `<div class="settings-section">
+    <div class="settings-section__title">🏅 Achievements</div>
+    <div class="ach-progress">${count} / ${total} unlocked</div>
+    <div class="ach-grid">${cards}</div>
+  </div>`;
 }
 
 // ---------------------------------------------------------------------------

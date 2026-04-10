@@ -98,6 +98,10 @@ export const state = {
   // { outcome: 'win'|'lose', reason: string, tick: number }
   gameOver: null,
 
+  // Market state — populated by systems/market.js initMarket()
+  // { prices: {res→mult}, trends: {res→ -1|0|1}, lastUpdateTick, totalTrades }
+  market: null,
+
   // Current game tick count (increments every 250ms)
   tick: 0,
 
@@ -132,6 +136,7 @@ export function initState(empireName = 'My Empire') {
   state.hero           = null;
   state.stats          = { goldEarned: 0, peakTerritory: 0 };
   state.gameOver       = null;
+  state.market         = null;
   state.tick           = 0;
   state.running        = false;
 }

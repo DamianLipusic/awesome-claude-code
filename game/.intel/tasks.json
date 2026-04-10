@@ -225,6 +225,24 @@
     "notes": "Created systems/victory.js: initVictory() resets module-level counters; victoryTick() checks win (age≥3 + tiles≥80 + quests≥10), lose (food=0 + negative rate for 120 ticks / 30s); warns at 60 starvation ticks; calls stopLoop() + emits GAME_OVER on trigger. Created ui/gameOverPanel.js: appends overlay to body; subscribes to GAME_OVER; renders win/lose box with stats (age, territory, quests, gold earned, time played), Play Again button which calls _newGame(). Added GAME_OVER event to events.js. Added state.gameOver field to state.js initState(). main.js: extracted _newGame() function (startLoop() + initVictory() + all system resets); old New Game button handler calls _newGame(); initGameOverPanel(_newGame) wired after UI init; victoryTick registered as 6th tick system; initVictory() called on boot. CSS: .game-over-overlay (fixed, z-2000, blur backdrop, fade-in animation), .game-over-box (win=gold border, lose=red border, pop-in animation), .game-over-stats (3-col grid), .go-stat-* cells, .game-over-btn."
   },
   {
+    "id": "T027",
+    "title": "resource trading market (buy/sell for gold)",
+    "description": "Market system with fluctuating prices (±10% random walk every 15s). Buy/sell food/wood/stone/iron/mana for gold. Requires Market building. Market tab with price table, trend arrows, and buy/sell buttons (×10/×50/×100).",
+    "priority": 27,
+    "status": "done",
+    "phase": 7,
+    "notes": "Created src/systems/market.js: initMarket() seeds state.market with per-resource price multipliers (1.0), trend indicators, and totalTrades counter; marketTick() applies ±7.5% random drift every 15s (bounded 0.4–2.5×); buyPrice()/sellPrice() apply 20% spread over base gold values (food=1.5g, wood=2g, stone=3g, iron=5g, mana=10g); sellResources()/buyResources() validate Market building requirement, deduct/add correctly capped resources, increment totalTrades, emit MARKET_CHANGED. Created src/ui/marketPanel.js: locked-state card when no Market building; price table with resource name/stock, sell price (green)+trend arrow, buy price (red), ×10/×50/×100 sell (green) and buy (red) buttons; click delegation with btn--shake feedback on error. Added MARKET_CHANGED + ACHIEVEMENT_UNLOCKED events to events.js. Added state.market null field to state.js. index.html: 🏪 Market tab + panel. main.js: marketTick registered as 7th system; initMarket() called on boot + newGame; market saved/loaded (save version 9). CSS: market-locked, market-header, market-table (5-col grid), market-row, market-price--sell/--buy, trend--up/down/flat, btn--xs/--sell/--buy, btn--shake keyframes, mobile collapses to single column."
+  },
+  {
+    "id": "T028",
+    "title": "achievements system (persistent cross-game badges)",
+    "description": "15 achievements stored in empireos-achievements localStorage key (persists across New Game wipes). Check on game events. Show in Settings panel with icon, title, desc, unlock date. Achievements section with locked/unlocked states. Toast message on unlock.",
+    "priority": 28,
+    "status": "done",
+    "phase": 7,
+    "notes": "Created src/systems/achievements.js: 15 achievement definitions (founder/builder/warlord/scholar/bronze_dawn/medieval/conqueror/diplomat/champion/wonder_built/quest_master/millionaire/trader/emperor/comeback). loadAchievements() reads empireos-achievements localStorage key; initAchievements() rebuilds in-memory _unlocked Set and registers event listeners on BUILDING_CHANGED/UNIT_CHANGED/TECH_CHANGED/AGE_CHANGED/MAP_CHANGED/DIPLOMACY_CHANGED/HERO_CHANGED/QUEST_COMPLETED/MARKET_CHANGED/RESOURCE_CHANGED/GAME_OVER/MESSAGE. _checkAndUnlock(id) calls predicate then _unlock() which persists to localStorage, adds achievement log message (type='achievement'), emits ACHIEVEMENT_UNLOCKED, calls _renderer callback. setAchievementRenderer() allows settingsPanel to register a re-render hook without circular imports. Updated settingsPanel.js: imports ACHIEVEMENTS/loadAchievements/setAchievementRenderer; _achievementsSection() builds ach-card grid with unlocked (gold border, unlock date) and locked (greyed, lock icon) states; 'X / 15 unlocked' progress count; registered _renderer in initSettingsPanel. main.js: imports+calls initAchievements() on boot and newGame. CSS: ach-grid (auto-fill 220px), ach-card (unlocked=gold border+tint, locked=55% opacity), ach-icon/body/title/desc/date/locked-label; log-entry--achievement (gold border + faint gold bg)."
+  },
+  {
     "id": "T026",
     "title": "wonder buildings (3 unique late-game structures)",
     "description": "Great Library (-25% research time, +1 mana/s), Colosseum (-33% training time, +3 food/s), Grand Cathedral (+8 gold/s, -50% disaster severity). Each unique (max 1 per game).",

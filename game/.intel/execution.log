@@ -307,6 +307,39 @@ Implemented the Champion hero unit with three active abilities and a session lea
 
 ---
 
+## 2026-04-10 — Session 11
+
+**Tasks completed:** T027, T028
+
+**Summary:**
+Added Phase 7 content: a live resource trading market with fluctuating prices and a persistent cross-game achievements system.
+
+**Files created:**
+- `game/src/systems/market.js` — `initMarket()` seeds `state.market` with per-resource price multipliers, trend indicators, and trade counter. `marketTick()` applies ±7.5% random drift every 15 s (bounded 0.4–2.5×). `buyPrice()`/`sellPrice()` apply a 20% spread over base gold values. `sellResources()`/`buyResources()` validate the Market building requirement, cap resources correctly, increment `totalTrades`, emit `MARKET_CHANGED`.
+- `game/src/ui/marketPanel.js` — Shows a locked-state message when no Market building exists. When unlocked: 5-column price table with resource name + stock, sell price (green) + trend arrow (▲/▼/—), buy price (red), and ×10/×50/×100 sell (green) and buy (red) buttons. Click delegation with `btn--shake` animation on error.
+- `game/src/systems/achievements.js` — 15 achievement definitions with icon/title/desc. `loadAchievements()` reads `empireos-achievements` localStorage. `initAchievements()` rebuilds in-memory `_unlocked` Set and registers event listeners. `_checkAndUnlock()` evaluates predicates and calls `_unlock()` which persists to localStorage, logs the unlock message (`type='achievement'`), emits `ACHIEVEMENT_UNLOCKED`, and calls the registered renderer callback. `setAchievementRenderer()` allows settings panel to register a re-render hook.
+
+**Files modified:**
+- `game/src/core/events.js` — Added `MARKET_CHANGED` and `ACHIEVEMENT_UNLOCKED` event constants.
+- `game/src/core/state.js` — Added `market: null` field; reset in `initState()`.
+- `game/src/ui/settingsPanel.js` — Imports `ACHIEVEMENTS`, `loadAchievements`, `setAchievementRenderer`. New `_achievementsSection()` renders ach-card grid (gold border + unlock date for unlocked; grey + lock icon for locked) with `X / 15 unlocked` progress count. `setAchievementRenderer()` registered in `initSettingsPanel()`.
+- `game/src/main.js` — Imports `initMarket`/`marketTick` and `initAchievements`. `marketTick` registered as 7th system. `initMarket()` + `initAchievements()` called on boot and `_newGame()`. `market` included in save/load payload (save version 9).
+- `game/index.html` — Added 🏪 Market tab button and `#panel-market` div.
+- `game/styles/main.css` — Market panel CSS: `.market-locked`, `.market-header`, `.market-table` (5-col grid), `.market-row`, `.market-price--sell/--buy`, `.trend--up/down/flat`, `.btn--xs`/`.btn--sell`/`.btn--buy`, `btn--shake` `@keyframes`. Achievements CSS: `.ach-grid` (auto-fill 220px), `.ach-card` (unlocked=gold border+tint, locked=55% opacity), `.ach-icon/body/title/desc/date/locked-label`. Log entry: `.log-entry--achievement` (gold left border + faint gold background). Mobile responsive: market table collapses to single-column; ach-grid collapses to 1 col.
+
+**Architecture decisions:**
+- Market prices are stored as multipliers (not absolute values) so adding new resources in future doesn't break saves — just add to `BASE_PRICES` and `MARKET_RESOURCES`.
+- 20% spread (buy +20%, sell −20%) makes the market useful for converting surplus but not a lossless arbitrage loop.
+- `totalTrades` counter on `state.market` (saved) lets the achievements system check the trader achievement reliably across sessions without a separate counter.
+- Achievements persist in `empireos-achievements` (separate key from `empireos-save`) so they survive New Game wipes. `initAchievements()` is called on every new game to re-register event listeners (pub/sub `on()` is additive — but predicates are idempotent and `_unlocked` set prevents double-granting).
+- `setAchievementRenderer()` decouples the achievements module from the settings panel UI — the panel registers itself, avoiding a circular import.
+- The `comeback` achievement checks the `MESSAGE` event for `type='danger'` starvation warnings and then watches for food recovery — tracks module-level `_sawStarvationWarning` flag (not persisted) so it resets on new game naturally via `initAchievements()`.
+
+**Next session should tackle:**
+- Phase 8 ideas: minimap overlay, keyboard shortcuts, empire report/summary view
+
+---
+
 ## 2026-04-10 — Session 9
 
 **Tasks completed:** T024

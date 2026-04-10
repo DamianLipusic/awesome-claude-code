@@ -43,4 +43,6 @@ export const Events = Object.freeze({
   SEASON_CHANGED:     'seasonChanged',
   HERO_CHANGED:       'heroChanged',
   GAME_OVER:          'gameOver',
+  MARKET_CHANGED:     'marketChanged',
+  ACHIEVEMENT_UNLOCKED: 'achievementUnlocked',
 });
