@@ -211,7 +211,8 @@
     "title": "export/import save as JSON string",
     "description": "Encode state as base64 JSON, provide copy/paste import modal.",
     "priority": 24,
-    "status": "pending",
-    "phase": 6
+    "status": "done",
+    "phase": 6,
+    "notes": "Created src/ui/saveModal.js: initSaveModal(onImport) injects modal DOM + close handlers (X button, Cancel, Esc, click-outside); exportSave() builds payload, base64-encodes with Unicode-safe btoa(unescape(encodeURIComponent(json))), shows modal with clipboard copy (with execCommand fallback); importSave() shows paste textarea, decodes with decodeURIComponent(escape(atob())), validates save.state field, calls onImport callback. Updated settingsPanel.js: imports exportSave/importSave; added '💾 Save Portability' section with Export and Import buttons; binds them in _render(). Updated main.js: imports initSaveModal; calls initSaveModal(_applySave) after UI init. CSS: .modal-overlay (fixed inset, backdrop-filter blur), .modal--hidden (display:none), .modal-box, .modal-header/.title/.close, .modal-body/.desc/.textarea/.error, .modal-footer, .btn--ghost, .save-port-buttons; responsive mobile rules."
   }
 ]

@@ -26,6 +26,7 @@ import { initMapPanel } from './ui/mapPanel.js';
 import { initQuestPanel } from './ui/questPanel.js';
 import { initStoryPanel } from './ui/storyPanel.js';
 import { initSettingsPanel } from './ui/settingsPanel.js';
+import { initSaveModal } from './ui/saveModal.js';
 import { initDiplomacyPanel } from './ui/diplomacyPanel.js';
 import { initTabs } from './ui/tabs.js';
 import { addMessage } from './core/actions.js';
@@ -77,6 +78,7 @@ function boot() {
   initSettingsPanel();
   initDiplomacyPanel();
   initMessageLog();
+  initSaveModal(_applySave);
 
   // Bind top-level controls
   _bindControls();

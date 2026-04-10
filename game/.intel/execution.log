@@ -304,3 +304,27 @@ Implemented the Champion hero unit with three active abilities and a session lea
 
 **Next session should tackle:**
 - T024: Export/import save as JSON string (base64 modal)
+
+---
+
+## 2026-04-10 — Session 9
+
+**Tasks completed:** T024
+
+**Summary:**
+Implemented full export/import save portability. Players can now export their save as a compact base64 string and paste it back in to restore progress across browsers or devices.
+
+**Files created:**
+- `game/src/ui/saveModal.js` — `initSaveModal(onImport)` injects a modal overlay into the DOM and stores the import callback. `exportSave()` builds the full save payload (identical structure to localStorage save), encodes it with `btoa(unescape(encodeURIComponent(json)))` for Unicode safety, and shows a copy-to-clipboard modal (with `execCommand('copy')` fallback for older browsers). `importSave()` shows a paste-textarea modal; on confirm it decodes with `decodeURIComponent(escape(atob(str)))`, JSON-parses, validates `save.state` exists, then calls the `onImport` callback. Close handling: ✕ button, Cancel button, Escape key, and clicking the backdrop all dismiss the modal.
+
+**Files modified:**
+- `game/src/ui/settingsPanel.js` — Imported `exportSave`/`importSave` from `saveModal.js`. Added a "💾 Save Portability" section to the settings panel HTML with Export Save and Import Save buttons; bound them in `_render()` via `panel.querySelector`.
+- `game/src/main.js` — Imported `initSaveModal`; called `initSaveModal(_applySave)` after all other UI inits so the import callback has access to the fully wired `_applySave` function.
+- `game/styles/main.css` — Added `.save-port-buttons` (flex row, wrapping). Added full modal CSS: `.modal-overlay` (fixed inset, `backdrop-filter: blur(2px)`, z-index 1000), `.modal--hidden` (display:none), `.modal-box` (panel-bg, border-h, rounded, shadow), `.modal-header/.title/.close`, `.modal-body/.desc/.textarea/.error`, `.modal-footer`, `.btn--ghost`. Added `@media (max-width: 480px)` rules: modal box 95vw, textarea min-height 100px / font-size 11px.
+
+**Architecture decisions:**
+- `saveModal.js` imports `state` directly from `core/state.js` and duplicates the payload builder rather than importing a shared function from `main.js` — avoids a circular dependency (main.js already imports saveModal.js indirectly via settingsPanel.js).
+- Unicode-safe base64: `btoa(unescape(encodeURIComponent(json)))` / `decodeURIComponent(escape(atob(str)))` — the classic pair that handles multi-byte characters in empire names and story text without introducing a dependency on TextEncoder.
+- The action button node is replaced (via `cloneNode + replaceChild`) on each modal open to avoid stacking old click listeners without needing `removeEventListener`.
+- Import callback is `_applySave` from main.js — reuses all existing save hydration logic (Object.assign fields, recalcRates(), addMessage) with no duplication.
+- All 24 roadmap tasks are now complete. The game is feature-complete per the Phase 1–6 roadmap.

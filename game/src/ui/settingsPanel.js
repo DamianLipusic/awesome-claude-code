@@ -9,6 +9,7 @@
  */
 
 import { setTickSpeed, getTickSpeed } from '../core/tick.js';
+import { exportSave, importSave } from './saveModal.js';
 
 const PANEL_ID   = 'panel-settings';
 const LB_KEY     = 'empireos-leaderboard';
@@ -55,6 +56,18 @@ function _render(panel) {
     ${_leaderboardSection()}
 
     <div class="settings-section">
+      <div class="settings-section__title">💾 Save Portability</div>
+      <div class="settings-section__desc">
+        Export your save as a text code you can back up or move to another
+        browser. Paste the code back in to restore your progress.
+      </div>
+      <div class="save-port-buttons">
+        <button class="btn btn--sm" id="btn-export-save">📤 Export Save</button>
+        <button class="btn btn--sm" id="btn-import-save">📥 Import Save</button>
+      </div>
+    </div>
+
+    <div class="settings-section">
       <div class="settings-section__title">🔊 Sound Effects</div>
       <div class="settings-section__desc">
         Audio feedback for combat, construction, and events.
@@ -84,6 +97,10 @@ function _render(panel) {
       _render(panel);
     });
   });
+
+  // Bind export / import buttons
+  panel.querySelector('#btn-export-save')?.addEventListener('click', exportSave);
+  panel.querySelector('#btn-import-save')?.addEventListener('click', importSave);
 
   // Bind clear-leaderboard button (if present)
   panel.querySelector('#btn-clear-lb')?.addEventListener('click', () => {
