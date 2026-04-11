@@ -106,6 +106,14 @@ export const state = {
   // { nextExpansionTick: number, nextAttackTick: number }
   enemyAI: null,
 
+  // Unit experience tracking — { [unitId]: xpCount }
+  // XP gained per victory; thresholds: 3=veteran, 6=elite
+  unitXP: {},
+
+  // Unit rank promotion state — { [unitId]: 'veteran'|'elite' }
+  // Promoted units deal 1.5× (veteran) or 2.0× (elite) attack damage
+  unitRanks: {},
+
   // Difficulty setting — persisted across new games (not reset by initState)
   // 'easy' | 'normal' | 'hard'
   difficulty: 'normal',
@@ -146,6 +154,8 @@ export function initState(empireName = 'My Empire') {
   state.gameOver       = null;
   state.market         = null;
   state.enemyAI        = null;
+  state.unitXP         = {};
+  state.unitRanks      = {};
   state.tick           = 0;
   state.running        = false;
 }

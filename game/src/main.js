@@ -131,7 +131,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 10,
+      version: 11,
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -155,6 +155,8 @@ function _save() {
         stats:         state.stats,
         market:        state.market,
         enemyAI:       state.enemyAI,
+        unitXP:        state.unitXP,
+        unitRanks:     state.unitRanks,
         difficulty:    state.difficulty,
         tick:          state.tick,
       }
@@ -195,6 +197,8 @@ function _applySave(save) {
   state.stats          = s.stats          ?? { goldEarned: 0, peakTerritory: 0 };
   state.market         = s.market         ?? null;
   state.enemyAI        = s.enemyAI        ?? null;
+  state.unitXP         = s.unitXP         ?? {};
+  state.unitRanks      = s.unitRanks      ?? {};
   state.difficulty     = s.difficulty     ?? 'normal';
   state.tick           = s.tick           ?? 0;
   recalcRates();

@@ -340,5 +340,23 @@
     "status": "done",
     "phase": 10,
     "notes": "Added _tileTipEl module variable. _createTileTip() creates a #map-tile-tip div and appends to body (idempotent: reuses existing if already present — handles panel re-init). _showTileTip(tile, x, y, mouseX, mouseY) builds tooltip HTML: terrain name title, owner badge (blue=player / red=enemy / neutral=dim), resource bonus row (amber accent), defense value row, 'click to attack' action row when tile is attackable. Positions the tooltip below-right of cursor clamped to viewport (150×110 estimate). _hideTileTip() adds .map-tile-tip--hidden. _onMousemove now calls _showTileTip for revealed tiles and _hideTileTip otherwise; _onMouseleave calls _hideTileTip. CSS: .map-tile-tip (fixed, z-820, bg-card, border-h, shadow, pointer-events:none, min-width 130px); .map-tile-tip--hidden (display:none); .map-tt-title/.map-tt-row/.map-tt-bonus/.map-tt-owner (--player blue / --enemy red)/.map-tt-action (accent-h, bold)."
+  },
+  {
+    "id": "T039",
+    "title": "unit experience and promotion system",
+    "description": "Units gain 1 XP per combat victory. At 3 XP promote to Veteran (×1.5 attack), at 6 XP promote to Elite (×2.0 attack). XP is per unit type. Rank badges shown in military panel and army summary.",
+    "priority": 39,
+    "status": "done",
+    "phase": 10,
+    "notes": "Added VETERAN_XP=3/ELITE_XP=6 constants and _rankMult()/helpers to combat.js. _grantCombatXP() awards 1 XP to all participating unit types on victory; promotes rank when threshold crossed and emits UNIT_CHANGED. attackTile() applies _rankMult() when summing attack power so veteran/elite units deal more damage in combat. militaryPanel.js: added _rankMult()/_rankBadge() helpers; _armySection() shows ★/★★ badges and rank-adjusted power; _unitCard() shows rank badge + XP progress line (XP: n/threshold → NextRank). summaryPanel.js _militaryCard(): applied _rankMult() to per-unit attack power display; added _rankBadge() inline. state.js: added unitXP: {} and unitRanks: {} fields; both reset in initState(). main.js: unitXP+unitRanks saved/loaded; save version bumped to 11. CSS: .rank-badge (base), .rank-badge--veteran (blue tint), .rank-badge--elite (gold tint), .unit-card__xp (dim info line)."
+  },
+  {
+    "id": "T040",
+    "title": "empire advisor tips panel",
+    "description": "Smart advisor card in the Empire Summary tab that analyses the current game state and shows up to 4 contextual tips (warnings, info, positive). Tips cover: food/gold draining, multiple wars, age advance ready, no military, available research, resource near cap, small territory.",
+    "priority": 40,
+    "status": "done",
+    "phase": 10,
+    "notes": "Added TECHS import to summaryPanel.js. Added _generateTips() which checks: food rate <-0.3 (warn), gold rate <-0.5 and <200 (warn), ≥2 wars (warn), next age requirements met (ok/green), zero units after 30s (info), idle affordable research (info), any resource ≥90% cap (info), territory <6 after 2min (info). Returns up to 4 tips sorted warn-first. Added _advisorCard() which renders tips as .sum-advisor-tip divs with level modifier classes; shows '✅ flourishing' message when no tips. Advisor card rendered first in summary-grid so it appears top-left. CSS: .sum-advisor-tip (flex, border-left 3px, rounded), --warn (red tint), --info (blue tint), --ok (green tint)."
   }
 ]

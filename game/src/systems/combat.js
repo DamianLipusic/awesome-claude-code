@@ -18,6 +18,18 @@ import { recalcRates } from './resources.js';
 
 const NEIGHBORS = [[-1, 0], [1, 0], [0, -1], [0, 1]];
 
+// XP thresholds for rank promotion
+const VETERAN_XP = 3;
+const ELITE_XP   = 6;
+
+/** Returns the attack multiplier for a unit type based on its combat rank. */
+function _rankMult(unitId) {
+  const rank = state.unitRanks?.[unitId];
+  if (rank === 'elite')   return 2.0;
+  if (rank === 'veteran') return 1.5;
+  return 1.0;
+}
+
 /**
  * Attack the tile at (x, y).
  * Returns { ok, reason?, outcome? }
@@ -46,7 +58,7 @@ export function attackTile(x, y) {
   for (const [id, count] of Object.entries(state.units)) {
     if (count <= 0) continue;
     const def = UNITS[id];
-    if (def) attackPower += def.attack * count;
+    if (def) attackPower += def.attack * count * _rankMult(id);
   }
 
   if (attackPower <= 0) {
@@ -110,6 +122,9 @@ function _victory(tile, x, y, attackPower, defense) {
     lootParts.push(`+${amt} ${res}`);
   }
 
+  // Grant combat XP to all participating unit types
+  _grantCombatXP();
+
   recalcRates();
   emit(Events.MAP_CHANGED, { x, y, outcome: 'win' });
   emit(Events.RESOURCE_CHANGED, {});
@@ -120,6 +135,41 @@ function _victory(tile, x, y, attackPower, defense) {
     'combat-win',
   );
   return { ok: true, outcome: 'win' };
+}
+
+/**
+ * Award 1 XP to every unit type that has at least one trained unit.
+ * Promote to veteran (3 XP) or elite (6 XP) when thresholds are crossed.
+ */
+function _grantCombatXP() {
+  if (!state.unitXP)   state.unitXP   = {};
+  if (!state.unitRanks) state.unitRanks = {};
+
+  const participating = Object.keys(state.units).filter(id => (state.units[id] ?? 0) > 0);
+  let promoted = false;
+
+  for (const id of participating) {
+    state.unitXP[id] = (state.unitXP[id] ?? 0) + 1;
+    const xp       = state.unitXP[id];
+    const prevRank = state.unitRanks[id] ?? 'normal';
+
+    let newRank = prevRank;
+    if      (xp >= ELITE_XP)   newRank = 'elite';
+    else if (xp >= VETERAN_XP) newRank = 'veteran';
+
+    if (newRank !== prevRank) {
+      state.unitRanks[id] = newRank;
+      const def       = UNITS[id];
+      const rankLabel = newRank === 'elite' ? '★★ Elite (×2.0 atk)' : '★ Veteran (×1.5 atk)';
+      addMessage(
+        `${def?.icon ?? '⚔️'} ${def?.name ?? id} promoted to ${rankLabel}!`,
+        'combat-win',
+      );
+      promoted = true;
+    }
+  }
+
+  if (promoted) emit(Events.UNIT_CHANGED, {});
 }
 
 function _defeat(tile, x, y, attackPower, defense) {

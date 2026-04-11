@@ -2,6 +2,37 @@
 
 ---
 
+## 2026-04-11 — Session N
+
+**Tasks completed:** T039, T040
+
+**Summary:**
+All prior tasks (T001–T038) were complete. Implemented two new Phase 10 features: unit experience/promotion and empire advisor tips.
+
+**T039 — Unit experience and promotion system:**
+- `state.js`: Added `unitXP: {}` and `unitRanks: {}` fields; both reset in `initState()`.
+- `systems/combat.js`: Added `VETERAN_XP=3`, `ELITE_XP=6` constants, `_rankMult()` helper. `attackTile()` now applies rank multiplier per unit type when summing attack power. `_victory()` calls new `_grantCombatXP()` which awards 1 XP to all participating unit types, promotes to veteran/elite when threshold crossed, logs promotion message, and emits UNIT_CHANGED.
+- `ui/militaryPanel.js`: Added `_rankMult()` / `_rankBadge()` helpers. `_armySection()` shows ★ Veteran / ★★ Elite badges and rank-adjusted combat power. `_unitCard()` shows rank badge + XP progress line (e.g. "XP: 2/3 → Veteran").
+- `ui/summaryPanel.js`: Applied `_rankMult()` to unit attack power in `_militaryCard()`.
+- `main.js`: `unitXP`/`unitRanks` added to save payload and restored in `_applySave()`; save version bumped to 11.
+- `styles/main.css`: `.rank-badge`, `.rank-badge--veteran` (blue), `.rank-badge--elite` (gold), `.unit-card__xp`.
+
+**T040 — Empire advisor tips panel:**
+- `ui/summaryPanel.js`: Added `TECHS` import. Added `_generateTips()` analysing state for up to 4 contextual tips across 7 categories (food drain, gold drain, multiple wars, age advance ready, no military, idle research, resource cap). Added `_advisorCard()` rendering tips with level-coded styling. Advisor card rendered first in summary-grid.
+- `styles/main.css`: `.sum-advisor-tip` base + `--warn` (red), `--info` (blue), `--ok` (green) variants.
+
+**Files modified:**
+- `game/src/core/state.js`
+- `game/src/systems/combat.js`
+- `game/src/ui/militaryPanel.js`
+- `game/src/ui/summaryPanel.js`
+- `game/src/main.js`
+- `game/styles/main.css`
+- `game/.intel/tasks.json`
+- `game/.intel/execution.log`
+
+---
+
 ## 2026-04-08 — Session 1
 
 **Tasks completed:** T001, T002, T003, T004, T005, T006 (partial), T010, T016

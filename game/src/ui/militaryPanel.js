@@ -20,6 +20,24 @@ import { fmtNum } from '../utils/fmt.js';
 
 const UNIT_ORDER = ['soldier', 'archer', 'knight', 'mage'];
 
+// XP thresholds (mirrors combat.js constants)
+const VETERAN_XP = 3;
+const ELITE_XP   = 6;
+
+function _rankMult(id) {
+  const rank = state.unitRanks?.[id];
+  if (rank === 'elite')   return 2.0;
+  if (rank === 'veteran') return 1.5;
+  return 1.0;
+}
+
+function _rankBadge(id) {
+  const rank = state.unitRanks?.[id];
+  if (rank === 'elite')   return `<span class="rank-badge rank-badge--elite">★★ Elite</span>`;
+  if (rank === 'veteran') return `<span class="rank-badge rank-badge--veteran">★ Veteran</span>`;
+  return '';
+}
+
 // ── Public API ─────────────────────────────────────────────────────────────
 
 export function initMilitaryPanel() {
@@ -166,9 +184,9 @@ function _armySection() {
   const items = entries.map(id => {
     const def   = UNITS[id];
     const count = state.units[id];
-    const power = def.attack * count;
+    const power = Math.round(def.attack * count * _rankMult(id));
     return `<span class="mil-unit-badge">
-      ${def.icon} <strong>${count}</strong> ${def.name}
+      ${def.icon} <strong>${count}</strong> ${def.name}${_rankBadge(id)}
       <span class="mil-power">⚔ ${power}</span>
     </span>`;
   }).join('');
@@ -176,7 +194,7 @@ function _armySection() {
   let totalPower = UNIT_ORDER.reduce((sum, id) => {
     const count = state.units[id] ?? 0;
     const def   = UNITS[id];
-    return sum + (def ? def.attack * count : 0);
+    return sum + (def ? def.attack * count * _rankMult(id) : 0);
   }, 0);
   // Apply combat tech multipliers (mirrors combat.js logic)
   if (state.techs.tactics)     totalPower *= 1.25;
@@ -246,6 +264,21 @@ function _unitCard(id) {
     .map(([r, a]) => `${_resIcon(r)}${a}/s`)
     .join(' ');
 
+  // Rank / XP display for trained units
+  const rank    = state.unitRanks?.[id];
+  const xp      = state.unitXP?.[id] ?? 0;
+  const rankBdg = _rankBadge(id);
+  let xpLine = '';
+  if ((state.units[id] ?? 0) > 0) {
+    if (rank === 'elite') {
+      xpLine = `<div class="unit-card__xp">${rankBdg} Max rank — ×2.0 attack</div>`;
+    } else {
+      const nextThreshold = rank === 'veteran' ? ELITE_XP : VETERAN_XP;
+      const nextLabel     = rank === 'veteran' ? 'Elite' : 'Veteran';
+      xpLine = `<div class="unit-card__xp">${rankBdg || 'Recruit'} &nbsp; XP: ${xp}/${nextThreshold} → ${nextLabel}</div>`;
+    }
+  }
+
   const reqStr = def.requires.length
     ? def.requires.map(r => {
         if (r.type === 'tech') {
@@ -276,6 +309,7 @@ function _unitCard(id) {
     </div>
     <div class="unit-card__cost">${locked ? `🔒 Requires: ${reqStr}` : `Cost: ${costStr}`}</div>
     ${upkeepStr ? `<div class="unit-card__upkeep">Upkeep: ${upkeepStr}</div>` : ''}
+    ${xpLine}
     <div class="unit-card__actions">
       <button class="btn btn--build ${disabled ? 'btn--disabled' : ''}"
         data-train="${id}" ${disabled ? 'disabled' : ''}>Train</button>

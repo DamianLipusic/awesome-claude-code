@@ -2286,3 +2286,72 @@ kbd {
 .hud__resource {
   cursor: help;
 }
+
+/* ── Unit rank badges (T039) ─────────────────────────────────────────────── */
+
+.rank-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 10px;
+  margin-left: 3px;
+  vertical-align: middle;
+  letter-spacing: 0.02em;
+}
+
+.rank-badge--veteran {
+  background: rgba(88, 166, 255, 0.12);
+  color: #58a6ff;
+  border: 1px solid rgba(88, 166, 255, 0.3);
+}
+
+.rank-badge--elite {
+  background: rgba(240, 180, 41, 0.15);
+  color: #f0b429;
+  border: 1px solid rgba(240, 180, 41, 0.35);
+}
+
+.unit-card__xp {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 3px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+/* ── Empire advisor tips (T040) ──────────────────────────────────────────── */
+
+.sum-advisor-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  font-size: 12px;
+  line-height: 1.45;
+  padding: 6px 8px;
+  border-radius: var(--radius);
+  margin-bottom: 5px;
+  border-left: 3px solid transparent;
+}
+
+.sum-advisor-tip:last-child { margin-bottom: 0; }
+
+.sum-advisor-tip--warn {
+  background: rgba(248, 81, 73, 0.08);
+  border-left-color: var(--red);
+  color: var(--text);
+}
+
+.sum-advisor-tip--info {
+  background: rgba(88, 166, 255, 0.07);
+  border-left-color: var(--blue);
+  color: var(--text);
+}
+
+.sum-advisor-tip--ok {
+  background: rgba(63, 185, 80, 0.08);
+  border-left-color: var(--green);
+  color: var(--text);
+}

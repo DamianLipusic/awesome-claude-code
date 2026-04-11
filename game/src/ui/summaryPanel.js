@@ -21,6 +21,7 @@ import { UNITS } from '../data/units.js';
 import { HERO_DEF } from '../data/hero.js';
 import { EMPIRES } from '../data/empires.js';
 import { QUESTS } from '../systems/quests.js';
+import { TECHS } from '../data/techs.js';
 import { currentSeason, seasonTicksRemaining } from '../systems/seasons.js';
 import { fmtNum, fmtRate } from '../utils/fmt.js';
 import { TICKS_PER_SECOND } from '../core/tick.js';
@@ -81,6 +82,7 @@ function _render() {
   panel.innerHTML = `
     ${_empireHeader(age, season, timeStr)}
     <div class="summary-grid">
+      ${_advisorCard()}
       ${_resourcesCard()}
       ${_militaryCard()}
       ${_territoryCard()}
@@ -129,6 +131,20 @@ function _resourcesCard() {
 
 // ── Military card ──────────────────────────────────────────────────────────
 
+function _rankMult(id) {
+  const rank = state.unitRanks?.[id];
+  if (rank === 'elite')   return 2.0;
+  if (rank === 'veteran') return 1.5;
+  return 1.0;
+}
+
+function _rankBadge(id) {
+  const rank = state.unitRanks?.[id];
+  if (rank === 'elite')   return ` <span class="rank-badge rank-badge--elite">★★</span>`;
+  if (rank === 'veteran') return ` <span class="rank-badge rank-badge--veteran">★</span>`;
+  return '';
+}
+
 function _militaryCard() {
   let attackPower = 0;
   const unitRows = [];
@@ -137,11 +153,11 @@ function _militaryCard() {
     if (count <= 0) continue;
     const def = UNITS[id];
     if (!def) continue;
-    const power = def.attack * count;
+    const power = Math.round(def.attack * count * _rankMult(id));
     attackPower += power;
     unitRows.push(`
       <div class="sum-stat-row">
-        <span class="sum-stat-label">${def.icon} ${def.name}</span>
+        <span class="sum-stat-label">${def.icon} ${def.name}${_rankBadge(id)}</span>
         <span class="sum-stat-value">×${count} <span style="color:var(--red);font-size:11px">(+${power} atk)</span></span>
       </div>`);
   }
@@ -328,6 +344,123 @@ function _statsCard(timeStr) {
     </div>`;
 
   return _card('📈 Lifetime Stats', rows);
+}
+
+// ── Advisor card (T040) ────────────────────────────────────────────────────
+
+/**
+ * Generates a list of prioritised advisor tips based on the current game state.
+ * Returns up to 4 tip objects: { icon, text, level }
+ * level: 'warn' | 'info' | 'ok'
+ */
+function _generateTips() {
+  const tips = [];
+
+  // ── Critical warnings ──────────────────────────────────────────────────
+  if ((state.rates?.food ?? 0) < -0.3) {
+    tips.push({ icon: '⚠️', text: 'Food is depleting — build more Farms or reduce army size', level: 'warn' });
+  }
+  if ((state.rates?.gold ?? 0) < -0.5 && (state.resources?.gold ?? 0) < 200) {
+    tips.push({ icon: '💸', text: 'Gold reserves draining — check diplomacy costs and upkeep', level: 'warn' });
+  }
+
+  // ── War overextension ──────────────────────────────────────────────────
+  const warCount = (state.diplomacy?.empires ?? []).filter(e => e.relations === 'war').length;
+  if (warCount >= 2) {
+    tips.push({ icon: '🤝', text: `At war with ${warCount} empires — propose peace to reduce raid damage`, level: 'warn' });
+  }
+
+  // ── Age advance ready ──────────────────────────────────────────────────
+  const nextAge = AGES[(state.age ?? 0) + 1];
+  if (nextAge) {
+    let reqsMet = true;
+    for (const req of nextAge.requires) {
+      if (req.type === 'tech' && !state.techs?.[req.id]) { reqsMet = false; break; }
+      if (req.type === 'totalBuildings') {
+        const total = Object.values(state.buildings ?? {}).reduce((a, b) => a + b, 0);
+        if (total < req.count) { reqsMet = false; break; }
+      }
+      if (req.type === 'totalUnits') {
+        const total = Object.values(state.units ?? {}).reduce((a, b) => a + b, 0);
+        if (total < req.count) { reqsMet = false; break; }
+      }
+      if (req.type === 'territory') {
+        let territory = 0;
+        if (state.map) {
+          for (const row of state.map.tiles)
+            for (const t of row)
+              if (t.owner === 'player') territory++;
+        }
+        if (territory < req.count) { reqsMet = false; break; }
+      }
+    }
+    if (reqsMet) {
+      tips.push({ icon: '⬆️', text: `Ready to advance to ${nextAge.icon} ${nextAge.name}! Go to the Research tab`, level: 'ok' });
+    }
+  }
+
+  // ── No military ────────────────────────────────────────────────────────
+  if ((state.tick ?? 0) > 120) {
+    const totalUnits = Object.values(state.units ?? {}).reduce((a, b) => a + b, 0);
+    if (totalUnits === 0) {
+      tips.push({ icon: '⚔️', text: 'No military forces — train Soldiers to defend and expand', level: 'info' });
+    }
+  }
+
+  // ── Research available ─────────────────────────────────────────────────
+  if (state.researchQueue?.length === 0) {
+    const inQueue = new Set();
+    for (const [id, def] of Object.entries(TECHS)) {
+      if (state.techs?.[id]) continue;
+      if (inQueue.has(id))  continue;
+      const prereqsMet = def.requires.every(r => state.techs?.[r]);
+      if (!prereqsMet) continue;
+      const affordable = Object.entries(def.cost).every(([r, a]) => (state.resources?.[r] ?? 0) >= a);
+      if (affordable) {
+        tips.push({ icon: '🔬', text: `Research available: ${def.icon} ${def.name} — visit the Research tab`, level: 'info' });
+        break;
+      }
+    }
+  }
+
+  // ── Resource near cap ──────────────────────────────────────────────────
+  const RES_LABELS = { gold: 'Gold', food: 'Food', wood: 'Wood', stone: 'Stone', iron: 'Iron', mana: 'Mana' };
+  for (const [id, label] of Object.entries(RES_LABELS)) {
+    const val = state.resources?.[id] ?? 0;
+    const cap = state.caps?.[id] ?? 500;
+    if (cap > 0 && val / cap >= 0.9 && (state.rates?.[id] ?? 0) > 0) {
+      tips.push({ icon: '📦', text: `${label} is almost full (${Math.round(val / cap * 100)}%) — build more storage`, level: 'info' });
+      break; // only one cap warning at a time
+    }
+  }
+
+  // ── Territory small (late game) ────────────────────────────────────────
+  if ((state.tick ?? 0) > 480) {
+    let playerTiles = 0;
+    if (state.map) {
+      for (const row of state.map.tiles)
+        for (const t of row)
+          if (t.owner === 'player') playerTiles++;
+    }
+    if (playerTiles < 6) {
+      tips.push({ icon: '🗺️', text: 'Territory is small — attack enemy tiles on the Map tab to expand', level: 'info' });
+    }
+  }
+
+  return tips.slice(0, 4);
+}
+
+function _advisorCard() {
+  const tips = _generateTips();
+  let body;
+  if (tips.length === 0) {
+    body = `<div class="sum-advisor-tip sum-advisor-tip--ok">✅ Your empire is flourishing — keep expanding!</div>`;
+  } else {
+    body = tips.map(t =>
+      `<div class="sum-advisor-tip sum-advisor-tip--${t.level}">${t.icon} ${_escHtml(t.text)}</div>`
+    ).join('');
+  }
+  return _card('💡 Advisor', body);
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────
