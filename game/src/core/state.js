@@ -118,6 +118,11 @@ export const state = {
   // 'easy' | 'normal' | 'hard'
   difficulty: 'normal',
 
+  // Resource shortage alert thresholds — persisted across new games (user preference)
+  // { [resId]: thresholdValue }  — HUD cell pulses red when resource ≤ threshold
+  // null/undefined entry means alert is disabled for that resource
+  alerts: {},
+
   // Current game tick count (increments every 250ms)
   tick: 0,
 

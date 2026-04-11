@@ -66,6 +66,8 @@ function _render(panel) {
 
     ${_shortcutsSection()}
 
+    ${_alertsSection()}
+
     <div class="settings-section">
       <div class="settings-section__title">💾 Save Portability</div>
       <div class="settings-section__desc">
@@ -128,6 +130,20 @@ function _render(panel) {
       localStorage.removeItem(LB_KEY);
       _render(panel);
     }
+  });
+
+  // Bind alert threshold inputs — save directly into state.alerts on change
+  panel.querySelectorAll('.alert-input').forEach(input => {
+    input.addEventListener('change', () => {
+      const res = input.dataset.res;
+      if (!state.alerts) state.alerts = {};
+      const v = parseFloat(input.value);
+      if (input.value.trim() === '' || isNaN(v) || v < 0) {
+        delete state.alerts[res];
+      } else {
+        state.alerts[res] = Math.floor(v);
+      }
+    });
   });
 }
 
@@ -271,6 +287,49 @@ function _leaderboardSection() {
     <button class="btn btn--sm" id="btn-clear-lb" style="margin-top:8px;color:var(--red);border-color:var(--red)">
       🗑️ Clear Scores
     </button>
+  </div>`;
+}
+
+// ---------------------------------------------------------------------------
+// Resource alerts section (T044)
+// ---------------------------------------------------------------------------
+
+const _ALERT_RESOURCES = [
+  { id: 'gold',  icon: '💰', label: 'Gold'  },
+  { id: 'food',  icon: '🍞', label: 'Food'  },
+  { id: 'wood',  icon: '🪵', label: 'Wood'  },
+  { id: 'stone', icon: '🪨', label: 'Stone' },
+  { id: 'iron',  icon: '⚙️', label: 'Iron'  },
+  { id: 'mana',  icon: '✨', label: 'Mana'  },
+];
+
+function _alertsSection() {
+  const rows = _ALERT_RESOURCES.map(r => {
+    const val    = state.alerts?.[r.id];
+    const valStr = typeof val === 'number' ? val : '';
+    return `<div class="alert-row">
+      <span class="alert-label">${r.icon} ${_escHtml(r.label)}</span>
+      <input
+        type="number"
+        class="alert-input"
+        data-res="${r.id}"
+        placeholder="off"
+        min="0"
+        max="9999"
+        step="10"
+        value="${_escHtml(String(valStr))}"
+      >
+    </div>`;
+  }).join('');
+
+  return `<div class="settings-section">
+    <div class="settings-section__title">⚠️ Resource Alerts</div>
+    <div class="settings-section__desc">
+      The HUD cell for a resource will pulse red when its value drops at or
+      below the threshold you set here. Leave blank to disable the alert.
+      These settings persist across new games.
+    </div>
+    <div class="alerts-grid">${rows}</div>
   </div>`;
 }
 

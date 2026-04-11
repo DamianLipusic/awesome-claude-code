@@ -2469,3 +2469,102 @@ kbd {
   border-left-color: var(--green);
   color: var(--text);
 }
+
+/* ── Summary panel — resource trend chart (T043) ────────────────────────── */
+
+/* Chart card spans full grid width */
+.summary-card--wide {
+  grid-column: 1 / -1;
+}
+
+.sum-chart__svg {
+  display: block;
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.sum-chart__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.sum-chart__item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sum-chart__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.sum-chart__caption {
+  font-size: 10px;
+  color: var(--text-dim);
+  margin-top: 5px;
+  text-align: right;
+  line-height: 1.4;
+}
+
+/* ── HUD resource shortage alerts (T044) ────────────────────────────────── */
+
+.hud__resource--alert {
+  border-color: var(--red) !important;
+  animation: alert-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes alert-pulse {
+  0%, 100% { box-shadow: 0 0 0 0   rgba(248, 81, 73, 0); }
+  50%       { box-shadow: 0 0 0 5px rgba(248, 81, 73, .30); }
+}
+
+/* Alert configuration grid in Settings panel */
+.alerts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.alert-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 5px 8px;
+}
+
+.alert-label {
+  flex: 1;
+  font-size: 12px;
+}
+
+.alert-input {
+  width: 64px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 12px;
+  padding: 3px 6px;
+  text-align: right;
+  outline: none;
+  -moz-appearance: textfield;
+}
+
+.alert-input:focus { border-color: var(--border-h); }
+.alert-input::placeholder { color: var(--text-dim); font-style: italic; }
+
+.alert-input::-webkit-inner-spin-button,
+.alert-input::-webkit-outer-spin-button { opacity: 0.5; }

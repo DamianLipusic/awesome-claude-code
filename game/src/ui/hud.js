@@ -202,6 +202,14 @@ function renderHUD() {
     if (sparkEl) {
       sparkEl.innerHTML = _sparkSVG(_history[r.id], rate >= 0);
     }
+
+    // Alert threshold check — pulse red when resource drops at or below threshold
+    const hudEl    = document.getElementById(`hud-${r.id}`);
+    const threshold = state.alerts?.[r.id];
+    if (hudEl) {
+      hudEl.classList.toggle('hud__resource--alert',
+        typeof threshold === 'number' && val <= threshold);
+    }
   }
 }
 
@@ -210,6 +218,15 @@ function _flashEl(el, cls) {
   void el.offsetWidth; // force reflow so animation restarts
   el.classList.add(cls);
   el.addEventListener('animationend', () => el.classList.remove(cls), { once: true });
+}
+
+/**
+ * Return a live reference to the per-resource history ring buffers.
+ * Each key is a resource id; each value is an array of up to HISTORY_LEN samples
+ * (one per second).  Used by the summary panel trend chart.
+ */
+export function getResourceHistory() {
+  return _history;
 }
 
 // Throttle HUD re-render to every 4 ticks (1s); also sample history at that interval

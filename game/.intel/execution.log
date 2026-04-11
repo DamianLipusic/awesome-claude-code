@@ -2,6 +2,37 @@
 
 ---
 
+## 2026-04-11 — Session N+2
+
+**Tasks completed:** T043, T044
+
+**Summary:**
+All prior tasks (T001–T042) were complete. Created two new Phase 12 polish/UX features: a multi-line resource trend chart in the Empire Summary tab (T043) and a configurable resource shortage alert system (T044).
+
+**T043 — Multi-line resource trend chart in Empire Summary:**
+- `src/ui/hud.js`: Exported `getResourceHistory()` — returns a live reference to the `_history` ring-buffer object (60 samples per resource, sampled once per second) so summaryPanel can read it without circular imports.
+- `src/ui/summaryPanel.js`: Imported `getResourceHistory`. Added `RES_CHART_COLORS` constant (6 hex colours: gold=#f0b429, food=#3fb950, wood=#a0785a, stone=#90a4ae, iron=#f85149, mana=#bc8cff). Added `_chartCard()` function: builds a 300×80 SVG with 3 subtle horizontal grid lines and 6 independently-normalised polylines (`preserveAspectRatio="none"`, `width="100%"`); flat line at 50% height when a resource hasn't changed; gracefully omits lines with fewer than 2 samples. Appended `_chartCard()` to the summary-grid in `_render()`. Card uses `.summary-card--wide` to span the full grid width.
+- `styles/main.css`: `.summary-card--wide` (grid-column:1/-1), `.sum-chart__svg` (block, bg, border, border-radius), `.sum-chart__legend` (flex-wrap, 11px, coloured dots + labels), `.sum-chart__item`/`.sum-chart__dot` (8px circle), `.sum-chart__caption` (10px right-aligned dim text).
+
+**T044 — Resource shortage alerts / HUD threshold warnings:**
+- `src/core/state.js`: Added `alerts: {}` to the module-level state object. Not included in `initState()` so thresholds persist across new games.
+- `src/ui/hud.js` `renderHUD()`: After updating value/rate display, reads `state.alerts[r.id]`; toggles `.hud__resource--alert` on the `#hud-{id}` element when `val <= threshold`.
+- `src/ui/settingsPanel.js`: Added `_ALERT_RESOURCES` array and `_alertsSection()` which renders a 2-column `.alerts-grid` with 6 number `<input>` elements (placeholder "off", step 10). Injected between Shortcuts and Save Portability in `_render()`. Bound `.alert-input` `change` handlers: write `Math.floor(v)` into `state.alerts[res]` on valid input; delete the key on blank/NaN/negative.
+- `src/main.js`: Added `alerts: state.alerts ?? {}` to `_save()` payload; `state.alerts = s.alerts ?? {}` in `_applySave()`; save version bumped to 12.
+- `styles/main.css`: `.hud__resource--alert` (red border + `alert-pulse` 1.4s glow keyframe), `.alerts-grid` (2-col grid gap-6), `.alert-row` (flex align-centre bg-card), `.alert-label`, `.alert-input` (64px number field, custom focus ring, hidden spin buttons).
+
+**Files modified:**
+- `game/src/ui/hud.js`
+- `game/src/ui/summaryPanel.js`
+- `game/src/core/state.js`
+- `game/src/ui/settingsPanel.js`
+- `game/src/main.js`
+- `game/styles/main.css`
+- `game/.intel/tasks.json`
+- `game/.intel/execution.log`
+
+---
+
 ## 2026-04-11 — Session N+1
 
 **Tasks completed:** T041, T042

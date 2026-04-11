@@ -16,6 +16,7 @@
 
 import { state } from '../core/state.js';
 import { on, Events } from '../core/events.js';
+import { getResourceHistory } from './hud.js';
 import { AGES } from '../data/ages.js';
 import { UNITS } from '../data/units.js';
 import { HERO_DEF } from '../data/hero.js';
@@ -27,6 +28,16 @@ import { fmtNum, fmtRate } from '../utils/fmt.js';
 import { TICKS_PER_SECOND } from '../core/tick.js';
 
 const TOTAL_ACHIEVEMENTS = 15;
+
+// Per-resource line colours for the trend chart
+const RES_CHART_COLORS = {
+  gold:  '#f0b429',
+  food:  '#3fb950',
+  wood:  '#a0785a',
+  stone: '#90a4ae',
+  iron:  '#f85149',
+  mana:  '#bc8cff',
+};
 const ACH_KEY = 'empireos-achievements';
 
 // Victory conditions (mirrors systems/victory.js thresholds)
@@ -89,6 +100,7 @@ function _render() {
       ${_diplomacyCard()}
       ${_progressionCard()}
       ${_statsCard(timeStr)}
+      ${_chartCard()}
     </div>
   `;
 }
@@ -461,6 +473,68 @@ function _advisorCard() {
     ).join('');
   }
   return _card('💡 Advisor', body);
+}
+
+// ── Resource trend chart (T043) ────────────────────────────────────────────
+
+/**
+ * Full-width card showing a 6-line SVG trend chart of all resources.
+ * Each polyline is independently normalised (min→max = full height) so
+ * slow-changing resources (mana, iron) are as visible as fast ones (gold, food).
+ */
+function _chartCard() {
+  const history = getResourceHistory();
+  const W = 300, H = 80, PX = 4, PY = 6;
+  const PW = W - PX * 2;
+  const PH = H - PY * 2;
+
+  // Subtle horizontal grid at 25 / 50 / 75 %
+  const gridLines = [0.25, 0.5, 0.75].map(f => {
+    const y = (PY + f * PH).toFixed(1);
+    return `<line x1="${PX}" y1="${y}" x2="${W - PX}" y2="${y}" stroke="#30363d" stroke-width="0.5"/>`;
+  }).join('');
+
+  // One polyline per resource, independently normalised
+  const polylines = Object.entries(RES_CHART_COLORS).map(([id, color]) => {
+    const vals = history[id] ?? [];
+    if (vals.length < 2) return '';
+    const lo    = Math.min(...vals);
+    const hi    = Math.max(...vals);
+    const range = hi - lo;
+    const pts   = vals.map((v, i) => {
+      const x = (PX + (i / (vals.length - 1)) * PW).toFixed(1);
+      const y = range === 0
+        ? (H / 2).toFixed(1)
+        : (PY + (1 - (v - lo) / range) * PH).toFixed(1);
+      return `${x},${y}`;
+    }).join(' ');
+    return `<polyline points="${pts}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" opacity="0.9"/>`;
+  }).join('');
+
+  const sampleCount = Math.max(0, ...Object.values(history).map(h => h.length));
+
+  const svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" class="sum-chart__svg" aria-hidden="true" preserveAspectRatio="none">${gridLines}${polylines}</svg>`;
+
+  const legend = Object.entries(RES_CHART_COLORS).map(([id, color]) => {
+    const label = RESOURCES.find(r => r.id === id)?.label ?? id;
+    return `<span class="sum-chart__item"><span class="sum-chart__dot" style="background:${color}"></span>${_escHtml(label)}</span>`;
+  }).join('');
+
+  const caption = sampleCount > 0
+    ? `<div class="sum-chart__caption">Last ${sampleCount}s of history — each line independently scaled to show trends</div>`
+    : `<div class="sum-chart__caption" style="font-style:italic">History accumulates as the game runs…</div>`;
+
+  return `<div class="summary-card summary-card--wide">
+    <div class="summary-card__title">
+      <span class="summary-card__title-icon">📈</span>
+      Resource Trends
+    </div>
+    <div class="summary-card__body">
+      ${svg}
+      <div class="sum-chart__legend">${legend}</div>
+      ${caption}
+    </div>
+  </div>`;
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────

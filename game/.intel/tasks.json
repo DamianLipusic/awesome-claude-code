@@ -369,6 +369,24 @@
     "notes": "Created src/ui/newGameModal.js: showNewGameWizard(currentDifficulty, onConfirm) builds a #new-game-modal overlay reusing existing .modal-overlay/.modal-box/.modal-close/.btn--difficulty classes; empire name <input> (max 40 chars, placeholder 'My Empire'); difficulty button group (Easy/Normal/Hard) with live description text; '⚔️ Found Empire' gold submit button; Cancel + Esc + click-outside close; Enter in name field submits. index.html: fixed duplicate id bug on empire-name span (removed duplicate id='btn-empire-name', kept id='empire-name', added class='empire-name-btn' for cursor/hover styling). main.js: imported showNewGameWizard; btn-new-game handler calls showNewGameWizard(state.difficulty, opts => _newGame(opts)); _newGame() extended to accept optional {name, difficulty} — applies difficulty to state before initState(); updates #empire-name text after init; empire rename binding fixed to use getElementById('empire-name'). CSS: .ng-modal-box width; .ng-field/.ng-label/.ng-input/.ng-diff-desc/.ng-warning layout; .btn--ng-start (gold); .empire-name-btn cursor+dashed-underline hint."
   },
   {
+    "id": "T043",
+    "title": "multi-line resource trend chart in Empire Summary",
+    "description": "Add a full-width 'Resource Trends' card at the bottom of the Empire Summary tab. Render a multi-line SVG chart with 6 independently-normalised polylines (one per resource, 60-second rolling history reused from hud.js sparklines). Include a colour-coded legend and a caption. Export getResourceHistory() from hud.js so summaryPanel.js can access the ring buffers without circular imports.",
+    "priority": 43,
+    "status": "done",
+    "phase": 12,
+    "notes": "Exported getResourceHistory() from ui/hud.js (returns live _history ring-buffer reference). Added RES_CHART_COLORS constant and _chartCard() function to ui/summaryPanel.js: builds a 300×80 SVG with 3 subtle grid lines and 6 independently-normalised polylines (one per resource, flat line at 50% when constant); appended to summary-grid via _render(). Added getResourceHistory import in summaryPanel.js. CSS: .summary-card--wide (grid-column:1/-1), .sum-chart__svg (bg-card border block), .sum-chart__legend (flex-wrap 11px colour-dot + label), .sum-chart__item/.sum-chart__dot (8px circle), .sum-chart__caption (10px right-aligned)."
+  },
+  {
+    "id": "T044",
+    "title": "resource shortage alerts — HUD threshold warnings",
+    "description": "Let players set a per-resource numeric threshold in the Settings panel. When a resource value drops to or below its threshold, its HUD cell pulses with a red glow. Thresholds persist across new games (user preference). Config UI lives in a new 'Resource Alerts' section in the Settings tab. Save version bumped to 12.",
+    "priority": 44,
+    "status": "done",
+    "phase": 12,
+    "notes": "state.js: added alerts:{} (not in initState — persists across new games). ui/hud.js renderHUD(): added per-resource alert check — reads state.alerts[r.id]; toggles .hud__resource--alert class when resource value ≤ threshold. ui/settingsPanel.js: added _ALERT_RESOURCES constant and _alertsSection() rendering a 6-cell .alerts-grid with per-resource number inputs (placeholder='off', step=10); injected into _render() between Shortcuts and Save Portability sections; bound .alert-input change handlers that write/delete entries in state.alerts. main.js: added alerts to _save() payload and state.alerts = s.alerts ?? {} in _applySave(); save version bumped to 12. CSS: .hud__resource--alert (red border + alert-pulse keyframe glow 1.4s), .alerts-grid (2-col grid), .alert-row (flex bg-card), .alert-label, .alert-input (64px number field)."
+  },
+  {
     "id": "T042",
     "title": "pause button and visual pause overlay",
     "description": "Add a ⏸/▶ toggle button in the title bar alongside Save and New Game. Add a semi-transparent centre-screen 'PAUSED' overlay that appears when the game is paused. Sync the button state when Space/P keyboard shortcuts are used. Clicking the button or pressing Space/P both toggle pause and update all indicators consistently.",

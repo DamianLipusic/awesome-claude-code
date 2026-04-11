@@ -132,7 +132,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 11,
+      version: 12,
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -159,6 +159,7 @@ function _save() {
         unitXP:        state.unitXP,
         unitRanks:     state.unitRanks,
         difficulty:    state.difficulty,
+        alerts:        state.alerts ?? {},
         tick:          state.tick,
       }
     }));
@@ -201,6 +202,7 @@ function _applySave(save) {
   state.unitXP         = s.unitXP         ?? {};
   state.unitRanks      = s.unitRanks      ?? {};
   state.difficulty     = s.difficulty     ?? 'normal';
+  state.alerts         = s.alerts         ?? {};
   state.tick           = s.tick           ?? 0;
   recalcRates();
   addMessage('Game loaded.', 'info');
