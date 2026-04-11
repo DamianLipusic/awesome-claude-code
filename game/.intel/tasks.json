@@ -322,5 +322,23 @@
     "status": "done",
     "phase": 9,
     "notes": "Added getBreakdown(resId) export to systems/resources.js: mirrors recalcRates() logic to compute per-source contributions (baseline, buildings with age+tech mults, territory, trade routes, unit upkeep, hero upkeep), season multiplier as a modifier, and active disaster modifiers; returns {lines, seasonMult, seasonName, disasters, total}. Updated ui/hud.js: imported getBreakdown; added _tooltipEl module var + _createTooltip() (appends fixed #hud-tooltip div to body); _showTooltip(resId, anchorEl) calls getBreakdown, builds innerHTML with header, per-line rows (filtered <0.005), season modifier badge, disaster badges, divider, and net-rate total row; uses rAF to measure tooltip width and clamp position within viewport below the hovered cell; _hideTooltip() adds hud-tooltip--hidden class. initHUD() attaches mouseenter/mouseleave listeners to each resource div. Removed title= attr from resource divs (superseded by tooltip). CSS: .hud-tooltip (fixed, z-800, bg-card, border-h, shadow, pointer-events:none), .hud-tooltip--hidden (display:none), .hud-tt__header/row/label/val/val--pos/val--neg/modifier/modifier--disaster/divider/total; .hud__resource cursor:help."
+  },
+  {
+    "id": "T037",
+    "title": "map resource overlay mode",
+    "description": "Add a toggle button on the map panel to switch between normal terrain view and a resource overlay that colors tiles by their primary resource contribution (food/wood/stone/iron/gold). Updates the map legend to match the active mode.",
+    "priority": 37,
+    "status": "done",
+    "phase": 10,
+    "notes": "Added _overlayMode boolean to mapPanel.js. Added OVERLAY_COLOR map (grass→amber gold, forest→deep green, hills→slate, river→dark teal, mountain→rust) and OVERLAY_LEGEND array. _buildHTML() now emits a .map-controls div with a '🌾 Resources' toggle button (#map-overlay-toggle). Toggle click flips _overlayMode, swaps button label to '🗺️ Terrain', adds .btn--map-overlay-active class, calls _updateLegend() which replaces #map-legend innerHTML with either terrain or resource swatches+labels. _drawTile() selects OVERLAY_COLOR vs TERRAIN_COLOR based on _overlayMode — no other logic changes needed. CSS: .map-controls flex wrapper + margin; .btn--map-overlay default (dim border/text); .btn--map-overlay-active (green border/text + faint green bg)."
+  },
+  {
+    "id": "T038",
+    "title": "map tile hover tooltip",
+    "description": "Show a floating HTML tooltip when hovering over revealed tiles on the map. Tooltip displays terrain type, ownership (your territory / enemy / neutral), resource bonus/s, defense rating, and 'click to attack' hint for attackable tiles.",
+    "priority": 38,
+    "status": "done",
+    "phase": 10,
+    "notes": "Added _tileTipEl module variable. _createTileTip() creates a #map-tile-tip div and appends to body (idempotent: reuses existing if already present — handles panel re-init). _showTileTip(tile, x, y, mouseX, mouseY) builds tooltip HTML: terrain name title, owner badge (blue=player / red=enemy / neutral=dim), resource bonus row (amber accent), defense value row, 'click to attack' action row when tile is attackable. Positions the tooltip below-right of cursor clamped to viewport (150×110 estimate). _hideTileTip() adds .map-tile-tip--hidden. _onMousemove now calls _showTileTip for revealed tiles and _hideTileTip otherwise; _onMouseleave calls _hideTileTip. CSS: .map-tile-tip (fixed, z-820, bg-card, border-h, shadow, pointer-events:none, min-width 130px); .map-tile-tip--hidden (display:none); .map-tt-title/.map-tt-row/.map-tt-bonus/.map-tt-owner (--player blue / --enemy red)/.map-tt-action (accent-h, bold)."
   }
 ]

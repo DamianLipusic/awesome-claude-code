@@ -1,5 +1,5 @@
 /**
- * EmpireOS — Map panel UI (T007).
+ * EmpireOS — Map panel UI (T007 / T037 / T038).
  *
  * Renders a 20×20 canvas tile grid with:
  *   - Terrain colours and fog-of-war
@@ -7,6 +7,8 @@
  *   - Enemy settlements (red tint / border)
  *   - Hover highlight on attackable tiles
  *   - Click-to-attack on adjacent enemy tiles
+ *   - T037: Resource overlay mode (toggle button recolors tiles by resource)
+ *   - T038: Tile hover tooltip (terrain, owner, resource bonus, defense)
  *
  * Canvas size: 480×480 px (24 px per tile × 20 tiles).
  */
@@ -18,7 +20,7 @@ import { attackTile } from '../systems/combat.js';
 const TILE_PX   = 24;     // pixels per tile side
 const GRID_SIZE = 20;     // tiles per axis
 
-// Terrain base colours
+// Terrain base colours (normal mode)
 const TERRAIN_COLOR = {
   grass:    '#243520',
   forest:   '#1a3010',
@@ -28,29 +30,69 @@ const TERRAIN_COLOR = {
   capital:  '#4a3808',
 };
 
-const FOG_COLOR     = '#0a0d11';
-const FOG_GRID      = '#12161b';
-const PLAYER_TINT   = 'rgba(88,166,255,0.22)';
-const ENEMY_TINT    = 'rgba(248,81,73,0.28)';
-const HOVER_ATTACK  = 'rgba(240,180,41,0.38)';
-const HOVER_NEUTRAL = 'rgba(255,255,255,0.08)';
-const PLAYER_BORDER = '#58a6ff';
-const ENEMY_BORDER  = '#f85149';
+// T037: Resource overlay colours — one per terrain→resource mapping
+const OVERLAY_COLOR = {
+  grass:    '#3b2d08',   // gold territory  → amber-brown
+  forest:   '#0d2d0d',   // wood territory  → deep green
+  hills:    '#30303c',   // stone territory → slate
+  river:    '#0a2a22',   // food territory  → dark teal
+  mountain: '#3b1a08',   // iron territory  → rust
+  capital:  '#4a3808',   // capital keeps warm colour
+};
+
+const FOG_COLOR      = '#0a0d11';
+const FOG_GRID       = '#12161b';
+const PLAYER_TINT    = 'rgba(88,166,255,0.22)';
+const ENEMY_TINT     = 'rgba(248,81,73,0.28)';
+const HOVER_ATTACK   = 'rgba(240,180,41,0.38)';
+const HOVER_NEUTRAL  = 'rgba(255,255,255,0.08)';
+const PLAYER_BORDER  = '#58a6ff';
+const ENEMY_BORDER   = '#f85149';
 const NEUTRAL_BORDER = '#30363d';
 
-// Terrain labels shown in legend
+// Terrain labels shown in normal-mode legend
 const TERRAIN_LABEL = {
-  grass:    { label: 'Grassland',       bonus: '+gold' },
-  forest:   { label: 'Forest',          bonus: '+wood' },
-  hills:    { label: 'Hills',           bonus: '+stone' },
-  river:    { label: 'River',           bonus: '+food' },
-  mountain: { label: 'Mountain',        bonus: '+iron' },
+  grass:    { label: 'Grassland', bonus: '+gold' },
+  forest:   { label: 'Forest',    bonus: '+wood' },
+  hills:    { label: 'Hills',     bonus: '+stone' },
+  river:    { label: 'River',     bonus: '+food' },
+  mountain: { label: 'Mountain',  bonus: '+iron' },
+};
+
+// T037: Resource overlay legend entries
+const OVERLAY_LEGEND = [
+  { color: '#3b2d08', icon: '💰', label: 'Gold territory' },
+  { color: '#0d2d0d', icon: '🪵', label: 'Wood territory' },
+  { color: '#30303c', icon: '🪨', label: 'Stone territory' },
+  { color: '#0a2a22', icon: '🍞', label: 'Food territory' },
+  { color: '#3b1a08', icon: '⚙️', label: 'Iron territory' },
+];
+
+// T038: Human-readable terrain names and resource bonus text
+const TERRAIN_NAME = {
+  grass:    'Grassland',
+  forest:   'Forest',
+  hills:    'Hills',
+  river:    'River',
+  mountain: 'Mountain',
+  capital:  'Capital',
+};
+
+const TERRAIN_BONUS = {
+  grass:    '💰 +gold/s',
+  forest:   '🪵 +wood/s',
+  hills:    '🪨 +stone/s',
+  river:    '🍞 +food/s',
+  mountain: '⚙️ +iron/s',
+  capital:  '',
 };
 
 let canvas, ctx;
-let hoveredTile  = null;  // { x, y } | null
-let _combatFlash = null;  // { x, y, alpha, outcome } | null
-let _flashRafId  = null;  // requestAnimationFrame id
+let hoveredTile  = null;   // { x, y } | null
+let _combatFlash = null;   // { x, y, alpha, outcome } | null
+let _flashRafId  = null;   // requestAnimationFrame id
+let _overlayMode = false;  // T037: resource overlay toggle
+let _tileTipEl   = null;   // T038: floating tile tooltip element
 
 // ── Public API ─────────────────────────────────────────────────────────────
 
@@ -66,6 +108,19 @@ export function initMapPanel() {
   canvas.addEventListener('click',      _onClick);
   canvas.addEventListener('mousemove',  _onMousemove);
   canvas.addEventListener('mouseleave', _onMouseleave);
+
+  // T037: wire overlay toggle button
+  const toggleBtn = panel.querySelector('#map-overlay-toggle');
+  toggleBtn.addEventListener('click', () => {
+    _overlayMode = !_overlayMode;
+    toggleBtn.textContent = _overlayMode ? '🗺️ Terrain' : '🌾 Resources';
+    toggleBtn.classList.toggle('btn--map-overlay-active', _overlayMode);
+    _updateLegend(panel);
+    _render();
+  });
+
+  // T038: create persistent tile tooltip
+  _createTileTip();
 
   // Re-render on relevant state changes
   on(Events.MAP_CHANGED, (data) => {
@@ -85,20 +140,24 @@ export function initMapPanel() {
 
 function _buildHTML() {
   const legendItems = Object.entries(TERRAIN_LABEL).map(([type, { label, bonus }]) =>
-    `<span class="map-legend__item">
+    `<span class="map-legend__item" data-terrain="${type}">
        <span class="map-legend__swatch" style="background:${TERRAIN_COLOR[type]}"></span>
        ${label} <span class="map-legend__bonus">${bonus}</span>
      </span>`
   ).join('');
 
   return `
+    <div class="map-controls">
+      <button id="map-overlay-toggle" class="btn btn--sm btn--map-overlay"
+        title="Toggle resource overlay — see which tiles produce which resources">🌾 Resources</button>
+    </div>
     <div class="map-wrap">
       <canvas id="map-canvas"
         width="${TILE_PX * GRID_SIZE}"
         height="${TILE_PX * GRID_SIZE}"
         title="Click an adjacent enemy tile to attack it"></canvas>
     </div>
-    <div class="map-legend">
+    <div id="map-legend" class="map-legend">
       ${legendItems}
       <span class="map-legend__item map-legend__hint">
         ⚔️ Click a highlighted tile to attack
@@ -106,6 +165,84 @@ function _buildHTML() {
     </div>
     <div id="map-stats" class="map-stats"></div>
   `;
+}
+
+// ── T037: Legend update ────────────────────────────────────────────────────
+
+function _updateLegend(panel) {
+  const el = panel.querySelector('#map-legend');
+  if (!el) return;
+
+  if (_overlayMode) {
+    el.innerHTML = OVERLAY_LEGEND.map(({ color, icon, label }) =>
+      `<span class="map-legend__item">
+         <span class="map-legend__swatch" style="background:${color}"></span>
+         ${icon} ${label}
+       </span>`
+    ).join('') +
+    `<span class="map-legend__item map-legend__hint">⚔️ Click a highlighted tile to attack</span>`;
+  } else {
+    el.innerHTML = Object.entries(TERRAIN_LABEL).map(([type, { label, bonus }]) =>
+      `<span class="map-legend__item" data-terrain="${type}">
+         <span class="map-legend__swatch" style="background:${TERRAIN_COLOR[type]}"></span>
+         ${label} <span class="map-legend__bonus">${bonus}</span>
+       </span>`
+    ).join('') +
+    `<span class="map-legend__item map-legend__hint">⚔️ Click a highlighted tile to attack</span>`;
+  }
+}
+
+// ── T038: Tile tooltip ─────────────────────────────────────────────────────
+
+function _createTileTip() {
+  const existing = document.getElementById('map-tile-tip');
+  if (existing) { _tileTipEl = existing; return; }
+  _tileTipEl = document.createElement('div');
+  _tileTipEl.id        = 'map-tile-tip';
+  _tileTipEl.className = 'map-tile-tip map-tile-tip--hidden';
+  document.body.appendChild(_tileTipEl);
+}
+
+function _showTileTip(tile, x, y, mouseX, mouseY) {
+  if (!_tileTipEl || !tile.revealed) { _hideTileTip(); return; }
+
+  const ownerHtml =
+    tile.owner === 'player' ? `<span class="map-tt-owner map-tt-owner--player">Your territory</span>`
+    : tile.owner === 'enemy' ? `<span class="map-tt-owner map-tt-owner--enemy">Enemy territory</span>`
+    : `<span class="map-tt-owner">Neutral</span>`;
+
+  const bonusTxt  = TERRAIN_BONUS[tile.type];
+  const bonusHtml = bonusTxt
+    ? `<div class="map-tt-row map-tt-bonus">${bonusTxt}</div>`
+    : '';
+
+  const actionHtml = _isAttackable(x, y)
+    ? `<div class="map-tt-action">⚔️ Click to attack</div>`
+    : '';
+
+  _tileTipEl.innerHTML = `
+    <div class="map-tt-title">${TERRAIN_NAME[tile.type] ?? tile.type}</div>
+    <div class="map-tt-row">${ownerHtml}</div>
+    ${bonusHtml}
+    <div class="map-tt-row">🛡️ Defense: ${tile.defense}</div>
+    ${actionHtml}
+  `;
+
+  // Position below-right of cursor; clamp within viewport
+  const TIP_W = 150;
+  const TIP_H = 110;
+  let tx = mouseX + 14;
+  let ty = mouseY + 14;
+  if (tx + TIP_W > window.innerWidth  - 8) tx = mouseX - TIP_W - 8;
+  if (ty + TIP_H > window.innerHeight - 8) ty = mouseY - TIP_H - 8;
+
+  _tileTipEl.style.left = `${Math.max(4, tx)}px`;
+  _tileTipEl.style.top  = `${Math.max(4, ty)}px`;
+  _tileTipEl.classList.remove('map-tile-tip--hidden');
+}
+
+function _hideTileTip() {
+  _tileTipEl?.classList.add('map-tile-tip--hidden');
 }
 
 // ── Combat flash (rAF-driven) ──────────────────────────────────────────────
@@ -163,8 +300,9 @@ function _drawTile(tile, x, y, capital) {
     return;
   }
 
-  // Base terrain colour
-  ctx.fillStyle = TERRAIN_COLOR[tile.type] ?? TERRAIN_COLOR.grass;
+  // T037: choose color map based on overlay mode
+  const colorMap = _overlayMode ? OVERLAY_COLOR : TERRAIN_COLOR;
+  ctx.fillStyle = colorMap[tile.type] ?? colorMap.grass;
   ctx.fillRect(px, py, TILE_PX, TILE_PX);
 
   // Owner tint
@@ -197,7 +335,7 @@ function _drawTile(tile, x, y, capital) {
     ctx.fillRect(px, py, TILE_PX, TILE_PX);
   }
 
-  // Icons: capital castle and enemy sword
+  // Icons: capital castle and enemy sword (same in both modes)
   if (x === capital.x && y === capital.y) {
     _drawIcon(px, py, '🏰');
   } else if (tile.owner === 'enemy' && tile.revealed) {
@@ -218,8 +356,8 @@ function _updateStats() {
   const el = document.getElementById('map-stats');
   if (!el || !state.map) return;
 
-  let playerTiles = 0;
-  let enemyTiles  = 0;
+  let playerTiles   = 0;
+  let enemyTiles    = 0;
   let revealedTiles = 0;
 
   for (let y = 0; y < state.map.height; y++) {
@@ -266,11 +404,22 @@ function _onMousemove(e) {
   if (x < 0 || x >= GRID_SIZE || y < 0 || y >= GRID_SIZE) {
     hoveredTile = null;
     canvas.style.cursor = 'default';
+    _hideTileTip();
     _render();
     return;
   }
+
   const prev = hoveredTile;
   hoveredTile = { x, y };
+
+  // T038: show tile tooltip for revealed tiles
+  const tile = state.map?.tiles[y]?.[x];
+  if (tile?.revealed) {
+    _showTileTip(tile, x, y, e.clientX, e.clientY);
+  } else {
+    _hideTileTip();
+  }
+
   if (!prev || prev.x !== x || prev.y !== y) {
     canvas.style.cursor = _isAttackable(x, y) ? 'pointer' : 'default';
     _render();
@@ -280,6 +429,7 @@ function _onMousemove(e) {
 function _onMouseleave() {
   hoveredTile = null;
   canvas.style.cursor = 'default';
+  _hideTileTip();
   _render();
 }
 

@@ -514,3 +514,32 @@ Two Phase 9 features: selectable difficulty presets that tune starting resources
 - Starting-resource scaling is deferred to `_applyDifficultyStart()` called **after** `initState()` rather than inside it — this keeps `initState()` producing consistent baseline values regardless of difficulty, simplifying any future code that needs to know the base starting state.
 - The 6 new techs use the established prerequisite-only gating mechanism (no explicit age requirements) because their prerequisite chains already imply late-game timing: `divine_favor` requires `alchemy` which requires `arcane` which requires `metalworking`; `siege_craft` requires `steel` which requires `tactics → warcraft → metalworking → masonry`.
 - `_buildingProdMultiplier()` multipliers stack multiplicatively (not additively) to avoid diminishing-returns confusion and keep each tech's stated percentage meaningful regardless of other techs already researched.
+
+---
+
+## 2026-04-11 — Session 14
+
+**Tasks completed:** T037, T038
+
+**Summary:**
+Two Phase 10 map UX improvements: a resource overlay mode that recolors the tile canvas by resource type to aid strategic planning, and a floating tile-hover tooltip that shows terrain details on the map panel.
+
+**Files modified:**
+
+- `game/src/ui/mapPanel.js` — Full rewrite to add T037 and T038 alongside existing functionality.
+  - T037 (resource overlay): Added `_overlayMode` boolean and `OVERLAY_COLOR` map (grass→amber, forest→deep green, hills→slate, river→dark teal, mountain→rust). Added `OVERLAY_LEGEND` array with color/icon/label entries. `_buildHTML()` now includes a `.map-controls` div with `#map-overlay-toggle` button. Toggle click handler flips `_overlayMode`, swaps button label ('🌾 Resources' ↔ '🗺️ Terrain'), toggles `.btn--map-overlay-active` class, calls `_updateLegend()` to swap the `#map-legend` innerHTML between terrain and resource label sets. `_drawTile()` now selects `OVERLAY_COLOR` vs `TERRAIN_COLOR` based on `_overlayMode`; no other rendering logic needed to change — icons (castle, sword) are unchanged in both modes.
+  - T038 (tile tooltip): Added `TERRAIN_NAME` and `TERRAIN_BONUS` lookup maps. Added `_tileTipEl` module variable. `_createTileTip()` appends a `#map-tile-tip` div to `<body>` idempotently (reuses existing element if panel re-initialises). `_showTileTip(tile, x, y, mouseX, mouseY)` builds 4-row tooltip HTML: terrain name title, owner badge (blue=player / red=enemy / dim=neutral), resource bonus row (amber accent, omitted for capital), defense value row, optional 'click to attack' action row when `_isAttackable(x,y)`. Positions tooltip below-right of cursor clamped within the viewport (150×110 px estimate). `_hideTileTip()` adds `.map-tile-tip--hidden`. `_onMousemove` now calls `_showTileTip` for revealed tiles and `_hideTileTip` for fog/out-of-bounds. `_onMouseleave` calls `_hideTileTip`.
+
+- `game/styles/main.css` — Added two CSS blocks after the `.map-stats` rule:
+  - `.map-controls` flex wrapper with bottom margin.
+  - `.btn--map-overlay` (dim default), `.btn--map-overlay:hover`, `.btn--map-overlay-active` (green border/text + faint green bg).
+  - `.map-tile-tip` (fixed, z-820, bg-card, border-h, shadow, pointer-events:none, min-width 130px). `.map-tile-tip--hidden` (display:none). `.map-tt-title` (bold, 13px). `.map-tt-row` (dim, 11px). `.map-tt-bonus` (accent amber). `.map-tt-owner` with `--player` (blue) and `--enemy` (red) modifiers. `.map-tt-action` (accent-h, bold).
+
+- `game/.intel/tasks.json` — Added T037 and T038 entries; marked both done with full notes.
+
+**Architecture decisions:**
+- Overlay mode uses a completely separate color map (`OVERLAY_COLOR`) rather than modifying `TERRAIN_COLOR` — no conditional inside the colors, clean separation.
+- The toggle is stateless from the save/load perspective: `_overlayMode` resets to `false` on page load, which is correct behavior (the visual preference doesn't need to persist).
+- Tile tooltip is a single persistent DOM node appended to `<body>` rather than recreated on each hover — avoids layout thrashing and keeps the panel's innerHTML clean.
+- `_createTileTip()` is idempotent: if `panel.innerHTML` is replaced (e.g., game reload), the existing body-level tooltip element is reused and `_tileTipEl` is reassigned to it.
+- No new events or state fields needed for either feature — both are purely view-layer additions that read existing `state.map` data.

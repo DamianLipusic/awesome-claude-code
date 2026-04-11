@@ -402,6 +402,75 @@ body {
   padding: 4px 0;
 }
 
+/* ── Map overlay toggle (T037) ──────────────────────────────────────────── */
+
+.map-controls {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.btn--map-overlay {
+  background: var(--bg-card);
+  border-color: var(--border);
+  color: var(--text-dim);
+  transition: border-color .15s, color .15s, background .15s;
+}
+.btn--map-overlay:hover {
+  border-color: var(--border-h);
+  color: var(--text);
+}
+.btn--map-overlay-active {
+  border-color: var(--green);
+  color: var(--green);
+  background: rgba(63, 185, 80, .1);
+}
+
+/* ── Map tile hover tooltip (T038) ─────────────────────────────────────── */
+
+.map-tile-tip {
+  position: fixed;
+  z-index: 820;
+  background: var(--bg-card);
+  border: 1px solid var(--border-h);
+  border-radius: var(--radius);
+  padding: 7px 11px;
+  font-size: 12px;
+  line-height: 1.5;
+  pointer-events: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, .55);
+  min-width: 130px;
+  max-width: 180px;
+}
+
+.map-tile-tip--hidden { display: none; }
+
+.map-tt-title {
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--text);
+  margin-bottom: 3px;
+}
+
+.map-tt-row {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 1px;
+}
+
+.map-tt-bonus { color: var(--accent); }
+
+.map-tt-owner          { font-size: 11px; }
+.map-tt-owner--player  { color: var(--blue); }
+.map-tt-owner--enemy   { color: var(--red); }
+
+.map-tt-action {
+  margin-top: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent-h);
+}
+
 /* ── Military panel ──────────────────────────────────────────────────────── */
 
 #panel-military {
