@@ -161,6 +161,112 @@ function _advanceTrainingQueue() {
   }
 }
 
+/**
+ * Returns a breakdown of all rate contributors for a single resource.
+ * Used by the HUD tooltip (T034). Mirrors recalcRates() logic.
+ *
+ * Returns:
+ *   lines        — array of { label, value } (value is /s, negative = consumption)
+ *   seasonMult   — season multiplier applied to production (1.0 = no effect)
+ *   seasonName   — display string e.g. "☀️ Summer ×1.10" (empty string if neutral)
+ *   disasters    — array of { label, mult } for active disaster modifiers
+ *   total        — state.rates[resId] (ground truth after full recalcRates)
+ */
+export function getBreakdown(resId) {
+  const lines    = [];
+  const disasters = [];
+
+  // Baseline income
+  if (resId === 'gold') lines.push({ label: 'Baseline',   value: 0.5 });
+  if (resId === 'food') lines.push({ label: 'Baseline',   value: 0.5 });
+
+  // Age multiplier
+  const ageMult = AGES[state.age ?? 0]?.productionMult ?? 1.0;
+
+  // Building contributions (production and consumption separately)
+  for (const [id, count] of Object.entries(state.buildings)) {
+    if (count <= 0) continue;
+    const def = BUILDINGS[id];
+    if (!def) continue;
+    const prodMult = _buildingProdMultiplier(id) * ageMult;
+
+    if (def.production[resId]) {
+      const val = def.production[resId] * count * prodMult;
+      lines.push({ label: `${def.icon ?? ''} ${def.name} ×${count}`, value: val });
+    }
+    if (def.consumption[resId]) {
+      const val = -(def.consumption[resId] * count);
+      lines.push({ label: `${def.icon ?? ''} ${def.name} ×${count} upkeep`, value: val });
+    }
+  }
+
+  // Territory bonuses
+  const territory = territoryRateBonus();
+  if (territory[resId]) {
+    lines.push({ label: '🗺️ Territory', value: territory[resId] });
+  }
+
+  // Trade route income from allied empires
+  if (state.diplomacy) {
+    for (const emp of state.diplomacy.empires) {
+      if (emp.relations !== 'allied' || emp.tradeRoutes <= 0) continue;
+      const empDef = EMPIRES[emp.id];
+      const gift   = empDef?.tradeGift ?? {};
+      if (gift[resId]) {
+        lines.push({ label: `🤝 ${empDef.name} trade`, value: gift[resId] * emp.tradeRoutes });
+      }
+    }
+  }
+
+  // Season multiplier — computed separately (shown as a modifier, not a line)
+  let seasonMult = 1.0;
+  let seasonName = '';
+  if (state.season) {
+    const season = SEASONS[state.season.index];
+    const mod    = season?.modifiers?.[resId];
+    if (mod !== undefined && mod !== 1.0) {
+      seasonMult = mod;
+      const sign  = mod > 1 ? '+' : '';
+      const pct   = Math.round((mod - 1) * 100);
+      seasonName  = `${season.icon} ${season.name} ${sign}${pct}%`;
+    }
+  }
+
+  // Unit upkeep
+  for (const [id, count] of Object.entries(state.units)) {
+    if (count <= 0) continue;
+    const def = UNITS[id];
+    if (!def || !def.upkeep?.[resId]) continue;
+    lines.push({ label: `${def.icon} ${def.name} ×${count} upkeep`, value: -(def.upkeep[resId] * count) });
+  }
+
+  // Hero upkeep
+  if (state.hero?.recruited && HERO_DEF.upkeep[resId]) {
+    lines.push({ label: '⚔️ Hero upkeep', value: -(HERO_DEF.upkeep[resId]) });
+  }
+
+  // Active disaster modifiers
+  const activeMods = state.randomEvents?.activeModifiers ?? [];
+  const cathedralBuilt = (state.buildings?.grandCathedral ?? 0) >= 1;
+  for (const mod of activeMods) {
+    if (mod.resource === resId && mod.expiresAt > state.tick) {
+      const effectiveMult = cathedralBuilt
+        ? 1 - (1 - mod.rateMult) * 0.5
+        : mod.rateMult;
+      const pct = Math.round((effectiveMult - 1) * 100);
+      disasters.push({ label: mod.id.replace(/_/g, ' '), mult: effectiveMult, pct });
+    }
+  }
+
+  return {
+    lines,
+    seasonMult,
+    seasonName,
+    disasters,
+    total: state.rates[resId] ?? 0,
+  };
+}
+
 function _buildingProdMultiplier(buildingId) {
   let mult = 1;
   const techs = state.techs;

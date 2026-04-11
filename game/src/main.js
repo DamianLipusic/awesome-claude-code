@@ -17,6 +17,7 @@ import { initSeasons, seasonTick, currentSeason, seasonTicksRemaining } from './
 import { initVictory, victoryTick } from './systems/victory.js';
 import { initMarket, marketTick } from './systems/market.js';
 import { initAchievements } from './systems/achievements.js';
+import { initEnemyAI, enemyAITick } from './systems/enemyAI.js';
 import { SEASONS } from './data/seasons.js';
 import { AGES } from './data/ages.js';
 import { TICKS_PER_SECOND } from './core/tick.js';
@@ -67,6 +68,7 @@ function boot() {
   registerSystem(seasonTick);
   registerSystem(victoryTick);
   registerSystem(marketTick);
+  registerSystem(enemyAITick);
 
   // Init event-driven systems
   initRandomEvents();
@@ -77,6 +79,7 @@ function boot() {
   initVictory();
   initMarket();
   initAchievements();
+  initEnemyAI();
 
   // Init UI
   initHUD();
@@ -127,7 +130,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 9,
+      version: 10,
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -150,6 +153,7 @@ function _save() {
         hero:          state.hero,
         stats:         state.stats,
         market:        state.market,
+        enemyAI:       state.enemyAI,
         tick:          state.tick,
       }
     }));
@@ -188,6 +192,7 @@ function _applySave(save) {
   state.hero           = s.hero           ?? null;
   state.stats          = s.stats          ?? { goldEarned: 0, peakTerritory: 0 };
   state.market         = s.market         ?? null;
+  state.enemyAI        = s.enemyAI        ?? null;
   state.tick           = s.tick           ?? 0;
   recalcRates();
   addMessage('Game loaded.', 'info');
@@ -286,6 +291,7 @@ function _newGame() {
   initVictory();
   initMarket();
   initAchievements();
+  initEnemyAI();
   recalcRates();
   startLoop();  // restart loop in case it was stopped by game-over
   emit(Events.MAP_CHANGED, {});

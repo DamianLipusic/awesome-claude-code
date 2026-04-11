@@ -286,5 +286,23 @@
     "status": "done",
     "phase": 8,
     "notes": "hud.js: added HISTORY_LEN=60, SPARK_W=60, SPARK_H=18 constants; _history object (one array per resource); _sampleHistory() pushes current value and shifts when >60 entries; _sparkSVG(values, positiveRate) generates inline SVG polyline with min/max normalisation (1px padding on all edges), flat line for zero-range data, green stroke for positive-rate resources, red for negative; initHUD() adds <span class=hud__spark-wrap id=hud-spark-{id}> to each resource div; renderHUD() updates sparkEl innerHTML; _throttledRender() now calls _sampleHistory() before renderHUD() so history is always fresh at the render boundary. CSS: .hud__spark-wrap flex align-center margin-left:2px opacity:0.75 flex-shrink:0; .hud__spark display:block overflow:visible; @media (max-width:600px) hides spark wraps."
+  },
+  {
+    "id": "T033",
+    "title": "enemy AI territory expansion and counterattacks",
+    "description": "Enemies periodically expand into neutral tiles (every 30–60s) and occasionally counterattack player border tiles (every 90–150s). Enemy power scales with game tick. Creates defensive pressure on the player.",
+    "priority": 33,
+    "status": "done",
+    "phase": 9,
+    "notes": "Created src/systems/enemyAI.js with two behaviours: _expandEnemies() picks a random enemy tile, finds an adjacent neutral tile, and captures it (interval 30–60s / 120–240 ticks); _counterattack() finds player border tiles adjacent to enemy tiles and probabilistically captures one (win chance = min(0.5, enemyPower/(enemyPower+playerDefense)); interval 90–150s / 360–600 ticks). Enemy power = 30 + tick/100 so pressure scales with game age. Capital tile is immune to counterattack. On enemy capture: one player unit is lost, recalcRates() called, MAP_CHANGED + UNIT_CHANGED emitted, 'raid' log message shown. initEnemyAI() and enemyAITick() wired into main.js (registered as 8th tick system, called in boot and _newGame). state.enemyAI = {nextExpansionTick, nextAttackTick} added to state.js and initState(); saved/loaded in main.js (save version 10)."
+  },
+  {
+    "id": "T034",
+    "title": "resource rate breakdown tooltip on HUD hover",
+    "description": "Hover over any HUD resource cell to see a floating popup showing the full rate breakdown: buildings, territory, trade routes, season modifier, unit upkeep, and active disasters.",
+    "priority": 34,
+    "status": "done",
+    "phase": 9,
+    "notes": "Added getBreakdown(resId) export to systems/resources.js: mirrors recalcRates() logic to compute per-source contributions (baseline, buildings with age+tech mults, territory, trade routes, unit upkeep, hero upkeep), season multiplier as a modifier, and active disaster modifiers; returns {lines, seasonMult, seasonName, disasters, total}. Updated ui/hud.js: imported getBreakdown; added _tooltipEl module var + _createTooltip() (appends fixed #hud-tooltip div to body); _showTooltip(resId, anchorEl) calls getBreakdown, builds innerHTML with header, per-line rows (filtered <0.005), season modifier badge, disaster badges, divider, and net-rate total row; uses rAF to measure tooltip width and clamp position within viewport below the hovered cell; _hideTooltip() adds hud-tooltip--hidden class. initHUD() attaches mouseenter/mouseleave listeners to each resource div. Removed title= attr from resource divs (superseded by tooltip). CSS: .hud-tooltip (fixed, z-800, bg-card, border-h, shadow, pointer-events:none), .hud-tooltip--hidden (display:none), .hud-tt__header/row/label/val/val--pos/val--neg/modifier/modifier--disaster/divider/total; .hud__resource cursor:help."
   }
 ]

@@ -451,3 +451,29 @@ Added Phase 8 quality-of-life polish: global keyboard shortcuts for all tab navi
 - Sparkline history is module-level in `hud.js` (not in `state`) — it is ephemeral session data that would be meaningless after a reload and doesn't need persistence.
 - Sampling at the throttled 1-second boundary means sparklines stay in sync with the visible HUD values with no extra timers.
 - SVG polyline is regenerated as innerHTML each second; at 60 points × 6 resources this is negligible DOM work.
+
+---
+
+## 2026-04-11 — Session 12
+
+**Tasks completed:** T033, T034
+
+**Summary:**
+Added Phase 9 content: active enemy AI that creates sustained strategic pressure via territory expansion and border counterattacks, plus per-resource rate breakdown tooltips in the HUD for economy transparency.
+
+**Files created:**
+- `game/src/systems/enemyAI.js` — `initEnemyAI()` writes `state.enemyAI = { nextExpansionTick, nextAttackTick }` on first call; `enemyAITick()` is the registered tick system. `_expandEnemies()` shuffles all enemy tiles and claims the first neutral tile adjacent to any of them (one expansion per interval, 30–60 s). `_counterattack()` collects player tiles with at least one enemy neighbour (excluding the capital tile), picks one at random, and resolves a probabilistic attack (win-chance = min(0.5, enemyPower / (enemyPower + playerDefense))): on success the tile switches to enemy, one player unit is lost, `recalcRates()` + `UNIT_CHANGED` + `MAP_CHANGED` are emitted and a 'raid' log message appears.
+
+**Files modified:**
+- `game/src/core/state.js` — Added `enemyAI: null` field to `state` object and `initState()` reset.
+- `game/src/main.js` — Imported `initEnemyAI`/`enemyAITick`; registered `enemyAITick` as the 8th tick system; called `initEnemyAI()` in the boot init sequence and in `_newGame()`; added `enemyAI: state.enemyAI` to the save payload; added `state.enemyAI = s.enemyAI ?? null` to `_applySave()`; bumped save version to 10.
+- `game/src/systems/resources.js` — Added `getBreakdown(resId)` export function: mirrors `recalcRates()` contributor-by-contributor to return `{ lines, seasonMult, seasonName, disasters, total }`. Lines cover baseline, building production/consumption (with age × tech multipliers), territory bonus, trade route income, unit upkeep, and hero upkeep. Season modifier returned as a separate `seasonName` string (e.g. `"☀️ Summer +10%"`). Active disaster modifiers (with Grand Cathedral halving applied) returned as the `disasters` array.
+- `game/src/ui/hud.js` — Imported `getBreakdown` from resources.js. Added `_tooltipEl` module var. `_createTooltip()` appends a fixed `#hud-tooltip` div to `<body>`. `_showTooltip(resId, anchorEl)` calls `getBreakdown`, builds an HTML breakdown (header, source rows filtered to ≥0.005/s, season modifier badge, disaster badges, divider, net-rate total), makes the tooltip visible off-screen, then uses `requestAnimationFrame` to measure its width and clamp the final position centred below the hovered resource cell (viewport-safe). `_hideTooltip()` adds `.hud-tooltip--hidden`. `initHUD()` attaches `mouseenter`/`mouseleave` listeners to each resource div; removed the now-superseded `title=` attribute.
+- `game/styles/main.css` — Added full `.hud-tooltip` block: `fixed` position, `z-index: 800`, `pointer-events: none`, `bg-card` background with `border-h` border and drop shadow. `.hud-tooltip--hidden` = `display: none`. `.hud-tt__header` bold title row. `.hud-tt__row` flex row with `.hud-tt__label` (truncated) and `.hud-tt__val` (tabular-nums, `--pos` green / `--neg` red). `.hud-tt__modifier` (gold) and `.hud-tt__modifier--disaster` (orange) badge rows. `.hud-tt__divider` separator. `.hud-tt__total` bold row. `.hud__resource { cursor: help }` to hint interactivity.
+
+**Architecture decisions:**
+- Enemy AI state is persisted in `state.enemyAI` (saved/loaded) so expansion timers survive save/load, preventing a burst of activity when a save is resumed.
+- Win chance is hard-capped at 0.5 regardless of late-game unit counts being low — this keeps counterattacks meaningful without becoming frustrating steamrollers.
+- `getBreakdown()` is a read-only recomputation rather than caching intermediate values inside `recalcRates()` — called only on tooltip show (rare) so there is no performance cost; keeping the two functions separate avoids coupling the hot path to display concerns.
+- Tooltip uses `requestAnimationFrame` for positioning so the element has been laid out and its `offsetWidth` is stable before coordinates are applied, avoiding a one-frame flicker at the wrong position.
+- Season modifier is shown as a badge (not as a per-line multiplicative adjustment) because the season applies to the positive-production subtotal, not to individual lines — showing it additively would misrepresent the actual calculation.

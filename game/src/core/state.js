@@ -102,6 +102,10 @@ export const state = {
   // { prices: {res→mult}, trends: {res→ -1|0|1}, lastUpdateTick, totalTrades }
   market: null,
 
+  // Enemy AI state — populated by systems/enemyAI.js initEnemyAI()
+  // { nextExpansionTick: number, nextAttackTick: number }
+  enemyAI: null,
+
   // Current game tick count (increments every 250ms)
   tick: 0,
 
@@ -137,6 +141,7 @@ export function initState(empireName = 'My Empire') {
   state.stats          = { goldEarned: 0, peakTerritory: 0 };
   state.gameOver       = null;
   state.market         = null;
+  state.enemyAI        = null;
   state.tick           = 0;
   state.running        = false;
 }

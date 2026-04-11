@@ -7,6 +7,7 @@
 import { state } from '../core/state.js';
 import { on, Events } from '../core/events.js';
 import { fmtNum, fmtRate } from '../utils/fmt.js';
+import { getBreakdown } from '../systems/resources.js';
 
 const RESOURCES = [
   { id: 'gold',  label: 'Gold',  icon: '💰' },
@@ -68,6 +69,82 @@ function _sparkSVG(values, positiveRate) {
   </svg>`;
 }
 
+// ── Tooltip ───────────────────────────────────────────────────────────────
+
+let _tooltipEl = null;
+
+function _createTooltip() {
+  const el = document.createElement('div');
+  el.id        = 'hud-tooltip';
+  el.className = 'hud-tooltip hud-tooltip--hidden';
+  document.body.appendChild(el);
+  return el;
+}
+
+function _showTooltip(resId, anchorEl) {
+  if (!_tooltipEl) _tooltipEl = _createTooltip();
+  const breakdown = getBreakdown(resId);
+  const res = RESOURCES.find(r => r.id === resId);
+
+  // Build HTML rows
+  const fmtVal = v => {
+    const sign = v >= 0 ? '+' : '';
+    return `<span class="hud-tt__val ${v >= 0 ? 'hud-tt__val--pos' : 'hud-tt__val--neg'}">${sign}${v.toFixed(2)}/s</span>`;
+  };
+
+  const rows = breakdown.lines
+    .filter(l => Math.abs(l.value) >= 0.005) // omit negligible
+    .map(l => `<div class="hud-tt__row"><span class="hud-tt__label">${l.label}</span>${fmtVal(l.value)}</div>`)
+    .join('');
+
+  const seasonRow = breakdown.seasonName
+    ? `<div class="hud-tt__modifier">🌀 ${breakdown.seasonName}</div>`
+    : '';
+
+  const disasterRows = breakdown.disasters
+    .map(d => `<div class="hud-tt__modifier hud-tt__modifier--disaster">⚠️ ${d.label} (×${d.mult.toFixed(2)})</div>`)
+    .join('');
+
+  const divider = rows ? '<div class="hud-tt__divider"></div>' : '';
+  const totalSign = breakdown.total >= 0 ? '+' : '';
+  const totalCls  = breakdown.total >= 0 ? 'hud-tt__val--pos' : 'hud-tt__val--neg';
+
+  _tooltipEl.innerHTML = `
+    <div class="hud-tt__header">${res?.icon ?? ''} ${res?.label ?? resId}</div>
+    ${rows}
+    ${seasonRow}
+    ${disasterRows}
+    ${divider}
+    <div class="hud-tt__row hud-tt__total">
+      <span class="hud-tt__label">Net rate</span>
+      <span class="hud-tt__val ${totalCls}">${totalSign}${breakdown.total.toFixed(2)}/s</span>
+    </div>
+  `;
+
+  // Position below the anchor element
+  const rect = anchorEl.getBoundingClientRect();
+  _tooltipEl.className = 'hud-tooltip';
+  // Initial off-screen render to measure width
+  _tooltipEl.style.left = '-9999px';
+  _tooltipEl.style.top  = '-9999px';
+
+  requestAnimationFrame(() => {
+    if (!_tooltipEl) return;
+    const tw = _tooltipEl.offsetWidth;
+    const vw = window.innerWidth;
+    let left = rect.left + rect.width / 2 - tw / 2;
+    // Clamp to viewport
+    left = Math.max(4, Math.min(vw - tw - 4, left));
+    _tooltipEl.style.left = `${Math.round(left)}px`;
+    _tooltipEl.style.top  = `${Math.round(rect.bottom + 6)}px`;
+  });
+}
+
+function _hideTooltip() {
+  if (!_tooltipEl) return;
+  _tooltipEl.className = 'hud-tooltip hud-tooltip--hidden';
+}
+
 // ── Init & render ─────────────────────────────────────────────────────────
 
 export function initHUD() {
@@ -75,13 +152,21 @@ export function initHUD() {
   if (!container) return;
 
   container.innerHTML = RESOURCES.map(r => `
-    <div class="hud__resource" id="hud-${r.id}" title="${r.label}">
+    <div class="hud__resource" id="hud-${r.id}">
       <span class="hud__icon">${r.icon}</span>
       <span class="hud__value" id="hud-val-${r.id}">0</span>
       <span class="hud__rate"  id="hud-rate-${r.id}">+0/s</span>
       <span class="hud__spark-wrap" id="hud-spark-${r.id}" aria-hidden="true"></span>
     </div>
   `).join('');
+
+  // Attach hover tooltip listeners to each resource cell
+  for (const r of RESOURCES) {
+    const el = document.getElementById(`hud-${r.id}`);
+    if (!el) continue;
+    el.addEventListener('mouseenter', () => _showTooltip(r.id, el));
+    el.addEventListener('mouseleave', _hideTooltip);
+  }
 
   on(Events.RESOURCE_CHANGED, renderHUD);
   on(Events.TICK, _throttledRender());
