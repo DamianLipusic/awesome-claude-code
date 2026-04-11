@@ -15,6 +15,27 @@ const MIN_INTERVAL      = 120 * TICKS_PER_SECOND;   // 480 ticks  (~120 s)
 const MAX_INTERVAL      = 240 * TICKS_PER_SECOND;   // 960 ticks  (~240 s)
 const DISASTER_DURATION = 60  * TICKS_PER_SECOND;   // 240 ticks  (~60 s)
 
+/**
+ * Multiplier applied to raid/windfall resource amounts based on difficulty.
+ * Easy  → 0.6 (events are milder)
+ * Hard  → 1.5 (events are harsher)
+ */
+function _difficultyRaidMult() {
+  const d = state.difficulty ?? 'normal';
+  return d === 'easy' ? 0.6 : d === 'hard' ? 1.5 : 1.0;
+}
+
+/**
+ * Duration (in ticks) for disaster rate-modifier events, scaled by difficulty.
+ * Easy  → 40 s, Normal → 60 s, Hard → 90 s
+ */
+function _disasterDuration() {
+  const d = state.difficulty ?? 'normal';
+  return d === 'easy' ? 40 * TICKS_PER_SECOND
+       : d === 'hard' ? 90 * TICKS_PER_SECOND
+       : DISASTER_DURATION;
+}
+
 // ---------------------------------------------------------------------------
 // Event pool
 // ---------------------------------------------------------------------------
@@ -28,8 +49,9 @@ const EVENTS = [
     type: 'raid',
     weight: 10,
     apply(st) {
-      const gold = Math.floor(Math.max(10, st.resources.gold * 0.12));
-      const food = Math.floor(Math.max(5,  st.resources.food * 0.08));
+      const m    = _difficultyRaidMult();
+      const gold = Math.floor(Math.max(5,  st.resources.gold * 0.12 * m));
+      const food = Math.floor(Math.max(2,  st.resources.food * 0.08 * m));
       st.resources.gold = Math.max(0, st.resources.gold - gold);
       st.resources.food = Math.max(0, st.resources.food - food);
       addMessage(`⚔️ Bandit raid! Lost ${gold} gold and ${food} food.`, 'raid');
@@ -41,8 +63,9 @@ const EVENTS = [
     type: 'raid',
     weight: 8,
     apply(st) {
-      const wood  = Math.floor(Math.max(5,  st.resources.wood  * 0.15));
-      const stone = Math.floor(Math.max(0,  st.resources.stone * 0.10));
+      const m     = _difficultyRaidMult();
+      const wood  = Math.floor(Math.max(3,  st.resources.wood  * 0.15 * m));
+      const stone = Math.floor(Math.max(0,  st.resources.stone * 0.10 * m));
       st.resources.wood  = Math.max(0, st.resources.wood  - wood);
       st.resources.stone = Math.max(0, st.resources.stone - stone);
 
@@ -68,7 +91,8 @@ const EVENTS = [
     type: 'raid',
     weight: 6,
     apply(st) {
-      const gold = Math.floor(Math.max(20, st.resources.gold * 0.20));
+      const m    = _difficultyRaidMult();
+      const gold = Math.floor(Math.max(10, st.resources.gold * 0.20 * m));
       st.resources.gold = Math.max(0, st.resources.gold - gold);
       addMessage(`🏴‍☠️ Pirates raided your trade routes! Lost ${gold} gold.`, 'raid');
     },
@@ -137,14 +161,16 @@ const EVENTS = [
     type: 'disaster',
     weight: 7,
     apply(st) {
+      const dur = _disasterDuration();
+      const secs = Math.round(dur / TICKS_PER_SECOND);
       st.randomEvents.activeModifiers.push({
         id: 'drought',
         resource: 'food',
         rateMult: 0.5,
-        expiresAt: st.tick + DISASTER_DURATION,
+        expiresAt: st.tick + dur,
       });
       recalcRates();
-      addMessage(`☀️ Drought! Food production halved for 60 seconds.`, 'disaster');
+      addMessage(`☀️ Drought! Food production halved for ${secs} seconds.`, 'disaster');
     },
   },
 
@@ -153,13 +179,15 @@ const EVENTS = [
     type: 'disaster',
     weight: 5,
     apply(st) {
+      const dur = _disasterDuration();
+      const secs = Math.round(dur / TICKS_PER_SECOND);
       st.randomEvents.activeModifiers.push(
-        { id: 'mc_stone', resource: 'stone', rateMult: 0, expiresAt: st.tick + DISASTER_DURATION },
-        { id: 'mc_iron',  resource: 'iron',  rateMult: 0, expiresAt: st.tick + DISASTER_DURATION },
+        { id: 'mc_stone', resource: 'stone', rateMult: 0, expiresAt: st.tick + dur },
+        { id: 'mc_iron',  resource: 'iron',  rateMult: 0, expiresAt: st.tick + dur },
       );
       recalcRates();
       addMessage(
-        `🪨 Mine collapse! Stone and iron production halted for 60 seconds.`,
+        `🪨 Mine collapse! Stone and iron production halted for ${secs} seconds.`,
         'disaster',
       );
     },
@@ -170,17 +198,20 @@ const EVENTS = [
     type: 'disaster',
     weight: 6,
     apply(st) {
-      const foodLost = Math.floor(Math.max(10, st.resources.food * 0.20));
+      const m        = _difficultyRaidMult();
+      const dur      = _disasterDuration();
+      const secs     = Math.round(dur / TICKS_PER_SECOND);
+      const foodLost = Math.floor(Math.max(5, st.resources.food * 0.20 * m));
       st.resources.food = Math.max(0, st.resources.food - foodLost);
       st.randomEvents.activeModifiers.push({
         id: 'plague',
         resource: 'food',
         rateMult: 0.6,
-        expiresAt: st.tick + DISASTER_DURATION,
+        expiresAt: st.tick + dur,
       });
       recalcRates();
       addMessage(
-        `🦠 Plague outbreak! Lost ${foodLost} food and food rate reduced for 60 seconds.`,
+        `🦠 Plague outbreak! Lost ${foodLost} food and food rate reduced for ${secs} seconds.`,
         'disaster',
       );
     },

@@ -57,6 +57,7 @@ export function attackTile(x, y) {
   if (state.techs.tactics)     attackPower *= 1.25;
   if (state.techs.steel)       attackPower *= 1.5;
   if (state.techs.engineering) attackPower *= 1.1;
+  if (state.techs.siege_craft) attackPower *= 1.75;
 
   // Hero bonus: flat attack power + Battle Cry (×2) on next attack
   if (state.hero?.recruited) {

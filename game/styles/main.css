@@ -900,6 +900,32 @@ body {
 
 .btn--speed-active:hover { background: var(--accent-h); border-color: var(--accent-h); }
 
+.difficulty-buttons {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.btn--difficulty {
+  background: var(--bg);
+  color: var(--text-dim);
+  border-color: var(--border);
+  min-width: 100px;
+  text-align: center;
+  font-size: 13px;
+}
+
+.btn--difficulty:hover { border-color: var(--border-h); color: var(--text); }
+
+.btn--difficulty-active {
+  background: var(--accent);
+  color: #000;
+  border-color: var(--accent);
+  font-weight: 700;
+}
+
+.btn--difficulty-active:hover { background: var(--accent-h); border-color: var(--accent-h); }
+
 .settings-toggle {
   display: flex;
   align-items: center;

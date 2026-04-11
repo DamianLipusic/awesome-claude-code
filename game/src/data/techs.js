@@ -102,4 +102,66 @@ export const TECHS = Object.freeze({
     requires: ['metalworking'],
   },
 
+  // ── Phase 9 advanced technologies ─────────────────────────────────────────
+
+  navigation: {
+    name: 'Navigation',
+    icon: '⚓',
+    description: 'Master the seas. Trade route income from allied empires is boosted by 50%.',
+    cost: { gold: 250, wood: 100, food: 80 },
+    researchTicks: 160,
+    effectDesc: '+50% trade route income from allies',
+    requires: ['tradeRoutes'],
+  },
+
+  alchemy: {
+    name: 'Alchemy',
+    icon: '⚗️',
+    description: 'Transmute base materials. Mana Wells produce 75% more mana; Quarries produce 25% more stone.',
+    cost: { gold: 350, mana: 80, stone: 60 },
+    researchTicks: 240,
+    effectDesc: '+75% mana well, +25% quarry production',
+    requires: ['arcane'],
+  },
+
+  siege_craft: {
+    name: 'Siege Craft',
+    icon: '🏹',
+    description: 'Devastating siege engines complement your forces. +75% army attack power in all combat.',
+    cost: { gold: 400, iron: 200, stone: 100 },
+    researchTicks: 220,
+    effectDesc: '+75% army attack power in battle',
+    requires: ['steel'],
+  },
+
+  fortification: {
+    name: 'Fortification',
+    icon: '🛡️',
+    description: 'Reinforce your borders with walls and garrisons. Enemy counterattack success chance reduced by 40%.',
+    cost: { gold: 300, stone: 150, iron: 80 },
+    researchTicks: 180,
+    effectDesc: '-40% enemy counterattack success vs your tiles',
+    requires: ['engineering'],
+  },
+
+  economics: {
+    name: 'Economics',
+    icon: '📈',
+    description: 'Advanced trade theory and currency management. Markets produce 50% more gold; gold storage cap +500.',
+    cost: { gold: 300, stone: 80, food: 100 },
+    researchTicks: 170,
+    effectDesc: '+50% market gold production, +500 gold cap',
+    requires: ['tradeRoutes'],
+  },
+
+  divine_favor: {
+    name: 'Divine Favor',
+    icon: '✨',
+    description: 'Blessings of the gods increase agricultural and arcane output. +30% farm food production; +30% mana well production.',
+    cost: { gold: 500, mana: 150, food: 200 },
+    researchTicks: 280,
+    effectDesc: '+30% farm food and mana well production',
+    requires: ['alchemy'],
+  },
+
 });

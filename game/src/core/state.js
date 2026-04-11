@@ -106,6 +106,10 @@ export const state = {
   // { nextExpansionTick: number, nextAttackTick: number }
   enemyAI: null,
 
+  // Difficulty setting — persisted across new games (not reset by initState)
+  // 'easy' | 'normal' | 'hard'
+  difficulty: 'normal',
+
   // Current game tick count (increments every 250ms)
   tick: 0,
 

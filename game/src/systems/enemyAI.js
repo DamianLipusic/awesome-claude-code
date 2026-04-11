@@ -37,12 +37,24 @@ function _inBounds(x, y) {
   return x >= 0 && x < state.map.width && y >= 0 && y < state.map.height;
 }
 
+/**
+ * Interval multiplier based on difficulty.
+ * Easy  → 1.5 (enemies act 50% slower)
+ * Hard  → 0.7 (enemies act 30% faster)
+ */
+function _intervalMult() {
+  const d = state.difficulty ?? 'normal';
+  return d === 'easy' ? 1.5 : d === 'hard' ? 0.7 : 1.0;
+}
+
 function _nextExpand() {
-  return state.tick + EXPAND_MIN + Math.floor(Math.random() * (EXPAND_MAX - EXPAND_MIN));
+  const m = _intervalMult();
+  return state.tick + Math.round((EXPAND_MIN + Math.floor(Math.random() * (EXPAND_MAX - EXPAND_MIN))) * m);
 }
 
 function _nextAttack() {
-  return state.tick + ATTACK_MIN + Math.floor(Math.random() * (ATTACK_MAX - ATTACK_MIN));
+  const m = _intervalMult();
+  return state.tick + Math.round((ATTACK_MIN + Math.floor(Math.random() * (ATTACK_MAX - ATTACK_MIN))) * m);
 }
 
 /**
@@ -120,7 +132,9 @@ function _counterattack() {
   }
   if (state.hero?.recruited) playerDefense += 20;
 
-  const winChance = Math.min(0.5, enemyPower / (enemyPower + playerDefense));
+  let winChance = Math.min(0.5, enemyPower / (enemyPower + playerDefense));
+  // Fortification tech: -40% enemy success chance against player tiles
+  if (state.techs?.fortification) winChance *= 0.6;
   const roll = Math.random();
 
   if (roll < winChance) {

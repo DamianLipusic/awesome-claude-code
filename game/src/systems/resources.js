@@ -52,6 +52,9 @@ export function recalcRates() {
     }
   }
 
+  // Economics tech: +500 gold storage cap
+  if (state.techs.economics) caps.gold += 500;
+
   // Territory bonuses from captured map tiles
   const territory = territoryRateBonus();
   for (const res of RESOURCE_KEYS) {
@@ -59,12 +62,14 @@ export function recalcRates() {
   }
 
   // Trade route income from allied empires (reads state directly — no circular import)
+  // Navigation tech gives +50% to all trade route income.
   if (state.diplomacy) {
+    const navMult = state.techs.navigation ? 1.5 : 1.0;
     for (const emp of state.diplomacy.empires) {
       if (emp.relations !== 'allied' || emp.tradeRoutes <= 0) continue;
       const gift = EMPIRES[emp.id]?.tradeGift ?? {};
       for (const [res, rate] of Object.entries(gift)) {
-        if (rates[res] !== undefined) rates[res] += rate * emp.tradeRoutes;
+        if (rates[res] !== undefined) rates[res] += rate * emp.tradeRoutes * navMult;
       }
     }
   }
@@ -206,14 +211,15 @@ export function getBreakdown(resId) {
     lines.push({ label: '🗺️ Territory', value: territory[resId] });
   }
 
-  // Trade route income from allied empires
+  // Trade route income from allied empires (navigation tech ×1.5)
   if (state.diplomacy) {
+    const navMult = state.techs.navigation ? 1.5 : 1.0;
     for (const emp of state.diplomacy.empires) {
       if (emp.relations !== 'allied' || emp.tradeRoutes <= 0) continue;
       const empDef = EMPIRES[emp.id];
       const gift   = empDef?.tradeGift ?? {};
       if (gift[resId]) {
-        lines.push({ label: `🤝 ${empDef.name} trade`, value: gift[resId] * emp.tradeRoutes });
+        lines.push({ label: `🤝 ${empDef.name} trade`, value: gift[resId] * emp.tradeRoutes * navMult });
       }
     }
   }
@@ -271,11 +277,24 @@ function _buildingProdMultiplier(buildingId) {
   let mult = 1;
   const techs = state.techs;
 
-  if (buildingId === 'farm'        && techs.agriculture) mult *= 1.5;
-  if (buildingId === 'quarry'      && techs.masonry)     mult *= 1.5;
+  if (buildingId === 'farm') {
+    if (techs.agriculture) mult *= 1.5;
+    if (techs.divine_favor) mult *= 1.3;
+  }
+  if (buildingId === 'quarry') {
+    if (techs.masonry) mult *= 1.5;
+    if (techs.alchemy) mult *= 1.25;
+  }
   if (buildingId === 'ironFoundry' && techs.metalworking) mult *= 1.5;
-  if (buildingId === 'market'      && techs.tradeRoutes) mult *= 1.75;
-  if (buildingId === 'manaWell'    && techs.arcane)      mult *= 2.0;
+  if (buildingId === 'market') {
+    if (techs.tradeRoutes) mult *= 1.75;
+    if (techs.economics)   mult *= 1.5;
+  }
+  if (buildingId === 'manaWell') {
+    if (techs.arcane)       mult *= 2.0;
+    if (techs.alchemy)      mult *= 1.75;
+    if (techs.divine_favor) mult *= 1.3;
+  }
 
   return mult;
 }

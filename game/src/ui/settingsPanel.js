@@ -11,6 +11,8 @@
 import { setTickSpeed, getTickSpeed } from '../core/tick.js';
 import { exportSave, importSave } from './saveModal.js';
 import { ACHIEVEMENTS, loadAchievements, setAchievementRenderer } from '../systems/achievements.js';
+import { state } from '../core/state.js';
+import { emit, Events } from '../core/events.js';
 
 const PANEL_ID   = 'panel-settings';
 const LB_KEY     = 'empireos-leaderboard';
@@ -39,6 +41,8 @@ function _render(panel) {
   const current = getTickSpeed();
 
   panel.innerHTML = `
+    ${_difficultySection()}
+
     <div class="settings-section">
       <div class="settings-section__title">⚡ Game Speed</div>
       <div class="settings-section__desc">
@@ -97,6 +101,15 @@ function _render(panel) {
     </div>
   `;
 
+  // Bind difficulty buttons
+  panel.querySelectorAll('.btn--difficulty').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.difficulty = btn.dataset.difficulty;
+      emit(Events.DIFFICULTY_CHANGED, { difficulty: state.difficulty });
+      _render(panel);
+    });
+  });
+
   // Bind speed buttons
   panel.querySelectorAll('.btn--speed').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -116,6 +129,51 @@ function _render(panel) {
       _render(panel);
     }
   });
+}
+
+// ---------------------------------------------------------------------------
+// Difficulty section
+// ---------------------------------------------------------------------------
+
+const DIFFICULTIES = [
+  {
+    value: 'easy',
+    label: '🌿 Easy',
+    desc: '+50% starting resources. Raids and disasters are 40% weaker. Enemies expand 50% slower.',
+  },
+  {
+    value: 'normal',
+    label: '⚔️ Normal',
+    desc: 'Standard balance. The intended experience.',
+  },
+  {
+    value: 'hard',
+    label: '💀 Hard',
+    desc: '-25% starting resources. Raids and disasters are 50% more severe. Enemies expand 30% faster.',
+  },
+];
+
+function _difficultySection() {
+  const current = state.difficulty ?? 'normal';
+  const currentDef = DIFFICULTIES.find(d => d.value === current);
+
+  const buttons = DIFFICULTIES.map(d => `
+    <button
+      class="btn btn--difficulty ${d.value === current ? 'btn--difficulty-active' : ''}"
+      data-difficulty="${d.value}"
+      title="${_escHtml(d.desc)}"
+    >${d.label}</button>
+  `).join('');
+
+  return `<div class="settings-section">
+    <div class="settings-section__title">🎯 Difficulty</div>
+    <div class="settings-section__desc">
+      ${_escHtml(currentDef?.desc ?? '')}
+      Starting-resource adjustments apply at <strong>New Game</strong> only.
+      AI speed and event severity change immediately.
+    </div>
+    <div class="difficulty-buttons">${buttons}</div>
+  </div>`;
 }
 
 // ---------------------------------------------------------------------------

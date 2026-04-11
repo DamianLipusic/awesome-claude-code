@@ -477,3 +477,40 @@ Added Phase 9 content: active enemy AI that creates sustained strategic pressure
 - `getBreakdown()` is a read-only recomputation rather than caching intermediate values inside `recalcRates()` — called only on tooltip show (rare) so there is no performance cost; keeping the two functions separate avoids coupling the hot path to display concerns.
 - Tooltip uses `requestAnimationFrame` for positioning so the element has been laid out and its `offsetWidth` is stable before coordinates are applied, avoiding a one-frame flicker at the wrong position.
 - Season modifier is shown as a badge (not as a per-line multiplicative adjustment) because the season applies to the positive-production subtotal, not to individual lines — showing it additively would misrepresent the actual calculation.
+
+---
+
+## 2026-04-11 — Session 13
+
+**Tasks completed:** T035, T036
+
+**Summary:**
+Two Phase 9 features: selectable difficulty presets that tune starting resources, raid severity, and enemy AI aggression; and a significantly expanded tech tree that adds 6 new late-game technologies covering naval trade, alchemy, siege weaponry, border fortification, market economics, and divine production buffs.
+
+**Files modified:**
+
+- `game/src/core/events.js` — Added `DIFFICULTY_CHANGED: 'difficultyChanged'` to the `Events` constant so other modules can react to difficulty switches.
+
+- `game/src/core/state.js` — Added `difficulty: 'normal'` field to the `state` object. Intentionally **not** reset by `initState()` — difficulty is a persistent player preference that survives new games, just like achievements.
+
+- `game/src/systems/randomEvents.js` — Added `_difficultyRaidMult()` (returns 0.6 / 1.0 / 1.5 for Easy / Normal / Hard) and `_disasterDuration()` (40 s / 60 s / 90 s in ticks). Applied `_difficultyRaidMult()` to all resource losses in bandit_raid, goblin_attack, pirates, and plague events. Replaced the hard-coded `DISASTER_DURATION` constant in drought, mine_collapse, and plague disaster events with `_disasterDuration()`, which also inserts the actual seconds into the log message.
+
+- `game/src/systems/enemyAI.js` — Added `_intervalMult()` (1.5 / 1.0 / 0.7 for Easy / Normal / Hard). `_nextExpand()` and `_nextAttack()` both multiply the random interval by `_intervalMult()` so difficulty changes take effect on the next scheduled action. Also added `fortification` tech effect: after computing `winChance` in `_counterattack()`, multiplies it by 0.6 when the player has `fortification` researched (−40% enemy success).
+
+- `game/src/ui/settingsPanel.js` — Imported `state` and `emit`/`Events`. Added `DIFFICULTIES` constant array (Easy / Normal / Hard) and `_difficultySection()` which renders a button row with active highlighting and a descriptive caption. Section injected as the first item in `_render()`. Click handlers set `state.difficulty` and emit `DIFFICULTY_CHANGED`, then re-render the panel. Note in the UI explains that starting-resource changes only apply at New Game.
+
+- `game/src/main.js` — Added `_applyDifficultyStart()`: multiplies starting gold/food/wood by 1.5 (Easy) or 0.75 (Hard), floored at 10. Called in both the first-boot new-game code path and `_newGame()`. `_save()` now serialises `difficulty: state.difficulty`; `_applySave()` restores `state.difficulty = s.difficulty ?? 'normal'`.
+
+- `game/src/data/techs.js` — Added 6 new tech definitions: `navigation` (⚓, requires tradeRoutes, 160 ticks, +50% trade route income), `alchemy` (⚗️, requires arcane, 240 ticks, +75% mana well / +25% quarry), `siege_craft` (🏹, requires steel, 220 ticks, +75% attack power), `fortification` (🛡️, requires engineering, 180 ticks, −40% enemy counterattack success), `economics` (📈, requires tradeRoutes, 170 ticks, +50% market gold / +500 gold cap), `divine_favor` (✨, requires alchemy, 280 ticks, +30% farm / +30% mana well).
+
+- `game/src/systems/resources.js` — `_buildingProdMultiplier()`: extended to apply `divine_favor` ×1.3 to farm, `alchemy` ×1.25 to quarry, `economics` ×1.5 to market (stacks on `tradeRoutes` ×1.75), `alchemy` ×1.75 to manaWell (stacks on `arcane` ×2.0), `divine_favor` ×1.3 to manaWell (stacks with both). `recalcRates()`: added `if (state.techs.economics) caps.gold += 500` before territory bonus; trade route loop now reads `navMult = state.techs.navigation ? 1.5 : 1.0` and applies it to each route's income. `getBreakdown()`: trade route section updated to match with the same `navMult` logic so HUD tooltips show accurate figures.
+
+- `game/src/systems/combat.js` — Added `if (state.techs.siege_craft) attackPower *= 1.75` after the existing tech multipliers for tactics/steel/engineering.
+
+- `game/styles/main.css` — Added `.difficulty-buttons` flex wrapper; `.btn--difficulty` and `.btn--difficulty-active` with the same visual language as the existing speed buttons (golden highlight on active state).
+
+**Architecture decisions:**
+- `state.difficulty` lives in the state object but is not reset by `initState()` — this makes it a session-persistent preference rather than a per-game variable, consistent with how achievements (separate localStorage key) and leaderboard data are handled.
+- Starting-resource scaling is deferred to `_applyDifficultyStart()` called **after** `initState()` rather than inside it — this keeps `initState()` producing consistent baseline values regardless of difficulty, simplifying any future code that needs to know the base starting state.
+- The 6 new techs use the established prerequisite-only gating mechanism (no explicit age requirements) because their prerequisite chains already imply late-game timing: `divine_favor` requires `alchemy` which requires `arcane` which requires `metalworking`; `siege_craft` requires `steel` which requires `tactics → warcraft → metalworking → masonry`.
+- `_buildingProdMultiplier()` multipliers stack multiplicatively (not additively) to avoid diminishing-returns confusion and keep each tech's stated percentage meaningful regardless of other techs already researched.

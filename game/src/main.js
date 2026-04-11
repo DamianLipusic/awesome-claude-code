@@ -54,6 +54,7 @@ function boot() {
     emit(Events.GAME_LOADED, {});
   } else {
     initState('My Empire');
+    _applyDifficultyStart();
     initMap();
     addMessage('Welcome to EmpireOS. Build your empire!', 'info');
     addMessage('Start by constructing Farms and Lumber Mills.', 'info');
@@ -154,6 +155,7 @@ function _save() {
         stats:         state.stats,
         market:        state.market,
         enemyAI:       state.enemyAI,
+        difficulty:    state.difficulty,
         tick:          state.tick,
       }
     }));
@@ -193,6 +195,7 @@ function _applySave(save) {
   state.stats          = s.stats          ?? { goldEarned: 0, peakTerritory: 0 };
   state.market         = s.market         ?? null;
   state.enemyAI        = s.enemyAI        ?? null;
+  state.difficulty     = s.difficulty     ?? 'normal';
   state.tick           = s.tick           ?? 0;
   recalcRates();
   addMessage('Game loaded.', 'info');
@@ -274,6 +277,23 @@ function _updatePeakTerritory() {
   if (count > state.stats.peakTerritory) state.stats.peakTerritory = count;
 }
 
+// ── Difficulty ────────────────────────────────────────────────────────────
+
+/**
+ * Apply a starting-resource bonus/penalty based on the current difficulty setting.
+ * Called once at the start of every new game, after initState() has set base values.
+ * Easy  → ×1.5 gold/food/wood  (floor: 10 each)
+ * Hard  → ×0.75 gold/food/wood (floor: 10 each)
+ */
+function _applyDifficultyStart() {
+  const d = state.difficulty ?? 'normal';
+  if (d === 'normal') return;
+  const mult = d === 'easy' ? 1.5 : 0.75;
+  for (const res of ['gold', 'food', 'wood']) {
+    state.resources[res] = Math.max(10, Math.round((state.resources[res] ?? 0) * mult));
+  }
+}
+
 // ── New Game ──────────────────────────────────────────────────────────────
 
 /**
@@ -284,6 +304,7 @@ function _newGame() {
   _saveToLeaderboard();
   localStorage.removeItem('empireos-save');
   initState('My Empire');
+  _applyDifficultyStart();
   initMap();
   initRandomEvents();
   initDiplomacy();

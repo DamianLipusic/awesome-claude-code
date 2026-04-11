@@ -45,4 +45,5 @@ export const Events = Object.freeze({
   GAME_OVER:          'gameOver',
   MARKET_CHANGED:     'marketChanged',
   ACHIEVEMENT_UNLOCKED: 'achievementUnlocked',
+  DIFFICULTY_CHANGED:   'difficultyChanged',
 });
