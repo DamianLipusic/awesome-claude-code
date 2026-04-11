@@ -1481,6 +1481,120 @@ body {
 }
 .btn--ghost:hover { border-color: var(--text-dim); color: var(--text); }
 
+/* ── New Game Wizard Modal ───────────────────────────────────────────────── */
+
+.ng-modal-box { width: min(480px, 92vw); }
+
+.ng-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ng-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.ng-input {
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 600;
+  padding: 8px 10px;
+  outline: none;
+  transition: border-color .15s;
+}
+.ng-input:focus { border-color: var(--border-h); }
+.ng-input::placeholder { color: var(--text-dim); font-weight: 400; }
+
+.ng-diff-desc {
+  font-size: 12px;
+  color: var(--text-dim);
+  min-height: 18px;
+  line-height: 1.5;
+}
+
+.ng-warning {
+  font-size: 12px;
+  color: var(--text-dim);
+  border-left: 2px solid var(--border);
+  padding-left: 8px;
+  margin-top: 4px;
+}
+
+.btn--ng-start {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #000;
+  font-weight: 700;
+}
+.btn--ng-start:hover { background: var(--accent-h); border-color: var(--accent-h); }
+
+/* Empire name in title bar — dashed underline hints it is clickable */
+.empire-name-btn {
+  cursor: pointer;
+  border-bottom: 1px dashed var(--text-dim);
+  padding-bottom: 1px;
+  transition: border-color .15s, color .15s;
+}
+.empire-name-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+/* ── Pause overlay ───────────────────────────────────────────────────────── */
+
+.pause-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 500;
+}
+
+.pause-overlay--hidden { display: none; }
+
+.pause-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 0, 0, .60);
+  border: 2px solid var(--accent);
+  border-radius: var(--radius-lg);
+  color: var(--accent);
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  padding: 20px 48px;
+  backdrop-filter: blur(6px);
+  animation: pause-pulse 2.4s ease-in-out infinite;
+}
+
+.pause-hint {
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--text-dim);
+}
+
+@keyframes pause-pulse {
+  0%, 100% { opacity: 0.80; transform: scale(1); }
+  50%       { opacity: 1;    transform: scale(1.02); }
+}
+
+/* Pause button: highlighted amber when paused */
+.btn--paused {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
 /* ── Responsive tweaks ───────────────────────────────────────────────────── */
 
 @media (max-width: 600px) {

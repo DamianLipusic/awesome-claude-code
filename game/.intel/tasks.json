@@ -358,5 +358,23 @@
     "status": "done",
     "phase": 10,
     "notes": "Added TECHS import to summaryPanel.js. Added _generateTips() which checks: food rate <-0.3 (warn), gold rate <-0.5 and <200 (warn), ≥2 wars (warn), next age requirements met (ok/green), zero units after 30s (info), idle affordable research (info), any resource ≥90% cap (info), territory <6 after 2min (info). Returns up to 4 tips sorted warn-first. Added _advisorCard() which renders tips as .sum-advisor-tip divs with level modifier classes; shows '✅ flourishing' message when no tips. Advisor card rendered first in summary-grid so it appears top-left. CSS: .sum-advisor-tip (flex, border-left 3px, rounded), --warn (red tint), --info (blue tint), --ok (green tint)."
+  },
+  {
+    "id": "T041",
+    "title": "new game wizard modal",
+    "description": "Replace native browser confirm()/prompt() dialogs for New Game with a styled modal. Modal has: empire name text input, difficulty button group (Easy/Normal/Hard with descriptions), 'Found Empire' submit button, Cancel button. Also fix the duplicate id bug on the empire-name element that prevents rename from working.",
+    "priority": 41,
+    "status": "done",
+    "phase": 11,
+    "notes": "Created src/ui/newGameModal.js: showNewGameWizard(currentDifficulty, onConfirm) builds a #new-game-modal overlay reusing existing .modal-overlay/.modal-box/.modal-close/.btn--difficulty classes; empire name <input> (max 40 chars, placeholder 'My Empire'); difficulty button group (Easy/Normal/Hard) with live description text; '⚔️ Found Empire' gold submit button; Cancel + Esc + click-outside close; Enter in name field submits. index.html: fixed duplicate id bug on empire-name span (removed duplicate id='btn-empire-name', kept id='empire-name', added class='empire-name-btn' for cursor/hover styling). main.js: imported showNewGameWizard; btn-new-game handler calls showNewGameWizard(state.difficulty, opts => _newGame(opts)); _newGame() extended to accept optional {name, difficulty} — applies difficulty to state before initState(); updates #empire-name text after init; empire rename binding fixed to use getElementById('empire-name'). CSS: .ng-modal-box width; .ng-field/.ng-label/.ng-input/.ng-diff-desc/.ng-warning layout; .btn--ng-start (gold); .empire-name-btn cursor+dashed-underline hint."
+  },
+  {
+    "id": "T042",
+    "title": "pause button and visual pause overlay",
+    "description": "Add a ⏸/▶ toggle button in the title bar alongside Save and New Game. Add a semi-transparent centre-screen 'PAUSED' overlay that appears when the game is paused. Sync the button state when Space/P keyboard shortcuts are used. Clicking the button or pressing Space/P both toggle pause and update all indicators consistently.",
+    "priority": 42,
+    "status": "done",
+    "phase": 11,
+    "notes": "index.html: added <button id='btn-pause'> in .title-bar__controls before Save; added #pause-overlay div (fixed, z-500) containing .pause-box with '⏸ PAUSED' text and .pause-hint subtext. main.js: added _togglePause() which calls stopLoop()/startLoop() then _syncPauseUI(); added _syncPauseUI() which updates btn-pause text ('⏸ Pause'/'▶ Resume'), toggles .btn--paused, and shows/hides #pause-overlay + sets aria-hidden; btn-pause click handler calls _togglePause(); Space/P keyboard case now calls _togglePause() (eliminating duplicated stop/start logic inline); _syncPauseUI() called from _newGame() to reset overlay on new game. CSS: .pause-overlay (fixed inset, flex centre, pointer-events:none, z-500); .pause-overlay--hidden (display:none); .pause-box (gold border, backdrop-filter, pause-pulse keyframe 2.4s scale+opacity); .pause-hint (dim subtext); .btn--paused (gold border+text)."
   }
 ]

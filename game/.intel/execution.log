@@ -2,6 +2,34 @@
 
 ---
 
+## 2026-04-11 — Session N+1
+
+**Tasks completed:** T041, T042
+
+**Summary:**
+All prior tasks (T001–T040) were complete. Created two new Phase 11 polish features and implemented them: a styled new game wizard modal (replacing native browser dialogs) and a pause button with visual pause overlay.
+
+**T041 — New Game Wizard Modal:**
+- `src/ui/newGameModal.js` (new): `showNewGameWizard(currentDifficulty, onConfirm)` builds and mounts a `#new-game-modal` overlay (idempotent). Reuses `.modal-overlay/.modal-box/.btn--difficulty` classes. Fields: empire name `<input>` (max 40 chars, placeholder "My Empire"), difficulty button group (Easy/Normal/Hard) pre-selected to current difficulty, live description line, "⚔️ Found Empire" gold submit button. Cancel / Esc / click-outside close; Enter in name field submits. Calls `onConfirm({ name, difficulty })`.
+- `index.html`: Fixed duplicate `id` bug on empire-name `<span>` (had `id="empire-name"` AND `id="btn-empire-name"` — browsers use only the first, so the rename click handler was silently broken). Now only `id="empire-name"` with new class `empire-name-btn` for hover styling.
+- `src/main.js`: Imported `showNewGameWizard`. `btn-new-game` click now calls wizard. `_newGame()` accepts `{ name, difficulty }` opts — sets `state.difficulty` before `initState()` so `_applyDifficultyStart()` uses wizard value; updates `#empire-name` text. Empire rename binding fixed to use `getElementById('empire-name')`.
+- `styles/main.css`: `.ng-modal-box`, `.ng-field`, `.ng-label`, `.ng-input` (styled text input), `.ng-diff-desc`, `.ng-warning`, `.btn--ng-start` (gold accent). `.empire-name-btn` dashed-underline + hover colour cue.
+
+**T042 — Pause Button + Visual Pause Overlay:**
+- `index.html`: Added `<button id="btn-pause">⏸ Pause</button>` in `.title-bar__controls` before Save. Added `#pause-overlay` fixed div with `.pause-box` "⏸ PAUSED" and `.pause-hint` subtext.
+- `src/main.js`: Added `_togglePause()` (stop/start loop + log message + `_syncPauseUI()`). Added `_syncPauseUI()` — syncs button label, `.btn--paused` class, overlay visibility, and `aria-hidden` to `state.running`. `btn-pause` click calls `_togglePause()`. Space/P keyboard case now calls `_togglePause()` (eliminated duplicated inline stop/start logic). `_syncPauseUI()` called from `_newGame()` to clear overlay on game reset.
+- `styles/main.css`: `.pause-overlay` (fixed inset, flex centre, pointer-events:none, z-500), `.pause-overlay--hidden` (display:none), `.pause-box` (gold border, backdrop-filter blur, `pause-pulse` 2.4s keyframe), `.pause-hint`, `.btn--paused` (gold border+text when paused).
+
+**Files modified:**
+- `game/src/ui/newGameModal.js` (created)
+- `game/index.html`
+- `game/src/main.js`
+- `game/styles/main.css`
+- `game/.intel/tasks.json`
+- `game/.intel/execution.log`
+
+---
+
 ## 2026-04-11 — Session N
 
 **Tasks completed:** T039, T040

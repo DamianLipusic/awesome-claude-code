@@ -11,13 +11,19 @@
 
   <!-- Title bar -->
   <div id="title-bar">
-    <span id="empire-name" title="Click to rename" id="btn-empire-name">My Empire</span>
+    <span id="empire-name" class="empire-name-btn" title="Click to rename">My Empire</span>
     <span id="age-badge" class="age-badge">🪨 Stone Age</span>
     <span id="season-badge" class="season-badge" title="Current season">🌸 Spring</span>
     <div class="title-bar__controls">
+      <button class="btn btn--sm" id="btn-pause" title="Pause / Resume (Space)">⏸ Pause</button>
       <button class="btn btn--sm" id="btn-save">💾 Save</button>
       <button class="btn btn--sm" id="btn-new-game">🆕 New Game</button>
     </div>
+  </div>
+
+  <!-- Pause overlay (shown when game is paused) -->
+  <div id="pause-overlay" class="pause-overlay pause-overlay--hidden" aria-hidden="true">
+    <div class="pause-box">⏸ PAUSED<span class="pause-hint">Press Space or P to resume</span></div>
   </div>
 
   <!-- Resource HUD -->

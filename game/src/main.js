@@ -37,6 +37,7 @@ import { initDiplomacyPanel } from './ui/diplomacyPanel.js';
 import { initTabs, switchTab } from './ui/tabs.js';
 import { initToasts } from './ui/toastManager.js';
 import { initSummaryPanel } from './ui/summaryPanel.js';
+import { showNewGameWizard } from './ui/newGameModal.js';
 import { addMessage } from './core/actions.js';
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
@@ -302,12 +303,16 @@ function _applyDifficultyStart() {
 
 /**
  * Reset all state and start a fresh game.
- * Called from both the New Game button and the game-over Play Again button.
+ * @param {object} [opts]             Optional overrides from the wizard modal.
+ * @param {string} [opts.name]        Empire name; defaults to 'My Empire'.
+ * @param {string} [opts.difficulty]  'easy'|'normal'|'hard'; persists in state.
  */
-function _newGame() {
+function _newGame(opts = {}) {
   _saveToLeaderboard();
   localStorage.removeItem('empireos-save');
-  initState('My Empire');
+  // Apply difficulty before initState so _applyDifficultyStart sees the right value
+  if (opts.difficulty) state.difficulty = opts.difficulty;
+  initState(opts.name ?? 'My Empire');
   _applyDifficultyStart();
   initMap();
   initRandomEvents();
@@ -319,9 +324,13 @@ function _newGame() {
   initEnemyAI();
   recalcRates();
   startLoop();  // restart loop in case it was stopped by game-over
+  _syncPauseUI();  // ensure pause overlay is hidden on new game
   emit(Events.MAP_CHANGED, {});
   emit(Events.HERO_CHANGED, {});
-  addMessage('New game started. Build your empire!', 'info');
+  // Reflect the new empire name in the title bar
+  const nameEl = document.getElementById('empire-name');
+  if (nameEl) nameEl.textContent = state.empire.name;
+  addMessage(`New game started. Long live the ${state.empire.name}!`, 'info');
   emit(Events.STATE_CHANGED, {});
   emit(Events.RESOURCE_CHANGED, {});
   emit(Events.BUILDING_CHANGED, {});
@@ -337,13 +346,13 @@ function _bindControls() {
     addMessage('Game saved.', 'info');
   });
 
+  // New Game: open wizard modal instead of native confirm/prompt
   document.getElementById('btn-new-game')?.addEventListener('click', () => {
-    if (confirm('Start a new game? This will erase your current progress.')) {
-      _newGame();
-    }
+    showNewGameWizard(state.difficulty, (opts) => _newGame(opts));
   });
 
-  document.getElementById('btn-empire-name')?.addEventListener('click', () => {
+  // Rename empire: inline prompt on title-bar name span (fixed: was using wrong id)
+  document.getElementById('empire-name')?.addEventListener('click', () => {
     const name = prompt('Enter your empire name:', state.empire.name);
     if (name && name.trim()) {
       state.empire.name = name.trim();
@@ -352,7 +361,45 @@ function _bindControls() {
     }
   });
 
+  // Pause button
+  document.getElementById('btn-pause')?.addEventListener('click', _togglePause);
+
   _bindKeyboard();
+}
+
+// ── Pause ─────────────────────────────────────────────────────────────────
+
+/**
+ * Toggle the game loop and synchronise all pause-state UI indicators.
+ */
+function _togglePause() {
+  if (state.running) {
+    stopLoop();
+    addMessage('⏸ Game paused. Press Space, P, or the Pause button to resume.', 'info');
+  } else {
+    startLoop();
+    addMessage('▶ Game resumed.', 'info');
+  }
+  _syncPauseUI();
+}
+
+/**
+ * Sync the pause button label and the pause overlay to match state.running.
+ * Safe to call before the DOM is ready (guards with optional chaining).
+ */
+function _syncPauseUI() {
+  const btn     = document.getElementById('btn-pause');
+  const overlay = document.getElementById('pause-overlay');
+  const paused  = !state.running;
+
+  if (btn) {
+    btn.textContent = paused ? '▶ Resume' : '⏸ Pause';
+    btn.classList.toggle('btn--paused', paused);
+  }
+  if (overlay) {
+    overlay.classList.toggle('pause-overlay--hidden', !paused);
+    overlay.setAttribute('aria-hidden', String(!paused));
+  }
 }
 
 // ── Keyboard shortcuts ────────────────────────────────────────────────────
@@ -397,13 +444,7 @@ function _bindKeyboard() {
       case 'p':
       case 'P':
         e.preventDefault();
-        if (state.running) {
-          stopLoop();
-          addMessage('⏸ Game paused. Press Space or P to resume.', 'info');
-        } else {
-          startLoop();
-          addMessage('▶ Game resumed.', 'info');
-        }
+        _togglePause();
         break;
 
       // Quick save
