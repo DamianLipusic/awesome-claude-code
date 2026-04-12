@@ -51,6 +51,7 @@ export function initMilitaryPanel() {
   on(Events.TECH_CHANGED,     () => _render(panel));
   on(Events.AGE_CHANGED,      () => _render(panel));
   on(Events.HERO_CHANGED,     () => _render(panel));
+  on(Events.MAP_CHANGED,      () => _render(panel));  // combat outcomes update history
   on(Events.RESOURCE_CHANGED, () => _renderCosts(panel));
   on(Events.GAME_LOADED,      () => _render(panel));
 
@@ -78,6 +79,7 @@ function _render(panel) {
     <div class="unit-grid" id="unit-grid">
       ${UNIT_ORDER.map(id => _unitCard(id)).join('')}
     </div>
+    ${_combatHistorySection()}
   `;
 
   panel.addEventListener('click', _handleClick);
@@ -347,6 +349,68 @@ function _handleClick(e) {
     const result = useHeroAbility(actionBtn.dataset.ability);
     if (!result.ok) addMessage(result.reason, 'info');
   }
+}
+
+// ── Combat history ─────────────────────────────────────────────────────────
+
+const MAX_HISTORY_DISPLAY = 15;
+
+const TERRAIN_NAMES = {
+  grass: 'Grassland', forest: 'Forest', hills: 'Hills',
+  river: 'River', mountain: 'Mountain', capital: 'Capital',
+};
+
+function _combatHistorySection() {
+  const history = state.combatHistory ?? [];
+  if (history.length === 0) {
+    return `<div class="mil-history">
+      <span class="mil-section-title">📜 Combat History</span>
+      <span class="mil-empty">No battles fought yet.</span>
+    </div>`;
+  }
+
+  const entries = history.slice(0, MAX_HISTORY_DISPLAY).map(entry => {
+    const isWin     = entry.outcome === 'win';
+    const terrain   = TERRAIN_NAMES[entry.terrain] ?? entry.terrain;
+    const ticksAgo  = state.tick - entry.tick;
+    const secsAgo   = Math.round(ticksAgo / 4);
+    const timeLabel = secsAgo < 60
+      ? `${secsAgo}s ago`
+      : `${Math.round(secsAgo / 60)}m ago`;
+
+    // Loot/loss detail
+    let detail = '';
+    if (isWin && entry.loot) {
+      const parts = Object.entries(entry.loot)
+        .filter(([, v]) => v > 0)
+        .map(([r, v]) => `+${v} ${r}`);
+      detail = parts.length ? parts.join(', ') : 'No loot';
+    } else if (!isWin && entry.lost) {
+      detail = `Lost 1 ${entry.lost}`;
+    }
+
+    return `<div class="mil-hist-entry mil-hist-entry--${isWin ? 'win' : 'loss'}">
+      <span class="mil-hist-icon">${isWin ? '⚔️' : '💀'}</span>
+      <div class="mil-hist-body">
+        <div class="mil-hist-main">
+          <span class="mil-hist-outcome">${isWin ? 'Victory' : 'Defeat'}</span>
+          <span class="mil-hist-terrain">${terrain} (${entry.x},${entry.y})</span>
+        </div>
+        ${detail ? `<div class="mil-hist-detail">${detail}</div>` : ''}
+      </div>
+      <div class="mil-hist-meta">
+        <span class="mil-hist-power">⚔${entry.power} vs 🛡${entry.defense}</span>
+        <span class="mil-hist-time">${timeLabel}</span>
+      </div>
+    </div>`;
+  }).join('');
+
+  return `<div class="mil-history">
+    <span class="mil-section-title">📜 Combat History
+      <span class="mil-hist-count">${history.length} battle${history.length !== 1 ? 's' : ''}</span>
+    </span>
+    ${entries}
+  </div>`;
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────

@@ -2,6 +2,38 @@
 
 ---
 
+## 2026-04-12 — Session N+4
+
+**Tasks completed:** T047, T048
+
+**Summary:**
+All prior tasks (T001–T046) were complete. Created Phase 14 features: a research queue UI with multi-item queuing and cancel support (T047), and a combat history log in the military panel (T048).
+
+**T047 — Research Queue UI (multi-item, cancel):**
+- `src/systems/research.js`: Added `MAX_RESEARCH_QUEUE = 3` export constant. `startResearch()` now rejects with 'Queue full (max 3 items)' when `state.researchQueue.length >= MAX_RESEARCH_QUEUE`. Added `cancelResearch(techId)`: finds tech by index in queue, splices it out, refunds full cost capped at caps, logs cancellation message, emits `TECH_CHANGED` + `RESOURCE_CHANGED`.
+- `src/ui/researchPanel.js`: Imported `cancelResearch` and `MAX_RESEARCH_QUEUE`. Replaced the single-item active progress bar with `_queueSection()` helper. `_queueSection()` renders a `.rq-section` card with a header showing queue count (`N / 3`); one `.rq-item` per entry — the active item (index 0) shows a live progress bar + seconds remaining; pending items show ⏳ Pending label; every item has a ✕ Cancel button with `data-cancel-tech` attribute. Click delegation in the panel `onclick` handler calls `cancelResearch()` before the existing `startResearch()` path.
+- `styles/main.css`: `.rq-section` (bg-card, purple border, radius-lg); `.rq-header` flex header with `.rq-count` pill; `.rq-item` / `--active` / `--pending` rows; `.rq-pos`, `.rq-icon`, `.rq-body`, `.rq-name`, `.rq-progress-row`, `.rq-progress`, `.rq-time`, `.rq-pending`; `.rq-cancel` icon button with red hover on border+color.
+
+**T048 — Combat History Log:**
+- `src/core/state.js`: Added `combatHistory: []` to initial state object and `state.combatHistory = []` in `initState()`.
+- `src/systems/combat.js`: Added `MAX_HISTORY = 20`. Added `_recordHistory(entry)` helper: `unshift`s `{tick, outcome, terrain, x, y, power, defense, loot?, lost?}` into `state.combatHistory` and trims to `MAX_HISTORY`. Called in `_victory()` (builds `lootGained` object alongside `lootParts`) and `_defeat()` (passes `lost` unit name).
+- `src/ui/militaryPanel.js`: Added `on(Events.MAP_CHANGED, () => _render(panel))` so combat outcomes refresh the panel. Added `_combatHistorySection()`: renders `.mil-history` card — shows "No battles fought yet." when empty; otherwise up to 15 `.mil-hist-entry` rows with `--win` (green border) or `--loss` (red border) modifier; each row shows ⚔️/💀 icon, Victory/Defeat label (colour-coded), terrain + coords, loot detail or "Lost 1 X", attack/defense stat, and relative time (Xs ago / Xm ago). Injected at bottom of `_render()`.
+- `src/main.js`: Added `combatHistory` to `_save()` state payload; added `state.combatHistory = s.combatHistory ?? []` in `_applySave()`; bumped save version to 13.
+- `styles/main.css`: `.mil-history` (bg-panel, border, radius-lg); `.mil-hist-count` (dim pill); `.mil-hist-entry` / `--win` (green left border) / `--loss` (red left border); `.mil-hist-icon`, `.mil-hist-body`, `.mil-hist-main`, `.mil-hist-outcome` (colour by outcome), `.mil-hist-terrain`, `.mil-hist-detail`, `.mil-hist-meta`, `.mil-hist-power`, `.mil-hist-time`.
+
+**Files modified:**
+- `game/src/systems/research.js`
+- `game/src/ui/researchPanel.js`
+- `game/src/core/state.js`
+- `game/src/systems/combat.js`
+- `game/src/ui/militaryPanel.js`
+- `game/src/main.js`
+- `game/styles/main.css`
+- `game/.intel/tasks.json`
+- `game/.intel/execution.log`
+
+---
+
 ## 2026-04-12 — Session N+3
 
 **Tasks completed:** T045, T046

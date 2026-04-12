@@ -5,7 +5,7 @@
 
 import { state } from '../core/state.js';
 import { on, Events } from '../core/events.js';
-import { startResearch } from '../systems/research.js';
+import { startResearch, cancelResearch, MAX_RESEARCH_QUEUE } from '../systems/research.js';
 import { advanceAge } from '../core/actions.js';
 import { TECHS } from '../data/techs.js';
 import { AGES } from '../data/ages.js';
@@ -28,26 +28,8 @@ function renderResearchPanel() {
   const panel = document.getElementById('panel-research');
   if (!panel) return;
 
-  // Active research progress bar
-  const active = state.researchQueue[0];
-  const progressHtml = active
-    ? (() => {
-        const def = TECHS[active.techId];
-        // Use stored totalTicks (accounts for Great Library speed bonus)
-        const total = active.totalTicks ?? def.researchTicks;
-        const done  = total - active.remaining;
-        const pct   = Math.floor((done / total) * 100);
-        const secsLeft = Math.ceil(active.remaining / TICKS_PER_SECOND);
-        return `
-          <div class="research-active">
-            <span>${def.icon} Researching ${def.name}</span>
-            <div class="progress-bar">
-              <div class="progress-bar__fill" style="width:${pct}%"></div>
-            </div>
-            <span class="research-active__time">${fmtTime(secsLeft)} left</span>
-          </div>`;
-      })()
-    : '';
+  // Research queue section (active + pending items)
+  const progressHtml = _queueSection();
 
   const techCards = Object.entries(TECHS).map(([id, def]) => {
     const done     = !!state.techs[id];
@@ -92,10 +74,59 @@ function renderResearchPanel() {
       advanceAge();
       return;
     }
+    // Cancel a queued research item
+    const cancelBtn = e.target.closest('[data-cancel-tech]');
+    if (cancelBtn) {
+      cancelResearch(cancelBtn.dataset.cancelTech);
+      return;
+    }
     const btn = e.target.closest('[data-tech]');
     if (!btn) return;
     startResearch(btn.dataset.tech);
   };
+}
+
+// ── Research queue section ─────────────────────────────────────────────────
+
+function _queueSection() {
+  if (state.researchQueue.length === 0) return '';
+
+  const qLen = state.researchQueue.length;
+  const header = `<div class="rq-header">
+    🔬 Research Queue
+    <span class="rq-count">${qLen} / ${MAX_RESEARCH_QUEUE}</span>
+  </div>`;
+
+  const items = state.researchQueue.map((entry, idx) => {
+    const def  = TECHS[entry.techId];
+    if (!def) return '';
+
+    const isActive = idx === 0;
+    const total    = entry.totalTicks ?? def.researchTicks;
+    const done     = total - entry.remaining;
+    const pct      = isActive ? Math.floor((done / total) * 100) : 0;
+    const secsLeft = Math.ceil(entry.remaining / TICKS_PER_SECOND);
+
+    const progressBar = isActive
+      ? `<div class="progress-bar rq-progress">
+           <div class="progress-bar__fill" style="width:${pct}%"></div>
+         </div>
+         <span class="rq-time">${fmtTime(secsLeft)} left</span>`
+      : `<span class="rq-pending">⏳ Pending</span>`;
+
+    return `<div class="rq-item ${isActive ? 'rq-item--active' : 'rq-item--pending'}">
+      <span class="rq-pos">${idx + 1}</span>
+      <span class="rq-icon">${def.icon}</span>
+      <div class="rq-body">
+        <span class="rq-name">${def.name}</span>
+        <div class="rq-progress-row">${progressBar}</div>
+      </div>
+      <button class="btn btn--icon rq-cancel" data-cancel-tech="${entry.techId}"
+              title="Cancel and refund cost">✕</button>
+    </div>`;
+  }).join('');
+
+  return `<div class="rq-section">${header}${items}</div>`;
 }
 
 // ── Age section ────────────────────────────────────────────────────────────

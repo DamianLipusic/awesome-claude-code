@@ -16,7 +16,8 @@ import { addMessage } from '../core/actions.js';
 import { revealAround } from './map.js';
 import { recalcRates } from './resources.js';
 
-const NEIGHBORS = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+const NEIGHBORS   = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+const MAX_HISTORY = 20;
 
 // XP thresholds for rank promotion
 const VETERAN_XP = 3;
@@ -175,12 +176,17 @@ function _victory(tile, x, y, attackPower, defense) {
 
   // Grant loot (cap at current storage cap)
   const lootParts = [];
+  const lootGained = {};
   for (const [res, amt] of Object.entries(tile.loot ?? {})) {
     const cap  = state.caps[res] ?? 500;
     const prev = state.resources[res] ?? 0;
     state.resources[res] = Math.min(cap, prev + amt);
     lootParts.push(`+${amt} ${res}`);
+    lootGained[res] = amt;
   }
+
+  // Record combat history entry
+  _recordHistory({ outcome: 'win', terrain: tile.type, x, y, power: Math.round(attackPower), defense, loot: lootGained });
 
   // Grant combat XP to all participating unit types
   _grantCombatXP();
@@ -236,6 +242,9 @@ function _defeat(tile, x, y, attackPower, defense) {
   // Lose 1 random unit as a casualty
   const lost = _loseOneUnit();
 
+  // Record combat history entry
+  _recordHistory({ outcome: 'loss', terrain: tile.type, x, y, power: Math.round(attackPower), defense, lost });
+
   emit(Events.MAP_CHANGED,  { x, y, outcome: 'loss' });
   emit(Events.UNIT_CHANGED, {});
 
@@ -259,6 +268,18 @@ function _loseOneUnit() {
   recalcRates();
 
   return UNITS[id]?.name ?? id;
+}
+
+/**
+ * Push a battle result to state.combatHistory (newest first, capped at MAX_HISTORY).
+ * @param {object} entry  { outcome, terrain, x, y, power, defense, loot?, lost? }
+ */
+function _recordHistory(entry) {
+  if (!state.combatHistory) state.combatHistory = [];
+  state.combatHistory.unshift({ tick: state.tick, ...entry });
+  if (state.combatHistory.length > MAX_HISTORY) {
+    state.combatHistory.length = MAX_HISTORY;
+  }
 }
 
 function _tileName(tile) {

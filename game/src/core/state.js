@@ -123,6 +123,10 @@ export const state = {
   // null/undefined entry means alert is disabled for that resource
   alerts: {},
 
+  // Combat history — last 20 battles, newest first
+  // [{ tick, outcome:'win'|'loss', terrain, x, y, power, defense, loot, lost }]
+  combatHistory: [],
+
   // Current game tick count (increments every 250ms)
   tick: 0,
 
@@ -161,6 +165,7 @@ export function initState(empireName = 'My Empire') {
   state.enemyAI        = null;
   state.unitXP         = {};
   state.unitRanks      = {};
+  state.combatHistory  = [];
   state.tick           = 0;
   state.running        = false;
 }

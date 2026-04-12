@@ -405,6 +405,24 @@
     "notes": "Created src/utils/score.js: calcScore() returns total score integer derived from state; getScoreBreakdown() returns [{label, value, detail}] array for display. Formula: territory×10 + buildings×3 + units×2 + techs×50 + quests×100 + floor(goldEarned÷100) + age×200. index.html: added <span id='score-badge'> in title bar between season-badge and controls. main.js: imports calcScore; _updateScoreBadge() updates badge text and title tooltip; subscribed to RESOURCE_CHANGED/BUILDING_CHANGED/UNIT_CHANGED/TECH_CHANGED/AGE_CHANGED/MAP_CHANGED/QUEST_COMPLETED; _updateScoreBadge() called in _newGame(); score added to leaderboard entry as s.score field. summaryPanel.js: imports calcScore+getScoreBreakdown; added _scoreCard() rendering a .sum-score-rows grid with per-component rows (label, detail, value) filtered to non-zero, total row; injected after _advisorCard() in _render(). settingsPanel.js: leaderboard row replaced Gold Earned column with Score (⭐) column; lb-header updated; score formatted as s.score.toLocaleString() with '—' fallback for legacy entries. CSS: #score-badge (gold accent, pill-shape, cursor:help); .sum-score-row/.sum-score-label/.sum-score-detail/.sum-score-value/.sum-score-total/.sum-score-total-value; lb-table grid-template-columns updated for new 6-col layout (rank/name/score/territory/age/date); .lb-score gold colour."
   },
   {
+    "id": "T047",
+    "title": "research queue UI with multi-item queueing and cancel",
+    "description": "Cap research queue at 3 items. Show all queued items below the active progress bar with position numbers and ✕ Cancel buttons. cancelResearch(techId) refunds cost. Queue-full feedback on startResearch() when limit reached.",
+    "priority": 47,
+    "status": "done",
+    "phase": 14,
+    "notes": "Added MAX_RESEARCH_QUEUE=3 export to systems/research.js; startResearch() rejects when queue length ≥ 3. Added cancelResearch(techId): removes entry from queue by index, refunds full cost regardless of progress, emits TECH_CHANGED+RESOURCE_CHANGED, logs cancellation. ui/researchPanel.js: imported cancelResearch+MAX_RESEARCH_QUEUE; replaced single-item active bar with _queueSection() helper that renders a .rq-section card with queue header (count / max), then one .rq-item per queued entry — active item shows live progress bar + seconds-left, pending items show ⏳ Pending; all items have a ✕ Cancel button (data-cancel-tech attr); click handler delegates to cancelResearch(); Research button calls startResearch() as before and now shows 'Queue full' toast on failure. CSS: .rq-section (purple border, padding), .rq-header (flex justify-between), .rq-count (pill), .rq-item / --active / --pending, .rq-pos, .rq-icon, .rq-body/.rq-name/.rq-progress-row, .rq-progress/.rq-time/.rq-pending, .rq-cancel (icon button with red hover)."
+  },
+  {
+    "id": "T048",
+    "title": "combat history log in military panel",
+    "description": "Track last 20 battles in state.combatHistory. Each entry: tick, outcome (win/loss), terrain, coords, attackPower, defense, loot (wins) or unit lost (losses). Render a Combat History section at bottom of military panel showing most recent 15 entries with outcome badges, stats, and relative tick.",
+    "priority": 48,
+    "status": "done",
+    "phase": 14,
+    "notes": "state.js: added combatHistory:[] to static object + initState() reset. systems/combat.js: added MAX_HISTORY=20 constant and _recordHistory({outcome,terrain,x,y,power,defense,loot?,lost?}) helper that unshifts into state.combatHistory and trims to MAX_HISTORY; called in _victory() (with lootGained object built alongside lootParts) and _defeat() (with lost unit name). ui/militaryPanel.js: subscribed to MAP_CHANGED for history re-renders; added _combatHistorySection() rendering a .mil-history card — empty state if no battles; otherwise up to 15 .mil-hist-entry rows (--win green / --loss red left border) showing ⚔️/💀 icon, outcome label, terrain+coords, loot detail or 'Lost 1 X', attack/defense stat, and relative time (Xs/Xm ago). _combatHistorySection() injected at bottom of _render(). main.js: combatHistory added to _save() payload and _applySave() (state.combatHistory = s.combatHistory ?? []); save version bumped to 13. CSS: .mil-history (bg-panel, border), .mil-hist-count, .mil-hist-entry/--win/--loss (coloured left border), .mil-hist-icon/.mil-hist-body/.mil-hist-main/.mil-hist-outcome/--win/--loss/.mil-hist-terrain/.mil-hist-detail/.mil-hist-meta/.mil-hist-power/.mil-hist-time."
+  },
+  {
     "id": "T042",
     "title": "pause button and visual pause overlay",
     "description": "Add a ⏸/▶ toggle button in the title bar alongside Save and New Game. Add a semi-transparent centre-screen 'PAUSED' overlay that appears when the game is paused. Sync the button state when Space/P keyboard shortcuts are used. Clicking the button or pressing Space/P both toggle pause and update all indicators consistently.",
