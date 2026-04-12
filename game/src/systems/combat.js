@@ -186,6 +186,7 @@ export function attackTile(x, y) {
 
 function _victory(tile, x, y, attackPower, defense) {
   tile.owner    = 'player';
+  tile.faction  = null;    // T053: clear faction on player capture
   tile.revealed = true;
   revealAround(x, y);
 

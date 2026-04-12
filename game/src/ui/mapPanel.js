@@ -18,6 +18,7 @@ import { on, Events } from '../core/events.js';
 import { attackTile, getAttackPreview } from '../systems/combat.js';
 import { buildTileImprovement, addMessage } from '../core/actions.js';
 import { IMPROVEMENTS } from '../data/improvements.js';
+import { EMPIRES } from '../data/empires.js';
 
 const TILE_PX   = 24;     // pixels per tile side
 const GRID_SIZE = 20;     // tiles per axis
@@ -51,6 +52,24 @@ const HOVER_NEUTRAL  = 'rgba(255,255,255,0.08)';
 const PLAYER_BORDER  = '#58a6ff';
 const ENEMY_BORDER   = '#f85149';
 const NEUTRAL_BORDER = '#30363d';
+
+// T053: Per-faction enemy tile colors (tint overlay + border)
+const FACTION_TINT = {
+  ironHorde:   'rgba(255,140,0,0.26)',
+  mageCouncil: 'rgba(175,100,255,0.24)',
+  seaWolves:   'rgba(0,200,170,0.22)',
+};
+const FACTION_BORDER = {
+  ironHorde:   '#e07010',
+  mageCouncil: '#a060f0',
+  seaWolves:   '#00c8aa',
+};
+// Legend entries for faction mode (shown in terrain legend alongside terrain swatches)
+const FACTION_LEGEND = [
+  { color: '#e07010', icon: '⚔️', label: 'Iron Horde' },
+  { color: '#a060f0', icon: '🔮', label: 'Mage Council' },
+  { color: '#00c8aa', icon: '🐺', label: 'Sea Wolves' },
+];
 
 // Terrain labels shown in normal-mode legend
 const TERRAIN_LABEL = {
@@ -144,10 +163,18 @@ export function initMapPanel() {
 // ── HTML scaffold ──────────────────────────────────────────────────────────
 
 function _buildHTML() {
-  const legendItems = Object.entries(TERRAIN_LABEL).map(([type, { label, bonus }]) =>
+  const terrainItems = Object.entries(TERRAIN_LABEL).map(([type, { label, bonus }]) =>
     `<span class="map-legend__item" data-terrain="${type}">
        <span class="map-legend__swatch" style="background:${TERRAIN_COLOR[type]}"></span>
        ${label} <span class="map-legend__bonus">${bonus}</span>
+     </span>`
+  ).join('');
+
+  // T053: faction swatch items appended to terrain legend
+  const factionItems = FACTION_LEGEND.map(({ color, icon, label }) =>
+    `<span class="map-legend__item">
+       <span class="map-legend__swatch map-legend__swatch--faction" style="background:${color}"></span>
+       ${icon} ${label}
      </span>`
   ).join('');
 
@@ -163,7 +190,8 @@ function _buildHTML() {
         title="Click an adjacent enemy tile to attack it"></canvas>
     </div>
     <div id="map-legend" class="map-legend">
-      ${legendItems}
+      ${terrainItems}
+      ${factionItems}
       <span class="map-legend__item map-legend__hint">
         ⚔️ Click a highlighted tile to attack
       </span>
@@ -178,22 +206,30 @@ function _updateLegend(panel) {
   const el = panel.querySelector('#map-legend');
   if (!el) return;
 
+  const hint = `<span class="map-legend__item map-legend__hint">⚔️ Click a highlighted tile to attack</span>`;
+
   if (_overlayMode) {
     el.innerHTML = OVERLAY_LEGEND.map(({ color, icon, label }) =>
       `<span class="map-legend__item">
          <span class="map-legend__swatch" style="background:${color}"></span>
          ${icon} ${label}
        </span>`
-    ).join('') +
-    `<span class="map-legend__item map-legend__hint">⚔️ Click a highlighted tile to attack</span>`;
+    ).join('') + hint;
   } else {
-    el.innerHTML = Object.entries(TERRAIN_LABEL).map(([type, { label, bonus }]) =>
+    // Terrain legend + T053: faction legend
+    const terrainHtml = Object.entries(TERRAIN_LABEL).map(([type, { label, bonus }]) =>
       `<span class="map-legend__item" data-terrain="${type}">
          <span class="map-legend__swatch" style="background:${TERRAIN_COLOR[type]}"></span>
          ${label} <span class="map-legend__bonus">${bonus}</span>
        </span>`
-    ).join('') +
-    `<span class="map-legend__item map-legend__hint">⚔️ Click a highlighted tile to attack</span>`;
+    ).join('');
+    const factionHtml = FACTION_LEGEND.map(({ color, icon, label }) =>
+      `<span class="map-legend__item">
+         <span class="map-legend__swatch map-legend__swatch--faction" style="background:${color}"></span>
+         ${icon} ${label}
+       </span>`
+    ).join('');
+    el.innerHTML = terrainHtml + factionHtml + hint;
   }
 }
 
@@ -211,9 +247,13 @@ function _createTileTip() {
 function _showTileTip(tile, x, y, mouseX, mouseY) {
   if (!_tileTipEl || !tile.revealed) { _hideTileTip(); return; }
 
+  // T053: show faction name for enemy tiles when known
+  const factionLabel = (tile.owner === 'enemy' && tile.faction && EMPIRES[tile.faction])
+    ? `${EMPIRES[tile.faction].icon} ${EMPIRES[tile.faction].name}`
+    : 'Enemy';
   const ownerHtml =
     tile.owner === 'player' ? `<span class="map-tt-owner map-tt-owner--player">Your territory</span>`
-    : tile.owner === 'enemy' ? `<span class="map-tt-owner map-tt-owner--enemy">Enemy territory</span>`
+    : tile.owner === 'enemy' ? `<span class="map-tt-owner map-tt-owner--enemy">${factionLabel}</span>`
     : `<span class="map-tt-owner">Neutral</span>`;
 
   const bonusTxt  = TERRAIN_BONUS[tile.type];
@@ -320,12 +360,12 @@ function _drawTile(tile, x, y, capital) {
   ctx.fillStyle = colorMap[tile.type] ?? colorMap.grass;
   ctx.fillRect(px, py, TILE_PX, TILE_PX);
 
-  // Owner tint
+  // Owner tint — T053: use faction-specific color for enemy tiles when faction is known
   if (tile.owner === 'player') {
     ctx.fillStyle = PLAYER_TINT;
     ctx.fillRect(px, py, TILE_PX, TILE_PX);
   } else if (tile.owner === 'enemy') {
-    ctx.fillStyle = ENEMY_TINT;
+    ctx.fillStyle = (tile.faction && FACTION_TINT[tile.faction]) ? FACTION_TINT[tile.faction] : ENEMY_TINT;
     ctx.fillRect(px, py, TILE_PX, TILE_PX);
   }
 
@@ -335,9 +375,9 @@ function _drawTile(tile, x, y, capital) {
     ctx.fillRect(px, py, TILE_PX, TILE_PX);
   }
 
-  // Border
+  // Border — T053: use faction-specific border for enemy tiles
   const borderColor = tile.owner === 'player' ? PLAYER_BORDER
-                    : tile.owner === 'enemy'  ? ENEMY_BORDER
+                    : tile.owner === 'enemy'  ? ((tile.faction && FACTION_BORDER[tile.faction]) ?? ENEMY_BORDER)
                     : NEUTRAL_BORDER;
   ctx.strokeStyle = borderColor;
   ctx.lineWidth   = tile.owner ? 1.5 : 0.5;

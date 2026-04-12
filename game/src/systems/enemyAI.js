@@ -21,6 +21,7 @@ import { recalcRates } from './resources.js';
 import { UNITS } from '../data/units.js';
 import { HERO_DEF } from '../data/hero.js';
 import { TICKS_PER_SECOND } from '../core/tick.js';
+import { EMPIRES } from '../data/empires.js';
 
 // ── Timing constants ───────────────────────────────────────────────────────
 
@@ -84,7 +85,8 @@ function _expandEnemies() {
     if (neutral.length === 0) continue;
 
     const { nx, ny } = neutral[Math.floor(Math.random() * neutral.length)];
-    tiles[ny][nx].owner = 'enemy';
+    tiles[ny][nx].owner   = 'enemy';
+    tiles[ny][nx].faction = tiles[y][x].faction ?? null;  // T053: inherit parent faction
     emit(Events.MAP_CHANGED, {});
     return; // one expansion per interval
   }
@@ -143,8 +145,20 @@ function _counterattack() {
   const roll = Math.random();
 
   if (roll < winChance) {
+    // Determine which faction is attacking — prefer faction of nearest enemy neighbour (T053)
+    let attackingFaction = null;
+    for (const [dx, dy] of DIRS) {
+      const nx = target.x + dx;
+      const ny = target.y + dy;
+      if (_inBounds(nx, ny) && tiles[ny][nx].owner === 'enemy' && tiles[ny][nx].faction) {
+        attackingFaction = tiles[ny][nx].faction;
+        break;
+      }
+    }
+
     // Enemy captures the tile — destroy any improvement on it (T051)
-    tile.owner = 'enemy';
+    tile.owner   = 'enemy';
+    tile.faction = attackingFaction;   // T053: tag with attacking empire
     if (tile.improvement) tile.improvement = null;
 
     // Player loses one random unit defending the border
@@ -161,9 +175,12 @@ function _counterattack() {
     recalcRates();
     emit(Events.MAP_CHANGED, { x: target.x, y: target.y, outcome: 'enemy-invasion' });
 
+    // T053: include faction name in log message
+    const empDef  = attackingFaction ? EMPIRES[attackingFaction] : null;
+    const fctStr  = empDef ? `${empDef.icon} ${empDef.name}` : 'Enemy forces';
     const unitStr = lostUnit ? ` You lost 1 ${lostUnit} in the defence.` : '';
     addMessage(
-      `⚔️ Enemy forces seized your tile at (${target.x},${target.y})!${unitStr} Train more troops!`,
+      `⚔️ ${fctStr} seized your tile at (${target.x},${target.y})!${unitStr} Train more troops!`,
       'raid',
     );
   } else {

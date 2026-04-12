@@ -32,6 +32,13 @@ const CLR_PLAYER     = '#1e40af';
 const CLR_ENEMY      = '#991b1b';
 const CLR_CAPITAL    = '#d97706';
 
+// T053: per-faction minimap colors (darker versions of the map canvas tints)
+const CLR_FACTION = {
+  ironHorde:   '#7a4010',
+  mageCouncil: '#4a1a80',
+  seaWolves:   '#005a50',
+};
+
 let _canvas = null;
 let _ctx    = null;
 
@@ -84,7 +91,8 @@ export function drawMinimap() {
         // Highlight the capital tile in gold
         color = (cap && x === cap.x && y === cap.y) ? CLR_CAPITAL : CLR_PLAYER;
       } else if (tile.owner === 'enemy') {
-        color = CLR_ENEMY;
+        // T053: use faction color when available, fall back to generic enemy red
+        color = (tile.faction && CLR_FACTION[tile.faction]) ? CLR_FACTION[tile.faction] : CLR_ENEMY;
       } else {
         color = CLR_NEUTRAL;
       }

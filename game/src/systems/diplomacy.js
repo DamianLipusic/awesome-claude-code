@@ -43,8 +43,11 @@ export function initDiplomacy() {
         nextAITick:      state.tick + _aiInterval(),
         nextWarRaidTick: 0,
       })),
+      history: [],   // T054: diplomatic event log
     };
   }
+  // T054: migrate saves that predate the history field
+  if (!state.diplomacy.history) state.diplomacy.history = [];
 }
 
 /**
@@ -86,6 +89,7 @@ export function proposeAlliance(empireId) {
   recalcRates();
   emit(Events.DIPLOMACY_CHANGED, { empireId, relations: 'allied' });
   emit(Events.RESOURCE_CHANGED, {});
+  _logDiplomacy(empireId, 'alliance', `Alliance forged with ${def.name}`);
   addMessage(`🤝 Alliance forged with ${def.icon} ${def.name}!`, 'diplomacy');
   return { ok: true };
 }
@@ -107,6 +111,7 @@ export function openTradeRoute(empireId) {
   recalcRates();
   emit(Events.DIPLOMACY_CHANGED, { empireId, tradeRoutes: emp.tradeRoutes });
   emit(Events.RESOURCE_CHANGED, {});
+  _logDiplomacy(empireId, 'trade', `Trade route opened with ${def.name} (${emp.tradeRoutes}/${MAX_TRADE_ROUTES})`);
   addMessage(
     `🛤️ Trade route opened with ${def.icon} ${def.name} (${emp.tradeRoutes}/${MAX_TRADE_ROUTES}).`,
     'diplomacy',
@@ -124,6 +129,7 @@ export function closeTradeRoute(empireId) {
   const def = EMPIRES[empireId];
   recalcRates();
   emit(Events.DIPLOMACY_CHANGED, { empireId, tradeRoutes: emp.tradeRoutes });
+  _logDiplomacy(empireId, 'trade', `Trade route closed with ${def.name}`);
   addMessage(`❌ Trade route closed with ${def.icon} ${def.name}.`, 'info');
   return { ok: true };
 }
@@ -142,6 +148,7 @@ export function declareWar(empireId) {
   recalcRates();
   emit(Events.DIPLOMACY_CHANGED, { empireId, relations: 'war' });
   if (wasAllied) emit(Events.RESOURCE_CHANGED, {});
+  _logDiplomacy(empireId, 'war', `You declared war on ${def.name}`);
   addMessage(`⚔️ You declared WAR on ${def.icon} ${def.name}!`, 'raid');
   return { ok: true };
 }
@@ -161,6 +168,7 @@ export function proposePeace(empireId) {
   recalcRates();
   emit(Events.DIPLOMACY_CHANGED, { empireId, relations: 'neutral' });
   emit(Events.RESOURCE_CHANGED, {});
+  _logDiplomacy(empireId, 'peace', `Peace treaty signed with ${def.name}`);
   addMessage(`🕊️ Peace treaty signed with ${def.icon} ${def.name}.`, 'diplomacy');
   return { ok: true };
 }
@@ -175,6 +183,19 @@ function _aiInterval() {
   return AI_MIN_INTERVAL + Math.floor(Math.random() * (AI_MAX_INTERVAL - AI_MIN_INTERVAL));
 }
 
+/**
+ * T054: Append a diplomatic event to the history log (max 25, newest first).
+ * @param {string} empireId  Key into EMPIRES (or null for non-empire events)
+ * @param {string} type      'alliance'|'trade'|'war'|'peace'|'raid'|'ai'
+ * @param {string} text      Human-readable description of the event
+ */
+function _logDiplomacy(empireId, type, text) {
+  const hist = state.diplomacy?.history;
+  if (!Array.isArray(hist)) return;
+  hist.unshift({ tick: state.tick, empireId: empireId ?? null, type, text });
+  if (hist.length > 25) hist.length = 25;
+}
+
 function _warRaid(emp) {
   if (Math.random() >= 0.5) return;  // 50% chance each check
   const def  = EMPIRES[emp.id];
@@ -182,6 +203,7 @@ function _warRaid(emp) {
   const food = Math.floor(Math.max(5,  (state.resources.food ?? 0) * 0.05));
   state.resources.gold = Math.max(0, (state.resources.gold ?? 0) - gold);
   state.resources.food = Math.max(0, (state.resources.food ?? 0) - food);
+  _logDiplomacy(emp.id, 'raid', `${def.name} war raid — lost ${gold} gold, ${food} food`);
   addMessage(`${def.icon} ${def.name} war raid! Lost ${gold} gold and ${food} food.`, 'raid');
   emit(Events.RESOURCE_CHANGED, {});
 }
@@ -198,12 +220,14 @@ function _aiAction(emp) {
       emp.nextWarRaidTick = state.tick + WAR_RAID_MIN;
       recalcRates();
       emit(Events.DIPLOMACY_CHANGED, { empireId: emp.id, relations: 'war' });
+      _logDiplomacy(emp.id, 'war', `${def.name} declared war on your empire`);
       addMessage(`⚔️ The ${def.icon} ${def.name} has declared WAR on your empire!`, 'raid');
     } else if (r < def.warChance + def.allyChance) {
       // AI proposes alliance (player gets it for free)
       emp.relations = 'allied';
       recalcRates();
       emit(Events.DIPLOMACY_CHANGED, { empireId: emp.id, relations: 'allied' });
+      _logDiplomacy(emp.id, 'alliance', `${def.name} proposed an alliance`);
       addMessage(
         `🤝 The ${def.icon} ${def.name} has proposed an ALLIANCE! You are now allied.`,
         'diplomacy',
@@ -216,6 +240,7 @@ function _aiAction(emp) {
       emp.tradeRoutes = 0;
       recalcRates();
       emit(Events.DIPLOMACY_CHANGED, { empireId: emp.id, relations: 'neutral' });
+      _logDiplomacy(emp.id, 'ai', `${def.name} broke the alliance`);
       addMessage(
         `💔 The ${def.icon} ${def.name} has broken the alliance. Relations: neutral.`,
         'info',
@@ -227,6 +252,7 @@ function _aiAction(emp) {
       emp.relations = 'neutral';
       recalcRates();
       emit(Events.DIPLOMACY_CHANGED, { empireId: emp.id, relations: 'neutral' });
+      _logDiplomacy(emp.id, 'peace', `${def.name} proposed peace`);
       addMessage(
         `🕊️ The ${def.icon} ${def.name} proposes PEACE. Hostilities have ceased.`,
         'diplomacy',

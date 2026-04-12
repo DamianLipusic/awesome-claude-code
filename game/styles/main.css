@@ -461,6 +461,11 @@ body {
   flex-shrink: 0;
 }
 
+.map-legend__swatch--faction {
+  border-radius: 50%;   /* T053: circular swatch distinguishes faction from terrain */
+  border-color: rgba(255,255,255,0.25);
+}
+
 .map-legend__bonus {
   color: var(--green);
   font-size: 11px;
@@ -1290,6 +1295,68 @@ body {
   text-align: center;
 }
 
+/* ── T054: Diplomatic history section ──────────────────────────────────────── */
+
+.dipl-history {
+  margin-top: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.dipl-history__header {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  padding: 6px 10px;
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border);
+}
+
+.dipl-hist-entry {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 6px 10px;
+  border-left: 3px solid transparent;
+  font-size: 12px;
+  border-bottom: 1px solid rgba(48,54,61,0.4);
+}
+.dipl-hist-entry:last-child { border-bottom: none; }
+
+.dipl-hist-entry--alliance { border-left-color: var(--green); }
+.dipl-hist-entry--trade    { border-left-color: var(--accent); }
+.dipl-hist-entry--war      { border-left-color: var(--red); }
+.dipl-hist-entry--peace    { border-left-color: var(--blue); }
+.dipl-hist-entry--raid     { border-left-color: #f97316; }  /* orange */
+.dipl-hist-entry--ai       { border-left-color: var(--border-h); }
+
+.dipl-hist-icon {
+  font-size: 14px;
+  flex-shrink: 0;
+  line-height: 1.4;
+}
+
+.dipl-hist-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.dipl-hist-text {
+  color: var(--text);
+  line-height: 1.4;
+}
+
+.dipl-hist-time {
+  font-size: 10px;
+  color: var(--text-dim);
+}
+
 /* Log colours for diplomacy events */
 .log-entry--diplomacy { border-color: var(--blue); background: rgba(88, 166, 255, 0.05); }
 
@@ -1799,9 +1866,10 @@ body {
   }
   .map-legend { font-size: 11px; gap: 6px; }
 
-  /* Diplomacy: full width empire cards */
+  /* Diplomacy: full width empire cards and compact history */
   .dipl-empire-card { padding: 10px 10px; }
   .dipl-empire-card__actions { flex-direction: column; }
+  .dipl-hist-entry { gap: 6px; padding: 5px 8px; }
   .season-badge { font-size: 10px; padding: 2px 6px; }
 
   /* Settings: full width */

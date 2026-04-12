@@ -158,6 +158,22 @@ function _revealAdjacentToPlayer(tiles) {
   }
 }
 
+/**
+ * Returns the AI faction that controls a given map position (T053).
+ * The map is divided into 3 angular sectors of ~120° each, radiating from the capital:
+ *   0° – 120°  → Iron Horde
+ *   120° – 240° → Mage Council
+ *   240° – 360° → Sea Wolves
+ */
+function _getFaction(x, y) {
+  const dx = x - CAPITAL.x;
+  const dy = y - CAPITAL.y;
+  let angle = Math.atan2(dy, dx);          // –π … +π
+  if (angle < 0) angle += 2 * Math.PI;    // normalise to 0 … 2π
+  const sector = Math.floor(angle / (2 * Math.PI / 3));
+  return ['ironHorde', 'mageCouncil', 'seaWolves'][Math.min(sector, 2)];
+}
+
 function _placeEnemies(tiles) {
   // Collect neutral tiles beyond radius 3
   const candidates = [];
@@ -170,11 +186,12 @@ function _placeEnemies(tiles) {
     }
   }
 
-  // Shuffle and place ~20 enemy settlements
+  // Shuffle and place ~20 enemy settlements, each tagged with their faction (T053)
   candidates.sort(() => Math.random() - 0.5);
   const count = Math.min(20, candidates.length);
   for (let i = 0; i < count; i++) {
     const { x, y } = candidates[i];
-    tiles[y][x].owner = 'enemy';
+    tiles[y][x].owner   = 'enemy';
+    tiles[y][x].faction = _getFaction(x, y);
   }
 }

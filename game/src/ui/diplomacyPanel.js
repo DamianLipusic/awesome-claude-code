@@ -53,7 +53,56 @@ function _render(panel) {
       </div>
     </div>
     <div class="dipl-empire-list">${cards}</div>
+    ${_historySection()}
   `;
+}
+
+// ── T054: Diplomatic history section ────────────────────────────────────────
+
+const HIST_ICON = {
+  alliance: '🤝',
+  trade:    '🛤️',
+  war:      '⚔️',
+  peace:    '🕊️',
+  raid:     '💥',
+  ai:       '📜',
+};
+
+function _historySection() {
+  const hist = state.diplomacy?.history;
+  if (!hist || hist.length === 0) return '';
+
+  const entries = hist.slice(0, 15).map(entry => {
+    const icon    = HIST_ICON[entry.type] ?? '📜';
+    const empDef  = entry.empireId ? EMPIRES[entry.empireId] : null;
+    const empIcon = empDef ? `${empDef.icon} ` : '';
+    const timeStr = _relativeTime(entry.tick);
+    const typeMod = `dipl-hist-entry--${entry.type}`;
+    return `
+      <div class="dipl-hist-entry ${typeMod}">
+        <span class="dipl-hist-icon">${icon}</span>
+        <span class="dipl-hist-body">
+          <span class="dipl-hist-text">${empIcon}${entry.text}</span>
+          <span class="dipl-hist-time">${timeStr}</span>
+        </span>
+      </div>`;
+  }).join('');
+
+  return `
+    <div class="dipl-history">
+      <div class="dipl-history__header">📜 Diplomatic History</div>
+      ${entries}
+    </div>`;
+}
+
+/** Convert a game tick to a relative time string (e.g. "2m ago", "30s ago"). */
+function _relativeTime(tick) {
+  const elapsed = Math.max(0, state.tick - tick);
+  const secs    = Math.round(elapsed / 4);  // 4 ticks per second
+  if (secs < 60)  return `${secs}s ago`;
+  const mins = Math.round(secs / 60);
+  if (mins < 60)  return `${mins}m ago`;
+  return `${Math.round(mins / 60)}h ago`;
 }
 
 function _empireCard(emp) {

@@ -769,3 +769,40 @@ Two Phase 10 map UX improvements: a resource overlay mode that recolors the tile
 - Tile tooltip is a single persistent DOM node appended to `<body>` rather than recreated on each hover — avoids layout thrashing and keeps the panel's innerHTML clean.
 - `_createTileTip()` is idempotent: if `panel.innerHTML` is replaced (e.g., game reload), the existing body-level tooltip element is reused and `_tileTipEl` is reassigned to it.
 - No new events or state fields needed for either feature — both are purely view-layer additions that read existing `state.map` data.
+
+---
+
+## 2026-04-12 — Session 15
+
+**Tasks completed:** T053, T054
+
+**Summary:**
+Added two Phase 17 features: per-faction enemy tile coloring that makes the three AI empires visually distinct on the map, and a diplomatic history log in the diplomacy panel that records all inter-empire events with relative timestamps.
+
+**Files created:** (none)
+
+**Files modified:**
+
+- `game/src/systems/map.js` — Added `_getFaction(x, y)`: computes the angular bearing of (x, y) from the capital tile using `Math.atan2`, normalises to 0–2π, and divides into three 120° sectors (Iron Horde / Mage Council / Sea Wolves). `_placeEnemies()` now calls `_getFaction()` and writes `tiles[y][x].faction = id` alongside `owner = 'enemy'`.
+
+- `game/src/systems/enemyAI.js` — Imported `EMPIRES`. `_expandEnemies()`: propagates `tiles[ny][nx].faction = tiles[y][x].faction ?? null` to the newly captured neutral tile so enemy territories remain coherently coloured as they grow. `_counterattack()`: identifies `attackingFaction` by scanning the four neighbours of the target tile for the first enemy tile with a faction; assigns it to `tile.faction` on capture; uses `EMPIRES[attackingFaction]` to build a named log message ("⚔️ Iron Horde seized your tile at (x,y)!").
+
+- `game/src/systems/combat.js` — `_victory()`: sets `tile.faction = null` when the player captures a tile, clearing enemy faction ownership.
+
+- `game/src/ui/mapPanel.js` — Imported `EMPIRES`. Added `FACTION_TINT` (iron=orange rgba, mage=purple rgba, wolf=teal rgba), `FACTION_BORDER` (iron=`#e07010`, mage=`#a060f0`, wolf=`#00c8aa`), `FACTION_LEGEND` array. `_drawTile()`: enemy tile tint and border now select from `FACTION_TINT`/`FACTION_BORDER` using `tile.faction` when available, falling back to generic red. `_showTileTip()`: builds `factionLabel` from `EMPIRES[tile.faction]` for the owner row ("⚔️ Iron Horde" instead of "Enemy"). `_buildHTML()` + `_updateLegend()`: append circular faction swatches (`.map-legend__swatch--faction`) after terrain items in the normal (non-overlay) legend.
+
+- `game/src/ui/minimap.js` — Added `CLR_FACTION = { ironHorde, mageCouncil, seaWolves }` (darker solid colors). `drawMinimap()` uses faction color over `CLR_ENEMY` for enemy tiles that have a `faction` property.
+
+- `game/src/systems/diplomacy.js` — Added `_logDiplomacy(empireId, type, text)`: appends `{ tick, empireId, type, text }` to `state.diplomacy.history` (newest-first, capped at 25). `initDiplomacy()` initialises `history: []` on fresh games and adds a migration guard for old saves. All diplomatic events now call `_logDiplomacy()`: player actions (proposeAlliance/openTradeRoute/closeTradeRoute/declareWar/proposePeace) and AI events (_warRaid, all three _aiAction branches).
+
+- `game/src/ui/diplomacyPanel.js` — Added `HIST_ICON` map, `_historySection()`, and `_relativeTime(tick)` helpers. `_historySection()` renders a `.dipl-history` card with up to 15 history entries; each has a type icon, optional empire icon+name prefix, event text, and relative time. Injected after `.dipl-empire-list` in `_render()`.
+
+- `game/styles/main.css` — Added `.map-legend__swatch--faction` (border-radius:50% + lighter border). Added full `.dipl-history` block: header bar, `.dipl-hist-entry` flex row with 6 `--type` border-color variants (alliance=green, trade=accent, war=red, peace=blue, raid=orange, ai=border-h), `.dipl-hist-icon/.dipl-hist-body/.dipl-hist-text/.dipl-hist-time` layout. Mobile override: compact padding for history entries.
+
+**Architecture decisions:**
+- Faction assignment uses angular sectors rather than random allocation — each empire gets a coherent geographic domain on the map (Iron Horde east, Mage Council west-ish, Sea Wolves north-ish), which makes the strategic situation legible and aligns with the empires' thematic flavour.
+- `tile.faction` is stored on the tile object itself (part of `state.map.tiles`) and therefore persists through save/load automatically without a version bump — no new top-level save fields needed.
+- `_logDiplomacy()` is called in both player actions and AI-initiated events so the log captures a complete picture of diplomatic interactions regardless of who initiated them.
+- Diplomatic history lives inside `state.diplomacy` (not a separate top-level field) and is therefore automatically included in the existing save payload (`diplomacy: state.diplomacy`) with no additional save logic.
+- `_relativeTime()` converts tick delta to seconds/minutes/hours using the 4-ticks-per-second constant; it is a pure display function called at render time so no time is stored separately.
+- The faction legend uses circular swatches (`.map-legend__swatch--faction { border-radius: 50% }`) to visually distinguish them from the square terrain swatches, making the legend scannable at a glance.
