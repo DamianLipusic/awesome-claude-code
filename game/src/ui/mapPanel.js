@@ -15,7 +15,7 @@
 
 import { state } from '../core/state.js';
 import { on, Events } from '../core/events.js';
-import { attackTile } from '../systems/combat.js';
+import { attackTile, getAttackPreview } from '../systems/combat.js';
 
 const TILE_PX   = 24;     // pixels per tile side
 const GRID_SIZE = 20;     // tiles per axis
@@ -88,11 +88,13 @@ const TERRAIN_BONUS = {
 };
 
 let canvas, ctx;
-let hoveredTile  = null;   // { x, y } | null
-let _combatFlash = null;   // { x, y, alpha, outcome } | null
-let _flashRafId  = null;   // requestAnimationFrame id
-let _overlayMode = false;  // T037: resource overlay toggle
-let _tileTipEl   = null;   // T038: floating tile tooltip element
+let hoveredTile     = null;   // { x, y } | null
+let _combatFlash    = null;   // { x, y, alpha, outcome } | null
+let _flashRafId     = null;   // requestAnimationFrame id
+let _overlayMode    = false;  // T037: resource overlay toggle
+let _tileTipEl      = null;   // T038: floating tile tooltip element
+let _previewEl      = null;   // T045: combat preview modal element
+let _previewTarget  = null;   // T045: { x, y } of tile pending confirmation
 
 // ── Public API ─────────────────────────────────────────────────────────────
 
@@ -436,5 +438,117 @@ function _onMouseleave() {
 function _onClick(e) {
   const { x, y } = _tileAt(e);
   if (x < 0 || x >= GRID_SIZE || y < 0 || y >= GRID_SIZE) return;
-  if (_isAttackable(x, y)) attackTile(x, y);
+  if (_isAttackable(x, y)) _showCombatPreview(x, y);
+}
+
+// ── T045: Combat preview modal ─────────────────────────────────────────────
+
+const _TERRAIN_LABELS = {
+  grass: 'Grassland', forest: 'Forest', hills: 'Hills',
+  river: 'River', mountain: 'Mountain', capital: 'Capital',
+};
+
+function _createCombatPreview() {
+  const existing = document.getElementById('combat-preview');
+  if (existing) { _previewEl = existing; return; }
+
+  _previewEl = document.createElement('div');
+  _previewEl.id        = 'combat-preview';
+  _previewEl.className = 'combat-preview combat-preview--hidden';
+  document.body.appendChild(_previewEl);
+
+  // Delegated click handler inside the modal
+  _previewEl.addEventListener('click', (e) => {
+    if (e.target.id === 'cp-attack-btn') {
+      const t = _previewTarget;
+      _hideCombatPreview();
+      if (t) attackTile(t.x, t.y);
+    } else if (e.target.id === 'cp-cancel-btn' || e.target === _previewEl) {
+      _hideCombatPreview();
+    }
+  });
+
+  // Keyboard shortcuts when the modal is open
+  document.addEventListener('keydown', (e) => {
+    if (_previewEl?.classList.contains('combat-preview--hidden')) return;
+    if (e.key === 'Escape') {
+      e.stopPropagation();
+      _hideCombatPreview();
+    }
+    if (e.key === 'Enter') {
+      e.stopPropagation();
+      const t = _previewTarget;
+      _hideCombatPreview();
+      if (t) attackTile(t.x, t.y);
+    }
+  });
+}
+
+function _showCombatPreview(x, y) {
+  if (!_previewEl) _createCombatPreview();
+
+  const p = getAttackPreview(x, y);
+  if (!p.valid) {
+    // Fallback: just attack directly if preview fails validation
+    attackTile(x, y);
+    return;
+  }
+
+  _previewTarget = { x, y };
+
+  const winPct   = Math.round(p.winChance * 100);
+  const winColor = winPct >= 70 ? 'var(--green)' : winPct >= 40 ? 'var(--accent)' : 'var(--red)';
+  const terrain  = _TERRAIN_LABELS[p.terrain] ?? p.terrain;
+  const ownerStr = p.owner === 'enemy' ? 'Enemy territory' : 'Neutral territory';
+
+  const lootEntries = Object.entries(p.loot).filter(([, v]) => v > 0);
+  const lootHtml = lootEntries.length
+    ? lootEntries.map(([res, amt]) => `<span class="cp-loot-item">+${amt} ${res}</span>`).join('')
+    : '<span class="cp-loot-none">None</span>';
+
+  const siegeHtml = p.siegeActive
+    ? `<div class="cp-siege-notice">🏰 Siege Master active — guaranteed victory!</div>`
+    : '';
+
+  const battleCryHtml = (state.hero?.activeEffects?.battleCry)
+    ? `<div class="cp-siege-notice" style="color:var(--blue)">📣 Battle Cry active — attack doubled!</div>`
+    : '';
+
+  _previewEl.innerHTML = `
+    <div class="cp-box">
+      <div class="cp-header">⚔️ Attack Preview</div>
+      <div class="cp-sub">${terrain} (${x}, ${y}) · ${ownerStr}</div>
+      <div class="cp-stats">
+        <div class="cp-stat">
+          <span class="cp-stat__label">Your Attack</span>
+          <span class="cp-stat__value" style="color:var(--blue)">${p.attackPower}</span>
+        </div>
+        <div class="cp-stat">
+          <span class="cp-stat__label">Enemy Defense</span>
+          <span class="cp-stat__value" style="color:var(--red)">${p.defense}</span>
+        </div>
+        <div class="cp-stat">
+          <span class="cp-stat__label">Win Chance</span>
+          <span class="cp-stat__value" style="color:${winColor}">${winPct}%</span>
+        </div>
+      </div>
+      ${siegeHtml}${battleCryHtml}
+      <div class="cp-loot-row">
+        <span class="cp-loot-label">Loot on victory:</span>
+        <span class="cp-loot-items">${lootHtml}</span>
+      </div>
+      <div class="cp-actions">
+        <button id="cp-attack-btn" class="btn btn--sm btn--cp-attack">⚔️ Attack</button>
+        <button id="cp-cancel-btn" class="btn btn--sm btn--ghost">✕ Cancel</button>
+      </div>
+      <div class="cp-hint">Enter to confirm · Escape to cancel</div>
+    </div>
+  `;
+
+  _previewEl.classList.remove('combat-preview--hidden');
+}
+
+function _hideCombatPreview() {
+  _previewTarget = null;
+  _previewEl?.classList.add('combat-preview--hidden');
 }

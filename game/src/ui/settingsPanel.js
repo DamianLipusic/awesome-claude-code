@@ -255,13 +255,14 @@ function _leaderboardSection() {
   }
 
   const rows = lb.scores.slice(0, 5).map((s, i) => {
-    const ageName = AGE_NAMES[s.age] ?? 'Stone';
-    const gold    = Math.round(s.goldEarned).toLocaleString();
+    const ageName  = AGE_NAMES[s.age] ?? 'Stone';
+    const gold     = Math.round(s.goldEarned).toLocaleString();
+    const scoreStr = s.score != null ? Number(s.score).toLocaleString() : '—';
     return `<div class="lb-row ${i === 0 ? 'lb-row--gold' : ''}">
       <span class="lb-rank">#${i + 1}</span>
       <span class="lb-name">${_escHtml(s.name)}</span>
+      <span class="lb-score">⭐ ${scoreStr}</span>
       <span class="lb-territory">🗺️ ${s.territory}</span>
-      <span class="lb-gold">🪙 ${gold}</span>
       <span class="lb-age">${ageName}</span>
       <span class="lb-date">${_escHtml(s.date)}</span>
     </div>`;
@@ -277,8 +278,8 @@ function _leaderboardSection() {
       <div class="lb-header">
         <span>Rank</span>
         <span>Empire</span>
+        <span>Score</span>
         <span>Territory</span>
-        <span>Gold Earned</span>
         <span>Age Reached</span>
         <span>Date</span>
       </div>

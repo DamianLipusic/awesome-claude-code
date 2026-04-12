@@ -387,6 +387,24 @@
     "notes": "state.js: added alerts:{} (not in initState — persists across new games). ui/hud.js renderHUD(): added per-resource alert check — reads state.alerts[r.id]; toggles .hud__resource--alert class when resource value ≤ threshold. ui/settingsPanel.js: added _ALERT_RESOURCES constant and _alertsSection() rendering a 6-cell .alerts-grid with per-resource number inputs (placeholder='off', step=10); injected into _render() between Shortcuts and Save Portability sections; bound .alert-input change handlers that write/delete entries in state.alerts. main.js: added alerts to _save() payload and state.alerts = s.alerts ?? {} in _applySave(); save version bumped to 12. CSS: .hud__resource--alert (red border + alert-pulse keyframe glow 1.4s), .alerts-grid (2-col grid), .alert-row (flex bg-card), .alert-label, .alert-input (64px number field)."
   },
   {
+    "id": "T045",
+    "title": "combat preview modal",
+    "description": "Before attacking a tile, show a confirmation modal with attack power, enemy defense, win probability (%), and expected loot on victory. Confirm/Cancel buttons; Enter confirms, Escape cancels. Prevents misclicks and adds tactical transparency.",
+    "priority": 45,
+    "status": "done",
+    "phase": 13,
+    "notes": "Added getAttackPreview(x,y) to systems/combat.js — mirrors attackTile() power calculation with no side effects; returns {valid, attackPower, defense, winChance, loot, terrain, owner, siegeActive}. ui/mapPanel.js: imported getAttackPreview; added _previewEl/_previewTarget module vars; _onClick now calls _showCombatPreview(x,y) instead of attackTile directly; _createCombatPreview() creates persistent #combat-preview overlay (idempotent); _showCombatPreview() builds modal HTML with terrain/owner subtitle, 3-stat row (attack/defense/win%), win% colour-coded green/amber/red, Siege Master and Battle Cry active-effect notices, loot-on-victory row; ⚔️ Attack and ✕ Cancel buttons; Enter/Escape keyboard shortcuts (stopPropagation to avoid double-firing); _hideCombatPreview() clears _previewTarget and hides overlay. CSS: .combat-preview (fixed overlay, backdrop-filter blur), .combat-preview--hidden, .cp-box (pop-in animation, border-h, shadow), .cp-header/.cp-sub/.cp-stats/.cp-stat/.cp-stat__label/.cp-stat__value, .cp-siege-notice (gold badge), .cp-loot-row/.cp-loot-item/.cp-loot-none, .cp-actions, .btn--cp-attack (red gradient), .cp-hint."
+  },
+  {
+    "id": "T046",
+    "title": "empire score system",
+    "description": "Running empire score badge in the title bar, updated on all state changes. Formula: territory×10 + buildings×3 + units×2 + techs×50 + quests×100 + goldEarned÷100 + age×200. Score breakdown card in Empire Summary tab. Score column added to the leaderboard.",
+    "priority": 46,
+    "status": "done",
+    "phase": 13,
+    "notes": "Created src/utils/score.js: calcScore() returns total score integer derived from state; getScoreBreakdown() returns [{label, value, detail}] array for display. Formula: territory×10 + buildings×3 + units×2 + techs×50 + quests×100 + floor(goldEarned÷100) + age×200. index.html: added <span id='score-badge'> in title bar between season-badge and controls. main.js: imports calcScore; _updateScoreBadge() updates badge text and title tooltip; subscribed to RESOURCE_CHANGED/BUILDING_CHANGED/UNIT_CHANGED/TECH_CHANGED/AGE_CHANGED/MAP_CHANGED/QUEST_COMPLETED; _updateScoreBadge() called in _newGame(); score added to leaderboard entry as s.score field. summaryPanel.js: imports calcScore+getScoreBreakdown; added _scoreCard() rendering a .sum-score-rows grid with per-component rows (label, detail, value) filtered to non-zero, total row; injected after _advisorCard() in _render(). settingsPanel.js: leaderboard row replaced Gold Earned column with Score (⭐) column; lb-header updated; score formatted as s.score.toLocaleString() with '—' fallback for legacy entries. CSS: #score-badge (gold accent, pill-shape, cursor:help); .sum-score-row/.sum-score-label/.sum-score-detail/.sum-score-value/.sum-score-total/.sum-score-total-value; lb-table grid-template-columns updated for new 6-col layout (rank/name/score/territory/age/date); .lb-score gold colour."
+  },
+  {
     "id": "T042",
     "title": "pause button and visual pause overlay",
     "description": "Add a ⏸/▶ toggle button in the title bar alongside Save and New Game. Add a semi-transparent centre-screen 'PAUSED' overlay that appears when the game is paused. Sync the button state when Space/P keyboard shortcuts are used. Clicking the button or pressing Space/P both toggle pause and update all indicators consistently.",

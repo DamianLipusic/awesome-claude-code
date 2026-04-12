@@ -31,6 +31,66 @@ function _rankMult(unitId) {
 }
 
 /**
+ * Preview an attack without mutating state.
+ * Returns preview data used by the combat-preview modal in mapPanel.js.
+ * { valid, reason?, attackPower, defense, winChance, loot, terrain, owner, siegeActive }
+ */
+export function getAttackPreview(x, y) {
+  if (!state.map) return { valid: false, reason: 'No map loaded.' };
+
+  const { tiles, width, height } = state.map;
+  const tile = tiles[y]?.[x];
+
+  if (!tile)                    return { valid: false, reason: 'Invalid tile coordinates.' };
+  if (!tile.revealed)           return { valid: false, reason: 'Tile is hidden in fog of war.' };
+  if (tile.owner === 'player')  return { valid: false, reason: 'You already control this tile.' };
+
+  const adjacent = NEIGHBORS.some(([dx, dy]) => {
+    const nx = x + dx;
+    const ny = y + dy;
+    return nx >= 0 && nx < width && ny >= 0 && ny < height
+        && tiles[ny][nx].owner === 'player';
+  });
+  if (!adjacent) return { valid: false, reason: 'Target must be adjacent to your territory.' };
+
+  // ── Mirror attackTile power calculation (no side effects) ─────────────────
+  let attackPower = 0;
+  for (const [id, count] of Object.entries(state.units)) {
+    if (count <= 0) continue;
+    const def = UNITS[id];
+    if (def) attackPower += def.attack * count * _rankMult(id);
+  }
+
+  if (attackPower <= 0) return { valid: false, reason: 'Train military units first!' };
+
+  if (state.techs.tactics)     attackPower *= 1.25;
+  if (state.techs.steel)       attackPower *= 1.5;
+  if (state.techs.engineering) attackPower *= 1.1;
+  if (state.techs.siege_craft) attackPower *= 1.75;
+
+  if (state.hero?.recruited) {
+    attackPower += HERO_DEF.attack;
+    if (state.hero.activeEffects?.battleCry) attackPower *= 2;  // preview includes Battle Cry bonus
+  }
+
+  const siegeActive = !!(state.hero?.recruited && state.hero.activeEffects?.siege);
+  const winChance   = siegeActive
+    ? 1.0
+    : Math.min(0.9, Math.max(0.1, attackPower / (attackPower + tile.defense)));
+
+  return {
+    valid:       true,
+    attackPower: Math.round(attackPower),
+    defense:     tile.defense,
+    winChance,
+    loot:        tile.loot ?? {},
+    terrain:     tile.type,
+    owner:       tile.owner,
+    siegeActive,
+  };
+}
+
+/**
  * Attack the tile at (x, y).
  * Returns { ok, reason?, outcome? }
  */

@@ -2,6 +2,40 @@
 
 ---
 
+## 2026-04-12 — Session N+3
+
+**Tasks completed:** T045, T046
+
+**Summary:**
+All prior tasks (T001–T044) were complete. Added Phase 13 features: a combat preview modal that intercepts map tile clicks and shows attack/defense/win-probability before committing, and an empire score system with a live title-bar badge and summary breakdown.
+
+**T045 — Combat Preview Modal:**
+- `src/systems/combat.js`: Added `getAttackPreview(x, y)` export — mirrors `attackTile()` power calculation (units, tech multipliers, hero bonus, Battle Cry) but makes no state mutations; returns `{ valid, attackPower, defense, winChance, loot, terrain, owner, siegeActive }`.
+- `src/ui/mapPanel.js`: Imported `getAttackPreview`. Added `_previewEl` and `_previewTarget` module vars. Changed `_onClick` to call `_showCombatPreview(x, y)` instead of directly calling `attackTile`. Added `_createCombatPreview()` (idempotent, appends `#combat-preview` overlay to body, wires click delegation and keydown Escape/Enter handlers with `stopPropagation`). Added `_showCombatPreview(x, y)` that calls `getAttackPreview()`, builds modal HTML: terrain/owner subtitle, 3-stat row (Your Attack / Enemy Defense / Win Chance) with win% colour-coded green≥70 / amber≥40 / red<40, Siege Master and Battle Cry active-effect notices, loot-on-victory row, ⚔️ Attack + ✕ Cancel buttons, Enter/Escape hint. Added `_hideCombatPreview()`.
+- `styles/main.css`: `.combat-preview` (fixed overlay, backdrop-filter blur, z-1500), `.combat-preview--hidden`, `.cp-box` (pop-in animation, border-h, box-shadow), `.cp-header`, `.cp-sub`, `.cp-stats` (flex row), `.cp-stat` (flex column card), `.cp-stat__label` (uppercase 10px dim), `.cp-stat__value` (22px bold), `.cp-siege-notice` (gold badge with bg), `.cp-loot-row`/`.cp-loot-items`/`.cp-loot-item` (green pill), `.cp-loot-none`, `.cp-actions`, `.btn--cp-attack` (red gradient), `.cp-hint` (dim 11px).
+
+**T046 — Empire Score System:**
+- `src/utils/score.js` (new): `calcScore()` returns integer score derived from current state: `territory×10 + buildings×3 + units×2 + techs×50 + quests×100 + floor(goldEarned÷100) + age×200`. `getScoreBreakdown()` returns labelled `[{label, value, detail}]` array for display; skips zero-value rows.
+- `index.html`: Added `<span id="score-badge">⭐ 0</span>` in title bar between `#season-badge` and `.title-bar__controls`.
+- `src/main.js`: Imported `calcScore`. Added `_updateScoreBadge()` (updates text + title tooltip). Subscribed to `RESOURCE_CHANGED / BUILDING_CHANGED / UNIT_CHANGED / TECH_CHANGED / AGE_CHANGED / MAP_CHANGED / QUEST_COMPLETED`. Called `_updateScoreBadge()` at end of `_newGame()`. Added `score: calcScore()` field to leaderboard entry in `_saveToLeaderboard()`.
+- `src/ui/summaryPanel.js`: Imported `calcScore` and `getScoreBreakdown`. Added `_scoreCard()`: renders `summary-card` with `.sum-score-rows` grid, one `.sum-score-row` per non-zero breakdown entry (label / italic detail / gold value), and a `.sum-score-total` row with `⭐ N` total. Injected after `_advisorCard()` in `_render()`.
+- `src/ui/settingsPanel.js`: Leaderboard row replaced `Gold Earned` column with `Score` (⭐ N, gold colour); updated `lb-header` header text; `s.score?.toLocaleString() ?? '—'` for backward-compat with legacy saves.
+- `styles/main.css`: `#score-badge` (gold pill, cursor:help, hover tint); `.sum-score-row`/`.sum-score-label`/`.sum-score-detail`/`.sum-score-value`/`.sum-score-total`/`.sum-score-total-value`; leaderboard grid-template-columns updated to `40px 1fr 90px 80px 90px 65px` (rank / name / score / territory / age / date); `.lb-score` gold colour; mobile breakpoint adjusted.
+
+**Files modified:**
+- `game/src/systems/combat.js`
+- `game/src/ui/mapPanel.js`
+- `game/src/utils/score.js` (new)
+- `game/index.html`
+- `game/src/main.js`
+- `game/src/ui/summaryPanel.js`
+- `game/src/ui/settingsPanel.js`
+- `game/styles/main.css`
+- `game/.intel/tasks.json`
+- `game/.intel/execution.log`
+
+---
+
 ## 2026-04-11 — Session N+2
 
 **Tasks completed:** T043, T044

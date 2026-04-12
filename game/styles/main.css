@@ -1290,7 +1290,7 @@ body {
 
 .lb-header {
   display: grid;
-  grid-template-columns: 40px 1fr 80px 110px 90px 70px;
+  grid-template-columns: 40px 1fr 90px 80px 90px 65px;
   gap: 0;
   padding: 6px 10px;
   background: var(--bg-panel);
@@ -1302,7 +1302,7 @@ body {
 
 .lb-row {
   display: grid;
-  grid-template-columns: 40px 1fr 80px 110px 90px 70px;
+  grid-template-columns: 40px 1fr 90px 80px 90px 65px;
   gap: 0;
   padding: 7px 10px;
   border-bottom: 1px solid var(--border);
@@ -1318,6 +1318,7 @@ body {
 
 .lb-rank      { font-weight: 700; color: var(--accent); }
 .lb-name      { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lb-score     { color: var(--gold); font-weight: 600; }
 .lb-territory { color: var(--blue); }
 .lb-gold      { color: var(--gold); }
 .lb-age       { color: var(--text-dim); }
@@ -1691,7 +1692,7 @@ body {
   /* Leaderboard: scroll horizontally on small screens */
   .lb-table { overflow-x: auto; }
   .lb-header,
-  .lb-row   { grid-template-columns: 30px 90px 65px 85px 75px 55px; min-width: 420px; }
+  .lb-row   { grid-template-columns: 30px 80px 72px 60px 72px 52px; min-width: 380px; }
 
   /* Save modal: full-width on mobile */
   .modal-box { width: 95vw; padding: 14px; }
@@ -2568,3 +2569,182 @@ kbd {
 
 .alert-input::-webkit-inner-spin-button,
 .alert-input::-webkit-outer-spin-button { opacity: 0.5; }
+
+/* ── T045: Combat preview modal ──────────────────────────────────────────── */
+
+.combat-preview {
+  position: fixed;
+  inset: 0;
+  z-index: 1500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+}
+.combat-preview--hidden { display: none; }
+
+.cp-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border-h);
+  border-radius: var(--radius-lg);
+  padding: 22px 24px;
+  min-width: 290px;
+  max-width: 370px;
+  width: 90vw;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  animation: pop-in .18s ease;
+  box-shadow: 0 8px 32px rgba(0,0,0,.6);
+}
+
+.cp-header {
+  font-size: 17px;
+  font-weight: 700;
+  text-align: center;
+  color: var(--text);
+}
+
+.cp-sub {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-top: -8px;
+}
+
+.cp-stats {
+  display: flex;
+  gap: 8px;
+  justify-content: space-around;
+}
+
+.cp-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  flex: 1;
+}
+
+.cp-stat__label {
+  font-size: 10px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  white-space: nowrap;
+}
+
+.cp-stat__value {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.cp-siege-notice {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gold);
+  background: rgba(240,180,41,.1);
+  border: 1px solid rgba(240,180,41,.3);
+  border-radius: var(--radius);
+  padding: 5px 8px;
+}
+
+.cp-loot-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-wrap: wrap;
+  font-size: 12px;
+}
+
+.cp-loot-label {
+  color: var(--text-dim);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.cp-loot-items { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.cp-loot-item {
+  color: var(--green);
+  font-weight: 600;
+  background: rgba(63,185,80,.08);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+.cp-loot-none { color: var(--text-dim); font-style: italic; }
+
+.cp-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.btn--cp-attack {
+  background: linear-gradient(135deg, #c0320a 0%, #f85149 100%);
+  color: #fff;
+  border-color: transparent;
+  font-weight: 700;
+  font-size: 14px;
+  padding: 7px 20px;
+}
+.btn--cp-attack:hover { filter: brightness(1.15); }
+
+.cp-hint {
+  font-size: 11px;
+  color: var(--text-dim);
+  text-align: center;
+  opacity: .7;
+}
+
+/* ── T046: Empire score badge ─────────────────────────────────────────────── */
+
+#score-badge {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  background: rgba(240,180,41,.1);
+  border: 1px solid rgba(240,180,41,.3);
+  border-radius: 99px;
+  padding: 2px 10px;
+  white-space: nowrap;
+  cursor: help;
+}
+#score-badge:hover { background: rgba(240,180,41,.18); }
+
+/* Score breakdown card in the summary panel */
+.sum-score-rows { display: flex; flex-direction: column; gap: 4px; }
+
+.sum-score-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  padding: 2px 0;
+}
+.sum-score-row + .sum-score-row { border-top: 1px solid rgba(255,255,255,.04); }
+
+.sum-score-label { color: var(--text-dim); }
+.sum-score-detail { font-size: 11px; color: var(--text-dim); font-style: italic; margin-left: 4px; }
+.sum-score-value { font-weight: 600; color: var(--accent); }
+
+.sum-score-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 700;
+  padding-top: 6px;
+  border-top: 1px solid var(--border);
+  margin-top: 4px;
+  color: var(--text);
+}
+.sum-score-total-value { color: var(--gold); font-size: 16px; }

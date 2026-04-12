@@ -39,6 +39,7 @@ import { initToasts } from './ui/toastManager.js';
 import { initSummaryPanel } from './ui/summaryPanel.js';
 import { showNewGameWizard } from './ui/newGameModal.js';
 import { addMessage } from './core/actions.js';
+import { calcScore } from './utils/score.js';
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
@@ -117,6 +118,16 @@ function boot() {
   // Refresh season badge every 4 ticks (~1 s) for countdown accuracy
   let _seasonBadgeTick = 0;
   on(Events.TICK, () => { if (++_seasonBadgeTick % 4 === 0) _updateSeasonBadge(); });
+
+  // Update score badge on any score-affecting state change
+  _updateScoreBadge();
+  on(Events.RESOURCE_CHANGED,  _updateScoreBadge);
+  on(Events.BUILDING_CHANGED,  _updateScoreBadge);
+  on(Events.UNIT_CHANGED,      _updateScoreBadge);
+  on(Events.TECH_CHANGED,      _updateScoreBadge);
+  on(Events.AGE_CHANGED,       _updateScoreBadge);
+  on(Events.MAP_CHANGED,       _updateScoreBadge);
+  on(Events.QUEST_COMPLETED,   _updateScoreBadge);
 
   // Start auto-save every 60 seconds
   setInterval(_save, 60_000);
@@ -232,6 +243,16 @@ function _updateSeasonBadge() {
   el.title = `${s.name}: ${s.desc} — Changes in ${timeStr}`;
 }
 
+// ── Score badge ───────────────────────────────────────────────────────────
+
+function _updateScoreBadge() {
+  const el = document.getElementById('score-badge');
+  if (!el) return;
+  const s = calcScore();
+  el.textContent = `⭐ ${s.toLocaleString()}`;
+  el.title = `Empire Score: ${s.toLocaleString()} — see breakdown in the Empire tab`;
+}
+
 // ── Leaderboard ───────────────────────────────────────────────────────────
 
 /**
@@ -252,6 +273,7 @@ function _saveToLeaderboard() {
       goldEarned: Math.round(state.stats?.goldEarned ?? 0),
       age:        state.age ?? 0,
       quests,
+      score:      calcScore(),
       tick:       state.tick,
       date:       new Date().toLocaleDateString(),
     });
@@ -338,6 +360,7 @@ function _newGame(opts = {}) {
   emit(Events.BUILDING_CHANGED, {});
   emit(Events.TECH_CHANGED, {});
   emit(Events.AGE_CHANGED, { age: 0 });
+  _updateScoreBadge();
 }
 
 // ── UI Controls ───────────────────────────────────────────────────────────

@@ -26,6 +26,7 @@ import { TECHS } from '../data/techs.js';
 import { currentSeason, seasonTicksRemaining } from '../systems/seasons.js';
 import { fmtNum, fmtRate } from '../utils/fmt.js';
 import { TICKS_PER_SECOND } from '../core/tick.js';
+import { calcScore, getScoreBreakdown } from '../utils/score.js';
 
 const TOTAL_ACHIEVEMENTS = 15;
 
@@ -94,6 +95,7 @@ function _render() {
     ${_empireHeader(age, season, timeStr)}
     <div class="summary-grid">
       ${_advisorCard()}
+      ${_scoreCard()}
       ${_resourcesCard()}
       ${_militaryCard()}
       ${_territoryCard()}
@@ -328,6 +330,33 @@ function _progressionCard() {
   `;
 
   return _card('🏆 Progression', rows);
+}
+
+// ── Empire score card (T046) ───────────────────────────────────────────────
+
+function _scoreCard() {
+  const breakdown = getScoreBreakdown();
+  const total     = calcScore();
+
+  const rows = breakdown.map(item => {
+    if (item.value === 0) return '';
+    return `
+      <div class="sum-score-row">
+        <span class="sum-score-label">${_escHtml(item.label)}</span>
+        <span>
+          <span class="sum-score-detail">${_escHtml(item.detail)}</span>
+          <span class="sum-score-value"> = ${item.value.toLocaleString()}</span>
+        </span>
+      </div>`;
+  }).join('');
+
+  const totalRow = `
+    <div class="sum-score-total">
+      <span>Total Score</span>
+      <span class="sum-score-total-value">⭐ ${total.toLocaleString()}</span>
+    </div>`;
+
+  return _card('⭐ Empire Score', `<div class="sum-score-rows">${rows}${totalRow}</div>`);
 }
 
 // ── Lifetime stats card ────────────────────────────────────────────────────
