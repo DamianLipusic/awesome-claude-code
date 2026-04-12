@@ -114,6 +114,12 @@ export function recalcRates() {
     }
   }
 
+  // Active spell: Blessing — +60% food and gold production while active
+  if (state.spells?.activeEffects?.blessing > state.tick) {
+    if (rates.food > 0) rates.food *= 1.6;
+    if (rates.gold > 0) rates.gold *= 1.6;
+  }
+
   Object.assign(state.rates, rates);
   Object.assign(state.caps, caps);
 }

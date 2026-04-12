@@ -3214,3 +3214,107 @@ kbd {
   .formation-buttons { flex-direction: column; }
   .btn--formation { flex: none; }
 }
+
+/* ── T055: Mana Spells ───────────────────────────────────────────────────── */
+
+.spells-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-left: 3px solid #6a3fa0;
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  margin-bottom: 10px;
+}
+
+.spells-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  margin-bottom: 8px;
+}
+
+.spell-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+  gap: 8px;
+}
+
+.spell-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.spell-card--locked {
+  opacity: .55;
+}
+
+.spell-card__header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.spell-card__icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.spell-card__name {
+  font-weight: 600;
+  font-size: 13px;
+  flex: 1;
+  color: var(--text);
+}
+
+.spell-card__cost {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.spell-cost--ok { color: var(--accent-h); }
+.spell-cost--bad { color: #f85149; }
+
+.spell-card__desc {
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.35;
+}
+
+.spell-status {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.spell-status--locked { color: var(--text-dim); }
+.spell-status--active { color: var(--accent-h); }
+.spell-status--cd     { color: #888; }
+
+.btn--spell {
+  margin-top: 2px;
+  background: linear-gradient(135deg, #1f2d5a, #2a1f50);
+  color: #9bb4f8;
+  border-color: #3355aa;
+}
+
+.btn--spell:hover:not(.btn--disabled) {
+  background: linear-gradient(135deg, #2a3d7a, #3a2f70);
+  border-color: #6688dd;
+  color: #ccd9ff;
+}
+
+/* T056: Barbarian camp entry in log */
+.log-entry--barbarian {
+  border-left-color: #c0402a;
+  background: rgba(192, 64, 42, 0.05);
+}
+
+@media (max-width: 480px) {
+  .spell-grid { grid-template-columns: 1fr; }
+}

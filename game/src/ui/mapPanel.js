@@ -43,15 +43,17 @@ const OVERLAY_COLOR = {
   capital:  '#4a3808',   // capital keeps warm colour
 };
 
-const FOG_COLOR      = '#0a0d11';
-const FOG_GRID       = '#12161b';
-const PLAYER_TINT    = 'rgba(88,166,255,0.22)';
-const ENEMY_TINT     = 'rgba(248,81,73,0.28)';
-const HOVER_ATTACK   = 'rgba(240,180,41,0.38)';
-const HOVER_NEUTRAL  = 'rgba(255,255,255,0.08)';
-const PLAYER_BORDER  = '#58a6ff';
-const ENEMY_BORDER   = '#f85149';
-const NEUTRAL_BORDER = '#30363d';
+const FOG_COLOR        = '#0a0d11';
+const FOG_GRID         = '#12161b';
+const PLAYER_TINT      = 'rgba(88,166,255,0.22)';
+const ENEMY_TINT       = 'rgba(248,81,73,0.28)';
+const BARBARIAN_TINT   = 'rgba(192,60,30,0.38)';   // T056
+const HOVER_ATTACK     = 'rgba(240,180,41,0.38)';
+const HOVER_NEUTRAL    = 'rgba(255,255,255,0.08)';
+const PLAYER_BORDER    = '#58a6ff';
+const ENEMY_BORDER     = '#f85149';
+const BARBARIAN_BORDER = '#c0402a';                 // T056
+const NEUTRAL_BORDER   = '#30363d';
 
 // T053: Per-faction enemy tile colors (tint overlay + border)
 const FACTION_TINT = {
@@ -247,13 +249,14 @@ function _createTileTip() {
 function _showTileTip(tile, x, y, mouseX, mouseY) {
   if (!_tileTipEl || !tile.revealed) { _hideTileTip(); return; }
 
-  // T053: show faction name for enemy tiles when known
+  // T053: show faction name for enemy tiles; T056: show barbarian camp label
   const factionLabel = (tile.owner === 'enemy' && tile.faction && EMPIRES[tile.faction])
     ? `${EMPIRES[tile.faction].icon} ${EMPIRES[tile.faction].name}`
     : 'Enemy';
   const ownerHtml =
-    tile.owner === 'player' ? `<span class="map-tt-owner map-tt-owner--player">Your territory</span>`
-    : tile.owner === 'enemy' ? `<span class="map-tt-owner map-tt-owner--enemy">${factionLabel}</span>`
+    tile.owner === 'player'    ? `<span class="map-tt-owner map-tt-owner--player">Your territory</span>`
+    : tile.owner === 'enemy'   ? `<span class="map-tt-owner map-tt-owner--enemy">${factionLabel}</span>`
+    : tile.owner === 'barbarian' ? `<span class="map-tt-owner map-tt-owner--enemy">💀 Barbarian Camp</span>`
     : `<span class="map-tt-owner">Neutral</span>`;
 
   const bonusTxt  = TERRAIN_BONUS[tile.type];
@@ -261,13 +264,22 @@ function _showTileTip(tile, x, y, mouseX, mouseY) {
     ? `<div class="map-tt-row map-tt-bonus">${bonusTxt}</div>`
     : '';
 
-  // T051: show improvement status or build hint
+  // T051: show improvement status or build hint (not for barbarian camps)
   const impDef = IMPROVEMENTS[tile.type];
   let impHtml = '';
-  if (tile.improvement && impDef) {
-    impHtml = `<div class="map-tt-row map-tt-bonus">${impDef.icon} ${impDef.name}: ${impDef.desc}</div>`;
-  } else if (tile.owner === 'player' && tile.type !== 'capital' && impDef) {
-    impHtml = `<div class="map-tt-action">🏗️ Click to build ${impDef.name}</div>`;
+  if (tile.owner !== 'barbarian') {
+    if (tile.improvement && impDef) {
+      impHtml = `<div class="map-tt-row map-tt-bonus">${impDef.icon} ${impDef.name}: ${impDef.desc}</div>`;
+    } else if (tile.owner === 'player' && tile.type !== 'capital' && impDef) {
+      impHtml = `<div class="map-tt-action">🏗️ Click to build ${impDef.name}</div>`;
+    }
+  }
+
+  // T056: show loot hint for barbarian camps
+  let barbHtml = '';
+  if (tile.owner === 'barbarian' && tile.loot && Object.keys(tile.loot).length) {
+    const lootStr = Object.entries(tile.loot).map(([r, v]) => `+${v} ${r}`).join(', ');
+    barbHtml = `<div class="map-tt-row map-tt-bonus">💰 Loot on capture: ${lootStr}</div>`;
   }
 
   const actionHtml = _isAttackable(x, y)
@@ -278,6 +290,7 @@ function _showTileTip(tile, x, y, mouseX, mouseY) {
     <div class="map-tt-title">${TERRAIN_NAME[tile.type] ?? tile.type}</div>
     <div class="map-tt-row">${ownerHtml}</div>
     ${bonusHtml}
+    ${barbHtml}
     ${impHtml}
     <div class="map-tt-row">🛡️ Defense: ${tile.defense}</div>
     ${actionHtml}
@@ -360,12 +373,15 @@ function _drawTile(tile, x, y, capital) {
   ctx.fillStyle = colorMap[tile.type] ?? colorMap.grass;
   ctx.fillRect(px, py, TILE_PX, TILE_PX);
 
-  // Owner tint — T053: use faction-specific color for enemy tiles when faction is known
+  // Owner tint — T053: faction colors for enemy, T056: maroon for barbarian
   if (tile.owner === 'player') {
     ctx.fillStyle = PLAYER_TINT;
     ctx.fillRect(px, py, TILE_PX, TILE_PX);
   } else if (tile.owner === 'enemy') {
     ctx.fillStyle = (tile.faction && FACTION_TINT[tile.faction]) ? FACTION_TINT[tile.faction] : ENEMY_TINT;
+    ctx.fillRect(px, py, TILE_PX, TILE_PX);
+  } else if (tile.owner === 'barbarian') {
+    ctx.fillStyle = BARBARIAN_TINT;
     ctx.fillRect(px, py, TILE_PX, TILE_PX);
   }
 
@@ -375,9 +391,10 @@ function _drawTile(tile, x, y, capital) {
     ctx.fillRect(px, py, TILE_PX, TILE_PX);
   }
 
-  // Border — T053: use faction-specific border for enemy tiles
-  const borderColor = tile.owner === 'player' ? PLAYER_BORDER
-                    : tile.owner === 'enemy'  ? ((tile.faction && FACTION_BORDER[tile.faction]) ?? ENEMY_BORDER)
+  // Border — T053: faction colors for enemy, T056: maroon for barbarian
+  const borderColor = tile.owner === 'player'    ? PLAYER_BORDER
+                    : tile.owner === 'enemy'      ? ((tile.faction && FACTION_BORDER[tile.faction]) ?? ENEMY_BORDER)
+                    : tile.owner === 'barbarian'  ? BARBARIAN_BORDER
                     : NEUTRAL_BORDER;
   ctx.strokeStyle = borderColor;
   ctx.lineWidth   = tile.owner ? 1.5 : 0.5;
@@ -390,9 +407,11 @@ function _drawTile(tile, x, y, capital) {
     ctx.fillRect(px, py, TILE_PX, TILE_PX);
   }
 
-  // Icons: capital castle and enemy sword (same in both modes)
+  // Icons: capital castle, enemy sword, barbarian skull, improvement icons
   if (x === capital.x && y === capital.y) {
     _drawIcon(px, py, '🏰');
+  } else if (tile.owner === 'barbarian' && tile.revealed) {
+    _drawIcon(px, py, '💀');   // T056: barbarian camp skull
   } else if (tile.owner === 'enemy' && tile.revealed) {
     _drawIcon(px, py, '⚔️');
   } else if (tile.owner === 'player' && tile.improvement) {
@@ -415,22 +434,25 @@ function _updateStats() {
   const el = document.getElementById('map-stats');
   if (!el || !state.map) return;
 
-  let playerTiles   = 0;
-  let enemyTiles    = 0;
-  let revealedTiles = 0;
+  let playerTiles    = 0;
+  let enemyTiles     = 0;
+  let barbarianCamps = 0;
+  let revealedTiles  = 0;
 
   for (let y = 0; y < state.map.height; y++) {
     for (let x = 0; x < state.map.width; x++) {
       const t = state.map.tiles[y][x];
-      if (t.owner === 'player') playerTiles++;
-      else if (t.owner === 'enemy') enemyTiles++;
+      if (t.owner === 'player')    playerTiles++;
+      else if (t.owner === 'enemy')     enemyTiles++;
+      else if (t.owner === 'barbarian') barbarianCamps++;
       if (t.revealed) revealedTiles++;
     }
   }
 
   const total = state.map.width * state.map.height;
+  const barbStr = barbarianCamps > 0 ? `  ·  💀 Camps: ${barbarianCamps}` : '';
   el.textContent =
-    `Territory: ${playerTiles} tiles  ·  Enemy: ${enemyTiles} tiles  ·  Explored: ${revealedTiles}/${total}`;
+    `Territory: ${playerTiles} tiles  ·  Enemy: ${enemyTiles} tiles${barbStr}  ·  Explored: ${revealedTiles}/${total}`;
 }
 
 // ── Event handlers ─────────────────────────────────────────────────────────
@@ -564,7 +586,9 @@ function _showCombatPreview(x, y) {
   const winPct   = Math.round(p.winChance * 100);
   const winColor = winPct >= 70 ? 'var(--green)' : winPct >= 40 ? 'var(--accent)' : 'var(--red)';
   const terrain  = _TERRAIN_LABELS[p.terrain] ?? p.terrain;
-  const ownerStr = p.owner === 'enemy' ? 'Enemy territory' : 'Neutral territory';
+  const ownerStr = p.owner === 'barbarian' ? '💀 Barbarian Camp'
+                 : p.owner === 'enemy'     ? 'Enemy territory'
+                 : 'Neutral territory';
 
   const lootEntries = Object.entries(p.loot).filter(([, v]) => v > 0);
   const lootHtml = lootEntries.length
@@ -573,6 +597,10 @@ function _showCombatPreview(x, y) {
 
   const siegeHtml = p.siegeActive
     ? `<div class="cp-siege-notice">🏰 Siege Master active — guaranteed victory!</div>`
+    : '';
+
+  const manaBoltHtml = p.manaBoltActive
+    ? `<div class="cp-siege-notice" style="color:#9bb4f8">⚡ Mana Bolt primed — guaranteed victory!</div>`
     : '';
 
   const battleCryHtml = (state.hero?.activeEffects?.battleCry)
@@ -602,7 +630,7 @@ function _showCombatPreview(x, y) {
           <span class="cp-stat__value" style="color:${winColor}">${winPct}%</span>
         </div>
       </div>
-      ${siegeHtml}${battleCryHtml}${formationHtml}
+      ${siegeHtml}${manaBoltHtml}${battleCryHtml}${formationHtml}
       <div class="cp-loot-row">
         <span class="cp-loot-label">Loot on victory:</span>
         <span class="cp-loot-items">${lootHtml}</span>

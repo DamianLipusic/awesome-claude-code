@@ -136,6 +136,15 @@ export const state = {
   // Battle formation stance — persisted across new games (tactical preference)
   // 'defensive' | 'balanced' | 'aggressive'
   formation: 'balanced',
+
+  // Mana spells state — populated by systems/spells.js initSpells()
+  // { activeEffects: { blessing: expiresAtTick, aegis: expiresAtTick, manaBolt: bool },
+  //   cooldowns: { vision, blessing, aegis, manaBolt } — tick when CD expires }
+  spells: null,
+
+  // Barbarian encampment state — populated by systems/barbarianCamps.js
+  // { nextSpawnTick: number }  — camp data lives in tile.owner === 'barbarian'
+  barbarians: null,
 };
 
 /**
@@ -170,6 +179,8 @@ export function initState(empireName = 'My Empire') {
   state.unitXP         = {};
   state.unitRanks      = {};
   state.combatHistory  = [];
+  state.spells         = null;
+  state.barbarians     = null;
   state.tick           = 0;
   state.running        = false;
 }

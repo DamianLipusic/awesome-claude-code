@@ -11,6 +11,7 @@
 import { state } from '../core/state.js';
 import { on, Events } from '../core/events.js';
 import { trainUnit, recruitHero, useHeroAbility, setFormation, addMessage } from '../core/actions.js';
+import { castSpell, SPELLS, SPELL_ORDER } from '../systems/spells.js';
 import { UNITS } from '../data/units.js';
 import { BUILDINGS } from '../data/buildings.js';
 import { TECHS } from '../data/techs.js';
@@ -52,20 +53,29 @@ export function initMilitaryPanel() {
   on(Events.AGE_CHANGED,      () => _render(panel));
   on(Events.HERO_CHANGED,     () => _render(panel));
   on(Events.MAP_CHANGED,      () => _render(panel));  // combat outcomes update history
+  on(Events.SPELL_CAST,       () => _render(panel));
   on(Events.RESOURCE_CHANGED, () => _renderCosts(panel));
   on(Events.GAME_LOADED,      () => _render(panel));
 
-  // Refresh hero ability cooldown countdowns every ~4 seconds while panel visible
+  // Refresh hero/spell cooldown countdowns every ~4 seconds while panel visible
   let _tickCount = 0;
   on(Events.TICK, () => {
-    if (state.hero?.recruited && ++_tickCount % 16 === 0) {
-      const h = state.hero;
-      const hasActivity = h.activeEffects.battleCry ||
-        h.activeEffects.inspire > state.tick ||
-        h.activeEffects.siege ||
-        Object.values(h.abilityCooldowns).some(cd => cd > state.tick);
-      if (hasActivity) _render(panel);
-    }
+    if (++_tickCount % 16 !== 0) return;
+    const h = state.hero;
+    const hasHeroActivity = h?.recruited && (
+      h.activeEffects.battleCry ||
+      h.activeEffects.inspire > state.tick ||
+      h.activeEffects.siege ||
+      Object.values(h.abilityCooldowns).some(cd => cd > state.tick)
+    );
+    const sp = state.spells;
+    const hasSpellActivity = sp && (
+      sp.activeEffects.blessing > state.tick ||
+      sp.activeEffects.aegis    > state.tick ||
+      sp.activeEffects.manaBolt ||
+      Object.values(sp.cooldowns).some(cd => cd > state.tick)
+    );
+    if (hasHeroActivity || hasSpellActivity) _render(panel);
   });
 }
 
@@ -74,6 +84,7 @@ export function initMilitaryPanel() {
 function _render(panel) {
   panel.innerHTML = `
     ${_formationSection()}
+    ${_spellsSection()}
     ${_heroSection()}
     ${_armySection()}
     ${_queueSection()}
@@ -110,6 +121,69 @@ function _formationSection() {
       <div class="formation-buttons">${buttons}</div>
       <div class="formation-desc">${activeDef.icon} ${activeDef.desc}</div>
     </div>`;
+}
+
+// ── Spells section (T055) ─────────────────────────────────────────────────
+
+function _spellsSection() {
+  if (!state.spells) return '';
+  const now = state.tick;
+  const sp  = state.spells;
+
+  const cards = SPELL_ORDER.map(id => {
+    const def = SPELLS[id];
+
+    // Lock check (tech requirement)
+    const locked = def.requires.some(req => req.type === 'tech' && !state.techs[req.id]);
+
+    const mana      = state.resources.mana ?? 0;
+    const affordable = mana >= def.manaCost;
+    const cdExpires  = sp.cooldowns[id] ?? 0;
+    const onCd       = now < cdExpires;
+
+    const isActive =
+      (id === 'blessing'  && sp.activeEffects.blessing  > now) ||
+      (id === 'aegis'     && sp.activeEffects.aegis     > now) ||
+      (id === 'manaBolt'  && sp.activeEffects.manaBolt);
+
+    const disabled = locked || !affordable || onCd || isActive;
+
+    // Status line
+    let statusHtml = '';
+    if (locked) {
+      const techReq  = def.requires[0];
+      const techName = techReq ? (TECHS[techReq.id]?.name ?? techReq.id) : '';
+      statusHtml = `<span class="spell-status spell-status--locked">🔒 Requires ${techName}</span>`;
+    } else if (id === 'manaBolt' && isActive) {
+      statusHtml = `<span class="spell-status spell-status--active">⚡ Primed — will fire on next attack!</span>`;
+    } else if (isActive) {
+      const expTick  = id === 'blessing' ? sp.activeEffects.blessing : sp.activeEffects.aegis;
+      const secsLeft = Math.max(0, Math.ceil((expTick - now) / 4));
+      statusHtml = `<span class="spell-status spell-status--active">✅ Active — ${secsLeft}s remaining</span>`;
+    } else if (onCd) {
+      const secsLeft = Math.max(0, Math.ceil((cdExpires - now) / 4));
+      statusHtml = `<span class="spell-status spell-status--cd">⏱ Cooldown — ${secsLeft}s</span>`;
+    }
+
+    const costClass = (affordable && !locked) ? 'spell-cost--ok' : 'spell-cost--bad';
+
+    return `<div class="spell-card ${locked ? 'spell-card--locked' : ''}">
+      <div class="spell-card__header">
+        <span class="spell-card__icon">${def.icon}</span>
+        <span class="spell-card__name">${def.name}</span>
+        <span class="spell-card__cost ${costClass}">✨${def.manaCost}</span>
+      </div>
+      <div class="spell-card__desc">${def.desc}</div>
+      ${statusHtml}
+      <button class="btn btn--sm btn--spell ${disabled ? 'btn--disabled' : ''}"
+        data-cast-spell="${id}" ${disabled ? 'disabled' : ''}>Cast</button>
+    </div>`;
+  }).join('');
+
+  return `<div class="spells-section">
+    <div class="spells-title">🔮 Arcane Spells</div>
+    <div class="spell-grid">${cards}</div>
+  </div>`;
 }
 
 // ── Hero section ───────────────────────────────────────────────────────────
@@ -364,6 +438,14 @@ function _handleClick(e) {
   const formationBtn = e.target.closest('[data-formation]');
   if (formationBtn) {
     setFormation(formationBtn.dataset.formation);
+    return;
+  }
+
+  // T055: spell cast button
+  const spellBtn = e.target.closest('[data-cast-spell]');
+  if (spellBtn && !spellBtn.disabled) {
+    const result = castSpell(spellBtn.dataset.castSpell);
+    if (!result.ok) addMessage(result.reason, 'info');
     return;
   }
 

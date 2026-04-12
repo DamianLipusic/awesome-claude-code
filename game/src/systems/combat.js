@@ -85,8 +85,9 @@ export function getAttackPreview(x, y) {
     if (state.hero.activeEffects?.battleCry) attackPower *= 2;  // preview includes Battle Cry bonus
   }
 
-  const siegeActive = !!(state.hero?.recruited && state.hero.activeEffects?.siege);
-  const winChance   = siegeActive
+  const siegeActive    = !!(state.hero?.recruited && state.hero.activeEffects?.siege);
+  const manaBoltActive = !!(state.spells?.activeEffects?.manaBolt);
+  const winChance      = (siegeActive || manaBoltActive)
     ? 1.0
     : Math.min(0.9, Math.max(0.1, attackPower / (attackPower + tile.defense)));
 
@@ -99,6 +100,7 @@ export function getAttackPreview(x, y) {
     terrain:      tile.type,
     owner:        tile.owner,
     siegeActive,
+    manaBoltActive,
     formation:    state.formation ?? 'balanced',
   };
 }
@@ -170,6 +172,15 @@ export function attackTile(x, y) {
     addMessage('🏰 Siege Master: tile defenses bypassed!', 'hero');
   }
 
+  // Mana Bolt spell: guaranteed victory (consumed on this attack)
+  if (!siegeActive && state.spells?.activeEffects?.manaBolt) {
+    siegeActive = true;
+    defense = 0;
+    state.spells.activeEffects.manaBolt = false;
+    emit(Events.SPELL_CAST, { spell: 'manaBolt', consumed: true });
+    addMessage('⚡ Mana Bolt: guaranteed combat victory!', 'spell');
+  }
+
   const winChance = siegeActive
     ? 1.0
     : Math.min(0.9, Math.max(0.1, attackPower / (attackPower + defense)));
@@ -185,9 +196,15 @@ export function attackTile(x, y) {
 // ── Outcome handlers ───────────────────────────────────────────────────────
 
 function _victory(tile, x, y, attackPower, defense) {
+  const wasBarbarian = tile.owner === 'barbarian';  // T056: check before changing owner
+
   tile.owner    = 'player';
   tile.faction  = null;    // T053: clear faction on player capture
   tile.revealed = true;
+  // T056: clean up barbarian defense boost metadata
+  if (wasBarbarian && tile.barbDefenseBase !== undefined) {
+    delete tile.barbDefenseBase;
+  }
   revealAround(x, y);
 
   // Grant loot (cap at current storage cap)
@@ -212,10 +229,17 @@ function _victory(tile, x, y, attackPower, defense) {
   emit(Events.RESOURCE_CHANGED, {});
 
   const lootStr = lootParts.length ? ` Looted: ${lootParts.join(', ')}.` : '';
-  addMessage(
-    `Victory! Captured ${_tileName(tile)} at (${x},${y}).${lootStr}`,
-    'combat-win',
-  );
+  if (wasBarbarian) {
+    addMessage(
+      `💀 Barbarian camp cleared at (${x},${y})!${lootStr}`,
+      'combat-win',
+    );
+  } else {
+    addMessage(
+      `Victory! Captured ${_tileName(tile)} at (${x},${y}).${lootStr}`,
+      'combat-win',
+    );
+  }
   return { ok: true, outcome: 'win' };
 }
 

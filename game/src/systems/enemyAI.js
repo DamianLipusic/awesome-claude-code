@@ -22,6 +22,7 @@ import { UNITS } from '../data/units.js';
 import { HERO_DEF } from '../data/hero.js';
 import { TICKS_PER_SECOND } from '../core/tick.js';
 import { EMPIRES } from '../data/empires.js';
+import { clearBarbarianCamp } from './barbarianCamps.js';
 
 // ── Timing constants ───────────────────────────────────────────────────────
 
@@ -78,13 +79,19 @@ function _expandEnemies() {
   enemyTiles.sort(() => Math.random() - 0.5);
 
   for (const { x, y } of enemyTiles) {
-    const neutral = DIRS
+    // Can expand into neutral tiles OR barbarian camps (T056)
+    const expandable = DIRS
       .map(([dx, dy]) => ({ nx: x + dx, ny: y + dy }))
-      .filter(({ nx, ny }) => _inBounds(nx, ny) && tiles[ny][nx].owner === null);
+      .filter(({ nx, ny }) =>
+        _inBounds(nx, ny) &&
+        (tiles[ny][nx].owner === null || tiles[ny][nx].owner === 'barbarian')
+      );
 
-    if (neutral.length === 0) continue;
+    if (expandable.length === 0) continue;
 
-    const { nx, ny } = neutral[Math.floor(Math.random() * neutral.length)];
+    const { nx, ny } = expandable[Math.floor(Math.random() * expandable.length)];
+    // T056: clear barbarian camp metadata if the target was a camp
+    if (tiles[ny][nx].owner === 'barbarian') clearBarbarianCamp(tiles[ny][nx]);
     tiles[ny][nx].owner   = 'enemy';
     tiles[ny][nx].faction = tiles[y][x].faction ?? null;  // T053: inherit parent faction
     emit(Events.MAP_CHANGED, {});
@@ -141,6 +148,8 @@ function _counterattack() {
   const formation = state.formation ?? 'balanced';
   if (formation === 'defensive')  winChance *= 0.70;
   if (formation === 'aggressive') winChance *= 1.25;
+  // Aegis Ward spell: -40% enemy counterattack success while active (T055)
+  if (state.spells?.activeEffects?.aegis > state.tick) winChance *= 0.6;
   winChance = Math.min(0.9, winChance);
   const roll = Math.random();
 

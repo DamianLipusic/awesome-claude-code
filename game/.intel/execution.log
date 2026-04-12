@@ -2,6 +2,51 @@
 
 ---
 
+## 2026-04-12 — Session N+7
+
+**Tasks completed:** T055, T056
+
+**Summary:**
+All prior tasks (T001–T054) were complete. Created Phase 18 features: a mana spells system giving mana strategic combat and economic value (T055), and barbarian encampments on neutral map tiles adding tactical raiding targets (T056).
+
+**T055 — Mana Spells System:**
+- `src/systems/spells.js` (new): `SPELLS` catalogue with 4 entries (Vision/Blessing/Aegis Ward/Mana Bolt), `SPELL_ORDER`, `initSpells()` (idempotent), `castSpell(id)` with unlock/cooldown/mana/duplicate-active validation; `_castVision()` reveals 6-tile radius around capital; `spellTick()` expires timed effects.
+- `src/core/events.js`: added `SPELL_CAST: 'spellCast'` constant.
+- `src/core/state.js`: added `spells: null` + `barbarians: null`; `initState()` resets both.
+- `src/systems/resources.js`: `recalcRates()` applies ×1.6 multiplier to food+gold when Blessing is active.
+- `src/systems/combat.js`: `getAttackPreview()` returns `manaBoltActive` flag; `attackTile()` consumes Mana Bolt for guaranteed win (defence=0, sets siegeActive=true), emits `SPELL_CAST`.
+- `src/systems/enemyAI.js`: `winChance *= 0.6` when Aegis Ward active (stacks with fortification tech and formation).
+- `src/ui/militaryPanel.js`: imported `castSpell/SPELLS/SPELL_ORDER`; `_spellsSection()` renders `.spells-section` with 4 `.spell-card` entries showing lock/cost/cooldown/active states; injected second in `_render()` after formation; `_handleClick()` intercepts `[data-cast-spell]`; subscribed `SPELL_CAST` for re-render; TICK handler extended to detect spell activity.
+- `src/ui/mapPanel.js`: combat preview shows `⚡ Mana Bolt primed` notice; `ownerStr` handles `'barbarian'` owner (shared with T056).
+- `src/main.js`: `registerSystem(spellTick)` + `registerSystem(barbarianTick)`; `initSpells()/initBarbarians()` in boot+`_newGame()`; `spells`+`barbarians` saved/loaded; save version bumped to 15.
+- `styles/main.css`: `.spells-section` (purple left-border accent), `.spells-title`, `.spell-grid` (auto-fill 175px), `.spell-card` variants, `.spell-cost--ok/--bad`, `.spell-status` variants, `.btn--spell` (blue gradient).
+
+**T056 — Barbarian Encampments:**
+- `src/systems/barbarianCamps.js` (new): `MAX_CAMPS=5`, 45–90s spawn interval; `initBarbarians()` seeds `state.barbarians.nextSpawnTick`; `barbarianTick()` spawns when interval elapses; `_spawnCamp()` picks revealed neutral tile ≥4 from capital (prefers far tiles), sets `tile.owner='barbarian'`, boosts defense +20–35 (stores `barbDefenseBase`), doubles loot; `clearBarbarianCamp()` restores defense (used by enemy AI).
+- `src/systems/combat.js`: `_victory()` detects `wasBarbarian` before setting owner; clears `barbDefenseBase`; logs '💀 Barbarian camp cleared' message with doubled loot.
+- `src/systems/enemyAI.js`: imported `clearBarbarianCamp`; `_expandEnemies()` can now expand into `'barbarian'` tiles (calls `clearBarbarianCamp` before taking).
+- `src/ui/mapPanel.js`: `BARBARIAN_TINT='rgba(192,60,30,0.38)'`/`BARBARIAN_BORDER='#c0402a'`; `_drawTile()` applies maroon tint+border; skull `'💀'` icon drawn on barbarian tiles; `_showTileTip()` shows '💀 Barbarian Camp' owner badge and loot-on-capture row; improvement hint suppressed; stats bar shows `💀 Camps: N`.
+- `src/ui/minimap.js`: `CLR_BARBARIAN='#7a1c0a'`; branch in `drawMinimap()`.
+- `styles/main.css`: `.log-entry--barbarian` (red-tinted border).
+
+**Files modified:**
+- `game/src/systems/spells.js` (new)
+- `game/src/systems/barbarianCamps.js` (new)
+- `game/src/core/state.js`
+- `game/src/core/events.js`
+- `game/src/systems/resources.js`
+- `game/src/systems/combat.js`
+- `game/src/systems/enemyAI.js`
+- `game/src/ui/militaryPanel.js`
+- `game/src/ui/mapPanel.js`
+- `game/src/ui/minimap.js`
+- `game/src/main.js`
+- `game/styles/main.css`
+- `game/.intel/tasks.json`
+- `game/.intel/execution.log`
+
+---
+
 ## 2026-04-12 — Session N+6
 
 **Tasks completed:** T051, T052

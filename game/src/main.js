@@ -18,6 +18,8 @@ import { initVictory, victoryTick } from './systems/victory.js';
 import { initMarket, marketTick } from './systems/market.js';
 import { initAchievements } from './systems/achievements.js';
 import { initEnemyAI, enemyAITick } from './systems/enemyAI.js';
+import { initSpells, spellTick } from './systems/spells.js';
+import { initBarbarians, barbarianTick } from './systems/barbarianCamps.js';
 import { SEASONS } from './data/seasons.js';
 import { AGES } from './data/ages.js';
 import { TICKS_PER_SECOND } from './core/tick.js';
@@ -77,6 +79,8 @@ function boot() {
   registerSystem(victoryTick);
   registerSystem(marketTick);
   registerSystem(enemyAITick);
+  registerSystem(spellTick);
+  registerSystem(barbarianTick);
 
   // Init event-driven systems
   initRandomEvents();
@@ -88,6 +92,8 @@ function boot() {
   initMarket();
   initAchievements();
   initEnemyAI();
+  initSpells();
+  initBarbarians();
 
   // Init UI
   initHUD();
@@ -155,7 +161,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 14,
+      version: 15,
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -185,6 +191,8 @@ function _save() {
         alerts:        state.alerts ?? {},
         combatHistory: state.combatHistory ?? [],
         formation:     state.formation ?? 'balanced',
+        spells:        state.spells,
+        barbarians:    state.barbarians,
         tick:          state.tick,
       }
     }));
@@ -230,6 +238,8 @@ function _applySave(save) {
   state.alerts         = s.alerts         ?? {};
   state.combatHistory  = s.combatHistory  ?? [];
   state.formation      = s.formation      ?? 'balanced';
+  state.spells         = s.spells         ?? null;
+  state.barbarians     = s.barbarians     ?? null;
   state.tick           = s.tick           ?? 0;
   recalcRates();
 
@@ -367,6 +377,8 @@ function _newGame(opts = {}) {
   initMarket();
   initAchievements();
   initEnemyAI();
+  initSpells();
+  initBarbarians();
   recalcRates();
   startLoop();  // restart loop in case it was stopped by game-over
   _syncPauseUI();  // ensure pause overlay is hidden on new game

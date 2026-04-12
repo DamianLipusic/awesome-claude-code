@@ -26,11 +26,12 @@ const MAP_SIZE = 20;           // tiles per side
 const W        = MAP_SIZE * TILE_PX;   // 60
 const H        = MAP_SIZE * TILE_PX;   // 60
 
-const CLR_UNEXPLORED = '#0d1117';
-const CLR_NEUTRAL    = '#374151';
-const CLR_PLAYER     = '#1e40af';
-const CLR_ENEMY      = '#991b1b';
-const CLR_CAPITAL    = '#d97706';
+const CLR_UNEXPLORED  = '#0d1117';
+const CLR_NEUTRAL     = '#374151';
+const CLR_PLAYER      = '#1e40af';
+const CLR_ENEMY       = '#991b1b';
+const CLR_CAPITAL     = '#d97706';
+const CLR_BARBARIAN   = '#7a1c0a';  // T056: dark maroon for barbarian camps
 
 // T053: per-faction minimap colors (darker versions of the map canvas tints)
 const CLR_FACTION = {
@@ -93,6 +94,8 @@ export function drawMinimap() {
       } else if (tile.owner === 'enemy') {
         // T053: use faction color when available, fall back to generic enemy red
         color = (tile.faction && CLR_FACTION[tile.faction]) ? CLR_FACTION[tile.faction] : CLR_ENEMY;
+      } else if (tile.owner === 'barbarian') {
+        color = CLR_BARBARIAN;  // T056: dark maroon for barbarian camps
       } else {
         color = CLR_NEUTRAL;
       }
