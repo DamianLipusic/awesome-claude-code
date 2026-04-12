@@ -23,6 +23,14 @@ const MAX_HISTORY = 20;
 const VETERAN_XP = 3;
 const ELITE_XP   = 6;
 
+// Formation attack multipliers (T052)
+const FORMATION_ATTACK = { defensive: 0.85, balanced: 1.0, aggressive: 1.25 };
+
+/** Returns the player's current formation attack multiplier. */
+function _formationAttackMult() {
+  return FORMATION_ATTACK[state.formation ?? 'balanced'] ?? 1.0;
+}
+
 /** Returns the attack multiplier for a unit type based on its combat rank. */
 function _rankMult(unitId) {
   const rank = state.unitRanks?.[unitId];
@@ -69,6 +77,9 @@ export function getAttackPreview(x, y) {
   if (state.techs.engineering) attackPower *= 1.1;
   if (state.techs.siege_craft) attackPower *= 1.75;
 
+  // Formation modifier (T052)
+  attackPower *= _formationAttackMult();
+
   if (state.hero?.recruited) {
     attackPower += HERO_DEF.attack;
     if (state.hero.activeEffects?.battleCry) attackPower *= 2;  // preview includes Battle Cry bonus
@@ -80,14 +91,15 @@ export function getAttackPreview(x, y) {
     : Math.min(0.9, Math.max(0.1, attackPower / (attackPower + tile.defense)));
 
   return {
-    valid:       true,
-    attackPower: Math.round(attackPower),
-    defense:     tile.defense,
+    valid:        true,
+    attackPower:  Math.round(attackPower),
+    defense:      tile.defense,
     winChance,
-    loot:        tile.loot ?? {},
-    terrain:     tile.type,
-    owner:       tile.owner,
+    loot:         tile.loot ?? {},
+    terrain:      tile.type,
+    owner:        tile.owner,
     siegeActive,
+    formation:    state.formation ?? 'balanced',
   };
 }
 
@@ -131,6 +143,9 @@ export function attackTile(x, y) {
   if (state.techs.steel)       attackPower *= 1.5;
   if (state.techs.engineering) attackPower *= 1.1;
   if (state.techs.siege_craft) attackPower *= 1.75;
+
+  // Formation modifier (T052)
+  attackPower *= _formationAttackMult();
 
   // Hero bonus: flat attack power + Battle Cry (×2) on next attack
   if (state.hero?.recruited) {

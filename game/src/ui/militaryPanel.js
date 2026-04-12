@@ -10,7 +10,7 @@
 
 import { state } from '../core/state.js';
 import { on, Events } from '../core/events.js';
-import { trainUnit, recruitHero, useHeroAbility, addMessage } from '../core/actions.js';
+import { trainUnit, recruitHero, useHeroAbility, setFormation, addMessage } from '../core/actions.js';
 import { UNITS } from '../data/units.js';
 import { BUILDINGS } from '../data/buildings.js';
 import { TECHS } from '../data/techs.js';
@@ -73,6 +73,7 @@ export function initMilitaryPanel() {
 
 function _render(panel) {
   panel.innerHTML = `
+    ${_formationSection()}
     ${_heroSection()}
     ${_armySection()}
     ${_queueSection()}
@@ -83,6 +84,32 @@ function _render(panel) {
   `;
 
   panel.addEventListener('click', _handleClick);
+}
+
+// ── Formation section (T052) ───────────────────────────────────────────────
+
+const FORMATIONS = [
+  { id: 'defensive',  icon: '🛡️', label: 'Defensive',  desc: '–15% attack  ·  –30% enemy raid success' },
+  { id: 'balanced',   icon: '⚖️', label: 'Balanced',   desc: 'No modifiers' },
+  { id: 'aggressive', icon: '⚔️', label: 'Aggressive', desc: '+25% attack  ·  +25% enemy raid success' },
+];
+
+function _formationSection() {
+  const f = state.formation ?? 'balanced';
+  const activeDef = FORMATIONS.find(fm => fm.id === f) ?? FORMATIONS[1];
+
+  const buttons = FORMATIONS.map(fm => `
+    <button class="btn btn--sm btn--formation ${f === fm.id ? 'btn--formation-active' : ''}"
+            data-formation="${fm.id}" title="${fm.desc}">
+      ${fm.icon} ${fm.label}
+    </button>`).join('');
+
+  return `
+    <div class="formation-section">
+      <div class="formation-title">Battle Formation</div>
+      <div class="formation-buttons">${buttons}</div>
+      <div class="formation-desc">${activeDef.icon} ${activeDef.desc}</div>
+    </div>`;
 }
 
 // ── Hero section ───────────────────────────────────────────────────────────
@@ -333,6 +360,13 @@ function _renderCosts(panel) {
 // ── Interaction ────────────────────────────────────────────────────────────
 
 function _handleClick(e) {
+  // T052: formation button
+  const formationBtn = e.target.closest('[data-formation]');
+  if (formationBtn) {
+    setFormation(formationBtn.dataset.formation);
+    return;
+  }
+
   const trainBtn = e.target.closest('[data-train]');
   if (trainBtn && !trainBtn.disabled) {
     trainUnit(trainBtn.dataset.train);

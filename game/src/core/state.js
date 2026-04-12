@@ -132,6 +132,10 @@ export const state = {
 
   // Whether the game loop is running
   running: false,
+
+  // Battle formation stance — persisted across new games (tactical preference)
+  // 'defensive' | 'balanced' | 'aggressive'
+  formation: 'balanced',
 };
 
 /**

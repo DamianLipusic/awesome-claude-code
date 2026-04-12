@@ -2,6 +2,47 @@
 
 ---
 
+## 2026-04-12 — Session N+6
+
+**Tasks completed:** T051, T052
+
+**Summary:**
+All prior tasks (T001–T050) were complete. Created two Phase 16 features: map tile improvements that let players build production structures on captured territory (T051), and a battle formation system providing three tactical stances affecting combat power and enemy raid resistance (T052).
+
+**T051 — Map Tile Improvements:**
+- `src/data/improvements.js` (new): `IMPROVEMENTS` object keyed by terrain type with 5 entries: grass→Farm (+2 food/s, cost 40 wood+20 stone), forest→Sawmill (+2 wood/s, cost 40 stone+30 gold), hills→Quarry (+1 stone/s, cost 50 gold+30 wood), mountain→Mine (+1 iron/s, cost 60 gold+40 wood), river→Dock (+1 gold/s+1 food/s, cost 50 wood+30 stone). Each has `id/icon/name/desc/cost/production` fields.
+- `src/systems/map.js`: imported IMPROVEMENTS; `territoryRateBonus()` extended to sum `tile.improvement` production rates after base terrain rates (looks up `IMPROVEMENTS[tile.type]`, validates `impDef.id === tile.improvement`).
+- `src/core/actions.js`: imported IMPROVEMENTS; added `buildTileImprovement(x,y)` — validates player ownership + not capital + no existing improvement + affordability; deducts cost, sets `tile.improvement`, calls `recalcRates()`, emits `MAP_CHANGED`+`RESOURCE_CHANGED`, logs build message. Added `setFormation(type)` (see T052).
+- `src/systems/enemyAI.js`: `_counterattack()` clears `tile.improvement` on successful enemy capture (improvements lost when territory is lost).
+- `src/ui/mapPanel.js`: imported `buildTileImprovement`+`addMessage`+`IMPROVEMENTS`; added `_impPickerEl` module var; `_showTileTip()` shows improvement icon+desc row when tile has improvement, or '🏗️ Click to build X' hint when improvable player tile; `_drawTile()` renders improvement icon via `_drawIcon()` on improved player tiles; `_onClick()` opens `_showImprovementPicker(x,y,tile)` for player-owned non-capital non-attackable tiles; `_createImprovementPicker()`/`_showImprovementPicker()`/`_hideImprovementPicker()` functions — idempotent modal element, delegated `data-imp-build` click handler, Escape key; info-only card when already improved; build card with cost colour-coded (green/red) and disabled button when unaffordable.
+- `styles/main.css`: `.imp-picker` (fixed overlay z-810), `.imp-picker--hidden`, `.imp-box` (pop-in animation), `.imp-header/.imp-sub`, `.imp-card` (flex), `.imp-icon/.imp-body/.imp-name/.imp-effect/.imp-costs`, `.imp-cost--ok`/`.--bad`, `.imp-built/.imp-note`, `.imp-actions/.imp-hint`, `.btn--imp-build` (green gradient).
+
+**T052 — Battle Formations:**
+- `src/core/state.js`: added `formation: 'balanced'` field at top level (not in `initState` — persists across new games).
+- `src/core/actions.js`: added `setFormation(type)` — validates against `['defensive','balanced','aggressive']`, sets `state.formation`, emits `UNIT_CHANGED`, logs message.
+- `src/systems/combat.js`: added `FORMATION_ATTACK` constant map and `_formationAttackMult()` helper; applied `attackPower *= _formationAttackMult()` in both `attackTile()` and `getAttackPreview()` (after tech multipliers); `getAttackPreview()` returns `formation` field.
+- `src/systems/enemyAI.js`: `_counterattack()` reads `state.formation`; `defensive` → `winChance *= 0.70`; `aggressive` → `winChance *= 1.25`; capped at 0.9.
+- `src/ui/militaryPanel.js`: imported `setFormation`; added `FORMATIONS` array with 3 stance objects; `_formationSection()` renders `.formation-section` card with title, 3 `.btn--formation` buttons (active=`.btn--formation-active` gold styling), `.formation-desc` showing active stance effect; injected first in `_render()`; `_handleClick()` intercepts `data-formation` before other buttons.
+- `src/ui/mapPanel.js`: `_showCombatPreview()` renders a dim formation notice badge when non-balanced.
+- `src/main.js`: bumped save version to 14; `formation` field saved/loaded.
+- `styles/main.css`: `.formation-section` (card), `.formation-title` (uppercase dim), `.formation-buttons` flex, `.btn--formation`/`.btn--formation-active` (active=gold border+bg tint), `.formation-desc` (11px dim), mobile collapse.
+
+**Files modified:**
+- `game/src/data/improvements.js` (new)
+- `game/src/systems/map.js`
+- `game/src/core/actions.js`
+- `game/src/core/state.js`
+- `game/src/systems/combat.js`
+- `game/src/systems/enemyAI.js`
+- `game/src/ui/mapPanel.js`
+- `game/src/ui/militaryPanel.js`
+- `game/src/main.js`
+- `game/styles/main.css`
+- `game/.intel/tasks.json`
+- `game/.intel/execution.log`
+
+---
+
 ## 2026-04-12 — Session N+5
 
 **Tasks completed:** T049, T050

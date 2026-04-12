@@ -12,6 +12,7 @@
 
 import { state } from '../core/state.js';
 import { emit, Events } from '../core/events.js';
+import { IMPROVEMENTS } from '../data/improvements.js';
 
 export const MAP_W = 20;
 export const MAP_H = 20;
@@ -114,12 +115,24 @@ export function territoryRateBonus() {
     for (let x = 0; x < state.map.width; x++) {
       const tile = state.map.tiles[y][x];
       if (tile.owner !== 'player') continue;
+
+      // Base terrain bonuses
       switch (tile.type) {
         case 'forest':   bonus.wood  += 0.3; break;
         case 'hills':    bonus.stone += 0.3; break;
         case 'river':    bonus.food  += 0.3; break;
         case 'mountain': bonus.iron  += 0.2; break;
         case 'grass':    bonus.gold  += 0.1; break;
+      }
+
+      // Tile improvement bonus (T051)
+      if (tile.improvement) {
+        const impDef = IMPROVEMENTS[tile.type];
+        if (impDef && impDef.id === tile.improvement) {
+          for (const [res, rate] of Object.entries(impDef.production)) {
+            if (bonus[res] !== undefined) bonus[res] += rate;
+          }
+        }
       }
     }
   }

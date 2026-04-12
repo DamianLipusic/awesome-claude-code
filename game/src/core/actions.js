@@ -10,6 +10,7 @@ import { UNITS } from '../data/units.js';
 import { TECHS } from '../data/techs.js';
 import { AGES } from '../data/ages.js';
 import { HERO_DEF } from '../data/hero.js';
+import { IMPROVEMENTS } from '../data/improvements.js';
 import { recalcRates } from '../systems/resources.js';
 import { log } from '../utils/logger.js';
 
@@ -259,6 +260,60 @@ export function useHeroAbility(abilityId) {
 
   emit(Events.HERO_CHANGED, {});
   addMessage(`${ability.icon} ${HERO_DEF.name} used ${ability.name}!`, 'hero');
+  return { ok: true };
+}
+
+// ---------------------------------------------------------------------------
+// Tile improvements (T051)
+// ---------------------------------------------------------------------------
+
+/**
+ * Build an improvement on a player-owned tile at (x, y).
+ * Each terrain type supports one specific improvement (see data/improvements.js).
+ * At most one improvement per tile; enemy capturing the tile destroys it.
+ * Returns { ok, reason? }
+ */
+export function buildTileImprovement(x, y) {
+  if (!state.map) return { ok: false, reason: 'No map loaded.' };
+  const tile = state.map.tiles[y]?.[x];
+  if (!tile)                        return { ok: false, reason: 'Invalid tile.' };
+  if (tile.owner !== 'player')      return { ok: false, reason: 'You must own this tile first.' };
+  if (tile.type === 'capital')      return { ok: false, reason: 'Cannot build an improvement on the capital.' };
+  if (tile.improvement)             return { ok: false, reason: 'This tile already has an improvement.' };
+
+  const def = IMPROVEMENTS[tile.type];
+  if (!def) return { ok: false, reason: 'No improvement available for this terrain type.' };
+
+  if (!canAfford(def.cost)) {
+    const needs = Object.entries(def.cost).map(([r, a]) => `${a} ${r}`).join(', ');
+    return { ok: false, reason: `Insufficient resources. Need: ${needs}.` };
+  }
+
+  deductCost(def.cost);
+  tile.improvement = def.id;
+  recalcRates();
+
+  emit(Events.MAP_CHANGED, {});
+  emit(Events.RESOURCE_CHANGED, {});
+  addMessage(`${def.icon} Built ${def.name} at (${x},${y}). ${def.desc}`, 'build');
+  return { ok: true };
+}
+
+// ---------------------------------------------------------------------------
+// Battle formations (T052)
+// ---------------------------------------------------------------------------
+
+const VALID_FORMATIONS = ['defensive', 'balanced', 'aggressive'];
+
+/**
+ * Set the player's battle formation stance.
+ * Affects player attack power in combat and enemy counterattack success.
+ */
+export function setFormation(type) {
+  if (!VALID_FORMATIONS.includes(type)) return { ok: false, reason: `Unknown formation: ${type}` };
+  state.formation = type;
+  emit(Events.UNIT_CHANGED, {});  // reuse to refresh military panel
+  addMessage(`Formation changed to ${type.charAt(0).toUpperCase() + type.slice(1)}.`, 'info');
   return { ok: true };
 }
 

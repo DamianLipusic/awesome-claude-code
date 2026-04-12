@@ -16,6 +16,8 @@
 import { state } from '../core/state.js';
 import { on, Events } from '../core/events.js';
 import { attackTile, getAttackPreview } from '../systems/combat.js';
+import { buildTileImprovement, addMessage } from '../core/actions.js';
+import { IMPROVEMENTS } from '../data/improvements.js';
 
 const TILE_PX   = 24;     // pixels per tile side
 const GRID_SIZE = 20;     // tiles per axis
@@ -95,6 +97,7 @@ let _overlayMode    = false;  // T037: resource overlay toggle
 let _tileTipEl      = null;   // T038: floating tile tooltip element
 let _previewEl      = null;   // T045: combat preview modal element
 let _previewTarget  = null;   // T045: { x, y } of tile pending confirmation
+let _impPickerEl    = null;   // T051: improvement picker modal element
 
 // ── Public API ─────────────────────────────────────────────────────────────
 
@@ -218,6 +221,15 @@ function _showTileTip(tile, x, y, mouseX, mouseY) {
     ? `<div class="map-tt-row map-tt-bonus">${bonusTxt}</div>`
     : '';
 
+  // T051: show improvement status or build hint
+  const impDef = IMPROVEMENTS[tile.type];
+  let impHtml = '';
+  if (tile.improvement && impDef) {
+    impHtml = `<div class="map-tt-row map-tt-bonus">${impDef.icon} ${impDef.name}: ${impDef.desc}</div>`;
+  } else if (tile.owner === 'player' && tile.type !== 'capital' && impDef) {
+    impHtml = `<div class="map-tt-action">🏗️ Click to build ${impDef.name}</div>`;
+  }
+
   const actionHtml = _isAttackable(x, y)
     ? `<div class="map-tt-action">⚔️ Click to attack</div>`
     : '';
@@ -226,6 +238,7 @@ function _showTileTip(tile, x, y, mouseX, mouseY) {
     <div class="map-tt-title">${TERRAIN_NAME[tile.type] ?? tile.type}</div>
     <div class="map-tt-row">${ownerHtml}</div>
     ${bonusHtml}
+    ${impHtml}
     <div class="map-tt-row">🛡️ Defense: ${tile.defense}</div>
     ${actionHtml}
   `;
@@ -342,6 +355,10 @@ function _drawTile(tile, x, y, capital) {
     _drawIcon(px, py, '🏰');
   } else if (tile.owner === 'enemy' && tile.revealed) {
     _drawIcon(px, py, '⚔️');
+  } else if (tile.owner === 'player' && tile.improvement) {
+    // T051: draw improvement icon on player-owned improved tiles
+    const impDef = IMPROVEMENTS[tile.type];
+    if (impDef) _drawIcon(px, py, impDef.icon);
   }
 }
 
@@ -438,7 +455,15 @@ function _onMouseleave() {
 function _onClick(e) {
   const { x, y } = _tileAt(e);
   if (x < 0 || x >= GRID_SIZE || y < 0 || y >= GRID_SIZE) return;
-  if (_isAttackable(x, y)) _showCombatPreview(x, y);
+  if (_isAttackable(x, y)) {
+    _showCombatPreview(x, y);
+  } else {
+    // T051: clicking a player-owned tile (not capital) opens improvement picker
+    const tile = state.map?.tiles[y]?.[x];
+    if (tile?.owner === 'player' && tile.type !== 'capital') {
+      _showImprovementPicker(x, y, tile);
+    }
+  }
 }
 
 // ── T045: Combat preview modal ─────────────────────────────────────────────
@@ -514,6 +539,11 @@ function _showCombatPreview(x, y) {
     ? `<div class="cp-siege-notice" style="color:var(--blue)">📣 Battle Cry active — attack doubled!</div>`
     : '';
 
+  const formationLabels = { defensive: '🛡️ Defensive (–15% atk)', balanced: '⚖️ Balanced', aggressive: '⚔️ Aggressive (+25% atk)' };
+  const formationHtml = p.formation && p.formation !== 'balanced'
+    ? `<div class="cp-siege-notice" style="color:var(--text-dim)">${formationLabels[p.formation] ?? p.formation}</div>`
+    : '';
+
   _previewEl.innerHTML = `
     <div class="cp-box">
       <div class="cp-header">⚔️ Attack Preview</div>
@@ -532,7 +562,7 @@ function _showCombatPreview(x, y) {
           <span class="cp-stat__value" style="color:${winColor}">${winPct}%</span>
         </div>
       </div>
-      ${siegeHtml}${battleCryHtml}
+      ${siegeHtml}${battleCryHtml}${formationHtml}
       <div class="cp-loot-row">
         <span class="cp-loot-label">Loot on victory:</span>
         <span class="cp-loot-items">${lootHtml}</span>
@@ -551,4 +581,101 @@ function _showCombatPreview(x, y) {
 function _hideCombatPreview() {
   _previewTarget = null;
   _previewEl?.classList.add('combat-preview--hidden');
+}
+
+// ── T051: Improvement picker modal ────────────────────────────────────────
+
+function _createImprovementPicker() {
+  const existing = document.getElementById('imp-picker');
+  if (existing) { _impPickerEl = existing; return; }
+
+  _impPickerEl = document.createElement('div');
+  _impPickerEl.id        = 'imp-picker';
+  _impPickerEl.className = 'imp-picker imp-picker--hidden';
+  document.body.appendChild(_impPickerEl);
+
+  _impPickerEl.addEventListener('click', (e) => {
+    if (e.target.id === 'imp-picker-cancel' || e.target === _impPickerEl) {
+      _hideImprovementPicker();
+    }
+    // Build button handled in _showImprovementPicker via data attribute
+    if (e.target.dataset.impBuild) {
+      const [sx, sy] = e.target.dataset.impBuild.split(',').map(Number);
+      _hideImprovementPicker();
+      const result = buildTileImprovement(sx, sy);
+      if (!result.ok) addMessage(`❌ ${result.reason}`, 'info');
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (_impPickerEl?.classList.contains('imp-picker--hidden')) return;
+    if (e.key === 'Escape') { e.stopPropagation(); _hideImprovementPicker(); }
+  });
+}
+
+function _showImprovementPicker(x, y, tile) {
+  if (!_impPickerEl) _createImprovementPicker();
+
+  const impDef = IMPROVEMENTS[tile.type];
+
+  if (tile.improvement) {
+    // Already improved — show info card only
+    const desc = impDef ? `${impDef.icon} ${impDef.name} — ${impDef.desc}` : tile.improvement;
+    _impPickerEl.innerHTML = `
+      <div class="imp-box">
+        <div class="imp-header">🏗️ Tile Improvement</div>
+        <div class="imp-sub">${_TERRAIN_LABELS[tile.type] ?? tile.type} (${x}, ${y})</div>
+        <div class="imp-built">${desc}</div>
+        <div class="imp-note">This tile already has an improvement.</div>
+        <div class="imp-actions">
+          <button id="imp-picker-cancel" class="btn btn--sm btn--ghost">Close</button>
+        </div>
+      </div>`;
+  } else if (!impDef) {
+    // No improvement available for this terrain (shouldn't happen for non-capital)
+    _impPickerEl.innerHTML = `
+      <div class="imp-box">
+        <div class="imp-header">🏗️ Tile Improvement</div>
+        <div class="imp-note">No improvement available for this terrain.</div>
+        <div class="imp-actions">
+          <button id="imp-picker-cancel" class="btn btn--sm btn--ghost">Close</button>
+        </div>
+      </div>`;
+  } else {
+    // Show build card
+    const costParts = Object.entries(impDef.cost).map(([r, a]) => {
+      const have = Math.floor(state.resources[r] ?? 0);
+      const enough = have >= a;
+      return `<span class="${enough ? 'imp-cost--ok' : 'imp-cost--bad'}">${a} ${r} (have ${have})</span>`;
+    });
+    const canAfford = Object.entries(impDef.cost).every(([r, a]) => (state.resources[r] ?? 0) >= a);
+
+    _impPickerEl.innerHTML = `
+      <div class="imp-box">
+        <div class="imp-header">🏗️ Build Improvement</div>
+        <div class="imp-sub">${_TERRAIN_LABELS[tile.type] ?? tile.type} (${x}, ${y})</div>
+        <div class="imp-card">
+          <div class="imp-icon">${impDef.icon}</div>
+          <div class="imp-body">
+            <div class="imp-name">${impDef.name}</div>
+            <div class="imp-effect">${impDef.desc}</div>
+            <div class="imp-costs">${costParts.join(' · ')}</div>
+          </div>
+        </div>
+        <div class="imp-actions">
+          <button class="btn btn--sm btn--imp-build" data-imp-build="${x},${y}"
+            ${canAfford ? '' : 'disabled'}>
+            🏗️ Build
+          </button>
+          <button id="imp-picker-cancel" class="btn btn--sm btn--ghost">Cancel</button>
+        </div>
+        <div class="imp-hint">Escape to cancel</div>
+      </div>`;
+  }
+
+  _impPickerEl.classList.remove('imp-picker--hidden');
+}
+
+function _hideImprovementPicker() {
+  _impPickerEl?.classList.add('imp-picker--hidden');
 }

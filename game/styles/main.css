@@ -2974,3 +2974,175 @@ kbd {
 @media (max-width: 600px) {
   #minimap { display: none; }
 }
+
+/* ── T051: Tile improvement picker modal ─────────────────────────────────── */
+
+.imp-picker {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, .55);
+  backdrop-filter: blur(3px);
+  z-index: 810;
+}
+
+.imp-picker--hidden { display: none; }
+
+.imp-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border-h);
+  border-radius: var(--radius-lg);
+  padding: 18px 22px;
+  min-width: 280px;
+  max-width: 340px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, .6);
+  animation: pop-in .15s ease;
+}
+
+.imp-header {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.imp-sub {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-bottom: 12px;
+}
+
+.imp-card {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  margin-bottom: 12px;
+}
+
+.imp-icon { font-size: 26px; flex-shrink: 0; }
+
+.imp-body { flex: 1; }
+
+.imp-name {
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.imp-effect {
+  font-size: 12px;
+  color: var(--green);
+  margin: 2px 0 6px;
+}
+
+.imp-costs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 11px;
+}
+
+.imp-cost--ok  { color: var(--green); }
+.imp-cost--bad { color: var(--red); }
+
+.imp-built {
+  font-size: 13px;
+  color: var(--green);
+  margin-bottom: 8px;
+}
+
+.imp-note {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-bottom: 12px;
+}
+
+.imp-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.imp-hint {
+  font-size: 10px;
+  color: var(--text-dim);
+  text-align: center;
+  margin-top: 8px;
+}
+
+.btn--imp-build {
+  background: linear-gradient(135deg, #2a4a2a, #3a6a3a);
+  border-color: var(--green);
+  color: var(--green);
+  font-weight: 600;
+}
+
+.btn--imp-build:not(:disabled):hover {
+  background: linear-gradient(135deg, #3a5a3a, #4a7a4a);
+  color: #fff;
+}
+
+/* ── T052: Battle formation selector ─────────────────────────────────────── */
+
+.formation-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  margin-bottom: 10px;
+}
+
+.formation-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  margin-bottom: 8px;
+}
+
+.formation-buttons {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.btn--formation {
+  flex: 1;
+  background: var(--bg-panel);
+  border-color: var(--border);
+  color: var(--text-dim);
+  font-size: 11px;
+  padding: 5px 8px;
+  transition: border-color .15s, color .15s, background .15s;
+}
+
+.btn--formation:hover {
+  border-color: var(--border-h);
+  color: var(--text);
+}
+
+.btn--formation-active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(240, 180, 41, .08);
+  font-weight: 600;
+}
+
+.formation-desc {
+  font-size: 11px;
+  color: var(--text-dim);
+  min-height: 14px;
+}
+
+@media (max-width: 480px) {
+  .formation-buttons { flex-direction: column; }
+  .btn--formation { flex: none; }
+}

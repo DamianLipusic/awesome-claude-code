@@ -135,11 +135,17 @@ function _counterattack() {
   let winChance = Math.min(0.5, enemyPower / (enemyPower + playerDefense));
   // Fortification tech: -40% enemy success chance against player tiles
   if (state.techs?.fortification) winChance *= 0.6;
+  // Formation: Defensive reduces enemy counterattack success by 30%; Aggressive increases by 25% (T052)
+  const formation = state.formation ?? 'balanced';
+  if (formation === 'defensive')  winChance *= 0.70;
+  if (formation === 'aggressive') winChance *= 1.25;
+  winChance = Math.min(0.9, winChance);
   const roll = Math.random();
 
   if (roll < winChance) {
-    // Enemy captures the tile
+    // Enemy captures the tile — destroy any improvement on it (T051)
     tile.owner = 'enemy';
+    if (tile.improvement) tile.improvement = null;
 
     // Player loses one random unit defending the border
     const unitIds = Object.keys(state.units).filter(id => (state.units[id] ?? 0) > 0);
