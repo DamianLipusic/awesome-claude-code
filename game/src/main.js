@@ -38,11 +38,16 @@ import { initTabs, switchTab } from './ui/tabs.js';
 import { initToasts } from './ui/toastManager.js';
 import { initSummaryPanel } from './ui/summaryPanel.js';
 import { showNewGameWizard } from './ui/newGameModal.js';
+import { calcOfflineProgress, showOfflineModal } from './ui/offlineModal.js';
+import { initMinimap, drawMinimap } from './ui/minimap.js';
 import { addMessage } from './core/actions.js';
 import { calcScore } from './utils/score.js';
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
+
+// Offline progress calculated during _applySave(); shown after UI is ready
+let _pendingOffline = null;
 
 // ── Boot sequence ─────────────────────────────────────────────────────────
 
@@ -101,6 +106,13 @@ function boot() {
   initGameOverPanel(_newGame);
   initToasts();
   initSummaryPanel();
+  initMinimap();
+
+  // Show offline progress modal if the player was away when they last saved
+  if (_pendingOffline) {
+    showOfflineModal(_pendingOffline.elapsed, _pendingOffline.gains);
+    _pendingOffline = null;
+  }
 
   // Bind top-level controls
   _bindControls();
@@ -218,6 +230,11 @@ function _applySave(save) {
   state.combatHistory  = s.combatHistory  ?? [];
   state.tick           = s.tick           ?? 0;
   recalcRates();
+
+  // Calculate offline resource progress (applies gains to state.resources in-place).
+  // Stored so we can show the modal after UI panels are ready.
+  _pendingOffline = calcOfflineProgress(save.ts, state.rates, state.resources, state.caps);
+
   addMessage('Game loaded.', 'info');
 }
 
@@ -356,6 +373,9 @@ function _newGame(opts = {}) {
   // Reflect the new empire name in the title bar
   const nameEl = document.getElementById('empire-name');
   if (nameEl) nameEl.textContent = state.empire.name;
+
+  // Refresh minimap thumbnail for the new game's map
+  drawMinimap();
   addMessage(`New game started. Long live the ${state.empire.name}!`, 'info');
   emit(Events.STATE_CHANGED, {});
   emit(Events.RESOURCE_CHANGED, {});

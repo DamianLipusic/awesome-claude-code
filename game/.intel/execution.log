@@ -2,6 +2,35 @@
 
 ---
 
+## 2026-04-12 — Session N+5
+
+**Tasks completed:** T049, T050
+
+**Summary:**
+All prior tasks (T001–T048) were complete. Created Phase 15 features: an offline progress system that rewards players for time spent away (T049), and a mini-map thumbnail in the title bar for always-visible territory awareness (T050).
+
+**T049 — Offline Progress System:**
+- `src/ui/offlineModal.js` (new): `calcOfflineProgress(saveTs, rates, resources, caps)` — calculates `elapsed = min(realElapsed, 28800s / 8h)`; if elapsed ≥ 30s, applies `rate × elapsed` delta to each resource (capped at `caps[id]`, floored at 0), mutates `resources` in-place, returns `{ elapsed, gains }` or `null`. `showOfflineModal(elapsed, gains)` — creates `#offline-modal` `.modal-overlay`; renders welcome-back header with moon icon and formatted time string (`Xh Ym` or `Xm`), per-resource gain/loss rows (filtered to |delta| ≥ 1, green for gains, red for losses); gold "Continue →" button (`.btn--ng-start`); dismisses on button click, Enter, Escape, or click-outside; cleans up keydown listener on close.
+- `src/main.js`: added `_pendingOffline` module var; `_applySave()` calls `calcOfflineProgress(save.ts, state.rates, state.resources, state.caps)` after `recalcRates()` and stores result in `_pendingOffline`; `boot()` calls `showOfflineModal(_pendingOffline.elapsed, _pendingOffline.gains)` after all UI panels are initialised, then clears `_pendingOffline`.
+- `styles/main.css`: `.offline-modal-box` (max-width 340px); `.offline-header` (flex, gap 14px, bottom border); `.offline-moon` (32px icon); `.offline-title/.offline-sub`; `.offline-gains` flex column; `.offline-gain-row` (icon/name/val flex row); `.offline-gain--pos` (green) / `.offline-gain--neg` (red); `.offline-no-change` (dim centered text).
+
+**T050 — Mini-map Thumbnail in Title Bar:**
+- `src/ui/minimap.js` (new): constants `TILE_PX=3`, `MAP_SIZE=20`, `W=H=60`. `CLR_UNEXPLORED='#0d1117'`, `CLR_NEUTRAL='#374151'`, `CLR_PLAYER='#1e40af'`, `CLR_ENEMY='#991b1b'`, `CLR_CAPITAL='#d97706'`. `drawMinimap()` — clears canvas to `CLR_UNEXPLORED`; iterates all 20×20 tiles, picks colour by `tile.revealed`+`tile.owner`, fills a `TILE_PX×TILE_PX` rect; draws a 1px `strokeRect` around the capital tile in gold. `initMinimap()` — resolves `#minimap` canvas, sets dimensions, gets 2D context, subscribes to `MAP_CHANGED`/`GAME_LOADED`/`GAME_STARTED` → `drawMinimap`.
+- `game/index.html`: added `<canvas id="minimap" title="Territory overview…">` between `#season-badge` and `#score-badge` in the title bar.
+- `src/main.js`: imported `initMinimap` and `drawMinimap`; `initMinimap()` called at end of UI init sequence in `boot()`; `drawMinimap()` called explicitly in `_newGame()` after `emit(MAP_CHANGED)` (listener handles all subsequent redraws).
+- `styles/main.css`: `#minimap` — `border:1px solid var(--border)`, `border-radius:3px`, `image-rendering:pixelated`+`crisp-edges` (sharp pixels on all browsers), `box-shadow:0 1px 4px rgba(0,0,0,.5)`; `@media (max-width:600px) { display:none }`.
+
+**Files modified:**
+- `game/src/ui/offlineModal.js` (new)
+- `game/src/ui/minimap.js` (new)
+- `game/index.html`
+- `game/src/main.js`
+- `game/styles/main.css`
+- `game/.intel/tasks.json`
+- `game/.intel/execution.log`
+
+---
+
 ## 2026-04-12 — Session N+4
 
 **Tasks completed:** T047, T048

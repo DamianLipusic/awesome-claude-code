@@ -423,6 +423,24 @@
     "notes": "state.js: added combatHistory:[] to static object + initState() reset. systems/combat.js: added MAX_HISTORY=20 constant and _recordHistory({outcome,terrain,x,y,power,defense,loot?,lost?}) helper that unshifts into state.combatHistory and trims to MAX_HISTORY; called in _victory() (with lootGained object built alongside lootParts) and _defeat() (with lost unit name). ui/militaryPanel.js: subscribed to MAP_CHANGED for history re-renders; added _combatHistorySection() rendering a .mil-history card — empty state if no battles; otherwise up to 15 .mil-hist-entry rows (--win green / --loss red left border) showing ⚔️/💀 icon, outcome label, terrain+coords, loot detail or 'Lost 1 X', attack/defense stat, and relative time (Xs/Xm ago). _combatHistorySection() injected at bottom of _render(). main.js: combatHistory added to _save() payload and _applySave() (state.combatHistory = s.combatHistory ?? []); save version bumped to 13. CSS: .mil-history (bg-panel, border), .mil-hist-count, .mil-hist-entry/--win/--loss (coloured left border), .mil-hist-icon/.mil-hist-body/.mil-hist-main/.mil-hist-outcome/--win/--loss/.mil-hist-terrain/.mil-hist-detail/.mil-hist-meta/.mil-hist-power/.mil-hist-time."
   },
   {
+    "id": "T049",
+    "title": "offline progress system",
+    "description": "When the player returns after ≥30 seconds of real-world absence, calculate resource gains/losses for up to 8 hours offline using recalculated rates. Apply them to resources, then show a welcome-back modal with time away and per-resource delta. No interaction required — a single 'Continue →' button dismisses it.",
+    "priority": 49,
+    "status": "done",
+    "phase": 15,
+    "notes": "Created src/ui/offlineModal.js: calcOfflineProgress(saveTs, rates, resources, caps) computes elapsed = min(realElapsed, 8h), applies rate×elapsed deltas to each resource (capped at caps, floored at 0), returns {elapsed, gains} or null if <30s. showOfflineModal(elapsed, gains) renders a .modal-overlay welcome-back card with time away, per-resource ±delta rows (filtered to |delta|≥1), and a gold 'Continue →' button (reuses .btn--ng-start); Enter/Escape/click-outside all dismiss. main.js: added _pendingOffline module var; _applySave() calls calcOfflineProgress after recalcRates() and stores result; boot() calls showOfflineModal after all UI panels are ready. CSS: .offline-modal-box (narrow 340px modal), .offline-header (icon + title/sub), .offline-moon, .offline-title/.offline-sub, .offline-gains flex column, .offline-gain-row, .offline-gain-icon/.name/.val, .offline-gain--pos (green)/.offline-gain--neg (red), .offline-no-change."
+  },
+  {
+    "id": "T050",
+    "title": "mini-map thumbnail in title bar",
+    "description": "Add a 60×60 px canvas thumbnail to the title bar showing a bird's-eye view of the 20×20 map. Player tiles = blue, enemy = red, explored neutral = gray, unexplored = very dark, capital = gold. Updates on MAP_CHANGED. Hidden on narrow screens (≤600 px).",
+    "priority": 50,
+    "status": "done",
+    "phase": 15,
+    "notes": "Created src/ui/minimap.js: TILE_PX=3, canvas 60×60 px; drawMinimap() iterates tiles, fills each 3×3 block with CLR_UNEXPLORED/CLR_NEUTRAL/CLR_PLAYER/CLR_ENEMY; capital tile gets CLR_CAPITAL fill + 1px strokeRect border; initMinimap() attaches to #minimap canvas, registers on(MAP_CHANGED/GAME_LOADED/GAME_STARTED, drawMinimap). index.html: added <canvas id='minimap'> between season-badge and score-badge in title bar. main.js: imported initMinimap/drawMinimap; initMinimap() called in boot sequence; drawMinimap() called explicitly in _newGame() (MAP_CHANGED listener handles subsequent redraws). CSS: #minimap border, border-radius:3px, image-rendering:pixelated/crisp-edges, box-shadow; hidden on ≤600px via @media."
+  },
+  {
     "id": "T042",
     "title": "pause button and visual pause overlay",
     "description": "Add a ⏸/▶ toggle button in the title bar alongside Save and New Game. Add a semi-transparent centre-screen 'PAUSED' overlay that appears when the game is paused. Sync the button state when Space/P keyboard shortcuts are used. Clicking the button or pressing Space/P both toggle pause and update all indicators consistently.",

@@ -2880,3 +2880,97 @@ kbd {
   color: var(--text);
 }
 .sum-score-total-value { color: var(--gold); font-size: 16px; }
+
+/* ── Offline progress modal (T049) ──────────────────────────────────────── */
+
+.offline-modal-box {
+  max-width: 340px;
+}
+
+.offline-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.offline-moon {
+  font-size: 32px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.offline-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1.2;
+}
+
+.offline-sub {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-top: 3px;
+  line-height: 1.4;
+}
+
+.offline-gains {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.offline-gain-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.offline-gain-icon {
+  font-size: 16px;
+  width: 22px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.offline-gain-name {
+  flex: 1;
+  color: var(--text-dim);
+}
+
+.offline-gain-val {
+  font-weight: 700;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.offline-gain--pos { color: var(--green); }
+.offline-gain--neg { color: var(--red);   }
+
+.offline-no-change {
+  font-size: 12px;
+  color: var(--text-dim);
+  text-align: center;
+  padding: 4px 0;
+}
+
+/* ── Mini-map thumbnail in title bar (T050) ──────────────────────────────── */
+
+#minimap {
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  /* Keep pixels sharp — critical for pixel-art style canvas */
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;  /* Firefox */
+  flex-shrink: 0;
+  cursor: default;
+  /* Subtle shadow so it doesn't blend into the title bar background */
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .5);
+}
+
+/* Hide mini-map on narrow screens where the title bar is already cramped */
+@media (max-width: 600px) {
+  #minimap { display: none; }
+}
