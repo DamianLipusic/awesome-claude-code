@@ -16,7 +16,7 @@
 
 import { state } from '../core/state.js';
 import { emit, Events } from '../core/events.js';
-import { addMessage } from '../core/actions.js';
+import { addMessage, destroyGarrison } from '../core/actions.js';
 import { recalcRates } from './resources.js';
 import { UNITS } from '../data/units.js';
 import { HERO_DEF } from '../data/hero.js';
@@ -141,6 +141,12 @@ function _counterattack() {
     if (def) playerDefense += def.defense * count;
   }
   if (state.hero?.recruited) playerDefense += 20;
+  // T068: garrisoned units on this specific tile add their defense values
+  const tileGarrison = state.garrisons?.[`${target.x},${target.y}`];
+  if (tileGarrison) {
+    const gDef = UNITS[tileGarrison.unitId];
+    if (gDef) playerDefense += gDef.defense * tileGarrison.count;
+  }
 
   let winChance = Math.min(0.5, enemyPower / (enemyPower + playerDefense));
   // Fortification tech: -40% enemy success chance against player tiles
@@ -168,11 +174,12 @@ function _counterattack() {
       }
     }
 
-    // Enemy captures the tile — destroy any improvement or fortification (T051/T066)
+    // Enemy captures the tile — destroy any improvement, fortification, or garrison (T051/T066/T068)
     tile.owner   = 'enemy';
     tile.faction = attackingFaction;   // T053: tag with attacking empire
     if (tile.improvement) tile.improvement = null;
     if (tile.fortified) { tile.fortified = false; tile.defense = Math.max(0, tile.defense - 15); }
+    destroyGarrison(target.x, target.y);  // T068: garrison units lost on capture
 
     // Player loses one random unit defending the border
     const unitIds = Object.keys(state.units).filter(id => (state.units[id] ?? 0) > 0);

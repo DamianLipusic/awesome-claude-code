@@ -182,6 +182,11 @@ export const state = {
 
   // Tick when the policy was last changed (for cooldown enforcement)
   policyChangedAt: -999,
+
+  // Garrison assignments — { ['x,y']: { unitId: string, count: number } }
+  // Units are removed from state.units when garrisoned; returned on withdrawal.
+  // null until first garrison action.
+  garrisons: null,
 };
 
 /**
@@ -228,5 +233,6 @@ export function initState(empireName = 'My Empire') {
   state.running         = false;
   state.policy          = null;
   state.policyChangedAt = -999;
+  state.garrisons       = null;
   // Note: state.archetype is NOT reset here — it persists across new games
 }

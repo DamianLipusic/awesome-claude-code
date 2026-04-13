@@ -590,5 +590,23 @@
     "status": "done",
     "phase": 14,
     "notes": "Added fortifyTile(x, y) to actions.js: costs 40 stone + 25 iron, sets tile.fortified=true, tile.defense+=15, emits MAP_CHANGED. Updated _showImprovementPicker() in mapPanel.js: added fortifySection (shows 'Fortified' badge or 'Fortify' button with cost) to all 3 modal states (already-improved, no-improvement, can-build); renamed modal header from 'Build Improvement' to 'Tile Actions'. Added data-fortify click handler in _createImprovementPicker(). Canvas: draw blue '\u25b2' glyph in tile top-right corner for fortified player tiles in _drawTile(). Tile tooltip: shows '\ud83c\udff0' next to defense value for fortified tiles; shows 'Click \u2192 Fortify (+15 def)' hint for unfortified player tiles. enemyAI.js: clears tile.fortified+restores defense when enemy captures tile; fortified tiles get -30% enemy counterattack win chance (tile.fortified check after formation and fortification tech). CSS: .imp-fortify-row, .imp-fortify-label, .btn--fortify (blue), .imp-fortified (blue badge). Imported fortifyTile in mapPanel.js."
+  },
+  {
+    "id": "T067",
+    "title": "tribute and ceasefire system",
+    "description": "Pay gold to pause war raids; demand tribute from losing enemies.",
+    "priority": 67,
+    "status": "done",
+    "phase": 7,
+    "notes": "diplomacy.js: Added TRIBUTE_COST=150, TRIBUTE_DEMAND=60, CEASEFIRE_TICKS=120*4=480, DEMAND_WARSCORE_MIN=10. payTribute(empireId): costs 150 gold, sets emp.ceasefireTick=tick+480, supresses raids. demandTribute(empireId): requires warScore>=10, grants 60 gold + sets ceasefireTick (AI pays, no raids for 30s). _warRaid() checks ceasefireTick before raiding. Migration in initDiplomacy() adds ceasefireTick:0 to older saves. diplomacyPanel.js: Imported new functions/constants. TICK throttle re-renders on active ceasefires. War card shows ceasefire badge (\u23f3 Xsecs) when active, or Pay Tribute + Demand Tribute buttons otherwise (Demand Tribute only visible at warScore>=10). _onClick handles payTribute/demandTribute cases. CSS: .btn--pay-tribute (dim border, blue hover), .btn--demand-tribute (gold border), .dipl-ceasefire-badge (blue pill countdown)."
+  },
+  {
+    "id": "T068",
+    "title": "garrison system",
+    "description": "Station units on owned tiles for defense bonuses against enemy AI attacks.",
+    "priority": 68,
+    "status": "done",
+    "phase": 7,
+    "notes": "state.js: Added garrisons:null field, reset in initState(). events.js: GARRISON_CHANGED event. actions.js: garrisonUnit(x,y,unitId,count=1) validates ownership/non-capital/army availability/food cost (30/unit)/cap (10 total); removes from state.units, stores in state.garrisons[key]; food deducted. withdrawGarrison(x,y) returns units to army. destroyGarrison(x,y) silently destroys on enemy capture (no refund). getTotalGarrisoned() and GARRISON_MAX_TOTAL exported. resources.js: Garrison upkeep loop iterates state.garrisons values to maintain resource drain. enemyAI.js: Imports destroyGarrison; adds tileGarrison defense bonus to playerDefense before winChance calc; calls destroyGarrison on capture. mapPanel.js: Imports UNITS, garrisonUnit, withdrawGarrison, getTotalGarrisoned, GARRISON_MAX_TOTAL. GARRISON_CHANGED listener triggers re-render. _drawTile draws yellow shield+count in bottom-left of garrisoned tiles. Tile tooltip shows garrison info (unit type, count, +def). _garrisonSection() builds picker HTML (existing garrison: unit badge + Withdraw; no garrison: unit type buttons). All 3 picker states include garrisonSection. main.js: garrisons in save/load (save version 21\u219222). CSS: .imp-garrison container (gold-tinted border), .imp-garrison__header/current/limit/units, .btn--garrison-unit (gold hover), .btn--garrison-withdraw (red hover)."
   }
 ]

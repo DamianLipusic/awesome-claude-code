@@ -175,7 +175,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 21,
+      version: 22,
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -216,6 +216,7 @@ function _save() {
         archetype:        state.archetype        ?? 'none',
         policy:           state.policy           ?? null,
         policyChangedAt:  state.policyChangedAt  ?? -999,
+        garrisons:        state.garrisons        ?? null,
         tick:          state.tick,
       }
     }));
@@ -272,6 +273,7 @@ function _applySave(save) {
   state.archetype        = s.archetype        ?? 'none';
   state.policy           = s.policy           ?? null;
   state.policyChangedAt  = s.policyChangedAt  ?? -999;
+  state.garrisons        = s.garrisons        ?? null;
   state.tick             = s.tick             ?? 0;
   recalcRates();
 

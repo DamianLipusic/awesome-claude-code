@@ -16,7 +16,8 @@
 import { state } from '../core/state.js';
 import { on, Events } from '../core/events.js';
 import { attackTile, getAttackPreview } from '../systems/combat.js';
-import { buildTileImprovement, fortifyTile, addMessage } from '../core/actions.js';
+import { buildTileImprovement, fortifyTile, garrisonUnit, withdrawGarrison, getTotalGarrisoned, GARRISON_MAX_TOTAL, addMessage } from '../core/actions.js';
+import { UNITS } from '../data/units.js';
 import { IMPROVEMENTS } from '../data/improvements.js';
 import { EMPIRES } from '../data/empires.js';
 import { acceptCaravanOffer, getCaravanSecsLeft } from '../systems/caravans.js';
@@ -160,8 +161,9 @@ export function initMapPanel() {
       _render();
     }
   });
-  on(Events.UNIT_CHANGED, _render);
-  on(Events.GAME_LOADED,  _render);
+  on(Events.UNIT_CHANGED,    _render);
+  on(Events.GARRISON_CHANGED, _render);
+  on(Events.GAME_LOADED,     _render);
 
   // T063: re-render when caravan arrives/departs/trades
   on(Events.CARAVAN_UPDATED, (data) => {
@@ -314,6 +316,13 @@ function _showTileTip(tile, x, y, mouseX, mouseY) {
     ${impHtml}
     ${caravanHtml}
     <div class="map-tt-row">🛡️ Defense: ${tile.defense}${tile.fortified ? ' 🏰' : ''}</div>
+    ${(() => {
+      const key = `${x},${y}`;
+      const g = state.garrisons?.[key];
+      if (!g) return '';
+      const unitDef = UNITS[g.unitId];
+      return `<div class="map-tt-row" style="color:#ffd700">🛡️ Garrison: ${g.count}× ${unitDef?.name ?? g.unitId} (+${(unitDef?.defense ?? 0) * g.count} def)</div>`;
+    })()}
     ${tile.owner === 'player' && !tile.fortified && tile.type !== 'capital'
       ? `<div class="map-tt-row" style="font-size:0.7rem;color:var(--text-dim)">🏰 Click → Fortify (+15 def)</div>`
       : ''}
@@ -466,6 +475,18 @@ function _drawTile(tile, x, y, capital) {
     ctx.fillStyle     = '#aad4ff';
     ctx.fillText('▲', px + TILE_PX - 2, py + 2);
     ctx.textAlign = 'center';
+  }
+
+  // T068: draw garrison shield indicator in bottom-left corner
+  if (tile.owner === 'player' && state.garrisons?.[`${x},${y}`]) {
+    const g = state.garrisons[`${x},${y}`];
+    ctx.font         = `7px sans-serif`;
+    ctx.textAlign    = 'left';
+    ctx.textBaseline = 'bottom';
+    ctx.fillStyle    = '#ffd700';
+    ctx.fillText(`🛡${g.count}`, px + 2, py + TILE_PX - 1);
+    ctx.textAlign    = 'center';
+    ctx.textBaseline = 'middle';
   }
 }
 
@@ -738,6 +759,20 @@ function _createImprovementPicker() {
       const result = fortifyTile(sx, sy);
       if (!result.ok) addMessage(`❌ ${result.reason}`, 'info');
     }
+    // T068: Garrison unit button
+    if (e.target.dataset.garrison) {
+      const { garrison: unitId, gx, gy } = e.target.dataset;
+      const result = garrisonUnit(Number(gx), Number(gy), unitId);
+      if (!result.ok) addMessage(`❌ ${result.reason}`, 'info');
+      else _hideImprovementPicker();
+    }
+    // T068: Withdraw garrison button
+    if (e.target.dataset.withdrawGarrison) {
+      const [sx, sy] = e.target.dataset.withdrawGarrison.split(',').map(Number);
+      const result = withdrawGarrison(sx, sy);
+      if (!result.ok) addMessage(`❌ ${result.reason}`, 'info');
+      else _hideImprovementPicker();
+    }
   });
 
   document.addEventListener('keydown', (e) => {
@@ -764,6 +799,9 @@ function _showImprovementPicker(x, y, tile) {
         </button>
        </div>`;
 
+  // T068: Garrison section (shared across all states, below fortify)
+  const garrisonSection = _garrisonSection(x, y, tile);
+
   if (tile.improvement) {
     // Already improved — show info card only
     const desc = impDef ? `${impDef.icon} ${impDef.name} — ${impDef.desc}` : tile.improvement;
@@ -774,6 +812,7 @@ function _showImprovementPicker(x, y, tile) {
         <div class="imp-built">${desc}</div>
         <div class="imp-note">This tile already has an improvement.</div>
         ${fortifySection}
+        ${garrisonSection}
         <div class="imp-actions">
           <button id="imp-picker-cancel" class="btn btn--sm btn--ghost">Close</button>
         </div>
@@ -786,6 +825,7 @@ function _showImprovementPicker(x, y, tile) {
         <div class="imp-sub">${_TERRAIN_LABELS[tile.type] ?? tile.type} (${x}, ${y})</div>
         <div class="imp-note">No terrain improvement available here.</div>
         ${fortifySection}
+        ${garrisonSection}
         <div class="imp-actions">
           <button id="imp-picker-cancel" class="btn btn--sm btn--ghost">Close</button>
         </div>
@@ -819,11 +859,65 @@ function _showImprovementPicker(x, y, tile) {
           <button id="imp-picker-cancel" class="btn btn--sm btn--ghost">Cancel</button>
         </div>
         ${fortifySection}
+        ${garrisonSection}
         <div class="imp-hint">Escape to cancel</div>
       </div>`;
   }
 
   _impPickerEl.classList.remove('imp-picker--hidden');
+}
+
+function _garrisonSection(x, y, tile) {
+  if (tile.owner !== 'player') return '';
+  const cap = state.map?.capital;
+  if (x === cap?.x && y === cap?.y) return '';  // capital always defended
+
+  const key       = `${x},${y}`;
+  const existing  = state.garrisons?.[key];
+  const totalUsed = getTotalGarrisoned();
+  const atLimit   = totalUsed >= GARRISON_MAX_TOTAL;
+
+  if (existing) {
+    const unitDef = UNITS[existing.unitId];
+    return `
+      <div class="imp-garrison">
+        <div class="imp-garrison__header">🛡️ Garrison (${totalUsed}/${GARRISON_MAX_TOTAL} total)</div>
+        <div class="imp-garrison__current">
+          ${unitDef?.icon ?? ''} ${existing.count}× ${unitDef?.name ?? existing.unitId}
+          <span style="color:var(--green)">+${(unitDef?.defense ?? 0) * existing.count} def</span>
+        </div>
+        <button class="btn btn--sm btn--garrison-withdraw"
+          data-withdraw-garrison="${x},${y}">
+          ↩ Withdraw
+        </button>
+      </div>`;
+  }
+
+  // Show available unit types for garrisoning
+  const unitButtons = Object.entries(state.units ?? {})
+    .filter(([, count]) => count > 0)
+    .map(([unitId, count]) => {
+      const def = UNITS[unitId];
+      const disabled = atLimit ? 'disabled' : '';
+      const foodCost = 30;
+      const canAffordFood = (state.resources?.food ?? 0) >= foodCost;
+      const isDisabled = atLimit || !canAffordFood;
+      return `<button class="btn btn--sm btn--garrison-unit ${isDisabled ? 'btn--disabled' : ''}"
+        data-garrison="${unitId}" data-gx="${x}" data-gy="${y}"
+        ${isDisabled ? 'disabled' : ''}
+        title="${def?.name ?? unitId} — 1 unit, ${foodCost} 🍞">
+        ${def?.icon ?? ''} ${def?.name ?? unitId} (${count}) — 30🍞
+      </button>`;
+    }).join('');
+
+  if (!unitButtons) return '';
+
+  return `
+    <div class="imp-garrison">
+      <div class="imp-garrison__header">🛡️ Garrison Unit (${totalUsed}/${GARRISON_MAX_TOTAL} total)</div>
+      ${atLimit ? `<div class="imp-garrison__limit">Garrison limit reached.</div>` : ''}
+      <div class="imp-garrison__units">${unitButtons}</div>
+    </div>`;
 }
 
 function _hideImprovementPicker() {

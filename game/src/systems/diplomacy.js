@@ -29,6 +29,12 @@ export const MAX_TRADE_ROUTES    = 3;
 export const SURRENDER_COST      = 200;   // T058
 export const WAR_SCORE_THRESHOLD = 20;    // T058
 
+// T067: Tribute / ceasefire constants
+export const TRIBUTE_COST          = 150;   // gold to pay for a ceasefire
+export const TRIBUTE_DEMAND        = 60;    // gold received when demanding tribute
+export const CEASEFIRE_TICKS       = 120 * TICKS_PER_SECOND; // 120 s
+export const DEMAND_WARSCORE_MIN   = 10;    // warScore needed to demand tribute
+
 // ── Public API ─────────────────────────────────────────────────────────────────
 
 /**
@@ -45,6 +51,7 @@ export function initDiplomacy() {
         nextAITick:      state.tick + _aiInterval(),
         nextWarRaidTick: 0,
         warScore:        0,   // T058
+        ceasefireTick:   0,   // T067
       })),
       history: [],   // T054: diplomatic event log
     };
@@ -54,6 +61,10 @@ export function initDiplomacy() {
   // T058: migrate saves that predate the warScore field
   for (const emp of state.diplomacy.empires) {
     if (emp.warScore === undefined) emp.warScore = 0;
+  }
+  // T067: migrate saves that predate the ceasefireTick field
+  for (const emp of state.diplomacy.empires) {
+    if (emp.ceasefireTick === undefined) emp.ceasefireTick = 0;
   }
 }
 
@@ -210,6 +221,59 @@ export function demandSurrender(empireId) {
   return { ok: true };
 }
 
+/**
+ * (T067) Pay tribute to a war empire for a ceasefire.
+ * Costs TRIBUTE_COST gold; suppresses raids for CEASEFIRE_TICKS ticks.
+ */
+export function payTribute(empireId) {
+  const emp = _findEmpire(empireId);
+  if (!emp) return { ok: false, reason: 'Unknown empire.' };
+  if (emp.relations !== 'war') return { ok: false, reason: 'Not at war with this empire.' };
+  if (emp.ceasefireTick > state.tick)
+    return { ok: false, reason: 'Ceasefire already active.' };
+  if ((state.resources.gold ?? 0) < TRIBUTE_COST)
+    return { ok: false, reason: `Need ${TRIBUTE_COST} gold.` };
+
+  state.resources.gold -= TRIBUTE_COST;
+  emp.ceasefireTick = state.tick + CEASEFIRE_TICKS;
+  const def = EMPIRES[empireId];
+  emit(Events.DIPLOMACY_CHANGED, { empireId });
+  emit(Events.RESOURCE_CHANGED, {});
+  _logDiplomacy(empireId, 'peace', `Paid tribute to ${def.name} — ceasefire for 30s`);
+  addMessage(
+    `🏳️ Paid tribute to ${def.icon} ${def.name}. Raids suppressed for 30 seconds.`,
+    'diplomacy',
+  );
+  return { ok: true };
+}
+
+/**
+ * (T067) Demand tribute from a losing war empire.
+ * Requires warScore >= DEMAND_WARSCORE_MIN; grants TRIBUTE_DEMAND gold.
+ */
+export function demandTribute(empireId) {
+  const emp = _findEmpire(empireId);
+  if (!emp) return { ok: false, reason: 'Unknown empire.' };
+  if (emp.relations !== 'war') return { ok: false, reason: 'Not at war with this empire.' };
+  if ((emp.warScore ?? 0) < DEMAND_WARSCORE_MIN)
+    return { ok: false, reason: `Need ${DEMAND_WARSCORE_MIN} war score (have ${emp.warScore ?? 0}).` };
+  if (emp.ceasefireTick > state.tick)
+    return { ok: false, reason: 'Tribute demand already pending.' };
+
+  const gold = Math.min(state.caps.gold, (state.resources.gold ?? 0) + TRIBUTE_DEMAND);
+  state.resources.gold = gold;
+  emp.ceasefireTick = state.tick + CEASEFIRE_TICKS;  // they pay — no raids while "paying"
+  const def = EMPIRES[empireId];
+  emit(Events.DIPLOMACY_CHANGED, { empireId });
+  emit(Events.RESOURCE_CHANGED, {});
+  _logDiplomacy(empireId, 'trade', `Demanded tribute from ${def.name} — received ${TRIBUTE_DEMAND} gold`);
+  addMessage(
+    `💰 ${def.icon} ${def.name} pays tribute! Received +${TRIBUTE_DEMAND} gold.`,
+    'windfall',
+  );
+  return { ok: true };
+}
+
 // ── Internal helpers ──────────────────────────────────────────────────────────
 
 function _findEmpire(id) {
@@ -234,6 +298,8 @@ function _logDiplomacy(empireId, type, text) {
 }
 
 function _warRaid(emp) {
+  // T067: suppress raid during ceasefire
+  if (emp.ceasefireTick > state.tick) return;
   if (Math.random() >= 0.5) return;  // 50% chance each check
   const def  = EMPIRES[emp.id];
   const gold = Math.floor(Math.max(15, (state.resources.gold ?? 0) * 0.08));

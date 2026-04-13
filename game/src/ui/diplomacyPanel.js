@@ -12,8 +12,10 @@ import { EMPIRES } from '../data/empires.js';
 import {
   proposeAlliance, openTradeRoute, closeTradeRoute,
   declareWar, proposePeace, demandSurrender,
+  payTribute, demandTribute,
   ALLIANCE_COST, TRADE_ROUTE_COST, PEACE_COST, MAX_TRADE_ROUTES,
   SURRENDER_COST, WAR_SCORE_THRESHOLD,
+  TRIBUTE_COST, TRIBUTE_DEMAND, DEMAND_WARSCORE_MIN,
 } from '../systems/diplomacy.js';
 import {
   launchMission, canLaunchMission, espionageCooldownSecs,
@@ -39,10 +41,13 @@ export function initDiplomacyPanel() {
   on(Events.RESOURCE_CHANGED,  _throttle(() => _render(panel), 8));
   on(Events.TECH_CHANGED,      () => _render(panel));
   on(Events.ESPIONAGE_EVENT,   () => _render(panel));
-  // Refresh cooldown countdown every second
+  // Refresh cooldown countdown every second; also refresh ceasefire timers when active
   on(Events.TICK, _throttle(() => {
     const cd = document.getElementById('espionage-cooldown');
     if (cd) _updateCooldownDisplay(cd);
+    if (state.diplomacy?.empires.some(e => (e.ceasefireTick ?? 0) > state.tick)) {
+      _render(panel);
+    }
   }, 4));
 }
 
@@ -268,6 +273,30 @@ function _empireCard(emp) {
         🏳️ Demand Surrender (${fmtNum(SURRENDER_COST)}💰)
       </button>`);
     }
+    // T067: Tribute buttons (ceasefire payment / demand)
+    const cfTick = emp.ceasefireTick ?? 0;
+    const cfActive = cfTick > state.tick;
+    if (cfActive) {
+      const secsLeft = Math.ceil((cfTick - state.tick) / 4);
+      btns.push(`<div class="dipl-ceasefire-badge">⏳ Ceasefire: ${secsLeft}s</div>`);
+    } else {
+      const canPayTribute = gold >= TRIBUTE_COST;
+      btns.push(`<button
+        class="btn btn--pay-tribute ${canPayTribute ? '' : 'btn--disabled'}"
+        data-action="payTribute" data-empire="${emp.id}"
+        ${canPayTribute ? '' : 'disabled'}
+        title="Pay tribute for a 30-second ceasefire — costs ${TRIBUTE_COST} gold">
+        🏳️ Pay Tribute (${fmtNum(TRIBUTE_COST)}💰)
+      </button>`);
+      if (ws >= DEMAND_WARSCORE_MIN) {
+        btns.push(`<button
+          class="btn btn--demand-tribute"
+          data-action="demandTribute" data-empire="${emp.id}"
+          title="Demand tribute — receive +${TRIBUTE_DEMAND} gold (requires ${DEMAND_WARSCORE_MIN} war score)">
+          💰 Demand Tribute (+${TRIBUTE_DEMAND}💰)
+        </button>`);
+      }
+    }
   }
 
   // T058: War score progress bar (shown only when at war)
@@ -346,6 +375,14 @@ function _onClick(e) {
       break;
     case 'surrender':
       result = demandSurrender(empire);
+      if (!result.ok) addMessageFallback(result.reason);
+      break;
+    case 'payTribute':
+      result = payTribute(empire);
+      if (!result.ok) addMessageFallback(result.reason);
+      break;
+    case 'demandTribute':
+      result = demandTribute(empire);
       if (!result.ok) addMessageFallback(result.reason);
       break;
     case 'spy': {

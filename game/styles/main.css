@@ -3566,6 +3566,43 @@ kbd {
   color: #fff;
 }
 
+/* ── T067: Tribute / ceasefire buttons ─────────────────────────────────── */
+
+.btn--pay-tribute {
+  background: transparent;
+  border-color: var(--text-dim);
+  color: var(--text-dim);
+  font-size: 11px;
+}
+.btn--pay-tribute:hover:not(:disabled) {
+  border-color: var(--blue);
+  color: var(--blue);
+  background: rgba(88,166,255,0.08);
+}
+
+.btn--demand-tribute {
+  background: transparent;
+  border-color: var(--gold);
+  color: var(--gold);
+  font-size: 11px;
+}
+.btn--demand-tribute:hover {
+  background: rgba(240,180,41,0.12);
+}
+
+.dipl-ceasefire-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  padding: 3px 10px;
+  border: 1px solid var(--blue);
+  border-radius: 99px;
+  color: var(--blue);
+  background: rgba(88,166,255,0.08);
+  font-weight: 600;
+}
+
 /* ═══════════════════════════════════════════════════════════════
    T061 — Dynamic timed challenges (Quests tab)
 ═══════════════════════════════════════════════════════════════ */
@@ -4230,4 +4267,67 @@ kbd {
   font-size: 0.74rem;
   color: #aad4ff;
   font-weight: 600;
+}
+
+/* ── T068: Garrison section in improvement picker ────────────────────────── */
+
+.imp-garrison {
+  margin-top: 8px;
+  padding: 8px 10px;
+  background: rgba(255,215,0,0.06);
+  border: 1px solid rgba(255,215,0,0.35);
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.imp-garrison__header {
+  font-size: 12px;
+  font-weight: 700;
+  color: #ffd700;
+}
+
+.imp-garrison__current {
+  font-size: 12px;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.imp-garrison__limit {
+  font-size: 11px;
+  color: var(--red);
+}
+
+.imp-garrison__units {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.btn--garrison-unit {
+  background: transparent;
+  border-color: rgba(255,215,0,0.4);
+  color: var(--text-dim);
+  font-size: 11px;
+  text-align: left;
+}
+.btn--garrison-unit:hover:not(:disabled) {
+  border-color: #ffd700;
+  color: #ffd700;
+  background: rgba(255,215,0,0.08);
+}
+
+.btn--garrison-withdraw {
+  background: transparent;
+  border-color: var(--text-dim);
+  color: var(--text-dim);
+  font-size: 11px;
+  align-self: flex-start;
+}
+.btn--garrison-withdraw:hover {
+  border-color: var(--red);
+  color: var(--red);
 }

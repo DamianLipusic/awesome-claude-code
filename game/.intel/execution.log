@@ -1077,3 +1077,42 @@ Two new Phase 20 features: a dynamic timed challenge system that generates short
 - The 60-second cooldown is only enforced when switching **away from** an active policy (not when removing it entirely), so deactivating doesn't trigger cooldown.
 - Tile fortification uses a separate `tile.fortified` boolean rather than overloading the `tile.improvement` field, so players can have both a terrain improvement (e.g. Farm) AND a fortification on the same tile.
 - Save version bumped from 20 → 21 to include `policy` and `policyChangedAt` in persisted state. Old saves load cleanly with `?? null` / `?? -999` defaults.
+
+---
+
+## 2026-04-13 — Session 17
+
+**Tasks completed:** T067, T068
+
+**Summary:**
+Two new Phase 7 features: a war tribute/ceasefire system for tactical diplomacy and a garrison system for stationing units on tiles as defensive fortifications.
+
+**T067: Tribute & Ceasefire System**
+
+**Files modified:**
+- `game/src/systems/diplomacy.js` — Added `TRIBUTE_COST=150`, `TRIBUTE_DEMAND=60`, `CEASEFIRE_TICKS=480` (120s), `DEMAND_WARSCORE_MIN=10` constants. `payTribute(empireId)`: costs 150 gold, sets `emp.ceasefireTick = tick + 480`, suppresses raids. `demandTribute(empireId)`: requires warScore ≥ 10, grants 60 gold, also sets ceasefire (AI is paying). `_warRaid()` checks `ceasefireTick > state.tick` before raiding. `initDiplomacy()` migrates saves with `ceasefireTick: 0` on each empire.
+- `game/src/ui/diplomacyPanel.js` — Imported new functions/constants. TICK throttle re-renders when any ceasefire is active for countdown accuracy. War-state empire cards show ceasefire badge (⏳ Xs) when active, or "Pay Tribute" + "Demand Tribute" buttons otherwise (Demand Tribute only visible when warScore ≥ 10). `_onClick` handles `payTribute`/`demandTribute` actions.
+- `game/styles/main.css` — `.btn--pay-tribute` (dim border/blue hover), `.btn--demand-tribute` (gold border), `.dipl-ceasefire-badge` (blue pill countdown badge).
+
+**T068: Garrison System**
+
+**Files modified:**
+- `game/src/core/state.js` — Added `garrisons: null` field; reset in `initState()`.
+- `game/src/core/events.js` — Added `GARRISON_CHANGED: 'garrisonChanged'` event constant.
+- `game/src/core/actions.js` — `garrisonUnit(x,y,unitId,count)`: validates ownership/non-capital/army count/food cost (30/unit)/total cap (10 across all tiles); removes from `state.units`, stores in `state.garrisons['x,y']`. `withdrawGarrison(x,y)`: returns units to army, frees slot. `destroyGarrison(x,y)`: silently removes garrison on enemy capture (no refund, combat-loss message). Exported `getTotalGarrisoned()` and `GARRISON_MAX_TOTAL`.
+- `game/src/systems/resources.js` — Garrison upkeep loop in `recalcRates()` iterates `state.garrisons` values and applies `UNITS[unitId].upkeep` per garrisoned unit.
+- `game/src/systems/enemyAI.js` — Imported `destroyGarrison`. Adds garrison unit defense values to `playerDefense` for the specific attacked tile before computing `winChance`. Calls `destroyGarrison(x,y)` when enemy captures tile.
+- `game/src/ui/mapPanel.js` — Imported `UNITS`, `garrisonUnit`, `withdrawGarrison`, `getTotalGarrisoned`, `GARRISON_MAX_TOTAL`. `GARRISON_CHANGED` listener triggers re-render. `_drawTile` draws yellow 🛡count in bottom-left corner. Tile tooltip shows garrison unit type + count + defense bonus. `_garrisonSection(x,y,tile)` builds picker HTML (existing garrison: unit badge + Withdraw; no garrison: per-unit-type buttons with food cost). All 3 picker states include garrison section. `_createImprovementPicker` handles `data-garrison` (station) and `data-withdraw-garrison` (withdraw) clicks.
+- `game/src/main.js` — `garrisons` added to `_save()` payload and `_applySave()` restore (`?? null`). Save version bumped 21 → 22.
+- `game/styles/main.css` — `.imp-garrison` gold-tinted container, `.imp-garrison__header/current/limit/units`, `.btn--garrison-unit` (gold hover), `.btn--garrison-withdraw` (red hover).
+
+**Architecture decisions:**
+- Ceasefire tick stored on each empire object (inside `state.diplomacy.empires[]`) — automatically included in the existing `state.diplomacy` save payload without needing a separate top-level field.
+- `payTribute` and `demandTribute` share the same `ceasefireTick` mechanism — paying tribute buys peace, demanding tribute also triggers ceasefire (the faction is paying you, so they're not raiding). The distinction is directionality and gold gain/loss.
+- Garrison units are removed from `state.units` (reducing attack power and army display) to make the positioning choice meaningful — you trade mobile army strength for static defense.
+- Garrison upkeep is calculated separately in `recalcRates()` (since garrisoned units are removed from `state.units`) to maintain economic balance.
+- `GARRISON_MAX_TOTAL=10` prevents late-game abuse of garrisoning every tile; the 30 food/unit cost provides an upfront penalty discouraging casual overuse.
+- `destroyGarrison()` is exported from `actions.js` (not `enemyAI.js`) to keep all state mutations in one module.
+
+**Next session should tackle:**
+- T069+: More Phase 7 features — consider enemy faction tribute demands (AI demands tribute from player), unit merging/stacking improvements, or map territory analytics panel.

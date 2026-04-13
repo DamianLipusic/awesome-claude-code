@@ -54,4 +54,5 @@ export const Events = Object.freeze({
   CARAVAN_UPDATED:      'caravanUpdated',
   RELIC_DISCOVERED:     'relicDiscovered',
   POLICY_CHANGED:       'policyChanged',
+  GARRISON_CHANGED:     'garrisonChanged',   // T068
 });

@@ -108,6 +108,18 @@ export function recalcRates() {
     }
   }
 
+  // T068: Garrison upkeep (units removed from army but still consume resources)
+  if (state.garrisons) {
+    for (const { unitId, count } of Object.values(state.garrisons)) {
+      if (count <= 0) continue;
+      const def = UNITS[unitId];
+      if (!def?.upkeep) continue;
+      for (const [res, amt] of Object.entries(def.upkeep)) {
+        rates[res] = (rates[res] ?? 0) - amt * count;
+      }
+    }
+  }
+
   // Apply active disaster modifiers (from random event system)
   // Grand Cathedral wonder: halves disaster severity (attenuates penalty by 50%)
   const cathedralBuilt = (state.buildings?.grandCathedral ?? 0) >= 1;

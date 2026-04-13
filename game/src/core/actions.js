@@ -396,6 +396,107 @@ export function setFormation(type) {
 }
 
 // ---------------------------------------------------------------------------
+// Garrison (T068)
+// ---------------------------------------------------------------------------
+
+const GARRISON_FOOD_COST  = 30;   // food per garrisoned unit
+const GARRISON_MAX_TOTAL  = 10;   // max garrisoned units across all tiles
+
+/**
+ * Garrison `count` units of `unitId` on tile at (x, y).
+ * Units are removed from state.units and tracked in state.garrisons.
+ * Costs GARRISON_FOOD_COST food per unit.
+ */
+export function garrisonUnit(x, y, unitId, count = 1) {
+  if (!state.map) return { ok: false, reason: 'No map loaded.' };
+  const tile = state.map.tiles[y]?.[x];
+  if (!tile) return { ok: false, reason: 'Invalid coordinates.' };
+  if (tile.owner !== 'player') return { ok: false, reason: 'You can only garrison player-owned tiles.' };
+  const cap = state.map.capital;
+  if (x === cap.x && y === cap.y) return { ok: false, reason: 'Cannot garrison the capital — it is always defended.' };
+
+  const def = UNITS[unitId];
+  if (!def) return { ok: false, reason: `Unknown unit: ${unitId}` };
+
+  const inArmy = state.units[unitId] ?? 0;
+  if (inArmy < count) return { ok: false, reason: `Not enough ${def.name} in your army (have ${inArmy}).` };
+
+  const foodCost = GARRISON_FOOD_COST * count;
+  if ((state.resources.food ?? 0) < foodCost) return { ok: false, reason: `Need ${foodCost} food to provision the garrison.` };
+
+  // Check total garrison cap
+  const totalGarrisoned = _totalGarrisoned();
+  if (totalGarrisoned + count > GARRISON_MAX_TOTAL)
+    return { ok: false, reason: `Garrison limit reached (max ${GARRISON_MAX_TOTAL} total units).` };
+
+  // Deduct from army and provision
+  state.resources.food = Math.max(0, (state.resources.food ?? 0) - foodCost);
+  state.units[unitId] = inArmy - count;
+  if (state.units[unitId] <= 0) delete state.units[unitId];
+
+  // Store in garrison map
+  if (!state.garrisons) state.garrisons = {};
+  const key = `${x},${y}`;
+  const existing = state.garrisons[key];
+  if (existing && existing.unitId === unitId) {
+    existing.count += count;
+  } else if (!existing) {
+    state.garrisons[key] = { unitId, count };
+  } else {
+    // Replace existing garrison (different unit type)
+    _returnGarrison(key);
+    state.garrisons[key] = { unitId, count };
+  }
+
+  recalcRates();
+  emit(Events.GARRISON_CHANGED, { x, y });
+  emit(Events.UNIT_CHANGED, {});
+  emit(Events.RESOURCE_CHANGED, {});
+  addMessage(`🛡️ Garrisoned ${count} ${def.name} at (${x},${y}).`, 'build');
+  return { ok: true };
+}
+
+/**
+ * Withdraw the garrison from tile (x, y), returning units to the army.
+ */
+export function withdrawGarrison(x, y) {
+  const key = `${x},${y}`;
+  if (!state.garrisons?.[key]) return { ok: false, reason: 'No garrison at this tile.' };
+
+  _returnGarrison(key);
+
+  recalcRates();
+  emit(Events.GARRISON_CHANGED, { x, y });
+  emit(Events.UNIT_CHANGED, {});
+  addMessage(`🛡️ Garrison at (${x},${y}) withdrawn.`, 'info');
+  return { ok: true };
+}
+
+function _returnGarrison(key) {
+  const g = state.garrisons?.[key];
+  if (!g) return;
+  state.units[g.unitId] = (state.units[g.unitId] ?? 0) + g.count;
+  delete state.garrisons[key];
+}
+
+function _totalGarrisoned() {
+  if (!state.garrisons) return 0;
+  return Object.values(state.garrisons).reduce((s, g) => s + g.count, 0);
+}
+
+// Export helper for external use (e.g. enemyAI capturing a garrisoned tile)
+export function destroyGarrison(x, y) {
+  const key = `${x},${y}`;
+  if (!state.garrisons?.[key]) return;
+  const g = state.garrisons[key];
+  // Garrison units are captured/destroyed — do NOT return to army
+  delete state.garrisons[key];
+  addMessage(`💀 Garrison at (${x},${y}) destroyed in battle! Lost ${g.count} ${UNITS[g.unitId]?.name ?? g.unitId}.`, 'combat-loss');
+}
+
+export { _totalGarrisoned as getTotalGarrisoned, GARRISON_MAX_TOTAL };
+
+// ---------------------------------------------------------------------------
 // Internal helpers
 // ---------------------------------------------------------------------------
 
