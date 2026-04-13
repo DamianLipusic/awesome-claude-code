@@ -111,13 +111,17 @@ export function castSpell(spellId) {
   if (spellId === 'aegis'     && ae.aegis     > state.tick) return { ok: false, reason: 'Aegis Ward is already active.' };
   if (spellId === 'manaBolt'  && ae.manaBolt)               return { ok: false, reason: 'Mana Bolt is already primed.' };
 
-  // Mana cost
-  if ((state.resources.mana ?? 0) < def.manaCost) {
-    return { ok: false, reason: `Not enough mana. Need ${def.manaCost} ✨ mana.` };
+  // Mana cost (Arcane archetype: −25%)
+  const manaCost = state.archetype === 'arcane'
+    ? Math.max(1, Math.floor(def.manaCost * 0.75))
+    : def.manaCost;
+
+  if ((state.resources.mana ?? 0) < manaCost) {
+    return { ok: false, reason: `Not enough mana. Need ${manaCost} ✨ mana.` };
   }
 
   // Deduct mana
-  state.resources.mana -= def.manaCost;
+  state.resources.mana -= manaCost;
 
   // Apply effect and set cooldown
   switch (spellId) {

@@ -23,6 +23,7 @@ import { initBarbarians, barbarianTick } from './systems/barbarianCamps.js';
 import { initMorale, moraleTick } from './systems/morale.js';
 import { initPopulation, populationTick } from './systems/population.js';
 import { initEspionage } from './systems/espionage.js';
+import { initChallenges, challengeTick } from './systems/challenges.js';
 import { SEASONS } from './data/seasons.js';
 import { AGES } from './data/ages.js';
 import { TICKS_PER_SECOND } from './core/tick.js';
@@ -86,6 +87,7 @@ function boot() {
   registerSystem(barbarianTick);
   registerSystem(moraleTick);
   registerSystem(populationTick);
+  registerSystem(challengeTick);
 
   // Init event-driven systems
   initRandomEvents();
@@ -102,6 +104,7 @@ function boot() {
   initMorale();
   initPopulation();
   initEspionage();
+  initChallenges();
 
   // Init UI
   initHUD();
@@ -169,7 +172,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 17,
+      version: 19,
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -204,6 +207,8 @@ function _save() {
         morale:        state.morale ?? 50,
         population:    state.population,
         espionage:     state.espionage,
+        challenges:    state.challenges,
+        archetype:     state.archetype ?? 'none',
         tick:          state.tick,
       }
     }));
@@ -254,6 +259,8 @@ function _applySave(save) {
   state.morale         = s.morale         ?? 50;
   state.population     = s.population     ?? null;
   state.espionage      = s.espionage      ?? null;
+  state.challenges     = s.challenges     ?? null;
+  state.archetype      = s.archetype      ?? 'none';
   state.tick           = s.tick           ?? 0;
   recalcRates();
 
@@ -375,12 +382,14 @@ function _applyDifficultyStart() {
  * @param {object} [opts]             Optional overrides from the wizard modal.
  * @param {string} [opts.name]        Empire name; defaults to 'My Empire'.
  * @param {string} [opts.difficulty]  'easy'|'normal'|'hard'; persists in state.
+ * @param {string} [opts.archetype]   'none'|'conqueror'|'merchant'|'arcane'; persists in state.
  */
 function _newGame(opts = {}) {
   _saveToLeaderboard();
   localStorage.removeItem('empireos-save');
-  // Apply difficulty before initState so _applyDifficultyStart sees the right value
+  // Apply difficulty + archetype before initState (both persist across new games)
   if (opts.difficulty) state.difficulty = opts.difficulty;
+  if (opts.archetype)  state.archetype  = opts.archetype;
   initState(opts.name ?? 'My Empire');
   _applyDifficultyStart();
   initMap();
@@ -396,6 +405,7 @@ function _newGame(opts = {}) {
   initMorale();
   initPopulation();
   initEspionage();
+  initChallenges();
   recalcRates();
   startLoop();  // restart loop in case it was stopped by game-over
   _syncPauseUI();  // ensure pause overlay is hidden on new game
@@ -426,7 +436,7 @@ function _bindControls() {
 
   // New Game: open wizard modal instead of native confirm/prompt
   document.getElementById('btn-new-game')?.addEventListener('click', () => {
-    showNewGameWizard(state.difficulty, (opts) => _newGame(opts));
+    showNewGameWizard(state.difficulty, state.archetype ?? 'none', (opts) => _newGame(opts));
   });
 
   // Rename empire: inline prompt on title-bar name span (fixed: was using wrong id)

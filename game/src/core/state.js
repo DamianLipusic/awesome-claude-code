@@ -158,6 +158,15 @@ export const state = {
   // Espionage state — populated by systems/espionage.js initEspionage()
   // { cooldownUntil: tick, log: [{ tick, mission, empireId, success, text }] }
   espionage: null,
+
+  // Active timed challenge state — populated by systems/challenges.js initChallenges()
+  // { active: { type, icon, label, desc, startValue, target, reward, expiresAt } | null,
+  //   completed: [...], nextGenTick: number }
+  challenges: null,
+
+  // Empire archetype — persisted across new games (not reset by initState)
+  // 'none' | 'conqueror' | 'merchant' | 'arcane'
+  archetype: 'none',
 };
 
 /**
@@ -197,6 +206,8 @@ export function initState(empireName = 'My Empire') {
   state.morale         = 50;
   state.population     = null;
   state.espionage      = null;
+  state.challenges     = null;
   state.tick           = 0;
   state.running        = false;
+  // Note: state.archetype is NOT reset here — it persists across new games
 }

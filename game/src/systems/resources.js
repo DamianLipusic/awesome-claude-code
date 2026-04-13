@@ -33,6 +33,9 @@ export function recalcRates() {
   rates.gold += 0.5;
   rates.food += 0.5;
 
+  // Merchant archetype: +1.5 gold/s base income
+  if (state.archetype === 'merchant') rates.gold += 1.5;
+
   // Age production multiplier (applies to all building output)
   const ageMult = AGES[state.age ?? 0]?.productionMult ?? 1.0;
 
@@ -63,13 +66,15 @@ export function recalcRates() {
 
   // Trade route income from allied empires (reads state directly — no circular import)
   // Navigation tech gives +50% to all trade route income.
+  // Merchant archetype gives +50% on top of navigation multiplier.
   if (state.diplomacy) {
-    const navMult = state.techs.navigation ? 1.5 : 1.0;
+    const navMult     = state.techs.navigation ? 1.5 : 1.0;
+    const merchantMult = state.archetype === 'merchant' ? 1.5 : 1.0;
     for (const emp of state.diplomacy.empires) {
       if (emp.relations !== 'allied' || emp.tradeRoutes <= 0) continue;
       const gift = EMPIRES[emp.id]?.tradeGift ?? {};
       for (const [res, rate] of Object.entries(gift)) {
-        if (rates[res] !== undefined) rates[res] += rate * emp.tradeRoutes * navMult;
+        if (rates[res] !== undefined) rates[res] += rate * emp.tradeRoutes * navMult * merchantMult;
       }
     }
   }
@@ -316,9 +321,10 @@ function _buildingProdMultiplier(buildingId) {
     if (techs.economics)   mult *= 1.5;
   }
   if (buildingId === 'manaWell') {
-    if (techs.arcane)       mult *= 2.0;
-    if (techs.alchemy)      mult *= 1.75;
-    if (techs.divine_favor) mult *= 1.3;
+    if (techs.arcane)              mult *= 2.0;
+    if (techs.alchemy)             mult *= 1.75;
+    if (techs.divine_favor)        mult *= 1.3;
+    if (state.archetype === 'arcane') mult *= 2.0;  // Arcane archetype: ×2 mana well output
   }
 
   return mult;

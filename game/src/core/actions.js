@@ -324,9 +324,11 @@ export function setFormation(type) {
 function scaledCost(base, existing) {
   // Each additional building costs 15% more
   const factor = Math.pow(1.15, existing);
+  // Conqueror archetype: −10% building costs
+  const archMult = state.archetype === 'conqueror' ? 0.9 : 1.0;
   const scaled = {};
   for (const [res, amt] of Object.entries(base)) {
-    scaled[res] = Math.ceil(amt * factor);
+    scaled[res] = Math.ceil(amt * factor * archMult);
   }
   return scaled;
 }

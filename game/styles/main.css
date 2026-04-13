@@ -3561,3 +3561,243 @@ kbd {
   border-color: #fc8181;
   color: #fff;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   T061 — Dynamic timed challenges (Quests tab)
+═══════════════════════════════════════════════════════════════ */
+
+.challenge-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border-h);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+}
+
+.challenge-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.challenge-header__title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Active challenge card */
+.challenge-card {
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+
+.challenge-card--active {
+  background: rgba(49, 130, 206, 0.08);
+  border: 1px solid rgba(49, 130, 206, 0.45);
+  animation: pop-in 0.2s ease;
+}
+
+.challenge-card--waiting {
+  background: var(--bg-panel);
+  border: 1px dashed var(--border-h);
+  text-align: center;
+  padding: 14px;
+}
+
+.challenge-card__waiting-text {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.challenge-card__top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+
+.challenge-card__icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.challenge-card__label {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.challenge-card__timer {
+  font-size: 11px;
+  color: var(--text-dim);
+  white-space: nowrap;
+  background: var(--bg-panel);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-variant-numeric: tabular-nums;
+}
+
+.challenge-card__timer--urgent {
+  color: #fc8181;
+  border-color: #9b2c2c;
+  background: rgba(155, 44, 44, 0.15);
+}
+
+.challenge-card__desc {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+
+.challenge-card__reward {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+
+.challenge-reward-text {
+  color: #68d391;
+  font-weight: 600;
+}
+
+.challenge-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.challenge-progress .progress-bar {
+  flex: 1;
+}
+
+.progress-bar__fill--challenge {
+  background: linear-gradient(to right, #3182ce, #63b3ed);
+  transition: width 0.4s ease;
+}
+
+.challenge-progress__label {
+  font-size: 11px;
+  color: var(--text-dim);
+  min-width: 32px;
+  text-align: right;
+}
+
+/* Completed challenges list */
+.challenge-completed {
+  margin-top: 12px;
+  border-top: 1px solid var(--border-h);
+  padding-top: 8px;
+}
+
+.challenge-completed__header {
+  font-size: 11px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+
+.challenge-completed__entry {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: var(--text-secondary);
+  padding: 3px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.challenge-completed__reward {
+  color: #68d391;
+  font-size: 10px;
+  flex-shrink: 0;
+  margin-left: 8px;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   T062 — Empire archetype (New Game Wizard)
+═══════════════════════════════════════════════════════════════ */
+
+/* Archetype button row in wizard */
+.arch-buttons {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.btn--arch {
+  flex: 1 1 0;
+  min-width: 80px;
+  padding: 6px 8px;
+  font-size: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-h);
+  border-radius: 6px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  white-space: nowrap;
+}
+
+.btn--arch:hover {
+  border-color: var(--accent-h);
+  color: var(--text-primary);
+}
+
+.btn--arch-active {
+  border-color: var(--gold, #f0b429) !important;
+  color: var(--gold, #f0b429) !important;
+  background: rgba(240, 180, 41, 0.1) !important;
+  font-weight: 700;
+}
+
+.ng-arch-desc {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+  min-height: 16px;
+}
+
+.ng-arch-bonuses {
+  margin-top: 4px;
+}
+
+.ng-arch-bonus-line {
+  font-size: 11px;
+  color: #68d391;
+  padding: 1px 0;
+}
+
+/* Archetype badge in empire summary header */
+.summary-empire-badge--arch {
+  background: rgba(240, 180, 41, 0.15);
+  border: 1px solid rgba(240, 180, 41, 0.5);
+  color: var(--gold, #f0b429);
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+}
+
+@media (max-width: 480px) {
+  .challenge-card__top {
+    flex-wrap: wrap;
+  }
+  .challenge-card__timer {
+    order: 3;
+    width: 100%;
+  }
+  .arch-buttons {
+    flex-direction: column;
+  }
+  .btn--arch {
+    min-width: unset;
+  }
+}

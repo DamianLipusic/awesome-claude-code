@@ -84,6 +84,9 @@ export function getAttackPreview(x, y) {
   // Morale modifier (T057)
   attackPower *= getMoraleEffect();
 
+  // Conqueror archetype: +25% unit attack power
+  if (state.archetype === 'conqueror') attackPower *= 1.25;
+
   if (state.hero?.recruited) {
     attackPower += HERO_DEF.attack;
     if (state.hero.activeEffects?.battleCry) attackPower *= 2;  // preview includes Battle Cry bonus
@@ -156,6 +159,9 @@ export function attackTile(x, y) {
 
   // Morale modifier (T057)
   attackPower *= getMoraleEffect();
+
+  // Conqueror archetype: +25% unit attack power
+  if (state.archetype === 'conqueror') attackPower *= 1.25;
 
   // Hero bonus: flat attack power + Battle Cry (×2) on next attack
   if (state.hero?.recruited) {

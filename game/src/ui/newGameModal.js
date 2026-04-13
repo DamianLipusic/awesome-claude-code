@@ -1,14 +1,17 @@
 /**
  * EmpireOS — New Game Wizard Modal.
  *
- * Presents a styled modal for configuring a new game (empire name + difficulty)
- * instead of native browser confirm/prompt dialogs.
+ * Presents a styled modal for configuring a new game:
+ *   1. Empire name
+ *   2. Difficulty (Easy / Normal / Hard)
+ *   3. Archetype (Standard / Conqueror / Merchant / Arcane)
  *
  * Public API:
- *   showNewGameWizard(currentDifficulty, onConfirm)
- *     Opens the modal. Calls onConfirm({ name, difficulty }) when the player
- *     clicks "Found Empire".
+ *   showNewGameWizard(currentDifficulty, currentArchetype, onConfirm)
+ *     Opens the modal. Calls onConfirm({ name, difficulty, archetype }) on submit.
  */
+
+import { ARCHETYPES, ARCHETYPE_ORDER } from '../data/archetypes.js';
 
 const MODAL_ID = 'new-game-modal';
 
@@ -25,9 +28,10 @@ let _onConfirm = null;
 /**
  * Open the wizard modal.
  * @param {string}   currentDifficulty  Active difficulty ('easy'|'normal'|'hard').
- * @param {function} onConfirm          Called with { name, difficulty } on submit.
+ * @param {string}   currentArchetype   Active archetype id.
+ * @param {function} onConfirm          Called with { name, difficulty, archetype } on submit.
  */
-export function showNewGameWizard(currentDifficulty, onConfirm) {
+export function showNewGameWizard(currentDifficulty, currentArchetype, onConfirm) {
   _onConfirm = onConfirm;
 
   let el = document.getElementById(MODAL_ID);
@@ -37,17 +41,25 @@ export function showNewGameWizard(currentDifficulty, onConfirm) {
     _bindEvents(el);
   }
 
-  // Reset name field to a blank slate each time the wizard opens
+  // Reset name field each open
   const nameInput = el.querySelector('#ng-name');
   if (nameInput) nameInput.value = '';
 
-  // Pre-select the current difficulty
+  // Pre-select current difficulty
   const diff = currentDifficulty ?? 'normal';
   el.querySelectorAll('[data-diff]').forEach(btn => {
     btn.classList.toggle('btn--difficulty-active', btn.dataset.diff === diff);
   });
-  const descEl = el.querySelector('#ng-diff-desc');
-  if (descEl) descEl.textContent = DIFF_DESCS[diff] ?? '';
+  const diffDescEl = el.querySelector('#ng-diff-desc');
+  if (diffDescEl) diffDescEl.textContent = DIFF_DESCS[diff] ?? '';
+
+  // Pre-select current archetype
+  const arch = currentArchetype ?? 'none';
+  el.querySelectorAll('[data-arch]').forEach(btn => {
+    btn.classList.toggle('btn--arch-active', btn.dataset.arch === arch);
+  });
+  const archDescEl = el.querySelector('#ng-arch-desc');
+  if (archDescEl) archDescEl.textContent = ARCHETYPES[arch]?.desc ?? '';
 
   _show(el);
   nameInput?.focus();
@@ -56,6 +68,11 @@ export function showNewGameWizard(currentDifficulty, onConfirm) {
 // ── Internal helpers ──────────────────────────────────────────────────────
 
 function _create() {
+  const archButtons = ARCHETYPE_ORDER.map(id => {
+    const a = ARCHETYPES[id];
+    return `<button class="btn btn--arch" data-arch="${id}">${a.icon} ${a.name}</button>`;
+  }).join('');
+
   const el = document.createElement('div');
   el.id = MODAL_ID;
   el.className = 'modal-overlay modal--hidden';
@@ -89,6 +106,14 @@ function _create() {
           </div>
           <div class="ng-diff-desc" id="ng-diff-desc"></div>
         </div>
+        <div class="ng-field">
+          <label class="ng-label">Empire Archetype</label>
+          <div class="arch-buttons">
+            ${archButtons}
+          </div>
+          <div class="ng-arch-desc" id="ng-arch-desc"></div>
+          <div class="ng-arch-bonuses" id="ng-arch-bonuses"></div>
+        </div>
         <p class="ng-warning">⚠️ Starting a new game will erase your current progress.</p>
       </div>
       <div class="modal-footer">
@@ -105,14 +130,12 @@ function _bindEvents(el) {
 
   el.querySelector('#ng-close').addEventListener('click', hide);
   el.querySelector('#ng-cancel').addEventListener('click', hide);
-  // Click outside the box to cancel
   el.addEventListener('click', e => { if (e.target === el) hide(); });
-  // Esc to cancel
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && !el.classList.contains('modal--hidden')) hide();
   });
 
-  // Difficulty button group
+  // Difficulty buttons
   el.querySelectorAll('[data-diff]').forEach(btn => {
     btn.addEventListener('click', () => {
       el.querySelectorAll('[data-diff]').forEach(b => b.classList.remove('btn--difficulty-active'));
@@ -122,22 +145,37 @@ function _bindEvents(el) {
     });
   });
 
-  // Submit via button
-  el.querySelector('#ng-start').addEventListener('click', () => _submit(el));
+  // Archetype buttons
+  el.querySelectorAll('[data-arch]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      el.querySelectorAll('[data-arch]').forEach(b => b.classList.remove('btn--arch-active'));
+      btn.classList.add('btn--arch-active');
+      const archId  = btn.dataset.arch;
+      const archDef = ARCHETYPES[archId];
+      const descEl   = el.querySelector('#ng-arch-desc');
+      const bonusEl  = el.querySelector('#ng-arch-bonuses');
+      if (descEl)  descEl.textContent  = archDef?.desc ?? '';
+      if (bonusEl) bonusEl.innerHTML   = (archDef?.bonusLines ?? [])
+        .map(b => `<div class="ng-arch-bonus-line">✦ ${b}</div>`)
+        .join('');
+    });
+  });
 
-  // Submit via Enter in name field
+  el.querySelector('#ng-start').addEventListener('click', () => _submit(el));
   el.querySelector('#ng-name').addEventListener('keydown', e => {
     if (e.key === 'Enter') _submit(el);
   });
 }
 
 function _submit(el) {
-  const nameInput   = el.querySelector('#ng-name');
-  const name        = (nameInput?.value ?? '').trim() || 'My Empire';
-  const activeBtn   = el.querySelector('[data-diff].btn--difficulty-active');
-  const difficulty  = activeBtn?.dataset.diff ?? 'normal';
+  const nameInput  = el.querySelector('#ng-name');
+  const name       = (nameInput?.value ?? '').trim() || 'My Empire';
+  const activeBtn  = el.querySelector('[data-diff].btn--difficulty-active');
+  const difficulty = activeBtn?.dataset.diff ?? 'normal';
+  const archBtn    = el.querySelector('[data-arch].btn--arch-active');
+  const archetype  = archBtn?.dataset.arch ?? 'none';
   _hide(el);
-  if (_onConfirm) _onConfirm({ name, difficulty });
+  if (_onConfirm) _onConfirm({ name, difficulty, archetype });
 }
 
 function _show(el) { el.classList.remove('modal--hidden'); }

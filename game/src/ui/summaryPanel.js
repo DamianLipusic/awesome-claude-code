@@ -23,6 +23,7 @@ import { HERO_DEF } from '../data/hero.js';
 import { EMPIRES } from '../data/empires.js';
 import { QUESTS } from '../systems/quests.js';
 import { TECHS } from '../data/techs.js';
+import { ARCHETYPES } from '../data/archetypes.js';
 import { currentSeason, seasonTicksRemaining } from '../systems/seasons.js';
 import { fmtNum, fmtRate } from '../utils/fmt.js';
 import { TICKS_PER_SECOND } from '../core/tick.js';
@@ -110,6 +111,10 @@ function _render() {
 // ── Empire header ──────────────────────────────────────────────────────────
 
 function _empireHeader(age, season, timeStr) {
+  const arch    = ARCHETYPES[state.archetype ?? 'none'];
+  const archBadge = arch && arch.id !== 'none'
+    ? `<span class="summary-empire-badge summary-empire-badge--arch">${arch.icon} ${arch.name}</span>`
+    : '';
   return `
     <div class="summary-empire-header">
       <div>
@@ -117,6 +122,7 @@ function _empireHeader(age, season, timeStr) {
         <div class="summary-empire-meta">
           <span class="summary-empire-badge">${age?.icon ?? '🪨'} ${age?.name ?? 'Stone Age'}</span>
           <span class="summary-empire-badge">${season.icon} ${season.name}</span>
+          ${archBadge}
           <span class="summary-empire-badge">⏱️ ${timeStr}</span>
         </div>
       </div>

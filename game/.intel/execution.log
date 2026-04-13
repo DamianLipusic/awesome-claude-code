@@ -932,3 +932,54 @@ Added two Phase 17 features: per-faction enemy tile coloring that makes the thre
 - Diplomatic history lives inside `state.diplomacy` (not a separate top-level field) and is therefore automatically included in the existing save payload (`diplomacy: state.diplomacy`) with no additional save logic.
 - `_relativeTime()` converts tick delta to seconds/minutes/hours using the 4-ticks-per-second constant; it is a pure display function called at render time so no time is stored separately.
 - The faction legend uses circular swatches (`.map-legend__swatch--faction { border-radius: 50% }`) to visually distinguish them from the square terrain swatches, making the legend scannable at a glance.
+
+---
+
+## 2026-04-13 — Session 16
+
+**Tasks completed:** T061, T062
+
+**Summary:**
+Two new Phase 20 features: a dynamic timed challenge system that generates short-duration objectives in the Quests tab, and an empire archetype selection system added to the New Game Wizard that gives players distinct passive playstyle bonuses.
+
+**Files created:**
+
+- `game/src/systems/challenges.js` — `initChallenges()` / `challengeTick()` / `getChallengeSecsLeft()`. Five challenge templates (territory/gold/combat/population/mana) each with `metric()`, `target(cur)`, `label(sv,tgt)`, `desc(sv,tgt)`, and `reward(tgt)` functions. Challenges generate every 3 min (720 ticks); player has 2 min (480 ticks) to complete; 30 s (120 ticks) cooldown between attempts. `_completeChallenge()` distributes resource rewards, logs a quest-type message, records entry in `state.challenges.completed` (newest-first, cap 10). On expiry: info log + new cooldown.
+
+- `game/src/data/archetypes.js` — `ARCHETYPES` keyed object (none/conqueror/merchant/arcane) each with `id`, `icon`, `name`, `desc`, `bonusLines[]`. `ARCHETYPE_ORDER` array for wizard button order.
+
+**Files modified:**
+
+- `game/src/core/events.js` — Added `CHALLENGE_UPDATED: 'challengeUpdated'` event constant.
+
+- `game/src/core/state.js` — Added `challenges: null` (reset in `initState()`) and `archetype: 'none'` (not reset — persists like difficulty) to state shape.
+
+- `game/src/ui/questPanel.js` — Full rewrite: added `_challengeSection()` rendering `.challenge-section` card at top of panel; active challenge shows icon/label/countdown timer (urgent red <30s)/description/reward preview/live progress bar (`_progressBar()` reads metric snapshot); waiting state shows seconds to next challenge; completed challenges list (last 5) below separator. `TICK` handler refreshes countdown every `TICKS_PER_SECOND` ticks. Added `CHALLENGE_UPDATED`, `POPULATION_CHANGED`, `RESOURCE_CHANGED` to re-render event list.
+
+- `game/src/ui/newGameModal.js` — Added third `ng-field` section "Empire Archetype" with four `.btn--arch` buttons generated from `ARCHETYPE_ORDER`; click handler updates `#ng-arch-desc` and `#ng-arch-bonuses` (green bullet lines from `archDef.bonusLines`); `showNewGameWizard()` now accepts `currentArchetype` param and pre-selects it; `_submit()` extracts `archetype` from active arch button; `onConfirm` called with `{ name, difficulty, archetype }`.
+
+- `game/src/systems/resources.js` — Added `+1.5 gold/s` baseline when `state.archetype === 'merchant'`; multiplied trade route income by `merchantMult = 1.5` when merchant (stacks with navigation); added `×2` to `_buildingProdMultiplier()` for `manaWell` when `state.archetype === 'arcane'`.
+
+- `game/src/systems/combat.js` — Applied `attackPower *= 1.25` when `state.archetype === 'conqueror'` in both `getAttackPreview()` and `attackTile()`, placed after morale modifier and before hero bonus.
+
+- `game/src/systems/spells.js` — `castSpell()` computes `manaCost = floor(def.manaCost * 0.75)` when `state.archetype === 'arcane'`; error message uses computed cost.
+
+- `game/src/core/actions.js` — `scaledCost()` multiplies all costs by `archMult = 0.9` when `state.archetype === 'conqueror'` (applied after the 1.15^n scaling factor).
+
+- `game/src/ui/summaryPanel.js` — Imported `ARCHETYPES`; `_empireHeader()` renders `.summary-empire-badge--arch` gold pill badge (icon + name) when `state.archetype !== 'none'`.
+
+- `game/src/main.js` — Imported `initChallenges` + `challengeTick`; registered `challengeTick` as 13th tick system; `initChallenges()` called in boot + `_newGame()`; `_newGame()` applies `opts.archetype` to `state.archetype`; wizard call updated to pass `state.archetype ?? 'none'`; `_save()` adds `challenges` + `archetype` fields (save version bumped to 19); `_applySave()` restores both with `?? null` / `?? 'none'` defaults for backward compatibility.
+
+- `game/.intel/tasks.json` — T061 + T062 added and marked done with full implementation notes.
+
+- `game/styles/main.css` — T061 styles: `.challenge-section` (bg-card, border, radius, padding), `.challenge-header`, `.challenge-card/--active/--waiting` (blue-tinted active card, dashed waiting card), `.challenge-card__top/.icon/.label/.timer/--urgent` (red glow when <30s), `.challenge-card__desc/.reward`, `.challenge-progress` with `.progress-bar__fill--challenge` (blue gradient), `.challenge-completed/__header/__entry/__reward`. T062 styles: `.arch-buttons` flex row, `.btn--arch/.btn--arch-active` (gold border+tint on active), `.ng-arch-desc/.ng-arch-bonuses/.ng-arch-bonus-line` (green bonus lines), `.summary-empire-badge--arch` (gold pill, faint gold bg). Mobile: arch buttons column, challenge timer wraps.
+
+**Architecture decisions:**
+- Challenge templates use `target(cur)` to compute an absolute threshold at generation time, stored in `active.target`. Completion check is simply `metric() >= active.target`, which is uniform across all types and survives save/load without re-computation.
+- The `startValue` stored in `active` lets the progress bar show meaningful % even when the metric is an absolute value (e.g. total territory, total wins). `(cur - startValue) / (target - startValue)` correctly shows how much of the challenge is done since it began.
+- The `CHALLENGE_UPDATED` event is the single source of truth for quest panel re-renders; the TICK handler provides per-second countdown updates only when an active challenge exists — minimising unnecessary renders.
+- Archetype bonuses are applied at compute time (recalcRates, castSpell, attackTile, scaledCost) rather than stored as modified rates, so changing archetype on a new game is immediately correct without needing to invalidate cached values.
+- `state.archetype` is intentionally NOT reset in `initState()` — it persists like `difficulty` so players who prefer a playstyle keep it across New Game restarts without needing to re-select.
+- The Arcane mana cost reduction in `spells.js` uses the effective `manaCost` variable (not `def.manaCost`) for both the affordability check and the deduction, so the reduction is always consistent.
+- Conqueror building cost reduction applies inside `scaledCost()` which is shared by all building construction paths (normal build, wonder build) ensuring the discount is universal.
+- Save version bumped from 17 → 19 (18 reserved for challenges, 19 for archetype); both fields use `?? null` / `?? 'none'` defaults in `_applySave()` so saves from v17 and earlier load cleanly.

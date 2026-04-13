@@ -50,4 +50,5 @@ export const Events = Object.freeze({
   MORALE_CHANGED:       'moraleChanged',
   POPULATION_CHANGED:   'populationChanged',
   ESPIONAGE_EVENT:      'espionageEvent',
+  CHALLENGE_UPDATED:    'challengeUpdated',
 });
