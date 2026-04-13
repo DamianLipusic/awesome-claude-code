@@ -120,6 +120,16 @@ export function recalcRates() {
     if (rates.gold > 0) rates.gold *= 1.6;
   }
 
+  // Population income / consumption
+  // Each citizen generates +0.003 gold/s and consumes +0.005 food/s
+  if (state.population) {
+    const pop = Math.floor(state.population.count ?? 0);
+    if (pop > 0) {
+      rates.gold += pop * 0.003;
+      rates.food -= pop * 0.005;
+    }
+  }
+
   Object.assign(state.rates, rates);
   Object.assign(state.caps, caps);
 }
@@ -255,6 +265,15 @@ export function getBreakdown(resId) {
   // Hero upkeep
   if (state.hero?.recruited && HERO_DEF.upkeep[resId]) {
     lines.push({ label: '⚔️ Hero upkeep', value: -(HERO_DEF.upkeep[resId]) });
+  }
+
+  // Population income / consumption
+  if (state.population) {
+    const pop = Math.floor(state.population.count ?? 0);
+    if (pop > 0) {
+      if (resId === 'gold') lines.push({ label: '🏘️ Citizens', value: pop * 0.003 });
+      if (resId === 'food') lines.push({ label: '🏘️ Citizens upkeep', value: -(pop * 0.005) });
+    }
   }
 
   // Active disaster modifiers

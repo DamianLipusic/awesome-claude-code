@@ -21,6 +21,8 @@ import { initEnemyAI, enemyAITick } from './systems/enemyAI.js';
 import { initSpells, spellTick } from './systems/spells.js';
 import { initBarbarians, barbarianTick } from './systems/barbarianCamps.js';
 import { initMorale, moraleTick } from './systems/morale.js';
+import { initPopulation, populationTick } from './systems/population.js';
+import { initEspionage } from './systems/espionage.js';
 import { SEASONS } from './data/seasons.js';
 import { AGES } from './data/ages.js';
 import { TICKS_PER_SECOND } from './core/tick.js';
@@ -83,6 +85,7 @@ function boot() {
   registerSystem(spellTick);
   registerSystem(barbarianTick);
   registerSystem(moraleTick);
+  registerSystem(populationTick);
 
   // Init event-driven systems
   initRandomEvents();
@@ -97,6 +100,8 @@ function boot() {
   initSpells();
   initBarbarians();
   initMorale();
+  initPopulation();
+  initEspionage();
 
   // Init UI
   initHUD();
@@ -164,7 +169,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 16,
+      version: 17,
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -197,6 +202,8 @@ function _save() {
         spells:        state.spells,
         barbarians:    state.barbarians,
         morale:        state.morale ?? 50,
+        population:    state.population,
+        espionage:     state.espionage,
         tick:          state.tick,
       }
     }));
@@ -245,6 +252,8 @@ function _applySave(save) {
   state.spells         = s.spells         ?? null;
   state.barbarians     = s.barbarians     ?? null;
   state.morale         = s.morale         ?? 50;
+  state.population     = s.population     ?? null;
+  state.espionage      = s.espionage      ?? null;
   state.tick           = s.tick           ?? 0;
   recalcRates();
 
@@ -385,6 +394,8 @@ function _newGame(opts = {}) {
   initSpells();
   initBarbarians();
   initMorale();
+  initPopulation();
+  initEspionage();
   recalcRates();
   startLoop();  // restart loop in case it was stopped by game-over
   _syncPauseUI();  // ensure pause overlay is hidden on new game

@@ -1360,6 +1360,105 @@ body {
 /* Log colours for diplomacy events */
 .log-entry--diplomacy { border-color: var(--blue); background: rgba(88, 166, 255, 0.05); }
 
+/* ── T060: Espionage section ────────────────────────────────────────────── */
+.dipl-espionage {
+  margin-top: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+}
+.dipl-espionage--locked {
+  opacity: .7;
+}
+.dipl-esp-header {
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+.dipl-esp-locked-msg {
+  font-size: 13px;
+  color: var(--text-dim);
+}
+.dipl-esp-status {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  padding: 4px 8px;
+  border-radius: var(--radius);
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--border);
+  display: inline-block;
+}
+.dipl-esp-missions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.dipl-esp-mission {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.dipl-esp-mission__label {
+  font-size: 13px;
+  font-weight: 600;
+  min-width: 130px;
+  flex-shrink: 0;
+}
+.dipl-esp-mission__targets {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.btn--spy {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-color: rgba(139,92,246,.5);
+  color: #c4b5fd;
+  background: rgba(139,92,246,.08);
+}
+.btn--spy:hover:not(:disabled) {
+  background: rgba(139,92,246,.2);
+  border-color: rgba(139,92,246,.8);
+}
+.dipl-esp-log-header {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+.dipl-esp-log {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.dipl-esp-log-entry {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+  padding: 5px 8px;
+  border-radius: var(--radius);
+  border-left: 3px solid transparent;
+}
+.dipl-esp-log--success {
+  background: rgba(104,211,145,.07);
+  border-left-color: var(--green);
+}
+.dipl-esp-log--fail {
+  background: rgba(252,129,74,.07);
+  border-left-color: var(--red);
+}
+.dipl-esp-log-text { flex: 1; }
+.dipl-esp-log-time { color: var(--text-dim); font-size: 10px; white-space: nowrap; }
+.dipl-esp-log-empty { font-size: 12px; color: var(--text-dim); }
+
 /* ── Season badge ─────────────────────────────────────────────────────────── */
 
 .season-badge {
@@ -2919,6 +3018,26 @@ kbd {
   cursor: help;
 }
 #score-badge:hover { background: rgba(240,180,41,.18); }
+
+/* Population badge (T059) */
+.population-badge {
+  font-size: 13px;
+  font-weight: 700;
+  color: #68d391;
+  background: rgba(104,211,145,.1);
+  border: 1px solid rgba(104,211,145,.3);
+  border-radius: 99px;
+  padding: 2px 10px;
+  white-space: nowrap;
+  cursor: help;
+  transition: color .2s, background .2s;
+}
+.population-badge:hover { background: rgba(104,211,145,.18); }
+.population-badge--full {
+  color: #f6ad55;
+  background: rgba(246,173,85,.1);
+  border-color: rgba(246,173,85,.4);
+}
 
 /* Score breakdown card in the summary panel */
 .sum-score-rows { display: flex; flex-direction: column; gap: 4px; }

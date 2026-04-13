@@ -81,6 +81,19 @@ export const BUILDINGS = Object.freeze({
     requires: [{ type: 'building', id: 'lumberMill', count: 1 }],
   },
 
+  // ── Housing ───────────────────────────────────────────────────────────────
+
+  house: {
+    name: 'House',
+    icon: '🏠',
+    description: 'Provides housing for more citizens. Each House raises the population cap by 100.',
+    baseCost: { wood: 30, gold: 15 },
+    production: {},
+    consumption: {},
+    capBonus: {},
+    requires: [],
+  },
+
   // ── Storage ───────────────────────────────────────────────────────────────
 
   warehouse: {

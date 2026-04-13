@@ -8,6 +8,7 @@ import { state } from '../core/state.js';
 import { on, Events } from '../core/events.js';
 import { fmtNum, fmtRate } from '../utils/fmt.js';
 import { getBreakdown } from '../systems/resources.js';
+import { getPopulation, getPopCap } from '../systems/population.js';
 
 const RESOURCES = [
   { id: 'gold',  label: 'Gold',  icon: '💰' },
@@ -169,8 +170,10 @@ export function initHUD() {
   }
 
   on(Events.RESOURCE_CHANGED, renderHUD);
+  on(Events.POPULATION_CHANGED, _renderPopBadge);
   on(Events.TICK, _throttledRender());
   renderHUD();
+  _renderPopBadge();
 }
 
 function renderHUD() {
@@ -211,6 +214,18 @@ function renderHUD() {
         typeof threshold === 'number' && val <= threshold);
     }
   }
+}
+
+function _renderPopBadge() {
+  const el = document.getElementById('population-badge');
+  if (!el) return;
+  const count = getPopulation();
+  const cap   = getPopCap();
+  el.textContent = `👥 ${count.toLocaleString()}/${cap.toLocaleString()}`;
+  const pct = cap > 0 ? count / cap : 0;
+  el.title = `Citizens: ${count.toLocaleString()} / ${cap.toLocaleString()} — ${Math.round(pct * 100)}% of cap. Build Houses to expand. Citizens generate gold and consume food.`;
+  // Visual warning when at 90%+ of cap
+  el.classList.toggle('population-badge--full', pct >= 0.9);
 }
 
 function _flashEl(el, cls) {

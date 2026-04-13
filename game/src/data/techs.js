@@ -164,4 +164,14 @@ export const TECHS = Object.freeze({
     requires: ['alchemy'],
   },
 
+  espionage: {
+    name: 'Espionage',
+    icon: '🕵️',
+    description: 'Train a network of spies. Unlocks Spy Missions in the Diplomacy panel — steal gold, sabotage rivals, and gather intel.',
+    cost: { gold: 300, iron: 80, food: 100 },
+    researchTicks: 180,
+    effectDesc: 'Unlocks Spy Missions (Gold Heist, Sabotage, Gather Intel)',
+    requires: ['tradeRoutes'],
+  },
+
 });

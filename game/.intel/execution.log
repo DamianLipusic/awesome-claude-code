@@ -2,6 +2,48 @@
 
 ---
 
+## 2026-04-13 — Session N+9
+
+**Tasks completed:** T059, T060
+
+**Summary:**
+All prior tasks (T001–T058) were complete. Created two Phase 20 features: a population system making food management consequential through citizen growth mechanics (T059), and a spy/espionage system adding covert strategic depth to the diplomacy layer (T060).
+
+**T059 — Population System:**
+- `src/systems/population.js` (new): `POP_BASE_CAP=200`, `POP_PER_HOUSE=100`; `initPopulation()` seeds `state.population={count:100,cap:200}` and subscribes `BUILDING_CHANGED` once to recompute cap; `populationTick()` grows pop by 0.015/tick when food>20% cap (0.030/tick when food>50% cap, double rate) and shrinks by 0.025/tick on starvation (food=0), emits `POPULATION_CHANGED` on 5-citizen boundary crossings and at milestone thresholds (100/250/500/1000/2000/5000) with toast messages; `getPopulation()` and `getPopCap()` public helpers.
+- `src/data/buildings.js`: new `house` building — costs wood:30 gold:15, description explains +100 pop cap per instance.
+- `src/systems/resources.js` (`recalcRates`): added population income block — `rates.gold += pop * 0.003` and `rates.food -= pop * 0.005`; `getBreakdown()` mirror shows "🏘️ Citizens" and "🏘️ Citizens upkeep" lines in the HUD tooltip for gold/food.
+- `src/core/state.js`: added `population:null` to static state; reset in `initState()`.
+- `src/core/events.js`: added `POPULATION_CHANGED:'populationChanged'` and `ESPIONAGE_EVENT:'espionageEvent'` constants.
+- `src/ui/hud.js`: imported `getPopulation/getPopCap`; `initHUD()` subscribes `POPULATION_CHANGED→_renderPopBadge`; `_renderPopBadge()` updates `#population-badge` text and title, toggles `.population-badge--full` class when ≥90% of cap.
+- `index.html`: `<span id="population-badge">` added to title-bar between canvas minimap and score badge.
+- `styles/main.css`: `.population-badge` (green), `.population-badge--full` (amber warning state).
+- `src/main.js`: imports `initPopulation/populationTick`; `registerSystem(populationTick)` as 12th system; `initPopulation()` in boot + `_newGame()`; `population/espionage` persisted in `_save()` and restored in `_applySave()`; save version bumped to 17.
+
+**T060 — Espionage System:**
+- `src/systems/espionage.js` (new): `ESPIONAGE_COOLDOWN=240ticks(60s)`; `initEspionage()` seeds `state.espionage={cooldownUntil:0,log:[]}`; `canLaunchMission(id)` validates tech/gold/cooldown; `launchMission(id,empireId)` deducts cost, sets cooldown, resolves success via `_successChance()` (base 60% ±ally bonus ±war penalty), calls `_resolve()` per mission type; exported `MISSION_LABELS/MISSION_DESCS`; `espionageCooldownSecs()` returns remaining cooldown as seconds.
+- `src/data/techs.js`: new `espionage` tech — requires `['tradeRoutes']`, costs gold:300/iron:80/food:100, 180 ticks research, unlocks spy missions.
+- `src/ui/diplomacyPanel.js`: imported espionage helpers; `initDiplomacyPanel()` subscribes `TECH_CHANGED+ESPIONAGE_EVENT` and tick throttle for cooldown countdown; `_render()` includes `_espionageSection()` between empire list and history; `_espionageSection()` renders locked-state message when tech absent, or full spy panel with cooldown status badge, mission rows (3 missions × 3 empire target buttons), and mission log (last 8 entries, color-coded success/fail); `_updateCooldownDisplay()` for live countdown; `_onClick()` handles `data-action="spy"` with `data-mission` and `data-empire` attributes.
+- `styles/main.css`: `.dipl-espionage` card, `.dipl-espionage--locked`, `.dipl-esp-header/status/missions/mission/__label/__targets`, `.btn--spy` (purple tones), `.dipl-esp-log-entry/--success/--fail`, `.dipl-esp-log-empty`.
+
+**Files modified:**
+- `game/src/systems/population.js` (new)
+- `game/src/systems/espionage.js` (new)
+- `game/src/core/state.js`
+- `game/src/core/events.js`
+- `game/src/data/buildings.js`
+- `game/src/data/techs.js`
+- `game/src/systems/resources.js`
+- `game/src/ui/hud.js`
+- `game/src/ui/diplomacyPanel.js`
+- `game/src/main.js`
+- `game/index.html`
+- `game/styles/main.css`
+- `game/.intel/tasks.json`
+- `game/.intel/execution.log`
+
+---
+
 ## 2026-04-13 — Session N+8
 
 **Tasks completed:** T057, T058

@@ -150,6 +150,14 @@ export const state = {
   // combat outcomes. Affects attack power when at extremes.  Not reset by
   // initState so mid-game saves restore the correct level.
   morale: 50,
+
+  // Population state — populated by systems/population.js initPopulation()
+  // { count: number, cap: number }
+  population: null,
+
+  // Espionage state — populated by systems/espionage.js initEspionage()
+  // { cooldownUntil: tick, log: [{ tick, mission, empireId, success, text }] }
+  espionage: null,
 };
 
 /**
@@ -187,6 +195,8 @@ export function initState(empireName = 'My Empire') {
   state.spells         = null;
   state.barbarians     = null;
   state.morale         = 50;
+  state.population     = null;
+  state.espionage      = null;
   state.tick           = 0;
   state.running        = false;
 }

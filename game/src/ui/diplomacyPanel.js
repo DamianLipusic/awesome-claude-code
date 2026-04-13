@@ -15,6 +15,10 @@ import {
   ALLIANCE_COST, TRADE_ROUTE_COST, PEACE_COST, MAX_TRADE_ROUTES,
   SURRENDER_COST, WAR_SCORE_THRESHOLD,
 } from '../systems/diplomacy.js';
+import {
+  launchMission, canLaunchMission, espionageCooldownSecs,
+  MISSION_LABELS, MISSION_DESCS,
+} from '../systems/espionage.js';
 import { fmtNum } from '../utils/fmt.js';
 
 const PANEL_ID = 'panel-diplomacy';
@@ -33,6 +37,13 @@ export function initDiplomacyPanel() {
   _render(panel);
   on(Events.DIPLOMACY_CHANGED, () => _render(panel));
   on(Events.RESOURCE_CHANGED,  _throttle(() => _render(panel), 8));
+  on(Events.TECH_CHANGED,      () => _render(panel));
+  on(Events.ESPIONAGE_EVENT,   () => _render(panel));
+  // Refresh cooldown countdown every second
+  on(Events.TICK, _throttle(() => {
+    const cd = document.getElementById('espionage-cooldown');
+    if (cd) _updateCooldownDisplay(cd);
+  }, 4));
 }
 
 // ── Render ──────────────────────────────────────────────────────────────────
@@ -54,8 +65,77 @@ function _render(panel) {
       </div>
     </div>
     <div class="dipl-empire-list">${cards}</div>
+    ${_espionageSection()}
     ${_historySection()}
   `;
+}
+
+// ── T060: Espionage section ────────────────────────────────────────────────
+
+function _espionageSection() {
+  if (!state.techs?.espionage) {
+    return `
+      <div class="dipl-espionage dipl-espionage--locked">
+        <div class="dipl-esp-header">🕵️ Espionage</div>
+        <div class="dipl-esp-locked-msg">
+          Research <strong>Espionage</strong> in the Research tab to unlock spy missions.
+        </div>
+      </div>`;
+  }
+
+  const coolSecs = espionageCooldownSecs();
+  const cdText   = coolSecs > 0
+    ? `⏳ Cooldown: ${coolSecs}s`
+    : '✅ Spy network ready';
+  const ready = coolSecs === 0;
+
+  // Mission buttons (each target all 3 empires)
+  const missionRows = Object.entries(MISSION_LABELS).map(([mId, label]) => {
+    const { ok } = ready ? canLaunchMission(mId) : { ok: false };
+    const empireBtns = (state.diplomacy?.empires ?? []).map(emp => {
+      const empDef = EMPIRES[emp.id];
+      const disabled = !ok ? 'disabled' : '';
+      const relIcon = { neutral: '🤝', allied: '🟢', war: '⚔️' }[emp.relations] ?? '';
+      return `<button
+        class="btn btn--sm btn--spy ${ok ? '' : 'btn--disabled'}"
+        data-action="spy" data-mission="${mId}" data-empire="${emp.id}"
+        ${disabled}
+        title="${MISSION_DESCS[mId]}">
+        ${relIcon} ${empDef.name}
+      </button>`;
+    }).join('');
+
+    return `
+      <div class="dipl-esp-mission">
+        <span class="dipl-esp-mission__label">${label}</span>
+        <span class="dipl-esp-mission__targets">${empireBtns}</span>
+      </div>`;
+  }).join('');
+
+  // Log entries
+  const logEntries = (state.espionage?.log ?? []).slice(0, 8).map(entry => {
+    const cls = entry.success ? 'dipl-esp-log--success' : 'dipl-esp-log--fail';
+    const timeStr = _relativeTime(entry.tick);
+    return `<div class="dipl-esp-log-entry ${cls}">
+      <span class="dipl-esp-log-text">${entry.text}</span>
+      <span class="dipl-esp-log-time">${timeStr}</span>
+    </div>`;
+  }).join('') || '<div class="dipl-esp-log-empty">No missions launched yet.</div>';
+
+  return `
+    <div class="dipl-espionage">
+      <div class="dipl-esp-header">🕵️ Espionage</div>
+      <div class="dipl-esp-status" id="espionage-cooldown">${cdText}</div>
+      <div class="dipl-esp-missions">${missionRows}</div>
+      <div class="dipl-esp-log-header">Mission Log</div>
+      <div class="dipl-esp-log">${logEntries}</div>
+    </div>`;
+}
+
+function _updateCooldownDisplay(el) {
+  if (!el) return;
+  const coolSecs = espionageCooldownSecs();
+  el.textContent = coolSecs > 0 ? `⏳ Cooldown: ${coolSecs}s` : '✅ Spy network ready';
 }
 
 // ── T054: Diplomatic history section ────────────────────────────────────────
@@ -268,6 +348,12 @@ function _onClick(e) {
       result = demandSurrender(empire);
       if (!result.ok) addMessageFallback(result.reason);
       break;
+    case 'spy': {
+      const missionId = btn.dataset.mission;
+      result = launchMission(missionId, empire);
+      if (!result.ok) addMessageFallback(result.reason);
+      break;
+    }
   }
 }
 
