@@ -175,7 +175,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 20,
+      version: 21,
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -213,7 +213,9 @@ function _save() {
         challenges:    state.challenges,
         caravans:      state.caravans,
         relics:        state.relics,
-        archetype:     state.archetype ?? 'none',
+        archetype:        state.archetype        ?? 'none',
+        policy:           state.policy           ?? null,
+        policyChangedAt:  state.policyChangedAt  ?? -999,
         tick:          state.tick,
       }
     }));
@@ -267,8 +269,10 @@ function _applySave(save) {
   state.challenges     = s.challenges     ?? null;
   state.caravans       = s.caravans       ?? null;
   state.relics         = s.relics         ?? null;
-  state.archetype      = s.archetype      ?? 'none';
-  state.tick           = s.tick           ?? 0;
+  state.archetype        = s.archetype        ?? 'none';
+  state.policy           = s.policy           ?? null;
+  state.policyChangedAt  = s.policyChangedAt  ?? -999;
+  state.tick             = s.tick             ?? 0;
   recalcRates();
 
   // Calculate offline resource progress (applies gains to state.resources in-place).

@@ -1025,3 +1025,55 @@ Two new Phase 20 features: a dynamic timed challenge system that generates short
 - The Arcane mana cost reduction in `spells.js` uses the effective `manaCost` variable (not `def.manaCost`) for both the affordability check and the deduction, so the reduction is always consistent.
 - Conqueror building cost reduction applies inside `scaledCost()` which is shared by all building construction paths (normal build, wonder build) ensuring the discount is universal.
 - Save version bumped from 17 → 19 (18 reserved for challenges, 19 for archetype); both fields use `?? null` / `?? 'none'` defaults in `_applySave()` so saves from v17 and earlier load cleanly.
+
+---
+
+## Session: T065 + T066 (2026-04-13)
+
+### T065 — Empire Policies System
+
+**Summary:** Three governance policies (Taxation, Agrarian, Martial Law) that the player can activate one at a time to redirect their empire's focus. A 60-second cooldown prevents rapid policy flipping. Policy effects are applied as production multipliers in `recalcRates()`.
+
+**Files changed:**
+
+- `game/src/data/policies.js` — NEW. 3 policy definitions: `taxation` (+25% gold, -15% food, -3 morale), `agrarian` (+30% food, +25% pop cap, -15% gold), `martial_law` (-30% training time, -8% all positive rates, -5 morale). Includes `POLICY_ORDER` and `POLICY_COOLDOWN_TICKS = 240`.
+
+- `game/src/core/events.js` — Added `POLICY_CHANGED: 'policyChanged'` to Events constants.
+
+- `game/src/core/state.js` — Added `policy: null` and `policyChangedAt: -999` fields. Both reset in `initState()`.
+
+- `game/src/core/actions.js` — Imported `POLICIES` and `POLICY_COOLDOWN_TICKS`. Added `setPolicy(id)`: validates cooldown (enforced when switching away from an active policy), applies `moraleHit` on activation, calls `recalcRates()`, emits `POLICY_CHANGED` + `RESOURCE_CHANGED`. Applied `martial_law` `trainMult = 0.70` in `trainUnit()` after warcraft/colosseum reductions.
+
+- `game/src/systems/resources.js` — Imported `POLICIES`. In `recalcRates()`, after Blessing spell, applied policy per-resource `effects` (only to positive rates) and `allRatesMult` (for martial_law). In `getBreakdown()`, added `policyModifiers[]` field showing the active policy's per-resource multiplier as a tooltip modifier row.
+
+- `game/src/systems/population.js` — `_recalcCap()` now multiplies cap by 1.25 when `state.policy === 'agrarian'`. Added `POLICY_CHANGED` listener in `initPopulation()` so cap is recalculated when policy changes.
+
+- `game/src/ui/researchPanel.js` — Imported `setPolicy`, `POLICIES`, `POLICY_ORDER`, `POLICY_COOLDOWN_TICKS`. Added `POLICY_CHANGED` and `MORALE_CHANGED` listeners to `initResearchPanel()`. Added `_policySection()`: renders a policy grid with 3 cards showing icon/name/desc/effectDesc, active badge, optional cooldown countdown, and Activate/Deactivate buttons. Included in panel HTML after tech grid. Click handler handles `[data-policy]` buttons.
+
+- `game/src/ui/hud.js` — Added `policyRows` from `breakdown.policyModifiers` rendered as `.hud-tt__modifier--policy` in the hover tooltip.
+
+- `game/src/main.js` — Added `policy` and `policyChangedAt` to `_save()` payload and `_applySave()` restore (with `?? null` / `?? -999` defaults). Save version bumped from 20 → 21.
+
+- `game/styles/main.css` — Added `.policy-section`, `.policy-header`, `.policy-active-label`, `.policy-intro`, `.policy-cooldown`, `.policy-grid` (auto-fill 200px), `.policy-card` and `.policy-card--active` (gold border+tint), `.policy-card__header`, `.policy-icon/.name/.desc/.effects`, `.policy-badge` (gold pill), `.btn--policy-activate` (blue tint), `.btn--policy-deactivate` (red tint), `.hud-tt__modifier--policy` (light blue). Mobile: policy grid collapses to 1 column.
+
+---
+
+### T066 — Tile Fortification
+
+**Summary:** Players can spend 40 stone + 25 iron to fortify any player-owned tile (except the capital). Fortified tiles gain +15 defense, making them significantly harder for enemies to retake. The improvement picker modal is extended with a Fortify button/badge. Fortified tiles show a blue `▲` indicator on the canvas. Enemy capture removes the fortification.
+
+**Files changed:**
+
+- `game/src/core/actions.js` — Added `fortifyTile(x, y)`: validates tile ownership, non-capital, not-already-fortified, resource cost (40 stone + 25 iron); sets `tile.fortified = true`, `tile.defense += 15`; emits MAP_CHANGED + RESOURCE_CHANGED; shows build log message.
+
+- `game/src/ui/mapPanel.js` — Imported `fortifyTile`. In `_createImprovementPicker()`, added `data-fortify` click handler. In `_showImprovementPicker()`: computed `fortifySection` (shows "🏰 Fortified (+15 defense)" badge if already fortified, or Fortify button with cost and disabled state if resources insufficient); inserted fortifySection into all 3 modal states (already-improved, no-improvement, can-build); renamed modal header to "Tile Actions". In `_drawTile()`: draws small blue `▲` glyph in tile top-right for `tile.fortified && tile.owner === 'player'` (non-capital). In `_showTileTip()`: shows 🏰 emoji next to defense value for fortified tiles; adds a dim hint line "Click → Fortify (+15 def)" for unfortified player tiles.
+
+- `game/src/systems/enemyAI.js` — On enemy tile capture, clears `tile.fortified = false` and subtracts 15 from `tile.defense`. Fortified tiles get -30% enemy counterattack win chance (`winChance *= 0.70`).
+
+- `game/styles/main.css` — Added `.imp-fortify-row` (flex between label and button), `.imp-fortify-label`, `.btn--fortify` (blue border/text, disabled state), `.imp-fortified` (blue tinted confirmation badge).
+
+**Architecture decisions:**
+- Policy effects are applied to **positive rates only** in `recalcRates()` to avoid accidentally reducing unit upkeep consumption (which would be a net positive). The per-resource `effects` map and the `allRatesMult` global multiplier both apply only when `rate[res] > 0`.
+- The 60-second cooldown is only enforced when switching **away from** an active policy (not when removing it entirely), so deactivating doesn't trigger cooldown.
+- Tile fortification uses a separate `tile.fortified` boolean rather than overloading the `tile.improvement` field, so players can have both a terrain improvement (e.g. Farm) AND a fortification on the same tile.
+- Save version bumped from 20 → 21 to include `policy` and `policyChangedAt` in persisted state. Old saves load cleanly with `?? null` / `?? -999` defaults.

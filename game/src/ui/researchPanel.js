@@ -6,12 +6,13 @@
 import { state } from '../core/state.js';
 import { on, Events } from '../core/events.js';
 import { startResearch, cancelResearch, MAX_RESEARCH_QUEUE } from '../systems/research.js';
-import { advanceAge } from '../core/actions.js';
+import { advanceAge, setPolicy } from '../core/actions.js';
 import { TECHS } from '../data/techs.js';
 import { AGES } from '../data/ages.js';
 import { fmtNum, fmtTime } from '../utils/fmt.js';
 import { TICKS_PER_SECOND } from '../core/tick.js';
 import { RELICS, RELIC_ORDER, TERRAIN_RELIC } from '../data/relics.js';
+import { POLICIES, POLICY_ORDER, POLICY_COOLDOWN_TICKS } from '../data/policies.js';
 
 export function initResearchPanel() {
   const panel = document.getElementById('panel-research');
@@ -24,6 +25,8 @@ export function initResearchPanel() {
   on(Events.UNIT_CHANGED,     _throttle(renderResearchPanel, 8));
   on(Events.RESOURCE_CHANGED, _throttle(renderResearchPanel, 16));
   on(Events.RELIC_DISCOVERED, renderResearchPanel);
+  on(Events.POLICY_CHANGED,   renderResearchPanel);
+  on(Events.MORALE_CHANGED,   _throttle(renderResearchPanel, 8));
 }
 
 function renderResearchPanel() {
@@ -69,7 +72,7 @@ function renderResearchPanel() {
     </div>`;
   }).join('');
 
-  panel.innerHTML = _ageSection() + progressHtml + `<div class="tech-grid">${techCards}</div>` + _relicsSection();
+  panel.innerHTML = _ageSection() + progressHtml + `<div class="tech-grid">${techCards}</div>` + _policySection() + _relicsSection();
 
   panel.onclick = (e) => {
     if (e.target.closest('#btn-advance-age')) {
@@ -80,6 +83,16 @@ function renderResearchPanel() {
     const cancelBtn = e.target.closest('[data-cancel-tech]');
     if (cancelBtn) {
       cancelResearch(cancelBtn.dataset.cancelTech);
+      return;
+    }
+    // Policy buttons
+    const policyBtn = e.target.closest('[data-policy]');
+    if (policyBtn) {
+      const id = policyBtn.dataset.policy || null;
+      const result = setPolicy(id === 'none' ? null : id);
+      if (!result.ok) {
+        policyBtn.title = result.reason;
+      }
       return;
     }
     const btn = e.target.closest('[data-tech]');
@@ -252,6 +265,51 @@ function _relicsSection() {
       </div>
       <div class="relics-intro">Capture territory tiles to discover ancient relics with permanent bonuses.</div>
       <div class="relics-grid">${cards}</div>
+    </div>`;
+}
+
+// ── T065: Policy section ───────────────────────────────────────────────────
+
+function _policySection() {
+  const active = state.policy;
+  const changedAt = state.policyChangedAt ?? -999;
+  const cooldownRemaining = Math.max(0, (changedAt + POLICY_COOLDOWN_TICKS) - state.tick);
+  const onCooldown = cooldownRemaining > 0 && active !== null;
+  const cooldownSecs = Math.ceil(cooldownRemaining / 4);
+
+  const policyCards = POLICY_ORDER.map(id => {
+    const def = POLICIES[id];
+    const isActive = active === id;
+    return `
+      <div class="policy-card ${isActive ? 'policy-card--active' : ''}">
+        <div class="policy-card__header">
+          <span class="policy-icon">${def.icon}</span>
+          <strong class="policy-name">${def.name}</strong>
+          ${isActive ? '<span class="policy-badge">Active</span>' : ''}
+        </div>
+        <div class="policy-desc">${def.desc}</div>
+        <div class="policy-effects">${def.effectDesc}</div>
+        <button class="btn btn--sm ${isActive ? 'btn--policy-deactivate' : 'btn--policy-activate'}"
+                data-policy="${isActive ? 'none' : id}"
+                ${onCooldown && !isActive ? 'disabled' : ''}>
+          ${isActive ? 'Deactivate' : 'Activate'}
+        </button>
+      </div>`;
+  }).join('');
+
+  const cooldownHtml = onCooldown
+    ? `<div class="policy-cooldown">⏳ Policy cooldown: ${cooldownSecs}s</div>`
+    : '';
+
+  return `
+    <div class="policy-section">
+      <div class="policy-header">
+        <span>📜 Governance Policy</span>
+        <span class="policy-active-label">${active ? `Active: ${POLICIES[active].icon} ${POLICIES[active].name}` : 'No Active Policy'}</span>
+      </div>
+      <div class="policy-intro">Enact one policy to shape your empire's focus. Policies have a 60-second cooldown when changed.</div>
+      ${cooldownHtml}
+      <div class="policy-grid">${policyCards}</div>
     </div>`;
 }
 

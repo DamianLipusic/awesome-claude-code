@@ -49,8 +49,9 @@ export function initPopulation() {
   }
   if (!_initialized) {
     _initialized = true;
-    // Recalc cap whenever buildings change
+    // Recalc cap whenever buildings or active policy changes
     on(Events.BUILDING_CHANGED, _recalcCap);
+    on(Events.POLICY_CHANGED,   _recalcCap);
   }
   _recalcCap();
 }
@@ -119,5 +120,8 @@ export function getPopCap() {
 function _recalcCap() {
   if (!state.population) return;
   const houses = state.buildings?.house ?? 0;
-  state.population.cap = POP_BASE_CAP + houses * POP_PER_HOUSE;
+  let cap = POP_BASE_CAP + houses * POP_PER_HOUSE;
+  // T065: Agrarian policy grants +25% population cap
+  if (state.policy === 'agrarian') cap = Math.floor(cap * 1.25);
+  state.population.cap = cap;
 }

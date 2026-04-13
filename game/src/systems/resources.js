@@ -18,6 +18,7 @@ import { HERO_DEF } from '../data/hero.js';
 import { TICKS_PER_SECOND } from '../core/tick.js';
 import { territoryRateBonus } from './map.js';
 import { RELICS } from '../data/relics.js';
+import { POLICIES } from '../data/policies.js';
 
 const RESOURCE_KEYS = ['gold', 'food', 'wood', 'stone', 'iron', 'mana'];
 
@@ -124,6 +125,27 @@ export function recalcRates() {
   if (state.spells?.activeEffects?.blessing > state.tick) {
     if (rates.food > 0) rates.food *= 1.6;
     if (rates.gold > 0) rates.gold *= 1.6;
+  }
+
+  // T065: active governance policy — multipliers on positive production rates
+  if (state.policy) {
+    const pol = POLICIES[state.policy];
+    if (pol) {
+      // Per-resource multipliers (only applies to positive rates — production)
+      if (pol.effects) {
+        for (const [res, mult] of Object.entries(pol.effects)) {
+          if (rates[res] !== undefined && rates[res] > 0) {
+            rates[res] *= mult;
+          }
+        }
+      }
+      // Global positive-rate multiplier (e.g. martial law -8% all)
+      if (pol.allRatesMult) {
+        for (const res of RESOURCE_KEYS) {
+          if (rates[res] > 0) rates[res] *= pol.allRatesMult;
+        }
+      }
+    }
   }
 
   // Population income / consumption
@@ -313,11 +335,30 @@ export function getBreakdown(resId) {
     }
   }
 
+  // T065: active policy modifier (shows as a modifier like season)
+  const policyModifiers = [];
+  if (state.policy) {
+    const pol = POLICIES[state.policy];
+    if (pol) {
+      const resMult = pol.effects?.[resId];
+      if (resMult !== undefined && resMult !== 1.0) {
+        const sign = resMult > 1 ? '+' : '';
+        const pct  = Math.round((resMult - 1) * 100);
+        policyModifiers.push({ label: `${pol.icon} ${pol.name} policy ${sign}${pct}%`, mult: resMult });
+      } else if (pol.allRatesMult && pol.allRatesMult !== 1.0) {
+        const sign = pol.allRatesMult > 1 ? '+' : '';
+        const pct  = Math.round((pol.allRatesMult - 1) * 100);
+        policyModifiers.push({ label: `${pol.icon} ${pol.name} policy ${sign}${pct}%`, mult: pol.allRatesMult });
+      }
+    }
+  }
+
   return {
     lines,
     seasonMult,
     seasonName,
     disasters,
+    policyModifiers,
     total: state.rates[resId] ?? 0,
   };
 }

@@ -11,6 +11,7 @@ import { TECHS } from '../data/techs.js';
 import { AGES } from '../data/ages.js';
 import { HERO_DEF } from '../data/hero.js';
 import { IMPROVEMENTS } from '../data/improvements.js';
+import { POLICIES, POLICY_COOLDOWN_TICKS } from '../data/policies.js';
 import { recalcRates } from '../systems/resources.js';
 import { log } from '../utils/logger.js';
 
@@ -92,10 +93,11 @@ export function trainUnit(id) {
   }
 
   deductCost(def.cost);
-  // Warcraft tech: -25% training time; Colosseum wonder: additional -33%
+  // Warcraft tech: -25% training time; Colosseum wonder: -33%; Martial Law policy: -30%
   let totalTicks = def.trainTicks;
-  if (state.techs.warcraft)               totalTicks = Math.ceil(totalTicks * 0.75);
+  if (state.techs.warcraft)                  totalTicks = Math.ceil(totalTicks * 0.75);
   if ((state.buildings.colosseum ?? 0) >= 1) totalTicks = Math.ceil(totalTicks * 0.67);
+  if (state.policy === 'martial_law')        totalTicks = Math.ceil(totalTicks * 0.70);
   state.trainingQueue.push({ unitId: id, remaining: totalTicks, totalTicks });
 
   emit(Events.UNIT_CHANGED, {});
@@ -296,6 +298,82 @@ export function buildTileImprovement(x, y) {
   emit(Events.MAP_CHANGED, {});
   emit(Events.RESOURCE_CHANGED, {});
   addMessage(`${def.icon} Built ${def.name} at (${x},${y}). ${def.desc}`, 'build');
+  return { ok: true };
+}
+
+// ---------------------------------------------------------------------------
+// Tile Fortification (T066)
+// ---------------------------------------------------------------------------
+
+/**
+ * Build a fortification on a player-owned map tile at (x, y).
+ * Costs 40 stone + 25 iron. Adds +15 defense. One fortification per tile.
+ * Fortifications are lost if the enemy captures the tile.
+ */
+export function fortifyTile(x, y) {
+  if (!state.map) return { ok: false, reason: 'No map loaded.' };
+  const tile = state.map.tiles[y]?.[x];
+  if (!tile)                   return { ok: false, reason: 'Invalid tile.' };
+  if (tile.owner !== 'player') return { ok: false, reason: 'You must own this tile.' };
+  if (tile.type === 'capital') return { ok: false, reason: 'Capital is already fortified.' };
+  if (tile.fortified)          return { ok: false, reason: 'This tile is already fortified.' };
+
+  const cost = { stone: 40, iron: 25 };
+  if (!canAfford(cost)) {
+    return { ok: false, reason: 'Need 40 stone and 25 iron to fortify.' };
+  }
+
+  deductCost(cost);
+  tile.fortified = true;
+  tile.defense   = (tile.defense ?? 10) + 15;
+
+  emit(Events.MAP_CHANGED, {});
+  emit(Events.RESOURCE_CHANGED, {});
+  addMessage(`🏰 Fortified tile (${x},${y}). Defense +15.`, 'build');
+  return { ok: true };
+}
+
+// ---------------------------------------------------------------------------
+// Policies (T065)
+// ---------------------------------------------------------------------------
+
+/**
+ * Activate or deactivate a governance policy.
+ * Pass null to remove the active policy.
+ * A 60-second cooldown prevents rapid policy flipping.
+ */
+export function setPolicy(id) {
+  if (id !== null && !POLICIES[id]) {
+    return { ok: false, reason: `Unknown policy: ${id}` };
+  }
+
+  // Enforce cooldown only when switching away from an existing policy
+  if (state.policy !== null && id !== state.policy) {
+    const cooldownRemaining = (state.policyChangedAt + POLICY_COOLDOWN_TICKS) - state.tick;
+    if (cooldownRemaining > 0) {
+      const secs = Math.ceil(cooldownRemaining / 4);
+      return { ok: false, reason: `Policy cooldown: ${secs}s remaining.` };
+    }
+  }
+
+  const prev = state.policy;
+  state.policy          = id;
+  state.policyChangedAt = state.tick;
+
+  // Apply morale hit when activating a new harsh policy
+  if (id !== null && id !== prev) {
+    const def = POLICIES[id];
+    if (def.moraleHit && def.moraleHit < 0) {
+      state.morale = Math.max(0, Math.min(100, (state.morale ?? 50) + def.moraleHit));
+      emit(Events.MORALE_CHANGED, {});
+    }
+  }
+
+  recalcRates();
+  emit(Events.POLICY_CHANGED, { id });
+  emit(Events.RESOURCE_CHANGED, {});
+  const name = id ? POLICIES[id].name : 'None';
+  addMessage(`📜 Policy: ${name}.`, 'info');
   return { ok: true };
 }
 

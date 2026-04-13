@@ -106,6 +106,10 @@ function _showTooltip(resId, anchorEl) {
     .map(d => `<div class="hud-tt__modifier hud-tt__modifier--disaster">⚠️ ${d.label} (×${d.mult.toFixed(2)})</div>`)
     .join('');
 
+  const policyRows = (breakdown.policyModifiers ?? [])
+    .map(p => `<div class="hud-tt__modifier hud-tt__modifier--policy">📜 ${p.label}</div>`)
+    .join('');
+
   const divider = rows ? '<div class="hud-tt__divider"></div>' : '';
   const totalSign = breakdown.total >= 0 ? '+' : '';
   const totalCls  = breakdown.total >= 0 ? 'hud-tt__val--pos' : 'hud-tt__val--neg';
@@ -115,6 +119,7 @@ function _showTooltip(resId, anchorEl) {
     ${rows}
     ${seasonRow}
     ${disasterRows}
+    ${policyRows}
     ${divider}
     <div class="hud-tt__row hud-tt__total">
       <span class="hud-tt__label">Net rate</span>

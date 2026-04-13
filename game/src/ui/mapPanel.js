@@ -16,7 +16,7 @@
 import { state } from '../core/state.js';
 import { on, Events } from '../core/events.js';
 import { attackTile, getAttackPreview } from '../systems/combat.js';
-import { buildTileImprovement, addMessage } from '../core/actions.js';
+import { buildTileImprovement, fortifyTile, addMessage } from '../core/actions.js';
 import { IMPROVEMENTS } from '../data/improvements.js';
 import { EMPIRES } from '../data/empires.js';
 import { acceptCaravanOffer, getCaravanSecsLeft } from '../systems/caravans.js';
@@ -313,7 +313,10 @@ function _showTileTip(tile, x, y, mouseX, mouseY) {
     ${barbHtml}
     ${impHtml}
     ${caravanHtml}
-    <div class="map-tt-row">🛡️ Defense: ${tile.defense}</div>
+    <div class="map-tt-row">🛡️ Defense: ${tile.defense}${tile.fortified ? ' 🏰' : ''}</div>
+    ${tile.owner === 'player' && !tile.fortified && tile.type !== 'capital'
+      ? `<div class="map-tt-row" style="font-size:0.7rem;color:var(--text-dim)">🏰 Click → Fortify (+15 def)</div>`
+      : ''}
     ${actionHtml}
   `;
 
@@ -452,6 +455,17 @@ function _drawTile(tile, x, y, capital) {
     // T051: draw improvement icon on player-owned improved tiles
     const impDef = IMPROVEMENTS[tile.type];
     if (impDef) _drawIcon(px, py, impDef.icon);
+  }
+
+  // T066: draw fortification indicator (small corner mark) on fortified player tiles
+  if (tile.owner === 'player' && tile.fortified && x !== capital?.x || y !== capital?.y) {
+    // Draw a small '▲' fortress indicator in the top-right corner
+    ctx.font          = `8px sans-serif`;
+    ctx.textAlign     = 'right';
+    ctx.textBaseline  = 'top';
+    ctx.fillStyle     = '#aad4ff';
+    ctx.fillText('▲', px + TILE_PX - 2, py + 2);
+    ctx.textAlign = 'center';
   }
 }
 
@@ -710,11 +724,18 @@ function _createImprovementPicker() {
     if (e.target.id === 'imp-picker-cancel' || e.target === _impPickerEl) {
       _hideImprovementPicker();
     }
-    // Build button handled in _showImprovementPicker via data attribute
+    // Build improvement button
     if (e.target.dataset.impBuild) {
       const [sx, sy] = e.target.dataset.impBuild.split(',').map(Number);
       _hideImprovementPicker();
       const result = buildTileImprovement(sx, sy);
+      if (!result.ok) addMessage(`❌ ${result.reason}`, 'info');
+    }
+    // T066: Fortify button
+    if (e.target.dataset.fortify) {
+      const [sx, sy] = e.target.dataset.fortify.split(',').map(Number);
+      _hideImprovementPicker();
+      const result = fortifyTile(sx, sy);
       if (!result.ok) addMessage(`❌ ${result.reason}`, 'info');
     }
   });
@@ -730,15 +751,29 @@ function _showImprovementPicker(x, y, tile) {
 
   const impDef = IMPROVEMENTS[tile.type];
 
+  // T066: Fortification section (shared across all states)
+  const isFortified = !!tile.fortified;
+  const canFortifyAfford = (state.resources.stone ?? 0) >= 40 && (state.resources.iron ?? 0) >= 25;
+  const fortifySection = isFortified
+    ? `<div class="imp-fortified">🏰 Fortified (+15 defense)</div>`
+    : `<div class="imp-fortify-row">
+        <span class="imp-fortify-label">🏰 Fortify (+15 def) — 40🪨 25⚙️</span>
+        <button class="btn btn--sm btn--fortify" data-fortify="${x},${y}"
+          ${canFortifyAfford ? '' : 'disabled'}>
+          Fortify
+        </button>
+       </div>`;
+
   if (tile.improvement) {
     // Already improved — show info card only
     const desc = impDef ? `${impDef.icon} ${impDef.name} — ${impDef.desc}` : tile.improvement;
     _impPickerEl.innerHTML = `
       <div class="imp-box">
-        <div class="imp-header">🏗️ Tile Improvement</div>
+        <div class="imp-header">🏗️ Tile Actions</div>
         <div class="imp-sub">${_TERRAIN_LABELS[tile.type] ?? tile.type} (${x}, ${y})</div>
         <div class="imp-built">${desc}</div>
         <div class="imp-note">This tile already has an improvement.</div>
+        ${fortifySection}
         <div class="imp-actions">
           <button id="imp-picker-cancel" class="btn btn--sm btn--ghost">Close</button>
         </div>
@@ -747,8 +782,10 @@ function _showImprovementPicker(x, y, tile) {
     // No improvement available for this terrain (shouldn't happen for non-capital)
     _impPickerEl.innerHTML = `
       <div class="imp-box">
-        <div class="imp-header">🏗️ Tile Improvement</div>
-        <div class="imp-note">No improvement available for this terrain.</div>
+        <div class="imp-header">🏗️ Tile Actions</div>
+        <div class="imp-sub">${_TERRAIN_LABELS[tile.type] ?? tile.type} (${x}, ${y})</div>
+        <div class="imp-note">No terrain improvement available here.</div>
+        ${fortifySection}
         <div class="imp-actions">
           <button id="imp-picker-cancel" class="btn btn--sm btn--ghost">Close</button>
         </div>
@@ -764,7 +801,7 @@ function _showImprovementPicker(x, y, tile) {
 
     _impPickerEl.innerHTML = `
       <div class="imp-box">
-        <div class="imp-header">🏗️ Build Improvement</div>
+        <div class="imp-header">🏗️ Tile Actions</div>
         <div class="imp-sub">${_TERRAIN_LABELS[tile.type] ?? tile.type} (${x}, ${y})</div>
         <div class="imp-card">
           <div class="imp-icon">${impDef.icon}</div>
@@ -781,6 +818,7 @@ function _showImprovementPicker(x, y, tile) {
           </button>
           <button id="imp-picker-cancel" class="btn btn--sm btn--ghost">Cancel</button>
         </div>
+        ${fortifySection}
         <div class="imp-hint">Escape to cancel</div>
       </div>`;
   }

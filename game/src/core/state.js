@@ -175,6 +175,13 @@ export const state = {
   // Discovered ancient relics — populated by combat.js on tile capture
   // { discovered: { [relicId]: tick } }
   relics: null,
+
+  // Active governance policy — persists across new games (player preference)
+  // null | 'taxation' | 'agrarian' | 'martial_law'
+  policy: null,
+
+  // Tick when the policy was last changed (for cooldown enforcement)
+  policyChangedAt: -999,
 };
 
 /**
@@ -215,9 +222,11 @@ export function initState(empireName = 'My Empire') {
   state.population     = null;
   state.espionage      = null;
   state.challenges     = null;
-  state.caravans       = null;
-  state.relics         = null;
-  state.tick           = 0;
-  state.running        = false;
+  state.caravans        = null;
+  state.relics          = null;
+  state.tick            = 0;
+  state.running         = false;
+  state.policy          = null;
+  state.policyChangedAt = -999;
   // Note: state.archetype is NOT reset here — it persists across new games
 }
