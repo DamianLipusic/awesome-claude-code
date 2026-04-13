@@ -20,6 +20,7 @@ import { initAchievements } from './systems/achievements.js';
 import { initEnemyAI, enemyAITick } from './systems/enemyAI.js';
 import { initSpells, spellTick } from './systems/spells.js';
 import { initBarbarians, barbarianTick } from './systems/barbarianCamps.js';
+import { initMorale, moraleTick } from './systems/morale.js';
 import { SEASONS } from './data/seasons.js';
 import { AGES } from './data/ages.js';
 import { TICKS_PER_SECOND } from './core/tick.js';
@@ -81,6 +82,7 @@ function boot() {
   registerSystem(enemyAITick);
   registerSystem(spellTick);
   registerSystem(barbarianTick);
+  registerSystem(moraleTick);
 
   // Init event-driven systems
   initRandomEvents();
@@ -94,6 +96,7 @@ function boot() {
   initEnemyAI();
   initSpells();
   initBarbarians();
+  initMorale();
 
   // Init UI
   initHUD();
@@ -161,7 +164,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 15,
+      version: 16,
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -193,6 +196,7 @@ function _save() {
         formation:     state.formation ?? 'balanced',
         spells:        state.spells,
         barbarians:    state.barbarians,
+        morale:        state.morale ?? 50,
         tick:          state.tick,
       }
     }));
@@ -240,6 +244,7 @@ function _applySave(save) {
   state.formation      = s.formation      ?? 'balanced';
   state.spells         = s.spells         ?? null;
   state.barbarians     = s.barbarians     ?? null;
+  state.morale         = s.morale         ?? 50;
   state.tick           = s.tick           ?? 0;
   recalcRates();
 
@@ -379,6 +384,7 @@ function _newGame(opts = {}) {
   initEnemyAI();
   initSpells();
   initBarbarians();
+  initMorale();
   recalcRates();
   startLoop();  // restart loop in case it was stopped by game-over
   _syncPauseUI();  // ensure pause overlay is hidden on new game

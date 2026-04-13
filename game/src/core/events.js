@@ -47,4 +47,5 @@ export const Events = Object.freeze({
   ACHIEVEMENT_UNLOCKED: 'achievementUnlocked',
   DIFFICULTY_CHANGED:   'difficultyChanged',
   SPELL_CAST:           'spellCast',
+  MORALE_CHANGED:       'moraleChanged',
 });

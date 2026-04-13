@@ -22,10 +22,12 @@ const AI_MAX_INTERVAL  = 120 * TICKS_PER_SECOND;   // 480 ticks  (~120 s)
 const WAR_RAID_MIN     = 45  * TICKS_PER_SECOND;   // 180 ticks  (~45 s)
 const WAR_RAID_MAX     = 90  * TICKS_PER_SECOND;   // 360 ticks  (~90 s)
 
-export const ALLIANCE_COST    = 200;
-export const TRADE_ROUTE_COST = 100;
-export const PEACE_COST       = 300;
-export const MAX_TRADE_ROUTES = 3;
+export const ALLIANCE_COST       = 200;
+export const TRADE_ROUTE_COST    = 100;
+export const PEACE_COST          = 300;
+export const MAX_TRADE_ROUTES    = 3;
+export const SURRENDER_COST      = 200;   // T058
+export const WAR_SCORE_THRESHOLD = 20;    // T058
 
 // ── Public API ─────────────────────────────────────────────────────────────────
 
@@ -42,12 +44,17 @@ export function initDiplomacy() {
         tradeRoutes:     0,
         nextAITick:      state.tick + _aiInterval(),
         nextWarRaidTick: 0,
+        warScore:        0,   // T058
       })),
       history: [],   // T054: diplomatic event log
     };
   }
   // T054: migrate saves that predate the history field
   if (!state.diplomacy.history) state.diplomacy.history = [];
+  // T058: migrate saves that predate the warScore field
+  for (const emp of state.diplomacy.empires) {
+    if (emp.warScore === undefined) emp.warScore = 0;
+  }
 }
 
 /**
@@ -143,6 +150,7 @@ export function declareWar(empireId) {
   const wasAllied   = emp.relations === 'allied';
   emp.relations     = 'war';
   emp.tradeRoutes   = 0;
+  emp.warScore      = 0;   // T058: fresh war score when war begins
   emp.nextWarRaidTick = state.tick + WAR_RAID_MIN;
   const def = EMPIRES[empireId];
   recalcRates();
@@ -170,6 +178,35 @@ export function proposePeace(empireId) {
   emit(Events.RESOURCE_CHANGED, {});
   _logDiplomacy(empireId, 'peace', `Peace treaty signed with ${def.name}`);
   addMessage(`🕊️ Peace treaty signed with ${def.icon} ${def.name}.`, 'diplomacy');
+  return { ok: true };
+}
+
+/**
+ * (T058) Force an empire to surrender after accumulating ≥ WAR_SCORE_THRESHOLD
+ * war score. Costs SURRENDER_COST gold. Resets the empire to neutral and
+ * clears their war score.
+ */
+export function demandSurrender(empireId) {
+  const emp = _findEmpire(empireId);
+  if (!emp) return { ok: false, reason: 'Unknown empire.' };
+  if (emp.relations !== 'war') return { ok: false, reason: 'Not at war with this empire.' };
+  if ((emp.warScore ?? 0) < WAR_SCORE_THRESHOLD)
+    return { ok: false, reason: `Need ${WAR_SCORE_THRESHOLD} war score (currently ${emp.warScore ?? 0}).` };
+  if ((state.resources.gold ?? 0) < SURRENDER_COST)
+    return { ok: false, reason: `Need ${SURRENDER_COST} gold to issue the surrender ultimatum.` };
+
+  state.resources.gold -= SURRENDER_COST;
+  emp.relations = 'neutral';
+  emp.warScore  = 0;
+  const def = EMPIRES[empireId];
+  recalcRates();
+  emit(Events.DIPLOMACY_CHANGED, { empireId, relations: 'neutral' });
+  emit(Events.RESOURCE_CHANGED, {});
+  _logDiplomacy(empireId, 'peace', `${def.name} surrendered after crushing military defeats`);
+  addMessage(
+    `🏳️ ${def.icon} ${def.name} surrendered! Your victories forced them to yield.`,
+    'diplomacy',
+  );
   return { ok: true };
 }
 

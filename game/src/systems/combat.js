@@ -15,6 +15,7 @@ import { HERO_DEF } from '../data/hero.js';
 import { addMessage } from '../core/actions.js';
 import { revealAround } from './map.js';
 import { recalcRates } from './resources.js';
+import { getMoraleEffect, changeMorale, MORALE_COMBAT_WIN, MORALE_COMBAT_LOSS } from './morale.js';
 
 const NEIGHBORS   = [[-1, 0], [1, 0], [0, -1], [0, 1]];
 const MAX_HISTORY = 20;
@@ -80,6 +81,9 @@ export function getAttackPreview(x, y) {
   // Formation modifier (T052)
   attackPower *= _formationAttackMult();
 
+  // Morale modifier (T057)
+  attackPower *= getMoraleEffect();
+
   if (state.hero?.recruited) {
     attackPower += HERO_DEF.attack;
     if (state.hero.activeEffects?.battleCry) attackPower *= 2;  // preview includes Battle Cry bonus
@@ -102,6 +106,7 @@ export function getAttackPreview(x, y) {
     siegeActive,
     manaBoltActive,
     formation:    state.formation ?? 'balanced',
+    morale:       Math.round(state.morale ?? 50),
   };
 }
 
@@ -148,6 +153,9 @@ export function attackTile(x, y) {
 
   // Formation modifier (T052)
   attackPower *= _formationAttackMult();
+
+  // Morale modifier (T057)
+  attackPower *= getMoraleEffect();
 
   // Hero bonus: flat attack power + Battle Cry (×2) on next attack
   if (state.hero?.recruited) {
@@ -224,6 +232,18 @@ function _victory(tile, x, y, attackPower, defense) {
   // Grant combat XP to all participating unit types
   _grantCombatXP();
 
+  // T057: victory boosts army morale
+  changeMorale(MORALE_COMBAT_WIN);
+
+  // T058: award war score for capturing tiles belonging to a faction at war
+  if (tile.faction && state.diplomacy) {
+    const warEmp = state.diplomacy.empires.find(e => e.id === tile.faction && e.relations === 'war');
+    if (warEmp) {
+      warEmp.warScore = (warEmp.warScore ?? 0) + 5;
+      emit(Events.DIPLOMACY_CHANGED, { empireId: warEmp.id });
+    }
+  }
+
   recalcRates();
   emit(Events.MAP_CHANGED, { x, y, outcome: 'win' });
   emit(Events.RESOURCE_CHANGED, {});
@@ -284,6 +304,9 @@ function _defeat(tile, x, y, attackPower, defense) {
 
   // Record combat history entry
   _recordHistory({ outcome: 'loss', terrain: tile.type, x, y, power: Math.round(attackPower), defense, lost });
+
+  // T057: defeat damages army morale
+  changeMorale(MORALE_COMBAT_LOSS);
 
   emit(Events.MAP_CHANGED,  { x, y, outcome: 'loss' });
   emit(Events.UNIT_CHANGED, {});

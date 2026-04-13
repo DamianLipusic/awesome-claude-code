@@ -145,6 +145,11 @@ export const state = {
   // Barbarian encampment state — populated by systems/barbarianCamps.js
   // { nextSpawnTick: number }  — camp data lives in tile.owner === 'barbarian'
   barbarians: null,
+
+  // Army morale (0–100). Drifts based on wars/alliances/season; changes on
+  // combat outcomes. Affects attack power when at extremes.  Not reset by
+  // initState so mid-game saves restore the correct level.
+  morale: 50,
 };
 
 /**
@@ -181,6 +186,7 @@ export function initState(empireName = 'My Empire') {
   state.combatHistory  = [];
   state.spells         = null;
   state.barbarians     = null;
+  state.morale         = 50;
   state.tick           = 0;
   state.running        = false;
 }

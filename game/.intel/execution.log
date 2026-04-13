@@ -2,6 +2,45 @@
 
 ---
 
+## 2026-04-13 — Session N+8
+
+**Tasks completed:** T057, T058
+
+**Summary:**
+All prior tasks (T001–T056) were complete. Created two Phase 19 features: an army morale system adding psychological depth to combat (T057), and a war score + forced peace system giving military campaigns a strategic endpoint (T058).
+
+**T057 — Army Morale System:**
+- `src/systems/morale.js` (new): `MORALE_MAX/MIN` constants; exported flat-change constants (`MORALE_COMBAT_WIN=+5`, `MORALE_COMBAT_LOSS=-8`, `MORALE_TILE_LOST=-3`, `MORALE_AGE_ADVANCE=+10`); `initMorale()` seeds `state.morale=50` and subscribes `AGE_CHANGED` once (module-level `_initialized` guard); `changeMorale(delta)` clamps to [0,100] and emits `MORALE_CHANGED`; `getMoraleEffect()` returns 1.15/1.0/0.80 based on morale level; `getMoraleLabel()` returns tier string; `moraleTick()` applies per-tick drift from wars (−0.012/tick), alliances (+0.006), season (Winter −0.010, Spring +0.006), barbarian camps (−0.003/camp), emits on 5-point bucket crossings, handles desertion at morale<15 (0.05%/tick chance to lose 1 random unit).
+- `src/core/state.js`: added `morale:50` to static state object; reset in `initState()`.
+- `src/core/events.js`: added `MORALE_CHANGED:'moraleChanged'` constant.
+- `src/systems/combat.js`: imported `getMoraleEffect/changeMorale/MORALE_COMBAT_WIN/MORALE_COMBAT_LOSS`; applied `getMoraleEffect()` multiplier after formation modifier in both `attackTile()` and `getAttackPreview()`; `_victory()` calls `changeMorale(MORALE_COMBAT_WIN)`; `_defeat()` calls `changeMorale(MORALE_COMBAT_LOSS)`; `getAttackPreview()` now returns `morale` field.
+- `src/systems/enemyAI.js`: imported `changeMorale/MORALE_TILE_LOST`; success branch of `_counterattack()` calls `changeMorale(MORALE_TILE_LOST)`.
+- `src/ui/militaryPanel.js`: imported `getMoraleLabel/getMoraleEffect`; subscribed `MORALE_CHANGED`; injected `_moraleSection()` second in `_render()` (between formation and spells); renders purple-accented `.morale-section` card with color-coded gauge bar, tier badge pill (5 CSS variant classes), `X/100` counter, combat effect line (bonus/penalty), and modifier pills (wars/alliances/season/desertion-risk warning).
+- `src/main.js`: imported `initMorale/moraleTick`; `registerSystem(moraleTick)` as 11th system; `initMorale()` in boot + `_newGame()`; `morale:state.morale??50` in `_save()`; `state.morale=s.morale??50` in `_applySave()`; save version bumped to 16.
+- `styles/main.css`: `.morale-section` (purple left-border), `.morale-header/.morale-title`, `.morale-label` tier pills (5 variants: inspired/confident/steady/demoralized/broken), `.morale-bar-wrap/.morale-bar` (transition), `.morale-value`, `.morale-effect/--bonus/--penalty`, `.morale-mods/.morale-mod`.
+
+**T058 — War Score & Forced Peace:**
+- `src/systems/diplomacy.js`: exported `SURRENDER_COST=200` and `WAR_SCORE_THRESHOLD=20`; added `warScore:0` to each empire entry in `initDiplomacy()`; migration guard for old saves (`emp.warScore===undefined→0`); `emp.warScore=0` reset in `declareWar()`; added `demandSurrender(empireId)` — validates war status, warScore≥threshold, and gold — deducts cost, sets neutral, resets warScore, emits `DIPLOMACY_CHANGED+RESOURCE_CHANGED`, logs diplomatic history entry.
+- `src/systems/combat.js`: `_victory()` checks `tile.faction` against at-war empires and awards `warScore+=5` on match; emits `DIPLOMACY_CHANGED` so panel re-renders.
+- `src/ui/diplomacyPanel.js`: imported `demandSurrender+SURRENDER_COST+WAR_SCORE_THRESHOLD`; `_empireCard()` builds `warScoreHtml` progress bar (red→amber gradient, width tracks ws/threshold %) for war-state cards, with "Surrender available!" notice when threshold reached; Demand Surrender button rendered (`.btn--surrender` red gradient) when ws≥threshold; `_onClick()` handles `'surrender'` action via `demandSurrender()`.
+- `styles/main.css`: `.dipl-war-score/.dipl-ws-label/.dipl-ws-bar-wrap/.dipl-ws-bar` (red→amber gradient fill, 0.4s transition); `.btn--surrender/.btn--surrender:hover` (deep-red gradient with hover brightening).
+
+**Files modified:**
+- `game/src/systems/morale.js` (new)
+- `game/src/core/state.js`
+- `game/src/core/events.js`
+- `game/src/systems/combat.js`
+- `game/src/systems/enemyAI.js`
+- `game/src/systems/diplomacy.js`
+- `game/src/ui/militaryPanel.js`
+- `game/src/ui/diplomacyPanel.js`
+- `game/src/main.js`
+- `game/styles/main.css`
+- `game/.intel/tasks.json`
+- `game/.intel/execution.log`
+
+---
+
 ## 2026-04-12 — Session N+7
 
 **Tasks completed:** T055, T056

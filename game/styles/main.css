@@ -3318,3 +3318,127 @@ kbd {
 @media (max-width: 480px) {
   .spell-grid { grid-template-columns: 1fr; }
 }
+
+/* ── T057: Army Morale section ────────────────────────────────────────────── */
+
+.morale-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border-h);
+  border-left: 3px solid #9f7aea;
+  border-radius: 6px;
+  padding: 10px 12px 8px;
+  margin-bottom: 8px;
+}
+
+.morale-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.morale-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-dim);
+}
+
+.morale-label {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 10px;
+}
+.morale-label--inspired    { background: rgba(72, 187, 120, 0.2); color: #48bb78; border: 1px solid #48bb78; }
+.morale-label--confident   { background: rgba(72, 187, 120, 0.12); color: #68d391; border: 1px solid #68d391; }
+.morale-label--steady      { background: rgba(236, 201, 75, 0.12); color: #ecc94b; border: 1px solid #ecc94b; }
+.morale-label--demoralized { background: rgba(229, 62, 62, 0.12); color: #fc8181; border: 1px solid #fc8181; }
+.morale-label--broken      { background: rgba(229, 62, 62, 0.2); color: #e53e3e; border: 1px solid #e53e3e; }
+
+.morale-bar-wrap {
+  height: 8px;
+  background: var(--bg-panel);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.morale-bar {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.4s ease, background 0.4s ease;
+}
+
+.morale-value {
+  font-size: 10px;
+  color: var(--text-dim);
+  text-align: right;
+  margin-bottom: 4px;
+}
+
+.morale-effect {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-bottom: 4px;
+  display: inline-block;
+}
+.morale-effect--bonus   { color: #48bb78; background: rgba(72, 187, 120, 0.12); }
+.morale-effect--penalty { color: #fc8181; background: rgba(229, 62, 62, 0.12); }
+
+.morale-mods {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.morale-mod {
+  font-size: 10px;
+  color: var(--text-dim);
+  background: var(--bg-panel);
+  border-radius: 3px;
+  padding: 1px 5px;
+}
+
+/* T058: War score bar in diplomacy panel */
+
+.dipl-war-score {
+  margin: 4px 0 6px;
+}
+
+.dipl-ws-label {
+  font-size: 10px;
+  color: var(--text-dim);
+  display: block;
+  margin-bottom: 3px;
+}
+
+.dipl-ws-bar-wrap {
+  height: 6px;
+  background: var(--bg-panel);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.dipl-ws-bar {
+  height: 100%;
+  background: linear-gradient(to right, #e53e3e, #f6ad55);
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+
+.btn--surrender {
+  background: linear-gradient(135deg, #742a2a, #9b2c2c);
+  border-color: #e53e3e;
+  color: #fed7d7;
+  font-weight: 700;
+}
+.btn--surrender:hover:not(.btn--disabled) {
+  background: linear-gradient(135deg, #9b2c2c, #c53030);
+  border-color: #fc8181;
+  color: #fff;
+}

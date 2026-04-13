@@ -23,6 +23,7 @@ import { HERO_DEF } from '../data/hero.js';
 import { TICKS_PER_SECOND } from '../core/tick.js';
 import { EMPIRES } from '../data/empires.js';
 import { clearBarbarianCamp } from './barbarianCamps.js';
+import { changeMorale, MORALE_TILE_LOST } from './morale.js';
 
 // ── Timing constants ───────────────────────────────────────────────────────
 
@@ -180,6 +181,9 @@ function _counterattack() {
       lostUnit = UNITS[id]?.name ?? id;
       emit(Events.UNIT_CHANGED, {});
     }
+
+    // T057: losing territory hurts morale
+    changeMorale(MORALE_TILE_LOST);
 
     recalcRates();
     emit(Events.MAP_CHANGED, { x: target.x, y: target.y, outcome: 'enemy-invasion' });

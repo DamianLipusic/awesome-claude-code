@@ -11,8 +11,9 @@ import { on, Events } from '../core/events.js';
 import { EMPIRES } from '../data/empires.js';
 import {
   proposeAlliance, openTradeRoute, closeTradeRoute,
-  declareWar, proposePeace,
+  declareWar, proposePeace, demandSurrender,
   ALLIANCE_COST, TRADE_ROUTE_COST, PEACE_COST, MAX_TRADE_ROUTES,
+  SURRENDER_COST, WAR_SCORE_THRESHOLD,
 } from '../systems/diplomacy.js';
 import { fmtNum } from '../utils/fmt.js';
 
@@ -175,7 +176,36 @@ function _empireCard(emp) {
       title="Propose peace — costs ${PEACE_COST} gold">
       🕊️ Propose Peace (${fmtNum(PEACE_COST)}💰)
     </button>`);
+    // T058: Demand Surrender when enough war score accumulated
+    const ws = emp.warScore ?? 0;
+    if (ws >= WAR_SCORE_THRESHOLD) {
+      const canSurrender = gold >= SURRENDER_COST;
+      btns.push(`<button
+        class="btn btn--surrender ${canSurrender ? '' : 'btn--disabled'}"
+        data-action="surrender" data-empire="${emp.id}"
+        ${canSurrender ? '' : 'disabled'}
+        title="Demand surrender — requires ${WAR_SCORE_THRESHOLD} war score &amp; ${SURRENDER_COST} gold">
+        🏳️ Demand Surrender (${fmtNum(SURRENDER_COST)}💰)
+      </button>`);
+    }
   }
+
+  // T058: War score progress bar (shown only when at war)
+  const warScoreHtml = rel === 'war' ? (() => {
+    const ws    = emp.warScore ?? 0;
+    const pct   = Math.min(100, Math.round(ws / WAR_SCORE_THRESHOLD * 100));
+    const ready = ws >= WAR_SCORE_THRESHOLD;
+    return `
+      <div class="dipl-war-score">
+        <span class="dipl-ws-label">
+          ⚔️ War Score: ${ws} / ${WAR_SCORE_THRESHOLD}
+          ${ready ? ' <strong style="color:#f6ad55">— Surrender available!</strong>' : ''}
+        </span>
+        <div class="dipl-ws-bar-wrap" title="Capture enemy faction tiles to increase war score">
+          <div class="dipl-ws-bar" style="width:${pct}%"></div>
+        </div>
+      </div>`;
+  })() : '';
 
   return `
     <div class="dipl-empire-card ${cardMod}">
@@ -189,6 +219,7 @@ function _empireCard(emp) {
         Specialty: ${def.specialty.map(r => `${RES_ICONS[r] ?? ''}${r}`).join(', ')}
       </div>
       ${tradeHtml}
+      ${warScoreHtml}
       <div class="dipl-empire-card__actions">${btns.join('')}</div>
     </div>
   `;
@@ -231,6 +262,10 @@ function _onClick(e) {
     }
     case 'peace':
       result = proposePeace(empire);
+      if (!result.ok) addMessageFallback(result.reason);
+      break;
+    case 'surrender':
+      result = demandSurrender(empire);
       if (!result.ok) addMessageFallback(result.reason);
       break;
   }

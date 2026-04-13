@@ -12,6 +12,7 @@ import { state } from '../core/state.js';
 import { on, Events } from '../core/events.js';
 import { trainUnit, recruitHero, useHeroAbility, setFormation, addMessage } from '../core/actions.js';
 import { castSpell, SPELLS, SPELL_ORDER } from '../systems/spells.js';
+import { getMoraleLabel, getMoraleEffect } from '../systems/morale.js';
 import { UNITS } from '../data/units.js';
 import { BUILDINGS } from '../data/buildings.js';
 import { TECHS } from '../data/techs.js';
@@ -54,6 +55,7 @@ export function initMilitaryPanel() {
   on(Events.HERO_CHANGED,     () => _render(panel));
   on(Events.MAP_CHANGED,      () => _render(panel));  // combat outcomes update history
   on(Events.SPELL_CAST,       () => _render(panel));
+  on(Events.MORALE_CHANGED,   () => _render(panel));  // T057: re-render on morale change
   on(Events.RESOURCE_CHANGED, () => _renderCosts(panel));
   on(Events.GAME_LOADED,      () => _render(panel));
 
@@ -84,6 +86,7 @@ export function initMilitaryPanel() {
 function _render(panel) {
   panel.innerHTML = `
     ${_formationSection()}
+    ${_moraleSection()}
     ${_spellsSection()}
     ${_heroSection()}
     ${_armySection()}
@@ -120,6 +123,61 @@ function _formationSection() {
       <div class="formation-title">Battle Formation</div>
       <div class="formation-buttons">${buttons}</div>
       <div class="formation-desc">${activeDef.icon} ${activeDef.desc}</div>
+    </div>`;
+}
+
+// ── Morale section (T057) ─────────────────────────────────────────────────
+
+function _moraleSection() {
+  const m     = Math.round(state.morale ?? 50);
+  const pct   = m;   // 0–100
+  const label = getMoraleLabel();
+  const eff   = getMoraleEffect();
+
+  // Gauge color: red → amber → green
+  const color = m >= 65 ? '#48bb78' : m >= 25 ? '#ecc94b' : '#e53e3e';
+
+  // Tier CSS modifier for the label badge
+  const tierMod = m >= 80 ? 'inspired' : m >= 65 ? 'confident' : m >= 25 ? 'steady'
+                : m >= 10 ? 'demoralized' : 'broken';
+
+  // Combat effect line
+  let effectHtml = '';
+  if (eff > 1) {
+    effectHtml = `<div class="morale-effect morale-effect--bonus">⚔️ Inspired: +${Math.round((eff - 1) * 100)}% attack power</div>`;
+  } else if (eff < 1) {
+    effectHtml = `<div class="morale-effect morale-effect--penalty">📉 Demoralized: −${Math.round((1 - eff) * 100)}% attack power</div>`;
+  }
+
+  // Active modifier hints
+  const modLines = [];
+  const warCount  = state.diplomacy?.empires?.filter(e => e.relations === 'war').length  ?? 0;
+  const allyCount = state.diplomacy?.empires?.filter(e => e.relations === 'allied').length ?? 0;
+  if (warCount > 0)  modLines.push(`⚔️ ${warCount} war${warCount > 1 ? 's' : ''} (draining)`);
+  if (allyCount > 0) modLines.push(`🤝 ${allyCount} alliance${allyCount > 1 ? 's' : ''} (sustaining)`);
+  if (state.season != null) {
+    const idx = state.season.index ?? 0;
+    if (idx === 0) modLines.push('🌸 Spring (sustaining)');
+    if (idx === 3) modLines.push('❄️ Winter (draining)');
+  }
+  if (m < 15) modLines.push('😰 Desertion risk!');
+
+  const modHtml = modLines.length
+    ? `<div class="morale-mods">${modLines.map(l => `<span class="morale-mod">${l}</span>`).join('')}</div>`
+    : '';
+
+  return `
+    <div class="morale-section">
+      <div class="morale-header">
+        <span class="morale-title">🎖️ Army Morale</span>
+        <span class="morale-label morale-label--${tierMod}">${label}</span>
+      </div>
+      <div class="morale-bar-wrap" title="Morale: ${m}/100">
+        <div class="morale-bar" style="width:${pct}%;background:${color}"></div>
+      </div>
+      <div class="morale-value">${m} / 100</div>
+      ${effectHtml}
+      ${modHtml}
     </div>`;
 }
 
