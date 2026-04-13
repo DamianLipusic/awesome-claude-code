@@ -18,6 +18,7 @@ import { state } from '../core/state.js';
 import { on, Events } from '../core/events.js';
 import { AGES } from '../data/ages.js';
 import { QUESTS } from './quests.js';
+import { RELICS } from '../data/relics.js';
 
 // Set of milestoneIds already recorded (rebuilt from state.story on init)
 const _recorded = new Set();
@@ -268,4 +269,17 @@ export function initStory() {
   on(Events.AGE_CHANGED,       _onAgeChanged);
   on(Events.MAP_CHANGED,       _onMapChanged);
   on(Events.QUEST_COMPLETED,   _onQuestCompleted);
+  on(Events.RELIC_DISCOVERED,  _onRelicDiscovered);
+}
+
+function _onRelicDiscovered({ relicId }) {
+  const def = RELICS[relicId];
+  if (!def) return;
+  _add({
+    milestoneId: `relic_${relicId}`,
+    icon:        def.icon,
+    title:       `Relic Found: ${def.name}`,
+    desc:        def.desc,
+    type:        'windfall',
+  });
 }

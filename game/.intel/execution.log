@@ -2,6 +2,48 @@
 
 ---
 
+## 2026-04-13 — Session N+10
+
+**Tasks completed:** T063, T064
+
+**Summary:**
+All prior tasks (T001–T062) were complete. Created two Phase 21 features: a trade caravan system bringing traveling merchants to the map (T063), and an ancient relic discovery system rewarding territory expansion with permanent passive bonuses (T064).
+
+**T063 — Trade Caravan System:**
+- `src/systems/caravans.js` (new): `SPAWN_MIN_TICKS=720` (3 min) / `SPAWN_MAX_TICKS=1200` (5 min) / `DURATION_TICKS=360` (90 s); `CARAVAN_OFFERS` pool of 8 barter trades (sell food/wood/stone/iron/mana for gold; buy food/wood; buy iron+mana bundle); `initCaravans()` seeds `state.caravans={active:null,nextSpawnTick}`; `caravanTick()` expires active caravan on timeout and spawns new one when cooldown expires; `_spawnCaravan()` collects eligible revealed non-hostile non-capital tiles, picks random spot, shuffles 3 offers, logs 'windfall' toast + emits `CARAVAN_UPDATED`; `acceptCaravanOffer(idx)` validates affordability, deducts/adds resources (capped), logs trade; `getCaravanSecsLeft()` returns live countdown.
+- `src/core/events.js`: added `CARAVAN_UPDATED` and `RELIC_DISCOVERED` events.
+- `src/core/state.js`: added `caravans:null` and `relics:null` fields; both reset in `initState()`.
+- `src/ui/mapPanel.js`: imported `acceptCaravanOffer/getCaravanSecsLeft`; added `CARAVAN_TINT` gold tint constant; `_caravanPickerEl` + `_caravanTickRef` module vars; `_drawTile()` applies gold tint overlay and draws 🛒 icon (overrides all other icons) when caravan is on tile; `_showTileTip()` detects caravan tile and shows countdown + "Click to trade" action (suppresses build hint); `_onClick()` checks caravan tile before attack/improvement logic; `_updateStats()` appends "🛒 Caravan: Ns left" when active; `initMapPanel()` subscribes `CARAVAN_UPDATED` (re-renders + closes picker on expire/trade); `_createCaravanPicker()/_showCaravanPicker()/_hideCaravanPicker()` manage trade picker modal — 3 offer cards with icon/desc/give→get exchange display (affordability color coding), Trade button, live `setInterval` countdown refresh.
+- `src/main.js`: imported `initCaravans+caravanTick`; registered as 14th tick system; called in boot + `_newGame()`; `caravans+relics` fields persisted in `_save()/_applySave()`; save version bumped to 20.
+- `styles/main.css`: `.caravan-picker` overlay, `.cv-box` (gold border + pop-in animation), `.cv-header/.cv-sub/.cv-countdown` (gold accent), `.cv-offers` flex column, `.cv-offer` row (icon + body + button), `.cv-res/--ok/--bad/--gain` affordability color chips, `.btn--caravan-trade` gold gradient; mobile: offer flex-wrap.
+
+**T064 — Ancient Relic Discovery:**
+- `src/data/relics.js` (new): 6 `RELICS` definitions — `terra_idol` (grass, +1.5 food/s), `lumber_talisman` (forest, +1.5 wood/s), `mason_rune` (hills, +1.5 stone/s), `river_compass` (river, +1 gold/s +200 gold cap), `iron_crown` (mountain, +1.5 iron/s), `arcane_shard` (any terrain, +1 mana/s +150 mana cap); `TERRAIN_RELIC` lookup map; `RELIC_DROP_CHANCE=0.08`; `ARCANE_SHARD_DROP_CHANCE=0.04`; `RELIC_ORDER` array.
+- `src/systems/combat.js`: imported relic data; added `_tryDiscoverRelic(tile,x,y)` call in `_victory()` (after morale); `_tryDiscoverRelic()` rolls terrain-matched relic (8%), then independent arcane_shard roll (4%) — skips capital tiles and already-discovered relics; `_grantRelic()` records `state.relics.discovered[id]=state.tick`, logs windfall message, calls `recalcRates()`, emits `RELIC_DISCOVERED+RESOURCE_CHANGED`.
+- `src/systems/resources.js`: imported RELICS; added discovered-relic bonus loop in `recalcRates()` just before `Object.assign` — sums `def.bonus.rates` and `def.bonus.caps` for all discovered relics.
+- `src/ui/researchPanel.js`: imported RELICS+RELIC_ORDER+TERRAIN_RELIC; subscribed `RELIC_DISCOVERED→renderResearchPanel`; appended `_relicsSection()` to panel HTML — renders `.relics-grid` of 6 cards (found: gold border + icon + name + desc + green bonus pills; locked: greyed + ❓ + terrain hint); header shows "X / 6 discovered".
+- `src/systems/story.js`: imported RELICS; subscribed `RELIC_DISCOVERED→_onRelicDiscovered`; adds `milestoneId=relic_${id}` story entry (windfall type).
+- `src/ui/summaryPanel.js`: imported RELIC_ORDER; added "🏺 Relics: X/6" row to `_progressionCard()`; subscribed `RELIC_DISCOVERED→_render`.
+- `styles/main.css`: `.relics-section` (top border), `.relics-header` (gold accent + flex space-between), `.relics-count` (dim), `.relics-intro`, `.relics-grid` (auto-fill 200px); `.relic-card/--found` (gold border + tint) / `--locked` (55% opacity); `.relic-icon/.relic-body/.relic-name/.relic-desc/.relic-bonus` (green) / `.relic-hint`; mobile: single column.
+
+**Files modified:**
+- `game/src/systems/caravans.js` (new)
+- `game/src/data/relics.js` (new)
+- `game/src/core/events.js`
+- `game/src/core/state.js`
+- `game/src/systems/combat.js`
+- `game/src/systems/resources.js`
+- `game/src/systems/story.js`
+- `game/src/ui/mapPanel.js`
+- `game/src/ui/researchPanel.js`
+- `game/src/ui/summaryPanel.js`
+- `game/src/main.js`
+- `game/styles/main.css`
+- `game/.intel/tasks.json`
+- `game/.intel/execution.log`
+
+---
+
 ## 2026-04-13 — Session N+9
 
 **Tasks completed:** T059, T060

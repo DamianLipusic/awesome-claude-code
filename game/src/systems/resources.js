@@ -17,6 +17,7 @@ import { SEASONS } from '../data/seasons.js';
 import { HERO_DEF } from '../data/hero.js';
 import { TICKS_PER_SECOND } from '../core/tick.js';
 import { territoryRateBonus } from './map.js';
+import { RELICS } from '../data/relics.js';
 
 const RESOURCE_KEYS = ['gold', 'food', 'wood', 'stone', 'iron', 'mana'];
 
@@ -132,6 +133,24 @@ export function recalcRates() {
     if (pop > 0) {
       rates.gold += pop * 0.003;
       rates.food -= pop * 0.005;
+    }
+  }
+
+  // T064: apply ancient relic permanent bonuses
+  if (state.relics?.discovered) {
+    for (const relicId of Object.keys(state.relics.discovered)) {
+      const def = RELICS[relicId];
+      if (!def) continue;
+      if (def.bonus.rates) {
+        for (const [res, val] of Object.entries(def.bonus.rates)) {
+          if (rates[res] !== undefined) rates[res] += val;
+        }
+      }
+      if (def.bonus.caps) {
+        for (const [res, val] of Object.entries(def.bonus.caps)) {
+          if (caps[res] !== undefined) caps[res] += val;
+        }
+      }
     }
   }
 

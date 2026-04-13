@@ -24,6 +24,7 @@ import { EMPIRES } from '../data/empires.js';
 import { QUESTS } from '../systems/quests.js';
 import { TECHS } from '../data/techs.js';
 import { ARCHETYPES } from '../data/archetypes.js';
+import { RELIC_ORDER } from '../data/relics.js';
 import { currentSeason, seasonTicksRemaining } from '../systems/seasons.js';
 import { fmtNum, fmtRate } from '../utils/fmt.js';
 import { TICKS_PER_SECOND } from '../core/tick.js';
@@ -76,6 +77,7 @@ export function initSummaryPanel() {
   on(Events.ACHIEVEMENT_UNLOCKED, _render);
   on(Events.HERO_CHANGED,      _render);
   on(Events.SEASON_CHANGED,    _render);
+  on(Events.RELIC_DISCOVERED,  _render);
   on(Events.TICK, _tickCountdown());
 }
 
@@ -328,6 +330,11 @@ function _progressionCard() {
       <span class="sum-stat-value">${achDone} / ${TOTAL_ACHIEVEMENTS}</span>
     </div>
     <div class="sum-progress"><div class="sum-progress__fill sum-progress__fill--ach" style="width:${achPct}%"></div></div>
+
+    <div class="sum-stat-row" style="margin-top:6px">
+      <span class="sum-stat-label">🏺 Relics</span>
+      <span class="sum-stat-value">${Object.keys(state.relics?.discovered ?? {}).length} / ${RELIC_ORDER.length}</span>
+    </div>
 
     <div style="margin-top:8px;font-size:11px;color:var(--text-dim);font-weight:600;text-transform:uppercase;letter-spacing:.05em">Victory Conditions</div>
     ${vc('Medieval Age', vicAge, vicAge ? 'Reached' : `Age ${state.age ?? 0}/3`)}

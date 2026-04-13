@@ -11,6 +11,7 @@ import { TECHS } from '../data/techs.js';
 import { AGES } from '../data/ages.js';
 import { fmtNum, fmtTime } from '../utils/fmt.js';
 import { TICKS_PER_SECOND } from '../core/tick.js';
+import { RELICS, RELIC_ORDER, TERRAIN_RELIC } from '../data/relics.js';
 
 export function initResearchPanel() {
   const panel = document.getElementById('panel-research');
@@ -22,6 +23,7 @@ export function initResearchPanel() {
   on(Events.BUILDING_CHANGED, _throttle(renderResearchPanel, 8));
   on(Events.UNIT_CHANGED,     _throttle(renderResearchPanel, 8));
   on(Events.RESOURCE_CHANGED, _throttle(renderResearchPanel, 16));
+  on(Events.RELIC_DISCOVERED, renderResearchPanel);
 }
 
 function renderResearchPanel() {
@@ -67,7 +69,7 @@ function renderResearchPanel() {
     </div>`;
   }).join('');
 
-  panel.innerHTML = _ageSection() + progressHtml + `<div class="tech-grid">${techCards}</div>`;
+  panel.innerHTML = _ageSection() + progressHtml + `<div class="tech-grid">${techCards}</div>` + _relicsSection();
 
   panel.onclick = (e) => {
     if (e.target.closest('#btn-advance-age')) {
@@ -194,6 +196,63 @@ function _ageSection() {
       </button>
     </div>
   </div>`;
+}
+
+// ── T064: Relics section ───────────────────────────────────────────────────
+
+function _relicsSection() {
+  const discovered = state.relics?.discovered ?? {};
+  const count = Object.keys(discovered).length;
+
+  const cards = RELIC_ORDER.map(relicId => {
+    const def    = RELICS[relicId];
+    const found  = !!discovered[relicId];
+    const hint   = def.terrain
+      ? `Found on ${def.terrain} tiles`
+      : 'Found on any terrain';
+
+    if (found) {
+      const bonusLines = [];
+      if (def.bonus.rates) {
+        for (const [r, v] of Object.entries(def.bonus.rates)) {
+          bonusLines.push(`+${v}/s ${r}`);
+        }
+      }
+      if (def.bonus.caps) {
+        for (const [r, v] of Object.entries(def.bonus.caps)) {
+          bonusLines.push(`+${v} ${r} cap`);
+        }
+      }
+      return `
+        <div class="relic-card relic-card--found">
+          <div class="relic-icon">${def.icon}</div>
+          <div class="relic-body">
+            <div class="relic-name">${def.name}</div>
+            <div class="relic-desc">${def.desc}</div>
+            <div class="relic-bonus">${bonusLines.join(' · ')}</div>
+          </div>
+        </div>`;
+    }
+
+    return `
+      <div class="relic-card relic-card--locked">
+        <div class="relic-icon">❓</div>
+        <div class="relic-body">
+          <div class="relic-name">???</div>
+          <div class="relic-hint">${hint}</div>
+        </div>
+      </div>`;
+  }).join('');
+
+  return `
+    <div class="relics-section">
+      <div class="relics-header">
+        <span>🏺 Ancient Relics</span>
+        <span class="relics-count">${count} / ${RELIC_ORDER.length} discovered</span>
+      </div>
+      <div class="relics-intro">Capture territory tiles to discover ancient relics with permanent bonuses.</div>
+      <div class="relics-grid">${cards}</div>
+    </div>`;
 }
 
 function _countTiles() {

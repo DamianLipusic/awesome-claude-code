@@ -16,6 +16,7 @@ import { addMessage } from '../core/actions.js';
 import { revealAround } from './map.js';
 import { recalcRates } from './resources.js';
 import { getMoraleEffect, changeMorale, MORALE_COMBAT_WIN, MORALE_COMBAT_LOSS } from './morale.js';
+import { RELICS, TERRAIN_RELIC, RELIC_DROP_CHANCE, ARCANE_SHARD_DROP_CHANCE } from '../data/relics.js';
 
 const NEIGHBORS   = [[-1, 0], [1, 0], [0, -1], [0, 1]];
 const MAX_HISTORY = 20;
@@ -241,6 +242,9 @@ function _victory(tile, x, y, attackPower, defense) {
   // T057: victory boosts army morale
   changeMorale(MORALE_COMBAT_WIN);
 
+  // T064: chance to discover an ancient relic on this tile
+  _tryDiscoverRelic(tile, x, y);
+
   // T058: award war score for capturing tiles belonging to a faction at war
   if (tile.faction && state.diplomacy) {
     const warEmp = state.diplomacy.empires.find(e => e.id === tile.faction && e.relations === 'war');
@@ -302,6 +306,46 @@ function _grantCombatXP() {
   }
 
   if (promoted) emit(Events.UNIT_CHANGED, {});
+}
+
+// ── T064: Relic discovery ───────────────────────────────────────────────────
+
+function _tryDiscoverRelic(tile, x, y) {
+  if (!state.relics) state.relics = { discovered: {} };
+  const discovered = state.relics.discovered;
+
+  // Capital tiles cannot yield relics
+  if (tile.type === 'capital') return;
+
+  // Try terrain-matched relic first
+  const terrainRelicId = TERRAIN_RELIC[tile.type];
+  if (terrainRelicId && !discovered[terrainRelicId]) {
+    if (Math.random() < RELIC_DROP_CHANCE) {
+      _grantRelic(terrainRelicId, x, y);
+      return; // only one relic per capture
+    }
+  }
+
+  // Try universal arcane shard (independent roll)
+  if (!discovered['arcane_shard'] && Math.random() < ARCANE_SHARD_DROP_CHANCE) {
+    _grantRelic('arcane_shard', x, y);
+  }
+}
+
+function _grantRelic(relicId, x, y) {
+  if (!state.relics) state.relics = { discovered: {} };
+  const def = RELICS[relicId];
+  if (!def) return;
+
+  state.relics.discovered[relicId] = state.tick;
+
+  addMessage(
+    `${def.icon} Ancient relic discovered at (${x},${y}): ${def.name}! ${def.desc}`,
+    'windfall',
+  );
+  recalcRates();
+  emit(Events.RELIC_DISCOVERED, { relicId });
+  emit(Events.RESOURCE_CHANGED, {});
 }
 
 function _defeat(tile, x, y, attackPower, defense) {

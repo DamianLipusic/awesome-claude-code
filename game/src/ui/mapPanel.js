@@ -19,6 +19,7 @@ import { attackTile, getAttackPreview } from '../systems/combat.js';
 import { buildTileImprovement, addMessage } from '../core/actions.js';
 import { IMPROVEMENTS } from '../data/improvements.js';
 import { EMPIRES } from '../data/empires.js';
+import { acceptCaravanOffer, getCaravanSecsLeft } from '../systems/caravans.js';
 
 const TILE_PX   = 24;     // pixels per tile side
 const GRID_SIZE = 20;     // tiles per axis
@@ -48,6 +49,7 @@ const FOG_GRID         = '#12161b';
 const PLAYER_TINT      = 'rgba(88,166,255,0.22)';
 const ENEMY_TINT       = 'rgba(248,81,73,0.28)';
 const BARBARIAN_TINT   = 'rgba(192,60,30,0.38)';   // T056
+const CARAVAN_TINT     = 'rgba(255,200,50,0.28)';  // T063
 const HOVER_ATTACK     = 'rgba(240,180,41,0.38)';
 const HOVER_NEUTRAL    = 'rgba(255,255,255,0.08)';
 const PLAYER_BORDER    = '#58a6ff';
@@ -119,6 +121,8 @@ let _tileTipEl      = null;   // T038: floating tile tooltip element
 let _previewEl      = null;   // T045: combat preview modal element
 let _previewTarget  = null;   // T045: { x, y } of tile pending confirmation
 let _impPickerEl    = null;   // T051: improvement picker modal element
+let _caravanPickerEl = null;  // T063: caravan trade picker modal element
+let _caravanTickRef  = 0;     // T063: setInterval id for live countdown
 
 // ── Public API ─────────────────────────────────────────────────────────────
 
@@ -158,6 +162,12 @@ export function initMapPanel() {
   });
   on(Events.UNIT_CHANGED, _render);
   on(Events.GAME_LOADED,  _render);
+
+  // T063: re-render when caravan arrives/departs/trades
+  on(Events.CARAVAN_UPDATED, (data) => {
+    _render();
+    if (data?.expired || data?.traded) _hideCaravanPicker();
+  });
 
   _render();
 }
@@ -264,13 +274,17 @@ function _showTileTip(tile, x, y, mouseX, mouseY) {
     ? `<div class="map-tt-row map-tt-bonus">${bonusTxt}</div>`
     : '';
 
-  // T051: show improvement status or build hint (not for barbarian camps)
+  // T063: detect caravan tile first so we can suppress build hints below
+  const activeCaravan = state.caravans?.active;
+  const isCaravanTile = !!(activeCaravan && activeCaravan.x === x && activeCaravan.y === y);
+
+  // T051: show improvement status or build hint (not for barbarian camps, not when caravan present)
   const impDef = IMPROVEMENTS[tile.type];
   let impHtml = '';
   if (tile.owner !== 'barbarian') {
     if (tile.improvement && impDef) {
       impHtml = `<div class="map-tt-row map-tt-bonus">${impDef.icon} ${impDef.name}: ${impDef.desc}</div>`;
-    } else if (tile.owner === 'player' && tile.type !== 'capital' && impDef) {
+    } else if (!isCaravanTile && tile.owner === 'player' && tile.type !== 'capital' && impDef) {
       impHtml = `<div class="map-tt-action">🏗️ Click to build ${impDef.name}</div>`;
     }
   }
@@ -282,7 +296,13 @@ function _showTileTip(tile, x, y, mouseX, mouseY) {
     barbHtml = `<div class="map-tt-row map-tt-bonus">💰 Loot on capture: ${lootStr}</div>`;
   }
 
-  const actionHtml = _isAttackable(x, y)
+  // T063: caravan indicator
+  const caravanHtml = isCaravanTile
+    ? `<div class="map-tt-row map-tt-bonus">🛒 Merchant Caravan (${getCaravanSecsLeft()}s)</div>
+       <div class="map-tt-action">🛒 Click to trade</div>`
+    : '';
+
+  const actionHtml = !isCaravanTile && _isAttackable(x, y)
     ? `<div class="map-tt-action">⚔️ Click to attack</div>`
     : '';
 
@@ -292,6 +312,7 @@ function _showTileTip(tile, x, y, mouseX, mouseY) {
     ${bonusHtml}
     ${barbHtml}
     ${impHtml}
+    ${caravanHtml}
     <div class="map-tt-row">🛡️ Defense: ${tile.defense}</div>
     ${actionHtml}
   `;
@@ -385,6 +406,13 @@ function _drawTile(tile, x, y, capital) {
     ctx.fillRect(px, py, TILE_PX, TILE_PX);
   }
 
+  // T063: caravan gold tint on the caravan's tile
+  const caravan = state.caravans?.active;
+  if (caravan && caravan.x === x && caravan.y === y) {
+    ctx.fillStyle = CARAVAN_TINT;
+    ctx.fillRect(px, py, TILE_PX, TILE_PX);
+  }
+
   // Hover highlight
   if (hoveredTile && hoveredTile.x === x && hoveredTile.y === y) {
     ctx.fillStyle = _isAttackable(x, y) ? HOVER_ATTACK : HOVER_NEUTRAL;
@@ -405,6 +433,12 @@ function _drawTile(tile, x, y, capital) {
     const rgb = _combatFlash.outcome === 'win' ? '88,166,255' : '248,81,73';
     ctx.fillStyle = `rgba(${rgb},${_combatFlash.alpha})`;
     ctx.fillRect(px, py, TILE_PX, TILE_PX);
+  }
+
+  // T063: caravan icon drawn on top of normal icons so it's always visible
+  if (caravan && caravan.x === x && caravan.y === y) {
+    _drawIcon(px, py, '🛒');
+    return;  // caravan overrides all other icons
   }
 
   // Icons: capital castle, enemy sword, barbarian skull, improvement icons
@@ -450,9 +484,11 @@ function _updateStats() {
   }
 
   const total = state.map.width * state.map.height;
-  const barbStr = barbarianCamps > 0 ? `  ·  💀 Camps: ${barbarianCamps}` : '';
+  const barbStr    = barbarianCamps > 0 ? `  ·  💀 Camps: ${barbarianCamps}` : '';
+  const caravanStr = state.caravans?.active
+    ? `  ·  🛒 Caravan: ${getCaravanSecsLeft()}s left` : '';
   el.textContent =
-    `Territory: ${playerTiles} tiles  ·  Enemy: ${enemyTiles} tiles${barbStr}  ·  Explored: ${revealedTiles}/${total}`;
+    `Territory: ${playerTiles} tiles  ·  Enemy: ${enemyTiles} tiles${barbStr}  ·  Explored: ${revealedTiles}/${total}${caravanStr}`;
 }
 
 // ── Event handlers ─────────────────────────────────────────────────────────
@@ -517,6 +553,14 @@ function _onMouseleave() {
 function _onClick(e) {
   const { x, y } = _tileAt(e);
   if (x < 0 || x >= GRID_SIZE || y < 0 || y >= GRID_SIZE) return;
+
+  // T063: check for caravan tile first
+  const caravan = state.caravans?.active;
+  if (caravan && caravan.x === x && caravan.y === y) {
+    _showCaravanPicker();
+    return;
+  }
+
   if (_isAttackable(x, y)) {
     _showCombatPreview(x, y);
   } else {
@@ -746,4 +790,107 @@ function _showImprovementPicker(x, y, tile) {
 
 function _hideImprovementPicker() {
   _impPickerEl?.classList.add('imp-picker--hidden');
+}
+
+// ── T063: Caravan trade picker ─────────────────────────────────────────────
+
+function _createCaravanPicker() {
+  const existing = document.getElementById('caravan-picker');
+  if (existing) { _caravanPickerEl = existing; return; }
+
+  _caravanPickerEl = document.createElement('div');
+  _caravanPickerEl.id        = 'caravan-picker';
+  _caravanPickerEl.className = 'caravan-picker caravan-picker--hidden';
+  document.body.appendChild(_caravanPickerEl);
+
+  // Delegated click handler
+  _caravanPickerEl.addEventListener('click', (e) => {
+    if (e.target.id === 'caravan-close' || e.target === _caravanPickerEl) {
+      _hideCaravanPicker();
+    }
+    if (e.target.dataset.caravanOffer !== undefined) {
+      const idx = Number(e.target.dataset.caravanOffer);
+      const result = acceptCaravanOffer(idx);
+      if (!result.ok) {
+        addMessage(`❌ ${result.reason}`, 'info');
+      }
+      // CARAVAN_UPDATED listener will close the picker on trade
+      _showCaravanPicker(); // refresh offer display
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (_caravanPickerEl?.classList.contains('caravan-picker--hidden')) return;
+    if (e.key === 'Escape') { e.stopPropagation(); _hideCaravanPicker(); }
+  });
+}
+
+function _showCaravanPicker() {
+  if (!_caravanPickerEl) _createCaravanPicker();
+
+  const c = state.caravans?.active;
+  if (!c) { _hideCaravanPicker(); return; }
+
+  const secsLeft = getCaravanSecsLeft();
+
+  const offerCards = c.offers.map((offer, i) => {
+    const giveEntries = Object.entries(offer.give);
+    const getEntries  = Object.entries(offer.get);
+
+    const giveHtml = giveEntries.map(([res, amt]) => {
+      const have   = Math.floor(state.resources[res] ?? 0);
+      const enough = have >= amt;
+      return `<span class="cv-res ${enough ? 'cv-res--ok' : 'cv-res--bad'}">−${amt} ${res}</span>`;
+    }).join(' ');
+
+    const getHtml = getEntries.map(([res, amt]) =>
+      `<span class="cv-res cv-res--gain">+${amt} ${res}</span>`
+    ).join(' ');
+
+    const canAfford = giveEntries.every(([res, amt]) => (state.resources[res] ?? 0) >= amt);
+
+    return `
+      <div class="cv-offer">
+        <div class="cv-offer__icon">${offer.icon}</div>
+        <div class="cv-offer__body">
+          <div class="cv-offer__desc">${offer.desc}</div>
+          <div class="cv-offer__exchange">${giveHtml} → ${getHtml}</div>
+        </div>
+        <button class="btn btn--sm btn--caravan-trade"
+          data-caravan-offer="${i}"
+          ${canAfford ? '' : 'disabled'}>
+          Trade
+        </button>
+      </div>`;
+  }).join('');
+
+  _caravanPickerEl.innerHTML = `
+    <div class="cv-box">
+      <div class="cv-header">🛒 Merchant Caravan</div>
+      <div class="cv-sub">Departing in <span class="cv-countdown">${secsLeft}s</span> · Select a trade offer</div>
+      <div class="cv-offers">${offerCards}</div>
+      <div class="cv-actions">
+        <button id="caravan-close" class="btn btn--sm btn--ghost">Close</button>
+      </div>
+      <div class="cv-hint">Escape to close</div>
+    </div>
+  `;
+
+  // Start live countdown refresh
+  clearInterval(_caravanTickRef);
+  _caravanTickRef = setInterval(() => {
+    if (_caravanPickerEl.classList.contains('caravan-picker--hidden')) {
+      clearInterval(_caravanTickRef);
+      return;
+    }
+    const el = _caravanPickerEl.querySelector('.cv-countdown');
+    if (el) el.textContent = `${getCaravanSecsLeft()}s`;
+  }, 1000);
+
+  _caravanPickerEl.classList.remove('caravan-picker--hidden');
+}
+
+function _hideCaravanPicker() {
+  clearInterval(_caravanTickRef);
+  _caravanPickerEl?.classList.add('caravan-picker--hidden');
 }

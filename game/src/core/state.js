@@ -167,6 +167,14 @@ export const state = {
   // Empire archetype — persisted across new games (not reset by initState)
   // 'none' | 'conqueror' | 'merchant' | 'arcane'
   archetype: 'none',
+
+  // Trade caravan state — populated by systems/caravans.js initCaravans()
+  // { active: { x, y, offers, expiresAt } | null, nextSpawnTick: number }
+  caravans: null,
+
+  // Discovered ancient relics — populated by combat.js on tile capture
+  // { discovered: { [relicId]: tick } }
+  relics: null,
 };
 
 /**
@@ -207,6 +215,8 @@ export function initState(empireName = 'My Empire') {
   state.population     = null;
   state.espionage      = null;
   state.challenges     = null;
+  state.caravans       = null;
+  state.relics         = null;
   state.tick           = 0;
   state.running        = false;
   // Note: state.archetype is NOT reset here — it persists across new games
