@@ -1571,6 +1571,120 @@ body {
   background: rgba(240,180,41,0.08);
 }
 
+/* ── T070: Hero skills section ────────────────────────────────────────────── */
+
+.hero-skills-section {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+
+.hero-skills-section--offer {
+  border: 1px solid var(--gold);
+  border-radius: 6px;
+  padding: 8px;
+  background: rgba(240,180,41,0.06);
+  margin-top: 10px;
+}
+
+.hero-skills-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--gold);
+  margin-bottom: 6px;
+}
+
+/* Skill chooser (pending offer) */
+.hero-skills-chooser {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.hero-skill-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 6px 8px;
+}
+
+.hero-skill-option__icon { font-size: 18px; flex-shrink: 0; }
+
+.hero-skill-option__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.hero-skill-option__name {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.hero-skill-option__desc {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.btn--skill-choose {
+  background: linear-gradient(135deg, #b7791f, var(--gold));
+  color: #000;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.btn--skill-choose:hover { filter: brightness(1.15); }
+
+/* Active skills list */
+.hero-skill-active {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--border-dim, rgba(255,255,255,.05));
+}
+
+.hero-skill-active:last-of-type { border-bottom: none; }
+
+.hero-skill-active__icon { font-size: 16px; flex-shrink: 0; }
+
+.hero-skill-active__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.hero-skill-active__name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.hero-skill-active__desc {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.hero-skills-hint {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-style: italic;
+  margin-bottom: 4px;
+}
+
+.hero-skills-progress {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 5px;
+}
+
 /* Log colour for hero events */
 .log-entry--hero { border-color: var(--gold); background: rgba(240,180,41,0.06); }
 
@@ -2099,6 +2213,19 @@ body {
   margin-top: 8px;
   padding: 10px 28px;
   font-size: 15px;
+}
+
+/* T069: Victory type badge in game-over overlay */
+.go-victory-type {
+  display: inline-block;
+  background: rgba(240,180,41,.15);
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  border-radius: 20px;
+  padding: 3px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 6px;
 }
 
 /* ── Market panel ────────────────────────────────────────────────────────── */

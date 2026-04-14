@@ -29,6 +29,7 @@ import { currentSeason, seasonTicksRemaining } from '../systems/seasons.js';
 import { fmtNum, fmtRate } from '../utils/fmt.js';
 import { TICKS_PER_SECOND } from '../core/tick.js';
 import { calcScore, getScoreBreakdown } from '../utils/score.js';
+import { WIN_ECONOMIC_GOLD } from '../systems/victory.js';
 
 const TOTAL_ACHIEVEMENTS = 15;
 
@@ -43,10 +44,11 @@ const RES_CHART_COLORS = {
 };
 const ACH_KEY = 'empireos-achievements';
 
-// Victory conditions (mirrors systems/victory.js thresholds)
+// Victory condition thresholds (mirror systems/victory.js)
 const VICTORY_TERRITORY = 80;
 const VICTORY_QUESTS    = 10;
 const VICTORY_AGE       = 3; // Medieval
+const VICTORY_ALLIANCES = 3; // all 3 AI empires allied (diplomatic)
 
 const RESOURCES = [
   { id: 'gold',  label: 'Gold',  icon: '💰' },
@@ -297,25 +299,47 @@ function _progressionCard() {
   } catch { /* ignore */ }
   const achPct = Math.round(achDone / TOTAL_ACHIEVEMENTS * 100);
 
-  // Victory conditions
+  // Count player tiles
   let playerTiles = 0;
   if (state.map) {
     for (const row of state.map.tiles)
       for (const t of row)
         if (t.owner === 'player') playerTiles++;
   }
-  const vicAge      = (state.age ?? 0) >= VICTORY_AGE;
+
+  // ── T069: Three victory paths ─────────────────────────────────────────────
+  // Conquest Victory
+  const vicAge       = (state.age ?? 0) >= VICTORY_AGE;
   const vicTerritory = playerTiles >= VICTORY_TERRITORY;
-  const vicQuests   = questsDone >= VICTORY_QUESTS;
+  const vicQuests    = questsDone >= VICTORY_QUESTS;
+  const conquestDone = vicAge && vicTerritory && vicQuests;
+
+  // Diplomatic Victory: all 3 empires allied
+  const alliedCount   = state.diplomacy?.empires?.filter(e => e.relations === 'allied').length ?? 0;
+  const diplomaticDone = alliedCount >= VICTORY_ALLIANCES;
+
+  // Economic Victory: 50k gold + Economics tech
+  const goldEarned    = Math.floor(state.stats?.goldEarned ?? 0);
+  const goldPct       = Math.min(100, Math.round(goldEarned / WIN_ECONOMIC_GOLD * 100));
+  const hasEconomics  = !!state.techs?.economics;
+  const economicDone  = goldEarned >= WIN_ECONOMIC_GOLD && hasEconomics;
 
   function vc(label, met, detail) {
-    const c = met ? 'sum-stat-value--green' : 'sum-stat-value--red';
+    const c    = met ? 'sum-stat-value--green' : 'sum-stat-value--red';
     const icon = met ? '✅' : '⬜';
     return `
       <div class="sum-stat-row">
         <span class="sum-stat-label">${icon} ${label}</span>
         <span class="sum-stat-value ${c}">${detail}</span>
       </div>`;
+  }
+
+  function pathHeader(icon, label, done) {
+    const cls = done ? 'sum-vic-path--done' : 'sum-vic-path';
+    const tick = done ? ' ✅' : '';
+    return `<div class="${cls}" style="margin-top:8px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:${done ? 'var(--accent-h)' : 'var(--text-dim)'}">
+      ${icon} ${label}${tick}
+    </div>`;
   }
 
   const rows = `
@@ -336,10 +360,18 @@ function _progressionCard() {
       <span class="sum-stat-value">${Object.keys(state.relics?.discovered ?? {}).length} / ${RELIC_ORDER.length}</span>
     </div>
 
-    <div style="margin-top:8px;font-size:11px;color:var(--text-dim);font-weight:600;text-transform:uppercase;letter-spacing:.05em">Victory Conditions</div>
+    ${pathHeader('⚔️', 'Conquest Victory', conquestDone)}
     ${vc('Medieval Age', vicAge, vicAge ? 'Reached' : `Age ${state.age ?? 0}/3`)}
     ${vc('Territory ≥ 80', vicTerritory, `${playerTiles} / ${VICTORY_TERRITORY}`)}
     ${vc('Quests ≥ 10', vicQuests, `${questsDone} / ${VICTORY_QUESTS}`)}
+
+    ${pathHeader('🤝', 'Diplomatic Victory', diplomaticDone)}
+    ${vc('All 3 Empires Allied', diplomaticDone, `${alliedCount} / ${VICTORY_ALLIANCES} allied`)}
+
+    ${pathHeader('💰', 'Economic Victory', economicDone)}
+    ${vc('Economics Tech', hasEconomics, hasEconomics ? 'Researched' : 'Not yet')}
+    ${vc(`${WIN_ECONOMIC_GOLD.toLocaleString()} Gold Earned`, goldEarned >= WIN_ECONOMIC_GOLD, `${goldEarned.toLocaleString()} / ${WIN_ECONOMIC_GOLD.toLocaleString()}`)}
+    <div class="sum-progress"><div class="sum-progress__fill sum-progress__fill--quest" style="width:${goldPct}%"></div></div>
   `;
 
   return _card('🏆 Progression', rows);

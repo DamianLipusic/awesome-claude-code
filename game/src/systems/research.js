@@ -6,6 +6,7 @@
 import { state } from '../core/state.js';
 import { emit, Events } from '../core/events.js';
 import { TECHS } from '../data/techs.js';
+import { heroSkillBonus } from '../data/hero.js';
 import { recalcRates } from './resources.js';
 import { addMessage } from '../core/actions.js';
 import { log } from '../utils/logger.js';
@@ -67,7 +68,13 @@ export function startResearch(techId) {
 
   // Great Library wonder: -25% research time
   const libraryBuilt = (state.buildings?.greatLibrary ?? 0) >= 1;
-  const totalTicks = libraryBuilt ? Math.ceil(def.researchTicks * 0.75) : def.researchTicks;
+  let totalTicks = libraryBuilt ? Math.ceil(def.researchTicks * 0.75) : def.researchTicks;
+
+  // T070: Hero veteran_knowledge skill: -20% research time
+  if (state.hero?.recruited && state.hero.skills?.length) {
+    const researchMult = heroSkillBonus(state.hero.skills, 'researchMult');
+    if (researchMult !== 1.0) totalTicks = Math.ceil(totalTicks * researchMult);
+  }
 
   state.researchQueue.push({ techId, remaining: totalTicks, totalTicks });
   addMessage(`Researching ${def.name}…`, 'research');

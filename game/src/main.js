@@ -175,7 +175,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 22,
+      version: 23,
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -253,6 +253,12 @@ function _applySave(save) {
   state.diplomacy      = s.diplomacy      ?? null;
   state.season         = s.season         ?? null;
   state.hero           = s.hero           ?? null;
+  // T070: migrate hero from pre-skill-system saves
+  if (state.hero?.recruited) {
+    if (!state.hero.skills)            state.hero.skills            = [];
+    if (!state.hero.combatWins)        state.hero.combatWins        = 0;
+    if (state.hero.pendingSkillOffer === undefined) state.hero.pendingSkillOffer = null;
+  }
   state.stats          = s.stats          ?? { goldEarned: 0, peakTerritory: 0 };
   state.market         = s.market         ?? null;
   state.enemyAI        = s.enemyAI        ?? null;

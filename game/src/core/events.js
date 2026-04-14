@@ -55,4 +55,5 @@ export const Events = Object.freeze({
   RELIC_DISCOVERED:     'relicDiscovered',
   POLICY_CHANGED:       'policyChanged',
   GARRISON_CHANGED:     'garrisonChanged',   // T068
+  HERO_LEVEL_UP:        'heroLevelUp',       // T070: hero earned a skill choice
 });

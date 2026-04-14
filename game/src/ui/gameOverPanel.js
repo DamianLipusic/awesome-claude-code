@@ -1,6 +1,7 @@
 /**
- * EmpireOS — Game-over overlay UI (T025).
+ * EmpireOS — Game-over overlay UI (T025, T069).
  * Shown on win or defeat. Displays session stats and a Play Again button.
+ * T069: Shows the specific victory type (Conquest / Diplomatic / Economic).
  */
 
 import { state }        from '../core/state.js';
@@ -10,19 +11,26 @@ import { TICKS_PER_SECOND } from '../core/tick.js';
 
 const AGE_NAMES = ['Stone Age', 'Bronze Age', 'Iron Age', 'Medieval Age'];
 
+// T069: Victory type definitions
+const VICTORY_TYPES = {
+  conquest:   { icon: '⚔️',  label: 'Conquest Victory',   subtitle: 'You conquered the known world!' },
+  diplomatic: { icon: '🤝',  label: 'Diplomatic Victory',  subtitle: 'Peace through alliances!' },
+  economic:   { icon: '💰',  label: 'Economic Victory',    subtitle: 'Master of trade and commerce!' },
+};
+
 export function initGameOverPanel(onNewGame) {
   const overlay = document.createElement('div');
   overlay.id = 'game-over-overlay';
   overlay.className = 'game-over-overlay game-over-overlay--hidden';
   document.body.appendChild(overlay);
 
-  on(Events.GAME_OVER, ({ outcome, reason }) => {
-    _render(overlay, outcome, reason, onNewGame);
+  on(Events.GAME_OVER, ({ outcome, reason, victoryType }) => {
+    _render(overlay, outcome, reason, victoryType ?? 'conquest', onNewGame);
     overlay.classList.remove('game-over-overlay--hidden');
   });
 }
 
-function _render(overlay, outcome, reason, onNewGame) {
+function _render(overlay, outcome, reason, victoryType, onNewGame) {
   const isWin      = outcome === 'win';
   const tiles      = _countPlayerTiles();
   const questsDone = Object.keys(state.quests?.completed ?? {}).length;
@@ -32,10 +40,17 @@ function _render(overlay, outcome, reason, onNewGame) {
   const goldEarned = Math.floor(state.stats?.goldEarned ?? 0).toLocaleString();
   const ageName    = AGE_NAMES[state.age ?? 0] ?? 'Stone Age';
 
+  // T069: Victory type badge
+  const vt = isWin ? (VICTORY_TYPES[victoryType] ?? VICTORY_TYPES.conquest) : null;
+  const victoryBadgeHtml = vt
+    ? `<div class="go-victory-type">${vt.icon} ${vt.label}</div>`
+    : '';
+
   overlay.innerHTML = `
     <div class="game-over-box game-over-box--${outcome}">
-      <div class="game-over-icon">${isWin ? '🏆' : '💀'}</div>
+      <div class="game-over-icon">${isWin ? (vt?.icon ?? '🏆') : '💀'}</div>
       <h2 class="game-over-title">${isWin ? 'VICTORY!' : 'DEFEAT'}</h2>
+      ${victoryBadgeHtml}
       <p class="game-over-reason">${reason}</p>
 
       <div class="game-over-stats">

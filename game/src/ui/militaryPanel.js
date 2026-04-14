@@ -10,14 +10,14 @@
 
 import { state } from '../core/state.js';
 import { on, Events } from '../core/events.js';
-import { trainUnit, recruitHero, useHeroAbility, setFormation, addMessage } from '../core/actions.js';
+import { trainUnit, recruitHero, useHeroAbility, setFormation, chooseHeroSkill, addMessage } from '../core/actions.js';
 import { castSpell, SPELLS, SPELL_ORDER } from '../systems/spells.js';
 import { getMoraleLabel, getMoraleEffect } from '../systems/morale.js';
 import { UNITS } from '../data/units.js';
 import { BUILDINGS } from '../data/buildings.js';
 import { TECHS } from '../data/techs.js';
 import { AGES } from '../data/ages.js';
-import { HERO_DEF } from '../data/hero.js';
+import { HERO_DEF, HERO_SKILLS, HERO_SKILL_WIN_INTERVAL, HERO_MAX_SKILLS } from '../data/hero.js';
 import { fmtNum } from '../utils/fmt.js';
 
 const UNIT_ORDER = ['soldier', 'archer', 'knight', 'mage'];
@@ -53,6 +53,7 @@ export function initMilitaryPanel() {
   on(Events.TECH_CHANGED,     () => _render(panel));
   on(Events.AGE_CHANGED,      () => _render(panel));
   on(Events.HERO_CHANGED,     () => _render(panel));
+  on(Events.HERO_LEVEL_UP,   () => _render(panel));  // T070: skill offer available
   on(Events.MAP_CHANGED,      () => _render(panel));  // combat outcomes update history
   on(Events.SPELL_CAST,       () => _render(panel));
   on(Events.MORALE_CHANGED,   () => _render(panel));  // T057: re-render on morale change
@@ -328,6 +329,70 @@ function _heroActiveSection() {
     </div>
     <div class="hero-card__stats">⚔ +${HERO_DEF.attack} combat power &nbsp; Upkeep: ${upkeepStr}</div>
     <div class="hero-abilities">${abilities}</div>
+    ${_heroSkillsSection()}
+  </div>`;
+}
+
+// ── Hero skills section (T070) ─────────────────────────────────────────────
+
+function _heroSkillsSection() {
+  const h = state.hero;
+  if (!h?.recruited) return '';
+
+  const skills   = h.skills   ?? [];
+  const wins     = h.combatWins ?? 0;
+  const offer    = h.pendingSkillOffer ?? null;
+
+  // Pending skill chooser takes priority
+  if (offer?.length) {
+    const cards = offer.map(id => {
+      const s = HERO_SKILLS.find(sk => sk.id === id);
+      if (!s) return '';
+      return `<div class="hero-skill-option">
+        <span class="hero-skill-option__icon">${s.icon}</span>
+        <div class="hero-skill-option__body">
+          <span class="hero-skill-option__name">${s.name}</span>
+          <span class="hero-skill-option__desc">${s.desc}</span>
+        </div>
+        <button class="btn btn--sm btn--skill-choose" data-choose-skill="${id}">Choose</button>
+      </div>`;
+    }).join('');
+
+    return `<div class="hero-skills-section hero-skills-section--offer">
+      <div class="hero-skills-title">⭐ New Skill Available!</div>
+      <div class="hero-skills-chooser">${cards}</div>
+    </div>`;
+  }
+
+  // Active skills display
+  const nextMilestone = (Math.floor(wins / HERO_SKILL_WIN_INTERVAL) + 1) * HERO_SKILL_WIN_INTERVAL;
+  const maxReached    = skills.length >= HERO_MAX_SKILLS;
+
+  const skillItems = skills.map(id => {
+    const s = HERO_SKILLS.find(sk => sk.id === id);
+    if (!s) return '';
+    return `<div class="hero-skill-active">
+      <span class="hero-skill-active__icon">${s.icon}</span>
+      <div class="hero-skill-active__body">
+        <span class="hero-skill-active__name">${s.name}</span>
+        <span class="hero-skill-active__desc">${s.desc}</span>
+      </div>
+    </div>`;
+  }).join('');
+
+  const emptyHint = skills.length === 0
+    ? `<div class="hero-skills-hint">Earn ${HERO_SKILL_WIN_INTERVAL} combat victories to unlock the first skill.</div>`
+    : '';
+
+  const progressHtml = maxReached
+    ? `<div class="hero-skills-progress">🏆 All ${HERO_MAX_SKILLS} skills mastered!</div>`
+    : `<div class="hero-skills-progress">Combat wins: ${wins} · Next skill at ${nextMilestone} wins</div>`;
+
+  return `<div class="hero-skills-section">
+    <div class="hero-skills-title">📖 Champion Skills (${skills.length}/${HERO_MAX_SKILLS})</div>
+    ${emptyHint}
+    ${skillItems}
+    ${progressHtml}
   </div>`;
 }
 
@@ -492,6 +557,14 @@ function _renderCosts(panel) {
 // ── Interaction ────────────────────────────────────────────────────────────
 
 function _handleClick(e) {
+  // T070: hero skill chooser
+  const skillBtn = e.target.closest('[data-choose-skill]');
+  if (skillBtn && !skillBtn.disabled) {
+    const result = chooseHeroSkill(skillBtn.dataset.chooseSkill);
+    if (!result.ok) addMessage(result.reason, 'info');
+    return;
+  }
+
   // T052: formation button
   const formationBtn = e.target.closest('[data-formation]');
   if (formationBtn) {

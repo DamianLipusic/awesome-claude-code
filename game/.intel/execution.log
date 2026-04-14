@@ -1116,3 +1116,29 @@ Two new Phase 7 features: a war tribute/ceasefire system for tactical diplomacy 
 
 **Next session should tackle:**
 - T069+: More Phase 7 features — consider enemy faction tribute demands (AI demands tribute from player), unit merging/stacking improvements, or map territory analytics panel.
+
+---
+
+## 2026-04-14 — Session N+11
+
+**Tasks completed:** T069, T070
+
+**Summary:**
+All prior tasks (T001–T068) were complete. Created two Phase 22 features: alternative victory conditions giving players two new win paths (T069), and a hero skills system adding progression depth to the Champion (T070).
+
+**T069 — Alternative Victory Conditions:**
+- `src/systems/victory.js`: Added `DIPLOMATIC_VICTORY` check (all 3 AI empires allied simultaneously) and `ECONOMIC_VICTORY` check (50,000 lifetime gold earned + Economics tech). Checks run before existing conquest check so diplomatic/economic wins are recognised as soon as conditions are met. `_trigger()` now accepts a `victoryType` param ('conquest'/'diplomatic'/'economic') stored in `state.gameOver`. Exported `WIN_ECONOMIC_GOLD=50000` constant for summaryPanel.
+- `src/ui/gameOverPanel.js`: Added `VICTORY_TYPES` lookup dict with icon+label per victory type; renders `.go-victory-type` gold pill badge below the VICTORY!/DEFEAT heading; title icon follows the victory type.
+- `src/ui/summaryPanel.js`: Imported `WIN_ECONOMIC_GOLD`; expanded `_progressionCard()` to render three separate victory-path sections with coloured section headers and live progress rows.
+- `styles/main.css`: `.go-victory-type` gold pill badge.
+
+**T070 — Hero Skills System:**
+- `src/data/hero.js`: Added `HERO_SKILLS` (10 skills), `HERO_SKILL_WIN_INTERVAL=5`, `HERO_MAX_SKILLS=3`, and `heroSkillBonus()` pure helper.
+- `src/core/events.js`: Added `HERO_LEVEL_UP` event.
+- `src/core/actions.js`: `recruitHero()` initialises skills fields; `trainUnit()` applies `swift_training` -20%; added `chooseHeroSkill(id)`.
+- `src/systems/combat.js`: Apply `attackBonus+combatMult` in preview+attack; apply `lootMult+moraleBonus`; added `_trackHeroCombatWin()` emitting `HERO_LEVEL_UP` every 5 wins.
+- `src/systems/resources.js`: Hero skill resource bonuses and ratesMult in `recalcRates()`.
+- `src/systems/research.js`: `veteran_knowledge` researchMult applied to totalTicks.
+- `src/ui/militaryPanel.js`: `_heroSkillsSection()` with chooser UI and active skills list.
+- `src/main.js`: Save version 22→23; hero migration guard.
+- `styles/main.css`: Full hero skills CSS.

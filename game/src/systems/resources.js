@@ -14,7 +14,7 @@ import { UNITS } from '../data/units.js';
 import { AGES } from '../data/ages.js';
 import { EMPIRES } from '../data/empires.js';
 import { SEASONS } from '../data/seasons.js';
-import { HERO_DEF } from '../data/hero.js';
+import { HERO_DEF, heroSkillBonus } from '../data/hero.js';
 import { TICKS_PER_SECOND } from '../core/tick.js';
 import { territoryRateBonus } from './map.js';
 import { RELICS } from '../data/relics.js';
@@ -105,6 +105,23 @@ export function recalcRates() {
   if (state.hero?.recruited) {
     for (const [res, amt] of Object.entries(HERO_DEF.upkeep)) {
       rates[res] = (rates[res] ?? 0) - amt;
+    }
+
+    // T070: Hero skill resource bonuses (applied after upkeep)
+    const skills = state.hero.skills ?? [];
+    if (skills.length > 0) {
+      // Flat per-resource bonuses (treasury_guard, quartermaster, arcane_attunement)
+      for (const res of RESOURCE_KEYS) {
+        const bonus = heroSkillBonus(skills, 'resourceRate', res);
+        if (bonus) rates[res] = (rates[res] ?? 0) + bonus;
+      }
+      // Global positive-rate multiplier (logistics +10%)
+      const ratesMult = heroSkillBonus(skills, 'ratesMult');
+      if (ratesMult !== 1.0) {
+        for (const res of RESOURCE_KEYS) {
+          if (rates[res] > 0) rates[res] *= ratesMult;
+        }
+      }
     }
   }
 

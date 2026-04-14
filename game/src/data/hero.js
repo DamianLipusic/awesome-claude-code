@@ -4,10 +4,8 @@
  * One hero (the Champion) can be recruited per game. The hero adds significant
  * attack power to the army and has three active abilities with cooldowns.
  *
- * Ability lifecycle:
- *   battleCry — one-shot flag consumed on the next attackTile() call
- *   inspire   — timed flag (tick expiry) that doubles training speed
- *   siege     — one-shot flag that grants guaranteed victory on next attack
+ * T070: Hero Skills — the Champion earns a skill choice every
+ * HERO_SKILL_WIN_INTERVAL combat victories, up to HERO_MAX_SKILLS total.
  */
 export const HERO_DEF = Object.freeze({
   name: 'Champion',
@@ -45,3 +43,137 @@ export const HERO_DEF = Object.freeze({
     }),
   }),
 });
+
+// ── T070: Hero Skills ─────────────────────────────────────────────────────────
+
+/** Number of combat victories needed to earn each skill choice. */
+export const HERO_SKILL_WIN_INTERVAL = 5;
+
+/** Maximum number of skills the Champion can learn. */
+export const HERO_MAX_SKILLS = 3;
+
+/**
+ * Pool of 10 learnable skills. Each has an effect descriptor used by
+ * combat.js, resources.js, research.js, and actions.js.
+ *
+ * effect.type values:
+ *   'attackBonus'  — flat addition to hero attack power
+ *   'combatMult'   — multiplicative bonus on total attack power in combat
+ *   'ratesMult'    — multiplicative bonus on all positive resource rates
+ *   'resourceRate' — flat per-second bonus for a specific resource (effect.resource)
+ *   'trainingMult' — multiplier on unit training ticks (<1 = faster)
+ *   'researchMult' — multiplier on research ticks (<1 = faster)
+ *   'moraleBonus'  — extra morale gained per combat victory (added to base MORALE_COMBAT_WIN)
+ *   'lootMult'     — multiplier on loot gained from capturing tiles
+ */
+export const HERO_SKILLS = Object.freeze([
+  {
+    id: 'battle_hardened',
+    icon: '⚔️',
+    name: 'Battle-Hardened',
+    desc: '+20 bonus attack power.',
+    effect: { type: 'attackBonus', value: 20 },
+  },
+  {
+    id: 'war_drums',
+    icon: '🥁',
+    name: 'War Drums',
+    desc: '+25% attack power in combat.',
+    effect: { type: 'combatMult', value: 1.25 },
+  },
+  {
+    id: 'logistics',
+    icon: '📦',
+    name: 'Logistics',
+    desc: '+10% all positive resource rates.',
+    effect: { type: 'ratesMult', value: 1.10 },
+  },
+  {
+    id: 'treasury_guard',
+    icon: '💎',
+    name: 'Treasury Guard',
+    desc: '+0.8 gold/s passive income.',
+    effect: { type: 'resourceRate', resource: 'gold', value: 0.8 },
+  },
+  {
+    id: 'quartermaster',
+    icon: '🌾',
+    name: 'Quartermaster',
+    desc: '+0.6 food/s passive income.',
+    effect: { type: 'resourceRate', resource: 'food', value: 0.6 },
+  },
+  {
+    id: 'arcane_attunement',
+    icon: '🌀',
+    name: 'Arcane Attunement',
+    desc: '+0.5 mana/s passive income.',
+    effect: { type: 'resourceRate', resource: 'mana', value: 0.5 },
+  },
+  {
+    id: 'swift_training',
+    icon: '⚡',
+    name: 'Swift Training',
+    desc: '−20% unit training time.',
+    effect: { type: 'trainingMult', value: 0.80 },
+  },
+  {
+    id: 'veteran_knowledge',
+    icon: '📚',
+    name: 'Veteran Knowledge',
+    desc: '−20% research time.',
+    effect: { type: 'researchMult', value: 0.80 },
+  },
+  {
+    id: 'iron_will',
+    icon: '🛡️',
+    name: 'Iron Will',
+    desc: '+8 bonus morale per combat victory.',
+    effect: { type: 'moraleBonus', value: 8 },
+  },
+  {
+    id: 'war_profiteer',
+    icon: '💰',
+    name: 'War Profiteer',
+    desc: '+30% bonus loot from tile captures.',
+    effect: { type: 'lootMult', value: 1.30 },
+  },
+]);
+
+/**
+ * Compute the combined numeric value for a given effect type across
+ * an array of learned skill IDs.  Pure function — no state access.
+ *
+ * @param {string[]} skillIds   Array of learned skill IDs (state.hero.skills)
+ * @param {string}   effectType One of the effect.type values listed above
+ * @param {string}   [resource] Required only for effectType === 'resourceRate'
+ * @returns {number}  Additive total (attackBonus/moraleBonus/resourceRate) OR
+ *                    multiplicative product (combatMult / ratesMult / trainingMult /
+ *                    researchMult / lootMult).  Multiplier functions default to 1.0.
+ */
+export function heroSkillBonus(skillIds, effectType, resource) {
+  if (!skillIds?.length) return effectType.endsWith('Mult') ? 1.0 : 0;
+
+  if (effectType === 'resourceRate') {
+    return skillIds.reduce((sum, id) => {
+      const skill = HERO_SKILLS.find(s => s.id === id);
+      if (!skill || skill.effect.type !== 'resourceRate') return sum;
+      if (skill.effect.resource !== resource) return sum;
+      return sum + skill.effect.value;
+    }, 0);
+  }
+
+  if (effectType.endsWith('Mult')) {
+    return skillIds.reduce((prod, id) => {
+      const skill = HERO_SKILLS.find(s => s.id === id);
+      if (!skill || skill.effect.type !== effectType) return prod;
+      return prod * skill.effect.value;
+    }, 1.0);
+  }
+
+  // Additive types: attackBonus, moraleBonus
+  return skillIds.reduce((sum, id) => {
+    const skill = HERO_SKILLS.find(s => s.id === id);
+    if (!skill || skill.effect.type !== effectType) return sum;
+    return sum + skill.effect.value;
+  }, 0);
+}

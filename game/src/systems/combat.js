@@ -11,7 +11,7 @@
 import { state } from '../core/state.js';
 import { emit, Events } from '../core/events.js';
 import { UNITS } from '../data/units.js';
-import { HERO_DEF } from '../data/hero.js';
+import { HERO_DEF, HERO_SKILLS, HERO_SKILL_WIN_INTERVAL, HERO_MAX_SKILLS, heroSkillBonus } from '../data/hero.js';
 import { addMessage } from '../core/actions.js';
 import { revealAround } from './map.js';
 import { recalcRates } from './resources.js';
@@ -90,6 +90,11 @@ export function getAttackPreview(x, y) {
 
   if (state.hero?.recruited) {
     attackPower += HERO_DEF.attack;
+    // T070: hero skills — attack bonus + combat multiplier
+    const skillAtk  = heroSkillBonus(state.hero.skills ?? [], 'attackBonus');
+    const skillMult = heroSkillBonus(state.hero.skills ?? [], 'combatMult');
+    attackPower += skillAtk;
+    attackPower *= skillMult;
     if (state.hero.activeEffects?.battleCry) attackPower *= 2;  // preview includes Battle Cry bonus
   }
 
@@ -164,9 +169,14 @@ export function attackTile(x, y) {
   // Conqueror archetype: +25% unit attack power
   if (state.archetype === 'conqueror') attackPower *= 1.25;
 
-  // Hero bonus: flat attack power + Battle Cry (×2) on next attack
+  // Hero bonus: flat attack power + skills + Battle Cry (×2) on next attack
   if (state.hero?.recruited) {
     attackPower += HERO_DEF.attack;
+    // T070: hero skills — attack bonus + combat multiplier
+    const skillAtk  = heroSkillBonus(state.hero.skills ?? [], 'attackBonus');
+    const skillMult = heroSkillBonus(state.hero.skills ?? [], 'combatMult');
+    attackPower += skillAtk;
+    attackPower *= skillMult;
     if (state.hero.activeEffects?.battleCry) {
       attackPower *= 2;
       state.hero.activeEffects.battleCry = false;
@@ -222,15 +232,21 @@ function _victory(tile, x, y, attackPower, defense) {
   }
   revealAround(x, y);
 
+  // T070: War Profiteer skill — +30% loot multiplier
+  const lootMult = (state.hero?.recruited && state.hero.skills?.length)
+    ? heroSkillBonus(state.hero.skills, 'lootMult')
+    : 1.0;
+
   // Grant loot (cap at current storage cap)
   const lootParts = [];
   const lootGained = {};
   for (const [res, amt] of Object.entries(tile.loot ?? {})) {
+    const bonusAmt = Math.round(amt * lootMult);
     const cap  = state.caps[res] ?? 500;
     const prev = state.resources[res] ?? 0;
-    state.resources[res] = Math.min(cap, prev + amt);
-    lootParts.push(`+${amt} ${res}`);
-    lootGained[res] = amt;
+    state.resources[res] = Math.min(cap, prev + bonusAmt);
+    lootParts.push(`+${bonusAmt} ${res}`);
+    lootGained[res] = bonusAmt;
   }
 
   // Record combat history entry
@@ -239,8 +255,13 @@ function _victory(tile, x, y, attackPower, defense) {
   // Grant combat XP to all participating unit types
   _grantCombatXP();
 
-  // T057: victory boosts army morale
-  changeMorale(MORALE_COMBAT_WIN);
+  // T057 + T070 Iron Will: victory boosts army morale
+  const moraleGain = MORALE_COMBAT_WIN +
+    (state.hero?.recruited ? heroSkillBonus(state.hero.skills ?? [], 'moraleBonus') : 0);
+  changeMorale(moraleGain);
+
+  // T070: Track hero combat wins for skill system
+  if (state.hero?.recruited) _trackHeroCombatWin();
 
   // T064: chance to discover an ancient relic on this tile
   _tryDiscoverRelic(tile, x, y);
@@ -271,6 +292,41 @@ function _victory(tile, x, y, attackPower, defense) {
     );
   }
   return { ok: true, outcome: 'win' };
+}
+
+/**
+ * T070: Increment hero combat win counter and offer a skill choice when
+ * the HERO_SKILL_WIN_INTERVAL milestone is reached (up to HERO_MAX_SKILLS).
+ */
+function _trackHeroCombatWin() {
+  const h = state.hero;
+  if (!h) return;
+
+  if (!h.combatWins)        h.combatWins        = 0;
+  if (!h.skills)            h.skills            = [];
+  if (h.pendingSkillOffer === undefined) h.pendingSkillOffer = null;
+
+  h.combatWins++;
+
+  // Check if a new skill milestone was reached
+  const skillsEarned = Math.floor(h.combatWins / HERO_SKILL_WIN_INTERVAL);
+  const skillsChosen = h.skills.length;
+
+  if (skillsEarned > skillsChosen && skillsChosen < HERO_MAX_SKILLS && !h.pendingSkillOffer) {
+    // Generate up to 3 random choices from unlearned skills
+    const available = HERO_SKILLS.filter(s => !h.skills.includes(s.id));
+    if (available.length > 0) {
+      const shuffled = [...available].sort(() => Math.random() - 0.5);
+      h.pendingSkillOffer = shuffled.slice(0, Math.min(3, shuffled.length)).map(s => s.id);
+      addMessage(
+        `⭐ ${HERO_DEF.name} grows in power after ${h.combatWins} victories! Choose a new skill in the Military panel.`,
+        'hero',
+      );
+      emit(Events.HERO_LEVEL_UP, { offer: h.pendingSkillOffer });
+    }
+  }
+
+  emit(Events.HERO_CHANGED, {});
 }
 
 /**

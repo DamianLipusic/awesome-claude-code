@@ -9,7 +9,7 @@ import { BUILDINGS } from '../data/buildings.js';
 import { UNITS } from '../data/units.js';
 import { TECHS } from '../data/techs.js';
 import { AGES } from '../data/ages.js';
-import { HERO_DEF } from '../data/hero.js';
+import { HERO_DEF, HERO_SKILLS, HERO_MAX_SKILLS, heroSkillBonus } from '../data/hero.js';
 import { IMPROVEMENTS } from '../data/improvements.js';
 import { POLICIES, POLICY_COOLDOWN_TICKS } from '../data/policies.js';
 import { recalcRates } from '../systems/resources.js';
@@ -98,6 +98,10 @@ export function trainUnit(id) {
   if (state.techs.warcraft)                  totalTicks = Math.ceil(totalTicks * 0.75);
   if ((state.buildings.colosseum ?? 0) >= 1) totalTicks = Math.ceil(totalTicks * 0.67);
   if (state.policy === 'martial_law')        totalTicks = Math.ceil(totalTicks * 0.70);
+  // T070: hero swift_training skill — -20% training time
+  if (state.hero?.recruited && state.hero.skills?.includes('swift_training')) {
+    totalTicks = Math.ceil(totalTicks * 0.80);
+  }
   state.trainingQueue.push({ unitId: id, remaining: totalTicks, totalTicks });
 
   emit(Events.UNIT_CHANGED, {});
@@ -211,8 +215,12 @@ export function recruitHero() {
   deductCost(HERO_DEF.cost);
   state.hero = {
     recruited: true,
-    abilityCooldowns: { battleCry: 0, inspire: 0, siege: 0 },
-    activeEffects:    { battleCry: false, inspire: 0, siege: false },
+    abilityCooldowns:  { battleCry: 0, inspire: 0, siege: 0 },
+    activeEffects:     { battleCry: false, inspire: 0, siege: false },
+    // T070: hero skill tracking
+    skills:            [],
+    combatWins:        0,
+    pendingSkillOffer: null,
   };
   recalcRates();
 
@@ -262,6 +270,37 @@ export function useHeroAbility(abilityId) {
 
   emit(Events.HERO_CHANGED, {});
   addMessage(`${ability.icon} ${HERO_DEF.name} used ${ability.name}!`, 'hero');
+  return { ok: true };
+}
+
+/**
+ * T070: Choose a hero skill from the pending skill offer.
+ * Validates the skill ID is in the current offer, adds it to hero.skills,
+ * clears the pending offer, and re-calculates resource rates.
+ */
+export function chooseHeroSkill(skillId) {
+  if (!state.hero?.recruited) return { ok: false, reason: 'No hero to assign skills to.' };
+  if (!state.hero.pendingSkillOffer?.includes(skillId)) {
+    return { ok: false, reason: 'That skill is not in the current offer.' };
+  }
+  if ((state.hero.skills?.length ?? 0) >= HERO_MAX_SKILLS) {
+    return { ok: false, reason: `Champion already has ${HERO_MAX_SKILLS} skills.` };
+  }
+
+  if (!state.hero.skills) state.hero.skills = [];
+  state.hero.skills.push(skillId);
+  state.hero.pendingSkillOffer = null;
+
+  const skill = HERO_SKILLS.find(s => s.id === skillId);
+  recalcRates();   // apply resourceRate / ratesMult immediately
+
+  emit(Events.HERO_CHANGED, {});
+  emit(Events.RESOURCE_CHANGED, {});
+  addMessage(
+    `⭐ Champion learned ${skill?.icon ?? ''} ${skill?.name ?? skillId}: ${skill?.desc ?? ''}`,
+    'hero',
+  );
+  log('hero skill chosen:', skillId);
   return { ok: true };
 }
 
