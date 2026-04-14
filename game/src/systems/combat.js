@@ -18,6 +18,13 @@ import { recalcRates } from './resources.js';
 import { getMoraleEffect, changeMorale, MORALE_COMBAT_WIN, MORALE_COMBAT_LOSS } from './morale.js';
 import { RELICS, TERRAIN_RELIC, RELIC_DROP_CHANCE, ARCANE_SHARD_DROP_CHANCE } from '../data/relics.js';
 import { BOONS } from '../data/ageBoons.js';
+import { SYNERGIES } from '../data/techs.js';
+
+/** Returns true if both techs of a named synergy are researched. */
+function _synergy(id) {
+  const syn = SYNERGIES[id];
+  return syn ? syn.techs.every(t => !!state.techs[t]) : false;
+}
 
 const NEIGHBORS   = [[-1, 0], [1, 0], [0, -1], [0, 1]];
 const MAX_HISTORY = 20;
@@ -124,6 +131,9 @@ export function getAttackPreview(x, y) {
   // T071 Military Mastery: +40 flat attack power
   if (state.masteries?.military) attackPower += 40;
 
+  // T077: Veteran Legion synergy (warcraft + tactics) → +20% attack power
+  if (_synergy('veteran_legion')) attackPower *= 1.20;
+
   // T072b: age council boon combat attack bonus
   attackPower *= _councilBoonCombatMult();
 
@@ -163,6 +173,7 @@ export function getAttackPreview(x, y) {
     formation:    state.formation ?? 'balanced',
     morale:       Math.round(state.morale ?? 50),
     militaryMastery: !!(state.masteries?.military),
+    veteranLegion:   _synergy('veteran_legion'),
   };
 }
 
@@ -218,6 +229,9 @@ export function attackTile(x, y) {
 
   // T071 Military Mastery: +40 flat attack power
   if (state.masteries?.military) attackPower += 40;
+
+  // T077: Veteran Legion synergy (warcraft + tactics) → +20% attack power
+  if (_synergy('veteran_legion')) attackPower *= 1.20;
 
   // T072b: age council boon combat attack bonus
   attackPower *= _councilBoonCombatMult();

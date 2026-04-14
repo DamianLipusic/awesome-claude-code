@@ -27,6 +27,7 @@ import { initChallenges, challengeTick } from './systems/challenges.js';
 import { initCaravans, caravanTick } from './systems/caravans.js';
 import { initPoliticalEvents, politicalEventTick } from './systems/politicalEvents.js';
 import { initMercenaries, mercenaryTick } from './systems/mercenaries.js';
+import { initWeather, weatherTick, getCurrentWeather, getWeatherSecsLeft } from './systems/weather.js';
 import { SEASONS } from './data/seasons.js';
 import { AGES } from './data/ages.js';
 import { TICKS_PER_SECOND } from './core/tick.js';
@@ -97,6 +98,7 @@ function boot() {
   registerSystem(caravanTick);
   registerSystem(politicalEventTick);
   registerSystem(mercenaryTick);
+  registerSystem(weatherTick);
 
   // Init event-driven systems
   initRandomEvents();
@@ -117,6 +119,7 @@ function boot() {
   initCaravans();
   initPoliticalEvents();
   initMercenaries();
+  initWeather();
 
   // Init UI
   initHUD();
@@ -148,6 +151,12 @@ function boot() {
 
   // Track peak territory for leaderboard
   on(Events.MAP_CHANGED, _updatePeakTerritory);
+
+  // Update weather badge when weather starts/ends; also refresh every 4 ticks for countdown
+  _updateWeatherBadge();
+  on(Events.WEATHER_CHANGED, _updateWeatherBadge);
+  let _weatherBadgeTick = 0;
+  on(Events.TICK, () => { if (++_weatherBadgeTick % 4 === 0) _updateWeatherBadge(); });
 
   // Update age badge on changes; also show council boon modal on advancement
   _updateAgeBadge();
@@ -198,7 +207,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 25,
+      version: 26,
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -244,6 +253,7 @@ function _save() {
         politicalEvents:  state.politicalEvents  ?? null,
         councilBoons:     state.councilBoons     ?? [],
         mercenaries:      state.mercenaries      ?? null,
+        weather:          state.weather          ?? null,
         tick:          state.tick,
       }
     }));
@@ -311,6 +321,7 @@ function _applySave(save) {
   state.politicalEvents  = s.politicalEvents  ?? null;
   state.councilBoons     = s.councilBoons     ?? [];
   state.mercenaries      = s.mercenaries      ?? null;
+  state.weather          = s.weather          ?? null;
   state.tick             = s.tick             ?? 0;
   recalcRates();
 
@@ -343,6 +354,27 @@ function _updateSeasonBadge() {
   const timeStr = mins > 0 ? `${mins}m${String(secs).padStart(2,'0')}s` : `${secs}s`;
   el.textContent = `${s.icon} ${s.name}`;
   el.title = `${s.name}: ${s.desc} — Changes in ${timeStr}`;
+}
+
+// ── Weather badge ─────────────────────────────────────────────────────────
+
+function _updateWeatherBadge() {
+  const el = document.getElementById('weather-badge');
+  if (!el) return;
+  const w = getCurrentWeather();
+  if (!w) {
+    el.textContent = '';
+    el.title = '';
+    el.style.display = 'none';
+    return;
+  }
+  const secsLeft = getWeatherSecsLeft();
+  const mins = Math.floor(secsLeft / 60);
+  const secs = secsLeft % 60;
+  const timeStr = mins > 0 ? `${mins}m${String(secs).padStart(2,'0')}s` : `${secsLeft}s`;
+  el.textContent = `${w.icon} ${w.name}`;
+  el.title = `${w.name}: ${w.desc} — Clears in ${timeStr}`;
+  el.style.display = '';
 }
 
 // ── Score badge ───────────────────────────────────────────────────────────
@@ -459,6 +491,7 @@ function _newGame(opts = {}) {
   initCaravans();
   initPoliticalEvents();
   initMercenaries();
+  initWeather();
   recalcRates();
   startLoop();  // restart loop in case it was stopped by game-over
   _syncPauseUI();  // ensure pause overlay is hidden on new game

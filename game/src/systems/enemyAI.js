@@ -25,6 +25,7 @@ import { EMPIRES } from '../data/empires.js';
 import { clearBarbarianCamp } from './barbarianCamps.js';
 import { changeMorale, MORALE_TILE_LOST } from './morale.js';
 import { BOONS } from '../data/ageBoons.js';
+import { SYNERGIES } from '../data/techs.js';
 
 // ── Timing constants ───────────────────────────────────────────────────────
 
@@ -162,6 +163,8 @@ function _counterattack() {
   if (state.spells?.activeEffects?.aegis > state.tick) winChance *= 0.6;
   // T072: castle_walls boon — -20% enemy counterattack success
   if (state.councilBoons?.includes('castle_walls')) winChance *= 0.80;
+  // T077: Fortress Doctrine synergy (fortification + tactics) — -25% enemy success
+  if (SYNERGIES.fortress_doctrine.techs.every(t => !!state.techs?.[t])) winChance *= 0.75;
   winChance = Math.min(0.9, winChance);
   const roll = Math.random();
 

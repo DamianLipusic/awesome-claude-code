@@ -5,7 +5,7 @@
 
 import { state } from '../core/state.js';
 import { emit, Events } from '../core/events.js';
-import { TECHS, MASTERY_GROUPS } from '../data/techs.js';
+import { TECHS, MASTERY_GROUPS, SYNERGIES } from '../data/techs.js';
 import { heroSkillBonus } from '../data/hero.js';
 import { recalcRates } from './resources.js';
 import { addMessage } from '../core/actions.js';
@@ -28,6 +28,7 @@ export function researchTick() {
     addMessage(`Research complete: ${name}!`, 'tech');
     emit(Events.TECH_CHANGED, { techId: entry.techId });
     _checkMasteries(entry.techId);
+    _checkSynergies(entry.techId);
     log('tech researched:', entry.techId);
   }
 }
@@ -46,6 +47,19 @@ function _checkMasteries(techId) {
     recalcRates();
     addMessage(`🎓 ${group.name} achieved! ${group.bonusLabel}`, 'tech');
     emit(Events.MASTERY_UNLOCKED, { id: group.id });
+  }
+}
+
+/**
+ * Check if any tech synergy was completed by the newly-researched tech.
+ * Emits SYNERGY_UNLOCKED and logs a message when a synergy pair is newly complete.
+ */
+function _checkSynergies(techId) {
+  for (const [id, syn] of Object.entries(SYNERGIES)) {
+    if (!syn.techs.includes(techId)) continue;       // new tech not in this synergy
+    if (!syn.techs.every(t => state.techs[t])) continue; // pair not yet complete
+    addMessage(`✨ Synergy unlocked: ${syn.icon} ${syn.name}! ${syn.effectDesc}`, 'tech');
+    emit(Events.SYNERGY_UNLOCKED, { id });
   }
 }
 

@@ -4903,3 +4903,142 @@ kbd {
   color: #48bb78;
   font-weight: 600;
 }
+
+/* ── T077: Tech Synergy section ─────────────────────────────────────────── */
+
+.synergy-section {
+  background: var(--bg-card);
+  border: 1px solid var(--accent-h);
+  border-left: 3px solid #9f7aea;
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin: 10px 0;
+}
+
+.synergy-section__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+}
+
+.synergy-section__count {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.synergy-section__intro {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+
+.synergy-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 6px;
+}
+
+.synergy-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--accent-h);
+  border-radius: 5px;
+  padding: 8px 10px;
+}
+
+.synergy-card--active {
+  border-color: #9f7aea;
+  background: rgba(159, 122, 234, 0.06);
+}
+
+.synergy-card--locked {
+  opacity: 0.65;
+}
+
+.synergy-card__header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 5px;
+}
+
+.synergy-icon {
+  font-size: 16px;
+}
+
+.synergy-name {
+  font-size: 12px;
+  flex: 1;
+}
+
+.synergy-badge {
+  font-size: 10px;
+  color: #9f7aea;
+  background: rgba(159, 122, 234, 0.15);
+  border: 1px solid rgba(159, 122, 234, 0.4);
+  border-radius: 10px;
+  padding: 1px 6px;
+}
+
+.synergy-techs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+
+.synergy-tech {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: var(--bg-card);
+  border: 1px solid var(--accent-h);
+  color: var(--text-dim);
+}
+
+.synergy-tech--done {
+  border-color: #48bb78;
+  color: #48bb78;
+}
+
+.synergy-plus {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.synergy-effect {
+  font-size: 11px;
+}
+
+.synergy-effect--active {
+  color: #9f7aea;
+  font-weight: 600;
+}
+
+.synergy-effect--locked {
+  color: var(--text-dim);
+}
+
+/* ── T078: Weather badge ─────────────────────────────────────────────────── */
+
+.weather-badge {
+  display: inline-block;
+  font-size: 11px;
+  padding: 2px 7px;
+  border-radius: 10px;
+  border: 1px solid var(--accent-h);
+  background: var(--bg-card);
+  color: var(--text-dim);
+  cursor: help;
+  white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .weather-badge { display: none !important; }
+}

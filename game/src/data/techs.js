@@ -177,6 +177,66 @@ export const TECHS = Object.freeze({
 });
 
 /**
+ * Tech synergy bonuses — unlock when BOTH paired technologies are researched.
+ * Effects are computed dynamically (no extra state needed) in resources.js,
+ * combat.js, and enemyAI.js.  A log message + SYNERGY_UNLOCKED event fires
+ * from research.js the moment the second tech of a pair completes.
+ *
+ * Each entry:
+ *   name       — display label
+ *   icon       — emoji shown in UI
+ *   techs      — [techIdA, techIdB] — both must be researched
+ *   effectDesc — human-readable bonus description
+ */
+export const SYNERGIES = Object.freeze({
+  veteran_legion: {
+    name: 'Veteran Legion',
+    icon: '🎖️',
+    techs: ['warcraft', 'tactics'],
+    effectDesc: '+20% army attack power in all combat',
+  },
+  runic_forging: {
+    name: 'Runic Forging',
+    icon: '⚙️',
+    techs: ['alchemy', 'steel'],
+    effectDesc: '+2.0 iron/s base income',
+  },
+  trade_empire: {
+    name: 'Trade Empire',
+    icon: '🌐',
+    techs: ['navigation', 'economics'],
+    effectDesc: '+0.8 gold/s per open trade route',
+  },
+  sacred_harvest: {
+    name: 'Sacred Harvest',
+    icon: '🌟',
+    techs: ['divine_favor', 'agriculture'],
+    effectDesc: '+50% additional farm food production',
+  },
+  fortress_doctrine: {
+    name: 'Fortress Doctrine',
+    icon: '🏰',
+    techs: ['fortification', 'tactics'],
+    effectDesc: '−25% enemy counterattack success chance',
+  },
+  naval_engineering: {
+    name: 'Naval Engineering',
+    icon: '⚓',
+    techs: ['engineering', 'navigation'],
+    effectDesc: '+2 wood/s + +300 wood storage cap',
+  },
+});
+
+export const SYNERGY_ORDER = [
+  'veteran_legion',
+  'runic_forging',
+  'trade_empire',
+  'sacred_harvest',
+  'fortress_doctrine',
+  'naval_engineering',
+];
+
+/**
  * Tech mastery groups — unlock permanent empire-wide bonuses when all techs
  * in the group are researched.  Effects are applied in resources.js,
  * combat.js, and actions.js.

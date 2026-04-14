@@ -2,6 +2,52 @@
 
 ---
 
+## 2026-04-14 — Session N+13
+
+**Tasks completed:** T077, T078
+
+**Summary:**
+All prior tasks (T001–T076) were complete. Created two Phase 25 features: a tech synergy bonus system where researching both techs in a pair unlocks a permanent empire-wide bonus (T077), and a weather system with five periodic climate events that modify resource rates for 60–90 seconds (T078).
+
+**T077 — Tech Synergy Bonuses:**
+- `src/data/techs.js`: Added `SYNERGIES` constant (6 entries: veteran_legion/runic_forging/trade_empire/sacred_harvest/fortress_doctrine/naval_engineering) — each with `name`, `icon`, `techs[]` pair, and `effectDesc`. Also exported `SYNERGY_ORDER` array. Effects summary: veteran_legion (warcraft+tactics) → +20% combat attack; runic_forging (alchemy+steel) → +2 iron/s; trade_empire (navigation+economics) → +0.8 gold/s per open trade route; sacred_harvest (divine_favor+agriculture) → +50% additional farm food; fortress_doctrine (fortification+tactics) → −25% enemy counterattack; naval_engineering (engineering+navigation) → +2 wood/s +300 wood cap.
+- `src/core/events.js`: Added `SYNERGY_UNLOCKED: 'synergyUnlocked'`.
+- `src/systems/research.js`: Imported `SYNERGIES`; added `_checkSynergies(techId)` called in `researchTick()` after `_checkMasteries` — iterates SYNERGIES, skips entries that don't include the new tech, checks both techs done, logs `'✨ Synergy unlocked: name! effect'` and emits `SYNERGY_UNLOCKED`.
+- `src/systems/resources.js`: Imported `SYNERGIES`; added `_synergy(id)` helper; applied runic_forging (+2 iron/s) and naval_engineering (+2 wood/s, caps.wood+300) in baseline block; trade_empire (+0.8 gold/s per route) inside trade route loop; sacred_harvest (×1.5) in `_buildingProdMultiplier()` for farm buildings.
+- `src/systems/combat.js`: Imported `SYNERGIES`; added `_synergy(id)` helper; applied veteran_legion (×1.20) in both `getAttackPreview()` and `attackTile()` after military mastery; preview returns `veteranLegion` flag.
+- `src/systems/enemyAI.js`: Imported `SYNERGIES`; fortress_doctrine (×0.75 on winChance) after castle_walls boon check in `_counterattack()`.
+- `src/ui/researchPanel.js`: Imported `SYNERGIES + SYNERGY_ORDER`; subscribed `SYNERGY_UNLOCKED → renderResearchPanel`; added `_synergiesSection()` building `.synergy-grid` with per-synergy cards (active: purple border + `✨ Active` badge + green tech icon pills; locked: dimmed + grey tech pills); injected between mastery section and policy section.
+- `styles/main.css`: `.synergy-section` (purple left-border accent), `.synergy-grid` (auto-fill 220px), `.synergy-card / --active / --locked`, `.synergy-card__header / .synergy-icon / .synergy-name / .synergy-badge` (purple pill), `.synergy-techs / .synergy-tech / --done / .synergy-plus`, `.synergy-effect / --active (purple) / --locked (dim)`.
+
+**T078 — Weather System:**
+- `src/data/weather.js` (new): `WEATHER_TYPES` array — 5 entries: `clear_skies` (☀️, +10% all rates, 60s, weight 3), `heavy_rain` (🌧️, +25% food -10% wood, 75s, weight 2), `scorching_heat` (🌡️, -15% food +15% gold, 60s, weight 2), `windstorm` (🌪️, +25% wood -10% stone/iron, 60s, weight 2), `snowstorm` (❄️, -20% all rates, -5 morale, 90s, weight 1).
+- `src/systems/weather.js` (new): `GRACE_TICKS=480` (no weather first 2 minutes); `_pickWeather()` weighted-random selection; `initWeather()` idempotent struct guard; `weatherTick()` expires active (log 'has passed', `recalcRates()`, `WEATHER_CHANGED`) and spawns new on `tick ≥ nextWeatherTick && tick ≥ GRACE_TICKS`; `_spawnWeather()` sets `state.weather.active`, calls `changeMorale(moraleDelta)` if applicable, `addMessage`, `recalcRates()`, emits `WEATHER_CHANGED`. Exported: `getCurrentWeather()`, `getWeatherSecsLeft()`.
+- `src/core/events.js`: Added `WEATHER_CHANGED: 'weatherChanged'`.
+- `src/core/state.js`: Added `weather: null` to static object + `initState()` reset.
+- `src/systems/resources.js`: Weather multipliers applied after season modifiers — `allRates` modifier hits all positive rates; per-resource modifiers (food/wood/stone/iron/gold) applied individually on positive rates.
+- `src/main.js`: Imported all weather exports; `registerSystem(weatherTick)` 17th system; `initWeather()` in both `boot()` and `_newGame()`; `weather: state.weather ?? null` in `_save()`; `state.weather = s.weather ?? null` in `_applySave()`; save version bumped 25→26; added `_updateWeatherBadge()` (shows/hides `#weather-badge` span with `icon name` text + countdown tooltip; hidden when no active weather); subscribed `WEATHER_CHANGED + TICK/4` for countdown refresh.
+- `index.html`: Added `<span id='weather-badge'>` (style='display:none') between population-badge and score-badge.
+- `styles/main.css`: `.weather-badge` (pill shape, bg-card, cursor:help, white-space:nowrap); hidden on ≤600px.
+
+**Files modified / created:**
+- `game/src/data/techs.js`
+- `game/src/data/weather.js` (new)
+- `game/src/core/events.js`
+- `game/src/core/state.js`
+- `game/src/systems/research.js`
+- `game/src/systems/resources.js`
+- `game/src/systems/combat.js`
+- `game/src/systems/enemyAI.js`
+- `game/src/systems/weather.js` (new)
+- `game/src/ui/researchPanel.js`
+- `game/src/main.js`
+- `game/index.html`
+- `game/styles/main.css`
+- `game/.intel/tasks.json`
+- `game/.intel/execution.log`
+
+---
+
 ## 2026-04-14 — Session N+12
 
 **Tasks completed:** T075, T076

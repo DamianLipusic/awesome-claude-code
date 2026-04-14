@@ -20,6 +20,13 @@ import { territoryRateBonus } from './map.js';
 import { RELICS } from '../data/relics.js';
 import { POLICIES } from '../data/policies.js';
 import { BOONS } from '../data/ageBoons.js';
+import { SYNERGIES } from '../data/techs.js';
+
+/** Returns true if both techs in the named synergy pair are researched. */
+function _synergy(id) {
+  const syn = SYNERGIES[id];
+  return syn ? syn.techs.every(t => !!state.techs[t]) : false;
+}
 
 const RESOURCE_KEYS = ['gold', 'food', 'wood', 'stone', 'iron', 'mana'];
 
@@ -35,6 +42,15 @@ export function recalcRates() {
   // Baseline income (tiny passive income so new players aren't stuck)
   rates.gold += 0.5;
   rates.food += 0.5;
+
+  // T077: Runic Forging synergy (alchemy + steel) → +2 iron/s
+  if (_synergy('runic_forging')) rates.iron += 2.0;
+
+  // T077: Naval Engineering synergy (engineering + navigation) → +2 wood/s, +300 wood cap
+  if (_synergy('naval_engineering')) {
+    rates.wood  += 2.0;
+    caps.wood   += 300;
+  }
 
   // Merchant archetype: +1.5 gold/s base income
   if (state.archetype === 'merchant') rates.gold += 1.5;
@@ -75,6 +91,8 @@ export function recalcRates() {
     const merchantMult     = state.archetype === 'merchant' ? 1.5 : 1.0;
     // T071 Economic Mastery: +30% trade route income
     const economicMastery  = state.masteries?.economic     ? 1.3 : 1.0;
+    // T077: Trade Empire synergy (navigation + economics) → +0.8 gold/s per open trade route
+    const tradeEmpireActive = _synergy('trade_empire');
     for (const emp of state.diplomacy.empires) {
       if (emp.relations !== 'allied' || emp.tradeRoutes <= 0) continue;
       const gift = EMPIRES[emp.id]?.tradeGift ?? {};
@@ -83,6 +101,8 @@ export function recalcRates() {
           rates[res] += rate * emp.tradeRoutes * navMult * merchantMult * economicMastery;
         }
       }
+      // Trade Empire: flat +0.8 gold/s per open trade route (stacks per route)
+      if (tradeEmpireActive) rates.gold += 0.8 * emp.tradeRoutes;
     }
   }
 
@@ -92,6 +112,23 @@ export function recalcRates() {
     for (const res of RESOURCE_KEYS) {
       if (mods[res] !== undefined && rates[res] > 0) {
         rates[res] *= mods[res];
+      }
+    }
+  }
+
+  // T078: Weather modifiers — applied to positive rates only (production, not upkeep)
+  const weatherMods = state.weather?.active?.modifiers;
+  if (weatherMods) {
+    // allRates modifier applies to all positive rates (e.g. Clear Skies +10%, Snowstorm -20%)
+    if (weatherMods.allRates !== undefined) {
+      for (const res of RESOURCE_KEYS) {
+        if (rates[res] > 0) rates[res] *= weatherMods.allRates;
+      }
+    }
+    // Per-resource modifiers (stacks on top of allRates if both present)
+    for (const [res, mult] of Object.entries(weatherMods)) {
+      if (res !== 'allRates' && rates[res] !== undefined && rates[res] > 0) {
+        rates[res] *= mult;
       }
     }
   }
@@ -439,6 +476,8 @@ function _buildingProdMultiplier(buildingId) {
   if (buildingId === 'farm') {
     if (techs.agriculture) mult *= 1.5;
     if (techs.divine_favor) mult *= 1.3;
+    // T077: Sacred Harvest synergy (divine_favor + agriculture) → +50% additional farm food
+    if (_synergy('sacred_harvest')) mult *= 1.5;
   }
   if (buildingId === 'quarry') {
     if (techs.masonry) mult *= 1.5;

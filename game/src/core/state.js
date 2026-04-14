@@ -203,6 +203,10 @@ export const state = {
   // T075: Mercenary offers — { current: { unitId, cost, expiresAt } | null, nextOfferTick }
   // Populated by systems/mercenaries.js initMercenaries()
   mercenaries: null,
+
+  // T078: Weather state — populated by systems/weather.js initWeather()
+  // { active: { type, icon, name, desc, modifiers, expiresAt } | null, nextWeatherTick: number }
+  weather: null,
 };
 
 /**
@@ -254,5 +258,6 @@ export function initState(empireName = 'My Empire') {
   state.politicalEvents = null;
   state.councilBoons    = [];
   state.mercenaries     = null;
+  state.weather         = null;
   // Note: state.archetype is NOT reset here — it persists across new games
 }

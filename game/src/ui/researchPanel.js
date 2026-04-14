@@ -7,7 +7,7 @@ import { state } from '../core/state.js';
 import { on, Events } from '../core/events.js';
 import { startResearch, cancelResearch, MAX_RESEARCH_QUEUE } from '../systems/research.js';
 import { advanceAge, setPolicy } from '../core/actions.js';
-import { TECHS, MASTERY_GROUPS } from '../data/techs.js';
+import { TECHS, MASTERY_GROUPS, SYNERGIES, SYNERGY_ORDER } from '../data/techs.js';
 import { AGES } from '../data/ages.js';
 import { fmtNum, fmtTime } from '../utils/fmt.js';
 import { TICKS_PER_SECOND } from '../core/tick.js';
@@ -28,6 +28,7 @@ export function initResearchPanel() {
   on(Events.POLICY_CHANGED,    renderResearchPanel);
   on(Events.MORALE_CHANGED,    _throttle(renderResearchPanel, 8));
   on(Events.MASTERY_UNLOCKED,  renderResearchPanel);
+  on(Events.SYNERGY_UNLOCKED,  renderResearchPanel);
 }
 
 function renderResearchPanel() {
@@ -73,7 +74,7 @@ function renderResearchPanel() {
     </div>`;
   }).join('');
 
-  panel.innerHTML = _ageSection() + progressHtml + `<div class="tech-grid">${techCards}</div>` + _masteriesSection() + _policySection() + _relicsSection();
+  panel.innerHTML = _ageSection() + progressHtml + `<div class="tech-grid">${techCards}</div>` + _masteriesSection() + _synergiesSection() + _policySection() + _relicsSection();
 
   panel.onclick = (e) => {
     if (e.target.closest('#btn-advance-age')) {
@@ -311,6 +312,57 @@ function _policySection() {
       <div class="policy-intro">Enact one policy to shape your empire's focus. Policies have a 60-second cooldown when changed.</div>
       ${cooldownHtml}
       <div class="policy-grid">${policyCards}</div>
+    </div>`;
+}
+
+// ── T077: Tech Synergy section ─────────────────────────────────────────────
+
+function _synergiesSection() {
+  const unlockedCount = SYNERGY_ORDER.filter(id => {
+    const syn = SYNERGIES[id];
+    return syn.techs.every(t => !!state.techs[t]);
+  }).length;
+
+  const cards = SYNERGY_ORDER.map(id => {
+    const syn     = SYNERGIES[id];
+    const active  = syn.techs.every(t => !!state.techs[t]);
+    const techBadges = syn.techs.map(t => {
+      const done = !!state.techs[t];
+      const def  = TECHS[t];
+      return `<span class="synergy-tech ${done ? 'synergy-tech--done' : ''}"
+                     title="${def?.name ?? t}">${def?.icon ?? '?'} ${def?.name ?? t}</span>`;
+    }).join('<span class="synergy-plus">+</span>');
+
+    if (active) {
+      return `<div class="synergy-card synergy-card--active">
+        <div class="synergy-card__header">
+          <span class="synergy-icon">${syn.icon}</span>
+          <strong class="synergy-name">${syn.name}</strong>
+          <span class="synergy-badge">✨ Active</span>
+        </div>
+        <div class="synergy-techs">${techBadges}</div>
+        <div class="synergy-effect synergy-effect--active">${syn.effectDesc}</div>
+      </div>`;
+    }
+
+    return `<div class="synergy-card synergy-card--locked">
+      <div class="synergy-card__header">
+        <span class="synergy-icon">${syn.icon}</span>
+        <strong class="synergy-name">${syn.name}</strong>
+      </div>
+      <div class="synergy-techs">${techBadges}</div>
+      <div class="synergy-effect synergy-effect--locked">${syn.effectDesc}</div>
+    </div>`;
+  }).join('');
+
+  return `
+    <div class="synergy-section">
+      <div class="synergy-section__header">
+        <span>✨ Tech Synergies</span>
+        <span class="synergy-section__count">${unlockedCount} / ${SYNERGY_ORDER.length} active</span>
+      </div>
+      <div class="synergy-section__intro">Research both paired technologies to unlock a permanent synergy bonus.</div>
+      <div class="synergy-grid">${cards}</div>
     </div>`;
 }
 
