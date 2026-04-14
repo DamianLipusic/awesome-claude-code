@@ -47,6 +47,9 @@ import { initToasts } from './ui/toastManager.js';
 import { initSummaryPanel } from './ui/summaryPanel.js';
 import { showNewGameWizard } from './ui/newGameModal.js';
 import { calcOfflineProgress, showOfflineModal } from './ui/offlineModal.js';
+import { showCouncilModal } from './ui/councilModal.js';
+import { AGE_BOON_POOLS } from './data/ageBoons.js';
+import { chooseCouncilBoon } from './core/actions.js';
 import { initMinimap, drawMinimap } from './ui/minimap.js';
 import { addMessage } from './core/actions.js';
 import { calcScore } from './utils/score.js';
@@ -143,9 +146,22 @@ function boot() {
   // Track peak territory for leaderboard
   on(Events.MAP_CHANGED, _updatePeakTerritory);
 
-  // Update age badge on changes
+  // Update age badge on changes; also show council boon modal on advancement
   _updateAgeBadge();
-  on(Events.AGE_CHANGED, _updateAgeBadge);
+  on(Events.AGE_CHANGED, (data) => {
+    _updateAgeBadge();
+    // T072: show council boon picker on Bronze/Iron/Medieval advancement (not Stone = age 0)
+    const newAge = data?.age ?? state.age;
+    if (newAge > 0) {
+      const pool = AGE_BOON_POOLS[newAge];
+      if (pool) {
+        // Pick 3 random boons from the age pool
+        const shuffled = [...pool].sort(() => Math.random() - 0.5);
+        const offer    = shuffled.slice(0, 3);
+        showCouncilModal(newAge, offer, chooseCouncilBoon);
+      }
+    }
+  });
 
   // Update season badge on changes (also on TICK for countdown display)
   _updateSeasonBadge();
@@ -223,6 +239,7 @@ function _save() {
         garrisons:        state.garrisons        ?? null,
         masteries:        state.masteries        ?? {},
         politicalEvents:  state.politicalEvents  ?? null,
+        councilBoons:     state.councilBoons     ?? [],
         tick:          state.tick,
       }
     }));
@@ -288,6 +305,7 @@ function _applySave(save) {
   state.garrisons        = s.garrisons        ?? null;
   state.masteries        = s.masteries        ?? {};
   state.politicalEvents  = s.politicalEvents  ?? null;
+  state.councilBoons     = s.councilBoons     ?? [];
   state.tick             = s.tick             ?? 0;
   recalcRates();
 

@@ -195,6 +195,10 @@ export const state = {
   // Political events — populated by systems/politicalEvents.js initPoliticalEvents()
   // { pending: {…} | null, log: [], nextEventTick: number }
   politicalEvents: null,
+
+  // T072b: Chosen age council boons — array of boon IDs, one per age (max 3).
+  // Reset on new game.
+  councilBoons: [],
 };
 
 /**
@@ -244,5 +248,6 @@ export function initState(empireName = 'My Empire') {
   state.garrisons       = null;
   state.masteries       = {};
   state.politicalEvents = null;
+  state.councilBoons    = [];
   // Note: state.archetype is NOT reset here — it persists across new games
 }

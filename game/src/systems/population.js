@@ -22,6 +22,7 @@
 import { state } from '../core/state.js';
 import { emit, on, Events } from '../core/events.js';
 import { addMessage } from '../core/actions.js';
+import { BOONS } from '../data/ageBoons.js';
 
 // Base population cap before any buildings
 export const POP_BASE_CAP = 200;
@@ -49,9 +50,10 @@ export function initPopulation() {
   }
   if (!_initialized) {
     _initialized = true;
-    // Recalc cap whenever buildings or active policy changes
-    on(Events.BUILDING_CHANGED, _recalcCap);
-    on(Events.POLICY_CHANGED,   _recalcCap);
+    // Recalc cap whenever buildings, active policy, or a council boon changes
+    on(Events.BUILDING_CHANGED,     _recalcCap);
+    on(Events.POLICY_CHANGED,       _recalcCap);
+    on(Events.COUNCIL_BOON_CHOSEN,  _recalcCap);
   }
   _recalcCap();
 }
@@ -123,5 +125,10 @@ function _recalcCap() {
   let cap = POP_BASE_CAP + houses * POP_PER_HOUSE;
   // T065: Agrarian policy grants +25% population cap
   if (state.policy === 'agrarian') cap = Math.floor(cap * 1.25);
+  // T072: settlers_spirit boon — +100 pop cap
+  if (state.councilBoons?.includes('settlers_spirit')) {
+    const def = BOONS['settlers_spirit'];
+    if (def?.effect?.popCap) cap += def.effect.popCap;
+  }
   state.population.cap = cap;
 }

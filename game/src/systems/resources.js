@@ -19,6 +19,7 @@ import { TICKS_PER_SECOND } from '../core/tick.js';
 import { territoryRateBonus } from './map.js';
 import { RELICS } from '../data/relics.js';
 import { POLICIES } from '../data/policies.js';
+import { BOONS } from '../data/ageBoons.js';
 
 const RESOURCE_KEYS = ['gold', 'food', 'wood', 'stone', 'iron', 'mana'];
 
@@ -223,6 +224,24 @@ export function recalcRates() {
       rates.food  += 0.5;                                      // +0.5 food/s
       rates.wood  += 0.5;                                      // +0.5 wood/s
       rates.stone += 0.5;                                      // +0.5 stone/s
+    }
+  }
+
+  // T074: apply age council boon rate and cap bonuses
+  if (state.councilBoons?.length) {
+    for (const boonId of state.councilBoons) {
+      const def = BOONS[boonId];
+      if (!def?.effect) continue;
+      if (def.effect.rateBonus) {
+        for (const [res, val] of Object.entries(def.effect.rateBonus)) {
+          if (rates[res] !== undefined) rates[res] += val;
+        }
+      }
+      if (def.effect.capBonus) {
+        for (const [res, val] of Object.entries(def.effect.capBonus)) {
+          if (caps[res] !== undefined) caps[res] += val;
+        }
+      }
     }
   }
 

@@ -24,6 +24,7 @@ import { TICKS_PER_SECOND } from '../core/tick.js';
 import { EMPIRES } from '../data/empires.js';
 import { clearBarbarianCamp } from './barbarianCamps.js';
 import { changeMorale, MORALE_TILE_LOST } from './morale.js';
+import { BOONS } from '../data/ageBoons.js';
 
 // ── Timing constants ───────────────────────────────────────────────────────
 
@@ -159,6 +160,8 @@ function _counterattack() {
   if (formation === 'aggressive') winChance *= 1.25;
   // Aegis Ward spell: -40% enemy counterattack success while active (T055)
   if (state.spells?.activeEffects?.aegis > state.tick) winChance *= 0.6;
+  // T072: castle_walls boon — -20% enemy counterattack success
+  if (state.councilBoons?.includes('castle_walls')) winChance *= 0.80;
   winChance = Math.min(0.9, winChance);
   const roll = Math.random();
 

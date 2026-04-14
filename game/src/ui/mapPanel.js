@@ -308,10 +308,17 @@ function _showTileTip(tile, x, y, mouseX, mouseY) {
     ? `<div class="map-tt-action">⚔️ Click to attack</div>`
     : '';
 
+  // T071: terrain combat modifier hint (shown for non-player tiles with a modifier)
+  const tModEntry = _TERRAIN_MOD_LABELS[tile.type];
+  const terrainCombatHtml = tModEntry && tile.owner !== 'player'
+    ? `<div class="map-tt-row" style="font-size:0.7rem;color:var(--accent)">${tModEntry.icon} ${tModEntry.text}</div>`
+    : '';
+
   _tileTipEl.innerHTML = `
     <div class="map-tt-title">${TERRAIN_NAME[tile.type] ?? tile.type}</div>
     <div class="map-tt-row">${ownerHtml}</div>
     ${bonusHtml}
+    ${terrainCombatHtml}
     ${barbHtml}
     ${impHtml}
     ${caravanHtml}
@@ -614,6 +621,21 @@ const _TERRAIN_LABELS = {
   river: 'River', mountain: 'Mountain', capital: 'Capital',
 };
 
+// T071: Human-readable terrain combat modifier descriptions (shown in preview + tooltip)
+const _TERRAIN_MOD_LABELS = {
+  mountain: { icon: '⛰️', text: 'Mountain — ATK −15%  ·  DEF +25%' },
+  hills:    { icon: '⛺', text: 'Hills — DEF +15%' },
+  forest:   { icon: '🌲', text: 'Forest — ATK +10%  ·  DEF +5%' },
+  river:    { icon: '🌊', text: 'River — ATK −5%  ·  DEF +10%' },
+};
+
+/** Format a terrain combat modifier for display (returns '' if no effect). */
+function _terrainModHtml(terrainType, style = '') {
+  const entry = _TERRAIN_MOD_LABELS[terrainType];
+  if (!entry) return '';
+  return `<div class="cp-siege-notice cp-terrain-mod" style="${style}">${entry.icon} ${entry.text}</div>`;
+}
+
 function _createCombatPreview() {
   const existing = document.getElementById('combat-preview');
   if (existing) { _previewEl = existing; return; }
@@ -691,6 +713,14 @@ function _showCombatPreview(x, y) {
     ? `<div class="cp-siege-notice" style="color:var(--text-dim)">${formationLabels[p.formation] ?? p.formation}</div>`
     : '';
 
+  // T071: terrain modifier notice (only shown when there's actually a modifier)
+  const terrainNoticeHtml = _terrainModHtml(p.terrain, 'color:var(--accent-h)');
+
+  // Use effective defense (after terrain) for the stat display; show base if different
+  const defDisplay = (p.effectiveDefense !== undefined && p.effectiveDefense !== p.defense)
+    ? `${p.effectiveDefense} <span style="font-size:0.75em;opacity:0.6">(base ${p.defense})</span>`
+    : `${p.defense}`;
+
   _previewEl.innerHTML = `
     <div class="cp-box">
       <div class="cp-header">⚔️ Attack Preview</div>
@@ -702,14 +732,14 @@ function _showCombatPreview(x, y) {
         </div>
         <div class="cp-stat">
           <span class="cp-stat__label">Enemy Defense</span>
-          <span class="cp-stat__value" style="color:var(--red)">${p.defense}</span>
+          <span class="cp-stat__value" style="color:var(--red)">${defDisplay}</span>
         </div>
         <div class="cp-stat">
           <span class="cp-stat__label">Win Chance</span>
           <span class="cp-stat__value" style="color:${winColor}">${winPct}%</span>
         </div>
       </div>
-      ${siegeHtml}${manaBoltHtml}${battleCryHtml}${formationHtml}
+      ${terrainNoticeHtml}${siegeHtml}${manaBoltHtml}${battleCryHtml}${formationHtml}
       <div class="cp-loot-row">
         <span class="cp-loot-label">Loot on victory:</span>
         <span class="cp-loot-items">${lootHtml}</span>

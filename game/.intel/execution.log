@@ -37,6 +37,42 @@ All prior tasks (T001–T070) were complete. Created two Phase 23 features: a te
 - `game/src/ui/researchPanel.js`
 - `game/src/ui/questPanel.js`
 - `game/src/systems/politicalEvents.js` (new)
+
+---
+
+*(Concurrent sub-session, same day)*
+
+All prior tasks (T001–T070) were complete. Implemented two Phase 23 features: terrain combat modifiers adding tactical depth to map combat (T071), and an age council boon system giving players a permanent reward choice on each age advancement (T072).
+
+**T071 — Terrain Combat Modifiers:**
+- `src/systems/combat.js`: Added `TERRAIN_COMBAT_MODS` constant (mountain: ATK ×0.85/DEF ×1.25, hills: DEF ×1.15, forest: ATK ×1.10/DEF ×1.05, river: ATK ×0.95/DEF ×1.10, grass/capital: no modifier). Added `_terrainMod()` helper. Added `_councilBoonCombatMult()` helper (T072). Applied terrain mods in both `getAttackPreview()` and `attackTile()` — attack mult applied before siege override, defense mult applied to `defense` after siege/mana-bolt (0×anything=0 preserves guaranteed-win logic). `getAttackPreview()` now returns `effectiveDefense` and `terrainMod` fields. `_victory()/_defeat()` now receive `effectiveDefense` for accurate history/logs.
+- `src/ui/mapPanel.js`: Added `_TERRAIN_MOD_LABELS` constant and `_terrainModHtml()` helper. `_showCombatPreview()` shows effective defense with base in parentheses when terrain-modified, plus a `.cp-terrain-mod` notice badge above siege/formation notices. `_showTileTip()` shows terrain combat modifier hint row for non-player tiles.
+- `styles/main.css`: Added `.cp-terrain-mod` modifier class (blue tint, lighter border).
+
+**T072 — Age Council Boons:**
+- `src/data/ageBoons.js` (new): `AGE_BOON_POOLS` with 5 boons per age (Bronze/Iron/Medieval). Bronze: fertile_lands, logging_mastery, stone_quarrying, bronze_weapons, settlers_spirit. Iron: iron_discipline, merchant_networks, iron_reserves, advanced_farming, ley_lines. Medieval: grand_tactics, royal_granaries, imperial_mint, castle_walls, arcane_mastery. `BOONS` flat lookup exported.
+- `src/ui/councilModal.js` (new): `showCouncilModal(age, offer, onChoose)` — creates persistent `#council-modal` overlay; renders 3 boon option cards (icon + name + desc); click → `onChoose(boonId)` + hide; Escape key / Skip button dismiss without reward. Reuses existing `.btn--ghost` styling.
+- `src/core/state.js`: Added `councilBoons: []` to static state object; reset in `initState()`.
+- `src/core/events.js`: Added `COUNCIL_BOON_CHOSEN: 'councilBoonChosen'`.
+- `src/core/actions.js`: Imported `BOONS`; added `chooseCouncilBoon(boonId)` — validates boon not already chosen, pushes to `state.councilBoons`, calls `recalcRates()`, emits `COUNCIL_BOON_CHOSEN + RESOURCE_CHANGED`, logs message.
+- `src/systems/combat.js`: Imported `BOONS`; `_councilBoonCombatMult()` sums `effect.combatAttack` fractions from all chosen boons into a 1+bonus multiplier; applied in both `getAttackPreview()` and `attackTile()` after conqueror archetype.
+- `src/systems/resources.js`: Imported `BOONS`; boon `rateBonus + capBonus` loop added after relic bonuses in `recalcRates()`.
+- `src/systems/enemyAI.js`: Imported `BOONS`; `castle_walls` boon check (`winChance *= 0.80`) after aegis spell in `_counterattack()`.
+- `src/systems/population.js`: Imported `BOONS`; `settlers_spirit` pop cap bonus in `_recalcCap()`; subscribed `COUNCIL_BOON_CHOSEN → _recalcCap`.
+- `src/main.js`: Imported `showCouncilModal`, `AGE_BOON_POOLS`, `chooseCouncilBoon`; expanded `AGE_CHANGED` listener — on age > 0, shuffles age pool and calls `showCouncilModal` with 3 random boons; `councilBoons` persisted in `_save()/_applySave()`; save version bumped 23 → 24.
+- `styles/main.css`: `.council-modal/.council-modal--hidden` (fixed overlay, z-1100, blur backdrop), `.council-box` (gold border + pop-in animation), `.council-header` (gold), `.council-sub` (dim), `.council-boons` (column flex), `.council-boon` (full-width button card with hover gold border), `.council-boon__icon/body/name/desc`, `.council-skip` (ghost button); mobile flex-wrap.
+
+**Files modified:**
+- `game/src/data/ageBoons.js` (new)
+- `game/src/ui/councilModal.js` (new)
+- `game/src/core/state.js`
+- `game/src/core/events.js`
+- `game/src/core/actions.js`
+- `game/src/systems/combat.js`
+- `game/src/systems/resources.js`
+- `game/src/systems/enemyAI.js`
+- `game/src/systems/population.js`
+- `game/src/ui/mapPanel.js`
 - `game/src/main.js`
 - `game/styles/main.css`
 - `game/.intel/tasks.json`

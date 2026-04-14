@@ -12,6 +12,7 @@ import { AGES } from '../data/ages.js';
 import { HERO_DEF, HERO_SKILLS, HERO_MAX_SKILLS, heroSkillBonus } from '../data/hero.js';
 import { IMPROVEMENTS } from '../data/improvements.js';
 import { POLICIES, POLICY_COOLDOWN_TICKS } from '../data/policies.js';
+import { BOONS } from '../data/ageBoons.js';
 import { recalcRates } from '../systems/resources.js';
 import { log } from '../utils/logger.js';
 
@@ -534,6 +535,29 @@ export function destroyGarrison(x, y) {
 }
 
 export { _totalGarrisoned as getTotalGarrisoned, GARRISON_MAX_TOTAL };
+
+// ---------------------------------------------------------------------------
+// Age Council Boons (T072)
+// ---------------------------------------------------------------------------
+
+/**
+ * Record the player's council boon choice for the current age.
+ * Idempotent — the same boon cannot be chosen twice.
+ */
+export function chooseCouncilBoon(boonId) {
+  const def = BOONS[boonId];
+  if (!def) return { ok: false, reason: `Unknown boon: ${boonId}` };
+  if (!state.councilBoons) state.councilBoons = [];
+  if (state.councilBoons.includes(boonId)) return { ok: false, reason: 'Boon already chosen.' };
+
+  state.councilBoons.push(boonId);
+  recalcRates();  // apply rate/cap bonuses immediately
+
+  emit(Events.COUNCIL_BOON_CHOSEN, { boonId });
+  emit(Events.RESOURCE_CHANGED, {});
+  addMessage(`📜 Council boon: ${def.icon} ${def.name} — ${def.desc}`, 'info');
+  return { ok: true };
+}
 
 // ---------------------------------------------------------------------------
 // Internal helpers

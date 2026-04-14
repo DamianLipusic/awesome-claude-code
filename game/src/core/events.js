@@ -58,4 +58,5 @@ export const Events = Object.freeze({
   HERO_LEVEL_UP:        'heroLevelUp',       // T070: hero earned a skill choice
   MASTERY_UNLOCKED:     'masteryUnlocked',   // T071: a tech mastery group completed
   POLITICAL_EVENT:      'politicalEvent',    // T072: political crisis event fired/resolved
+  COUNCIL_BOON_CHOSEN:  'councilBoonChosen', // T072b: player chose an age council boon
 });

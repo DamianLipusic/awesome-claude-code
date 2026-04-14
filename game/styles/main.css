@@ -3085,6 +3085,12 @@ kbd {
   border-radius: var(--radius);
   padding: 5px 8px;
 }
+/* T071: terrain combat modifier badge in combat preview */
+.cp-terrain-mod {
+  font-weight: 400;
+  background: rgba(120,200,255,.06);
+  border-color: rgba(120,200,255,.2);
+}
 
 .cp-loot-row {
   display: flex;
@@ -4682,7 +4688,108 @@ kbd {
   padding: 6px 0;
 }
 
+/* ── T074: Age Council Boon Modal ────────────────────────────────────────── */
+
+.council-modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, .65);
+  backdrop-filter: blur(4px);
+  z-index: 1100;
+}
+
+.council-modal--hidden { display: none; }
+
+.council-box {
+  background: var(--bg-card);
+  border: 1px solid var(--gold);
+  border-radius: 10px;
+  padding: 24px 20px 18px;
+  width: min(520px, 94vw);
+  box-shadow: 0 8px 32px rgba(0,0,0,.7);
+  animation: pop-in 0.25s ease;
+}
+
+.council-header {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--gold);
+  text-align: center;
+  margin-bottom: 6px;
+}
+
+.council-sub {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  text-align: center;
+  margin-bottom: 18px;
+  line-height: 1.4;
+}
+
+.council-boons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.council-boon {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-h);
+  border-radius: var(--radius);
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.council-boon:hover {
+  border-color: var(--gold);
+  background: rgba(255,215,0,0.08);
+}
+
+.council-boon__icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.council-boon__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.council-boon__name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.council-boon__desc {
+  font-size: 0.78rem;
+  color: var(--green);
+}
+
+.council-skip {
+  display: block;
+  margin: 0 auto;
+  opacity: 0.6;
+}
+
+.council-skip:hover {
+  opacity: 1;
+}
+
 @media (max-width: 480px) {
   .mastery-grid { grid-template-columns: 1fr; }
   .pol-event-choices { flex-direction: column; }
+  .council-boon { flex-wrap: wrap; gap: 8px; }
+  .council-boon__icon { font-size: 1.2rem; }
 }

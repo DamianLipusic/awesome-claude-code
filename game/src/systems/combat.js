@@ -17,6 +17,7 @@ import { revealAround } from './map.js';
 import { recalcRates } from './resources.js';
 import { getMoraleEffect, changeMorale, MORALE_COMBAT_WIN, MORALE_COMBAT_LOSS } from './morale.js';
 import { RELICS, TERRAIN_RELIC, RELIC_DROP_CHANCE, ARCANE_SHARD_DROP_CHANCE } from '../data/relics.js';
+import { BOONS } from '../data/ageBoons.js';
 
 const NEIGHBORS   = [[-1, 0], [1, 0], [0, -1], [0, 1]];
 const MAX_HISTORY = 20;
@@ -31,6 +32,38 @@ const FORMATION_ATTACK = { defensive: 0.85, balanced: 1.0, aggressive: 1.25 };
 /** Returns the player's current formation attack multiplier. */
 function _formationAttackMult() {
   return FORMATION_ATTACK[state.formation ?? 'balanced'] ?? 1.0;
+}
+
+// T071: Per-terrain attack and defense modifiers applied during combat resolution.
+//   attackMult: multiplier on player's computed attack power  (< 1 = harder to assault)
+//   defMult:    multiplier on the tile's base defense value   (> 1 = terrain aids defender)
+const TERRAIN_COMBAT_MODS = {
+  mountain: { attackMult: 0.85, defMult: 1.25 },  // uphill assault penalty + fortified height
+  hills:    { attackMult: 1.00, defMult: 1.15 },  // elevated ground favours defender
+  forest:   { attackMult: 1.10, defMult: 1.05 },  // guerrilla cover helps attacker; some cover for defender
+  river:    { attackMult: 0.95, defMult: 1.10 },  // crossing penalty + river as natural barrier
+  grass:    { attackMult: 1.00, defMult: 1.00 },  // open field — no modifier
+  capital:  { attackMult: 1.00, defMult: 1.00 },  // intrinsic defense already in tile.defense
+};
+
+/** Returns the terrain combat modifier object for the given tile type. */
+function _terrainMod(terrainType) {
+  return TERRAIN_COMBAT_MODS[terrainType] ?? { attackMult: 1.0, defMult: 1.0 };
+}
+
+/**
+ * T072: Returns the cumulative combat attack multiplier from chosen council boons.
+ * Each boon with effect.combatAttack adds its fraction to the base 1.0 multiplier.
+ * Example: bronze_weapons (+0.10) + iron_discipline (+0.15) → 1.25×
+ */
+function _councilBoonCombatMult() {
+  if (!state.councilBoons?.length) return 1.0;
+  let bonus = 0;
+  for (const boonId of state.councilBoons) {
+    const def = BOONS[boonId];
+    if (def?.effect?.combatAttack) bonus += def.effect.combatAttack;
+  }
+  return 1.0 + bonus;
 }
 
 /** Returns the attack multiplier for a unit type based on its combat rank. */
@@ -91,6 +124,9 @@ export function getAttackPreview(x, y) {
   // T071 Military Mastery: +40 flat attack power
   if (state.masteries?.military) attackPower += 40;
 
+  // T072b: age council boon combat attack bonus
+  attackPower *= _councilBoonCombatMult();
+
   if (state.hero?.recruited) {
     attackPower += HERO_DEF.attack;
     // T070: hero skills — attack bonus + combat multiplier
@@ -101,16 +137,23 @@ export function getAttackPreview(x, y) {
     if (state.hero.activeEffects?.battleCry) attackPower *= 2;  // preview includes Battle Cry bonus
   }
 
+  // T071: terrain combat modifiers
+  const terrainMod     = _terrainMod(tile.type);
+  attackPower         *= terrainMod.attackMult;
+  const effectiveDefense = (tile.defense ?? 0) * terrainMod.defMult;
+
   const siegeActive    = !!(state.hero?.recruited && state.hero.activeEffects?.siege);
   const manaBoltActive = !!(state.spells?.activeEffects?.manaBolt);
   const winChance      = (siegeActive || manaBoltActive)
     ? 1.0
-    : Math.min(0.9, Math.max(0.1, attackPower / (attackPower + tile.defense)));
+    : Math.min(0.9, Math.max(0.1, attackPower / (attackPower + effectiveDefense)));
 
   return {
-    valid:        true,
-    attackPower:  Math.round(attackPower),
-    defense:      tile.defense,
+    valid:            true,
+    attackPower:      Math.round(attackPower),
+    defense:          tile.defense,
+    effectiveDefense: Math.round(effectiveDefense),
+    terrainMod,
     winChance,
     loot:         tile.loot ?? {},
     terrain:      tile.type,
@@ -176,6 +219,9 @@ export function attackTile(x, y) {
   // T071 Military Mastery: +40 flat attack power
   if (state.masteries?.military) attackPower += 40;
 
+  // T072b: age council boon combat attack bonus
+  attackPower *= _councilBoonCombatMult();
+
   // Hero bonus: flat attack power + skills + Battle Cry (×2) on next attack
   if (state.hero?.recruited) {
     attackPower += HERO_DEF.attack;
@@ -191,6 +237,10 @@ export function attackTile(x, y) {
       addMessage('📣 Battle Cry: attack power doubled this strike!', 'hero');
     }
   }
+
+  // T071: terrain attack modifier (applied before siege/mana-bolt override)
+  const _terrainM = _terrainMod(tile.type);
+  attackPower *= _terrainM.attackMult;
 
   // ── Probabilistic resolution ─────────────────────────────────────────────
   // Siege Master: guaranteed victory this attack, ignores tile defense
@@ -213,15 +263,18 @@ export function attackTile(x, y) {
     addMessage('⚡ Mana Bolt: guaranteed combat victory!', 'spell');
   }
 
+  // T071: apply terrain defense multiplier (0 × anything = 0, so siege still guarantees win)
+  const effectiveDefense = defense * _terrainM.defMult;
+
   const winChance = siegeActive
     ? 1.0
-    : Math.min(0.9, Math.max(0.1, attackPower / (attackPower + defense)));
+    : Math.min(0.9, Math.max(0.1, attackPower / (attackPower + effectiveDefense)));
   const roll      = Math.random();
 
   if (roll < winChance) {
-    return _victory(tile, x, y, attackPower, defense);
+    return _victory(tile, x, y, attackPower, effectiveDefense);
   } else {
-    return _defeat(tile, x, y, attackPower, defense);
+    return _defeat(tile, x, y, attackPower, effectiveDefense);
   }
 }
 
