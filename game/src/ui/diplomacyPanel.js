@@ -38,14 +38,18 @@ export function initDiplomacyPanel() {
 
   _render(panel);
   on(Events.DIPLOMACY_CHANGED, () => _render(panel));
+  on(Events.ALLIANCE_GIFT,     () => _render(panel));  // T076
   on(Events.RESOURCE_CHANGED,  _throttle(() => _render(panel), 8));
   on(Events.TECH_CHANGED,      () => _render(panel));
   on(Events.ESPIONAGE_EVENT,   () => _render(panel));
-  // Refresh cooldown countdown every second; also refresh ceasefire timers when active
+  // Refresh cooldown countdown every second; also refresh ceasefire/gift timers when active
   on(Events.TICK, _throttle(() => {
     const cd = document.getElementById('espionage-cooldown');
     if (cd) _updateCooldownDisplay(cd);
-    if (state.diplomacy?.empires.some(e => (e.ceasefireTick ?? 0) > state.tick)) {
+    const hasCeasefire = state.diplomacy?.empires.some(e => (e.ceasefireTick ?? 0) > state.tick);
+    // T076: refresh when allied empires exist (gift countdown ticks down)
+    const hasAllied = state.diplomacy?.empires.some(e => e.relations === 'allied');
+    if (hasCeasefire || hasAllied) {
       _render(panel);
     }
   }, 4));
@@ -152,6 +156,7 @@ const HIST_ICON = {
   peace:    '🕊️',
   raid:     '💥',
   ai:       '📜',
+  gift:     '🎁',
 };
 
 function _historySection() {
@@ -204,7 +209,8 @@ function _empireCard(emp) {
     <div class="dipl-trade">
       <span class="dipl-trade__label">Trade Routes: ${emp.tradeRoutes}/${MAX_TRADE_ROUTES}</span>
       <span class="dipl-trade__income">${_tradeIncomeStr(def, emp.tradeRoutes)}</span>
-    </div>` : '';
+    </div>
+    ${_giftTimingHtml(emp)}` : '';
 
   // Action buttons
   const btns = [];
@@ -339,6 +345,28 @@ function _tradeIncomeStr(def, count) {
   const parts = Object.entries(def.tradeGift)
     .map(([r, rate]) => `${RES_ICONS[r] ?? ''}+${(rate * count).toFixed(1)}/s`);
   return parts.join(' ');
+}
+
+/**
+ * T076: Show when the next alliance gift will arrive for an allied empire.
+ */
+function _giftTimingHtml(emp) {
+  const nextTick = emp.nextGiftTick ?? 0;
+  const ticksLeft = nextTick - state.tick;
+  if (ticksLeft <= 0) {
+    return `<div class="dipl-alliance-gift">
+      🎁 <span class="dipl-alliance-gift__ready">Gift arriving soon…</span>
+    </div>`;
+  }
+  const secsLeft = Math.ceil(ticksLeft / 4);
+  const minsLeft = Math.floor(secsLeft / 60);
+  const sRem     = secsLeft % 60;
+  const timeStr  = minsLeft > 0
+    ? `${minsLeft}m ${String(sRem).padStart(2,'0')}s`
+    : `${secsLeft}s`;
+  return `<div class="dipl-alliance-gift">
+    🎁 Next gift in <strong>${timeStr}</strong>
+  </div>`;
 }
 
 // ── Click delegation ─────────────────────────────────────────────────────────

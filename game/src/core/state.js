@@ -199,6 +199,10 @@ export const state = {
   // T072b: Chosen age council boons — array of boon IDs, one per age (max 3).
   // Reset on new game.
   councilBoons: [],
+
+  // T075: Mercenary offers — { current: { unitId, cost, expiresAt } | null, nextOfferTick }
+  // Populated by systems/mercenaries.js initMercenaries()
+  mercenaries: null,
 };
 
 /**
@@ -249,5 +253,6 @@ export function initState(empireName = 'My Empire') {
   state.masteries       = {};
   state.politicalEvents = null;
   state.councilBoons    = [];
+  state.mercenaries     = null;
   // Note: state.archetype is NOT reset here — it persists across new games
 }

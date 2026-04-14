@@ -22,6 +22,29 @@ const AI_MAX_INTERVAL  = 120 * TICKS_PER_SECOND;   // 480 ticks  (~120 s)
 const WAR_RAID_MIN     = 45  * TICKS_PER_SECOND;   // 180 ticks  (~45 s)
 const WAR_RAID_MAX     = 90  * TICKS_PER_SECOND;   // 360 ticks  (~90 s)
 
+// T076: Alliance gift intervals
+const GIFT_MIN_TICKS   = 5 * 60 * TICKS_PER_SECOND;  // 5 min = 1200 ticks
+const GIFT_MAX_TICKS   = 7 * 60 * TICKS_PER_SECOND;  // 7 min = 1680 ticks
+
+/**
+ * Per-empire gift resource amounts.
+ * Each gift scales gently with game tick so later games feel more rewarding.
+ */
+const EMPIRE_GIFTS = {
+  ironHorde:   (tick) => ({
+    iron: Math.round(20 + tick / 200),
+    food: Math.round(15 + tick / 300),
+  }),
+  mageCouncil: (tick) => ({
+    mana: Math.round(15 + tick / 200),
+    gold: Math.round(20 + tick / 300),
+  }),
+  seaWolves:   (tick) => ({
+    wood: Math.round(25 + tick / 200),
+    food: Math.round(20 + tick / 300),
+  }),
+};
+
 export const ALLIANCE_COST       = 200;
 export const TRADE_ROUTE_COST    = 100;
 export const PEACE_COST          = 300;
@@ -52,6 +75,7 @@ export function initDiplomacy() {
         nextWarRaidTick: 0,
         warScore:        0,   // T058
         ceasefireTick:   0,   // T067
+        nextGiftTick:    state.tick + _giftInterval(),  // T076
       })),
       history: [],   // T054: diplomatic event log
     };
@@ -65,6 +89,10 @@ export function initDiplomacy() {
   // T067: migrate saves that predate the ceasefireTick field
   for (const emp of state.diplomacy.empires) {
     if (emp.ceasefireTick === undefined) emp.ceasefireTick = 0;
+  }
+  // T076: migrate saves that predate the nextGiftTick field
+  for (const emp of state.diplomacy.empires) {
+    if (emp.nextGiftTick === undefined) emp.nextGiftTick = state.tick + _giftInterval();
   }
 }
 
@@ -80,6 +108,11 @@ export function diplomacyTick() {
       _warRaid(emp);
       emp.nextWarRaidTick = state.tick + WAR_RAID_MIN +
         Math.floor(Math.random() * (WAR_RAID_MAX - WAR_RAID_MIN));
+    }
+
+    // T076: Alliance gifts — allied empires periodically send resource gifts
+    if (emp.relations === 'allied' && state.tick >= (emp.nextGiftTick ?? Infinity)) {
+      _allianceGift(emp);
     }
 
     // AI diplomatic stance change
@@ -284,6 +317,10 @@ function _aiInterval() {
   return AI_MIN_INTERVAL + Math.floor(Math.random() * (AI_MAX_INTERVAL - AI_MIN_INTERVAL));
 }
 
+function _giftInterval() {
+  return GIFT_MIN_TICKS + Math.floor(Math.random() * (GIFT_MAX_TICKS - GIFT_MIN_TICKS));
+}
+
 /**
  * T054: Append a diplomatic event to the history log (max 25, newest first).
  * @param {string} empireId  Key into EMPIRES (or null for non-empire events)
@@ -295,6 +332,40 @@ function _logDiplomacy(empireId, type, text) {
   if (!Array.isArray(hist)) return;
   hist.unshift({ tick: state.tick, empireId: empireId ?? null, type, text });
   if (hist.length > 25) hist.length = 25;
+}
+
+/**
+ * T076: An allied empire sends a resource gift to the player.
+ * Gift amounts are empire-specific and scale gently with game age.
+ */
+function _allianceGift(emp) {
+  const def   = EMPIRES[emp.id];
+  const giftFn = EMPIRE_GIFTS[emp.id];
+  if (!giftFn) return;
+
+  const gifts = giftFn(state.tick);
+  const parts = [];
+  for (const [res, amount] of Object.entries(gifts)) {
+    const cap    = state.caps?.[res] ?? 500;
+    const before = state.resources?.[res] ?? 0;
+    const after  = Math.min(cap, before + amount);
+    const gained = after - before;
+    state.resources[res] = after;
+    if (gained > 0) parts.push(`+${gained} ${res}`);
+  }
+
+  if (parts.length === 0) {
+    // All resources were already at cap — still schedule next gift
+    emp.nextGiftTick = state.tick + _giftInterval();
+    return;
+  }
+
+  const summary = parts.join(', ');
+  _logDiplomacy(emp.id, 'gift', `${def.name} sent gifts: ${summary}`);
+  addMessage(`🎁 ${def.icon} ${def.name} sends gifts! ${summary}`, 'windfall');
+  emit(Events.RESOURCE_CHANGED, {});
+  emit(Events.ALLIANCE_GIFT, { empireId: emp.id, gifts });
+  emp.nextGiftTick = state.tick + _giftInterval();
 }
 
 function _warRaid(emp) {

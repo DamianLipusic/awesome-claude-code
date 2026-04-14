@@ -2,6 +2,40 @@
 
 ---
 
+## 2026-04-14 — Session N+12
+
+**Tasks completed:** T075, T076
+
+**Summary:**
+All prior tasks (T001–T074) were complete. Created two Phase 24 features: a mercenary contracts system adding time-limited instant-hire unit offers to the Military panel (T075), and an alliance resource gifts system where allied AI empires periodically send resource bundles to the player (T076).
+
+**T075 — Mercenary Contracts System:**
+- `src/systems/mercenaries.js` (new): `SPAWN_MIN_TICKS=1200` / `SPAWN_MAX_TICKS=1920` / `OFFER_DURATION=240` ticks (5–8 min spawn, 60s window). `_pickUnit()` filters `['soldier','archer','knight','mage']` by player's current age/tech/building requirements. `_mercCost()` returns `max(120, 2.5 × unit.gold_cost)`. `initMercenaries()` seeds `state.mercenaries = { current, nextOfferTick }`. `mercenaryTick()` expires stale offer (logs info 'moved on') and spawns new one (logs windfall toast + `MERCENARY_CHANGED`). `hireMercenary()` validates gold, instantly sets `state.units[unitId]++`, calls `recalcRates()`, emits `UNIT_CHANGED + RESOURCE_CHANGED + MERCENARY_CHANGED`. `mercenarySecsLeft()` countdown helper used by UI.
+- `src/core/events.js`: Added `MERCENARY_CHANGED: 'mercenaryChanged'`.
+- `src/core/state.js`: Added `mercenaries: null` field + reset in `initState()`.
+- `src/main.js`: Imported `initMercenaries` / `mercenaryTick`; `registerSystem(mercenaryTick)` as 16th system; `initMercenaries()` in `boot()` + `_newGame()`; `mercenaries: state.mercenaries` in `_save()`; `state.mercenaries = s.mercenaries ?? null` in `_applySave()`; save version bumped 24→25.
+- `src/ui/militaryPanel.js`: Imported `hireMercenary` / `mercenarySecsLeft`; subscribed `MERCENARY_CHANGED → _render()`; TICK handler extended with `hasMercOffer` check so active offers refresh countdown every 16 ticks; `_mercenarySection()` injected first in `_render()` — renders gold-accent card with unit icon / name / ATK+DEF stats / seconds countdown (red alert-pulse animation at ≤20s) / gold Hire button; `hire-merc` action in `_handleClick()` (btn--shake feedback on error).
+- `styles/main.css`: `.merc-offer` (gold left-border, pop-in animation), `.merc-offer__header / __title / __timer / --urgent`, `.merc-offer__body / __icon / __info / __name / __stats`, `.btn--hire-merc` (gold gradient button), `.merc-offer__sub`.
+
+**T076 — Alliance Resource Gifts:**
+- `src/core/events.js`: Added `ALLIANCE_GIFT: 'allianceGift'`.
+- `src/systems/diplomacy.js`: Added `GIFT_MIN_TICKS=1200` / `GIFT_MAX_TICKS=1680` constants. Added `EMPIRE_GIFTS` lookup: `ironHorde → iron(20+tick/200) + food(15+tick/300)`, `mageCouncil → mana(15+tick/200) + gold(20+tick/300)`, `seaWolves → wood(25+tick/200) + food(20+tick/300)`. Added `_giftInterval()` helper. Added `nextGiftTick: state.tick + _giftInterval()` to each empire entry in `initDiplomacy()`; migration guard `(emp.nextGiftTick === undefined → _giftInterval())` for old saves. Added `_allianceGift(emp)`: applies resource amounts capped at caps, logs `'gift'` type to diplomatic history, `addMessage` windfall, emits `RESOURCE_CHANGED + ALLIANCE_GIFT`, schedules `nextGiftTick`. Called from `diplomacyTick()` when `emp.relations === 'allied' && tick >= nextGiftTick`.
+- `src/ui/diplomacyPanel.js`: Added `'gift': '🎁'` to `HIST_ICON`; subscribed `ALLIANCE_GIFT → _render()`; TICK handler extended with `hasAllied` check so gift countdown refreshes every second while any alliance is active; added `_giftTimingHtml(emp)` rendering `.dipl-alliance-gift` row with bold time-remaining or green 'arriving soon…' text; injected into `tradeHtml` block for allied cards.
+- `styles/main.css`: `.dipl-alliance-gift` (border-top, dim text), `.dipl-alliance-gift__ready` (green bold), `.dipl-hist-entry--gift` (gold left border). No save version bump — `nextGiftTick` is nested inside `state.diplomacy` which is already persisted in the payload.
+
+**Files modified:**
+- `game/src/core/events.js`
+- `game/src/core/state.js`
+- `game/src/systems/mercenaries.js` (new)
+- `game/src/systems/diplomacy.js`
+- `game/src/ui/militaryPanel.js`
+- `game/src/ui/diplomacyPanel.js`
+- `game/src/main.js`
+- `game/styles/main.css`
+- `game/.intel/tasks.json`
+
+---
+
 ## 2026-04-14 — Session N+11
 
 **Tasks completed:** T071, T072

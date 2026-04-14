@@ -13,6 +13,7 @@ import { on, Events } from '../core/events.js';
 import { trainUnit, recruitHero, useHeroAbility, setFormation, chooseHeroSkill, addMessage } from '../core/actions.js';
 import { castSpell, SPELLS, SPELL_ORDER } from '../systems/spells.js';
 import { getMoraleLabel, getMoraleEffect } from '../systems/morale.js';
+import { hireMercenary, mercenarySecsLeft } from '../systems/mercenaries.js';
 import { UNITS } from '../data/units.js';
 import { BUILDINGS } from '../data/buildings.js';
 import { TECHS } from '../data/techs.js';
@@ -56,11 +57,12 @@ export function initMilitaryPanel() {
   on(Events.HERO_LEVEL_UP,   () => _render(panel));  // T070: skill offer available
   on(Events.MAP_CHANGED,      () => _render(panel));  // combat outcomes update history
   on(Events.SPELL_CAST,       () => _render(panel));
-  on(Events.MORALE_CHANGED,   () => _render(panel));  // T057: re-render on morale change
-  on(Events.RESOURCE_CHANGED, () => _renderCosts(panel));
-  on(Events.GAME_LOADED,      () => _render(panel));
+  on(Events.MORALE_CHANGED,    () => _render(panel));  // T057: re-render on morale change
+  on(Events.MERCENARY_CHANGED, () => _render(panel));  // T075: mercenary offer spawned/expired
+  on(Events.RESOURCE_CHANGED,  () => _renderCosts(panel));
+  on(Events.GAME_LOADED,       () => _render(panel));
 
-  // Refresh hero/spell cooldown countdowns every ~4 seconds while panel visible
+  // Refresh hero/spell cooldown countdowns and mercenary timer every ~4 seconds
   let _tickCount = 0;
   on(Events.TICK, () => {
     if (++_tickCount % 16 !== 0) return;
@@ -78,7 +80,8 @@ export function initMilitaryPanel() {
       sp.activeEffects.manaBolt ||
       Object.values(sp.cooldowns).some(cd => cd > state.tick)
     );
-    if (hasHeroActivity || hasSpellActivity) _render(panel);
+    const hasMercOffer = !!state.mercenaries?.current;
+    if (hasHeroActivity || hasSpellActivity || hasMercOffer) _render(panel);
   });
 }
 
@@ -86,6 +89,7 @@ export function initMilitaryPanel() {
 
 function _render(panel) {
   panel.innerHTML = `
+    ${_mercenarySection()}
     ${_formationSection()}
     ${_moraleSection()}
     ${_spellsSection()}
@@ -99,6 +103,50 @@ function _render(panel) {
   `;
 
   panel.addEventListener('click', _handleClick);
+}
+
+// ── Mercenary offer section (T075) ────────────────────────────────────────
+
+function _mercenarySection() {
+  const m = state.mercenaries;
+  if (!m?.current) return '';    // no offer active — render nothing
+
+  const { unitId, cost } = m.current;
+  const def    = UNITS[unitId];
+  const secsLeft = mercenarySecsLeft() ?? 0;
+  const urgent   = secsLeft <= 20;
+  const canAfford = (state.resources.gold ?? 0) >= cost;
+
+  const costColor = canAfford ? 'var(--green, #48bb78)' : 'var(--red, #e53e3e)';
+
+  return `
+    <div class="merc-offer">
+      <div class="merc-offer__header">
+        <span class="merc-offer__title">⚔️ Mercenary Available</span>
+        <span class="merc-offer__timer ${urgent ? 'merc-offer__timer--urgent' : ''}">
+          ${secsLeft}s
+        </span>
+      </div>
+      <div class="merc-offer__body">
+        <span class="merc-offer__icon">${def?.icon ?? '⚔️'}</span>
+        <div class="merc-offer__info">
+          <div class="merc-offer__name">${def?.name ?? unitId}</div>
+          <div class="merc-offer__stats">
+            ATK ${def?.attack ?? '?'} · DEF ${def?.defense ?? '?'} · Instant recruitment
+          </div>
+        </div>
+        <button
+          class="btn btn--hire-merc ${canAfford ? '' : 'btn--disabled'}"
+          data-action="hire-merc"
+          ${canAfford ? '' : 'disabled'}
+          title="${canAfford ? `Hire for ${cost} gold` : `Need ${cost} gold`}">
+          Hire<br><span style="color:${costColor};font-size:11px">${fmtNum(cost)} 💰</span>
+        </button>
+      </div>
+      <div class="merc-offer__sub">
+        One-time fee · no upkeep · offer expires in ${secsLeft}s
+      </div>
+    </div>`;
 }
 
 // ── Formation section (T052) ───────────────────────────────────────────────
@@ -589,7 +637,14 @@ function _handleClick(e) {
   const actionBtn = e.target.closest('[data-action]');
   if (!actionBtn || actionBtn.disabled) return;
 
-  if (actionBtn.dataset.action === 'recruit-hero') {
+  if (actionBtn.dataset.action === 'hire-merc') {
+    const result = hireMercenary();
+    if (!result.ok) {
+      actionBtn.classList.add('btn--shake');
+      setTimeout(() => actionBtn.classList.remove('btn--shake'), 600);
+      addMessage(result.reason, 'info');
+    }
+  } else if (actionBtn.dataset.action === 'recruit-hero') {
     const result = recruitHero();
     if (!result.ok) addMessage(result.reason, 'info');
   } else if (actionBtn.dataset.action === 'hero-ability') {

@@ -1333,6 +1333,7 @@ body {
 .dipl-hist-entry--peace    { border-left-color: var(--blue); }
 .dipl-hist-entry--raid     { border-left-color: #f97316; }  /* orange */
 .dipl-hist-entry--ai       { border-left-color: var(--border-h); }
+.dipl-hist-entry--gift     { border-left-color: #ecc94b; }  /* gold */
 
 .dipl-hist-icon {
   font-size: 14px;
@@ -4792,4 +4793,113 @@ kbd {
   .pol-event-choices { flex-direction: column; }
   .council-boon { flex-wrap: wrap; gap: 8px; }
   .council-boon__icon { font-size: 1.2rem; }
+}
+
+/* ── T075: Mercenary offer card ─────────────────────────────────────────── */
+
+.merc-offer {
+  background: var(--bg-card);
+  border: 1px solid var(--accent-h);
+  border-left: 3px solid #ecc94b;   /* gold accent */
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  animation: pop-in 0.25s ease;
+}
+
+.merc-offer__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.merc-offer__title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #ecc94b;
+}
+
+.merc-offer__timer {
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-dim);
+  background: var(--bg-panel);
+  padding: 1px 6px;
+  border-radius: 10px;
+}
+
+.merc-offer__timer--urgent {
+  color: #e53e3e;
+  animation: alert-pulse 1.2s ease-in-out infinite;
+}
+
+.merc-offer__body {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.merc-offer__icon {
+  font-size: 1.6rem;
+  flex-shrink: 0;
+}
+
+.merc-offer__info {
+  flex: 1;
+}
+
+.merc-offer__name {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.merc-offer__stats {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+.btn--hire-merc {
+  flex-shrink: 0;
+  padding: 6px 12px;
+  background: linear-gradient(135deg, #b7791f, #d69e2e);
+  border: 1px solid #ecc94b;
+  border-radius: 5px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.btn--hire-merc:hover:not(:disabled) {
+  background: linear-gradient(135deg, #d69e2e, #ecc94b);
+}
+
+.merc-offer__sub {
+  font-size: 10px;
+  color: var(--text-dim);
+  margin-top: 6px;
+}
+
+/* ── T076: Alliance gift indicator ──────────────────────────────────────── */
+
+.dipl-alliance-gift {
+  font-size: 11px;
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px solid var(--accent-h);
+}
+
+.dipl-alliance-gift__ready {
+  color: #48bb78;
+  font-weight: 600;
 }

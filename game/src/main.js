@@ -26,6 +26,7 @@ import { initEspionage } from './systems/espionage.js';
 import { initChallenges, challengeTick } from './systems/challenges.js';
 import { initCaravans, caravanTick } from './systems/caravans.js';
 import { initPoliticalEvents, politicalEventTick } from './systems/politicalEvents.js';
+import { initMercenaries, mercenaryTick } from './systems/mercenaries.js';
 import { SEASONS } from './data/seasons.js';
 import { AGES } from './data/ages.js';
 import { TICKS_PER_SECOND } from './core/tick.js';
@@ -95,6 +96,7 @@ function boot() {
   registerSystem(challengeTick);
   registerSystem(caravanTick);
   registerSystem(politicalEventTick);
+  registerSystem(mercenaryTick);
 
   // Init event-driven systems
   initRandomEvents();
@@ -114,6 +116,7 @@ function boot() {
   initChallenges();
   initCaravans();
   initPoliticalEvents();
+  initMercenaries();
 
   // Init UI
   initHUD();
@@ -195,7 +198,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 24,
+      version: 25,
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -240,6 +243,7 @@ function _save() {
         masteries:        state.masteries        ?? {},
         politicalEvents:  state.politicalEvents  ?? null,
         councilBoons:     state.councilBoons     ?? [],
+        mercenaries:      state.mercenaries      ?? null,
         tick:          state.tick,
       }
     }));
@@ -306,6 +310,7 @@ function _applySave(save) {
   state.masteries        = s.masteries        ?? {};
   state.politicalEvents  = s.politicalEvents  ?? null;
   state.councilBoons     = s.councilBoons     ?? [];
+  state.mercenaries      = s.mercenaries      ?? null;
   state.tick             = s.tick             ?? 0;
   recalcRates();
 
@@ -453,6 +458,7 @@ function _newGame(opts = {}) {
   initChallenges();
   initCaravans();
   initPoliticalEvents();
+  initMercenaries();
   recalcRates();
   startLoop();  // restart loop in case it was stopped by game-over
   _syncPauseUI();  // ensure pause overlay is hidden on new game
