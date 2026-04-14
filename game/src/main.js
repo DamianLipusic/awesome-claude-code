@@ -19,7 +19,7 @@ import { initMarket, marketTick } from './systems/market.js';
 import { initAchievements } from './systems/achievements.js';
 import { initEnemyAI, enemyAITick } from './systems/enemyAI.js';
 import { initSpells, spellTick } from './systems/spells.js';
-import { initBarbarians, barbarianTick } from './systems/barbarianCamps.js';
+import { initBarbarians, barbarianTick, getSiegeSecsLeft } from './systems/barbarianCamps.js';
 import { initMorale, moraleTick } from './systems/morale.js';
 import { initPopulation, populationTick } from './systems/population.js';
 import { initEspionage } from './systems/espionage.js';
@@ -28,8 +28,10 @@ import { initCaravans, caravanTick } from './systems/caravans.js';
 import { initPoliticalEvents, politicalEventTick } from './systems/politicalEvents.js';
 import { initMercenaries, mercenaryTick } from './systems/mercenaries.js';
 import { initWeather, weatherTick, getCurrentWeather, getWeatherSecsLeft } from './systems/weather.js';
+import { initPrestige, awardPrestige, getPrestigeScore } from './systems/prestige.js';
 import { SEASONS } from './data/seasons.js';
 import { AGES } from './data/ages.js';
+import { BUILDINGS } from './data/buildings.js';
 import { TICKS_PER_SECOND } from './core/tick.js';
 import { initHUD } from './ui/hud.js';
 import { initBuildingPanel } from './ui/buildingPanel.js';
@@ -120,6 +122,7 @@ function boot() {
   initPoliticalEvents();
   initMercenaries();
   initWeather();
+  initPrestige();
 
   // Init UI
   initHUD();
@@ -158,6 +161,34 @@ function boot() {
   let _weatherBadgeTick = 0;
   on(Events.TICK, () => { if (++_weatherBadgeTick % 4 === 0) _updateWeatherBadge(); });
 
+  // T079: Update siege badge when siege state changes or on tick countdown
+  _updateSiegeBadge();
+  on(Events.BARBARIAN_SIEGE, _updateSiegeBadge);
+  let _siegeBadgeTick = 0;
+  on(Events.TICK, () => { if (++_siegeBadgeTick % 4 === 0) _updateSiegeBadge(); });
+
+  // T080: Update prestige badge on changes
+  _updatePrestigeBadge();
+  on(Events.PRESTIGE_CHANGED, _updatePrestigeBadge);
+
+  // T080: Prestige event listeners (registered once — subscriptions persist across new games)
+  on(Events.AGE_CHANGED, (d) => {
+    const newAge = d?.age ?? 0;
+    if (newAge > 0) awardPrestige(100 * newAge, `${AGES[newAge]?.name ?? 'new age'} reached`);
+  });
+  on(Events.MASTERY_UNLOCKED, () => awardPrestige(100, 'tech mastery completed'));
+  on(Events.SYNERGY_UNLOCKED, (d) => awardPrestige(75, `synergy: ${d?.name ?? 'unlocked'}`));
+  on(Events.QUEST_COMPLETED,  () => awardPrestige(30, 'quest completed'));
+  on(Events.MAP_CHANGED, (d) => { if (d?.outcome === 'win') awardPrestige(5, 'battle victory'); });
+  on(Events.BUILDING_CHANGED, (d) => {
+    if (d?.id && BUILDINGS[d.id]?.wonder && (state.buildings[d.id] ?? 0) === 1) {
+      awardPrestige(200, `${BUILDINGS[d.id].name} wonder constructed`);
+    }
+  });
+  on(Events.DIPLOMACY_CHANGED, (d) => {
+    if (d?.relations === 'allied') awardPrestige(50, 'new alliance formed');
+  });
+
   // Update age badge on changes; also show council boon modal on advancement
   _updateAgeBadge();
   on(Events.AGE_CHANGED, (data) => {
@@ -192,6 +223,7 @@ function boot() {
   on(Events.MAP_CHANGED,       _updateScoreBadge);
   on(Events.QUEST_COMPLETED,   _updateScoreBadge);
   on(Events.MASTERY_UNLOCKED,  _updateScoreBadge);
+  on(Events.PRESTIGE_CHANGED,  _updateScoreBadge);
 
   // Start auto-save every 60 seconds
   setInterval(_save, 60_000);
@@ -207,7 +239,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 26,
+      version: 27,
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -254,6 +286,7 @@ function _save() {
         councilBoons:     state.councilBoons     ?? [],
         mercenaries:      state.mercenaries      ?? null,
         weather:          state.weather          ?? null,
+        prestige:         state.prestige         ?? null,
         tick:          state.tick,
       }
     }));
@@ -322,6 +355,7 @@ function _applySave(save) {
   state.councilBoons     = s.councilBoons     ?? [];
   state.mercenaries      = s.mercenaries      ?? null;
   state.weather          = s.weather          ?? null;
+  state.prestige         = s.prestige         ?? null;
   state.tick             = s.tick             ?? 0;
   recalcRates();
 
@@ -375,6 +409,47 @@ function _updateWeatherBadge() {
   el.textContent = `${w.icon} ${w.name}`;
   el.title = `${w.name}: ${w.desc} — Clears in ${timeStr}`;
   el.style.display = '';
+}
+
+// ── Siege badge (T079) ────────────────────────────────────────────────────
+
+function _updateSiegeBadge() {
+  const el = document.getElementById('siege-badge');
+  if (!el) return;
+  const secsLeft = getSiegeSecsLeft();
+  if (secsLeft <= 0) {
+    el.style.display = 'none';
+    el.textContent = '';
+    return;
+  }
+  el.textContent = `⚔️ SIEGE in ${secsLeft}s`;
+  el.title = 'Barbarian Grand Siege incoming! Muster your forces to repel the horde.';
+  el.style.display = '';
+}
+
+// ── Prestige badge (T080) ─────────────────────────────────────────────────
+
+function _updatePrestigeBadge() {
+  const el = document.getElementById('prestige-badge');
+  if (!el) return;
+  const score = getPrestigeScore();
+  el.textContent = `✨ ${score.toLocaleString()}`;
+  const next = _nextPrestigeMilestone(score);
+  el.title = next
+    ? `Empire Prestige: ${score} — Next milestone at ${next.threshold} (${next.name})`
+    : `Empire Prestige: ${score} — All milestones achieved!`;
+}
+
+function _nextPrestigeMilestone(score) {
+  // Inline thresholds to avoid importing PRESTIGE_MILESTONES (circular concern)
+  const milestones = [
+    { threshold: 500,  name: 'Renowned Kingdom' },
+    { threshold: 1000, name: 'Great Power' },
+    { threshold: 2000, name: 'Dominant Empire' },
+    { threshold: 3500, name: 'Continental Hegemon' },
+    { threshold: 5000, name: 'World Wonder' },
+  ];
+  return milestones.find(m => score < m.threshold) ?? null;
 }
 
 // ── Score badge ───────────────────────────────────────────────────────────
@@ -492,6 +567,7 @@ function _newGame(opts = {}) {
   initPoliticalEvents();
   initMercenaries();
   initWeather();
+  initPrestige();
   recalcRates();
   startLoop();  // restart loop in case it was stopped by game-over
   _syncPauseUI();  // ensure pause overlay is hidden on new game
@@ -510,6 +586,8 @@ function _newGame(opts = {}) {
   emit(Events.TECH_CHANGED, {});
   emit(Events.AGE_CHANGED, { age: 0 });
   _updateScoreBadge();
+  _updatePrestigeBadge();
+  _updateSiegeBadge();
 }
 
 // ── UI Controls ───────────────────────────────────────────────────────────

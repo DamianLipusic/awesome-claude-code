@@ -5042,3 +5042,48 @@ kbd {
 @media (max-width: 600px) {
   .weather-badge { display: none !important; }
 }
+
+/* T079: Grand Siege warning badge */
+@keyframes siege-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.55; }
+}
+
+.siege-badge {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+  border: 1px solid rgba(229, 62, 62, .7);
+  background: rgba(229, 62, 62, .15);
+  color: #fc8181;
+  cursor: help;
+  white-space: nowrap;
+  animation: siege-pulse 1s ease-in-out infinite;
+}
+
+@media (max-width: 600px) {
+  .siege-badge { display: none !important; }
+}
+
+/* T080: Empire Prestige badge */
+.prestige-badge {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 99px;
+  border: 1px solid rgba(183, 148, 244, .35);
+  background: rgba(183, 148, 244, .1);
+  color: #b794f4;
+  white-space: nowrap;
+  cursor: help;
+  transition: background .2s;
+}
+
+.prestige-badge:hover { background: rgba(183, 148, 244, .2); }
+
+@media (max-width: 600px) {
+  .prestige-badge { display: none !important; }
+}

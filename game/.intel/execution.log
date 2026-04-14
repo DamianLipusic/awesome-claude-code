@@ -2,6 +2,43 @@
 
 ---
 
+## 2026-04-14 — Session N+14
+
+**Tasks completed:** T079, T080
+
+**Summary:**
+All prior tasks (T001–T078) were complete. Created two Phase 26 features: a Barbarian Grand Siege system where 3+ camps can organise a capital assault with a 30-second warning (T079), and an Empire Prestige system with 5 milestone tiers that unlock permanent production bonuses (T080).
+
+**T079 — Barbarian Grand Siege:**
+- `src/systems/barbarianCamps.js` (rewritten): Added `SIEGE_THRESHOLD=3`, `SIEGE_WARN_TICKS=120` (30s), `SIEGE_INTERVAL=2880` (12min cooldown), `SIEGE_WIN_RATIO=0.55`, `SIEGE_REPEL_LOOT={gold:200,food:100,iron:50}`. Imported `UNITS` and `changeMorale`. `initBarbarians()` now adds `nextSiegeTick` and `siegeWarning:null` fields with migration guards. `barbarianTick()` restructured to run spawn then `_siegeCheck(campCount)`. `_siegeCheck()` sets warning when 3+ camps+cooldown met, fires `_launchSiege()` when warning expires. `_launchSiege()` computes `_playerPower()` (units×attack + hero +30 + techs×1.25/1.5) vs `_barbarianPower()` (sum of barbarian tile defenses): repel → clears all camps, awards loot, `changeMorale(+15)`, emits `MAP_CHANGED+RESOURCE_CHANGED`; struck → deducts gold/food, `changeMorale(-20)`. Exported `getSiegeSecsLeft()` for HUD countdown.
+- `src/core/events.js`: Added `BARBARIAN_SIEGE: 'barbarianSiege'`.
+- `src/main.js`: Consolidated barbarianCamps import (added `getSiegeSecsLeft`); added `BUILDINGS` import; `initPrestige()` in boot+_newGame; `_updateSiegeBadge()` shows/hides `#siege-badge` with `⚔️ SIEGE in Xs` countdown; subscribed `BARBARIAN_SIEGE` + `TICK/4` for refresh.
+- `index.html`: `<span id='siege-badge' class='siege-badge' style='display:none'>` after weather-badge.
+- `styles/main.css`: `@keyframes siege-pulse` (opacity 1→0.55 1s loop), `.siege-badge` (red border `rgba(229,62,62,.7)`, bg `.15`, color `#fc8181`, 700 weight, animation, hidden ≤600px).
+
+**T080 — Empire Prestige System:**
+- `src/systems/prestige.js` (new): `PRESTIGE_MILESTONES` array (5 entries: 500/1000/2000/3500/5000 with name+icon+bonusDesc); `initPrestige()` idempotent struct guard; `awardPrestige(amount,reason)` increments score+`_checkMilestones()`+emits `PRESTIGE_CHANGED`+`addMessage`; `getPrestigeScore()` helper; `_checkMilestones()` adds new threshold to milestones array + achievement message.
+- `src/core/events.js`: Added `PRESTIGE_CHANGED: 'prestigeChanged'`.
+- `src/core/state.js`: Added `prestige: null` to static state object + `state.prestige = null` in `initState()`.
+- `src/systems/resources.js`: T080 prestige milestone bonuses block at end of `recalcRates()` — `pm.includes(500)→+1 gold`; `pm.includes(1000)→+1 food+1 wood`; `pm.includes(2000)→all caps+200`; `pm.includes(3500)→+2 gold+1 iron+1 mana`; `pm.includes(5000)→all positive rates×1.15`.
+- `src/main.js`: Imported prestige exports; added `BUILDINGS` data import; `initPrestige()` in boot+_newGame; prestige event listeners registered once in boot: `AGE_CHANGED(+100×age)`, `MASTERY_UNLOCKED(+100)`, `SYNERGY_UNLOCKED(+75)`, `QUEST_COMPLETED(+30)`, `MAP_CHANGED+outcome=win(+5)`, `BUILDING_CHANGED+wonder+count=1(+200)`, `DIPLOMACY_CHANGED+allied(+50)`; `_updatePrestigeBadge()` + `PRESTIGE_CHANGED` subscription; `_nextPrestigeMilestone()` inline helper; `prestige:state.prestige` in `_save()`; `state.prestige=s.prestige` in `_applySave()`; save version bumped 26→27; `_updatePrestigeBadge()` called in `_newGame()`.
+- `index.html`: `<span id='prestige-badge' class='prestige-badge'>✨ 0</span>` after score-badge.
+- `styles/main.css`: `.prestige-badge` (purple `#b794f4` pill, rgba border+bg, cursor:help, transition); `:hover` variant; hidden ≤600px.
+
+**Files modified / created:**
+- `game/src/systems/barbarianCamps.js` (rewritten)
+- `game/src/systems/prestige.js` (new)
+- `game/src/core/events.js`
+- `game/src/core/state.js`
+- `game/src/systems/resources.js`
+- `game/src/main.js`
+- `game/index.html`
+- `game/styles/main.css`
+- `game/.intel/tasks.json`
+- `game/.intel/execution.log`
+
+---
+
 ## 2026-04-14 — Session N+13
 
 **Tasks completed:** T077, T078

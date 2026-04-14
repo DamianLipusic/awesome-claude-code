@@ -63,4 +63,6 @@ export const Events = Object.freeze({
   ALLIANCE_GIFT:        'allianceGift',       // T076: allied empire sent a resource gift
   SYNERGY_UNLOCKED:     'synergyUnlocked',   // T077: both techs of a synergy pair researched
   WEATHER_CHANGED:      'weatherChanged',    // T078: weather event started or cleared
+  BARBARIAN_SIEGE:      'barbarianSiege',   // T079: siege warning / resolved / repelled / struck
+  PRESTIGE_CHANGED:     'prestigeChanged',  // T080: prestige score updated
 });

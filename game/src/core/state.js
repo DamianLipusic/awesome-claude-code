@@ -207,6 +207,10 @@ export const state = {
   // T078: Weather state — populated by systems/weather.js initWeather()
   // { active: { type, icon, name, desc, modifiers, expiresAt } | null, nextWeatherTick: number }
   weather: null,
+
+  // T080: Empire prestige — earned through victories, wonders, age advances, etc.
+  // { score: number, milestones: number[] (list of threshold values reached) }
+  prestige: null,
 };
 
 /**
@@ -259,5 +263,6 @@ export function initState(empireName = 'My Empire') {
   state.councilBoons    = [];
   state.mercenaries     = null;
   state.weather         = null;
+  state.prestige        = null;
   // Note: state.archetype is NOT reset here — it persists across new games
 }

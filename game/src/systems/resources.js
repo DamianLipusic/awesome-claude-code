@@ -282,6 +282,14 @@ export function recalcRates() {
     }
   }
 
+  // T080: Prestige milestone bonuses (applied after all other calculations)
+  const pm = state.prestige?.milestones ?? [];
+  if (pm.includes(500))  rates.gold += 1;
+  if (pm.includes(1000)) { rates.food += 1; rates.wood += 1; }
+  if (pm.includes(2000)) { for (const r of RESOURCE_KEYS) caps[r] += 200; }
+  if (pm.includes(3500)) { rates.gold += 2; rates.iron += 1; rates.mana += 1; }
+  if (pm.includes(5000)) { for (const r of RESOURCE_KEYS) if (rates[r] > 0) rates[r] *= 1.15; }
+
   Object.assign(state.rates, rates);
   Object.assign(state.caps, caps);
 }
