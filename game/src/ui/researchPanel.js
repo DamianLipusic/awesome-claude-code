@@ -7,7 +7,7 @@ import { state } from '../core/state.js';
 import { on, Events } from '../core/events.js';
 import { startResearch, cancelResearch, MAX_RESEARCH_QUEUE } from '../systems/research.js';
 import { advanceAge, setPolicy } from '../core/actions.js';
-import { TECHS } from '../data/techs.js';
+import { TECHS, MASTERY_GROUPS } from '../data/techs.js';
 import { AGES } from '../data/ages.js';
 import { fmtNum, fmtTime } from '../utils/fmt.js';
 import { TICKS_PER_SECOND } from '../core/tick.js';
@@ -24,9 +24,10 @@ export function initResearchPanel() {
   on(Events.BUILDING_CHANGED, _throttle(renderResearchPanel, 8));
   on(Events.UNIT_CHANGED,     _throttle(renderResearchPanel, 8));
   on(Events.RESOURCE_CHANGED, _throttle(renderResearchPanel, 16));
-  on(Events.RELIC_DISCOVERED, renderResearchPanel);
-  on(Events.POLICY_CHANGED,   renderResearchPanel);
-  on(Events.MORALE_CHANGED,   _throttle(renderResearchPanel, 8));
+  on(Events.RELIC_DISCOVERED,  renderResearchPanel);
+  on(Events.POLICY_CHANGED,    renderResearchPanel);
+  on(Events.MORALE_CHANGED,    _throttle(renderResearchPanel, 8));
+  on(Events.MASTERY_UNLOCKED,  renderResearchPanel);
 }
 
 function renderResearchPanel() {
@@ -72,7 +73,7 @@ function renderResearchPanel() {
     </div>`;
   }).join('');
 
-  panel.innerHTML = _ageSection() + progressHtml + `<div class="tech-grid">${techCards}</div>` + _policySection() + _relicsSection();
+  panel.innerHTML = _ageSection() + progressHtml + `<div class="tech-grid">${techCards}</div>` + _masteriesSection() + _policySection() + _relicsSection();
 
   panel.onclick = (e) => {
     if (e.target.closest('#btn-advance-age')) {
@@ -310,6 +311,61 @@ function _policySection() {
       <div class="policy-intro">Enact one policy to shape your empire's focus. Policies have a 60-second cooldown when changed.</div>
       ${cooldownHtml}
       <div class="policy-grid">${policyCards}</div>
+    </div>`;
+}
+
+// ── Tech Mastery section ───────────────────────────────────────────────────
+
+function _masteriesSection() {
+  const masteries = state.masteries ?? {};
+  const unlockedCount = Object.keys(masteries).length;
+
+  const cards = MASTERY_GROUPS.map(group => {
+    const unlocked  = !!masteries[group.id];
+    const progress  = group.techs.filter(t => state.techs[t]).length;
+    const total     = group.techs.length;
+    const pct       = Math.round((progress / total) * 100);
+    const allTechsHtml = group.techs.map(t => {
+      const done = !!state.techs[t];
+      const def  = TECHS[t];
+      return `<span class="mastery-tech ${done ? 'mastery-tech--done' : ''}"
+                     title="${def?.name ?? t}">${def?.icon ?? '?'}</span>`;
+    }).join('');
+
+    if (unlocked) {
+      return `<div class="mastery-card mastery-card--unlocked">
+        <div class="mastery-card__header">
+          <span class="mastery-card__icon">${group.icon}</span>
+          <strong class="mastery-card__name">${group.name}</strong>
+          <span class="mastery-badge">✓ Mastered</span>
+        </div>
+        <div class="mastery-techs">${allTechsHtml}</div>
+        <div class="mastery-bonus mastery-bonus--active">${group.bonusLabel}</div>
+      </div>`;
+    }
+
+    return `<div class="mastery-card">
+      <div class="mastery-card__header">
+        <span class="mastery-card__icon">${group.icon}</span>
+        <strong class="mastery-card__name">${group.name}</strong>
+        <span class="mastery-progress-label">${progress}/${total}</span>
+      </div>
+      <div class="mastery-techs">${allTechsHtml}</div>
+      <div class="mastery-bar-wrap">
+        <div class="mastery-bar" style="width:${pct}%"></div>
+      </div>
+      <div class="mastery-bonus mastery-bonus--locked">${group.bonusLabel}</div>
+    </div>`;
+  }).join('');
+
+  return `
+    <div class="mastery-section">
+      <div class="mastery-section__header">
+        <span>🎓 Tech Mastery</span>
+        <span class="mastery-section__count">${unlockedCount} / ${MASTERY_GROUPS.length} unlocked</span>
+      </div>
+      <div class="mastery-section__intro">Research all technologies in a group to permanently unlock its bonus.</div>
+      <div class="mastery-grid">${cards}</div>
     </div>`;
 }
 

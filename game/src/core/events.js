@@ -56,4 +56,6 @@ export const Events = Object.freeze({
   POLICY_CHANGED:       'policyChanged',
   GARRISON_CHANGED:     'garrisonChanged',   // T068
   HERO_LEVEL_UP:        'heroLevelUp',       // T070: hero earned a skill choice
+  MASTERY_UNLOCKED:     'masteryUnlocked',   // T071: a tech mastery group completed
+  POLITICAL_EVENT:      'politicalEvent',    // T072: political crisis event fired/resolved
 });

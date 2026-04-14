@@ -25,6 +25,7 @@ import { initPopulation, populationTick } from './systems/population.js';
 import { initEspionage } from './systems/espionage.js';
 import { initChallenges, challengeTick } from './systems/challenges.js';
 import { initCaravans, caravanTick } from './systems/caravans.js';
+import { initPoliticalEvents, politicalEventTick } from './systems/politicalEvents.js';
 import { SEASONS } from './data/seasons.js';
 import { AGES } from './data/ages.js';
 import { TICKS_PER_SECOND } from './core/tick.js';
@@ -90,6 +91,7 @@ function boot() {
   registerSystem(populationTick);
   registerSystem(challengeTick);
   registerSystem(caravanTick);
+  registerSystem(politicalEventTick);
 
   // Init event-driven systems
   initRandomEvents();
@@ -108,6 +110,7 @@ function boot() {
   initEspionage();
   initChallenges();
   initCaravans();
+  initPoliticalEvents();
 
   // Init UI
   initHUD();
@@ -160,6 +163,7 @@ function boot() {
   on(Events.AGE_CHANGED,       _updateScoreBadge);
   on(Events.MAP_CHANGED,       _updateScoreBadge);
   on(Events.QUEST_COMPLETED,   _updateScoreBadge);
+  on(Events.MASTERY_UNLOCKED,  _updateScoreBadge);
 
   // Start auto-save every 60 seconds
   setInterval(_save, 60_000);
@@ -175,7 +179,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 23,
+      version: 24,
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -217,6 +221,8 @@ function _save() {
         policy:           state.policy           ?? null,
         policyChangedAt:  state.policyChangedAt  ?? -999,
         garrisons:        state.garrisons        ?? null,
+        masteries:        state.masteries        ?? {},
+        politicalEvents:  state.politicalEvents  ?? null,
         tick:          state.tick,
       }
     }));
@@ -280,6 +286,8 @@ function _applySave(save) {
   state.policy           = s.policy           ?? null;
   state.policyChangedAt  = s.policyChangedAt  ?? -999;
   state.garrisons        = s.garrisons        ?? null;
+  state.masteries        = s.masteries        ?? {};
+  state.politicalEvents  = s.politicalEvents  ?? null;
   state.tick             = s.tick             ?? 0;
   recalcRates();
 
@@ -426,6 +434,7 @@ function _newGame(opts = {}) {
   initEspionage();
   initChallenges();
   initCaravans();
+  initPoliticalEvents();
   recalcRates();
   startLoop();  // restart loop in case it was stopped by game-over
   _syncPauseUI();  // ensure pause overlay is hidden on new game

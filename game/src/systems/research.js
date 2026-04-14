@@ -5,7 +5,7 @@
 
 import { state } from '../core/state.js';
 import { emit, Events } from '../core/events.js';
-import { TECHS } from '../data/techs.js';
+import { TECHS, MASTERY_GROUPS } from '../data/techs.js';
 import { heroSkillBonus } from '../data/hero.js';
 import { recalcRates } from './resources.js';
 import { addMessage } from '../core/actions.js';
@@ -27,7 +27,25 @@ export function researchTick() {
     const name = TECHS[entry.techId]?.name ?? entry.techId;
     addMessage(`Research complete: ${name}!`, 'tech');
     emit(Events.TECH_CHANGED, { techId: entry.techId });
+    _checkMasteries(entry.techId);
     log('tech researched:', entry.techId);
+  }
+}
+
+/**
+ * Check if any mastery group was completed by the newly-researched tech.
+ * Emits MASTERY_UNLOCKED when a group is newly completed.
+ */
+function _checkMasteries(techId) {
+  if (!state.masteries) state.masteries = {};
+  for (const group of MASTERY_GROUPS) {
+    if (state.masteries[group.id]) continue;           // already unlocked
+    if (!group.techs.includes(techId)) continue;       // new tech not in this group
+    if (!group.techs.every(t => state.techs[t])) continue; // group not yet complete
+    state.masteries[group.id] = state.tick;
+    recalcRates();
+    addMessage(`🎓 ${group.name} achieved! ${group.bonusLabel}`, 'tech');
+    emit(Events.MASTERY_UNLOCKED, { id: group.id });
   }
 }
 

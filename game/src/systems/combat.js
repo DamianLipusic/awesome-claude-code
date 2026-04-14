@@ -88,6 +88,9 @@ export function getAttackPreview(x, y) {
   // Conqueror archetype: +25% unit attack power
   if (state.archetype === 'conqueror') attackPower *= 1.25;
 
+  // T071 Military Mastery: +40 flat attack power
+  if (state.masteries?.military) attackPower += 40;
+
   if (state.hero?.recruited) {
     attackPower += HERO_DEF.attack;
     // T070: hero skills — attack bonus + combat multiplier
@@ -116,6 +119,7 @@ export function getAttackPreview(x, y) {
     manaBoltActive,
     formation:    state.formation ?? 'balanced',
     morale:       Math.round(state.morale ?? 50),
+    militaryMastery: !!(state.masteries?.military),
   };
 }
 
@@ -168,6 +172,9 @@ export function attackTile(x, y) {
 
   // Conqueror archetype: +25% unit attack power
   if (state.archetype === 'conqueror') attackPower *= 1.25;
+
+  // T071 Military Mastery: +40 flat attack power
+  if (state.masteries?.military) attackPower += 40;
 
   // Hero bonus: flat attack power + skills + Battle Cry (×2) on next attack
   if (state.hero?.recruited) {

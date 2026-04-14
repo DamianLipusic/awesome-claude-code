@@ -70,13 +70,17 @@ export function recalcRates() {
   // Navigation tech gives +50% to all trade route income.
   // Merchant archetype gives +50% on top of navigation multiplier.
   if (state.diplomacy) {
-    const navMult     = state.techs.navigation ? 1.5 : 1.0;
-    const merchantMult = state.archetype === 'merchant' ? 1.5 : 1.0;
+    const navMult          = state.techs.navigation        ? 1.5 : 1.0;
+    const merchantMult     = state.archetype === 'merchant' ? 1.5 : 1.0;
+    // T071 Economic Mastery: +30% trade route income
+    const economicMastery  = state.masteries?.economic     ? 1.3 : 1.0;
     for (const emp of state.diplomacy.empires) {
       if (emp.relations !== 'allied' || emp.tradeRoutes <= 0) continue;
       const gift = EMPIRES[emp.id]?.tradeGift ?? {};
       for (const [res, rate] of Object.entries(gift)) {
-        if (rates[res] !== undefined) rates[res] += rate * emp.tradeRoutes * navMult * merchantMult;
+        if (rates[res] !== undefined) {
+          rates[res] += rate * emp.tradeRoutes * navMult * merchantMult * economicMastery;
+        }
       }
     }
   }
@@ -91,13 +95,14 @@ export function recalcRates() {
     }
   }
 
-  // Unit upkeep
+  // Unit upkeep (T071 Military Mastery: -20% upkeep)
+  const upkeepMult = state.masteries?.military ? 0.80 : 1.0;
   for (const [id, count] of Object.entries(state.units)) {
     if (count <= 0) continue;
     const def = UNITS[id];
     if (!def || !def.upkeep) continue;
     for (const [res, amt] of Object.entries(def.upkeep)) {
-      rates[res] = (rates[res] ?? 0) - amt * count;
+      rates[res] = (rates[res] ?? 0) - amt * count * upkeepMult;
     }
   }
 
@@ -126,13 +131,14 @@ export function recalcRates() {
   }
 
   // T068: Garrison upkeep (units removed from army but still consume resources)
+  // T071 Military Mastery: same -20% upkeep reduction applies to garrisoned units
   if (state.garrisons) {
     for (const { unitId, count } of Object.values(state.garrisons)) {
       if (count <= 0) continue;
       const def = UNITS[unitId];
       if (!def?.upkeep) continue;
       for (const [res, amt] of Object.entries(def.upkeep)) {
-        rates[res] = (rates[res] ?? 0) - amt * count;
+        rates[res] = (rates[res] ?? 0) - amt * count * upkeepMult;
       }
     }
   }
@@ -202,6 +208,21 @@ export function recalcRates() {
           if (caps[res] !== undefined) caps[res] += val;
         }
       }
+    }
+  }
+
+  // T071: Tech mastery flat bonuses (applied after all other rate calculations)
+  if (state.masteries) {
+    // Military mastery: upkeep reduction already applied above
+    if (state.masteries.economic) rates.gold += 3;            // +3 gold/s base
+    if (state.masteries.arcane) {
+      rates.mana += 1.5;                                       // +1.5 mana/s
+      caps.mana  += 500;                                       // +500 mana cap
+    }
+    if (state.masteries.agrarian) {
+      rates.food  += 0.5;                                      // +0.5 food/s
+      rates.wood  += 0.5;                                      // +0.5 wood/s
+      rates.stone += 0.5;                                      // +0.5 stone/s
     }
   }
 

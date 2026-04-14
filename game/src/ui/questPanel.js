@@ -7,6 +7,7 @@ import { state } from '../core/state.js';
 import { on, Events } from '../core/events.js';
 import { QUESTS, setQuestPanelRenderer } from '../systems/quests.js';
 import { getChallengeSecsLeft } from '../systems/challenges.js';
+import { resolvePoliticalEvent, getPoliticalEventSecsLeft } from '../systems/politicalEvents.js';
 import { TICKS_PER_SECOND } from '../core/tick.js';
 
 export function initQuestPanel() {
@@ -18,15 +19,30 @@ export function initQuestPanel() {
     Events.BUILDING_CHANGED, Events.UNIT_CHANGED, Events.TECH_CHANGED,
     Events.AGE_CHANGED, Events.MAP_CHANGED, Events.QUEST_COMPLETED,
     Events.CHALLENGE_UPDATED, Events.POPULATION_CHANGED, Events.RESOURCE_CHANGED,
+    Events.POLITICAL_EVENT,
   ];
   for (const ev of events) on(ev, render);
 
-  // Refresh challenge countdown every second via TICK
+  // Refresh challenge + political-event countdown every second via TICK
   let _tickCount = 0;
   on(Events.TICK, () => {
     if (++_tickCount % TICKS_PER_SECOND === 0) {
       const ch = state.challenges?.active;
-      if (ch) render();
+      const pe = state.politicalEvents?.pending;
+      if (ch || pe) render();
+    }
+  });
+
+  // Delegate click events for political event choice buttons
+  panel.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-pol-choice]');
+    if (!btn) return;
+    const choice = btn.dataset.polChoice;
+    const result = resolvePoliticalEvent(choice);
+    if (!result.ok) {
+      btn.title = result.reason ?? 'Cannot choose that option.';
+      btn.classList.add('btn--shake');
+      setTimeout(() => btn.classList.remove('btn--shake'), 500);
     }
   });
 
@@ -44,6 +60,7 @@ function render() {
   const pct       = total > 0 ? Math.round((doneCount / total) * 100) : 0;
 
   panel.innerHTML = `
+    ${_politicalEventSection()}
     ${_challengeSection()}
     <div class="quest-header">
       <div class="quest-header__title">Quests &amp; Objectives</div>
@@ -58,6 +75,81 @@ function render() {
       ${QUESTS.map(q => _questCard(q, completed[q.id])).join('')}
     </div>
   `;
+}
+
+// ── Political event section ────────────────────────────────────────────────
+
+function _politicalEventSection() {
+  const pe = state.politicalEvents;
+  if (!pe) return '';
+
+  const pending = pe.pending;
+
+  // Show recent log even if no pending event
+  const logHtml = pe.log.length > 0 ? `
+    <div class="pol-event-log">
+      <div class="pol-event-log__header">Recent Decisions</div>
+      ${pe.log.slice(0, 4).map(e => `
+        <div class="pol-event-log__entry">
+          ${e.icon} <strong>${_escHtml(e.title)}</strong>:
+          ${_escHtml(e.choiceLabel)} — ${_escHtml(e.effect)}
+        </div>
+      `).join('')}
+    </div>` : '';
+
+  if (!pending) {
+    if (pe.log.length === 0) return ''; // nothing to show at all
+    return `<div class="pol-event-section">
+      <div class="pol-event-header">👑 Political Events</div>
+      <div class="pol-event-waiting">No active event. Next event within 5–10 min.</div>
+      ${logHtml}
+    </div>`;
+  }
+
+  const secsLeft  = getPoliticalEventSecsLeft();
+  const minsLeft  = Math.floor(secsLeft / 60);
+  const sLeft     = secsLeft % 60;
+  const timeStr   = minsLeft > 0
+    ? `${minsLeft}m ${String(sLeft).padStart(2, '0')}s`
+    : `${sLeft}s`;
+  const urgent    = secsLeft < 30;
+
+  // Check affordability of each choice
+  const canAffordA = Object.entries(pending.choiceA.cost ?? {}).every(
+    ([r, a]) => (state.resources[r] ?? 0) >= a,
+  );
+  const canAffordB = Object.entries(pending.choiceB.cost ?? {}).every(
+    ([r, a]) => (state.resources[r] ?? 0) >= a,
+  );
+
+  return `
+    <div class="pol-event-section">
+      <div class="pol-event-header">
+        <span>👑 Political Event</span>
+        <span class="pol-event-timer ${urgent ? 'pol-event-timer--urgent' : ''}">
+          ⏱ ${timeStr} left
+        </span>
+      </div>
+      <div class="pol-event-card">
+        <div class="pol-event-title">${pending.icon} ${_escHtml(pending.title)}</div>
+        <div class="pol-event-desc">${_escHtml(pending.desc)}</div>
+        <div class="pol-event-choices">
+          <div class="pol-event-choice">
+            <span class="pol-event-choice__label">${_escHtml(pending.choiceA.label)}</span>
+            <span class="pol-event-choice__effect">${_escHtml(pending.choiceA.effect)}</span>
+            <button class="btn--pol-choice" data-pol-choice="a"
+                    ${canAffordA ? '' : 'disabled'}>Choose A</button>
+          </div>
+          <div class="pol-event-choice">
+            <span class="pol-event-choice__label">${_escHtml(pending.choiceB.label)}</span>
+            <span class="pol-event-choice__effect">${_escHtml(pending.choiceB.effect)}</span>
+            <button class="btn--pol-choice" data-pol-choice="b"
+                    ${canAffordB ? '' : 'disabled'}>Choose B</button>
+          </div>
+        </div>
+      </div>
+      ${logHtml}
+    </div>`;
 }
 
 // ── Challenge section ──────────────────────────────────────────────────────

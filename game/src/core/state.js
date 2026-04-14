@@ -187,6 +187,14 @@ export const state = {
   // Units are removed from state.units when garrisoned; returned on withdrawal.
   // null until first garrison action.
   garrisons: null,
+
+  // Tech mastery bonuses — { [masteryId]: tick when unlocked }
+  // Reset on new game; all 4 must be earned by completing tech groups each game.
+  masteries: {},
+
+  // Political events — populated by systems/politicalEvents.js initPoliticalEvents()
+  // { pending: {…} | null, log: [], nextEventTick: number }
+  politicalEvents: null,
 };
 
 /**
@@ -234,5 +242,7 @@ export function initState(empireName = 'My Empire') {
   state.policy          = null;
   state.policyChangedAt = -999;
   state.garrisons       = null;
+  state.masteries       = {};
+  state.politicalEvents = null;
   // Note: state.archetype is NOT reset here — it persists across new games
 }

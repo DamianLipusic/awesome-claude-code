@@ -544,9 +544,11 @@ function scaledCost(base, existing) {
   const factor = Math.pow(1.15, existing);
   // Conqueror archetype: −10% building costs
   const archMult = state.archetype === 'conqueror' ? 0.9 : 1.0;
+  // T071 Agrarian Mastery: −15% building costs
+  const masteryMult = state.masteries?.agrarian ? 0.85 : 1.0;
   const scaled = {};
   for (const [res, amt] of Object.entries(base)) {
-    scaled[res] = Math.ceil(amt * factor * archMult);
+    scaled[res] = Math.ceil(amt * factor * archMult * masteryMult);
   }
   return scaled;
 }

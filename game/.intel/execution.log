@@ -2,6 +2,48 @@
 
 ---
 
+## 2026-04-14 — Session N+11
+
+**Tasks completed:** T071, T072
+
+**Summary:**
+All prior tasks (T001–T070) were complete. Created two Phase 23 features: a tech mastery bonus system rewarding completion of technology groups (T071), and a political events system adding decision-based gameplay crises (T072).
+
+**T071 — Tech Mastery Bonus System:**
+- `src/data/techs.js`: Added `MASTERY_GROUPS` export (4 groups: military/economic/arcane/agrarian). Each entry has `id`, `name`, `icon`, `desc`, `techs[]` array, and `bonusLabel`. Military: +40 flat attack, −20% unit upkeep (6 techs). Economic: +3 gold/s, +30% trade income (4 techs). Arcane: +500 mana cap, +1.5 mana/s (3 techs). Agrarian: −15% building costs, +0.5 food/wood/stone per second (3 techs).
+- `src/core/state.js`: Added `masteries:{}` field + reset in `initState()`; also added `politicalEvents:null` field.
+- `src/core/events.js`: Added `MASTERY_UNLOCKED` + `POLITICAL_EVENT` constants.
+- `src/systems/research.js`: Imported `MASTERY_GROUPS`; added `_checkMasteries(techId)` — iterates groups, skips already-unlocked ones, checks if all group techs are now researched, records `state.tick` in `state.masteries[id]`, calls `recalcRates()`, logs, emits `MASTERY_UNLOCKED`; called from `researchTick()` after `TECH_CHANGED`.
+- `src/systems/resources.js`: Trade route loop: added `economicMasteryMult=1.3` when economic mastery active. Unit/garrison upkeep: added `upkeepMult=0.80` when military mastery active. Mastery flat bonus block just before `Object.assign`: economic +3 gold, arcane +1.5 mana +500 mana cap, agrarian +0.5 food/wood/stone.
+- `src/systems/combat.js`: Added `+40 attackPower` when `state.masteries?.military` in both `getAttackPreview()` and `attackTile()` (after conqueror archetype); `getAttackPreview()` returns `militaryMastery` flag.
+- `src/core/actions.js`: `scaledCost()` applies `masteryMult=0.85` when agrarian mastery unlocked (alongside conqueror archetype mult).
+- `src/ui/researchPanel.js`: Imported `MASTERY_GROUPS`; subscribed `MASTERY_UNLOCKED→renderResearchPanel`; added `_masteriesSection()` rendering 4 mastery cards — unlocked (gold border, MASTERED badge, all tech icons lit, bonus text gold); locked (progress bar, dim tech icons, pct label, dim bonus text); injected between tech-grid and `_policySection()`.
+- `src/main.js`: Save version 23→24; `masteries+politicalEvents` persisted in `_save()`/`_applySave()`; `MASTERY_UNLOCKED→_updateScoreBadge`.
+
+**T072 — Political Events System:**
+- `src/systems/politicalEvents.js` (new): `SPAWN_MIN=1200`/`SPAWN_MAX=2400` ticks (5–10 min); `EXPIRE_TICKS=480` (2 min auto-expire). 8 `EVENTS` templates: harvest_festival (+food, +morale tradeoff), tax_dispute (+gold vs +morale), desertion_crisis (discipline vs pay), merchant_delegation (invest vs tariff), plague_rumour (quarantine vs ignore), foreign_gift (accept vs decline), mineral_vein (fund vs ignore), religious_revival (support vs suppress). `initPoliticalEvents()` idempotent guard; `politicalEventTick()` auto-expires pending event via `_applyChoice(ev,'b',true)` then spawns via `_spawnEvent()`; `resolvePoliticalEvent(choice)` validates cost affordability, deducts cost, applies gains + morale change, logs entry, resets pending, schedules next; `getPoliticalEventSecsLeft()` countdown helper.
+- `src/ui/questPanel.js`: Added `resolvePoliticalEvent`/`getPoliticalEventSecsLeft` imports; subscribed `POLITICAL_EVENT→render`; TICK handler refreshes on pending event alongside challenges; click delegate for `[data-pol-choice]` buttons with `btn--shake` on error; added `_politicalEventSection()` — renders section header, pending-event card (title/desc/two choice divs each with label/effect/affordability-gated button + urgent countdown), or waiting state; history log shows last 4 decisions; injected at top of `render()` before `_challengeSection()`.
+- `src/main.js`: Imported `initPoliticalEvents+politicalEventTick`; registered as 15th tick system; called in `boot()` + `_newGame()`; `politicalEvents` persisted in save/load.
+- `styles/main.css`: `.pol-event-section` (accent-h border), `.pol-event-header`/`.pol-event-timer`/`--urgent` (red at <30s), `.pol-event-card`, `.pol-event-title`/`.pol-event-desc`, `.pol-event-choices` (flex wrap), `.pol-event-choice` (card), `.pol-event-choice__label`/`.pol-event-choice__effect`, `.btn--pol-choice` (amber gradient, disabled state), `.pol-event-log/__header/__entry`, `.pol-event-waiting`; also mastery CSS: `.mastery-section`/`.mastery-grid` (auto-fill 220px)/`.mastery-card`/`--unlocked`/`.mastery-badge`/`.mastery-techs`/`.mastery-tech`/`--done`/`.mastery-bar`/`.mastery-bonus`/`--active`/`--locked`.
+
+**Files modified:**
+- `game/src/data/techs.js`
+- `game/src/core/state.js`
+- `game/src/core/events.js`
+- `game/src/systems/research.js`
+- `game/src/systems/resources.js`
+- `game/src/systems/combat.js`
+- `game/src/core/actions.js`
+- `game/src/ui/researchPanel.js`
+- `game/src/ui/questPanel.js`
+- `game/src/systems/politicalEvents.js` (new)
+- `game/src/main.js`
+- `game/styles/main.css`
+- `game/.intel/tasks.json`
+- `game/.intel/execution.log`
+
+---
+
 ## 2026-04-13 — Session N+10
 
 **Tasks completed:** T063, T064

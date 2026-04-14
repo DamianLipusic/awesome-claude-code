@@ -175,3 +175,43 @@ export const TECHS = Object.freeze({
   },
 
 });
+
+/**
+ * Tech mastery groups — unlock permanent empire-wide bonuses when all techs
+ * in the group are researched.  Effects are applied in resources.js,
+ * combat.js, and actions.js.
+ */
+export const MASTERY_GROUPS = Object.freeze([
+  {
+    id:         'military',
+    name:       'Military Mastery',
+    icon:       '⚔️',
+    desc:       'Master all military technologies to unlock permanent combat bonuses.',
+    techs:      ['warcraft', 'tactics', 'steel', 'engineering', 'siege_craft', 'fortification'],
+    bonusLabel: '+40 flat attack power, −20% unit upkeep',
+  },
+  {
+    id:         'economic',
+    name:       'Economic Mastery',
+    icon:       '💰',
+    desc:       'Master all economic technologies to unlock permanent trade bonuses.',
+    techs:      ['tradeRoutes', 'navigation', 'economics', 'espionage'],
+    bonusLabel: '+3 gold/s income, +30% trade route income',
+  },
+  {
+    id:         'arcane',
+    name:       'Arcane Mastery',
+    icon:       '🌌',
+    desc:       'Master all arcane technologies to unlock permanent magical bonuses.',
+    techs:      ['arcane', 'alchemy', 'divine_favor'],
+    bonusLabel: '+500 mana cap, +1.5 mana/s income',
+  },
+  {
+    id:         'agrarian',
+    name:       'Agrarian Mastery',
+    icon:       '🌾',
+    desc:       'Master all agrarian technologies to unlock permanent production bonuses.',
+    techs:      ['agriculture', 'masonry', 'metalworking'],
+    bonusLabel: '−15% building costs, +0.5 food/wood/stone per second',
+  },
+]);
