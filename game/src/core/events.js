@@ -68,4 +68,6 @@ export const Events = Object.freeze({
   DECREE_USED:          'decreeUsed',       // T083: decree activated or expired
   CONTRACTS_CHANGED:    'contractsChanged', // T085: delivery contract offers spawned / accepted / completed
   HERO_EXPEDITION:      'heroExpedition',   // T086: hero departed on / returned from training expedition
+  MERCHANT_CHANGED:     'merchantChanged',  // T087: wandering merchant arrived / departed / purchased
+  BORDER_SKIRMISH:      'borderSkirmish',   // T088: AI vs AI border skirmish started / resolved
 });

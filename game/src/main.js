@@ -12,7 +12,7 @@ import { initMap } from './systems/map.js';
 import { initRandomEvents, randomEventTick } from './systems/randomEvents.js';
 import { initQuests } from './systems/quests.js';
 import { initStory } from './systems/story.js';
-import { initDiplomacy, diplomacyTick } from './systems/diplomacy.js';
+import { initDiplomacy, diplomacyTick, MEDIATE_PRESTIGE } from './systems/diplomacy.js';
 import { initSeasons, seasonTick, currentSeason, seasonTicksRemaining } from './systems/seasons.js';
 import { initVictory, victoryTick } from './systems/victory.js';
 import { initMarket, marketTick } from './systems/market.js';
@@ -31,6 +31,7 @@ import { initWeather, weatherTick, getCurrentWeather, getWeatherSecsLeft } from 
 import { initPrestige, awardPrestige, getPrestigeScore } from './systems/prestige.js';
 import { initDecrees, decreesTick } from './systems/decrees.js';
 import { initContracts, contractsTick } from './systems/contracts.js';
+import { initMerchant, merchantTick } from './systems/merchant.js';
 import { heroTick } from './systems/heroSystem.js';
 import { SEASONS } from './data/seasons.js';
 import { AGES } from './data/ages.js';
@@ -107,6 +108,7 @@ function boot() {
   registerSystem(decreesTick);
   registerSystem(contractsTick);  // T085: delivery contracts
   registerSystem(heroTick);        // T086: hero expedition tick
+  registerSystem(merchantTick);    // T087: wandering merchant
 
   // Init event-driven systems
   initRandomEvents();
@@ -131,6 +133,7 @@ function boot() {
   initPrestige();
   initDecrees();
   initContracts();  // T085: delivery contracts
+  initMerchant();   // T087: wandering merchant
 
   // Init UI
   initHUD();
@@ -196,6 +199,9 @@ function boot() {
   on(Events.DIPLOMACY_CHANGED, (d) => {
     if (d?.relations === 'allied') awardPrestige(50, 'new alliance formed');
   });
+  on(Events.BORDER_SKIRMISH, (d) => {
+    if (d?.type === 'mediated') awardPrestige(MEDIATE_PRESTIGE, 'skirmish mediation');
+  });
 
   // Update age badge on changes; also show council boon modal on advancement
   _updateAgeBadge();
@@ -247,7 +253,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 29,
+      version: 30,
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -297,6 +303,7 @@ function _save() {
         prestige:         state.prestige         ?? null,
         decrees:          state.decrees          ?? null,
         contracts:        state.contracts        ?? null,  // T085
+        merchant:         state.merchant         ?? null,  // T087
         tick:          state.tick,
       }
     }));
@@ -368,6 +375,7 @@ function _applySave(save) {
   state.prestige         = s.prestige         ?? null;
   state.decrees          = s.decrees          ?? null;
   state.contracts        = s.contracts        ?? null;  // T085
+  state.merchant         = s.merchant         ?? null;  // T087
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
@@ -586,6 +594,7 @@ function _newGame(opts = {}) {
   initPrestige();
   initDecrees();
   initContracts();  // T085
+  initMerchant();   // T087
   recalcRates();
   startLoop();  // restart loop in case it was stopped by game-over
   _syncPauseUI();  // ensure pause overlay is hidden on new game

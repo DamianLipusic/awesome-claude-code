@@ -215,6 +215,10 @@ export const state = {
   // T083: Empire Decree state — populated by systems/decrees.js initDecrees()
   // { cooldowns: { [id]: tickExpiry }, harvestEdictExpires: number, warBannerCharges: number }
   decrees: null,
+
+  // T087: Wandering merchant state — populated by systems/merchant.js initMerchant()
+  // { offer: { items, expiresAt } | null, nextVisitTick, totalVisits, totalPurchases }
+  merchant: null,
 };
 
 /**
@@ -270,5 +274,6 @@ export function initState(empireName = 'My Empire') {
   state.prestige        = null;
   state.decrees         = null;
   state.contracts       = null;  // T085: delivery contracts
+  state.merchant        = null;  // T087: wandering merchant
   // Note: state.archetype is NOT reset here — it persists across new games
 }

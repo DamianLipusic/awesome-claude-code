@@ -19,6 +19,7 @@ import { getMoraleEffect, changeMorale, MORALE_COMBAT_WIN, MORALE_COMBAT_LOSS } 
 import { RELICS, TERRAIN_RELIC, RELIC_DROP_CHANCE, ARCANE_SHARD_DROP_CHANCE } from '../data/relics.js';
 import { BOONS } from '../data/ageBoons.js';
 import { SYNERGIES } from '../data/techs.js';
+import { isEmpireInSkirmish, SKIRMISH_ATTACK_BONUS } from './diplomacy.js';
 
 /** Returns true if both techs of a named synergy are researched. */
 function _synergy(id) {
@@ -191,9 +192,13 @@ export function getAttackPreview(x, y) {
   const siegeActive    = !!(heroReady && state.hero.activeEffects?.siege);
   const manaBoltActive = !!(state.spells?.activeEffects?.manaBolt);
   const heroInjured    = !!(state.hero?.recruited && state.hero.injured);
-  const winChance      = (siegeActive || manaBoltActive)
+  let winChance        = (siegeActive || manaBoltActive)
     ? 1.0
     : Math.min(0.9, Math.max(0.1, attackPower / (attackPower + effectiveDefense)));
+
+  // T088: skirmish bonus — target empire distracted by border fighting
+  const skirmishBonus  = !siegeActive && !manaBoltActive && isEmpireInSkirmish(tile.owner);
+  if (skirmishBonus) winChance = Math.min(0.9, winChance + SKIRMISH_ATTACK_BONUS);
 
   return {
     valid:            true,
@@ -213,6 +218,7 @@ export function getAttackPreview(x, y) {
     militaryMastery: !!(state.masteries?.military),
     veteranLegion:   _synergy('veteran_legion'),
     warBannerCharges: state.decrees?.warBannerCharges ?? 0,
+    skirmishBonus,
   };
 }
 
@@ -326,10 +332,17 @@ export function attackTile(x, y) {
   // T071: apply terrain defense multiplier (0 × anything = 0, so siege still guarantees win)
   const effectiveDefense = defense * _terrainM.defMult;
 
-  const winChance = siegeActive
+  let winChance = siegeActive
     ? 1.0
     : Math.min(0.9, Math.max(0.1, attackPower / (attackPower + effectiveDefense)));
-  const roll      = Math.random();
+
+  // T088: skirmish bonus — target empire distracted by border fighting
+  if (!siegeActive && isEmpireInSkirmish(tile.owner)) {
+    winChance = Math.min(0.9, winChance + SKIRMISH_ATTACK_BONUS);
+    addMessage('⚔️ Skirmish distraction: +20% attack advantage!', 'info');
+  }
+
+  const roll = Math.random();
 
   // T083: consume one War Banner charge (win or lose — the banner was raised)
   if ((state.decrees?.warBannerCharges ?? 0) > 0) {

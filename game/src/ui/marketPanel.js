@@ -9,6 +9,7 @@ import { on, Events } from '../core/events.js';
 import { state } from '../core/state.js';
 import { buyPrice, sellPrice, buyResources, sellResources, MARKET_RESOURCES } from '../systems/market.js';
 import { acceptContract, cancelContract, contractProgress, contractSecsLeft, contractsRefreshSecs } from '../systems/contracts.js';
+import { buyMerchantItem, merchantSecsLeft, merchantNextVisitSecs, canAffordItem } from '../systems/merchant.js';
 import { fmtNum } from '../utils/fmt.js';
 
 const RESOURCE_ICONS = {
@@ -32,12 +33,13 @@ export function initMarketPanel() {
   on(Events.BUILDING_CHANGED,  _render);
   on(Events.RESOURCE_CHANGED,  _render);
   on(Events.CONTRACTS_CHANGED, _render);
+  on(Events.MERCHANT_CHANGED,  _render);
 
-  // Refresh contract countdown every ~4 ticks (~1 s)
+  // Refresh contract/merchant countdowns every ~4 ticks (~1 s)
   let _contractTickCount = 0;
   on(Events.TICK, () => {
     if (++_contractTickCount % 4 !== 0) return;
-    if (state.contracts?.active) _render();
+    if (state.contracts?.active || state.merchant?.offer) _render();
   });
 
   _panel.addEventListener('click', _handleClick);
@@ -87,6 +89,7 @@ function _render() {
       </div>
       ${rows}
     </div>
+    ${_merchantSection()}
     ${_contractsSection()}`;
 }
 
@@ -117,6 +120,67 @@ function _row(res) {
         <button class="btn btn--xs btn--buy" data-action="buy" data-res="${res}" data-amt="50">+50</button>
         <button class="btn btn--xs btn--buy" data-action="buy" data-res="${res}" data-amt="100">+100</button>
       </span>
+    </div>`;
+}
+
+// ---------------------------------------------------------------------------
+// Wandering Merchant section (T087)
+// ---------------------------------------------------------------------------
+
+function _merchantSection() {
+  const m = state.merchant;
+  if (!m) return '';
+
+  if (m.offer) {
+    const secsLeft = merchantSecsLeft();
+    const cards = m.offer.items.map((item, idx) => {
+      const affordable = canAffordItem(idx);
+      const costStr = item.type === 'barter'
+        ? item.costNote
+        : `${item.cost}g`;
+      return `
+        <div class="merchant-item ${affordable ? '' : 'merchant-item--poor'}">
+          <div class="merchant-item__header">
+            <span class="merchant-item__icon">${item.icon}</span>
+            <span class="merchant-item__title">${item.title}</span>
+            <span class="merchant-item__cost">${costStr}</span>
+          </div>
+          <div class="merchant-item__desc">${item.desc}</div>
+          <button class="btn btn--sm btn--merchant-buy ${affordable ? '' : 'btn--disabled'}"
+            data-action="merchant-buy" data-idx="${idx}"
+            ${affordable ? '' : 'disabled'}
+            title="${affordable ? 'Purchase this item' : 'Cannot afford'}">
+            ${affordable ? 'Purchase' : 'Cannot Afford'}
+          </button>
+        </div>`;
+    }).join('');
+
+    const purchasesStr = m.totalPurchases > 0 ? ` · ${m.totalPurchases} purchases` : '';
+    return `
+      <div class="merchant-section merchant-section--active">
+        <div class="merchant-header">
+          <span class="merchant-title">🧳 Wandering Merchant</span>
+          <span class="merchant-timer">Departs in <strong>${secsLeft}s</strong></span>
+        </div>
+        <div class="merchant-subtitle">One purchase per visit${purchasesStr}</div>
+        <div class="merchant-items">${cards}</div>
+      </div>`;
+  }
+
+  // Merchant not present — show next-visit timer
+  const secs = merchantNextVisitSecs();
+  const mins  = Math.floor(secs / 60);
+  const s     = secs % 60;
+  const timeStr = secs >= 60 ? `${mins}m ${String(s).padStart(2, '0')}s` : `${secs}s`;
+  return `
+    <div class="merchant-section">
+      <div class="merchant-header">
+        <span class="merchant-title">🧳 Wandering Merchant</span>
+      </div>
+      <div class="merchant-waiting">
+        <span class="merchant-waiting__icon">🛤️</span>
+        Next merchant arrives in <strong>${timeStr}</strong>
+      </div>
     </div>`;
 }
 
@@ -239,6 +303,9 @@ function _handleClick(e) {
     result = acceptContract(idx);
   } else if (action === 'cancel-contract') {
     result = cancelContract();
+  } else if (action === 'merchant-buy') {
+    const idx = parseInt(btn.dataset.idx, 10);
+    result = buyMerchantItem(idx);
   }
 
   if (result && !result.ok) {

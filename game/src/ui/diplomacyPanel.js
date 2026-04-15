@@ -17,6 +17,8 @@ import {
   SURRENDER_COST, WAR_SCORE_THRESHOLD,
   TRIBUTE_COST, TRIBUTE_DEMAND, DEMAND_WARSCORE_MIN,
   GIFT_SMALL_COST, GIFT_LARGE_COST, GIFT_SMALL_ALLY_CHANCE, GIFT_LARGE_ALLY_CHANCE,
+  isSkirmishActive, getSkirmish, skirmishSecsLeft, mediateSkirmish,
+  MEDIATE_MIN_ALLIANCES, MEDIATE_GOLD_REWARD, MEDIATE_PRESTIGE,
 } from '../systems/diplomacy.js';
 import {
   launchMission, canLaunchMission, espionageCooldownSecs,
@@ -40,10 +42,11 @@ export function initDiplomacyPanel() {
   _render(panel);
   on(Events.DIPLOMACY_CHANGED, () => _render(panel));
   on(Events.ALLIANCE_GIFT,     () => _render(panel));  // T076
+  on(Events.BORDER_SKIRMISH,   () => _render(panel));  // T088
   on(Events.RESOURCE_CHANGED,  _throttle(() => _render(panel), 8));
   on(Events.TECH_CHANGED,      () => _render(panel));
   on(Events.ESPIONAGE_EVENT,   () => _render(panel));
-  // Refresh cooldown countdown every second; also refresh ceasefire/gift timers when active
+  // Refresh cooldown countdown every second; also refresh ceasefire/gift/skirmish timers when active
   on(Events.TICK, _throttle(() => {
     const cd = document.getElementById('espionage-cooldown');
     if (cd) _updateCooldownDisplay(cd);
@@ -52,7 +55,9 @@ export function initDiplomacyPanel() {
     const hasAllied       = state.diplomacy?.empires.some(e => e.relations === 'allied');
     // T081: refresh while any per-empire gift cooldown is active
     const hasGiftCooldown = state.diplomacy?.empires.some(e => (e.playerGiftCooldownUntil ?? 0) > state.tick);
-    if (hasCeasefire || hasAllied || hasGiftCooldown) {
+    // T088: refresh while skirmish is active (countdown ticks)
+    const hasSkirmish     = isSkirmishActive();
+    if (hasCeasefire || hasAllied || hasGiftCooldown || hasSkirmish) {
       _render(panel);
     }
   }, 4));
@@ -76,10 +81,59 @@ function _render(panel) {
         War empires will raid your stores periodically.
       </div>
     </div>
+    ${_skirmishBanner()}
     <div class="dipl-empire-list">${cards}</div>
     ${_espionageSection()}
     ${_historySection()}
   `;
+}
+
+// ── T088: Border Skirmish banner ────────────────────────────────────────────
+
+function _skirmishBanner() {
+  const sk = getSkirmish();
+  if (!sk) return '';
+
+  const def1 = EMPIRES[sk.empire1Id];
+  const def2 = EMPIRES[sk.empire2Id];
+  const secs  = skirmishSecsLeft();
+  const mins  = Math.floor(secs / 60);
+  const s     = secs % 60;
+  const timeStr = mins > 0 ? `${mins}m ${String(s).padStart(2,'0')}s` : `${secs}s`;
+
+  const alliedCount    = state.diplomacy.empires.filter(e => e.relations === 'allied').length;
+  const canMediate     = alliedCount >= MEDIATE_MIN_ALLIANCES;
+  const alreadyMed    = !!sk.mediatedBy;
+
+  let mediateBtn = '';
+  if (!alreadyMed) {
+    mediateBtn = `
+      <button
+        class="btn btn--sm btn--mediate ${canMediate ? '' : 'btn--disabled'}"
+        data-action="mediateSkirmish"
+        ${canMediate ? '' : 'disabled'}
+        title="${canMediate
+          ? `Mediate the skirmish — earn ${MEDIATE_GOLD_REWARD} gold + ${MEDIATE_PRESTIGE} prestige`
+          : `Need ${MEDIATE_MIN_ALLIANCES} allied empires to mediate`}">
+        🕊️ Mediate${canMediate ? ` (+${MEDIATE_GOLD_REWARD}💰)` : ' (need 2 allies)'}
+      </button>`;
+  } else {
+    mediateBtn = `<span class="skirmish-mediated">🕊️ Mediating…</span>`;
+  }
+
+  return `
+    <div class="skirmish-banner">
+      <div class="skirmish-banner__header">
+        <span class="skirmish-banner__icon">⚔️</span>
+        <span class="skirmish-banner__title">Border Skirmish Active!</span>
+        <span class="skirmish-banner__timer">Ends in ${timeStr}</span>
+      </div>
+      <div class="skirmish-banner__desc">
+        ${def1.icon} ${def1.name} and ${def2.icon} ${def2.name} clash at the frontier.
+        Both empires are <strong>distracted</strong> — your attacks on them have +${Math.round(0.20*100)}% win chance.
+      </div>
+      <div class="skirmish-banner__actions">${mediateBtn}</div>
+    </div>`;
 }
 
 // ── T060: Espionage section ────────────────────────────────────────────────
@@ -325,12 +379,20 @@ function _empireCard(emp) {
       </div>`;
   })() : '';
 
+  // T088: skirmish indicator badge on empire card
+  const sk = getSkirmish();
+  const inSkirmish = sk && (sk.empire1Id === emp.id || sk.empire2Id === emp.id);
+  const skirmishBadge = inSkirmish
+    ? `<span class="dipl-badge dipl-badge--skirmish" title="This empire is engaged in a border skirmish — you have +20% attack chance against them">⚔️ Skirmishing</span>`
+    : '';
+
   return `
     <div class="dipl-empire-card ${cardMod}">
       <div class="dipl-empire-card__header">
         <span class="dipl-empire-card__icon">${def.icon}</span>
         <span class="dipl-empire-card__name">${def.name}</span>
         <span class="dipl-badge ${relClass}">${relLabel}</span>
+        ${skirmishBadge}
       </div>
       <div class="dipl-empire-card__desc">${def.desc}</div>
       <div class="dipl-empire-card__specialty">
@@ -477,6 +539,11 @@ function _onClick(e) {
     case 'sendGift': {
       const giftSize = btn.dataset.giftSize ?? 'small';
       result = sendGift(empire, giftSize);
+      if (!result.ok) addMessageFallback(result.reason);
+      break;
+    }
+    case 'mediateSkirmish': {
+      result = mediateSkirmish();
       if (!result.ok) addMessageFallback(result.reason);
       break;
     }

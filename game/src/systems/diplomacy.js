@@ -65,6 +65,16 @@ export const GIFT_SMALL_ALLY_CHANCE    = 0.30;  // 30% chance neutral→allied o
 export const GIFT_LARGE_ALLY_CHANCE    = 0.70;  // 70% chance neutral→allied on large gift
 const PLAYER_GIFT_COOLDOWN_TICKS       = 120 * TICKS_PER_SECOND; // 30 s cooldown per empire
 
+// T088: Border Skirmish constants
+const SKIRMISH_INTERVAL_MIN  = 15 * 60 * TICKS_PER_SECOND;  // 15 min between skirmishes
+const SKIRMISH_INTERVAL_MAX  = 20 * 60 * TICKS_PER_SECOND;  // 20 min between skirmishes
+const SKIRMISH_DURATION_MIN  = 3  * 60 * TICKS_PER_SECOND;  // 3 min duration
+const SKIRMISH_DURATION_MAX  = 5  * 60 * TICKS_PER_SECOND;  // 5 min duration
+export const SKIRMISH_ATTACK_BONUS  = 0.20;  // player gets +20% win chance vs skirmishing empire
+export const MEDIATE_MIN_ALLIANCES  = 2;     // alliances needed to mediate
+export const MEDIATE_GOLD_REWARD    = 150;
+export const MEDIATE_PRESTIGE       = 50;
+
 // ── Public API ─────────────────────────────────────────────────────────────────
 
 /**
@@ -85,7 +95,9 @@ export function initDiplomacy() {
         nextGiftTick:           state.tick + _giftInterval(),   // T076
         playerGiftCooldownUntil: 0,                              // T081
       })),
-      history: [],   // T054: diplomatic event log
+      history:          [],    // T054: diplomatic event log
+      skirmish:         null,  // T088: active AI vs AI border skirmish
+      nextSkirmishTick: state.tick + _skirmishInterval(),  // T088
     };
   }
   // T054: migrate saves that predate the history field
@@ -106,6 +118,9 @@ export function initDiplomacy() {
   for (const emp of state.diplomacy.empires) {
     if (emp.playerGiftCooldownUntil === undefined) emp.playerGiftCooldownUntil = 0;
   }
+  // T088: migrate saves that predate border skirmish fields
+  if (state.diplomacy.skirmish         === undefined) state.diplomacy.skirmish         = null;
+  if (state.diplomacy.nextSkirmishTick === undefined) state.diplomacy.nextSkirmishTick = state.tick + _skirmishInterval();
 }
 
 /**
@@ -133,6 +148,9 @@ export function diplomacyTick() {
       emp.nextAITick = state.tick + _aiInterval();
     }
   }
+
+  // T088: Border skirmish lifecycle
+  _skirmishTick();
 }
 
 // ── Player actions ─────────────────────────────────────────────────────────────
@@ -387,6 +405,63 @@ export function sendGift(empireId, size = 'small') {
   return { ok: true };
 }
 
+// ── T088: Border Skirmish public API ──────────────────────────────────────────
+
+/**
+ * Whether a border skirmish is currently active.
+ */
+export function isSkirmishActive() {
+  return !!state.diplomacy?.skirmish;
+}
+
+/**
+ * Get the current skirmish object or null.
+ * { empire1Id, empire2Id, startedAt, endsAt, mediatedBy? }
+ */
+export function getSkirmish() {
+  return state.diplomacy?.skirmish ?? null;
+}
+
+/**
+ * Seconds until current skirmish ends (0 if none active).
+ */
+export function skirmishSecsLeft() {
+  const sk = state.diplomacy?.skirmish;
+  if (!sk) return 0;
+  return Math.max(0, Math.ceil((sk.endsAt - state.tick) / TICKS_PER_SECOND));
+}
+
+/**
+ * Attempt to mediate the active border skirmish.
+ * Requires MEDIATE_MIN_ALLIANCES allied empires (including neither skirmisher).
+ * Awards MEDIATE_GOLD_REWARD gold and MEDIATE_PRESTIGE prestige.
+ */
+export function mediateSkirmish() {
+  const sk = state.diplomacy?.skirmish;
+  if (!sk) return { ok: false, reason: 'No active border skirmish to mediate.' };
+  if (sk.mediatedBy) return { ok: false, reason: 'Skirmish already being mediated.' };
+
+  const alliedCount = state.diplomacy.empires.filter(e => e.relations === 'allied').length;
+  if (alliedCount < MEDIATE_MIN_ALLIANCES) {
+    return { ok: false, reason: `Need ${MEDIATE_MIN_ALLIANCES} allied empires to mediate.` };
+  }
+
+  // Mark mediated and resolve immediately (peace restored)
+  sk.mediatedBy = 'player';
+  sk.endsAt = state.tick;  // will be cleaned up by _skirmishTick this same tick
+
+  return { ok: true };
+}
+
+/**
+ * Whether the target empire is currently in a border skirmish
+ * (used by combat.js to apply bonus win chance).
+ */
+export function isEmpireInSkirmish(empireId) {
+  const sk = state.diplomacy?.skirmish;
+  return sk ? (sk.empire1Id === empireId || sk.empire2Id === empireId) : false;
+}
+
 // ── Internal helpers ──────────────────────────────────────────────────────────
 
 function _findEmpire(id) {
@@ -399,6 +474,81 @@ function _aiInterval() {
 
 function _giftInterval() {
   return GIFT_MIN_TICKS + Math.floor(Math.random() * (GIFT_MAX_TICKS - GIFT_MIN_TICKS));
+}
+
+function _skirmishInterval() {
+  return SKIRMISH_INTERVAL_MIN + Math.floor(Math.random() * (SKIRMISH_INTERVAL_MAX - SKIRMISH_INTERVAL_MIN));
+}
+
+/** T088: Tick handler for border skirmish lifecycle. */
+function _skirmishTick() {
+  const d = state.diplomacy;
+
+  // Expire active skirmish
+  if (d.skirmish && state.tick >= d.skirmish.endsAt) {
+    const sk = d.skirmish;
+    const def1 = EMPIRES[sk.empire1Id];
+    const def2 = EMPIRES[sk.empire2Id];
+    d.skirmish = null;
+    d.nextSkirmishTick = state.tick + _skirmishInterval();
+
+    if (sk.mediatedBy === 'player') {
+      // Player mediated — reward
+      const cap = state.caps?.gold ?? 500;
+      state.resources.gold = Math.min(cap, (state.resources.gold ?? 0) + MEDIATE_GOLD_REWARD);
+      emit(Events.RESOURCE_CHANGED, {});
+      addMessage(
+        `🕊️ Your mediation ended the skirmish between ${def1.icon} ${def1.name} and ${def2.icon} ${def2.name}. Earned ${MEDIATE_GOLD_REWARD} gold!`,
+        'diplomacy',
+      );
+      emit(Events.BORDER_SKIRMISH, { type: 'mediated', empire1Id: sk.empire1Id, empire2Id: sk.empire2Id });
+      // Prestige award is handled in main.js via BORDER_SKIRMISH event listener
+    } else {
+      // Natural resolution — one side wins
+      const winnerDef = Math.random() < 0.5 ? def1 : def2;
+      addMessage(
+        `⚔️ The border skirmish between ${def1.icon} ${def1.name} and ${def2.icon} ${def2.name} has ended. ${winnerDef.icon} ${winnerDef.name} holds the border.`,
+        'info',
+      );
+      emit(Events.BORDER_SKIRMISH, { type: 'resolved', empire1Id: sk.empire1Id, empire2Id: sk.empire2Id });
+    }
+    emit(Events.DIPLOMACY_CHANGED, { type: 'skirmish-ended' });
+    return;
+  }
+
+  // Spawn new skirmish
+  if (!d.skirmish && state.tick >= d.nextSkirmishTick) {
+    // Pick two empires that aren't allied with each other (and exist)
+    const candidates = d.empires.filter(e => e.relations !== 'war'); // don't add skirmishes during existing wars
+    if (candidates.length < 2) {
+      d.nextSkirmishTick = state.tick + _skirmishInterval();
+      return;
+    }
+    // Pick two distinct candidates
+    const shuffled = [...candidates].sort(() => Math.random() - 0.5);
+    const [emp1, emp2] = shuffled;
+    const def1 = EMPIRES[emp1.id];
+    const def2 = EMPIRES[emp2.id];
+
+    const duration = SKIRMISH_DURATION_MIN +
+      Math.floor(Math.random() * (SKIRMISH_DURATION_MAX - SKIRMISH_DURATION_MIN));
+
+    d.skirmish = {
+      empire1Id: emp1.id,
+      empire2Id: emp2.id,
+      startedAt: state.tick,
+      endsAt:    state.tick + duration,
+    };
+
+    _logDiplomacy(null, 'skirmish',
+      `Border skirmish erupted between ${def1.name} and ${def2.name}`);
+    addMessage(
+      `⚔️ Border skirmish! ${def1.icon} ${def1.name} and ${def2.icon} ${def2.name} clash at the frontier. Both empires are weakened — exploit the opportunity!`,
+      'raid',
+    );
+    emit(Events.BORDER_SKIRMISH, { type: 'started', empire1Id: emp1.id, empire2Id: emp2.id });
+    emit(Events.DIPLOMACY_CHANGED, { type: 'skirmish-started' });
+  }
 }
 
 /**

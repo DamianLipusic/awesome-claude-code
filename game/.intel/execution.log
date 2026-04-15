@@ -1427,3 +1427,41 @@ All prior tasks (T001–T082) were complete. Created two new Phase 28 features: 
 - `src/systems/achievements.js`: Added 10 new achievement definitions to ACHIEVEMENTS: `siege_repelled` (🛡️ Wall of Steel), `all_relics` (🏺 Relic Hunter), `prestige_1000` (✨ Prestigious), `elite_unit` (★ Battle-Forged), `weathered` (❄️ Weathered the Storm), `treasury` (🏦 Full Treasury), `speed_builder` (⚡ Speed of Progress), `veteran_army` (🎖️ Veteran Corps), `mercenary_lord` (💼 Mercenary Lord), `decree_master` (📜 Supreme Commander). Added module-level vars `_lastWeatherType` + `_decreesUsed` (reset in `initAchievements`). New listeners: `BARBARIAN_SIEGE` (repelled→unlock siege_repelled), `RELIC_DISCOVERED` (all_relics check), `PRESTIGE_CHANGED` (prestige_1000 check), `WEATHER_CHANGED` (track last weather type; snowstorm cleared + morale > 0 → unlock weathered), `DECREE_USED` (add id to _decreesUsed set → decree_master check). Extended existing listeners: `UNIT_CHANGED` now also checks veteran_army + mercenary_lord; `MAP_CHANGED` checks veteran_army + elite_unit; `AGE_CHANGED` checks speed_builder; `RESOURCE_CHANGED` checks treasury. Added 10 `_predicate` cases: event-gated predicates return `true`; all_relics checks full `RELIC_ORDER` coverage; prestige_1000 checks score ≥ 1000; elite_unit checks any `unitRanks` === 'elite'; treasury checks all 6 resources ≥ 80% cap; speed_builder checks `age >= 1 && tick <= 1920`; veteran_army counts ranked units ≥ 3; mercenary_lord checks `totalHired >= 3`; decree_master checks all 5 DECREES IDs in `_decreesUsed`. Added imports: `RELIC_ORDER` from relics.js, `DECREES` from decrees.js.
 - `src/systems/mercenaries.js`: Added `totalHired: 0` to initial `state.mercenaries` struct; migration guard in `initMercenaries()`; incremented `m.totalHired` in `hireMercenary()`.
 - `src/ui/summaryPanel.js`: `TOTAL_ACHIEVEMENTS` updated 15 → 25 to keep progress bar denominator accurate.
+
+---
+
+## 2026-04-15 — Session N+17
+
+**Tasks completed:** T087, T088
+
+**Summary:**
+All prior tasks (T001–T086) were complete. Created two new Phase 9 features: a wandering merchant event system with periodic random item offers (T087), and a border skirmish system where AI empires clash with each other creating diplomatic exploitation opportunities for the player (T088).
+
+**T087 — Wandering Merchant Events:**
+
+**Files modified/created:**
+- `game/src/systems/merchant.js` (new): ITEM_POOL of 11 item types covering resource bundles (food/wood/stone/iron/mana), ancient tome (−90s research), morale elixir (+20 morale), war horn (+2 war banner charges), surveyor's map (reveal 10 fog tiles), mercenary band (4 instant infantry), and gold_stash (barter: 80 food+80 wood → 400 gold). `initMerchant()` idempotent init; `merchantTick()` spawns offer every 8–12 min, expires after 90s; `buyMerchantItem(idx)` validates affordability (gold or barter cost), deducts resources, applies effect, closes offer; `merchantSecsLeft()`/`merchantNextVisitSecs()`/`canAffordItem()` helpers.
+- `game/src/core/events.js`: Added `MERCHANT_CHANGED` event constant.
+- `game/src/core/state.js`: Added `merchant: null` field to static object and `initState()` reset.
+- `game/src/ui/marketPanel.js`: Imported merchant functions; added `MERCHANT_CHANGED` subscription + `TICK` refresh guard; `_merchantSection()` renders `.merchant-section--active` with 3 item cards (icon/title/cost/desc + Purchase btn) and 90s countdown timer when active, or next-visit countdown when absent; injected before `_contractsSection()`; handles `merchant-buy` data-action.
+- `game/src/main.js`: Imported `initMerchant`+`merchantTick`; `registerSystem(merchantTick)`; `initMerchant()` in boot+`_newGame`; `merchant` saved+loaded; save version bumped 29→30.
+- `game/styles/main.css`: `.merchant-section` (purple `#9f7aea` border-left), `--active` pulse keyframe animation, `.merchant-items` grid (auto-fill 160px), `.merchant-item`/`--poor` cards, `.merchant-item__header/__icon/__title/__cost/__desc`, `.btn--merchant-buy` (purple hover), `.merchant-waiting`, mobile single-column.
+
+**T088 — Border Skirmishes (AI vs AI conflicts):**
+
+**Files modified:**
+- `game/src/systems/diplomacy.js`: Added `SKIRMISH_INTERVAL_MIN/MAX` (15–20 min), `SKIRMISH_DURATION_MIN/MAX` (3–5 min); exported `SKIRMISH_ATTACK_BONUS=0.20`, `MEDIATE_MIN_ALLIANCES=2`, `MEDIATE_GOLD_REWARD=150`, `MEDIATE_PRESTIGE=50`. `initDiplomacy()` updated to add `skirmish:null` and `nextSkirmishTick` to `state.diplomacy`; migration guards for older saves. `diplomacyTick()` now calls `_skirmishTick()`. `_skirmishTick()`: on expiry emits `BORDER_SKIRMISH{mediated/resolved}`, awards gold on mediation, logs messages, schedules next interval; on spawn picks 2 random non-war empires, creates skirmish object with `empire1Id/empire2Id/startedAt/endsAt`, fires announcement message. Exported API: `isSkirmishActive()`, `getSkirmish()`, `skirmishSecsLeft()`, `mediateSkirmish()` (validates 2 alliances, sets `sk.endsAt=tick`), `isEmpireInSkirmish(empireId)`. `_skirmishInterval()` private helper.
+- `game/src/core/events.js`: Added `BORDER_SKIRMISH` event constant.
+- `game/src/systems/combat.js`: Imported `isEmpireInSkirmish`+`SKIRMISH_ATTACK_BONUS`; `getAttackPreview()`: skirmish bonus check before return (winChance+0.20 capped at 0.9 when tile.owner in skirmish; returns `skirmishBonus` field); `attackTile()`: same winChance boost + `addMessage('⚔️ Skirmish distraction: +20% attack advantage!', 'info')`.
+- `game/src/ui/diplomacyPanel.js`: Imported new skirmish exports; `BORDER_SKIRMISH` listener + `isSkirmishActive()` check in TICK throttle; `_skirmishBanner()` renders `.skirmish-banner` with header/countdown/desc/mediate button; `_empireCard()` shows `dipl-badge--skirmish` badge on skirmishing empires; `mediateSkirmish` case in `_onClick()`.
+- `game/src/main.js`: Imported `MEDIATE_PRESTIGE`; added `BORDER_SKIRMISH` listener calling `awardPrestige(MEDIATE_PRESTIGE, 'skirmish mediation')` on mediated events.
+- `game/styles/main.css`: `.skirmish-banner` (orange `#fc814a` border-left + pulse animation), `.skirmish-banner__header/__title/__timer/__desc/__actions`, `.btn--mediate` (green border/hover), `.skirmish-mediated`, `.dipl-badge--skirmish` (orange pill badge).
+
+**Architecture decisions:**
+- Merchant offer is limited to ONE purchase per visit (not one item per type) — this creates meaningful choice between the 3 random offers presented.
+- The `gold_stash` item uses barter (food+wood) rather than gold to avoid trivially cheap gold-for-gold trades; barter cost is displayed as `costNote` in the UI.
+- Merchant appears in the market panel regardless of whether Market building is built (the merchant is "wandering" and independent of the player's infrastructure).
+- Border skirmishes only spawn between empires not already at war (to avoid double-penalising empires already flagged `war`); they pick any 2 candidates from the full 3-empire pool.
+- Skirmish state lives inside `state.diplomacy` (no new top-level field) — automatically included in the existing `state.diplomacy` save payload. Migration guards handle older saves.
+- Mediation sets `sk.endsAt = state.tick` so `_skirmishTick()` resolves it on the same tick as the player action — no separate "complete mediation" state needed.
+- Gold reward for mediation is applied inside `_skirmishTick` (on the resolved event) to keep effect co-located with the resolution logic; prestige is awarded in main.js via the `BORDER_SKIRMISH` event listener (same pattern as other prestige awards).
