@@ -8,6 +8,7 @@
 import { on, Events } from '../core/events.js';
 import { state } from '../core/state.js';
 import { buyPrice, sellPrice, buyResources, sellResources, MARKET_RESOURCES } from '../systems/market.js';
+import { acceptContract, cancelContract, contractProgress, contractSecsLeft, contractsRefreshSecs } from '../systems/contracts.js';
 import { fmtNum } from '../utils/fmt.js';
 
 const RESOURCE_ICONS = {
@@ -27,9 +28,17 @@ export function initMarketPanel() {
   _panel = document.getElementById('panel-market');
   if (!_panel) return;
 
-  on(Events.MARKET_CHANGED,   _render);
-  on(Events.BUILDING_CHANGED, _render);
-  on(Events.RESOURCE_CHANGED, _render);
+  on(Events.MARKET_CHANGED,    _render);
+  on(Events.BUILDING_CHANGED,  _render);
+  on(Events.RESOURCE_CHANGED,  _render);
+  on(Events.CONTRACTS_CHANGED, _render);
+
+  // Refresh contract countdown every ~4 ticks (~1 s)
+  let _contractTickCount = 0;
+  on(Events.TICK, () => {
+    if (++_contractTickCount % 4 !== 0) return;
+    if (state.contracts?.active) _render();
+  });
 
   _panel.addEventListener('click', _handleClick);
   _render();
@@ -77,7 +86,8 @@ function _render() {
         <span>Buy</span>
       </div>
       ${rows}
-    </div>`;
+    </div>
+    ${_contractsSection()}`;
 }
 
 function _row(res) {
@@ -111,6 +121,103 @@ function _row(res) {
 }
 
 // ---------------------------------------------------------------------------
+// Contracts section (T085)
+// ---------------------------------------------------------------------------
+
+const RES_ICONS = { food: '🌾', wood: '🪵', stone: '🪨', iron: '⚙️', mana: '✨', gold: '💰' };
+
+function _contractsSection() {
+  const c = state.contracts;
+  if (!c) return '';
+
+  let bodyHtml = '';
+
+  if (c.active) {
+    // Active contract — show progress bar + countdown
+    const pct     = Math.round(contractProgress() * 100);
+    const secsLeft = contractSecsLeft();
+    const deliverStr = Object.entries(c.active.deliver)
+      .map(([r, a]) => `${RES_ICONS[r] ?? r}${a}`)
+      .join(' + ');
+    const rewardStr = Object.entries(c.active.reward)
+      .map(([r, a]) => `${RES_ICONS[r] ?? r}${a}`)
+      .join(' + ');
+
+    bodyHtml = `
+      <div class="contract-active">
+        <div class="contract-active__header">
+          <span class="contract-active__icon">${c.active.icon}</span>
+          <span class="contract-active__title">${c.active.title}</span>
+          <span class="contract-active__timer">${secsLeft}s remaining</span>
+        </div>
+        <div class="contract-active__sub">
+          Delivering ${deliverStr} → Reward: ${rewardStr}
+        </div>
+        <div class="contract-bar-outer">
+          <div class="contract-bar-fill" style="width:${pct}%"></div>
+        </div>
+        <button class="btn btn--xs btn--contract-cancel" data-action="cancel-contract">
+          Cancel (forfeits resources)
+        </button>
+      </div>`;
+  } else if (c.available.length > 0) {
+    // Offer cards
+    const cards = c.available.map((offer, idx) => {
+      const deliverStr = Object.entries(offer.deliver)
+        .map(([r, a]) => `${RES_ICONS[r] ?? r} ${a} ${r}`)
+        .join(' + ');
+      const rewardStr = Object.entries(offer.reward)
+        .map(([r, a]) => `${RES_ICONS[r] ?? r} ${a} ${r}`)
+        .join(' + ');
+
+      // Check affordability
+      const affordable = Object.entries(offer.deliver)
+        .every(([r, a]) => (state.resources[r] ?? 0) >= a);
+
+      return `
+        <div class="contract-offer">
+          <div class="contract-offer__header">
+            <span class="contract-offer__icon">${offer.icon}</span>
+            <span class="contract-offer__title">${offer.title}</span>
+          </div>
+          <div class="contract-offer__deliver">Deliver: <strong>${deliverStr}</strong></div>
+          <div class="contract-offer__reward">Reward: <strong>${rewardStr}</strong> + 20 ✨ prestige</div>
+          <div class="contract-offer__note">60-second processing · resources deducted immediately</div>
+          <button class="btn btn--sm btn--contract-accept ${affordable ? '' : 'btn--disabled'}"
+            data-action="accept-contract" data-idx="${idx}"
+            ${affordable ? '' : 'disabled'}
+            title="${affordable ? 'Accept this contract' : 'Not enough resources'}">
+            ${affordable ? 'Accept Contract' : 'Insufficient Resources'}
+          </button>
+        </div>`;
+    }).join('');
+
+    bodyHtml = `<div class="contract-offers">${cards}</div>`;
+  } else {
+    // Waiting for refresh
+    const secs = contractsRefreshSecs();
+    const mins  = Math.floor(secs / 60);
+    const s     = secs % 60;
+    const timeStr = secs > 60 ? `${mins}m ${String(s).padStart(2, '0')}s` : `${secs}s`;
+    bodyHtml = `<div class="contract-waiting">
+      <span class="contract-waiting__icon">⏳</span>
+      New contracts available in <strong>${timeStr}</strong>
+    </div>`;
+  }
+
+  const completedStr = c.totalCompleted > 0 ? ` · ${c.totalCompleted} completed` : '';
+
+  return `
+    <div class="contracts-section">
+      <div class="contracts-header">
+        <span class="contracts-title">📋 Delivery Contracts</span>
+        <span class="contracts-meta">One active at a time${completedStr}</span>
+      </div>
+      ${bodyHtml}
+    </div>`;
+}
+
+// ---------------------------------------------------------------------------
 // Click handling
 // ---------------------------------------------------------------------------
 
@@ -127,6 +234,11 @@ function _handleClick(e) {
     result = sellResources(res, amt);
   } else if (action === 'buy') {
     result = buyResources(res, amt);
+  } else if (action === 'accept-contract') {
+    const idx = parseInt(btn.dataset.idx, 10);
+    result = acceptContract(idx);
+  } else if (action === 'cancel-contract') {
+    result = cancelContract();
   }
 
   if (result && !result.ok) {

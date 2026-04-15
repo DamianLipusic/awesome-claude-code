@@ -2,6 +2,43 @@
 
 ---
 
+## 2026-04-15 — Session N+16
+
+**Tasks completed:** T085, T086
+
+**Summary:**
+All prior tasks (T001–T084) were complete. Created two Phase 10 features: a Delivery Contracts system that spawns periodic resource-for-gold contracts in the Market tab (T085), and a Hero Training Expedition system that lets the Champion train in the field for XP and gold rewards (T086).
+
+**T085 — Delivery Contracts System:**
+- `src/systems/contracts.js`: `CONTRACT_POOL` of 8 templates covering all resource types (grain_export/timber_supply/stone_contract/iron_trade/mana_export/mixed_supply/arms_contract/arcane_deal). `initContracts()` idempotent with migration guards. `contractsTick()` spawns 2 offers every 8–10 minutes (1920–2400 ticks) when Market is built and no active contract; checks for completion. `acceptContract(idx)` validates resources, deducts them, starts 60s processing countdown (240 ticks). `cancelContract()` clears active with no refund. `_completeContract()` awards reward resources, increments `totalCompleted`, calls `awardPrestige(20)`, increments `market.totalTrades`, emits `CONTRACTS_CHANGED`. Helper functions: `contractsRefreshSecs()`, `contractProgress()`, `contractSecsLeft()`.
+- `src/ui/marketPanel.js`: Added `CONTRACTS_CHANGED` subscription; TICK handler refreshes every 4 ticks when active. `_contractsSection()` renders: offer cards (affordability-gated, red deliver / green reward labeling, Accept button), active contract progress bar with live countdown and Cancel button, waiting state with refresh timer. `_handleClick` extended for `accept-contract` and `cancel-contract` data-actions.
+- `src/core/events.js`: Added `CONTRACTS_CHANGED` and `HERO_EXPEDITION` event constants.
+- `src/core/state.js`: Added `state.contracts = null` to `initState()`.
+- `src/main.js`: `contractsTick` registered as tick system; `initContracts()` called in boot + `_newGame`; `contracts` field saved/loaded; save version bumped 28→29.
+- `styles/main.css`: `.contracts-section` (top border separator), `.contract-offers` auto-fill grid, `.contract-offer` card (red deliver, green reward), `.contract-active` (green-tinted progress bar), `.btn--contract-accept` (green gradient), `.btn--contract-cancel` (red), `.contract-waiting` dim state; mobile single-column at ≤480px.
+
+**T086 — Hero Training Expedition:**
+- `src/systems/heroSystem.js`: `sendOnExpedition()` validates hero healthy+not on expedition; randomises 2–3 min duration (480–720 ticks); stores `{active, startedAt, endsAt, totalTicks}` in `state.hero.expedition`; logs departure; emits `HERO_CHANGED + HERO_EXPEDITION`. `recallExpedition()` clears expedition with no reward. `heroTick()` checks completion: awards `EXPEDITION_WIN_CREDIT=2` `combatWins`, checks `HERO_SKILL_WIN_INTERVAL` milestone for pending skill offer, 25% chance of 100–200 gold bonus, logs return message, emits events. `expeditionProgress()` uses `startedAt + totalTicks` for accurate fraction (fallback for old saves). `expeditionSecsLeft()` for countdown.
+- `src/systems/combat.js`: Added `_heroOnExpedition()` helper; all hero bonus blocks in `getAttackPreview()` (×2) and `attackTile()` guard with `!_heroOnExpedition()` alongside `!_heroInjured()`; Siege Master check also blocks expedition hero.
+- `src/ui/militaryPanel.js`: Imported heroSystem exports. `_heroActiveSection()` checks `expedition.active` first — renders orange-tinted expedition card with progress bar, countdown, Recall button, and skills section; adds "Send on Training Expedition" button to healthy hero card. `_handleClick` handles `expedition-send` and `expedition-recall` actions. TICK handler adds `h.expedition?.active` to `hasHeroActivity` for countdown refresh.
+- `src/main.js`: `heroTick` registered as tick system; `hero.expedition` migration guard in `_applySave` for older saves without expedition state.
+- `styles/main.css`: `.hero-card--expedition` (orange border+tint), `.hero-card__badge--expedition` (orange pill badge), `.hero-expedition-msg`, `.hero-expedition-bar-outer/fill` (orange gradient), `.hero-expedition-time`, `.btn--expedition-recall` (red cancel), `.btn--expedition-send` (orange).
+
+**Files modified / created:**
+- `game/src/systems/contracts.js` (new)
+- `game/src/systems/heroSystem.js` (new)
+- `game/src/core/events.js`
+- `game/src/core/state.js`
+- `game/src/systems/combat.js`
+- `game/src/ui/marketPanel.js`
+- `game/src/ui/militaryPanel.js`
+- `game/src/main.js`
+- `game/styles/main.css`
+- `game/.intel/tasks.json`
+- `game/.intel/execution.log`
+
+---
+
 ## 2026-04-15 — Session N+15
 
 **Tasks completed:** T081, T082

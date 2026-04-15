@@ -11,6 +11,7 @@
 import { state } from '../core/state.js';
 import { on, Events } from '../core/events.js';
 import { trainUnit, recruitHero, useHeroAbility, setFormation, chooseHeroSkill, addMessage } from '../core/actions.js';
+import { sendOnExpedition, recallExpedition, isOnExpedition, expeditionSecsLeft, expeditionProgress } from '../systems/heroSystem.js';
 import { castSpell, SPELLS, SPELL_ORDER } from '../systems/spells.js';
 import { getMoraleLabel, getMoraleEffect } from '../systems/morale.js';
 import { hireMercenary, mercenarySecsLeft } from '../systems/mercenaries.js';
@@ -74,7 +75,8 @@ export function initMilitaryPanel() {
       h.activeEffects.battleCry ||
       h.activeEffects.inspire > state.tick ||
       h.activeEffects.siege ||
-      h.injured ||   // T082: refresh during injury recovery countdown
+      h.injured ||           // T082: refresh during injury recovery countdown
+      h.expedition?.active || // T086: refresh during expedition countdown
       Object.values(h.abilityCooldowns).some(cd => cd > state.tick)
     );
     const sp = state.spells;
@@ -339,6 +341,37 @@ function _heroActiveSection() {
   const h   = state.hero;
   const now = state.tick;
 
+  // T086: Hero on training expedition
+  if (h.expedition?.active) {
+    const secsLeft = expeditionSecsLeft();
+    const pct      = Math.round(expeditionProgress() * 100);
+    const mins     = Math.floor(secsLeft / 60);
+    const sRem     = secsLeft % 60;
+    const timeStr  = mins > 0 ? `${mins}m ${String(sRem).padStart(2, '0')}s` : `${secsLeft}s`;
+
+    return `<div class="hero-card hero-card--active hero-card--expedition">
+      <div class="hero-card__header">
+        <span class="hero-card__icon">${HERO_DEF.icon}</span>
+        <span class="hero-card__name">${HERO_DEF.name}</span>
+        <span class="hero-card__badge hero-card__badge--expedition">🏕️ On Expedition</span>
+      </div>
+      <div class="hero-expedition-msg">
+        🏕️ Champion is training in the field — unavailable for combat.
+        Returns with +2 combat victories and a chance of gold.
+      </div>
+      <div class="hero-expedition-wrap">
+        <div class="hero-expedition-bar-outer">
+          <div class="hero-expedition-bar-fill" style="width:${pct}%"></div>
+        </div>
+        <div class="hero-expedition-time">Returns in ${timeStr}</div>
+      </div>
+      <button class="btn btn--xs btn--expedition-recall" data-action="expedition-recall">
+        Recall (no reward)
+      </button>
+      ${_heroSkillsSection()}
+    </div>`;
+  }
+
   // T082: Hero injury recovery display
   if (h.injured && now < (h.recoveryUntil ?? 0)) {
     const totalRecovery = 1200; // HERO_RECOVERY_TICKS (mirrors combat.js constant)
@@ -416,6 +449,10 @@ function _heroActiveSection() {
     </div>
     <div class="hero-card__stats">⚔ +${HERO_DEF.attack} combat power &nbsp; Upkeep: ${upkeepStr}</div>
     <div class="hero-abilities">${abilities}</div>
+    <button class="btn btn--xs btn--expedition-send" data-action="expedition-send"
+      title="Send Champion on a 2–3 min training expedition. Returns with +2 combat wins and a chance of gold.">
+      🏕️ Send on Training Expedition
+    </button>
     ${_heroSkillsSection()}
   </div>`;
 }
@@ -696,6 +733,12 @@ function _handleClick(e) {
     if (!result.ok) addMessage(result.reason, 'info');
   } else if (actionBtn.dataset.action === 'hero-ability') {
     const result = useHeroAbility(actionBtn.dataset.ability);
+    if (!result.ok) addMessage(result.reason, 'info');
+  } else if (actionBtn.dataset.action === 'expedition-send') {
+    const result = sendOnExpedition();
+    if (!result.ok) addMessage(result.reason, 'info');
+  } else if (actionBtn.dataset.action === 'expedition-recall') {
+    const result = recallExpedition();
     if (!result.ok) addMessage(result.reason, 'info');
   }
 }

@@ -269,5 +269,6 @@ export function initState(empireName = 'My Empire') {
   state.weather         = null;
   state.prestige        = null;
   state.decrees         = null;
+  state.contracts       = null;  // T085: delivery contracts
   // Note: state.archetype is NOT reset here — it persists across new games
 }

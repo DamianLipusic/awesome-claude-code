@@ -30,6 +30,8 @@ import { initMercenaries, mercenaryTick } from './systems/mercenaries.js';
 import { initWeather, weatherTick, getCurrentWeather, getWeatherSecsLeft } from './systems/weather.js';
 import { initPrestige, awardPrestige, getPrestigeScore } from './systems/prestige.js';
 import { initDecrees, decreesTick } from './systems/decrees.js';
+import { initContracts, contractsTick } from './systems/contracts.js';
+import { heroTick } from './systems/heroSystem.js';
 import { SEASONS } from './data/seasons.js';
 import { AGES } from './data/ages.js';
 import { BUILDINGS } from './data/buildings.js';
@@ -103,6 +105,8 @@ function boot() {
   registerSystem(mercenaryTick);
   registerSystem(weatherTick);
   registerSystem(decreesTick);
+  registerSystem(contractsTick);  // T085: delivery contracts
+  registerSystem(heroTick);        // T086: hero expedition tick
 
   // Init event-driven systems
   initRandomEvents();
@@ -126,6 +130,7 @@ function boot() {
   initWeather();
   initPrestige();
   initDecrees();
+  initContracts();  // T085: delivery contracts
 
   // Init UI
   initHUD();
@@ -242,7 +247,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 28,
+      version: 29,
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -291,6 +296,7 @@ function _save() {
         weather:          state.weather          ?? null,
         prestige:         state.prestige         ?? null,
         decrees:          state.decrees          ?? null,
+        contracts:        state.contracts        ?? null,  // T085
         tick:          state.tick,
       }
     }));
@@ -361,6 +367,11 @@ function _applySave(save) {
   state.weather          = s.weather          ?? null;
   state.prestige         = s.prestige         ?? null;
   state.decrees          = s.decrees          ?? null;
+  state.contracts        = s.contracts        ?? null;  // T085
+  // T086: migrate older saves — ensure hero.expedition exists
+  if (state.hero?.recruited && !state.hero.expedition) {
+    state.hero.expedition = { active: false, endsAt: 0 };
+  }
   state.tick             = s.tick             ?? 0;
   recalcRates();
 
@@ -574,6 +585,7 @@ function _newGame(opts = {}) {
   initWeather();
   initPrestige();
   initDecrees();
+  initContracts();  // T085
   recalcRates();
   startLoop();  // restart loop in case it was stopped by game-over
   _syncPauseUI();  // ensure pause overlay is hidden on new game

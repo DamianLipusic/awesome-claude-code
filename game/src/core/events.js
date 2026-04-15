@@ -66,4 +66,6 @@ export const Events = Object.freeze({
   BARBARIAN_SIEGE:      'barbarianSiege',   // T079: siege warning / resolved / repelled / struck
   PRESTIGE_CHANGED:     'prestigeChanged',  // T080: prestige score updated
   DECREE_USED:          'decreeUsed',       // T083: decree activated or expired
+  CONTRACTS_CHANGED:    'contractsChanged', // T085: delivery contract offers spawned / accepted / completed
+  HERO_EXPEDITION:      'heroExpedition',   // T086: hero departed on / returned from training expedition
 });

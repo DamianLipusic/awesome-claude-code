@@ -54,6 +54,14 @@ function _heroInjured() {
   return true;
 }
 
+/**
+ * T086: Returns true if the hero is currently away on a training expedition.
+ * Hero contributes no combat bonus while on expedition.
+ */
+function _heroOnExpedition() {
+  return !!(state.hero?.recruited && state.hero.expedition?.active);
+}
+
 // Formation attack multipliers (T052)
 const FORMATION_ATTACK = { defensive: 0.85, balanced: 1.0, aggressive: 1.25 };
 
@@ -163,8 +171,8 @@ export function getAttackPreview(x, y) {
     attackPower *= 1.40;
   }
 
-  // T082: skip hero bonuses if hero is injured (auto-recover if time elapsed)
-  if (state.hero?.recruited && !_heroInjured()) {
+  // T082/T086: skip hero bonuses if hero is injured or on expedition
+  if (state.hero?.recruited && !_heroInjured() && !_heroOnExpedition()) {
     attackPower += HERO_DEF.attack;
     // T070: hero skills — attack bonus + combat multiplier
     const skillAtk  = heroSkillBonus(state.hero.skills ?? [], 'attackBonus');
@@ -179,7 +187,7 @@ export function getAttackPreview(x, y) {
   attackPower         *= terrainMod.attackMult;
   const effectiveDefense = (tile.defense ?? 0) * terrainMod.defMult;
 
-  const heroReady      = state.hero?.recruited && !_heroInjured();
+  const heroReady      = state.hero?.recruited && !_heroInjured() && !_heroOnExpedition();
   const siegeActive    = !!(heroReady && state.hero.activeEffects?.siege);
   const manaBoltActive = !!(state.spells?.activeEffects?.manaBolt);
   const heroInjured    = !!(state.hero?.recruited && state.hero.injured);
@@ -273,8 +281,8 @@ export function attackTile(x, y) {
   }
 
   // Hero bonus: flat attack power + skills + Battle Cry (×2) on next attack
-  // T082: skip all hero bonuses if the hero is currently injured
-  if (state.hero?.recruited && !_heroInjured()) {
+  // T082/T086: skip all hero bonuses if the hero is injured or on expedition
+  if (state.hero?.recruited && !_heroInjured() && !_heroOnExpedition()) {
     attackPower += HERO_DEF.attack;
     // T070: hero skills — attack bonus + combat multiplier
     const skillAtk  = heroSkillBonus(state.hero.skills ?? [], 'attackBonus');
@@ -295,10 +303,10 @@ export function attackTile(x, y) {
 
   // ── Probabilistic resolution ─────────────────────────────────────────────
   // Siege Master: guaranteed victory this attack, ignores tile defense
-  // T082: Siege Master is unavailable while the hero is injured
+  // T082/T086: Siege Master is unavailable while the hero is injured or on expedition
   let siegeActive = false;
   let defense = tile.defense;
-  if (state.hero?.recruited && !state.hero.injured && state.hero.activeEffects?.siege) {
+  if (state.hero?.recruited && !state.hero.injured && !_heroOnExpedition() && state.hero.activeEffects?.siege) {
     siegeActive = true;
     defense = 0;
     state.hero.activeEffects.siege = false;

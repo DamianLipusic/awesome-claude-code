@@ -5279,3 +5279,241 @@ kbd {
 @media (max-width: 480px) {
   .decree-grid { grid-template-columns: 1fr; }
 }
+
+/* ── T085: Delivery Contracts ─────────────────────────────────────────────── */
+
+.contracts-section {
+  margin-top: 20px;
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+}
+
+.contracts-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.contracts-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.contracts-meta {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.contract-offers {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 10px;
+}
+
+.contract-offer {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.contract-offer__header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.contract-offer__icon { font-size: 16px; }
+
+.contract-offer__deliver {
+  font-size: 12px;
+  color: var(--red, #e53e3e);
+}
+
+.contract-offer__reward {
+  font-size: 12px;
+  color: var(--green, #48bb78);
+}
+
+.contract-offer__note {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.btn--contract-accept {
+  margin-top: 4px;
+  background: linear-gradient(135deg, #0a3a1a, #08301a);
+  color: #68d391;
+  border-color: #276749;
+  font-size: 12px;
+}
+
+.btn--contract-accept:hover:not(.btn--disabled) {
+  background: linear-gradient(135deg, #145a2a, #10481a);
+  border-color: #38a169;
+  color: #9ae6b4;
+}
+
+/* Active contract progress */
+
+.contract-active {
+  background: var(--bg-card);
+  border: 1px solid rgba(104, 211, 145, 0.35);
+  border-radius: 6px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.contract-active__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.contract-active__icon { font-size: 16px; }
+
+.contract-active__title {
+  font-weight: 700;
+  font-size: 13px;
+  flex: 1;
+}
+
+.contract-active__timer {
+  font-size: 12px;
+  color: var(--accent-h);
+  font-weight: 600;
+}
+
+.contract-active__sub {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.contract-bar-outer {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.contract-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #276749, #68d391);
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+
+.btn--contract-cancel {
+  align-self: flex-start;
+  background: rgba(229, 62, 62, 0.1);
+  border-color: rgba(229, 62, 62, 0.3);
+  color: #fc8181;
+  font-size: 11px;
+}
+
+.btn--contract-cancel:hover {
+  background: rgba(229, 62, 62, 0.2);
+  border-color: rgba(229, 62, 62, 0.55);
+}
+
+/* Waiting for next offer */
+
+.contract-waiting {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-dim);
+  padding: 10px 0;
+}
+
+.contract-waiting__icon { font-size: 18px; }
+
+@media (max-width: 480px) {
+  .contract-offers { grid-template-columns: 1fr; }
+}
+
+/* ── T086: Hero Training Expedition ──────────────────────────────────────── */
+
+.hero-card--expedition {
+  border-color: rgba(237, 137, 54, 0.5);
+  background: rgba(237, 137, 54, 0.06);
+}
+
+.hero-card__badge--expedition {
+  background: rgba(237, 137, 54, 0.2);
+  border: 1px solid rgba(237, 137, 54, 0.4);
+  color: #f6ad55;
+  font-size: 11px;
+  padding: 2px 7px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.hero-expedition-msg {
+  font-size: 12px;
+  color: #f6ad55;
+  line-height: 1.4;
+}
+
+.hero-expedition-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hero-expedition-bar-outer {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.hero-expedition-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #c05621, #f6ad55);
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+
+.hero-expedition-time {
+  font-size: 11px;
+  color: var(--text-dim);
+  text-align: right;
+}
+
+.btn--expedition-recall {
+  align-self: flex-start;
+  background: rgba(229, 62, 62, 0.1);
+  border-color: rgba(229, 62, 62, 0.3);
+  color: #fc8181;
+  font-size: 11px;
+}
+
+.btn--expedition-recall:hover {
+  background: rgba(229, 62, 62, 0.2);
+  border-color: rgba(229, 62, 62, 0.55);
+}
+
+.btn--expedition-send {
+  background: rgba(237, 137, 54, 0.12);
+  border-color: rgba(237, 137, 54, 0.35);
+  color: #f6ad55;
+  font-size: 11px;
+  margin-top: 4px;
+}
+
+.btn--expedition-send:hover:not(.btn--disabled) {
+  background: rgba(237, 137, 54, 0.22);
+  border-color: rgba(237, 137, 54, 0.6);
+  color: #fbd38d;
+}
