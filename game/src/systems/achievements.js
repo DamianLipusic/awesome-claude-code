@@ -13,6 +13,8 @@ import { state } from '../core/state.js';
 import { on, emit, Events } from '../core/events.js';
 import { addMessage } from '../core/actions.js';
 import { BUILDINGS } from '../data/buildings.js';
+import { RELIC_ORDER } from '../data/relics.js';
+import { DECREES } from '../data/decrees.js';
 
 const STORAGE_KEY = 'empireos-achievements';
 
@@ -96,6 +98,59 @@ export const ACHIEVEMENTS = Object.freeze({
     title: 'Against All Odds',
     desc:  'Receive a starvation warning and survive without losing.',
   },
+
+  // ── T084: 10 new late-game achievements ────────────────────────────────────
+
+  siege_repelled: {
+    icon:  '🛡️',
+    title: 'Wall of Steel',
+    desc:  'Successfully repel a Barbarian Grand Siege.',
+  },
+  all_relics: {
+    icon:  '🏺',
+    title: 'Relic Hunter',
+    desc:  'Discover all 6 ancient relics.',
+  },
+  prestige_1000: {
+    icon:  '✨',
+    title: 'Prestigious',
+    desc:  'Accumulate 1,000 Empire Prestige points.',
+  },
+  elite_unit: {
+    icon:  '★',
+    title: 'Battle-Forged',
+    desc:  'Promote a unit type to Elite rank through combat.',
+  },
+  weathered: {
+    icon:  '❄️',
+    title: 'Weathered the Storm',
+    desc:  'Survive a Snowstorm with morale above zero.',
+  },
+  treasury: {
+    icon:  '🏦',
+    title: 'Full Treasury',
+    desc:  'Have all 6 resources at or above 80% of their capacity at the same time.',
+  },
+  speed_builder: {
+    icon:  '⚡',
+    title: 'Speed of Progress',
+    desc:  'Advance to the Bronze Age within 8 minutes of starting a new game.',
+  },
+  veteran_army: {
+    icon:  '🎖️',
+    title: 'Veteran Corps',
+    desc:  'Field 3 or more veteran or elite unit types simultaneously.',
+  },
+  mercenary_lord: {
+    icon:  '💼',
+    title: 'Mercenary Lord',
+    desc:  'Hire 3 mercenaries in a single game.',
+  },
+  decree_master: {
+    icon:  '📜',
+    title: 'Supreme Commander',
+    desc:  'Use all 5 Empire Decrees at least once in a single session.',
+  },
 });
 
 // ---------------------------------------------------------------------------
@@ -108,6 +163,10 @@ let _unlocked = new Set();
 let _sawStarvationWarning = false;
 // Registered render callback set by settingsPanel
 let _renderer = null;
+// T084: track the weather type before it cleared (for weathered achievement)
+let _lastWeatherType = null;
+// T084: set of decree IDs used this session (for decree_master achievement)
+let _decreesUsed = new Set();
 
 // ---------------------------------------------------------------------------
 // Public API
@@ -140,6 +199,8 @@ export function loadAchievements() {
  */
 export function initAchievements() {
   _sawStarvationWarning = false;
+  _lastWeatherType      = null;
+  _decreesUsed          = new Set();
 
   // Rebuild in-memory set
   const saved = loadAchievements();
@@ -157,6 +218,8 @@ export function initAchievements() {
   // Unit events
   on(Events.UNIT_CHANGED, () => {
     _checkAndUnlock('warlord');
+    _checkAndUnlock('veteran_army');    // T084
+    _checkAndUnlock('mercenary_lord'); // T084
   });
 
   // Tech events
@@ -168,11 +231,14 @@ export function initAchievements() {
   on(Events.AGE_CHANGED, () => {
     _checkAndUnlock('bronze_dawn');
     _checkAndUnlock('medieval');
+    _checkAndUnlock('speed_builder'); // T084
   });
 
   // Map / territory events
   on(Events.MAP_CHANGED, () => {
     _checkAndUnlock('conqueror');
+    _checkAndUnlock('veteran_army');  // T084: unit ranks promoted on combat wins
+    _checkAndUnlock('elite_unit');    // T084
   });
 
   // Diplomacy events
@@ -195,17 +261,15 @@ export function initAchievements() {
     _checkAndUnlock('trader');
   });
 
-  // Resource events (for millionaire check)
+  // Resource events (for millionaire + treasury checks)
   on(Events.RESOURCE_CHANGED, () => {
     _checkAndUnlock('millionaire');
+    _checkAndUnlock('treasury');  // T084
   });
 
   // Game over (victory)
   on(Events.GAME_OVER, (data) => {
     if (data?.outcome === 'win') _checkAndUnlock('emperor');
-    if (data?.outcome === 'lose') {
-      // Even on death, check if they had the warning (no comeback, but still)
-    }
   });
 
   // Starvation warning detection via message log
@@ -216,6 +280,44 @@ export function initAchievements() {
     // If we saw a warning and now food is positive again, grant comeback
     if (_sawStarvationWarning && (state.resources?.food ?? 0) > 5 && (state.rates?.food ?? 0) >= 0) {
       _checkAndUnlock('comeback');
+    }
+  });
+
+  // T084: Barbarian siege repelled
+  on(Events.BARBARIAN_SIEGE, (data) => {
+    if (data?.type === 'repelled') _checkAndUnlock('siege_repelled');
+  });
+
+  // T084: All relics discovered
+  on(Events.RELIC_DISCOVERED, () => {
+    _checkAndUnlock('all_relics');
+  });
+
+  // T084: Prestige score milestones
+  on(Events.PRESTIGE_CHANGED, () => {
+    _checkAndUnlock('prestige_1000');
+  });
+
+  // T084: Weathered — detect snowstorm expiry with morale > 0
+  on(Events.WEATHER_CHANGED, (data) => {
+    const weatherId = data?.type;   // chosen.id when starting; null when expiring
+    if (weatherId) {
+      // Weather just started — remember its id
+      _lastWeatherType = weatherId;
+    } else {
+      // Weather just ended — grant achievement if it was a snowstorm and morale > 0
+      if (_lastWeatherType === 'snowstorm' && (state.morale ?? 0) > 0) {
+        _checkAndUnlock('weathered');
+      }
+      _lastWeatherType = null;
+    }
+  });
+
+  // T084: Decree master — track which decrees used this session
+  on(Events.DECREE_USED, (data) => {
+    if (data?.phase === 'activated' && data?.id) {
+      _decreesUsed.add(data.id);
+      _checkAndUnlock('decree_master');
     }
   });
 }
@@ -299,6 +401,52 @@ function _predicate(id) {
 
     case 'comeback':
       return _sawStarvationWarning && (s.resources?.food ?? 0) > 5;
+
+    // ── T084: new achievements ──────────────────────────────────────────────
+
+    case 'siege_repelled':
+      // Predicate always true when called — the event IS the trigger
+      return true;
+
+    case 'all_relics': {
+      const discovered = Object.keys(s.relics?.discovered ?? {});
+      return RELIC_ORDER.every(id => discovered.includes(id));
+    }
+
+    case 'prestige_1000':
+      return (s.prestige?.score ?? 0) >= 1000;
+
+    case 'elite_unit':
+      return Object.values(s.unitRanks ?? {}).some(r => r === 'elite');
+
+    case 'weathered':
+      // Predicate always true when called — checked only after snowstorm ends
+      return true;
+
+    case 'treasury': {
+      const keys = ['gold', 'food', 'wood', 'stone', 'iron', 'mana'];
+      return keys.every(r => {
+        const val = s.resources?.[r] ?? 0;
+        const cap = s.caps?.[r] ?? 500;
+        return cap > 0 && val >= cap * 0.80;
+      });
+    }
+
+    case 'speed_builder':
+      // Reached Bronze Age (age >= 1) within first 1920 ticks (8 min)
+      return (s.age ?? 0) >= 1 && (s.tick ?? Infinity) <= 1920;
+
+    case 'veteran_army': {
+      const rankedCount = Object.values(s.unitRanks ?? {})
+        .filter(r => r === 'veteran' || r === 'elite').length;
+      return rankedCount >= 3;
+    }
+
+    case 'mercenary_lord':
+      return (s.mercenaries?.totalHired ?? 0) >= 3;
+
+    case 'decree_master':
+      return DECREES.every(d => _decreesUsed.has(d.id));
 
     default:
       return false;

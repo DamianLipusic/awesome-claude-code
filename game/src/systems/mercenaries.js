@@ -74,7 +74,11 @@ export function initMercenaries() {
     state.mercenaries = {
       current:       null,
       nextOfferTick: _nextSpawnTick(),
+      totalHired:    0,
     };
+  } else {
+    // Migration guard for older saves
+    if (state.mercenaries.totalHired === undefined) state.mercenaries.totalHired = 0;
   }
 }
 
@@ -132,6 +136,7 @@ export function hireMercenary() {
   state.units[unitId]           = (state.units[unitId] ?? 0) + 1;
   m.current                     = null;
   m.nextOfferTick               = _nextSpawnTick();
+  m.totalHired                  = (m.totalHired ?? 0) + 1;
 
   // Upkeep recalc (new unit may consume food/mana)
   recalcRates();

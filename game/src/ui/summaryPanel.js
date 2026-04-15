@@ -31,7 +31,7 @@ import { TICKS_PER_SECOND } from '../core/tick.js';
 import { calcScore, getScoreBreakdown } from '../utils/score.js';
 import { WIN_ECONOMIC_GOLD } from '../systems/victory.js';
 
-const TOTAL_ACHIEVEMENTS = 15;
+const TOTAL_ACHIEVEMENTS = 25;
 
 // Per-resource line colours for the trend chart
 const RES_CHART_COLORS = {
