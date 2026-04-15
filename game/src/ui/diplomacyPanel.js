@@ -12,10 +12,11 @@ import { EMPIRES } from '../data/empires.js';
 import {
   proposeAlliance, openTradeRoute, closeTradeRoute,
   declareWar, proposePeace, demandSurrender,
-  payTribute, demandTribute,
+  payTribute, demandTribute, sendGift,
   ALLIANCE_COST, TRADE_ROUTE_COST, PEACE_COST, MAX_TRADE_ROUTES,
   SURRENDER_COST, WAR_SCORE_THRESHOLD,
   TRIBUTE_COST, TRIBUTE_DEMAND, DEMAND_WARSCORE_MIN,
+  GIFT_SMALL_COST, GIFT_LARGE_COST, GIFT_SMALL_ALLY_CHANCE, GIFT_LARGE_ALLY_CHANCE,
 } from '../systems/diplomacy.js';
 import {
   launchMission, canLaunchMission, espionageCooldownSecs,
@@ -46,10 +47,12 @@ export function initDiplomacyPanel() {
   on(Events.TICK, _throttle(() => {
     const cd = document.getElementById('espionage-cooldown');
     if (cd) _updateCooldownDisplay(cd);
-    const hasCeasefire = state.diplomacy?.empires.some(e => (e.ceasefireTick ?? 0) > state.tick);
+    const hasCeasefire    = state.diplomacy?.empires.some(e => (e.ceasefireTick ?? 0) > state.tick);
     // T076: refresh when allied empires exist (gift countdown ticks down)
-    const hasAllied = state.diplomacy?.empires.some(e => e.relations === 'allied');
-    if (hasCeasefire || hasAllied) {
+    const hasAllied       = state.diplomacy?.empires.some(e => e.relations === 'allied');
+    // T081: refresh while any per-empire gift cooldown is active
+    const hasGiftCooldown = state.diplomacy?.empires.some(e => (e.playerGiftCooldownUntil ?? 0) > state.tick);
+    if (hasCeasefire || hasAllied || hasGiftCooldown) {
       _render(panel);
     }
   }, 4));
@@ -335,6 +338,7 @@ function _empireCard(emp) {
       </div>
       ${tradeHtml}
       ${warScoreHtml}
+      ${_giftRow(emp)}
       <div class="dipl-empire-card__actions">${btns.join('')}</div>
     </div>
   `;
@@ -367,6 +371,57 @@ function _giftTimingHtml(emp) {
   return `<div class="dipl-alliance-gift">
     🎁 Next gift in <strong>${timeStr}</strong>
   </div>`;
+}
+
+// ── T081: Player gift row ────────────────────────────────────────────────────
+
+/**
+ * Renders a "Send Gift" row for neutral and allied empire cards.
+ * Hidden for war-relation empires (gifts are rejected while at war).
+ */
+function _giftRow(emp) {
+  if (emp.relations === 'war') return '';
+
+  const gold      = state.resources?.gold ?? 0;
+  const cdUntil   = emp.playerGiftCooldownUntil ?? 0;
+  const onCd      = cdUntil > state.tick;
+  const secsLeft  = onCd ? Math.ceil((cdUntil - state.tick) / 4) : 0;
+
+  if (onCd) {
+    return `
+      <div class="dipl-gift-row">
+        <span class="dipl-gift-label">🎁 Gift cooldown:</span>
+        <span class="dipl-gift-cd">⏳ ${secsLeft}s</span>
+      </div>`;
+  }
+
+  const smallOk  = gold >= GIFT_SMALL_COST;
+  const largeOk  = gold >= GIFT_LARGE_COST;
+  const smallHint = emp.relations === 'neutral'
+    ? `Small gift (${GIFT_SMALL_COST}💰) — ${Math.round(GIFT_SMALL_ALLY_CHANCE * 100)}% alliance chance`
+    : `Small goodwill gift (${GIFT_SMALL_COST}💰)`;
+  const largeHint = emp.relations === 'neutral'
+    ? `Large gift (${GIFT_LARGE_COST}💰) — ${Math.round(GIFT_LARGE_ALLY_CHANCE * 100)}% alliance chance`
+    : `Large goodwill gift (${GIFT_LARGE_COST}💰)`;
+
+  return `
+    <div class="dipl-gift-row">
+      <span class="dipl-gift-label">🎁 Send Gift:</span>
+      <button
+        class="btn btn--sm btn--gift ${smallOk ? '' : 'btn--disabled'}"
+        data-action="sendGift" data-empire="${emp.id}" data-gift-size="small"
+        ${smallOk ? '' : 'disabled'}
+        title="${smallHint}">
+        Small (${fmtNum(GIFT_SMALL_COST)}💰)
+      </button>
+      <button
+        class="btn btn--sm btn--gift ${largeOk ? '' : 'btn--disabled'}"
+        data-action="sendGift" data-empire="${emp.id}" data-gift-size="large"
+        ${largeOk ? '' : 'disabled'}
+        title="${largeHint}">
+        Large (${fmtNum(GIFT_LARGE_COST)}💰)
+      </button>
+    </div>`;
 }
 
 // ── Click delegation ─────────────────────────────────────────────────────────
@@ -416,6 +471,12 @@ function _onClick(e) {
     case 'spy': {
       const missionId = btn.dataset.mission;
       result = launchMission(missionId, empire);
+      if (!result.ok) addMessageFallback(result.reason);
+      break;
+    }
+    case 'sendGift': {
+      const giftSize = btn.dataset.giftSize ?? 'small';
+      result = sendGift(empire, giftSize);
       if (!result.ok) addMessageFallback(result.reason);
       break;
     }

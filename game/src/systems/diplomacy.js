@@ -58,6 +58,13 @@ export const TRIBUTE_DEMAND        = 60;    // gold received when demanding trib
 export const CEASEFIRE_TICKS       = 120 * TICKS_PER_SECOND; // 120 s
 export const DEMAND_WARSCORE_MIN   = 10;    // warScore needed to demand tribute
 
+// T081: Player-initiated diplomatic gifts
+export const GIFT_SMALL_COST           = 50;    // gold cost of a small gift
+export const GIFT_LARGE_COST           = 150;   // gold cost of a large gift
+export const GIFT_SMALL_ALLY_CHANCE    = 0.30;  // 30% chance neutral→allied on small gift
+export const GIFT_LARGE_ALLY_CHANCE    = 0.70;  // 70% chance neutral→allied on large gift
+const PLAYER_GIFT_COOLDOWN_TICKS       = 120 * TICKS_PER_SECOND; // 30 s cooldown per empire
+
 // ── Public API ─────────────────────────────────────────────────────────────────
 
 /**
@@ -69,13 +76,14 @@ export function initDiplomacy() {
     state.diplomacy = {
       empires: Object.keys(EMPIRES).map(id => ({
         id,
-        relations:       'neutral',
-        tradeRoutes:     0,
-        nextAITick:      state.tick + _aiInterval(),
-        nextWarRaidTick: 0,
-        warScore:        0,   // T058
-        ceasefireTick:   0,   // T067
-        nextGiftTick:    state.tick + _giftInterval(),  // T076
+        relations:              'neutral',
+        tradeRoutes:            0,
+        nextAITick:             state.tick + _aiInterval(),
+        nextWarRaidTick:        0,
+        warScore:               0,   // T058
+        ceasefireTick:          0,   // T067
+        nextGiftTick:           state.tick + _giftInterval(),   // T076
+        playerGiftCooldownUntil: 0,                              // T081
       })),
       history: [],   // T054: diplomatic event log
     };
@@ -93,6 +101,10 @@ export function initDiplomacy() {
   // T076: migrate saves that predate the nextGiftTick field
   for (const emp of state.diplomacy.empires) {
     if (emp.nextGiftTick === undefined) emp.nextGiftTick = state.tick + _giftInterval();
+  }
+  // T081: migrate saves that predate the playerGiftCooldownUntil field
+  for (const emp of state.diplomacy.empires) {
+    if (emp.playerGiftCooldownUntil === undefined) emp.playerGiftCooldownUntil = 0;
   }
 }
 
@@ -304,6 +316,74 @@ export function demandTribute(empireId) {
     `💰 ${def.icon} ${def.name} pays tribute! Received +${TRIBUTE_DEMAND} gold.`,
     'windfall',
   );
+  return { ok: true };
+}
+
+/**
+ * (T081) Player sends a gold gift to a neutral or allied empire.
+ *
+ * Neutral empires:
+ *   small (50g) → 30% chance of immediate alliance; otherwise goodwill logged
+ *   large (150g) → 70% chance of immediate alliance; otherwise goodwill logged
+ * Allied empires:
+ *   Either size → appreciation gift, no gameplay effect (shows goodwill)
+ * War relations: gifts are not accepted — use peace/tribute mechanics instead.
+ *
+ * A 30-second per-empire cooldown prevents gift spam.
+ */
+export function sendGift(empireId, size = 'small') {
+  const emp = _findEmpire(empireId);
+  if (!emp) return { ok: false, reason: 'Unknown empire.' };
+  if (emp.relations === 'war')
+    return { ok: false, reason: 'Enemy empires reject your gifts. Use Peace or Tribute.' };
+
+  const cost   = size === 'large' ? GIFT_LARGE_COST : GIFT_SMALL_COST;
+  const chance = size === 'large' ? GIFT_LARGE_ALLY_CHANCE : GIFT_SMALL_ALLY_CHANCE;
+
+  // Cooldown check
+  const cdUntil = emp.playerGiftCooldownUntil ?? 0;
+  if (cdUntil > state.tick) {
+    const secsLeft = Math.ceil((cdUntil - state.tick) / TICKS_PER_SECOND);
+    return { ok: false, reason: `Gift on cooldown — ${secsLeft}s remaining.` };
+  }
+
+  if ((state.resources.gold ?? 0) < cost)
+    return { ok: false, reason: `Need ${cost} gold.` };
+
+  const def = EMPIRES[empireId];
+  state.resources.gold -= cost;
+  emp.playerGiftCooldownUntil = state.tick + PLAYER_GIFT_COOLDOWN_TICKS;
+
+  if (emp.relations === 'neutral') {
+    if (Math.random() < chance) {
+      // Gift accepted — empire proposes alliance
+      emp.relations = 'allied';
+      recalcRates();
+      emit(Events.DIPLOMACY_CHANGED, { empireId, relations: 'allied' });
+      emit(Events.RESOURCE_CHANGED, {});
+      _logDiplomacy(empireId, 'alliance', `${def.name} was moved by your generosity — alliance formed!`);
+      addMessage(
+        `🎁→🤝 ${def.icon} ${def.name} was delighted by your gifts and proposes an alliance!`,
+        'diplomacy',
+      );
+    } else {
+      // Gift noted but no immediate stance change
+      emit(Events.DIPLOMACY_CHANGED, { empireId });
+      emit(Events.RESOURCE_CHANGED, {});
+      _logDiplomacy(empireId, 'gift', `Sent ${size} gift to ${def.name} — goodwill improved`);
+      addMessage(
+        `🎁 Gifts sent to ${def.icon} ${def.name}. They are pleased but not yet ready to ally.`,
+        'info',
+      );
+    }
+  } else {
+    // Allied — appreciate the gesture
+    emit(Events.DIPLOMACY_CHANGED, { empireId });
+    emit(Events.RESOURCE_CHANGED, {});
+    _logDiplomacy(empireId, 'gift', `Sent appreciation gifts to ${def.name}`);
+    addMessage(`🎁 Appreciation gifts sent to ${def.icon} ${def.name}. Your friendship strengthens.`, 'info');
+  }
+
   return { ok: true };
 }
 

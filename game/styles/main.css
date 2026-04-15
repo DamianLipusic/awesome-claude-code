@@ -5087,3 +5087,87 @@ kbd {
 @media (max-width: 600px) {
   .prestige-badge { display: none !important; }
 }
+
+/* T081: Player diplomatic gift row */
+.dipl-gift-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 6px 0 2px;
+  flex-wrap: wrap;
+}
+
+.dipl-gift-label {
+  font-size: 11px;
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+
+.dipl-gift-cd {
+  font-size: 11px;
+  color: #ecc94b;
+  font-weight: 600;
+}
+
+.btn--gift {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(236, 201, 75, .4);
+  background: rgba(236, 201, 75, .07);
+  color: #ecc94b;
+  cursor: pointer;
+  transition: background .15s, border-color .15s;
+}
+
+.btn--gift:hover:not(:disabled) {
+  background: rgba(236, 201, 75, .18);
+  border-color: rgba(236, 201, 75, .7);
+}
+
+/* T082: Hero injury and recovery */
+.hero-card--injured {
+  border-color: rgba(229, 62, 62, .5) !important;
+  background: rgba(229, 62, 62, .05) !important;
+}
+
+.hero-card__badge--injured {
+  background: rgba(229, 62, 62, .15);
+  color: #fc8181;
+  border: 1px solid rgba(229, 62, 62, .4);
+  border-radius: 10px;
+  padding: 1px 7px;
+  font-size: 11px;
+}
+
+.hero-injured-msg {
+  font-size: 12px;
+  color: #fc8181;
+  margin: 6px 0 8px;
+  line-height: 1.4;
+}
+
+.hero-recovery-wrap {
+  margin: 4px 0 6px;
+}
+
+.hero-recovery-bar-outer {
+  height: 6px;
+  background: rgba(255,255,255,.08);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.hero-recovery-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #fc8181, #68d391);
+  border-radius: 3px;
+  transition: width .5s ease;
+}
+
+.hero-recovery-time {
+  font-size: 11px;
+  color: var(--text-dim);
+  text-align: right;
+}

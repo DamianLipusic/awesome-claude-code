@@ -71,6 +71,7 @@ export function initMilitaryPanel() {
       h.activeEffects.battleCry ||
       h.activeEffects.inspire > state.tick ||
       h.activeEffects.siege ||
+      h.injured ||   // T082: refresh during injury recovery countdown
       Object.values(h.abilityCooldowns).some(cd => cd > state.tick)
     );
     const sp = state.spells;
@@ -331,6 +332,38 @@ function _heroSection() {
 function _heroActiveSection() {
   const h   = state.hero;
   const now = state.tick;
+
+  // T082: Hero injury recovery display
+  if (h.injured && now < (h.recoveryUntil ?? 0)) {
+    const totalRecovery = 1200; // HERO_RECOVERY_TICKS (mirrors combat.js constant)
+    const ticksLeft  = (h.recoveryUntil ?? 0) - now;
+    const secsLeft   = Math.ceil(ticksLeft / 4);
+    const pct        = Math.max(0, Math.min(100, Math.round((1 - ticksLeft / totalRecovery) * 100)));
+    const minsLeft   = Math.floor(secsLeft / 60);
+    const sRem       = secsLeft % 60;
+    const timeStr    = minsLeft > 0
+      ? `${minsLeft}m ${String(sRem).padStart(2, '0')}s`
+      : `${secsLeft}s`;
+
+    return `<div class="hero-card hero-card--active hero-card--injured">
+      <div class="hero-card__header">
+        <span class="hero-card__icon">${HERO_DEF.icon}</span>
+        <span class="hero-card__name">${HERO_DEF.name}</span>
+        <span class="hero-card__badge hero-card__badge--injured">⚕️ Recovering</span>
+      </div>
+      <div class="hero-injured-msg">
+        ⚠️ Champion was wounded in battle and is recovering from injuries.
+        Abilities and combat bonus are unavailable until healed.
+      </div>
+      <div class="hero-recovery-wrap">
+        <div class="hero-recovery-bar-outer">
+          <div class="hero-recovery-bar-fill" style="width:${pct}%"></div>
+        </div>
+        <div class="hero-recovery-time">Returns in ${timeStr}</div>
+      </div>
+      ${_heroSkillsSection()}
+    </div>`;
+  }
 
   const abilities = Object.values(HERO_DEF.abilities).map(ab => {
     const cdExpires = h.abilityCooldowns[ab.id] ?? 0;

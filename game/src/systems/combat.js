@@ -33,6 +33,27 @@ const MAX_HISTORY = 20;
 const VETERAN_XP = 3;
 const ELITE_XP   = 6;
 
+// T082: Hero injury constants
+const HERO_INJURY_CHANCE   = 0.20;   // 20% chance to be injured on defeat
+const HERO_RECOVERY_TICKS  = 1200;   // 5 minutes at 4 ticks/s
+
+/**
+ * T082: Returns true if the hero is currently injured and in recovery.
+ * If recovery time has elapsed, auto-clears the injury, emits HERO_CHANGED,
+ * and logs the recovery message — then returns false.
+ */
+function _heroInjured() {
+  if (!state.hero?.recruited || !state.hero.injured) return false;
+  if (state.tick >= (state.hero.recoveryUntil ?? 0)) {
+    state.hero.injured       = false;
+    state.hero.recoveryUntil = null;
+    addMessage(`⭐ ${HERO_DEF.name} has recovered from injuries and is ready for battle!`, 'hero');
+    emit(Events.HERO_CHANGED, {});
+    return false;
+  }
+  return true;
+}
+
 // Formation attack multipliers (T052)
 const FORMATION_ATTACK = { defensive: 0.85, balanced: 1.0, aggressive: 1.25 };
 
@@ -137,7 +158,8 @@ export function getAttackPreview(x, y) {
   // T072b: age council boon combat attack bonus
   attackPower *= _councilBoonCombatMult();
 
-  if (state.hero?.recruited) {
+  // T082: skip hero bonuses if hero is injured (auto-recover if time elapsed)
+  if (state.hero?.recruited && !_heroInjured()) {
     attackPower += HERO_DEF.attack;
     // T070: hero skills — attack bonus + combat multiplier
     const skillAtk  = heroSkillBonus(state.hero.skills ?? [], 'attackBonus');
@@ -152,8 +174,10 @@ export function getAttackPreview(x, y) {
   attackPower         *= terrainMod.attackMult;
   const effectiveDefense = (tile.defense ?? 0) * terrainMod.defMult;
 
-  const siegeActive    = !!(state.hero?.recruited && state.hero.activeEffects?.siege);
+  const heroReady      = state.hero?.recruited && !_heroInjured();
+  const siegeActive    = !!(heroReady && state.hero.activeEffects?.siege);
   const manaBoltActive = !!(state.spells?.activeEffects?.manaBolt);
+  const heroInjured    = !!(state.hero?.recruited && state.hero.injured);
   const winChance      = (siegeActive || manaBoltActive)
     ? 1.0
     : Math.min(0.9, Math.max(0.1, attackPower / (attackPower + effectiveDefense)));
@@ -170,6 +194,7 @@ export function getAttackPreview(x, y) {
     owner:        tile.owner,
     siegeActive,
     manaBoltActive,
+    heroInjured,
     formation:    state.formation ?? 'balanced',
     morale:       Math.round(state.morale ?? 50),
     militaryMastery: !!(state.masteries?.military),
@@ -237,7 +262,8 @@ export function attackTile(x, y) {
   attackPower *= _councilBoonCombatMult();
 
   // Hero bonus: flat attack power + skills + Battle Cry (×2) on next attack
-  if (state.hero?.recruited) {
+  // T082: skip all hero bonuses if the hero is currently injured
+  if (state.hero?.recruited && !_heroInjured()) {
     attackPower += HERO_DEF.attack;
     // T070: hero skills — attack bonus + combat multiplier
     const skillAtk  = heroSkillBonus(state.hero.skills ?? [], 'attackBonus');
@@ -258,9 +284,10 @@ export function attackTile(x, y) {
 
   // ── Probabilistic resolution ─────────────────────────────────────────────
   // Siege Master: guaranteed victory this attack, ignores tile defense
+  // T082: Siege Master is unavailable while the hero is injured
   let siegeActive = false;
   let defense = tile.defense;
-  if (state.hero?.recruited && state.hero.activeEffects?.siege) {
+  if (state.hero?.recruited && !state.hero.injured && state.hero.activeEffects?.siege) {
     siegeActive = true;
     defense = 0;
     state.hero.activeEffects.siege = false;
@@ -488,12 +515,25 @@ function _defeat(tile, x, y, attackPower, defense) {
   // T057: defeat damages army morale
   changeMorale(MORALE_COMBAT_LOSS);
 
+  // T082: hero injury — 20% chance the hero is knocked out on defeat
+  let heroInjuredMsg = '';
+  if (state.hero?.recruited && !state.hero.injured && Math.random() < HERO_INJURY_CHANCE) {
+    state.hero.injured       = true;
+    state.hero.recoveryUntil = state.tick + HERO_RECOVERY_TICKS;
+    emit(Events.HERO_CHANGED, {});
+    heroInjuredMsg = ` ${HERO_DEF.name} was wounded and needs ${Math.round(HERO_RECOVERY_TICKS / 4 / 60)}m to recover!`;
+    addMessage(
+      `🩹 ${HERO_DEF.icon} ${HERO_DEF.name} was injured in battle! Recovering for 5 minutes.`,
+      'hero',
+    );
+  }
+
   emit(Events.MAP_CHANGED,  { x, y, outcome: 'loss' });
   emit(Events.UNIT_CHANGED, {});
 
   const casualtyStr = lost ? ` Lost 1 ${lost}.` : '';
   addMessage(
-    `Defeated! Enemy held (${x},${y}). Power: ${Math.round(attackPower)} vs ${defense}.${casualtyStr}`,
+    `Defeated! Enemy held (${x},${y}). Power: ${Math.round(attackPower)} vs ${defense}.${casualtyStr}${heroInjuredMsg}`,
     'combat-loss',
   );
   return { ok: true, outcome: 'loss' };

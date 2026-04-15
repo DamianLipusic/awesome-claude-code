@@ -2,6 +2,34 @@
 
 ---
 
+## 2026-04-15 — Session N+15
+
+**Tasks completed:** T081, T082
+
+**Summary:**
+All prior tasks (T001–T080) were complete. Created two Phase 27 features: a player-initiated diplomatic gift system that lets the player spend gold to improve relations with neutral/allied empires (T081), and a hero injury/recovery system where heroes can be knocked out in battle defeats and require 5 minutes to recuperate (T082).
+
+**T081 — Player Diplomatic Gift Sending:**
+- `src/systems/diplomacy.js`: Added `GIFT_SMALL_COST=50`, `GIFT_LARGE_COST=150`, `GIFT_SMALL_ALLY_CHANCE=0.30`, `GIFT_LARGE_ALLY_CHANCE=0.70`, `PLAYER_GIFT_COOLDOWN_TICKS=480` (30s) constants. Added `playerGiftCooldownUntil:0` field to each empire entry in `initDiplomacy()`; migration guard for older saves. `sendGift(empireId, size)` validates: war→rejected; cooldown active→returns remaining seconds; insufficient gold→error; otherwise deducts cost, sets per-empire cooldown. For neutral empires: rolls against chance → immediate alliance on success (emits `DIPLOMACY_CHANGED{allied}`) or goodwill message on failure. For allied empires: appreciation message only.
+- `src/ui/diplomacyPanel.js`: Imported `sendGift` + `GIFT_*` constants. Added `_giftRow(emp)` helper rendering `.dipl-gift-row` with `Small (50💰)` and `Large (150💰)` amber-tinted `.btn--gift` buttons when not on cooldown, or a cooldown countdown badge (`⏳ Xs`) when active. Injected `_giftRow(emp)` into `_empireCard()` between war-score and action buttons. Added `hasGiftCooldown` check to TICK throttle so gift countdown auto-refreshes. Added `sendGift` case to `_onClick()`.
+- `styles/main.css`: `.dipl-gift-row` (flex wrap, 6px gap), `.dipl-gift-label` (dim 11px), `.dipl-gift-cd` (yellow #ecc94b), `.btn--gift` (amber border `rgba(236,201,75,.4)`, bg `.07`, hover tint `.18`).
+
+**T082 — Hero Injury and Recovery:**
+- `src/systems/combat.js`: Added `HERO_INJURY_CHANCE=0.20` and `HERO_RECOVERY_TICKS=1200` (5 min). `_heroInjured()` helper: returns `false` if not injured; if injured and `tick>=recoveryUntil` auto-clears injury + logs recovery + emits `HERO_CHANGED`; otherwise returns `true`. `getAttackPreview()`: hero bonus block now guarded by `!_heroInjured()`; `siegeActive` check also respects injury; returns `heroInjured` field in preview object. `attackTile()`: hero bonus block guarded by `!_heroInjured()`; Siege Master check additionally guarded by `!state.hero.injured`. `_defeat()`: after `changeMorale`, if hero is recruited + not already injured + `Math.random()<0.20`: sets `hero.injured=true`, `hero.recoveryUntil=tick+1200`, emits `HERO_CHANGED`, logs `🩹 Champion was injured in battle!` as `hero`-type message.
+- `src/ui/militaryPanel.js`: `_heroActiveSection()` checks `h.injured && now<recoveryUntil` first — renders `.hero-card--injured` recovery card with red-tinted border, `.hero-injured-msg` warning, `.hero-recovery-wrap` with a `red→green` gradient progress bar (% complete) and time countdown (`Xm XXs`). Falls through to normal hero UI when healthy. TICK handler: added `h.injured` to `hasHeroActivity` check so panel refreshes every 16 ticks during recovery countdown.
+- `styles/main.css`: `.hero-card--injured` (red border + bg tint), `.hero-card__badge--injured` (red pill badge), `.hero-injured-msg` (red 12px text), `.hero-recovery-wrap`/`.hero-recovery-bar-outer`/`.hero-recovery-bar-fill` (gradient red→green, 6px height), `.hero-recovery-time` (dim right-aligned 11px).
+
+**Files modified / created:**
+- `game/src/systems/diplomacy.js`
+- `game/src/ui/diplomacyPanel.js`
+- `game/src/systems/combat.js`
+- `game/src/ui/militaryPanel.js`
+- `game/styles/main.css`
+- `game/.intel/tasks.json`
+- `game/.intel/execution.log`
+
+---
+
 ## 2026-04-14 — Session N+14
 
 **Tasks completed:** T079, T080
