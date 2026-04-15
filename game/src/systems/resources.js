@@ -290,6 +290,12 @@ export function recalcRates() {
   if (pm.includes(3500)) { rates.gold += 2; rates.iron += 1; rates.mana += 1; }
   if (pm.includes(5000)) { for (const r of RESOURCE_KEYS) if (rates[r] > 0) rates[r] *= 1.15; }
 
+  // T083: Empire Decree — Harvest Edict (+40% food + wood while active)
+  if ((state.decrees?.harvestEdictExpires ?? 0) > state.tick) {
+    if (rates.food > 0) rates.food *= 1.40;
+    if (rates.wood > 0) rates.wood *= 1.40;
+  }
+
   Object.assign(state.rates, rates);
   Object.assign(state.caps, caps);
 }

@@ -1365,3 +1365,23 @@ All prior tasks (T001–T068) were complete. Created two Phase 22 features: alte
 - `src/ui/militaryPanel.js`: `_heroSkillsSection()` with chooser UI and active skills list.
 - `src/main.js`: Save version 22→23; hero migration guard.
 - `styles/main.css`: Full hero skills CSS.
+
+---
+
+## 2026-04-15 — Session N+16
+
+**Tasks completed:** T083, T084
+
+**Summary:**
+All prior tasks (T001–T082) were complete. Created two new Phase 28 features: an Empire Decree system giving players 5 strategic one-time abilities with cooldowns (T083), and 10 new achievements covering late-game milestones (T084).
+
+**T083 — Empire Decree System:**
+- `src/data/decrees.js`: DECREES array with 5 entries — `conscription` (5 infantry+3 archers instantly, 200g+30f, 7.5min CD), `emergency_levy` (+200g+100f, −5 morale, 10min CD), `harvest_edict` (+40% food+wood for 120s, 75g, 12min CD), `war_banner` (+40% attack for next 3 battles, 100g+20i, 7.5min CD), `scholars_edict` (−2 min from current research, 150g+50m, 15min CD).
+- `src/systems/decrees.js`: `initDecrees()` idempotent struct guard; `decreesTick()` expires harvest_edict effect + recalcRates + message + DECREE_USED; `canUseDecree(id)` validates cooldown + resources + special guards; `useDecree(id)` deducts cost + sets cooldown + applies effect; `getDecreeSecsLeft()`, `isHarvestEdictActive()`, `getWarBannerCharges()` helpers.
+- `src/core/events.js`: Added `DECREE_USED` event.
+- `src/core/state.js`: Added `decrees: null` field; reset in `initState()`.
+- `src/systems/resources.js`: Added harvest_edict check at end of `recalcRates()` — food+wood rates ×1.40 while active.
+- `src/systems/combat.js`: Added war_banner ×1.40 multiplier in both `getAttackPreview()` and `attackTile()`; charge consumed each battle; message when exhausted; `warBannerCharges` in preview return.
+- `src/main.js`: Imported + registered `decreesTick`; `initDecrees()` in boot + `_newGame`; save/load `state.decrees`; version bumped 27→28.
+- `src/ui/militaryPanel.js`: Imported decree functions + DECREES data; added DECREE_USED listener + tick cooldown check; `_decreesSection()` renders `.decrees-section` with 5 `.decree-card` entries showing status/cost/countdown + Enact button; `_handleClick` use-decree case; `_escHtml` helper added.
+- `styles/main.css`: `.decrees-section` (gold border-left #d69e2e), `.decree-grid` (auto-fill 175px), `.decree-card/--cd`, `.decree-costs`, `.decree-status--ready/active/cd/locked`, `.btn--decree` (amber gradient).

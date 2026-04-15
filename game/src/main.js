@@ -29,6 +29,7 @@ import { initPoliticalEvents, politicalEventTick } from './systems/politicalEven
 import { initMercenaries, mercenaryTick } from './systems/mercenaries.js';
 import { initWeather, weatherTick, getCurrentWeather, getWeatherSecsLeft } from './systems/weather.js';
 import { initPrestige, awardPrestige, getPrestigeScore } from './systems/prestige.js';
+import { initDecrees, decreesTick } from './systems/decrees.js';
 import { SEASONS } from './data/seasons.js';
 import { AGES } from './data/ages.js';
 import { BUILDINGS } from './data/buildings.js';
@@ -101,6 +102,7 @@ function boot() {
   registerSystem(politicalEventTick);
   registerSystem(mercenaryTick);
   registerSystem(weatherTick);
+  registerSystem(decreesTick);
 
   // Init event-driven systems
   initRandomEvents();
@@ -123,6 +125,7 @@ function boot() {
   initMercenaries();
   initWeather();
   initPrestige();
+  initDecrees();
 
   // Init UI
   initHUD();
@@ -239,7 +242,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 27,
+      version: 28,
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -287,6 +290,7 @@ function _save() {
         mercenaries:      state.mercenaries      ?? null,
         weather:          state.weather          ?? null,
         prestige:         state.prestige         ?? null,
+        decrees:          state.decrees          ?? null,
         tick:          state.tick,
       }
     }));
@@ -356,6 +360,7 @@ function _applySave(save) {
   state.mercenaries      = s.mercenaries      ?? null;
   state.weather          = s.weather          ?? null;
   state.prestige         = s.prestige         ?? null;
+  state.decrees          = s.decrees          ?? null;
   state.tick             = s.tick             ?? 0;
   recalcRates();
 
@@ -568,6 +573,7 @@ function _newGame(opts = {}) {
   initMercenaries();
   initWeather();
   initPrestige();
+  initDecrees();
   recalcRates();
   startLoop();  // restart loop in case it was stopped by game-over
   _syncPauseUI();  // ensure pause overlay is hidden on new game

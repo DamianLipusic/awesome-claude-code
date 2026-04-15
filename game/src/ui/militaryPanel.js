@@ -14,6 +14,8 @@ import { trainUnit, recruitHero, useHeroAbility, setFormation, chooseHeroSkill, 
 import { castSpell, SPELLS, SPELL_ORDER } from '../systems/spells.js';
 import { getMoraleLabel, getMoraleEffect } from '../systems/morale.js';
 import { hireMercenary, mercenarySecsLeft } from '../systems/mercenaries.js';
+import { useDecree, canUseDecree, getDecreeSecsLeft, isHarvestEdictActive, getWarBannerCharges } from '../systems/decrees.js';
+import { DECREES } from '../data/decrees.js';
 import { UNITS } from '../data/units.js';
 import { BUILDINGS } from '../data/buildings.js';
 import { TECHS } from '../data/techs.js';
@@ -59,10 +61,11 @@ export function initMilitaryPanel() {
   on(Events.SPELL_CAST,       () => _render(panel));
   on(Events.MORALE_CHANGED,    () => _render(panel));  // T057: re-render on morale change
   on(Events.MERCENARY_CHANGED, () => _render(panel));  // T075: mercenary offer spawned/expired
+  on(Events.DECREE_USED,       () => _render(panel));  // T083: decree activated / expired
   on(Events.RESOURCE_CHANGED,  () => _renderCosts(panel));
   on(Events.GAME_LOADED,       () => _render(panel));
 
-  // Refresh hero/spell cooldown countdowns and mercenary timer every ~4 seconds
+  // Refresh hero/spell cooldown countdowns, mercenary timer, and decree countdowns every ~4 seconds
   let _tickCount = 0;
   on(Events.TICK, () => {
     if (++_tickCount % 16 !== 0) return;
@@ -82,7 +85,9 @@ export function initMilitaryPanel() {
       Object.values(sp.cooldowns).some(cd => cd > state.tick)
     );
     const hasMercOffer = !!state.mercenaries?.current;
-    if (hasHeroActivity || hasSpellActivity || hasMercOffer) _render(panel);
+    const hasDecreeCooldown = state.decrees &&
+      Object.values(state.decrees.cooldowns ?? {}).some(exp => exp > state.tick);
+    if (hasHeroActivity || hasSpellActivity || hasMercOffer || hasDecreeCooldown) _render(panel);
   });
 }
 
@@ -94,6 +99,7 @@ function _render(panel) {
     ${_formationSection()}
     ${_moraleSection()}
     ${_spellsSection()}
+    ${_decreesSection()}
     ${_heroSection()}
     ${_armySection()}
     ${_queueSection()}
@@ -667,6 +673,14 @@ function _handleClick(e) {
     return;
   }
 
+  // T083: use-decree button
+  const decreeBtn = e.target.closest('[data-use-decree]');
+  if (decreeBtn && !decreeBtn.disabled) {
+    const result = useDecree(decreeBtn.dataset.useDecree);
+    if (!result.ok) addMessage(result.reason ?? 'Cannot use decree right now.', 'info');
+    return;
+  }
+
   const actionBtn = e.target.closest('[data-action]');
   if (!actionBtn || actionBtn.disabled) return;
 
@@ -684,6 +698,68 @@ function _handleClick(e) {
     const result = useHeroAbility(actionBtn.dataset.ability);
     if (!result.ok) addMessage(result.reason, 'info');
   }
+}
+
+// ── T083: Empire Decrees section ─────────────────────────────────────────
+
+function _decreesSection() {
+  const cards = DECREES.map(def => {
+    const secsLeft  = getDecreeSecsLeft(def.id);
+    const onCooldown = secsLeft > 0;
+    const check     = canUseDecree(def.id);
+    const canUse    = check.ok;
+
+    // Status line
+    let statusHtml = '';
+    if (onCooldown) {
+      const mins = Math.floor(secsLeft / 60);
+      const secs = secsLeft % 60;
+      const cdStr = mins > 0 ? `${mins}m ${String(secs).padStart(2, '0')}s` : `${secs}s`;
+      statusHtml = `<span class="decree-status decree-status--cd">⏳ Ready in ${cdStr}</span>`;
+    } else if (def.id === 'harvest_edict' && isHarvestEdictActive()) {
+      const expiry  = state.decrees?.harvestEdictExpires ?? 0;
+      const secsFmt = Math.max(0, Math.ceil((expiry - state.tick) / 4));
+      statusHtml = `<span class="decree-status decree-status--active">🌾 Active — ${secsFmt}s left</span>`;
+    } else if (def.id === 'war_banner' && getWarBannerCharges() > 0) {
+      statusHtml = `<span class="decree-status decree-status--active">🚩 ${getWarBannerCharges()} charge(s) left</span>`;
+    } else if (!canUse && !onCooldown) {
+      statusHtml = `<span class="decree-status decree-status--locked">${_escHtml(check.reason)}</span>`;
+    } else {
+      statusHtml = `<span class="decree-status decree-status--ready">✅ Ready</span>`;
+    }
+
+    // Cost display
+    const costParts = Object.entries(def.cost ?? {}).map(([res, amt]) => {
+      const has = (state.resources[res] ?? 0) >= amt;
+      return `<span class="decree-cost ${has ? 'decree-cost--ok' : 'decree-cost--bad'}">${RES_ICONS[res] ?? ''} ${amt}</span>`;
+    });
+    const costHtml = costParts.length
+      ? `<div class="decree-costs">${costParts.join(' ')}</div>`
+      : `<div class="decree-costs decree-cost--ok">Free</div>`;
+
+    const disabled = onCooldown || !canUse;
+
+    return `<div class="decree-card ${onCooldown ? 'decree-card--cd' : ''}">
+      <div class="decree-card__header">
+        <span class="decree-card__icon">${def.icon}</span>
+        <span class="decree-card__name">${_escHtml(def.name)}</span>
+        ${costHtml}
+      </div>
+      <div class="decree-card__desc">${_escHtml(def.desc)}</div>
+      ${statusHtml}
+      <button
+        class="btn btn--decree ${disabled ? 'btn--disabled' : ''}"
+        data-use-decree="${def.id}"
+        ${disabled ? 'disabled' : ''}
+      >Enact</button>
+    </div>`;
+  }).join('');
+
+  return `<div class="decrees-section">
+    <div class="decrees-title">📜 Empire Decrees</div>
+    <div class="decrees-desc">Activate powerful one-time edicts to swing the tide of war or economy. Each has a cooldown.</div>
+    <div class="decree-grid">${cards}</div>
+  </div>`;
 }
 
 // ── Combat history ─────────────────────────────────────────────────────────
@@ -769,3 +845,11 @@ const RES_ICONS = {
   gold: '🪙', food: '🌾', wood: '🪵', stone: '🪨', iron: '⚒️', mana: '✨',
 };
 function _resIcon(r) { return RES_ICONS[r] ?? ''; }
+
+function _escHtml(str) {
+  return String(str ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}

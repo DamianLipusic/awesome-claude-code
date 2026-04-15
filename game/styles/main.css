@@ -5171,3 +5171,111 @@ kbd {
   color: var(--text-dim);
   text-align: right;
 }
+
+/* ── T083: Empire Decrees ─────────────────────────────────────────────────── */
+
+.decrees-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-left: 3px solid #d69e2e;
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  margin-bottom: 10px;
+}
+
+.decrees-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  margin-bottom: 4px;
+}
+
+.decrees-desc {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+
+.decree-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+  gap: 8px;
+}
+
+.decree-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.decree-card--cd {
+  opacity: .65;
+}
+
+.decree-card__header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.decree-card__icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.decree-card__name {
+  font-weight: 600;
+  font-size: 13px;
+  flex: 1;
+  color: var(--text);
+}
+
+.decree-costs {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.decree-cost--ok  { color: var(--accent-h); }
+.decree-cost--bad { color: #f85149; }
+
+.decree-card__desc {
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.35;
+}
+
+.decree-status {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.decree-status--ready  { color: var(--green, #48bb78); }
+.decree-status--active { color: var(--accent-h); }
+.decree-status--cd     { color: #888; }
+.decree-status--locked { color: var(--text-dim); font-style: italic; }
+
+.btn--decree {
+  margin-top: 2px;
+  background: linear-gradient(135deg, #5a3a0a, #4a2e08);
+  color: #f6d860;
+  border-color: #b7791f;
+}
+
+.btn--decree:hover:not(.btn--disabled) {
+  background: linear-gradient(135deg, #7a5010, #6a4010);
+  border-color: #d69e2e;
+  color: #fefcbf;
+}
+
+@media (max-width: 480px) {
+  .decree-grid { grid-template-columns: 1fr; }
+}

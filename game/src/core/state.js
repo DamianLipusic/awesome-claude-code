@@ -211,6 +211,10 @@ export const state = {
   // T080: Empire prestige — earned through victories, wonders, age advances, etc.
   // { score: number, milestones: number[] (list of threshold values reached) }
   prestige: null,
+
+  // T083: Empire Decree state — populated by systems/decrees.js initDecrees()
+  // { cooldowns: { [id]: tickExpiry }, harvestEdictExpires: number, warBannerCharges: number }
+  decrees: null,
 };
 
 /**
@@ -264,5 +268,6 @@ export function initState(empireName = 'My Empire') {
   state.mercenaries     = null;
   state.weather         = null;
   state.prestige        = null;
+  state.decrees         = null;
   // Note: state.archetype is NOT reset here — it persists across new games
 }

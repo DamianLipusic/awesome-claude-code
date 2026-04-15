@@ -158,6 +158,11 @@ export function getAttackPreview(x, y) {
   // T072b: age council boon combat attack bonus
   attackPower *= _councilBoonCombatMult();
 
+  // T083: War Banner decree preview — +40% attack when charges remain
+  if ((state.decrees?.warBannerCharges ?? 0) > 0) {
+    attackPower *= 1.40;
+  }
+
   // T082: skip hero bonuses if hero is injured (auto-recover if time elapsed)
   if (state.hero?.recruited && !_heroInjured()) {
     attackPower += HERO_DEF.attack;
@@ -195,10 +200,11 @@ export function getAttackPreview(x, y) {
     siegeActive,
     manaBoltActive,
     heroInjured,
-    formation:    state.formation ?? 'balanced',
-    morale:       Math.round(state.morale ?? 50),
+    formation:       state.formation ?? 'balanced',
+    morale:          Math.round(state.morale ?? 50),
     militaryMastery: !!(state.masteries?.military),
     veteranLegion:   _synergy('veteran_legion'),
+    warBannerCharges: state.decrees?.warBannerCharges ?? 0,
   };
 }
 
@@ -261,6 +267,11 @@ export function attackTile(x, y) {
   // T072b: age council boon combat attack bonus
   attackPower *= _councilBoonCombatMult();
 
+  // T083: War Banner decree — +40% attack for remaining charges
+  if ((state.decrees?.warBannerCharges ?? 0) > 0) {
+    attackPower *= 1.40;
+  }
+
   // Hero bonus: flat attack power + skills + Battle Cry (×2) on next attack
   // T082: skip all hero bonuses if the hero is currently injured
   if (state.hero?.recruited && !_heroInjured()) {
@@ -311,6 +322,14 @@ export function attackTile(x, y) {
     ? 1.0
     : Math.min(0.9, Math.max(0.1, attackPower / (attackPower + effectiveDefense)));
   const roll      = Math.random();
+
+  // T083: consume one War Banner charge (win or lose — the banner was raised)
+  if ((state.decrees?.warBannerCharges ?? 0) > 0) {
+    state.decrees.warBannerCharges--;
+    if (state.decrees.warBannerCharges === 0) {
+      addMessage('🚩 War Banner spent — all charges used.', 'info');
+    }
+  }
 
   if (roll < winChance) {
     return _victory(tile, x, y, attackPower, effectiveDefense);
