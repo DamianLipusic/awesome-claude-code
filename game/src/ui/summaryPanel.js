@@ -25,6 +25,7 @@ import { QUESTS } from '../systems/quests.js';
 import { TECHS } from '../data/techs.js';
 import { ARCHETYPES } from '../data/archetypes.js';
 import { RELIC_ORDER } from '../data/relics.js';
+import { LANDMARK_ORDER } from '../data/landmarks.js';
 import { currentSeason, seasonTicksRemaining } from '../systems/seasons.js';
 import { fmtNum, fmtRate } from '../utils/fmt.js';
 import { TICKS_PER_SECOND } from '../core/tick.js';
@@ -79,7 +80,9 @@ export function initSummaryPanel() {
   on(Events.ACHIEVEMENT_UNLOCKED, _render);
   on(Events.HERO_CHANGED,      _render);
   on(Events.SEASON_CHANGED,    _render);
-  on(Events.RELIC_DISCOVERED,  _render);
+  on(Events.RELIC_DISCOVERED,      _render);
+  on(Events.LANDMARK_CAPTURED,     _render);
+  on(Events.BUILDING_SPECIALIZED,  _render);
   on(Events.TICK, _tickCountdown());
 }
 
@@ -358,6 +361,11 @@ function _progressionCard() {
     <div class="sum-stat-row" style="margin-top:6px">
       <span class="sum-stat-label">🏺 Relics</span>
       <span class="sum-stat-value">${Object.keys(state.relics?.discovered ?? {}).length} / ${RELIC_ORDER.length}</span>
+    </div>
+
+    <div class="sum-stat-row" style="margin-top:4px">
+      <span class="sum-stat-label">🗺️ Landmarks</span>
+      <span class="sum-stat-value">${Object.keys(state.landmarks?.captured ?? {}).length} / ${LANDMARK_ORDER.length}</span>
     </div>
 
     ${pathHeader('⚔️', 'Conquest Victory', conquestDone)}

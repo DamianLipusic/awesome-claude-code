@@ -13,6 +13,7 @@
 import { state } from '../core/state.js';
 import { emit, Events } from '../core/events.js';
 import { IMPROVEMENTS } from '../data/improvements.js';
+import { LANDMARK_ORDER, LANDMARKS } from '../data/landmarks.js';
 
 export const MAP_W = 20;
 export const MAP_H = 20;
@@ -77,6 +78,10 @@ export function initMap() {
 
   // Scatter enemy settlements across the map
   _placeEnemies(tiles);
+
+  // Place special landmarks (T089)
+  _placeLandmarks(tiles);
+  state.landmarks = { captured: {} };
 
   state.map = {
     width:   MAP_W,
@@ -193,5 +198,34 @@ function _placeEnemies(tiles) {
     const { x, y } = candidates[i];
     tiles[y][x].owner   = 'enemy';
     tiles[y][x].faction = _getFaction(x, y);
+  }
+}
+
+/**
+ * T089: Place 5 unique landmark tiles across the map.
+ * Landmarks are scattered at distance 4–12 from capital on neutral non-enemy tiles.
+ * Each landmark boosts the tile's defense by its defenseBonus.
+ */
+function _placeLandmarks(tiles) {
+  const candidates = [];
+  for (let y = 0; y < MAP_H; y++) {
+    for (let x = 0; x < MAP_W; x++) {
+      const dist = Math.hypot(x - CAPITAL.x, y - CAPITAL.y);
+      if (dist >= 4 && dist <= 12 && tiles[y][x].owner === null) {
+        candidates.push({ x, y });
+      }
+    }
+  }
+  // Shuffle candidates and assign one landmark per slot, spread across map
+  candidates.sort(() => Math.random() - 0.5);
+  let placed = 0;
+  for (const { x, y } of candidates) {
+    if (placed >= LANDMARK_ORDER.length) break;
+    const tile = tiles[y][x];
+    if (tile.landmark) continue;
+    const id = LANDMARK_ORDER[placed];
+    tile.landmark = id;
+    tile.defense += LANDMARKS[id].defenseBonus;
+    placed++;
   }
 }

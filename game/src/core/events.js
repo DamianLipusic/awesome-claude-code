@@ -70,4 +70,6 @@ export const Events = Object.freeze({
   HERO_EXPEDITION:      'heroExpedition',   // T086: hero departed on / returned from training expedition
   MERCHANT_CHANGED:     'merchantChanged',  // T087: wandering merchant arrived / departed / purchased
   BORDER_SKIRMISH:      'borderSkirmish',   // T088: AI vs AI border skirmish started / resolved
+  LANDMARK_CAPTURED:    'landmarkCaptured', // T089: player captured a special map landmark
+  BUILDING_SPECIALIZED: 'buildingSpecialized', // T090: player specialized a building
 });

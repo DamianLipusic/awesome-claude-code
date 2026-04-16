@@ -17,6 +17,7 @@ import { revealAround } from './map.js';
 import { recalcRates } from './resources.js';
 import { getMoraleEffect, changeMorale, MORALE_COMBAT_WIN, MORALE_COMBAT_LOSS } from './morale.js';
 import { RELICS, TERRAIN_RELIC, RELIC_DROP_CHANCE, ARCANE_SHARD_DROP_CHANCE } from '../data/relics.js';
+import { LANDMARKS } from '../data/landmarks.js';
 import { BOONS } from '../data/ageBoons.js';
 import { SYNERGIES } from '../data/techs.js';
 import { isEmpireInSkirmish, SKIRMISH_ATTACK_BONUS } from './diplomacy.js';
@@ -167,6 +168,9 @@ export function getAttackPreview(x, y) {
   // T072b: age council boon combat attack bonus
   attackPower *= _councilBoonCombatMult();
 
+  // T090: Armory specialization on barracks — +15% combat attack
+  if (state.buildingSpecials?.barracks === 'armory') attackPower *= 1.15;
+
   // T083: War Banner decree preview — +40% attack when charges remain
   if ((state.decrees?.warBannerCharges ?? 0) > 0) {
     attackPower *= 1.40;
@@ -280,6 +284,9 @@ export function attackTile(x, y) {
 
   // T072b: age council boon combat attack bonus
   attackPower *= _councilBoonCombatMult();
+
+  // T090: Armory specialization on barracks — +15% combat attack
+  if (state.buildingSpecials?.barracks === 'armory') attackPower *= 1.15;
 
   // T083: War Banner decree — +40% attack for remaining charges
   if ((state.decrees?.warBannerCharges ?? 0) > 0) {
@@ -406,6 +413,9 @@ function _victory(tile, x, y, attackPower, defense) {
 
   // T064: chance to discover an ancient relic on this tile
   _tryDiscoverRelic(tile, x, y);
+
+  // T089: check if this tile contains a special landmark
+  _tryCaptureLandmark(tile, x, y);
 
   // T058: award war score for capturing tiles belonging to a faction at war
   if (tile.faction && state.diplomacy) {
@@ -542,6 +552,30 @@ function _grantRelic(relicId, x, y) {
   );
   recalcRates();
   emit(Events.RELIC_DISCOVERED, { relicId });
+  emit(Events.RESOURCE_CHANGED, {});
+}
+
+// ── T089: Landmark capture ─────────────────────────────────────────────────
+
+function _tryCaptureLandmark(tile, x, y) {
+  if (!tile.landmark) return;
+  if (!state.landmarks) state.landmarks = { captured: {} };
+  if (state.landmarks.captured[tile.landmark]) return; // already recorded
+
+  const id  = tile.landmark;
+  const def = LANDMARKS[id];
+  if (!def) return;
+
+  state.landmarks.captured[id] = state.tick;
+
+  // Apply permanent bonuses via recalcRates (resources.js reads state.landmarks)
+  recalcRates();
+
+  addMessage(
+    `${def.icon} Landmark secured: ${def.name} at (${x},${y})! ${def.desc}`,
+    'windfall',
+  );
+  emit(Events.LANDMARK_CAPTURED, { landmarkId: id, x, y });
   emit(Events.RESOURCE_CHANGED, {});
 }
 

@@ -1465,3 +1465,43 @@ All prior tasks (T001–T086) were complete. Created two new Phase 9 features: a
 - Skirmish state lives inside `state.diplomacy` (no new top-level field) — automatically included in the existing `state.diplomacy` save payload. Migration guards handle older saves.
 - Mediation sets `sk.endsAt = state.tick` so `_skirmishTick()` resolves it on the same tick as the player action — no separate "complete mediation" state needed.
 - Gold reward for mediation is applied inside `_skirmishTick` (on the resolved event) to keep effect co-located with the resolution logic; prestige is awarded in main.js via the `BORDER_SKIRMISH` event listener (same pattern as other prestige awards).
+
+---
+
+## 2026-04-16 — Session N+18
+
+**Tasks completed:** T089, T090
+
+**Summary:**
+All prior tasks (T001–T088) were complete. Created two new Phase 29 features: a Special Map Landmarks system that places 5 legendary sites on the map as strategic objectives with permanent bonuses (T089), and a Building Specializations system that lets players permanently upgrade core buildings with meaningful tradeoff choices (T090).
+
+**T089 — Special Map Landmarks:**
+
+**Files created/modified:**
+- `game/src/data/landmarks.js` (new): 5 LANDMARK definitions — ancient_temple (🏛️ +2 mana/s +300 mana cap), golden_fields (🌾 +3 food/s), ancient_quarry (⛏️ +2 stone/s +200 stone cap), dragon_hoard (🐉 +3 gold/s +400 gold cap), iron_forge (⚒️ +2 iron/s +200 iron cap). Each has defenseBonus applied during placement.
+- `game/src/systems/map.js`: Imported LANDMARKS/LANDMARK_ORDER; added `_placeLandmarks(tiles)` placing each landmark on a neutral tile at dist 4–12 from capital (shuffled, no overlap); `tile.landmark = id` + `tile.defense += defenseBonus`; `initMap()` calls `_placeLandmarks()` and initialises `state.landmarks = { captured: {} }`.
+- `game/src/systems/combat.js`: Imported LANDMARKS; added `_tryCaptureLandmark(tile, x, y)` called in `_victory()` after relic check — idempotent guard on already-captured landmarks; records `state.landmarks.captured[id] = tick`; logs windfall message; emits `LANDMARK_CAPTURED + RESOURCE_CHANGED`.
+- `game/src/systems/resources.js`: Imported LANDMARKS; added landmark bonus loop in `recalcRates()` after relic loop — applies `def.bonus.rates` and `def.bonus.caps` for all captured landmarks.
+- `game/src/core/events.js`: Added `LANDMARK_CAPTURED: 'landmarkCaptured'` and `BUILDING_SPECIALIZED: 'buildingSpecialized'` constants.
+- `game/src/core/state.js`: Added `landmarks: null` and `buildingSpecials: {}` to static state; both reset in `initState()`.
+- `game/src/ui/mapPanel.js`: Imported LANDMARKS; added ★ glyph in `_drawTile()` for `tile.landmark` tiles not yet player-owned (gold, top-right corner); added `lmHtml` block in `_showTileTip()` — for uncaptured tiles shows name + desc hint in gold; for captured shows `🏅 captured` badge; subscribed `LANDMARK_CAPTURED → _render`.
+- `game/src/ui/researchPanel.js`: Imported LANDMARKS+LANDMARK_ORDER; subscribed `LANDMARK_CAPTURED → renderResearchPanel`; added `_landmarksSection()` using relic-card CSS — captured cards show gold border + bonus pills, locked cards show ★ icon + "capture the ★ tile for" hint; appended at bottom of panel.
+- `game/src/ui/summaryPanel.js`: Imported LANDMARK_ORDER; added `🗺️ Landmarks X/5` row in `_progressionCard()`; subscribed `LANDMARK_CAPTURED + BUILDING_SPECIALIZED → _render`.
+- `game/src/main.js`: `landmarks + buildingSpecials` in `_save()` payload and `_applySave()`; save version bumped 30→31; `LANDMARK_CAPTURED` listener `awardPrestige(150, 'landmark captured')`.
+
+**T090 — Building Specializations:**
+
+**Files created/modified:**
+- `game/src/data/buildingSpecials.js` (new): 8 SPECIALIZATION entries across 4 buildings. Farm: `granary` (+200 food cap, ×0.9 food) / `market_garden` (×1.3 food, +0.5 gold/s). LumberMill: `timber_mill` (×1.4 wood) / `charcoal_forge` (×0.8 wood, +0.5 iron/s, requires metalworking). Barracks: `training_grounds` (×0.75 train time) / `armory` (×1.15 combat, requires metalworking). Quarry: `deep_quarry` (×1.4 stone) / `iron_quarry` (×1.3 stone, +0.5 iron/s, requires metalworking). `SPECIALS_BY_BUILDING` and `ELIGIBLE_BUILDINGS` exports.
+- `game/src/core/actions.js`: Imported SPECIALIZATIONS; added `specializeBuilding(buildingId, specId)` — validates building ownership, no existing spec, tech requirements, affordability; deducts cost; sets `state.buildingSpecials[buildingId] = specId`; calls `recalcRates()`; emits `BUILDING_SPECIALIZED + BUILDING_CHANGED + RESOURCE_CHANGED`. Also wired `training_grounds` `-25%` multiplier into `trainUnit()`.
+- `game/src/systems/resources.js`: Imported SPECIALIZATIONS; building loop now reads `state.buildingSpecials[id]` to get specDef; applies `specDef.prodMult[res]` per resource on building production; after loop applies `specDef.rateBonus` (flat rates) and `specDef.capBonus` (cap bumps).
+- `game/src/systems/combat.js`: Added Armory +15% multiplier in both `getAttackPreview()` and `attackTile()` after council boon mult.
+- `game/src/ui/buildingPanel.js`: Imported `specializeBuilding + SPECIALIZATIONS + SPECIALS_BY_BUILDING + ELIGIBLE_BUILDINGS`; subscribed `BUILDING_SPECIALIZED → render`; added `_specializationsSection()` — only visible when player owns ≥1 eligible building; active-spec shows gold-bordered card with spec badge + desc; un-specialized shows 2 option cards with affordability-coded cost, desc, Specialize button (disabled when tech/gold requirements not met); click delegate handles `specialize` action.
+- `game/styles/main.css`: `.spec-section` (amber `#f6ad55` left-border accent), `.spec-section__header/__intro`, `.spec-card/--active`, `.spec-badge`, `.spec-options` flex column, `.spec-option`, `.spec-option__header/__icon/__name/__cost`, `.spec-cost--ok/bad`, `.spec-option__desc`, `.btn--specialize` (amber gradient hover).
+
+**Architecture decisions:**
+- Landmarks are placed in `initMap()` so they exist from the very start of every new game — creating consistent strategic targets regardless of RNG timing.
+- The `tile.landmark` property persists in `state.map.tiles` (already saved as part of `state.map`), so no extra serialization is needed beyond the `state.landmarks.captured` tracker.
+- Building specializations are stored as `state.buildingSpecials = { [buildingId]: specId }` — one slot per building type (not per building count). This means specializing a Farm affects all your Farm buildings, which is intentional and makes the choice more impactful.
+- The barracks `training_grounds` trainTimeMult (0.75) is applied directly in `trainUnit()` (like warcraft tech) rather than in `_advanceTrainingQueue()`, so the `totalTicks` stored in the queue entry correctly reflects the specialization at the time of training.
+- Armory combatMult is applied alongside (and after) council boon mult and before War Banner, matching the layering order of other multipliers.

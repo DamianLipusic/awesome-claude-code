@@ -202,6 +202,7 @@ function boot() {
   on(Events.BORDER_SKIRMISH, (d) => {
     if (d?.type === 'mediated') awardPrestige(MEDIATE_PRESTIGE, 'skirmish mediation');
   });
+  on(Events.LANDMARK_CAPTURED, (d) => awardPrestige(150, `landmark captured: ${d?.landmarkId ?? ''}`));
 
   // Update age badge on changes; also show council boon modal on advancement
   _updateAgeBadge();
@@ -253,7 +254,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 30,
+      version: 31,
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -304,6 +305,8 @@ function _save() {
         decrees:          state.decrees          ?? null,
         contracts:        state.contracts        ?? null,  // T085
         merchant:         state.merchant         ?? null,  // T087
+        landmarks:        state.landmarks        ?? null,  // T089
+        buildingSpecials: state.buildingSpecials ?? {},    // T090
         tick:          state.tick,
       }
     }));
@@ -376,6 +379,8 @@ function _applySave(save) {
   state.decrees          = s.decrees          ?? null;
   state.contracts        = s.contracts        ?? null;  // T085
   state.merchant         = s.merchant         ?? null;  // T087
+  state.landmarks        = s.landmarks        ?? null;  // T089
+  state.buildingSpecials = s.buildingSpecials ?? {};    // T090
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };

@@ -18,6 +18,8 @@ import { HERO_DEF, heroSkillBonus } from '../data/hero.js';
 import { TICKS_PER_SECOND } from '../core/tick.js';
 import { territoryRateBonus } from './map.js';
 import { RELICS } from '../data/relics.js';
+import { LANDMARKS } from '../data/landmarks.js';
+import { SPECIALIZATIONS } from '../data/buildingSpecials.js';
 import { POLICIES } from '../data/policies.js';
 import { BOONS } from '../data/ageBoons.js';
 import { SYNERGIES } from '../data/techs.js';
@@ -67,10 +69,27 @@ export function recalcRates() {
     // Tech + age multipliers
     const prodMult = _buildingProdMultiplier(id) * ageMult;
 
+    // T090: per-resource specialization production multiplier
+    const specId  = state.buildingSpecials?.[id];
+    const specDef = specId ? SPECIALIZATIONS[specId] : null;
+
     for (const res of RESOURCE_KEYS) {
-      if (def.production[res]) rates[res] += def.production[res] * count * prodMult;
+      if (def.production[res]) {
+        const specMult = specDef?.prodMult?.[res] ?? 1.0;
+        rates[res] += def.production[res] * count * prodMult * specMult;
+      }
       if (def.consumption[res]) rates[res] -= def.consumption[res] * count;
       if (def.capBonus[res])   caps[res]  += def.capBonus[res] * count;
+    }
+
+    // T090: specialization flat bonuses (rateBonus, capBonus)
+    if (specDef) {
+      for (const [res, val] of Object.entries(specDef.rateBonus ?? {})) {
+        if (rates[res] !== undefined) rates[res] += val;
+      }
+      for (const [res, val] of Object.entries(specDef.capBonus ?? {})) {
+        if (caps[res] !== undefined) caps[res] += val;
+      }
     }
   }
 
@@ -235,6 +254,24 @@ export function recalcRates() {
   if (state.relics?.discovered) {
     for (const relicId of Object.keys(state.relics.discovered)) {
       const def = RELICS[relicId];
+      if (!def) continue;
+      if (def.bonus.rates) {
+        for (const [res, val] of Object.entries(def.bonus.rates)) {
+          if (rates[res] !== undefined) rates[res] += val;
+        }
+      }
+      if (def.bonus.caps) {
+        for (const [res, val] of Object.entries(def.bonus.caps)) {
+          if (caps[res] !== undefined) caps[res] += val;
+        }
+      }
+    }
+  }
+
+  // T089: apply special map landmark permanent bonuses
+  if (state.landmarks?.captured) {
+    for (const landmarkId of Object.keys(state.landmarks.captured)) {
+      const def = LANDMARKS[landmarkId];
       if (!def) continue;
       if (def.bonus.rates) {
         for (const [res, val] of Object.entries(def.bonus.rates)) {

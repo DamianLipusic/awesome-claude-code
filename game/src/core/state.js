@@ -219,6 +219,14 @@ export const state = {
   // T087: Wandering merchant state — populated by systems/merchant.js initMerchant()
   // { offer: { items, expiresAt } | null, nextVisitTick, totalVisits, totalPurchases }
   merchant: null,
+
+  // T089: Discovered map landmarks — { captured: { [landmarkId]: tick } }
+  // null until first map with landmarks; landmarks are placed in map tiles as tile.landmark = id
+  landmarks: null,
+
+  // T090: Building specializations — { [buildingId]: specializationId }
+  // One permanent specialization per building slot; persists until New Game.
+  buildingSpecials: {},
 };
 
 /**
@@ -275,5 +283,7 @@ export function initState(empireName = 'My Empire') {
   state.decrees         = null;
   state.contracts       = null;  // T085: delivery contracts
   state.merchant        = null;  // T087: wandering merchant
+  state.landmarks       = null;  // T089: special map landmarks
+  state.buildingSpecials = {};   // T090: building specializations
   // Note: state.archetype is NOT reset here — it persists across new games
 }

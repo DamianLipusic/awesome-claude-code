@@ -5,8 +5,9 @@
 
 import { state } from '../core/state.js';
 import { on, Events } from '../core/events.js';
-import { buildBuilding, demolishBuilding } from '../core/actions.js';
+import { buildBuilding, demolishBuilding, specializeBuilding } from '../core/actions.js';
 import { BUILDINGS } from '../data/buildings.js';
+import { SPECIALIZATIONS, SPECIALS_BY_BUILDING, ELIGIBLE_BUILDINGS } from '../data/buildingSpecials.js';
 import { fmtNum } from '../utils/fmt.js';
 
 export function initBuildingPanel() {
@@ -20,9 +21,10 @@ export function initBuildingPanel() {
     // Pop-in the card that just changed
     if (data?.id) _popCard(data.id);
   });
-  on(Events.TECH_CHANGED,     renderBuildingPanel);
-  on(Events.AGE_CHANGED,      renderBuildingPanel);
-  on(Events.RESOURCE_CHANGED, _throttleRender());
+  on(Events.TECH_CHANGED,          renderBuildingPanel);
+  on(Events.AGE_CHANGED,           renderBuildingPanel);
+  on(Events.BUILDING_SPECIALIZED,  renderBuildingPanel);
+  on(Events.RESOURCE_CHANGED,      _throttleRender());
 }
 
 function _popCard(id) {
@@ -103,16 +105,80 @@ function renderBuildingPanel() {
       </div>`;
   }
 
+  html += _specializationsSection();
+
   panel.innerHTML = html;
 
   // Delegate click events
   panel.onclick = (e) => {
     const btn = e.target.closest('[data-action]');
     if (!btn) return;
-    const { action, id } = btn.dataset;
-    if (action === 'build')    buildBuilding(id);
-    if (action === 'demolish') demolishBuilding(id);
+    const { action, id, specid } = btn.dataset;
+    if (action === 'build')       buildBuilding(id);
+    if (action === 'demolish')    demolishBuilding(id);
+    if (action === 'specialize')  specializeBuilding(id, specid);
   };
+}
+
+// ── Specializations section (T090) ──────────────────────────────────────────
+
+function _specializationsSection() {
+  // Only show buildings that the player owns at least 1 of
+  const eligible = ELIGIBLE_BUILDINGS.filter(id => (state.buildings[id] ?? 0) >= 1);
+  if (eligible.length === 0) return '';
+
+  const cards = eligible.map(buildingId => {
+    const bdef         = BUILDINGS[buildingId];
+    const activeSpecId = state.buildingSpecials?.[buildingId];
+    const specIds      = SPECIALS_BY_BUILDING[buildingId] ?? [];
+
+    if (activeSpecId) {
+      const sdef = SPECIALIZATIONS[activeSpecId];
+      return `
+        <div class="spec-card spec-card--active" title="${sdef.desc}">
+          <div class="spec-card__header">
+            <span>${bdef.icon} ${bdef.name}</span>
+            <span class="spec-badge">${sdef.icon} ${sdef.name}</span>
+          </div>
+          <div class="spec-card__desc">${sdef.desc}</div>
+        </div>`;
+    }
+
+    const options = specIds.map(specId => {
+      const sdef      = SPECIALIZATIONS[specId];
+      const canAffordSpec = canAfford(sdef.cost);
+      const meetsReqs = meetsRequirements(sdef.requires ?? []);
+      const costStr   = Object.entries(sdef.cost).map(([r, a]) => `${_resIcon(r)}${fmtNum(a)}`).join(' ');
+      const avail     = canAffordSpec && meetsReqs;
+      return `
+        <div class="spec-option">
+          <div class="spec-option__header">
+            <span class="spec-option__icon">${sdef.icon}</span>
+            <strong class="spec-option__name">${sdef.name}</strong>
+            <span class="spec-option__cost ${canAffordSpec ? 'spec-cost--ok' : 'spec-cost--bad'}">${costStr}</span>
+          </div>
+          <div class="spec-option__desc">${sdef.desc}</div>
+          <button class="btn btn--specialize ${avail ? '' : 'btn--disabled'}"
+                  data-action="specialize" data-id="${buildingId}" data-specid="${specId}"
+                  ${avail ? '' : 'disabled'}
+                  title="${meetsReqs ? '' : 'Requires tech: ' + (sdef.requires?.[0]?.id ?? '')}"
+          >Specialize</button>
+        </div>`;
+    }).join('');
+
+    return `
+      <div class="spec-card">
+        <div class="spec-card__title">${bdef.icon} ${bdef.name} — Choose a Specialization</div>
+        <div class="spec-options">${options}</div>
+      </div>`;
+  }).join('');
+
+  return `
+    <div class="spec-section">
+      <div class="spec-section__header">⚗️ Building Specializations</div>
+      <div class="spec-section__intro">Permanently upgrade a building with one specialization. Costs apply once.</div>
+      ${cards}
+    </div>`;
 }
 
 // ── helpers ──────────────────────────────────────────────────────────────────

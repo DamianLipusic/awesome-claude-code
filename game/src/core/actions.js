@@ -13,6 +13,7 @@ import { HERO_DEF, HERO_SKILLS, HERO_MAX_SKILLS, heroSkillBonus } from '../data/
 import { IMPROVEMENTS } from '../data/improvements.js';
 import { POLICIES, POLICY_COOLDOWN_TICKS } from '../data/policies.js';
 import { BOONS } from '../data/ageBoons.js';
+import { SPECIALIZATIONS } from '../data/buildingSpecials.js';
 import { recalcRates } from '../systems/resources.js';
 import { log } from '../utils/logger.js';
 
@@ -103,6 +104,9 @@ export function trainUnit(id) {
   if (state.hero?.recruited && state.hero.skills?.includes('swift_training')) {
     totalTicks = Math.ceil(totalTicks * 0.80);
   }
+  // T090: Training Grounds specialization — -25% training time
+  const barrSpec = state.buildingSpecials?.barracks;
+  if (barrSpec === 'training_grounds') totalTicks = Math.ceil(totalTicks * 0.75);
   state.trainingQueue.push({ unitId: id, remaining: totalTicks, totalTicks });
 
   emit(Events.UNIT_CHANGED, {});
@@ -556,6 +560,46 @@ export function chooseCouncilBoon(boonId) {
   emit(Events.COUNCIL_BOON_CHOSEN, { boonId });
   emit(Events.RESOURCE_CHANGED, {});
   addMessage(`📜 Council boon: ${def.icon} ${def.name} — ${def.desc}`, 'info');
+  return { ok: true };
+}
+
+// ---------------------------------------------------------------------------
+// Building Specializations (T090)
+// ---------------------------------------------------------------------------
+
+/**
+ * Apply a one-time permanent specialization to a building slot.
+ * The player must own at least 1 of the building and must not have already
+ * specialized it. Costs are paid immediately.
+ */
+export function specializeBuilding(buildingId, specId) {
+  const def = SPECIALIZATIONS[specId];
+  if (!def) return { ok: false, reason: `Unknown specialization: ${specId}` };
+  if (def.buildingId !== buildingId) return { ok: false, reason: 'Specialization does not match building.' };
+  if ((state.buildings[buildingId] ?? 0) < 1) return { ok: false, reason: 'You must own at least one of this building first.' };
+  if (state.buildingSpecials?.[buildingId]) return { ok: false, reason: 'Building is already specialized.' };
+
+  // Check tech/age requirements
+  for (const req of (def.requires ?? [])) {
+    if (req.type === 'tech' && !state.techs[req.id]) {
+      return { ok: false, reason: `Requires ${req.id} technology.` };
+    }
+    if (req.type === 'age' && (state.age ?? 0) < req.age) {
+      return { ok: false, reason: `Requires age ${req.age} or higher.` };
+    }
+  }
+
+  if (!canAfford(def.cost)) return { ok: false, reason: 'Insufficient resources.' };
+
+  deductCost(def.cost);
+  if (!state.buildingSpecials) state.buildingSpecials = {};
+  state.buildingSpecials[buildingId] = specId;
+
+  recalcRates();
+  emit(Events.BUILDING_SPECIALIZED, { buildingId, specId });
+  emit(Events.BUILDING_CHANGED, { id: buildingId });
+  emit(Events.RESOURCE_CHANGED, {});
+  addMessage(`${def.icon} ${def.name} specialization applied to ${BUILDINGS[buildingId]?.name ?? buildingId}!`, 'info');
   return { ok: true };
 }
 

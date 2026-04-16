@@ -21,6 +21,7 @@ import { UNITS } from '../data/units.js';
 import { IMPROVEMENTS } from '../data/improvements.js';
 import { EMPIRES } from '../data/empires.js';
 import { acceptCaravanOffer, getCaravanSecsLeft } from '../systems/caravans.js';
+import { LANDMARKS } from '../data/landmarks.js';
 
 const TILE_PX   = 24;     // pixels per tile side
 const GRID_SIZE = 20;     // tiles per axis
@@ -171,6 +172,9 @@ export function initMapPanel() {
     if (data?.expired || data?.traded) _hideCaravanPicker();
   });
 
+  // T089: re-render when a landmark is captured (tile icon clears)
+  on(Events.LANDMARK_CAPTURED, _render);
+
   _render();
 }
 
@@ -314,9 +318,23 @@ function _showTileTip(tile, x, y, mouseX, mouseY) {
     ? `<div class="map-tt-row" style="font-size:0.7rem;color:var(--accent)">${tModEntry.icon} ${tModEntry.text}</div>`
     : '';
 
+  // T089: landmark hint
+  const lmHtml = tile.landmark
+    ? (() => {
+        const ldef = LANDMARKS[tile.landmark];
+        if (!ldef) return '';
+        const captured = !!state.landmarks?.captured?.[tile.landmark];
+        return captured
+          ? `<div class="map-tt-row map-tt-bonus">🏅 ${ldef.icon} ${ldef.name} (captured)</div>`
+          : `<div class="map-tt-row" style="color:#ffd700;font-weight:600">★ Landmark: ${ldef.name}</div>
+             <div class="map-tt-row" style="font-size:0.7rem;color:var(--text-dim)">${ldef.desc}</div>`;
+      })()
+    : '';
+
   _tileTipEl.innerHTML = `
     <div class="map-tt-title">${TERRAIN_NAME[tile.type] ?? tile.type}</div>
     <div class="map-tt-row">${ownerHtml}</div>
+    ${lmHtml}
     ${bonusHtml}
     ${terrainCombatHtml}
     ${barbHtml}
@@ -494,6 +512,20 @@ function _drawTile(tile, x, y, capital) {
     ctx.fillText(`🛡${g.count}`, px + 2, py + TILE_PX - 1);
     ctx.textAlign    = 'center';
     ctx.textBaseline = 'middle';
+  }
+
+  // T089: draw landmark star indicator — revealed non-player-captured landmarks get a ★ mark
+  if (tile.landmark && tile.owner !== 'player') {
+    const ldef = LANDMARKS[tile.landmark];
+    if (ldef) {
+      ctx.font         = `9px sans-serif`;
+      ctx.textAlign    = 'right';
+      ctx.textBaseline = 'top';
+      ctx.fillStyle    = '#ffd700';
+      ctx.fillText('★', px + TILE_PX - 2, py + 2);
+      ctx.textAlign    = 'center';
+      ctx.textBaseline = 'middle';
+    }
   }
 }
 

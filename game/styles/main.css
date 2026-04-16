@@ -5721,3 +5721,134 @@ kbd {
   border-radius: 10px;
   white-space: nowrap;
 }
+
+/* ── T090: Building Specializations ─────────────────────────────────────── */
+
+.spec-section {
+  margin-top: 12px;
+  padding: 10px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-h);
+  border-left: 3px solid #f6ad55;
+  border-radius: 6px;
+}
+
+.spec-section__header {
+  font-size: 12px;
+  font-weight: 700;
+  color: #f6ad55;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.spec-section__intro {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-bottom: 10px;
+}
+
+.spec-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-h);
+  border-radius: 5px;
+  padding: 8px;
+  margin-bottom: 8px;
+}
+
+.spec-card--active {
+  border-color: rgba(246, 173, 85, 0.5);
+  background: rgba(246, 173, 85, 0.06);
+}
+
+.spec-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.spec-badge {
+  background: rgba(246, 173, 85, 0.15);
+  border: 1px solid rgba(246, 173, 85, 0.4);
+  color: #f6ad55;
+  font-size: 10px;
+  padding: 1px 7px;
+  border-radius: 10px;
+}
+
+.spec-card__desc {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.spec-card__title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+
+.spec-options {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.spec-option {
+  background: var(--bg-card);
+  border: 1px solid var(--border-h);
+  border-radius: 4px;
+  padding: 6px 8px;
+}
+
+.spec-option__header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 3px;
+}
+
+.spec-option__icon { font-size: 14px; }
+
+.spec-option__name {
+  font-size: 12px;
+  flex: 1;
+}
+
+.spec-option__cost {
+  font-size: 11px;
+}
+
+.spec-cost--ok { color: #68d391; }
+.spec-cost--bad { color: #fc8181; }
+
+.spec-option__desc {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-bottom: 5px;
+}
+
+.btn--specialize {
+  background: linear-gradient(135deg, rgba(246,173,85,0.1), rgba(246,173,85,0.05));
+  border: 1px solid rgba(246, 173, 85, 0.4);
+  color: #f6ad55;
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.btn--specialize:hover:not(.btn--disabled) {
+  background: rgba(246, 173, 85, 0.2);
+  border-color: rgba(246, 173, 85, 0.7);
+  color: #fbd38d;
+}
+
+@media (max-width: 480px) {
+  .spec-options { flex-direction: column; }
+  .spec-option__header { flex-wrap: wrap; }
+}

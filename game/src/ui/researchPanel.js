@@ -12,6 +12,7 @@ import { AGES } from '../data/ages.js';
 import { fmtNum, fmtTime } from '../utils/fmt.js';
 import { TICKS_PER_SECOND } from '../core/tick.js';
 import { RELICS, RELIC_ORDER, TERRAIN_RELIC } from '../data/relics.js';
+import { LANDMARKS, LANDMARK_ORDER } from '../data/landmarks.js';
 import { POLICIES, POLICY_ORDER, POLICY_COOLDOWN_TICKS } from '../data/policies.js';
 
 export function initResearchPanel() {
@@ -24,8 +25,9 @@ export function initResearchPanel() {
   on(Events.BUILDING_CHANGED, _throttle(renderResearchPanel, 8));
   on(Events.UNIT_CHANGED,     _throttle(renderResearchPanel, 8));
   on(Events.RESOURCE_CHANGED, _throttle(renderResearchPanel, 16));
-  on(Events.RELIC_DISCOVERED,  renderResearchPanel);
-  on(Events.POLICY_CHANGED,    renderResearchPanel);
+  on(Events.RELIC_DISCOVERED,      renderResearchPanel);
+  on(Events.LANDMARK_CAPTURED,     renderResearchPanel);
+  on(Events.POLICY_CHANGED,        renderResearchPanel);
   on(Events.MORALE_CHANGED,    _throttle(renderResearchPanel, 8));
   on(Events.MASTERY_UNLOCKED,  renderResearchPanel);
   on(Events.SYNERGY_UNLOCKED,  renderResearchPanel);
@@ -74,7 +76,7 @@ function renderResearchPanel() {
     </div>`;
   }).join('');
 
-  panel.innerHTML = _ageSection() + progressHtml + `<div class="tech-grid">${techCards}</div>` + _masteriesSection() + _synergiesSection() + _policySection() + _relicsSection();
+  panel.innerHTML = _ageSection() + progressHtml + `<div class="tech-grid">${techCards}</div>` + _masteriesSection() + _synergiesSection() + _policySection() + _relicsSection() + _landmarksSection();
 
   panel.onclick = (e) => {
     if (e.target.closest('#btn-advance-age')) {
@@ -418,6 +420,57 @@ function _masteriesSection() {
       </div>
       <div class="mastery-section__intro">Research all technologies in a group to permanently unlock its bonus.</div>
       <div class="mastery-grid">${cards}</div>
+    </div>`;
+}
+
+// ── T089: Landmarks section ────────────────────────────────────────────────
+
+function _landmarksSection() {
+  const captured = state.landmarks?.captured ?? {};
+  const count    = Object.keys(captured).length;
+
+  const cards = LANDMARK_ORDER.map(id => {
+    const def   = LANDMARKS[id];
+    const found = !!captured[id];
+
+    const bonusLines = [];
+    if (def.bonus.rates) {
+      for (const [r, v] of Object.entries(def.bonus.rates)) bonusLines.push(`+${v}/s ${r}`);
+    }
+    if (def.bonus.caps) {
+      for (const [r, v] of Object.entries(def.bonus.caps)) bonusLines.push(`+${v} ${r} cap`);
+    }
+
+    if (found) {
+      return `
+        <div class="relic-card relic-card--found">
+          <div class="relic-icon">${def.icon}</div>
+          <div class="relic-body">
+            <div class="relic-name">${def.name}</div>
+            <div class="relic-desc">${def.desc}</div>
+            <div class="relic-bonus">${bonusLines.join(' · ')}</div>
+          </div>
+        </div>`;
+    }
+
+    return `
+      <div class="relic-card relic-card--locked">
+        <div class="relic-icon">★</div>
+        <div class="relic-body">
+          <div class="relic-name">${def.name}</div>
+          <div class="relic-hint">Find it on the map — capture the ★ tile for: ${bonusLines.join(', ')}</div>
+        </div>
+      </div>`;
+  }).join('');
+
+  return `
+    <div class="relics-section">
+      <div class="relics-header">
+        <span>🗺️ Map Landmarks</span>
+        <span class="relics-count">${count} / ${LANDMARK_ORDER.length} captured</span>
+      </div>
+      <div class="relics-intro">Legendary sites are marked ★ on the map. Capture them for permanent empire bonuses.</div>
+      <div class="relics-grid">${cards}</div>
     </div>`;
 }
 
