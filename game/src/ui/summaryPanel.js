@@ -17,6 +17,7 @@
 import { state } from '../core/state.js';
 import { on, Events } from '../core/events.js';
 import { getResourceHistory } from './hud.js';
+import { CITIZEN_ROLES, CITIZEN_ROLE_ORDER, adjustCitizenRole } from '../core/actions.js';
 import { AGES } from '../data/ages.js';
 import { UNITS } from '../data/units.js';
 import { HERO_DEF } from '../data/hero.js';
@@ -83,7 +84,24 @@ export function initSummaryPanel() {
   on(Events.RELIC_DISCOVERED,      _render);
   on(Events.LANDMARK_CAPTURED,     _render);
   on(Events.BUILDING_SPECIALIZED,  _render);
+  on(Events.POPULATION_CHANGED,    _render);      // T096: rerender when pop changes (slot count changes)
+  on(Events.CITIZEN_ROLES_CHANGED, _render);      // T096: rerender when roles adjusted
   on(Events.TICK, _tickCountdown());
+
+  // T096: Delegated click handler for citizen role +/- buttons
+  if (panel) {
+    panel.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-citizen-role]');
+      if (!btn) return;
+      const role  = btn.dataset.citizenRole;
+      const delta = parseInt(btn.dataset.citizenDelta, 10);
+      const result = adjustCitizenRole(role, delta);
+      if (!result.ok) {
+        btn.classList.add('btn--shake');
+        setTimeout(() => btn.classList.remove('btn--shake'), 400);
+      }
+    });
+  }
 }
 
 // ── Rendering ──────────────────────────────────────────────────────────────
@@ -108,6 +126,7 @@ function _render() {
       ${_militaryCard()}
       ${_territoryCard()}
       ${_diplomacyCard()}
+      ${_citizenRolesCard()}
       ${_progressionCard()}
       ${_statsCard(timeStr)}
       ${_chartCard()}
@@ -410,6 +429,44 @@ function _scoreCard() {
     </div>`;
 
   return _card('⭐ Empire Score', `<div class="sum-score-rows">${rows}${totalRow}</div>`);
+}
+
+// ── Citizen Roles card (T096) ──────────────────────────────────────────────
+
+function _citizenRolesCard() {
+  const popCount = Math.floor(state.population?.count ?? 0);
+  const maxSlots = Math.floor(popCount / 100);
+  const roles    = state.citizenRoles ?? {};
+  const used     = CITIZEN_ROLE_ORDER.reduce((s, r) => s + (roles[r] ?? 0), 0);
+
+  const header = `
+    <div class="sum-citizen-header">
+      <span class="sum-citizen-title">👥 Citizen Roles</span>
+      <span class="sum-citizen-slots ${used >= maxSlots ? 'sum-citizen-slots--full' : ''}">${used}/${maxSlots} slots</span>
+    </div>
+    <div class="sum-citizen-hint">${maxSlots === 0 ? '100 citizens = 1 role slot' : 'Each slot = 100 citizens'}</div>`;
+
+  const roleRows = CITIZEN_ROLE_ORDER.map(roleId => {
+    const def     = CITIZEN_ROLES[roleId];
+    const current = roles[roleId] ?? 0;
+    const canInc  = used < maxSlots;
+    const canDec  = current > 0;
+    return `
+      <div class="sum-citizen-row">
+        <span class="sum-citizen-icon">${def.icon}</span>
+        <span class="sum-citizen-name">${def.name}</span>
+        <span class="sum-citizen-count">${current}</span>
+        <div class="sum-citizen-btns">
+          <button class="btn btn--xs sum-citizen-btn" data-citizen-role="${roleId}" data-citizen-delta="-1"
+            ${canDec ? '' : 'disabled'}>−</button>
+          <button class="btn btn--xs sum-citizen-btn" data-citizen-role="${roleId}" data-citizen-delta="1"
+            ${canInc ? '' : 'disabled'}>+</button>
+        </div>
+        <span class="sum-citizen-desc">${def.desc}</span>
+      </div>`;
+  }).join('');
+
+  return _card('👥 Citizen Roles', `${header}${roleRows}`);
 }
 
 // ── Lifetime stats card ────────────────────────────────────────────────────

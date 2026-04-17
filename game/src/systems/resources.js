@@ -263,6 +263,19 @@ export function recalcRates() {
     }
   }
 
+  // T096: Citizen role bonuses
+  // merchants: +0.3 gold/s per slot; workers: +4% to all positive production rates
+  if (state.citizenRoles) {
+    const { merchants = 0, workers = 0 } = state.citizenRoles;
+    if (merchants > 0) rates.gold += merchants * 0.3;
+    if (workers > 0) {
+      const workerMult = 1 + workers * 0.04;
+      for (const res of RESOURCE_KEYS) {
+        if (rates[res] > 0) rates[res] *= workerMult;
+      }
+    }
+  }
+
   // T064: apply ancient relic permanent bonuses
   if (state.relics?.discovered) {
     for (const relicId of Object.keys(state.relics.discovered)) {

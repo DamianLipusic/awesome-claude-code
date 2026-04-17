@@ -113,6 +113,13 @@ export function startResearch(techId) {
     totalTicks = Math.ceil(totalTicks * 0.70);
   }
 
+  // T096: Citizen scholars reduce research time by 5% per assigned slot (capped at 50%)
+  const scholarSlots = state.citizenRoles?.scholars ?? 0;
+  if (scholarSlots > 0) {
+    const scholarMult = Math.max(0.50, 1 - scholarSlots * 0.05);
+    totalTicks = Math.ceil(totalTicks * scholarMult);
+  }
+
   state.researchQueue.push({ techId, remaining: totalTicks, totalTicks });
   addMessage(`Researching ${def.name}…`, 'research');
   emit(Events.TECH_CHANGED, {});

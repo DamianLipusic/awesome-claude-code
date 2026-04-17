@@ -3423,6 +3423,62 @@ kbd {
   color: #fff;
 }
 
+/* ── T095: Level 2 improvement upgrade section ───────────────────────────── */
+
+.imp-upgrade-section {
+  border: 1px solid #b7791f;
+  border-radius: var(--radius);
+  background: rgba(183, 121, 31, 0.08);
+  padding: 8px 10px;
+  margin-bottom: 8px;
+}
+
+.imp-upgrade-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #fbd38d;
+  margin-bottom: 2px;
+}
+
+.imp-upgrade-desc {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+}
+
+.imp-upgrade-locked {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 6px 8px;
+  margin-bottom: 8px;
+  opacity: 0.6;
+}
+
+.imp-lv2-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  background: #b7791f;
+  color: #fbd38d;
+  border-radius: 3px;
+  padding: 0 4px;
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
+.btn--imp-upgrade {
+  background: linear-gradient(135deg, #744210, #b7791f);
+  border-color: #b7791f;
+  color: #fbd38d;
+  font-weight: 600;
+  margin-top: 6px;
+}
+
+.btn--imp-upgrade:not(:disabled):hover {
+  background: linear-gradient(135deg, #975a16, #d69e2e);
+  color: #fff;
+}
+
 /* ── T052: Battle formation selector ─────────────────────────────────────── */
 
 .formation-section {
@@ -5876,4 +5932,89 @@ kbd {
 @media (max-width: 480px) {
   .spec-options { flex-direction: column; }
   .spec-option__header { flex-wrap: wrap; }
+}
+
+/* ── T096: Citizen Role Assignments (summary panel card) ─────────────────── */
+
+.sum-citizen-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2px;
+}
+
+.sum-citizen-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.sum-citizen-slots {
+  font-size: 11px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1px 7px;
+  color: var(--text-dim);
+}
+
+.sum-citizen-slots--full {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.sum-citizen-hint {
+  font-size: 10px;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+
+.sum-citizen-row {
+  display: grid;
+  grid-template-columns: 20px 1fr 22px auto 1fr;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.sum-citizen-row:last-child { border-bottom: none; }
+
+.sum-citizen-icon  { font-size: 14px; text-align: center; }
+.sum-citizen-name  { font-size: 12px; color: var(--text); }
+.sum-citizen-count { font-size: 13px; font-weight: 700; text-align: center; color: var(--accent); }
+.sum-citizen-btns  { display: flex; gap: 3px; }
+.sum-citizen-desc  { font-size: 10px; color: var(--text-dim); padding-left: 4px; }
+
+.sum-citizen-btn {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg-panel);
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.1s, border-color 0.1s;
+}
+
+.sum-citizen-btn:not(:disabled):hover {
+  background: var(--bg-card);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.sum-citizen-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+@media (max-width: 480px) {
+  .sum-citizen-row { grid-template-columns: 20px 1fr 22px auto; }
+  .sum-citizen-desc { display: none; }
 }

@@ -133,11 +133,15 @@ export function territoryRateBonus() {
         case 'grass':    bonus.gold  += 0.1; break;
       }
 
-      // Tile improvement bonus (T051)
+      // Tile improvement bonus (T051 / T095)
       if (tile.improvement) {
         const impDef = IMPROVEMENTS[tile.type];
         if (impDef && impDef.id === tile.improvement) {
-          for (const [res, rate] of Object.entries(impDef.production)) {
+          // T095: level 2 improvements use their own doubled production rates
+          const prod = (tile.improvementLevel === 2 && impDef.level2)
+            ? impDef.level2.production
+            : impDef.production;
+          for (const [res, rate] of Object.entries(prod)) {
             if (bonus[res] !== undefined) bonus[res] += rate;
           }
         }

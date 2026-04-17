@@ -16,7 +16,7 @@
 import { state } from '../core/state.js';
 import { on, Events } from '../core/events.js';
 import { attackTile, getAttackPreview } from '../systems/combat.js';
-import { buildTileImprovement, fortifyTile, garrisonUnit, withdrawGarrison, getTotalGarrisoned, GARRISON_MAX_TOTAL, addMessage } from '../core/actions.js';
+import { buildTileImprovement, upgradeTileImprovement, fortifyTile, garrisonUnit, withdrawGarrison, getTotalGarrisoned, GARRISON_MAX_TOTAL, addMessage } from '../core/actions.js';
 import { UNITS } from '../data/units.js';
 import { IMPROVEMENTS } from '../data/improvements.js';
 import { EMPIRES } from '../data/empires.js';
@@ -291,7 +291,11 @@ function _showTileTip(tile, x, y, mouseX, mouseY) {
   let impHtml = '';
   if (tile.owner !== 'barbarian') {
     if (tile.improvement && impDef) {
-      impHtml = `<div class="map-tt-row map-tt-bonus">${impDef.icon} ${impDef.name}: ${impDef.desc}</div>`;
+      const isLv2 = tile.improvementLevel === 2;
+      const lvl2  = impDef.level2;
+      const display = isLv2 && lvl2 ? lvl2 : impDef;
+      const lv2Badge = isLv2 ? ' <strong>Lv.2</strong>' : (lvl2 ? ' <span style="opacity:.6">(upgradeable)</span>' : '');
+      impHtml = `<div class="map-tt-row map-tt-bonus">${display.icon} ${display.name}: ${display.desc}${lv2Badge}</div>`;
     } else if (!isCaravanTile && tile.owner === 'player' && tile.type !== 'capital' && impDef) {
       impHtml = `<div class="map-tt-action">🏗️ Click to build ${impDef.name}</div>`;
     }
@@ -497,6 +501,16 @@ function _drawTile(tile, x, y, capital) {
     // T051: draw improvement icon on player-owned improved tiles
     const impDef = IMPROVEMENTS[tile.type];
     if (impDef) _drawIcon(px, py, impDef.icon);
+    // T095: draw "2" badge on Level 2 improved tiles (bottom-right corner)
+    if (tile.improvementLevel === 2) {
+      ctx.font          = 'bold 8px sans-serif';
+      ctx.textAlign     = 'right';
+      ctx.textBaseline  = 'bottom';
+      ctx.fillStyle     = '#ffd700';
+      ctx.fillText('2', px + TILE_PX - 2, py + TILE_PX - 1);
+      ctx.textAlign     = 'center';
+      ctx.textBaseline  = 'middle';
+    }
   }
 
   // T066: draw fortification indicator (small corner mark) on fortified player tiles
@@ -822,6 +836,13 @@ function _createImprovementPicker() {
       const result = buildTileImprovement(sx, sy);
       if (!result.ok) addMessage(`❌ ${result.reason}`, 'info');
     }
+    // T095: Upgrade improvement button
+    if (e.target.dataset.impUpgrade) {
+      const [sx, sy] = e.target.dataset.impUpgrade.split(',').map(Number);
+      _hideImprovementPicker();
+      const result = upgradeTileImprovement(sx, sy);
+      if (!result.ok) addMessage(`❌ ${result.reason}`, 'info');
+    }
     // T066: Fortify button
     if (e.target.dataset.fortify) {
       const [sx, sy] = e.target.dataset.fortify.split(',').map(Number);
@@ -873,14 +894,43 @@ function _showImprovementPicker(x, y, tile) {
   const garrisonSection = _garrisonSection(x, y, tile);
 
   if (tile.improvement) {
-    // Already improved — show info card only
-    const desc = impDef ? `${impDef.icon} ${impDef.name} — ${impDef.desc}` : tile.improvement;
+    // Already improved — show info + optional Level 2 upgrade
+    const isLv2    = tile.improvementLevel === 2;
+    const lvl2Def  = impDef?.level2;
+    const canUpgrade = !isLv2 && lvl2Def && (state.age ?? 0) >= 2;
+    const currentDesc = isLv2 && lvl2Def
+      ? `${lvl2Def.icon} ${lvl2Def.name} — ${lvl2Def.desc} <span class="imp-lv2-badge">Lv.2</span>`
+      : (impDef ? `${impDef.icon} ${impDef.name} — ${impDef.desc}` : tile.improvement);
+
+    let upgradeSection = '';
+    if (canUpgrade) {
+      const costParts = Object.entries(lvl2Def.upgradeCost).map(([r, a]) => {
+        const have   = Math.floor(state.resources[r] ?? 0);
+        const enough = have >= a;
+        return `<span class="${enough ? 'imp-cost--ok' : 'imp-cost--bad'}">${a} ${r} (have ${have})</span>`;
+      });
+      const canAffordUpgrade = Object.entries(lvl2Def.upgradeCost).every(([r, a]) => (state.resources[r] ?? 0) >= a);
+      upgradeSection = `
+        <div class="imp-upgrade-section">
+          <div class="imp-upgrade-label">⬆️ Upgrade to ${lvl2Def.name}</div>
+          <div class="imp-upgrade-desc">${lvl2Def.desc} (Level 2 — Iron Age required)</div>
+          <div class="imp-costs">${costParts.join(' · ')}</div>
+          <button class="btn btn--sm btn--imp-upgrade" data-imp-upgrade="${x},${y}"
+            ${canAffordUpgrade ? '' : 'disabled'}>
+            ⬆️ Upgrade
+          </button>
+        </div>`;
+    } else if (!isLv2 && lvl2Def) {
+      upgradeSection = `<div class="imp-note imp-upgrade-locked">🔒 Iron Age required to upgrade.</div>`;
+    }
+
     _impPickerEl.innerHTML = `
       <div class="imp-box">
         <div class="imp-header">🏗️ Tile Actions</div>
         <div class="imp-sub">${_TERRAIN_LABELS[tile.type] ?? tile.type} (${x}, ${y})</div>
-        <div class="imp-built">${desc}</div>
-        <div class="imp-note">This tile already has an improvement.</div>
+        <div class="imp-built">${currentDesc}</div>
+        ${isLv2 ? '' : '<div class="imp-note">Improvement built.</div>'}
+        ${upgradeSection}
         ${fortifySection}
         ${garrisonSection}
         <div class="imp-actions">

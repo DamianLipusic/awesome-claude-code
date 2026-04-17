@@ -74,4 +74,5 @@ export const Events = Object.freeze({
   BUILDING_SPECIALIZED:    'buildingSpecialized',   // T090: player specialized a building
   SEASONAL_EVENT:          'seasonalEvent',          // T092: mid-season special event fired
   FACTION_CAPITAL_CAPTURED: 'factionCapitalCaptured', // T093: player captured a faction capital tile
+  CITIZEN_ROLES_CHANGED:    'citizenRolesChanged',    // T096: citizen role assignments updated
 });

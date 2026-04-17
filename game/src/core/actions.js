@@ -107,6 +107,12 @@ export function trainUnit(id) {
   // T090: Training Grounds specialization — -25% training time
   const barrSpec = state.buildingSpecials?.barracks;
   if (barrSpec === 'training_grounds') totalTicks = Math.ceil(totalTicks * 0.75);
+  // T096: Citizen soldiers reduce training time by 5% per slot (capped at 50%)
+  const soldierSlots = state.citizenRoles?.soldiers ?? 0;
+  if (soldierSlots > 0) {
+    const soldierMult = Math.max(0.50, 1 - soldierSlots * 0.05);
+    totalTicks = Math.ceil(totalTicks * soldierMult);
+  }
   state.trainingQueue.push({ unitId: id, remaining: totalTicks, totalTicks });
 
   emit(Events.UNIT_CHANGED, {});
@@ -342,6 +348,44 @@ export function buildTileImprovement(x, y) {
   emit(Events.MAP_CHANGED, {});
   emit(Events.RESOURCE_CHANGED, {});
   addMessage(`${def.icon} Built ${def.name} at (${x},${y}). ${def.desc}`, 'build');
+  return { ok: true };
+}
+
+// ---------------------------------------------------------------------------
+// Tile Improvement Upgrade (T095)
+// ---------------------------------------------------------------------------
+
+/**
+ * Upgrade an existing tile improvement to Level 2.
+ * Requires Iron Age (age >= 2) and the tile to already have a level 1 improvement.
+ * Level 2 doubles production but costs more resources.
+ * Returns { ok, reason? }
+ */
+export function upgradeTileImprovement(x, y) {
+  if (!state.map) return { ok: false, reason: 'No map loaded.' };
+  const tile = state.map.tiles[y]?.[x];
+  if (!tile)                         return { ok: false, reason: 'Invalid tile.' };
+  if (tile.owner !== 'player')       return { ok: false, reason: 'You must own this tile.' };
+  if (!tile.improvement)             return { ok: false, reason: 'No improvement on this tile.' };
+  if (tile.improvementLevel === 2)   return { ok: false, reason: 'Already at Level 2.' };
+  if ((state.age ?? 0) < 2)          return { ok: false, reason: 'Requires Iron Age to upgrade improvements.' };
+
+  const impDef = IMPROVEMENTS[tile.type];
+  const lvl2   = impDef?.level2;
+  if (!lvl2) return { ok: false, reason: 'No upgrade available for this improvement.' };
+
+  if (!canAfford(lvl2.upgradeCost)) {
+    const needs = Object.entries(lvl2.upgradeCost).map(([r, a]) => `${a} ${r}`).join(', ');
+    return { ok: false, reason: `Insufficient resources. Need: ${needs}.` };
+  }
+
+  deductCost(lvl2.upgradeCost);
+  tile.improvementLevel = 2;
+  recalcRates();
+
+  emit(Events.MAP_CHANGED, {});
+  emit(Events.RESOURCE_CHANGED, {});
+  addMessage(`${lvl2.icon} Upgraded to ${lvl2.name} at (${x},${y}). ${lvl2.desc}`, 'build');
   return { ok: true };
 }
 
@@ -600,6 +644,49 @@ export function specializeBuilding(buildingId, specId) {
   emit(Events.BUILDING_CHANGED, { id: buildingId });
   emit(Events.RESOURCE_CHANGED, {});
   addMessage(`${def.icon} ${def.name} specialization applied to ${BUILDINGS[buildingId]?.name ?? buildingId}!`, 'info');
+  return { ok: true };
+}
+
+// ---------------------------------------------------------------------------
+// Citizen Role Assignments (T096)
+// ---------------------------------------------------------------------------
+
+export const CITIZEN_ROLES = {
+  scholars:  { icon: '📚', name: 'Scholars',  desc: '-5% research time each'  },
+  merchants: { icon: '💰', name: 'Merchants', desc: '+0.3 gold/s each'         },
+  workers:   { icon: '⚒️', name: 'Workers',   desc: '+4% production each'       },
+  soldiers:  { icon: '⚔️', name: 'Soldiers',  desc: '-5% training time each'   },
+};
+export const CITIZEN_ROLE_ORDER = ['scholars', 'merchants', 'workers', 'soldiers'];
+
+/**
+ * Adjust the count for a citizen role by +delta (can be negative).
+ * Max total slots = floor(population / 100). Each role is bounded [0, max].
+ * Returns { ok, reason? }
+ */
+export function adjustCitizenRole(role, delta) {
+  if (!CITIZEN_ROLES[role]) return { ok: false, reason: `Unknown role: ${role}` };
+
+  // Initialise roles if needed (persists across new games)
+  if (!state.citizenRoles) {
+    state.citizenRoles = { scholars: 0, merchants: 0, workers: 0, soldiers: 0 };
+  }
+  const roles    = state.citizenRoles;
+  const maxSlots = Math.floor((state.population?.count ?? 0) / 100);
+  const current  = roles[role] ?? 0;
+  const newCount = current + delta;
+
+  if (newCount < 0) return { ok: false, reason: 'Cannot reduce below 0.' };
+
+  const totalOther = CITIZEN_ROLE_ORDER.reduce((s, r) => s + (r !== role ? (roles[r] ?? 0) : 0), 0);
+  if (totalOther + newCount > maxSlots) {
+    return { ok: false, reason: `Not enough citizens. Need ${(totalOther + newCount) * 100} citizens (have ${Math.floor(state.population?.count ?? 0)}).` };
+  }
+
+  roles[role] = newCount;
+  recalcRates();
+  emit(Events.CITIZEN_ROLES_CHANGED, { role, count: newCount });
+  emit(Events.RESOURCE_CHANGED, {});
   return { ok: true };
 }
 

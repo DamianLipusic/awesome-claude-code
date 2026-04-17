@@ -1571,3 +1571,40 @@ All prior tasks (T001–T088) were complete. Created two new Phase 29 features: 
 - Building specializations are stored as `state.buildingSpecials = { [buildingId]: specId }` — one slot per building type (not per building count). This means specializing a Farm affects all your Farm buildings, which is intentional and makes the choice more impactful.
 - The barracks `training_grounds` trainTimeMult (0.75) is applied directly in `trainUnit()` (like warcraft tech) rather than in `_advanceTrainingQueue()`, so the `totalTicks` stored in the queue entry correctly reflects the specialization at the time of training.
 - Armory combatMult is applied alongside (and after) council boon mult and before War Banner, matching the layering order of other multipliers.
+
+---
+
+## 2026-04-17 — Session N+19
+
+**Tasks completed:** T095, T096
+
+**Summary:**
+All prior tasks (T001–T094) were complete. Created two new Phase 32 features: Level 2 tile improvement upgrades that double production at Iron Age (T095), and a citizen role assignment system that lets players convert population into scholars/merchants/workers/soldiers for strategic bonuses (T096).
+
+**T095 — Tile Improvement Level 2 Upgrades:**
+
+**Files modified:**
+- `game/src/data/improvements.js`: Added `level2` sub-object to all 5 improvement definitions (Farm→+4 food/s, Sawmill→+4 wood/s, Quarry→+2 stone/s, Mine→+2 iron/s, Dock→+2 gold+food/s) each with `upgradeCost` and doubled `production`.
+- `game/src/core/actions.js`: Added `upgradeTileImprovement(x, y)` — validates ownership, existing level-1 improvement, Iron Age (age≥2), affordability; deducts `level2.upgradeCost`; sets `tile.improvementLevel=2`; calls `recalcRates()`; emits `MAP_CHANGED+RESOURCE_CHANGED`; logs build message.
+- `game/src/systems/map.js`: Updated `territoryRateBonus()` — when `tile.improvementLevel===2`, uses `impDef.level2.production` instead of base production.
+- `game/src/ui/mapPanel.js`: Imported `upgradeTileImprovement`; added `data-imp-upgrade` click case in picker event handler; `_showImprovementPicker()` now shows `.imp-upgrade-section` (amber card with cost rows + Upgrade button) when level-1 improvement exists and Iron Age met, or `.imp-upgrade-locked` note when pre-Iron Age; tile hover tooltip shows "Lv.2" badge for upgraded tiles and "(upgradeable)" hint for upgradeable ones; `_drawTile()` draws bold gold "2" in bottom-right corner for level-2 tiles.
+- `game/styles/main.css`: `.imp-upgrade-section` (amber `#b7791f` border + bg), `.imp-upgrade-label/desc`, `.imp-upgrade-locked`, `.imp-lv2-badge` (gold inline pill), `.btn--imp-upgrade` (amber gradient).
+
+**T096 — Citizen Role Assignments:**
+
+**Files modified:**
+- `game/src/core/events.js`: Added `CITIZEN_ROLES_CHANGED:'citizenRolesChanged'`.
+- `game/src/core/state.js`: Added `citizenRoles:null` (persists across new games — not in `initState()`).
+- `game/src/core/actions.js`: Added `CITIZEN_ROLES` constant (4 entries: scholars/merchants/workers/soldiers with icon/name/desc), `CITIZEN_ROLE_ORDER` array, `adjustCitizenRole(role, delta)` — initialises `state.citizenRoles` if null; computes `maxSlots=floor(pop/100)`; validates bounds; calls `recalcRates()+emit CITIZEN_ROLES_CHANGED+RESOURCE_CHANGED`. Also applied soldier effect in `trainUnit()` (soldiers mult = max(0.50, 1 − slots×0.05)).
+- `game/src/systems/resources.js`: After population income block, applies citizen role bonuses — `merchants`: `rates.gold += slots × 0.3`; `workers`: `workerMult = 1 + slots × 0.04` applied to all positive rates.
+- `game/src/systems/research.js`: `startResearch()` applies `scholarMult = max(0.50, 1 − slots×0.05)` to `totalTicks` when scholars > 0.
+- `game/src/ui/summaryPanel.js`: Imported `CITIZEN_ROLES+CITIZEN_ROLE_ORDER+adjustCitizenRole`; subscribed `POPULATION_CHANGED+CITIZEN_ROLES_CHANGED→_render`; added `panel.onclick` delegation for `[data-citizen-role]` buttons (btn--shake on error); `_citizenRolesCard()` renders header with slots counter `X/Y`, hint, and 4 `.sum-citizen-row` rows (5-col grid: icon/name/count/buttons/desc); injected before `_progressionCard()` in `_render()`.
+- `game/src/main.js`: `citizenRoles` in `_save()/_applySave()`; save version bumped 31→32.
+- `game/styles/main.css`: `.sum-citizen-header/title/slots/--full/hint`, `.sum-citizen-row` (5-col grid), `.sum-citizen-icon/name/count/btns/desc`, `.sum-citizen-btn` (22×22 square button with accent hover), mobile rule hides `.sum-citizen-desc` column.
+
+**Architecture decisions:**
+- Level 2 improvements use `tile.improvementLevel === 2` (falsy for unupgraded tiles) — zero save overhead since `improvementLevel` lives inside `state.map.tiles` which is already persisted. No migration guard needed (undefined = level 1).
+- The upgrade requires Iron Age (not just tech) to create a natural gating point that matches the mid-to-late game power curve.
+- Citizen roles persist across New Game (like formation and archetype) because they represent player playstyle preferences, not per-game progression. `state.citizenRoles = null` is initialised lazily on first `adjustCitizenRole()` call.
+- Workers apply a multiplicative bonus to all positive rates after all other bonuses (including weather, season, policy, mastery) — this makes workers feel powerful in a developed economy where many bonuses stack. Capped at 50% max reduction for scholars and soldiers to prevent degenerate strategies.
+- The `maxSlots = floor(pop/100)` formula means the first slot requires 100 citizens — players must invest in houses and food production to unlock citizen roles, creating meaningful build order decisions.

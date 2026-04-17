@@ -255,7 +255,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 31,
+      version: 32,
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -308,6 +308,7 @@ function _save() {
         merchant:         state.merchant         ?? null,  // T087
         landmarks:        state.landmarks        ?? null,  // T089
         buildingSpecials: state.buildingSpecials ?? {},    // T090
+        citizenRoles:     state.citizenRoles     ?? null,  // T096
         tick:          state.tick,
       }
     }));
@@ -382,6 +383,7 @@ function _applySave(save) {
   state.merchant         = s.merchant         ?? null;  // T087
   state.landmarks        = s.landmarks        ?? null;  // T089
   state.buildingSpecials = s.buildingSpecials ?? {};    // T090
+  state.citizenRoles     = s.citizenRoles     ?? null;  // T096 (null = initialise on first use)
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };

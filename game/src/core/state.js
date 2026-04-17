@@ -227,6 +227,11 @@ export const state = {
   // T090: Building specializations — { [buildingId]: specializationId }
   // One permanent specialization per building slot; persists until New Game.
   buildingSpecials: {},
+
+  // T096: Citizen role assignments — persists across new games (player preference)
+  // { scholars: n, merchants: n, workers: n, soldiers: n }
+  // Each role slot = 100 citizens. Max total = floor(population / 100).
+  citizenRoles: null,
 };
 
 /**
