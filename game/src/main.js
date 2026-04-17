@@ -32,7 +32,8 @@ import { initPrestige, awardPrestige, getPrestigeScore } from './systems/prestig
 import { initDecrees, decreesTick } from './systems/decrees.js';
 import { initContracts, contractsTick } from './systems/contracts.js';
 import { initMerchant, merchantTick } from './systems/merchant.js';
-import { heroTick } from './systems/heroSystem.js';
+import { heroTick }        from './systems/heroSystem.js';
+import { initMilitaryAid } from './systems/militaryAid.js';
 import { SEASONS } from './data/seasons.js';
 import { AGES } from './data/ages.js';
 import { BUILDINGS } from './data/buildings.js';
@@ -141,8 +142,9 @@ function boot() {
   initWeather();
   initPrestige();
   initDecrees();
-  initContracts();  // T085: delivery contracts
-  initMerchant();   // T087: wandering merchant
+  initContracts();    // T085: delivery contracts
+  initMerchant();     // T087: wandering merchant
+  initMilitaryAid();  // T102: alliance military aid
 
   // Init UI
   initHUD();
@@ -193,6 +195,10 @@ function boot() {
   // T080: Update prestige badge on changes
   _updatePrestigeBadge();
   on(Events.PRESTIGE_CHANGED, _updatePrestigeBadge);
+
+  // T101: Update streak badge on streak changes
+  _updateStreakBadge();
+  on(Events.STREAK_CHANGED, _updateStreakBadge);
 
   // T080: Prestige event listeners (registered once — subscriptions persist across new games)
   on(Events.AGE_CHANGED, (d) => {
@@ -325,6 +331,8 @@ function _save() {
         rallyState:          state.rallyState          ?? null,  // T098
         expansionMilestones: state.expansionMilestones ?? {},    // T097
         capitalPlan:         state.capitalPlan         ?? null,  // T100
+        combatStreak:        state.combatStreak        ?? { count: 0, lastWinTick: 0 }, // T101
+        militaryAid:         state.militaryAid         ?? null,  // T102
         tick:          state.tick,
       }
     }));
@@ -403,6 +411,8 @@ function _applySave(save) {
   state.rallyState         = s.rallyState         ?? null;  // T098
   state.expansionMilestones = s.expansionMilestones ?? {};  // T097
   state.capitalPlan        = s.capitalPlan        ?? null;  // T100
+  state.combatStreak       = s.combatStreak       ?? { count: 0, lastWinTick: 0 }; // T101
+  state.militaryAid        = s.militaryAid        ?? null;  // T102
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
@@ -501,6 +511,25 @@ function _nextPrestigeMilestone(score) {
     { threshold: 5000, name: 'World Wonder' },
   ];
   return milestones.find(m => score < m.threshold) ?? null;
+}
+
+// ── Streak badge (T101) ───────────────────────────────────────────────────
+
+function _updateStreakBadge() {
+  const el = document.getElementById('streak-badge');
+  if (!el) return;
+  const count = state.combatStreak?.count ?? 0;
+  if (count < 2) {
+    el.style.display = 'none';
+    return;
+  }
+  const tier = count >= 10 ? 3 : count >= 6 ? 2 : count >= 3 ? 1 : 0;
+  const TIER_LABELS = ['⚔️', '🔥 Momentum', '⚡ Fury', '💥 Unstoppable'];
+  const TIER_DESC   = ['', '+10% ATK', '+20% ATK', '+35% ATK, ×2 loot'];
+  el.textContent = `${TIER_LABELS[tier]} ×${count}`;
+  el.className   = `streak-badge streak-badge--t${tier}`;
+  el.title       = `Conquest Streak: ${count} wins${tier > 0 ? ` — ${TIER_DESC[tier]}` : ''}`;
+  el.style.display = '';
 }
 
 // ── Score badge ───────────────────────────────────────────────────────────
@@ -657,8 +686,9 @@ function _newGame(opts = {}) {
   initWeather();
   initPrestige();
   initDecrees();
-  initContracts();  // T085
-  initMerchant();   // T087
+  initContracts();    // T085
+  initMerchant();     // T087
+  initMilitaryAid();  // T102
   recalcRates();
   startLoop();  // restart loop in case it was stopped by game-over
   _syncPauseUI();  // ensure pause overlay is hidden on new game
@@ -679,6 +709,7 @@ function _newGame(opts = {}) {
   _updateScoreBadge();
   _updatePrestigeBadge();
   _updateSiegeBadge();
+  _updateStreakBadge();
 }
 
 // ── UI Controls ───────────────────────────────────────────────────────────

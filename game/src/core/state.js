@@ -236,6 +236,14 @@ export const state = {
   // T100: Capital Development Plan — one-time permanent upgrade per game
   // null | 'fortress' | 'commerce' | 'academy' | 'arcane_tower'
   capitalPlan: null,
+
+  // T101: Conquest streak — consecutive battle wins without a loss
+  // { count: number, lastWinTick: number }
+  combatStreak: { count: 0, lastWinTick: 0 },
+
+  // T102: Alliance Military Aid — temporary troop reinforcements from allied empires
+  // { cooldowns: { [empireId]: tickExpiry }, active: { empireId, units, battlesLeft } | null }
+  militaryAid: null,
 };
 
 /**
@@ -295,5 +303,7 @@ export function initState(empireName = 'My Empire') {
   state.landmarks       = null;  // T089: special map landmarks
   state.buildingSpecials = {};   // T090: building specializations
   state.capitalPlan      = null; // T100: capital development plan (reset per game)
+  state.combatStreak     = { count: 0, lastWinTick: 0 }; // T101: reset streak each game
+  state.militaryAid      = null; // T102: reset aid each game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

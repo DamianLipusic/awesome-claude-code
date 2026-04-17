@@ -2,6 +2,51 @@
 
 ---
 
+## 2026-04-17 — Session N+21
+
+**Tasks completed:** T101, T102
+
+**Summary:**
+All prior tasks (T001–T100) were complete. Created two Phase 35 features: Conquest Streak System rewarding consecutive combat victories with escalating attack bonuses (T101), and Alliance Military Aid allowing players to call in temporary troops from allied empires for multi-battle assistance (T102).
+
+**T101 — Conquest Streak System:**
+- `src/core/events.js`: Added `STREAK_CHANGED` event.
+- `src/core/state.js`: Added `combatStreak:{count,lastWinTick}` to static object + `initState()` reset.
+- `src/systems/combat.js`: Added `_streakTier()`, `_streakMult()`, `_streakLootMult()` helpers; `getAttackPreview()` applies streak mult and returns `streakCount`/`streakTier`; `attackTile()` applies streak mult before roll; `_victory()` increments streak and logs milestone messages at 3/6/10 wins; `_defeat()` resets streak with break message; loot calculation multiplied by `streakLoot` for Unstoppable tier.
+- `index.html`: Added `#streak-badge` between siege-badge and score-badge.
+- `src/main.js`: `_updateStreakBadge()` renders tier label + tooltip; subscribed `STREAK_CHANGED` in boot; called in `_newGame()`; `combatStreak` saved/loaded.
+- `src/ui/mapPanel.js`: Combat preview shows `.cp-streak-notice` with tier name and bonus.
+- `styles/main.css`: `.streak-badge/--t0/--t1/--t2/--t3`, `.streak-badge--t3` glows via `streak-glow` keyframe; `.cp-streak-notice`; hidden on ≤600px.
+
+**T102 — Alliance Military Aid:**
+- `src/systems/militaryAid.js` (new file): `AID_COST=80g`, `AID_BATTLES=5`, `AID_COOLDOWN_TICKS=3600`; `initMilitaryAid()`, `canRequestAid()`, `requestMilitaryAid()`, `consumeAidBattle()`, `getActiveAid()`, `getAidCooldownSecs()`.
+- `src/data/empires.js`: Added `aidUnits` to all 3 empires (Iron Horde→3 soldiers+1 knight, Mage Council→2 mages, Sea Wolves→3 archers).
+- `src/core/events.js`: Added `MILITARY_AID_CHANGED` event.
+- `src/core/state.js`: Added `militaryAid:null` + `initState()` reset.
+- `src/systems/combat.js`: `getAttackPreview()` and `attackTile()` include aid unit attack power; `consumeAidBattle()` called after each battle result; preview returns `aidActive`/`aidEmpireId`/`aidBattlesLeft`.
+- `src/main.js`: `initMilitaryAid()` called in boot + `_newGame()`; `militaryAid` saved/loaded.
+- `src/ui/diplomacyPanel.js`: Imported aid functions; `MILITARY_AID_CHANGED` subscription; TICK handler includes aid activity check; `_aidRow(emp)` renders aid request UI per allied empire; `request-aid` case in `_onClick()`.
+- `src/ui/militaryPanel.js`: `MILITARY_AID_CHANGED` subscription; `_armySection()` shows `.mil-aid-row` when aid is active.
+- `src/ui/mapPanel.js`: Combat preview shows green aid-active notice.
+- `styles/main.css`: `.dipl-aid-row/--active`, `.btn--request-aid`, `.mil-aid-row`.
+
+**Files modified:**
+- `game/src/core/events.js`
+- `game/src/core/state.js`
+- `game/src/systems/combat.js`
+- `game/src/systems/militaryAid.js` (new)
+- `game/src/data/empires.js`
+- `game/src/ui/mapPanel.js`
+- `game/src/ui/diplomacyPanel.js`
+- `game/src/ui/militaryPanel.js`
+- `game/src/main.js`
+- `game/index.html`
+- `game/styles/main.css`
+- `game/.intel/tasks.json`
+- `game/.intel/execution.log`
+
+---
+
 ## 2026-04-17 — Session N+20
 
 **Tasks completed:** T099, T100

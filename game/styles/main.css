@@ -6207,3 +6207,100 @@ kbd {
 @media (max-width: 480px) {
   .cap-plan-grid { grid-template-columns: 1fr; }
 }
+
+/* ── T101: Conquest Streak ──────────────────────────────────────────────── */
+
+.streak-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: default;
+  transition: all 0.3s ease;
+}
+.streak-badge--t0 {
+  background: var(--bg-card);
+  border: 1px solid var(--border-h);
+  color: var(--text-muted);
+}
+.streak-badge--t1 {
+  background: rgba(237, 137, 54, 0.15);
+  border: 1px solid #ed8936;
+  color: #ed8936;
+}
+.streak-badge--t2 {
+  background: rgba(99, 179, 237, 0.15);
+  border: 1px solid #63b3ed;
+  color: #63b3ed;
+}
+.streak-badge--t3 {
+  background: rgba(255, 215, 0, 0.15);
+  border: 1px solid #ffd700;
+  color: #ffd700;
+  animation: streak-glow 1.2s ease-in-out infinite alternate;
+}
+@keyframes streak-glow {
+  from { box-shadow: 0 0 4px rgba(255,215,0,0.3); }
+  to   { box-shadow: 0 0 10px rgba(255,215,0,0.7); }
+}
+
+/* streak notice in combat preview modal */
+.cp-streak-notice {
+  background: rgba(237, 137, 54, 0.10);
+  border: 1px solid rgba(237, 137, 54, 0.5);
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 11px;
+  color: #ed8936;
+  text-align: center;
+  margin-top: 4px;
+}
+
+@media (max-width: 600px) {
+  .streak-badge { display: none; }
+}
+
+/* ── T102: Alliance Military Aid ────────────────────────────────────────── */
+
+/* Diplomacy panel — aid row */
+.dipl-aid-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  border-top: 1px solid var(--border-h);
+  padding: 6px 0 2px;
+  font-size: 11px;
+  color: var(--text-dim);
+}
+.dipl-aid-row--active {
+  color: #68d391;
+  font-style: italic;
+}
+.dipl-aid-label { flex: 1; min-width: 0; white-space: nowrap; }
+.dipl-aid-cd { color: var(--accent-h); font-weight: 600; }
+.btn--request-aid {
+  font-size: 10px;
+  padding: 2px 7px;
+  border: 1px solid #68d391;
+  color: #68d391;
+  background: rgba(104,211,145,0.08);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn--request-aid:hover:not(:disabled) { background: rgba(104,211,145,0.2); }
+.btn--request-aid:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* Military panel — aid troops row */
+.mil-aid-row {
+  margin-top: 6px;
+  padding: 5px 8px;
+  background: rgba(104,211,145,0.08);
+  border: 1px solid rgba(104,211,145,0.4);
+  border-radius: 4px;
+  font-size: 11px;
+  color: #68d391;
+}

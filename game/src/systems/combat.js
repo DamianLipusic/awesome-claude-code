@@ -22,6 +22,7 @@ import { BOONS } from '../data/ageBoons.js';
 import { SYNERGIES } from '../data/techs.js';
 import { isEmpireInSkirmish, SKIRMISH_ATTACK_BONUS } from './diplomacy.js';
 import { EMPIRES } from '../data/empires.js';
+import { getActiveAid, consumeAidBattle } from './militaryAid.js';
 
 /** Returns true if both techs of a named synergy are researched. */
 function _synergy(id) {
@@ -103,6 +104,31 @@ function _councilBoonCombatMult() {
     if (def?.effect?.combatAttack) bonus += def.effect.combatAttack;
   }
   return 1.0 + bonus;
+}
+
+// ── T101: Conquest streak helpers ────────────────────────────────────────────
+
+/** Returns the current streak tier (0=none, 1=Momentum, 2=Fury, 3=Unstoppable). */
+function _streakTier() {
+  const c = state.combatStreak?.count ?? 0;
+  if (c >= 10) return 3;
+  if (c >= 6)  return 2;
+  if (c >= 3)  return 1;
+  return 0;
+}
+
+/** Returns the attack power multiplier from the active streak tier. */
+function _streakMult() {
+  const tier = _streakTier();
+  if (tier === 3) return 1.35;
+  if (tier === 2) return 1.20;
+  if (tier === 1) return 1.10;
+  return 1.0;
+}
+
+/** Returns the loot multiplier (×2 at tier 3, otherwise 1). */
+function _streakLootMult() {
+  return _streakTier() >= 3 ? 2.0 : 1.0;
 }
 
 /** Returns the attack multiplier for a unit type based on its combat rank. */
@@ -213,6 +239,20 @@ export function getAttackPreview(x, y) {
   const skirmishBonus  = !siegeActive && !manaBoltActive && isEmpireInSkirmish(tile.owner);
   if (skirmishBonus) winChance = Math.min(0.9, winChance + SKIRMISH_ATTACK_BONUS);
 
+  // T102: Aid troops from an allied empire (preview only — no side effects)
+  const _aid = getActiveAid();
+  if (_aid) {
+    for (const [id, count] of Object.entries(_aid.units)) {
+      const def = UNITS[id];
+      if (def) attackPower += def.attack * count;
+    }
+  }
+
+  // T101: Conquest streak attack bonus
+  const streakCount = state.combatStreak?.count ?? 0;
+  const streakTier  = _streakTier();
+  if (streakTier > 0) attackPower *= _streakMult();
+
   return {
     valid:            true,
     attackPower:      Math.round(attackPower),
@@ -232,6 +272,11 @@ export function getAttackPreview(x, y) {
     veteranLegion:   _synergy('veteran_legion'),
     warBannerCharges: state.decrees?.warBannerCharges ?? 0,
     skirmishBonus,
+    streakCount,
+    streakTier,
+    aidActive:    !!_aid,
+    aidEmpireId:  _aid?.empireId ?? null,
+    aidBattlesLeft: _aid?.battlesLeft ?? 0,
   };
 }
 
@@ -366,6 +411,20 @@ export function attackTile(x, y) {
     addMessage('⚔️ Skirmish distraction: +20% attack advantage!', 'info');
   }
 
+  // T102: Aid troops from an allied empire contribute to attack power
+  const _aid = getActiveAid();
+  if (_aid) {
+    let aidPower = 0;
+    for (const [id, count] of Object.entries(_aid.units)) {
+      const def = UNITS[id];
+      if (def) aidPower += def.attack * count;
+    }
+    if (aidPower > 0) attackPower += aidPower;
+  }
+
+  // T101: Conquest streak attack bonus
+  if (_streakTier() > 0) attackPower *= _streakMult();
+
   const roll = Math.random();
 
   // T083: consume one War Banner charge (win or lose — the banner was raised)
@@ -376,11 +435,14 @@ export function attackTile(x, y) {
     }
   }
 
-  if (roll < winChance) {
-    return _victory(tile, x, y, attackPower, effectiveDefense);
-  } else {
-    return _defeat(tile, x, y, attackPower, effectiveDefense);
-  }
+  const result = roll < winChance
+    ? _victory(tile, x, y, attackPower, effectiveDefense)
+    : _defeat(tile, x, y, attackPower, effectiveDefense);
+
+  // T102: each battle (win or loss) consumes one aid charge
+  consumeAidBattle();
+
+  return result;
 }
 
 // ── Outcome handlers ───────────────────────────────────────────────────────
@@ -404,11 +466,14 @@ function _victory(tile, x, y, attackPower, defense) {
     ? heroSkillBonus(state.hero.skills, 'lootMult')
     : 1.0;
 
+  // T101: Unstoppable streak tier — doubled loot
+  const streakLoot = _streakLootMult();
+
   // Grant loot (cap at current storage cap)
   const lootParts = [];
   const lootGained = {};
   for (const [res, amt] of Object.entries(tile.loot ?? {})) {
-    const bonusAmt = Math.round(amt * lootMult);
+    const bonusAmt = Math.round(amt * lootMult * streakLoot);
     const cap  = state.caps[res] ?? 500;
     const prev = state.resources[res] ?? 0;
     state.resources[res] = Math.min(cap, prev + bonusAmt);
@@ -429,6 +494,17 @@ function _victory(tile, x, y, attackPower, defense) {
 
   // T070: Track hero combat wins for skill system
   if (state.hero?.recruited) _trackHeroCombatWin();
+
+  // T101: Increment conquest streak
+  if (!state.combatStreak) state.combatStreak = { count: 0, lastWinTick: 0 };
+  state.combatStreak.count++;
+  state.combatStreak.lastWinTick = state.tick;
+  const newStreakTier = _streakTier();
+  const streakCnt = state.combatStreak.count;
+  if      (streakCnt === 3)  addMessage('🔥 Momentum! 3-win streak — +10% attack power.', 'combat-win');
+  else if (streakCnt === 6)  addMessage('⚡ Battle Fury! 6-win streak — +20% attack power.', 'combat-win');
+  else if (streakCnt === 10) addMessage('💥 Unstoppable! 10-win streak — +35% attack & doubled loot!', 'combat-win');
+  emit(Events.STREAK_CHANGED, { count: streakCnt, tier: newStreakTier });
 
   // T064: chance to discover an ancient relic on this tile
   _tryDiscoverRelic(tile, x, y);
@@ -630,6 +706,15 @@ function _defeat(tile, x, y, attackPower, defense) {
 
   // T057: defeat damages army morale
   changeMorale(MORALE_COMBAT_LOSS);
+
+  // T101: Reset conquest streak on defeat
+  if ((state.combatStreak?.count ?? 0) > 0) {
+    if ((state.combatStreak.count ?? 0) >= 3) {
+      addMessage(`💔 Streak broken after ${state.combatStreak.count} wins.`, 'combat-loss');
+    }
+    state.combatStreak = { count: 0, lastWinTick: state.tick };
+    emit(Events.STREAK_CHANGED, { count: 0, tier: 0 });
+  }
 
   // T082: hero injury — 20% chance the hero is knocked out on defeat
   let heroInjuredMsg = '';

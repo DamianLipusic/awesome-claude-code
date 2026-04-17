@@ -770,6 +770,22 @@ function _showCombatPreview(x, y) {
   // T071: terrain modifier notice (only shown when there's actually a modifier)
   const terrainNoticeHtml = _terrainModHtml(p.terrain, 'color:var(--accent-h)');
 
+  // T101: Streak bonus notice
+  const STREAK_TIER_LABELS = ['', '🔥 Momentum', '⚡ Battle Fury', '💥 Unstoppable'];
+  const STREAK_TIER_BONUS  = ['', '+10% ATK', '+20% ATK', '+35% ATK, ×2 loot'];
+  const streakTier  = p.streakTier ?? 0;
+  const streakCount = p.streakCount ?? 0;
+  const streakHtmlPreview = streakTier > 0
+    ? `<div class="cp-streak-notice">${STREAK_TIER_LABELS[streakTier]}: ${streakCount}-win streak — ${STREAK_TIER_BONUS[streakTier]}</div>`
+    : (streakCount >= 2
+      ? `<div class="cp-streak-notice" style="opacity:0.7">⚔️ Streak: ${streakCount} wins (${3 - streakCount} more for Momentum)</div>`
+      : '');
+
+  // T102: Aid troops notice
+  const aidHtmlPreview = p.aidActive
+    ? `<div class="cp-siege-notice" style="color:#68d391">🛡️ Allied Aid: ${p.aidBattlesLeft} battle${p.aidBattlesLeft !== 1 ? 's' : ''} remaining</div>`
+    : '';
+
   // Use effective defense (after terrain) for the stat display; show base if different
   const defDisplay = (p.effectiveDefense !== undefined && p.effectiveDefense !== p.defense)
     ? `${p.effectiveDefense} <span style="font-size:0.75em;opacity:0.6">(base ${p.defense})</span>`
@@ -793,7 +809,7 @@ function _showCombatPreview(x, y) {
           <span class="cp-stat__value" style="color:${winColor}">${winPct}%</span>
         </div>
       </div>
-      ${terrainNoticeHtml}${siegeHtml}${manaBoltHtml}${battleCryHtml}${formationHtml}
+      ${terrainNoticeHtml}${siegeHtml}${manaBoltHtml}${battleCryHtml}${formationHtml}${streakHtmlPreview}${aidHtmlPreview}
       <div class="cp-loot-row">
         <span class="cp-loot-label">Loot on victory:</span>
         <span class="cp-loot-items">${lootHtml}</span>

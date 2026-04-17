@@ -24,6 +24,10 @@ import {
   launchMission, canLaunchMission, espionageCooldownSecs,
   MISSION_LABELS, MISSION_DESCS,
 } from '../systems/espionage.js';
+import {
+  requestMilitaryAid, canRequestAid, getAidCooldownSecs, getActiveAid,
+  AID_COST, AID_BATTLES,
+} from '../systems/militaryAid.js';
 import { fmtNum } from '../utils/fmt.js';
 
 const PANEL_ID = 'panel-diplomacy';
@@ -44,9 +48,10 @@ export function initDiplomacyPanel() {
   on(Events.ALLIANCE_GIFT,     () => _render(panel));  // T076
   on(Events.BORDER_SKIRMISH,   () => _render(panel));  // T088
   on(Events.RESOURCE_CHANGED,  _throttle(() => _render(panel), 8));
-  on(Events.TECH_CHANGED,      () => _render(panel));
-  on(Events.ESPIONAGE_EVENT,   () => _render(panel));
-  // Refresh cooldown countdown every second; also refresh ceasefire/gift/skirmish timers when active
+  on(Events.TECH_CHANGED,          () => _render(panel));
+  on(Events.ESPIONAGE_EVENT,       () => _render(panel));
+  on(Events.MILITARY_AID_CHANGED,  () => _render(panel));
+  // Refresh cooldown countdown every second; also refresh ceasefire/gift/skirmish/aid timers when active
   on(Events.TICK, _throttle(() => {
     const cd = document.getElementById('espionage-cooldown');
     if (cd) _updateCooldownDisplay(cd);
@@ -57,7 +62,9 @@ export function initDiplomacyPanel() {
     const hasGiftCooldown = state.diplomacy?.empires.some(e => (e.playerGiftCooldownUntil ?? 0) > state.tick);
     // T088: refresh while skirmish is active (countdown ticks)
     const hasSkirmish     = isSkirmishActive();
-    if (hasCeasefire || hasAllied || hasGiftCooldown || hasSkirmish) {
+    // T102: refresh while aid is active or any aid cooldown is ticking
+    const hasAidActivity  = !!getActiveAid() || Object.values(state.militaryAid?.cooldowns ?? {}).some(t => t > state.tick);
+    if (hasCeasefire || hasAllied || hasGiftCooldown || hasSkirmish || hasAidActivity) {
       _render(panel);
     }
   }, 4));
@@ -408,9 +415,43 @@ function _empireCard(emp) {
       ${allianceBonusHtml}
       ${warScoreHtml}
       ${_giftRow(emp)}
+      ${_aidRow(emp)}
       <div class="dipl-empire-card__actions">${btns.join('')}</div>
     </div>
   `;
+}
+
+// ── T102: Military Aid row ────────────────────────────────────────────────────
+
+function _aidRow(emp) {
+  if (emp.relations !== 'allied') return '';
+
+  const def = EMPIRES[emp.id];
+  const unitList = (def.aidUnits ?? []).map(u => `${u.count}× ${u.unitId}`).join(', ');
+
+  const active   = getActiveAid();
+  const isActive = active?.empireId === emp.id;
+  const cdSecs   = getAidCooldownSecs(emp.id);
+  const check    = canRequestAid(emp.id);
+
+  if (isActive) {
+    return `<div class="dipl-aid-row dipl-aid-row--active">
+      🛡️ Aid active — ${active.battlesLeft} battle${active.battlesLeft !== 1 ? 's' : ''} remaining
+    </div>`;
+  }
+
+  const btnDisabled = !check.ok ? 'disabled' : '';
+  const btnTitle    = !check.ok ? check.reason : `Request ${unitList} for ${AID_BATTLES} battles`;
+  const cdText      = cdSecs > 0
+    ? `<span class="dipl-aid-cd">⏳ ${cdSecs}s</span>`
+    : '';
+
+  return `<div class="dipl-aid-row">
+    <span class="dipl-aid-label">🛡️ Military Aid (${AID_COST}g):</span>
+    ${cdText}
+    <button class="btn btn--xs btn--request-aid" data-action="request-aid" data-empire="${emp.id}"
+      ${btnDisabled} title="${btnTitle}">Request Aid</button>
+  </div>`;
 }
 
 function _tradeIncomeStr(def, count) {
@@ -552,6 +593,15 @@ function _onClick(e) {
     case 'mediateSkirmish': {
       result = mediateSkirmish();
       if (!result.ok) addMessageFallback(result.reason);
+      break;
+    }
+    case 'request-aid': {
+      result = requestMilitaryAid(empire);
+      if (!result.ok) {
+        btn.classList.add('btn--shake');
+        setTimeout(() => btn.classList.remove('btn--shake'), 400);
+        addMessageFallback(result.reason);
+      }
       break;
     }
   }

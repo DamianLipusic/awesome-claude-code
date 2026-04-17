@@ -16,6 +16,7 @@ import { castSpell, SPELLS, SPELL_ORDER } from '../systems/spells.js';
 import { getMoraleLabel, getMoraleEffect } from '../systems/morale.js';
 import { hireMercenary, mercenarySecsLeft } from '../systems/mercenaries.js';
 import { useDecree, canUseDecree, getDecreeSecsLeft, isHarvestEdictActive, getWarBannerCharges } from '../systems/decrees.js';
+import { getActiveAid } from '../systems/militaryAid.js';
 import { DECREES } from '../data/decrees.js';
 import { UNITS } from '../data/units.js';
 import { BUILDINGS } from '../data/buildings.js';
@@ -61,7 +62,8 @@ export function initMilitaryPanel() {
   on(Events.MAP_CHANGED,      () => _render(panel));  // combat outcomes update history
   on(Events.SPELL_CAST,       () => _render(panel));
   on(Events.MORALE_CHANGED,    () => _render(panel));  // T057: re-render on morale change
-  on(Events.MERCENARY_CHANGED, () => _render(panel));  // T075: mercenary offer spawned/expired
+  on(Events.MERCENARY_CHANGED,    () => _render(panel));  // T075: mercenary offer spawned/expired
+  on(Events.MILITARY_AID_CHANGED, () => _render(panel));  // T102: aid active/expired
   on(Events.DECREE_USED,       () => _render(panel));  // T083: decree activated / expired
   on(Events.RESOURCE_CHANGED,  () => _renderCosts(panel));
   on(Events.GAME_LOADED,       () => _render(panel));
@@ -607,9 +609,24 @@ function _armySection() {
     <span class="mil-power">⚔ ${HERO_DEF.attack}</span>
   </span>` : '';
 
+  // T102: Show active aid troops as a separate row
+  const aid = getActiveAid();
+  let aidHtml = '';
+  if (aid) {
+    const empName = state.diplomacy?.empires.find(e => e.id === aid.empireId)?.id ?? aid.empireId;
+    const aidItems = Object.entries(aid.units).map(([id, cnt]) => {
+      const def = UNITS[id];
+      return `${def?.icon ?? '⚔️'} ${cnt}× ${def?.name ?? id}`;
+    }).join(', ');
+    aidHtml = `<div class="mil-aid-row">
+      🛡️ <em>Allied Aid</em> (${aid.battlesLeft} battle${aid.battlesLeft !== 1 ? 's' : ''} left): ${aidItems}
+    </div>`;
+  }
+
   return `<div class="mil-army">
     <span class="mil-section-title">⚔️ Army <span class="mil-total-power">Combat power: ${Math.round(totalPower)}</span></span>
     <div class="mil-badges">${heroEntry}${items}</div>
+    ${aidHtml}
   </div>`;
 }
 
