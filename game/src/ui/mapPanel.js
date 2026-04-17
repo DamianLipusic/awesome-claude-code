@@ -269,9 +269,11 @@ function _showTileTip(tile, x, y, mouseX, mouseY) {
   const factionLabel = (tile.owner === 'enemy' && tile.faction && EMPIRES[tile.faction])
     ? `${EMPIRES[tile.faction].icon} ${EMPIRES[tile.faction].name}`
     : 'Enemy';
+  // T093: show capital badge for faction capital tiles
+  const capitalLabel = tile.isFactionCapital ? `👑 ${factionLabel} Capital` : factionLabel;
   const ownerHtml =
     tile.owner === 'player'    ? `<span class="map-tt-owner map-tt-owner--player">Your territory</span>`
-    : tile.owner === 'enemy'   ? `<span class="map-tt-owner map-tt-owner--enemy">${factionLabel}</span>`
+    : tile.owner === 'enemy'   ? `<span class="map-tt-owner map-tt-owner--enemy">${capitalLabel}</span>`
     : tile.owner === 'barbarian' ? `<span class="map-tt-owner map-tt-owner--enemy">💀 Barbarian Camp</span>`
     : `<span class="map-tt-owner">Neutral</span>`;
 
@@ -318,6 +320,11 @@ function _showTileTip(tile, x, y, mouseX, mouseY) {
     ? `<div class="map-tt-row" style="font-size:0.7rem;color:var(--accent)">${tModEntry.icon} ${tModEntry.text}</div>`
     : '';
 
+  // T093: faction capital capture hint
+  const capitalHtml = tile.isFactionCapital && tile.owner === 'enemy'
+    ? `<div class="map-tt-row" style="color:#ffd700;font-weight:600">👑 Capture for peace + prestige!</div>`
+    : '';
+
   // T089: landmark hint
   const lmHtml = tile.landmark
     ? (() => {
@@ -334,6 +341,7 @@ function _showTileTip(tile, x, y, mouseX, mouseY) {
   _tileTipEl.innerHTML = `
     <div class="map-tt-title">${TERRAIN_NAME[tile.type] ?? tile.type}</div>
     <div class="map-tt-row">${ownerHtml}</div>
+    ${capitalHtml}
     ${lmHtml}
     ${bonusHtml}
     ${terrainCombatHtml}
@@ -478,13 +486,13 @@ function _drawTile(tile, x, y, capital) {
     return;  // caravan overrides all other icons
   }
 
-  // Icons: capital castle, enemy sword, barbarian skull, improvement icons
+  // Icons: capital castle, enemy sword/crown, barbarian skull, improvement icons
   if (x === capital.x && y === capital.y) {
     _drawIcon(px, py, '🏰');
   } else if (tile.owner === 'barbarian' && tile.revealed) {
     _drawIcon(px, py, '💀');   // T056: barbarian camp skull
   } else if (tile.owner === 'enemy' && tile.revealed) {
-    _drawIcon(px, py, '⚔️');
+    _drawIcon(px, py, tile.isFactionCapital ? '👑' : '⚔️');  // T093: crown for faction capitals
   } else if (tile.owner === 'player' && tile.improvement) {
     // T051: draw improvement icon on player-owned improved tiles
     const impDef = IMPROVEMENTS[tile.type];

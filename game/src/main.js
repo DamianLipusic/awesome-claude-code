@@ -203,6 +203,7 @@ function boot() {
     if (d?.type === 'mediated') awardPrestige(MEDIATE_PRESTIGE, 'skirmish mediation');
   });
   on(Events.LANDMARK_CAPTURED, (d) => awardPrestige(150, `landmark captured: ${d?.landmarkId ?? ''}`));
+  on(Events.FACTION_CAPITAL_CAPTURED, (d) => awardPrestige(150, `faction capital captured: ${d?.factionId ?? ''}`));
 
   // Update age badge on changes; also show council boon modal on advancement
   _updateAgeBadge();

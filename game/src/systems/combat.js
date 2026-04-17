@@ -21,6 +21,7 @@ import { LANDMARKS } from '../data/landmarks.js';
 import { BOONS } from '../data/ageBoons.js';
 import { SYNERGIES } from '../data/techs.js';
 import { isEmpireInSkirmish, SKIRMISH_ATTACK_BONUS } from './diplomacy.js';
+import { EMPIRES } from '../data/empires.js';
 
 /** Returns true if both techs of a named synergy are researched. */
 function _synergy(id) {
@@ -379,11 +380,13 @@ export function attackTile(x, y) {
 // ── Outcome handlers ───────────────────────────────────────────────────────
 
 function _victory(tile, x, y, attackPower, defense) {
-  const wasBarbarian = tile.owner === 'barbarian';  // T056: check before changing owner
+  const wasBarbarian      = tile.owner === 'barbarian';            // T056: check before changing owner
+  const wasFactionCapital = tile.isFactionCapital ?? null;         // T093: check before changing owner
 
-  tile.owner    = 'player';
-  tile.faction  = null;    // T053: clear faction on player capture
-  tile.revealed = true;
+  tile.owner            = 'player';
+  tile.faction          = null;    // T053: clear faction on player capture
+  tile.isFactionCapital = null;    // T093: clear capital status on capture
+  tile.revealed         = true;
   // T056: clean up barbarian defense boost metadata
   if (wasBarbarian && tile.barbDefenseBase !== undefined) {
     delete tile.barbDefenseBase;
@@ -427,6 +430,24 @@ function _victory(tile, x, y, attackPower, defense) {
   // T089: check if this tile contains a special landmark
   _tryCaptureLandmark(tile, x, y);
 
+  // T093: faction capital capture — force peace, award morale bonus
+  if (wasFactionCapital) {
+    if (state.diplomacy) {
+      const emp = state.diplomacy.empires.find(e => e.id === wasFactionCapital);
+      if (emp) {
+        const wasAtWar = emp.relations === 'war';
+        emp.relations = 'neutral';
+        emp.warScore  = 0;
+        emit(Events.DIPLOMACY_CHANGED, { empireId: wasFactionCapital, relations: 'neutral' });
+        if (wasAtWar) {
+          addMessage(`🕊️ ${EMPIRES[wasFactionCapital]?.name ?? wasFactionCapital} has surrendered! Peace restored.`, 'windfall');
+        }
+      }
+    }
+    changeMorale(10);
+    emit(Events.FACTION_CAPITAL_CAPTURED, { factionId: wasFactionCapital, x, y });
+  }
+
   // T058: award war score for capturing tiles belonging to a faction at war
   if (tile.faction && state.diplomacy) {
     const warEmp = state.diplomacy.empires.find(e => e.id === tile.faction && e.relations === 'war');
@@ -444,6 +465,11 @@ function _victory(tile, x, y, attackPower, defense) {
   if (wasBarbarian) {
     addMessage(
       `💀 Barbarian camp cleared at (${x},${y})!${lootStr}`,
+      'combat-win',
+    );
+  } else if (wasFactionCapital) {
+    addMessage(
+      `👑 ${EMPIRES[wasFactionCapital]?.name ?? wasFactionCapital} capital captured at (${x},${y})! +10 morale.${lootStr}`,
       'combat-win',
     );
   } else {

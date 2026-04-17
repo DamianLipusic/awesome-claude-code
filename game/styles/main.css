@@ -2811,6 +2811,10 @@ kbd {
   color: #a8d8ff;
 }
 
+.hud-tt__modifier--overflow {
+  color: #ffd700;
+}
+
 .hud-tt__divider {
   border-top: 1px solid var(--border);
   margin: 5px 0;
@@ -2952,6 +2956,12 @@ kbd {
 .hud__resource--alert {
   border-color: var(--red) !important;
   animation: alert-pulse 1.4s ease-in-out infinite;
+}
+
+/* T094: overflow bank — subtle gold shimmer when resource is at cap and converting to gold */
+.hud__resource--full {
+  border-color: #c8a800 !important;
+  box-shadow: 0 0 5px rgba(200, 168, 0, 0.28);
 }
 
 @keyframes alert-pulse {

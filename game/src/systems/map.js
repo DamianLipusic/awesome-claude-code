@@ -79,6 +79,9 @@ export function initMap() {
   // Scatter enemy settlements across the map
   _placeEnemies(tiles);
 
+  // T093: designate one capital per faction (farthest settlement from player)
+  _designateFactionCapitals(tiles);
+
   // Place special landmarks (T089)
   _placeLandmarks(tiles);
   state.landmarks = { captured: {} };
@@ -198,6 +201,32 @@ function _placeEnemies(tiles) {
     const { x, y } = candidates[i];
     tiles[y][x].owner   = 'enemy';
     tiles[y][x].faction = _getFaction(x, y);
+  }
+}
+
+/**
+ * T093: Designate one enemy settlement per faction as that faction's capital.
+ * Selects the settlement farthest from the player capital for each faction.
+ * Capitals get +40% defense and have tile.isFactionCapital = factionId.
+ */
+function _designateFactionCapitals(tiles) {
+  const factions = ['ironHorde', 'mageCouncil', 'seaWolves'];
+  for (const faction of factions) {
+    let bestTile = null;
+    let bestDist = -1;
+    for (let y = 0; y < MAP_H; y++) {
+      for (let x = 0; x < MAP_W; x++) {
+        const tile = tiles[y][x];
+        if (tile.owner === 'enemy' && tile.faction === faction) {
+          const dist = Math.hypot(x - CAPITAL.x, y - CAPITAL.y);
+          if (dist > bestDist) { bestDist = dist; bestTile = tile; }
+        }
+      }
+    }
+    if (bestTile) {
+      bestTile.isFactionCapital = faction;
+      bestTile.defense = Math.round(bestTile.defense * 1.4);
+    }
   }
 }
 

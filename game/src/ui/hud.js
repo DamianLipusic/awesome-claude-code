@@ -110,6 +110,11 @@ function _showTooltip(resId, anchorEl) {
     .map(p => `<div class="hud-tt__modifier hud-tt__modifier--policy">📜 ${p.label}</div>`)
     .join('');
 
+  // T094: overflow bank notice (non-gold resources at cap)
+  const overflowRow = breakdown.overflowGoldRate
+    ? `<div class="hud-tt__modifier hud-tt__modifier--overflow">💰 Overflow → gold: +${breakdown.overflowGoldRate.toFixed(2)}/s</div>`
+    : '';
+
   const divider = rows ? '<div class="hud-tt__divider"></div>' : '';
   const totalSign = breakdown.total >= 0 ? '+' : '';
   const totalCls  = breakdown.total >= 0 ? 'hud-tt__val--pos' : 'hud-tt__val--neg';
@@ -120,6 +125,7 @@ function _showTooltip(resId, anchorEl) {
     ${seasonRow}
     ${disasterRows}
     ${policyRows}
+    ${overflowRow}
     ${divider}
     <div class="hud-tt__row hud-tt__total">
       <span class="hud-tt__label">Net rate</span>
@@ -217,6 +223,9 @@ function renderHUD() {
     if (hudEl) {
       hudEl.classList.toggle('hud__resource--alert',
         typeof threshold === 'number' && val <= threshold);
+      // T094: gold shimmer when non-gold resource is at cap with positive rate (overflow active)
+      hudEl.classList.toggle('hud__resource--full',
+        r.id !== 'gold' && val >= cap * 0.99 && rate > 0);
     }
   }
 }

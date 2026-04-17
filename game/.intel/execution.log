@@ -2,6 +2,39 @@
 
 ---
 
+## 2026-04-17 — Session N+18
+
+**Tasks completed:** T093, T094
+
+**Summary:**
+All prior tasks (T001–T092) were complete. Created two Phase 31 features: Enemy Faction Capitals that give territorial combat a strategic endgame objective (T093), and a Resource Overflow Bank that rewards players who max out production by converting surplus to gold (T094).
+
+**T093 — Enemy Faction Capitals:**
+- `src/core/events.js`: Added `FACTION_CAPITAL_CAPTURED: 'factionCapitalCaptured'` event constant.
+- `src/systems/map.js`: Added `_designateFactionCapitals(tiles)` function. Iterates all 3 factions (ironHorde/mageCouncil/seaWolves), finds the enemy tile with maximum distance from the player capital via `Math.hypot`, marks it with `tile.isFactionCapital = factionId`, and boosts its defense by ×1.4. Called from `initMap()` after `_placeEnemies()`.
+- `src/systems/combat.js`: Imported `EMPIRES` from `data/empires.js`. In `_victory()`, saves `wasFactionCapital = tile.isFactionCapital ?? null` before owner mutation, clears `tile.isFactionCapital = null` when setting ownership. After `_tryCaptureLandmark()`, if capital captured: forces the faction's empire to `neutral` relations + resets warScore, calls `changeMorale(10)`, emits `FACTION_CAPITAL_CAPTURED` + `DIPLOMACY_CHANGED`. Victory message branches to show the 👑 capital capture text.
+- `src/ui/mapPanel.js`: `_drawTile()` uses crown icon `👑` instead of `⚔️` for enemy tiles where `tile.isFactionCapital` is set. `_showTileTip()` prepends `👑` to the faction label for capital tiles and injects a `capitalHtml` div with gold-coloured `'👑 Capture for peace + prestige!'` hint row.
+- `src/main.js`: `on(Events.FACTION_CAPITAL_CAPTURED)` calls `awardPrestige(150, ...)`. No save version bump — `tile.isFactionCapital` lives inside `state.map.tiles` which is already fully persisted.
+
+**T094 — Resource Overflow Bank:**
+- `src/systems/resources.js`: Added module-level `_overflowActive` object tracking overflow state per non-gold resource. In `resourceTick()`, for each non-gold resource with positive delta, computes `overflow = max(0, (current+delta) - cap)`; if >0, accumulates `overflowGold += overflow × 0.25` and marks `_overflowActive[res] = true`; after the main loop, applies accumulated overflow gold to `state.resources.gold` (capped). In `getBreakdown()`: for `resId='gold'` appends overflow source lines for each non-gold resource currently at cap; for non-gold resId at cap, sets `overflowGoldRate = rate × 0.25` in return object.
+- `src/ui/hud.js`: `_showTooltip()` builds `overflowRow` from `breakdown.overflowGoldRate` and injects it into tooltip HTML (gold-coloured modifier line). `renderHUD()` toggles `.hud__resource--full` class when `r.id !== 'gold' && val >= cap * 0.99 && rate > 0`.
+- `styles/main.css`: `.hud-tt__modifier--overflow` (gold `#ffd700` text); `.hud__resource--full` (gold border-color + subtle gold box-shadow). No new state, no save version bump.
+
+**Files modified / created:**
+- `game/src/core/events.js`
+- `game/src/systems/map.js`
+- `game/src/systems/combat.js`
+- `game/src/ui/mapPanel.js`
+- `game/src/main.js`
+- `game/src/systems/resources.js`
+- `game/src/ui/hud.js`
+- `game/styles/main.css`
+- `game/.intel/tasks.json`
+- `game/.intel/execution.log`
+
+---
+
 ## 2026-04-17 — Session N+17
 
 **Tasks completed:** T091, T092
