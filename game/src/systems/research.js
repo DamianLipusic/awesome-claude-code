@@ -108,6 +108,11 @@ export function startResearch(techId) {
     if (researchMult !== 1.0) totalTicks = Math.ceil(totalTicks * researchMult);
   }
 
+  // T091: Mage Council alliance bonus — +30% research speed (70% of base time)
+  if (state.diplomacy?.empires.some(e => e.id === 'mageCouncil' && e.relations === 'allied')) {
+    totalTicks = Math.ceil(totalTicks * 0.70);
+  }
+
   state.researchQueue.push({ techId, remaining: totalTicks, totalTicks });
   addMessage(`Researching ${def.name}…`, 'research');
   emit(Events.TECH_CHANGED, {});

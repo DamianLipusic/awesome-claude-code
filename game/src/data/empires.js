@@ -12,6 +12,8 @@ export const EMPIRES = {
     specialty:   ['iron', 'stone'],
     // Per-second income per active trade route when allied
     tradeGift:   { iron: 0.30, stone: 0.20 },
+    // T091: Passive bonus when allied
+    allianceBonus: { combat: 0.20, label: '+20% combat attack' },
     // AI stance probabilities (evaluated each AI turn)
     warChance:        0.15,   // neutral → war
     allyChance:       0.20,   // neutral → allied (AI-initiated)
@@ -26,6 +28,8 @@ export const EMPIRES = {
     desc:        'Ancient scholars who trade arcane secrets for material wealth.',
     specialty:   ['mana', 'gold'],
     tradeGift:   { mana: 0.30, gold: 0.20 },
+    // T091: Passive bonus when allied
+    allianceBonus: { manaRate: 1.0, researchSpeed: 0.70, label: '+1 mana/s, 30% faster research' },
     warChance:        0.05,
     allyChance:       0.25,
     peaceChance:      0.25,
@@ -39,6 +43,8 @@ export const EMPIRES = {
     desc:        'Seafaring raiders who also trade timber and provisions across vast oceans.',
     specialty:   ['wood', 'food'],
     tradeGift:   { wood: 0.30, food: 0.20 },
+    // T091: Passive bonus when allied
+    allianceBonus: { goldRate: 1.0, tradeIncomeMult: 1.40, label: '+1 gold/s, +40% trade route income' },
     warChance:        0.10,
     allyChance:       0.20,
     peaceChance:      0.20,

@@ -269,6 +269,12 @@ function _empireCard(emp) {
     </div>
     ${_giftTimingHtml(emp)}` : '';
 
+  // T091: Alliance bonus row (only when allied)
+  const allianceBonusHtml = rel === 'allied' && def.allianceBonus?.label ? `
+    <div class="dipl-alliance-bonus">
+      🌟 Alliance Bonus: <strong>${def.allianceBonus.label}</strong>
+    </div>` : '';
+
   // Action buttons
   const btns = [];
 
@@ -399,6 +405,7 @@ function _empireCard(emp) {
         Specialty: ${def.specialty.map(r => `${RES_ICONS[r] ?? ''}${r}`).join(', ')}
       </div>
       ${tradeHtml}
+      ${allianceBonusHtml}
       ${warScoreHtml}
       ${_giftRow(emp)}
       <div class="dipl-empire-card__actions">${btns.join('')}</div>

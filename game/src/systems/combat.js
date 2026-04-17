@@ -171,6 +171,11 @@ export function getAttackPreview(x, y) {
   // T090: Armory specialization on barracks — +15% combat attack
   if (state.buildingSpecials?.barracks === 'armory') attackPower *= 1.15;
 
+  // T091: Iron Horde alliance bonus — +20% attack when allied
+  if (state.diplomacy?.empires.some(e => e.id === 'ironHorde' && e.relations === 'allied')) {
+    attackPower *= 1.20;
+  }
+
   // T083: War Banner decree preview — +40% attack when charges remain
   if ((state.decrees?.warBannerCharges ?? 0) > 0) {
     attackPower *= 1.40;
@@ -287,6 +292,11 @@ export function attackTile(x, y) {
 
   // T090: Armory specialization on barracks — +15% combat attack
   if (state.buildingSpecials?.barracks === 'armory') attackPower *= 1.15;
+
+  // T091: Iron Horde alliance bonus — +20% attack when allied
+  if (state.diplomacy?.empires.some(e => e.id === 'ironHorde' && e.relations === 'allied')) {
+    attackPower *= 1.20;
+  }
 
   // T083: War Banner decree — +40% attack for remaining charges
   if ((state.decrees?.warBannerCharges ?? 0) > 0) {

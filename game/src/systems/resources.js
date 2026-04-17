@@ -115,13 +115,23 @@ export function recalcRates() {
     for (const emp of state.diplomacy.empires) {
       if (emp.relations !== 'allied' || emp.tradeRoutes <= 0) continue;
       const gift = EMPIRES[emp.id]?.tradeGift ?? {};
+      // T091: Sea Wolves alliance bonus multiplies their trade route income by 1.40
+      const allyTradeMult = EMPIRES[emp.id]?.allianceBonus?.tradeIncomeMult ?? 1.0;
       for (const [res, rate] of Object.entries(gift)) {
         if (rates[res] !== undefined) {
-          rates[res] += rate * emp.tradeRoutes * navMult * merchantMult * economicMastery;
+          rates[res] += rate * emp.tradeRoutes * navMult * merchantMult * economicMastery * allyTradeMult;
         }
       }
       // Trade Empire: flat +0.8 gold/s per open trade route (stacks per route)
       if (tradeEmpireActive) rates.gold += 0.8 * emp.tradeRoutes;
+    }
+
+    // T091: Faction alliance flat rate bonuses (Mage Council +1 mana/s, Sea Wolves +1 gold/s)
+    for (const emp of state.diplomacy.empires) {
+      if (emp.relations !== 'allied') continue;
+      const bonus = EMPIRES[emp.id]?.allianceBonus ?? {};
+      if (bonus.manaRate) rates.mana += bonus.manaRate;
+      if (bonus.goldRate) rates.gold += bonus.goldRate;
     }
   }
 

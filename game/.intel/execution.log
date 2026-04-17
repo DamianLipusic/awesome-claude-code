@@ -2,6 +2,39 @@
 
 ---
 
+## 2026-04-17 — Session N+17
+
+**Tasks completed:** T091, T092
+
+**Summary:**
+All prior tasks (T001–T090) were complete. Created two Phase 30 features: Faction Alliance Bonuses that make each AI empire partnership mechanically meaningful (T091), and Seasonal Special Events that add a predictable mid-season windfall rhythm to the game (T092).
+
+**T091 — Faction Alliance Bonuses:**
+- `src/data/empires.js`: Added `allianceBonus` object to each of the 3 AI empires. Iron Horde: `{ combat: 0.20, label: '+20% combat attack' }`. Mage Council: `{ manaRate: 1.0, researchSpeed: 0.70, label: '+1 mana/s, 30% faster research' }`. Sea Wolves: `{ goldRate: 1.0, tradeIncomeMult: 1.40, label: '+1 gold/s, +40% trade route income' }`.
+- `src/systems/resources.js`: Trade route income loop now multiplies each empire's gift income by `allianceBonus.tradeIncomeMult` (1.40 for Sea Wolves, 1.0 otherwise). Added a second loop after the trade block applying flat rate bonuses: Mage Council +1 mana/s, Sea Wolves +1 gold/s when allied.
+- `src/systems/combat.js`: Added Iron Horde allied check (`attackPower *= 1.20`) in both `getAttackPreview()` and `attackTile()` after Armory specialization, before War Banner.
+- `src/systems/research.js`: Added Mage Council allied check in `startResearch()` — `totalTicks = Math.ceil(totalTicks * 0.70)` for 30% faster research, applied after hero veteran_knowledge skill reduction.
+- `src/ui/diplomacyPanel.js`: Added `allianceBonusHtml` local variable in `_empireCard()`; renders `.dipl-alliance-bonus` row showing the empire's alliance bonus label when allied; injected between trade routes and war score sections.
+- `styles/main.css`: Added `.dipl-alliance-bonus` (border-top separator, dim font-size 11px) and `.dipl-alliance-bonus strong` (gold accent colour).
+
+**T092 — Seasonal Special Events:**
+- `src/core/events.js`: Added `SEASONAL_EVENT: 'seasonalEvent'` constant.
+- `src/systems/seasons.js`: Full rewrite. Added `SEASON_MID = 180` constant (halfway through 360-tick season). Imported `changeMorale` from morale.js and `UNITS` from data/units.js. `initSeasons()` now initialises `seasonalEventFired: false` and includes a migration guard for old saves. `seasonTick()` checks `tick === SEASON_MID && !seasonalEventFired` — fires `_fireSeasonalEvent(seasonIndex)` and sets flag; resets flag to `false` on every season change. `_fireSeasonalEvent()` switch: Spring → +60 food, +40 wood, +2 morale (windfall toast); Summer → `_grantTournamentXP()` + 4 morale (windfall toast); Autumn → +80 food, +60 gold, +40 stone (windfall toast); Winter → +8 morale, +30 mana (windfall toast). All fire `SEASONAL_EVENT + RESOURCE_CHANGED`. `_addCapped()` helper caps resources at `state.caps`. `_grantTournamentXP()` iterates `state.units`, adds +1 XP per type, promotes to veteran (≥3 XP) or elite (≥6 XP) with achievement messages, emits `UNIT_CHANGED` on any promotion. No save version bump — `seasonalEventFired` lives inside the already-persisted `state.season` object; migration guard handles old saves.
+
+**Files modified / created:**
+- `game/src/data/empires.js`
+- `game/src/core/events.js`
+- `game/src/systems/resources.js`
+- `game/src/systems/combat.js`
+- `game/src/systems/research.js`
+- `game/src/systems/seasons.js`
+- `game/src/ui/diplomacyPanel.js`
+- `game/styles/main.css`
+- `game/.intel/tasks.json`
+- `game/.intel/execution.log`
+
+---
+
 ## 2026-04-15 — Session N+16
 
 **Tasks completed:** T085, T086

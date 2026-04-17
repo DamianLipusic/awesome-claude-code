@@ -4904,6 +4904,21 @@ kbd {
   font-weight: 600;
 }
 
+/* ── T091: Alliance bonus row ───────────────────────────────────────────── */
+
+.dipl-alliance-bonus {
+  font-size: 11px;
+  color: var(--text-dim);
+  padding: 5px 0 4px;
+  border-top: 1px solid var(--border);
+  margin-top: 4px;
+}
+
+.dipl-alliance-bonus strong {
+  color: var(--accent-h);
+  font-weight: 600;
+}
+
 /* ── T077: Tech Synergy section ─────────────────────────────────────────── */
 
 .synergy-section {

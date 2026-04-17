@@ -72,4 +72,5 @@ export const Events = Object.freeze({
   BORDER_SKIRMISH:      'borderSkirmish',   // T088: AI vs AI border skirmish started / resolved
   LANDMARK_CAPTURED:    'landmarkCaptured', // T089: player captured a special map landmark
   BUILDING_SPECIALIZED: 'buildingSpecialized', // T090: player specialized a building
+  SEASONAL_EVENT:       'seasonalEvent',    // T092: mid-season special event fired
 });
