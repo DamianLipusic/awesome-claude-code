@@ -6018,3 +6018,63 @@ kbd {
   .sum-citizen-row { grid-template-columns: 20px 1fr 22px auto; }
   .sum-citizen-desc { display: none; }
 }
+
+/* ── Rally Troops (T098) ────────────────────────────────────────────────── */
+
+.rally-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+
+.rally-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.rally-title {
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.rally-costs {
+  display: flex;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.rally-desc {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+
+.rally-status {
+  font-size: 11px;
+  display: block;
+  margin-bottom: 6px;
+}
+.rally-status--ready  { color: var(--green); }
+.rally-status--cd     { color: var(--accent); }
+.rally-status--locked { color: var(--text-dim); }
+
+.btn--rally {
+  background: linear-gradient(135deg, #5a2d82, #9b59b6);
+  border: 1px solid #9b59b6;
+  color: #fff;
+  font-weight: 600;
+  padding: 5px 16px;
+  font-size: 13px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.btn--rally:hover:not(:disabled) {
+  background: linear-gradient(135deg, #6d39a0, #b07ec9);
+  border-color: #b07ec9;
+}

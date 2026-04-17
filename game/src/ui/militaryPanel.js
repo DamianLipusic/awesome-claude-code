@@ -10,7 +10,7 @@
 
 import { state } from '../core/state.js';
 import { on, Events } from '../core/events.js';
-import { trainUnit, recruitHero, useHeroAbility, setFormation, chooseHeroSkill, addMessage } from '../core/actions.js';
+import { trainUnit, recruitHero, useHeroAbility, setFormation, chooseHeroSkill, rallyTroops, addMessage } from '../core/actions.js';
 import { sendOnExpedition, recallExpedition, isOnExpedition, expeditionSecsLeft, expeditionProgress } from '../systems/heroSystem.js';
 import { castSpell, SPELLS, SPELL_ORDER } from '../systems/spells.js';
 import { getMoraleLabel, getMoraleEffect } from '../systems/morale.js';
@@ -89,7 +89,8 @@ export function initMilitaryPanel() {
     const hasMercOffer = !!state.mercenaries?.current;
     const hasDecreeCooldown = state.decrees &&
       Object.values(state.decrees.cooldowns ?? {}).some(exp => exp > state.tick);
-    if (hasHeroActivity || hasSpellActivity || hasMercOffer || hasDecreeCooldown) _render(panel);
+    const hasRallyCooldown = !!(state.rallyState && state.tick < state.rallyState.cooldownUntil);
+    if (hasHeroActivity || hasSpellActivity || hasMercOffer || hasDecreeCooldown || hasRallyCooldown) _render(panel);
   });
 }
 
@@ -100,6 +101,7 @@ function _render(panel) {
     ${_mercenarySection()}
     ${_formationSection()}
     ${_moraleSection()}
+    ${_rallySection()}
     ${_spellsSection()}
     ${_decreesSection()}
     ${_heroSection()}
@@ -155,6 +157,53 @@ function _mercenarySection() {
       <div class="merc-offer__sub">
         One-time fee · no upkeep · offer expires in ${secsLeft}s
       </div>
+    </div>`;
+}
+
+// ── Rally Troops section (T098) ───────────────────────────────────────────
+
+function _rallySection() {
+  if (!state.rallyState) state.rallyState = { cooldownUntil: 0 };
+  const hasUnits   = Object.values(state.units ?? {}).some(c => c > 0);
+  const now        = state.tick;
+  const cdUntil    = state.rallyState.cooldownUntil ?? 0;
+  const onCd       = now < cdUntil;
+  const secsLeft   = onCd ? Math.ceil((cdUntil - now) / 4) : 0;
+  const affordable = (state.resources.gold ?? 0) >= 50 && (state.resources.mana ?? 0) >= 25;
+  const disabled   = onCd || !affordable || !hasUnits;
+
+  const goldOk = (state.resources.gold ?? 0) >= 50;
+  const manaOk = (state.resources.mana ?? 0) >= 25;
+
+  let statusHtml = '';
+  if (!hasUnits) {
+    statusHtml = `<span class="rally-status rally-status--locked">No units trained</span>`;
+  } else if (onCd) {
+    const mins = Math.floor(secsLeft / 60);
+    const secs = secsLeft % 60;
+    const cdStr = mins > 0 ? `${mins}m ${String(secs).padStart(2, '0')}s` : `${secsLeft}s`;
+    statusHtml = `<span class="rally-status rally-status--cd">⏱ Ready in ${cdStr}</span>`;
+  } else if (!affordable) {
+    statusHtml = `<span class="rally-status rally-status--locked">Insufficient resources</span>`;
+  } else {
+    statusHtml = `<span class="rally-status rally-status--ready">✅ Ready</span>`;
+  }
+
+  return `
+    <div class="rally-section">
+      <div class="rally-header">
+        <span class="rally-title">📣 Rally Troops</span>
+        <div class="rally-costs">
+          <span style="color:${goldOk ? 'var(--green)' : 'var(--red)'}">💰 50</span>
+          <span style="color:${manaOk ? 'var(--green)' : 'var(--red)'}">✨ 25</span>
+        </div>
+      </div>
+      <div class="rally-desc">+1 XP to all trained units (may promote ranks) · +5 morale · 5-min cooldown</div>
+      ${statusHtml}
+      <button class="btn btn--rally ${disabled ? 'btn--disabled' : ''}"
+        data-action="rally" ${disabled ? 'disabled' : ''}>
+        📣 Rally
+      </button>
     </div>`;
 }
 
@@ -740,6 +789,13 @@ function _handleClick(e) {
   } else if (actionBtn.dataset.action === 'expedition-recall') {
     const result = recallExpedition();
     if (!result.ok) addMessage(result.reason, 'info');
+  } else if (actionBtn.dataset.action === 'rally') {
+    const result = rallyTroops();
+    if (!result.ok) {
+      actionBtn.classList.add('btn--shake');
+      setTimeout(() => actionBtn.classList.remove('btn--shake'), 600);
+      addMessage(result.reason, 'info');
+    }
   }
 }
 

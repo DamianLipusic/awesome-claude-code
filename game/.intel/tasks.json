@@ -860,5 +860,23 @@
     "status": "done",
     "phase": 32,
     "notes": "core/events.js: Added CITIZEN_ROLES_CHANGED:'citizenRolesChanged'. core/state.js: Added citizenRoles:null (persists across new games, not in initState). core/actions.js: Added CITIZEN_ROLES constant (4 roles with icon/name/desc), CITIZEN_ROLE_ORDER array, adjustCitizenRole(role, delta) — validates role, initialises citizenRoles if needed, computes maxSlots=floor(pop/100), enforces bounds [0..max], calls recalcRates()+emits CITIZEN_ROLES_CHANGED+RESOURCE_CHANGED. systems/resources.js: After population income block, applies citizen role bonuses — merchants: rates.gold+=slots*0.3; workers: workerMult=1+slots*0.04 applied to all positive rates. systems/research.js: startResearch() applies scholarMult=max(0.50, 1-slots*0.05) to totalTicks when scholars>0. core/actions.js trainUnit(): applies soldierMult=max(0.50, 1-slots*0.05) after Training Grounds specialization. ui/summaryPanel.js: Imported CITIZEN_ROLES+CITIZEN_ROLE_ORDER+adjustCitizenRole; subscribed POPULATION_CHANGED+CITIZEN_ROLES_CHANGED→_render; added panel.onclick delegation for [data-citizen-role] buttons with btn--shake error feedback; added _citizenRolesCard() rendering header (slots counter), hint text, and 4 role rows (icon/name/count/+- buttons/desc) using grid layout; injected before _progressionCard() in _render(). main.js: citizenRoles in _save()/_applySave(); save version bumped 31→32. styles/main.css: .sum-citizen-header/title/slots/--full/hint, .sum-citizen-row (5-col grid), .sum-citizen-icon/name/count/btns/desc, .sum-citizen-btn (square icon-button), mobile hides desc column."
+  },
+  {
+    "id": "T097",
+    "title": "territorial expansion milestones",
+    "description": "One-time resource + prestige rewards when player-owned tile count reaches 10 / 25 / 50 / 75 / 100. Tracked in state.expansionMilestones (persisted). Checked on every MAP_CHANGED event. No save version bump needed.",
+    "priority": 97,
+    "phase": 33,
+    "status": "done",
+    "notes": "main.js: Added EXPANSION_MILESTONES array (5 entries: thresholds 10/25/50/75/100 with resource rewards and prestige values). Added _checkExpansionMilestones() — counts player tiles, iterates milestones, awards resources (capped) + prestige, logs windfall message, marks threshold as awarded in state.expansionMilestones. Registered on(Events.MAP_CHANGED, _checkExpansionMilestones) in boot(). Added expansionMilestones to _save() (serialised as-is) and _applySave() (default {}). No save version bump — backwards-compatible default {}."
+  },
+  {
+    "id": "T098",
+    "title": "rally troops command",
+    "description": "New military command in the Military panel: Rally (costs 50 gold + 25 mana) grants +1 XP to every trained unit type (may trigger veteran/elite rank promotions) and +5 morale. 5-minute cooldown. state.rallyState persists cooldown across saves.",
+    "priority": 98,
+    "phase": 33,
+    "status": "done",
+    "notes": "core/actions.js: Added RALLY_COST={gold:50,mana:25}, RALLY_COOLDOWN_TICKS=1200, RALLY_VETERAN_XP=3, RALLY_ELITE_XP=6 constants. Added rallyTroops() — validates hasUnits, checks cooldown (secsLeft in reason), checks canAfford, deducts cost, grants +1 XP to all trained unit types with rank-up promotion messages, boosts state.morale by +5 directly (avoiding circular import with morale.js), sets cooldownUntil, emits UNIT_CHANGED+MORALE_CHANGED+RESOURCE_CHANGED. ui/militaryPanel.js: Added rallyTroops to import; added _rallySection() rendering a card with cost display (color-coded by affordability), status line (ready/cooldown countdown/locked), and Rally button with data-action='rally'; inserted _rallySection() in _render() between _moraleSection() and _spellsSection(); added hasRallyCooldown check to tick handler so countdown refreshes; added 'rally' branch in _handleClick() with btn--shake error feedback. main.js: Added rallyState+expansionMilestones to _save() and _applySave(). styles/main.css: .rally-section, .rally-header, .rally-title, .rally-costs, .rally-desc, .rally-status (--ready/--cd/--locked), .btn--rally (purple gradient)."
   }
 ]

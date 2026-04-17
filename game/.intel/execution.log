@@ -2,6 +2,32 @@
 
 ---
 
+## 2026-04-17 — Session N+19
+
+**Tasks completed:** T097, T098
+
+**Summary:**
+All prior tasks (T001–T096) were complete. Created two Phase 33 features: Territorial Expansion Milestones that reward map conquest with one-time resource + prestige bonuses (T097), and a Rally Troops Command that grants all units +1 XP and +5 morale at the cost of 50 gold + 25 mana with a 5-minute cooldown (T098).
+
+**T097 — Territorial Expansion Milestones:**
+- `src/main.js`: Added `EXPANSION_MILESTONES` array (5 milestones at 10/25/50/75/100 player tiles) with resource rewards and prestige values. Added `_checkExpansionMilestones()` function that counts player tiles on every `MAP_CHANGED`, iterates milestones, awards capped resources + prestige via `awardPrestige()`, logs a 'windfall' message, and marks the threshold awarded in `state.expansionMilestones`. Registered the check in `boot()` as `on(Events.MAP_CHANGED, _checkExpansionMilestones)`. Added `expansionMilestones` to `_save()` and `_applySave()` (default `{}`). No save version bump — fully backwards compatible.
+
+**T098 — Rally Troops Command:**
+- `src/core/actions.js`: Added `RALLY_COST={gold:50,mana:25}`, `RALLY_COOLDOWN_TICKS=1200` (5 min), XP threshold constants. Added exported `rallyTroops()` — validates at least one unit exists, checks `state.rallyState.cooldownUntil`, checks affordability, deducts cost, grants +1 XP to all trained unit types (with veteran/elite promotion messages on threshold crossing), boosts `state.morale` by +5 directly (no circular import), sets cooldown, emits `UNIT_CHANGED + MORALE_CHANGED + RESOURCE_CHANGED`.
+- `src/ui/militaryPanel.js`: Added `rallyTroops` to import. Added `_rallySection()` rendering a card showing cost (gold/mana colour-coded by affordability), status line (ready / cooldown countdown / locked), and a purple Rally button with `data-action='rally'`. Inserted `_rallySection()` in `_render()` between morale and spells sections. Added `hasRallyCooldown` check to the 4-second tick handler so the countdown refreshes automatically. Added `'rally'` branch in `_handleClick()` with `btn--shake` error feedback.
+- `src/main.js`: Added `rallyState` and `expansionMilestones` to both `_save()` and `_applySave()`.
+- `styles/main.css`: `.rally-section` (card with border/padding), `.rally-header` (flexbox title + costs), `.rally-costs` (gap flex), `.rally-desc` (dim colour), `.rally-status` with `--ready` (green) / `--cd` (accent amber) / `--locked` (dim) variants, `.btn--rally` (purple gradient with hover state).
+
+**Files modified:**
+- `game/src/core/actions.js`
+- `game/src/ui/militaryPanel.js`
+- `game/src/main.js`
+- `game/styles/main.css`
+- `game/.intel/tasks.json`
+- `game/.intel/execution.log`
+
+---
+
 ## 2026-04-17 — Session N+18
 
 **Tasks completed:** T093, T094

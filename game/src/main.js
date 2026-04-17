@@ -65,6 +65,15 @@ import { calcScore } from './utils/score.js';
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
 
+// T097: Territorial expansion milestones — one-time rewards on tile-count thresholds
+const EXPANSION_MILESTONES = [
+  { threshold: 10,  rewards: { gold: 100, food: 50 },               prestige: 25,  title: 'Expanding Borders'   },
+  { threshold: 25,  rewards: { gold: 200, wood: 100, stone: 100 },  prestige: 50,  title: 'Growing Empire'      },
+  { threshold: 50,  rewards: { gold: 100, iron: 150, mana: 80 },    prestige: 100, title: 'Territorial Power'   },
+  { threshold: 75,  rewards: { gold: 300, food: 200 },              prestige: 150, title: 'Continental Force'   },
+  { threshold: 100, rewards: { gold: 500, iron: 200, mana: 150 },   prestige: 250, title: 'World Conqueror'     },
+];
+
 // Offline progress calculated during _applySave(); shown after UI is ready
 let _pendingOffline = null;
 
@@ -165,6 +174,9 @@ function boot() {
 
   // Track peak territory for leaderboard
   on(Events.MAP_CHANGED, _updatePeakTerritory);
+
+  // T097: award expansion milestones on territory gains
+  on(Events.MAP_CHANGED, _checkExpansionMilestones);
 
   // Update weather badge when weather starts/ends; also refresh every 4 ticks for countdown
   _updateWeatherBadge();
@@ -308,7 +320,9 @@ function _save() {
         merchant:         state.merchant         ?? null,  // T087
         landmarks:        state.landmarks        ?? null,  // T089
         buildingSpecials: state.buildingSpecials ?? {},    // T090
-        citizenRoles:     state.citizenRoles     ?? null,  // T096
+        citizenRoles:        state.citizenRoles        ?? null,  // T096
+        rallyState:          state.rallyState          ?? null,  // T098
+        expansionMilestones: state.expansionMilestones ?? {},    // T097
         tick:          state.tick,
       }
     }));
@@ -383,7 +397,9 @@ function _applySave(save) {
   state.merchant         = s.merchant         ?? null;  // T087
   state.landmarks        = s.landmarks        ?? null;  // T089
   state.buildingSpecials = s.buildingSpecials ?? {};    // T090
-  state.citizenRoles     = s.citizenRoles     ?? null;  // T096 (null = initialise on first use)
+  state.citizenRoles       = s.citizenRoles       ?? null;  // T096 (null = initialise on first use)
+  state.rallyState         = s.rallyState         ?? null;  // T098
+  state.expansionMilestones = s.expansionMilestones ?? {};  // T097
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
@@ -530,6 +546,43 @@ function _saveToLeaderboard() {
     localStorage.setItem(LB_KEY, JSON.stringify(lb));
   } catch (e) {
     console.error('[leaderboard save error]', e);
+  }
+}
+
+/**
+ * T097: Award one-time resource + prestige rewards when player territory
+ * crosses predefined tile-count milestones. Safe to call on every MAP_CHANGED.
+ */
+function _checkExpansionMilestones() {
+  if (!state.map) return;
+  if (!state.expansionMilestones) state.expansionMilestones = {};
+
+  let playerTiles = 0;
+  for (const row of state.map.tiles) {
+    for (const t of row) {
+      if (t.owner === 'player') playerTiles++;
+    }
+  }
+
+  for (const m of EXPANSION_MILESTONES) {
+    if (state.expansionMilestones[m.threshold]) continue;  // already awarded
+    if (playerTiles < m.threshold) continue;
+
+    state.expansionMilestones[m.threshold] = true;
+
+    const lootParts = [];
+    for (const [res, amt] of Object.entries(m.rewards)) {
+      const cap = state.caps[res] ?? 500;
+      state.resources[res] = Math.min(cap, (state.resources[res] ?? 0) + amt);
+      lootParts.push(`+${amt} ${res}`);
+    }
+
+    awardPrestige(m.prestige, `expansion milestone: ${playerTiles} tiles`);
+    addMessage(
+      `🗺️ Milestone: "${m.title}" — ${playerTiles} territories! ${lootParts.join(', ')}. +${m.prestige} prestige.`,
+      'windfall',
+    );
+    emit(Events.RESOURCE_CHANGED, {});
   }
 }
 

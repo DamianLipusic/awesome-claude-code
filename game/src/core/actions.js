@@ -691,6 +691,64 @@ export function adjustCitizenRole(role, delta) {
 }
 
 // ---------------------------------------------------------------------------
+// Rally Troops (T098)
+// ---------------------------------------------------------------------------
+
+const RALLY_COST           = { gold: 50, mana: 25 };
+const RALLY_COOLDOWN_TICKS = 1200;   // 5 min at 4 ticks/s
+const RALLY_VETERAN_XP     = 3;
+const RALLY_ELITE_XP       = 6;
+
+/**
+ * Rally all troops: +1 XP to every trained unit type (may trigger rank
+ * promotions), +5 morale, costs 50 gold + 25 mana. 5-minute cooldown.
+ */
+export function rallyTroops() {
+  const hasUnits = Object.values(state.units).some(c => c > 0);
+  if (!hasUnits) return { ok: false, reason: 'No units to rally.' };
+
+  if (!state.rallyState) state.rallyState = { cooldownUntil: 0 };
+  if (state.tick < state.rallyState.cooldownUntil) {
+    const secsLeft = Math.ceil((state.rallyState.cooldownUntil - state.tick) / 4);
+    return { ok: false, reason: `Rally on cooldown (${secsLeft}s remaining).` };
+  }
+
+  if (!canAfford(RALLY_COST)) {
+    return { ok: false, reason: 'Need 50 gold and 25 mana to rally troops.' };
+  }
+  deductCost(RALLY_COST);
+
+  if (!state.unitXP)    state.unitXP    = {};
+  if (!state.unitRanks) state.unitRanks = {};
+
+  for (const [unitId, count] of Object.entries(state.units)) {
+    if ((count ?? 0) <= 0) continue;
+    state.unitXP[unitId] = (state.unitXP[unitId] ?? 0) + 1;
+    const xp       = state.unitXP[unitId];
+    const prevRank = state.unitRanks[unitId] ?? 'normal';
+    let   newRank  = prevRank;
+    if      (xp >= RALLY_ELITE_XP)   newRank = 'elite';
+    else if (xp >= RALLY_VETERAN_XP) newRank = 'veteran';
+    if (newRank !== prevRank) {
+      state.unitRanks[unitId] = newRank;
+      const def   = UNITS[unitId];
+      const label = newRank === 'elite' ? '★★ Elite (×2.0 atk)' : '★ Veteran (×1.5 atk)';
+      addMessage(`${def?.icon ?? '⚔️'} ${def?.name ?? unitId} promoted to ${label}!`, 'combat-win');
+    }
+  }
+
+  // Boost morale directly (morale.js imports actions.js, so we avoid circular import)
+  state.morale = Math.min(100, (state.morale ?? 50) + 5);
+  state.rallyState.cooldownUntil = state.tick + RALLY_COOLDOWN_TICKS;
+
+  emit(Events.UNIT_CHANGED, {});
+  emit(Events.MORALE_CHANGED, {});
+  emit(Events.RESOURCE_CHANGED, {});
+  addMessage('📣 Rally! Troops reinvigorated. +1 XP to all units, +5 morale.', 'hero');
+  return { ok: true };
+}
+
+// ---------------------------------------------------------------------------
 // Internal helpers
 // ---------------------------------------------------------------------------
 
