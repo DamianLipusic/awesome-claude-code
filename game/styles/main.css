@@ -6078,3 +6078,132 @@ kbd {
   background: linear-gradient(135deg, #6d39a0, #b07ec9);
   border-color: #b07ec9;
 }
+
+/* T099: Terrain Control card in Empire Summary */
+.sum-terrain-row {
+  display: grid;
+  grid-template-columns: 22px 72px 1fr 40px auto;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 0;
+  border-left: 3px solid transparent;
+  padding-left: 4px;
+  margin-bottom: 2px;
+}
+.sum-terrain-row.sum-terrain--active {
+  border-left-color: var(--green);
+}
+.sum-terrain__icon { text-align: center; font-size: 13px; }
+.sum-terrain__name { font-size: 12px; color: var(--text-dim); }
+.sum-terrain__bar-wrap {
+  height: 6px;
+  background: var(--bg-panel);
+  border-radius: 3px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.sum-terrain__bar {
+  height: 100%;
+  background: var(--green);
+  border-radius: 3px;
+  transition: width 0.3s;
+}
+.sum-terrain__count { font-size: 11px; color: var(--text-dim); text-align: right; }
+.sum-terrain__bonus { font-size: 11px; color: var(--green); white-space: nowrap; min-width: 80px; text-align: right; }
+.sum-terrain__bonus--locked { color: var(--text-dim); }
+.sum-terrain__hint {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-style: italic;
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+@media (max-width: 480px) {
+  .sum-terrain-row {
+    grid-template-columns: 18px 60px 1fr 34px auto;
+    font-size: 11px;
+  }
+}
+
+/* T100: Capital Development Plans in Building panel */
+.cap-plan-section {
+  margin-top: 18px;
+  padding: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-left: 3px solid #f0b429;
+  border-radius: var(--radius);
+}
+.cap-plan-section__header {
+  font-size: 13px;
+  font-weight: 700;
+  color: #f0b429;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+.cap-plan-section__intro {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-bottom: 10px;
+}
+.cap-plan-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+}
+.cap-plan-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.cap-plan-card--locked {
+  opacity: 0.6;
+}
+.cap-plan-card__header {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.cap-plan-icon { font-size: 22px; flex-shrink: 0; }
+.cap-plan-card__name { font-size: 13px; font-weight: 600; }
+.cap-plan-card__cost { font-size: 11px; margin-top: 2px; }
+.cap-plan-cost--ok  { color: var(--green); }
+.cap-plan-cost--bad { color: var(--red); }
+.cap-plan-card__desc { font-size: 11px; color: var(--text-dim); line-height: 1.4; }
+.cap-plan__bonus { font-size: 11px; color: #f0b429; }
+.cap-plan__lock  { font-size: 10px; color: var(--red); font-style: italic; margin-top: 2px; }
+.btn--cap-plan {
+  background: linear-gradient(135deg, #b7791f, #f0b429);
+  border: 1px solid #f0b429;
+  color: #000;
+  font-weight: 700;
+  padding: 5px 12px;
+  font-size: 12px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  margin-top: auto;
+  transition: background 0.15s;
+}
+.btn--cap-plan:hover:not(:disabled) {
+  background: linear-gradient(135deg, #c8892a, #ffc84a);
+}
+/* Active plan card */
+.cap-plan-chosen {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(240,180,41,0.08);
+  border: 1px solid #f0b429;
+  border-radius: var(--radius);
+  padding: 10px 12px;
+}
+.cap-plan-name { font-size: 13px; font-weight: 700; color: #f0b429; }
+.cap-plan-bonuses { font-size: 11px; color: var(--green); line-height: 1.6; margin-top: 3px; }
+@media (max-width: 480px) {
+  .cap-plan-grid { grid-template-columns: 1fr; }
+}

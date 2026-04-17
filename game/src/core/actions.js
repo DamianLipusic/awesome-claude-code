@@ -14,6 +14,7 @@ import { IMPROVEMENTS } from '../data/improvements.js';
 import { POLICIES, POLICY_COOLDOWN_TICKS } from '../data/policies.js';
 import { BOONS } from '../data/ageBoons.js';
 import { SPECIALIZATIONS } from '../data/buildingSpecials.js';
+import { CAPITAL_PLANS } from '../data/capitalPlans.js';
 import { recalcRates } from '../systems/resources.js';
 import { log } from '../utils/logger.js';
 
@@ -745,6 +746,37 @@ export function rallyTroops() {
   emit(Events.MORALE_CHANGED, {});
   emit(Events.RESOURCE_CHANGED, {});
   addMessage('📣 Rally! Troops reinvigorated. +1 XP to all units, +5 morale.', 'hero');
+  return { ok: true };
+}
+
+// ---------------------------------------------------------------------------
+// Capital Development Plan (T100)
+// ---------------------------------------------------------------------------
+
+/**
+ * Choose a one-time capital development plan.
+ * Validates cost, age requirement, and that no plan has been chosen yet.
+ */
+export function chooseCapitalPlan(planId) {
+  const plan = CAPITAL_PLANS[planId];
+  if (!plan) return { ok: false, reason: `Unknown plan: ${planId}` };
+  if (state.capitalPlan) return { ok: false, reason: 'A capital plan is already active.' };
+  if ((state.age ?? 0) < (plan.requiresAge ?? 0)) {
+    return { ok: false, reason: `Requires ${plan.requiresAge === 1 ? 'Bronze' : 'Iron'} Age or higher.` };
+  }
+  if (!canAfford(plan.cost)) {
+    const missing = Object.entries(plan.cost)
+      .filter(([r, a]) => (state.resources[r] ?? 0) < a)
+      .map(([r, a]) => `${a} ${r}`)
+      .join(', ');
+    return { ok: false, reason: `Need ${missing}.` };
+  }
+  deductCost(plan.cost);
+  state.capitalPlan = planId;
+  recalcRates();
+  emit(Events.CAPITAL_PLAN_CHOSEN, { planId });
+  emit(Events.RESOURCE_CHANGED, {});
+  addMessage(`${plan.icon} ${plan.name} established! ${plan.bonusDesc.join(', ')}.`, 'age');
   return { ok: true };
 }
 

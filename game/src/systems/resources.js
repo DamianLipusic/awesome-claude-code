@@ -16,7 +16,7 @@ import { EMPIRES } from '../data/empires.js';
 import { SEASONS } from '../data/seasons.js';
 import { HERO_DEF, heroSkillBonus } from '../data/hero.js';
 import { TICKS_PER_SECOND } from '../core/tick.js';
-import { territoryRateBonus } from './map.js';
+import { territoryRateBonus, getTerrainControl } from './map.js';
 import { RELICS } from '../data/relics.js';
 import { LANDMARKS } from '../data/landmarks.js';
 import { SPECIALIZATIONS } from '../data/buildingSpecials.js';
@@ -104,6 +104,21 @@ export function recalcRates() {
   for (const res of RESOURCE_KEYS) {
     if (territory[res]) rates[res] += territory[res];
   }
+
+  // T099: Region dominance bonuses — awarded when controlling 5+ tiles of a terrain type
+  // At 10+ tiles the bonus doubles (×2)
+  const terrainCtrl = getTerrainControl();
+  const _regionBonus = (count, base5) => {
+    if (count >= 10) return base5 * 2;
+    if (count >= 5)  return base5;
+    return 0;
+  };
+  rates.food  += _regionBonus(terrainCtrl.grass,   1.5);
+  rates.wood  += _regionBonus(terrainCtrl.forest,  1.5);
+  rates.stone += _regionBonus(terrainCtrl.hills,   1.5);
+  rates.gold  += _regionBonus(terrainCtrl.river,   1.0);
+  rates.food  += _regionBonus(terrainCtrl.river,   1.0);
+  rates.iron  += _regionBonus(terrainCtrl.mountain, 1.5);
 
   // Trade route income from allied empires (reads state directly — no circular import)
   // Navigation tech gives +50% to all trade route income.
@@ -359,6 +374,18 @@ export function recalcRates() {
     if (rates.wood > 0) rates.wood *= 1.40;
   }
 
+  // T100: Capital Development Plan bonuses
+  if (state.capitalPlan === 'commerce') {
+    rates.gold += 2.0;
+    caps.gold  += 500;
+  }
+  if (state.capitalPlan === 'academy') {
+    caps.mana += 500;
+  }
+  if (state.capitalPlan === 'arcane_tower') {
+    rates.mana += 1.5;
+  }
+
   Object.assign(state.rates, rates);
   Object.assign(state.caps, caps);
 }
@@ -474,6 +501,21 @@ export function getBreakdown(resId) {
   const territory = territoryRateBonus();
   if (territory[resId]) {
     lines.push({ label: '🗺️ Territory', value: territory[resId] });
+  }
+
+  // T099: Region dominance bonus
+  const _ctrl = getTerrainControl();
+  const _rb = (count, base5) => count >= 10 ? base5 * 2 : count >= 5 ? base5 : 0;
+  const regionContribs = [
+    { terrain: 'grass',    res: 'food',  bonus: _rb(_ctrl.grass,    1.5), label: '🌿 Grassland dominance' },
+    { terrain: 'forest',   res: 'wood',  bonus: _rb(_ctrl.forest,   1.5), label: '🌲 Forest dominance' },
+    { terrain: 'hills',    res: 'stone', bonus: _rb(_ctrl.hills,    1.5), label: '⛰️ Hills dominance' },
+    { terrain: 'river',    res: 'gold',  bonus: _rb(_ctrl.river,    1.0), label: '🏞️ River dominance' },
+    { terrain: 'river',    res: 'food',  bonus: _rb(_ctrl.river,    1.0), label: '🏞️ River dominance (food)' },
+    { terrain: 'mountain', res: 'iron',  bonus: _rb(_ctrl.mountain, 1.5), label: '🏔️ Mountain dominance' },
+  ];
+  for (const c of regionContribs) {
+    if (c.res === resId && c.bonus > 0) lines.push({ label: c.label, value: c.bonus });
   }
 
   // Trade route income from allied empires (navigation tech ×1.5)

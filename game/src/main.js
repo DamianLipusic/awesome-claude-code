@@ -249,9 +249,10 @@ function boot() {
   on(Events.TECH_CHANGED,      _updateScoreBadge);
   on(Events.AGE_CHANGED,       _updateScoreBadge);
   on(Events.MAP_CHANGED,       _updateScoreBadge);
-  on(Events.QUEST_COMPLETED,   _updateScoreBadge);
-  on(Events.MASTERY_UNLOCKED,  _updateScoreBadge);
-  on(Events.PRESTIGE_CHANGED,  _updateScoreBadge);
+  on(Events.QUEST_COMPLETED,      _updateScoreBadge);
+  on(Events.MASTERY_UNLOCKED,     _updateScoreBadge);
+  on(Events.PRESTIGE_CHANGED,     _updateScoreBadge);
+  on(Events.CAPITAL_PLAN_CHOSEN,  _updateScoreBadge);
 
   // Start auto-save every 60 seconds
   setInterval(_save, 60_000);
@@ -267,7 +268,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 32,
+      version: 33,
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -323,6 +324,7 @@ function _save() {
         citizenRoles:        state.citizenRoles        ?? null,  // T096
         rallyState:          state.rallyState          ?? null,  // T098
         expansionMilestones: state.expansionMilestones ?? {},    // T097
+        capitalPlan:         state.capitalPlan         ?? null,  // T100
         tick:          state.tick,
       }
     }));
@@ -400,6 +402,7 @@ function _applySave(save) {
   state.citizenRoles       = s.citizenRoles       ?? null;  // T096 (null = initialise on first use)
   state.rallyState         = s.rallyState         ?? null;  // T098
   state.expansionMilestones = s.expansionMilestones ?? {};  // T097
+  state.capitalPlan        = s.capitalPlan        ?? null;  // T100
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };

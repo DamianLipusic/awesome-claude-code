@@ -28,6 +28,7 @@ import { ARCHETYPES } from '../data/archetypes.js';
 import { RELIC_ORDER } from '../data/relics.js';
 import { LANDMARK_ORDER } from '../data/landmarks.js';
 import { currentSeason, seasonTicksRemaining } from '../systems/seasons.js';
+import { getTerrainControl } from '../systems/map.js';
 import { fmtNum, fmtRate } from '../utils/fmt.js';
 import { TICKS_PER_SECOND } from '../core/tick.js';
 import { calcScore, getScoreBreakdown } from '../utils/score.js';
@@ -86,6 +87,7 @@ export function initSummaryPanel() {
   on(Events.BUILDING_SPECIALIZED,  _render);
   on(Events.POPULATION_CHANGED,    _render);      // T096: rerender when pop changes (slot count changes)
   on(Events.CITIZEN_ROLES_CHANGED, _render);      // T096: rerender when roles adjusted
+  on(Events.CAPITAL_PLAN_CHOSEN,   _render);      // T100: rerender when capital plan chosen
   on(Events.TICK, _tickCountdown());
 
   // T096: Delegated click handler for citizen role +/- buttons
@@ -125,6 +127,7 @@ function _render() {
       ${_resourcesCard()}
       ${_militaryCard()}
       ${_territoryCard()}
+      ${_terrainControlCard()}
       ${_diplomacyCard()}
       ${_citizenRolesCard()}
       ${_progressionCard()}
@@ -469,6 +472,41 @@ function _citizenRolesCard() {
   return _card('👥 Citizen Roles', `${header}${roleRows}`);
 }
 
+// ── Terrain control card (T099) ────────────────────────────────────────────
+
+function _terrainControlCard() {
+  const ctrl = getTerrainControl();
+  const TERRAIN_ROWS = [
+    { type: 'grass',    icon: '🌿', label: 'Grassland', res: 'food',  base5: 1.5 },
+    { type: 'forest',   icon: '🌲', label: 'Forest',    res: 'wood',  base5: 1.5 },
+    { type: 'hills',    icon: '⛰️', label: 'Hills',     res: 'stone', base5: 1.5 },
+    { type: 'river',    icon: '🏞️', label: 'River',     res: 'gold+food', base5: 1.0 },
+    { type: 'mountain', icon: '🏔️', label: 'Mountain',  res: 'iron',  base5: 1.5 },
+  ];
+  const rows = TERRAIN_ROWS.map(t => {
+    const count  = ctrl[t.type] ?? 0;
+    const bonus  = count >= 10 ? t.base5 * 2 : count >= 5 ? t.base5 : 0;
+    const thresh = count >= 10 ? 10 : 5;
+    const barPct = Math.min(100, Math.round(count / thresh * 100));
+    const activeClass = bonus > 0 ? ' sum-terrain--active' : '';
+    const bonusStr = bonus > 0
+      ? `<span class="sum-terrain__bonus">+${bonus}/s ${t.res}</span>`
+      : `<span class="sum-terrain__bonus sum-terrain__bonus--locked">Need ${thresh - count} more</span>`;
+    return `
+      <div class="sum-terrain-row${activeClass}">
+        <span class="sum-terrain__icon">${t.icon}</span>
+        <span class="sum-terrain__name">${t.label}</span>
+        <div class="sum-terrain__bar-wrap"><div class="sum-terrain__bar" style="width:${barPct}%"></div></div>
+        <span class="sum-terrain__count">${count}/${thresh}</span>
+        ${bonusStr}
+      </div>`;
+  }).join('');
+
+  const anyActive = Object.values(ctrl).some((c, i) => c >= [5,5,5,5,5][i]);
+  const hint = anyActive ? '' : `<div class="sum-terrain__hint">Control 5+ tiles of a terrain type to gain resource bonuses (10+ doubles them)</div>`;
+  return _card('🌍 Terrain Control', hint + rows);
+}
+
 // ── Lifetime stats card ────────────────────────────────────────────────────
 
 function _statsCard(timeStr) {
@@ -476,7 +514,13 @@ function _statsCard(timeStr) {
   const peakTerritory = state.stats?.peakTerritory ?? 0;
   const totalTrades   = state.market?.totalTrades ?? 0;
 
+  const PLAN_LABELS = { fortress: '🏰 Fortress', commerce: '💼 Commerce Hub', academy: '📚 Grand Academy', arcane_tower: '🔮 Arcane Tower' };
+  const planRow = state.capitalPlan
+    ? `<div class="sum-stat-row"><span class="sum-stat-label">🏛️ Capital Plan</span><span class="sum-stat-value" style="color:#f0b429">${PLAN_LABELS[state.capitalPlan] ?? state.capitalPlan}</span></div>`
+    : `<div class="sum-stat-row"><span class="sum-stat-label">🏛️ Capital Plan</span><span class="sum-stat-value" style="color:var(--text-dim)">None chosen</span></div>`;
+
   const rows = `
+    ${planRow}
     <div class="sum-stat-row">
       <span class="sum-stat-label">💰 Gold earned (session)</span>
       <span class="sum-stat-value sum-stat-value--accent">${fmtNum(goldEarned)}</span>

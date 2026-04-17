@@ -5,9 +5,10 @@
 
 import { state } from '../core/state.js';
 import { on, Events } from '../core/events.js';
-import { buildBuilding, demolishBuilding, specializeBuilding } from '../core/actions.js';
+import { buildBuilding, demolishBuilding, specializeBuilding, chooseCapitalPlan } from '../core/actions.js';
 import { BUILDINGS } from '../data/buildings.js';
 import { SPECIALIZATIONS, SPECIALS_BY_BUILDING, ELIGIBLE_BUILDINGS } from '../data/buildingSpecials.js';
+import { CAPITAL_PLANS, CAPITAL_PLAN_ORDER } from '../data/capitalPlans.js';
 import { fmtNum } from '../utils/fmt.js';
 
 export function initBuildingPanel() {
@@ -24,6 +25,7 @@ export function initBuildingPanel() {
   on(Events.TECH_CHANGED,          renderBuildingPanel);
   on(Events.AGE_CHANGED,           renderBuildingPanel);
   on(Events.BUILDING_SPECIALIZED,  renderBuildingPanel);
+  on(Events.CAPITAL_PLAN_CHOSEN,   renderBuildingPanel);
   on(Events.RESOURCE_CHANGED,      _throttleRender());
 }
 
@@ -106,6 +108,7 @@ function renderBuildingPanel() {
   }
 
   html += _specializationsSection();
+  html += _capitalPlansSection();
 
   panel.innerHTML = html;
 
@@ -113,10 +116,17 @@ function renderBuildingPanel() {
   panel.onclick = (e) => {
     const btn = e.target.closest('[data-action]');
     if (!btn) return;
-    const { action, id, specid } = btn.dataset;
-    if (action === 'build')       buildBuilding(id);
-    if (action === 'demolish')    demolishBuilding(id);
-    if (action === 'specialize')  specializeBuilding(id, specid);
+    const { action, id, specid, planid } = btn.dataset;
+    if (action === 'build')           buildBuilding(id);
+    if (action === 'demolish')        demolishBuilding(id);
+    if (action === 'specialize')      specializeBuilding(id, specid);
+    if (action === 'choose-plan') {
+      const result = chooseCapitalPlan(planid);
+      if (!result.ok) {
+        btn.classList.add('btn--shake');
+        setTimeout(() => btn.classList.remove('btn--shake'), 400);
+      }
+    }
   };
 }
 
@@ -178,6 +188,63 @@ function _specializationsSection() {
       <div class="spec-section__header">⚗️ Building Specializations</div>
       <div class="spec-section__intro">Permanently upgrade a building with one specialization. Costs apply once.</div>
       ${cards}
+    </div>`;
+}
+
+// ── Capital Development Plans section (T100) ──────────────────────────────────
+
+function _capitalPlansSection() {
+  const chosen = state.capitalPlan;
+
+  if (chosen) {
+    const plan = CAPITAL_PLANS[chosen];
+    return `
+      <div class="cap-plan-section">
+        <div class="cap-plan-section__header">🏛️ Capital Development</div>
+        <div class="cap-plan-chosen">
+          <span class="cap-plan-icon">${plan.icon}</span>
+          <div class="cap-plan-body">
+            <div class="cap-plan-name">${plan.name}</div>
+            <div class="cap-plan-bonuses">${plan.bonusDesc.map(b => `✅ ${b}`).join('<br>')}</div>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  const cards = CAPITAL_PLAN_ORDER.map(planId => {
+    const plan       = CAPITAL_PLANS[planId];
+    const ageOk      = (state.age ?? 0) >= (plan.requiresAge ?? 0);
+    const affordable = canAfford(plan.cost);
+    const avail      = ageOk && affordable;
+    const costStr    = Object.entries(plan.cost).map(([r, a]) => `${_resIcon(r)}${fmtNum(a)}`).join(' ');
+    const ageLock    = !ageOk ? `<span class="cap-plan__lock">Requires ${plan.requiresAge === 1 ? 'Bronze' : 'Iron'} Age</span>` : '';
+    const bonusList  = plan.bonusDesc.map(b => `<div class="cap-plan__bonus">⚡ ${b}</div>`).join('');
+
+    return `
+      <div class="cap-plan-card ${avail ? '' : 'cap-plan-card--locked'}">
+        <div class="cap-plan-card__header">
+          <span class="cap-plan-icon">${plan.icon}</span>
+          <div>
+            <div class="cap-plan-card__name">${plan.name}</div>
+            <div class="cap-plan-card__cost ${affordable ? 'cap-plan-cost--ok' : 'cap-plan-cost--bad'}">${costStr}</div>
+          </div>
+        </div>
+        <div class="cap-plan-card__desc">${plan.desc}</div>
+        ${bonusList}
+        ${ageLock}
+        <button class="btn btn--cap-plan ${avail ? '' : 'btn--disabled'}"
+                data-action="choose-plan" data-planid="${planId}"
+                ${avail ? '' : 'disabled'}>
+          ${ageOk ? 'Establish Plan' : 'Age Required'}
+        </button>
+      </div>`;
+  }).join('');
+
+  return `
+    <div class="cap-plan-section">
+      <div class="cap-plan-section__header">🏛️ Capital Development Plan</div>
+      <div class="cap-plan-section__intro">Choose one permanent strategic development for your capital. This decision cannot be undone.</div>
+      <div class="cap-plan-grid">${cards}</div>
     </div>`;
 }
 

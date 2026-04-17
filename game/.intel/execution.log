@@ -2,6 +2,54 @@
 
 ---
 
+## 2026-04-17 — Session N+20
+
+**Tasks completed:** T099, T100
+
+**Summary:**
+All prior tasks (T001–T098) were complete. Created two Phase 34 features: Region Dominance Bonuses that reward territorial control of specific terrain types (T099), and Capital Development Plans allowing a one-time strategic upgrade for the player's capital (T100). Both features integrate cleanly into the existing recalcRates() pipeline and UI panels.
+
+**T099 — Region Dominance Bonuses:**
+- `src/systems/map.js`: Added `getTerrainControl()` export — iterates all player-owned tiles and counts per terrain type (grass/forest/hills/river/mountain).
+- `src/systems/resources.js`: Imported `getTerrainControl`; added `_regionBonus()` inline helper (×1 at 5+ tiles, ×2 at 10+ tiles); applied bonuses in `recalcRates()` after territory block — grass→+food, forest→+wood, hills→+stone, river→+gold+food, mountain→+iron. Added 6 labelled `getBreakdown()` entries so these bonuses are visible in HUD rate tooltips.
+- `src/ui/summaryPanel.js`: Imported `getTerrainControl`; added `_terrainControlCard()` — 5-row table with terrain icon/name, a progress bar filling toward the 5-tile threshold, count display, and bonus value (green when active, dimmed with "Need N more" when not). Injected after `_territoryCard()` in `_render()`. Added `CAPITAL_PLAN_CHOSEN` listener.
+- `styles/main.css`: `.sum-terrain-row` (5-col grid), `.sum-terrain--active` (green left-border), per-element classes, hint text, mobile single-column.
+
+**T100 — Capital Development Plan:**
+- `src/data/capitalPlans.js`: New file — 4 plan definitions: Fortress (300g+150s+100i, +20% combat, –20% counterattack), Commerce (300g+150w, +2g/s, +500 gold cap), Academy (200g+100s+100m, –25% research time, +500 mana cap), Arcane Tower (200m+150s+100i, +1.5 mana/s, –25% spell cost). Bronze Age required for Academy/Arcane Tower.
+- `src/core/events.js`: `CAPITAL_PLAN_CHOSEN` event added.
+- `src/core/state.js`: `capitalPlan:null` added to static object + `initState()` reset.
+- `src/core/actions.js`: Imported `CAPITAL_PLANS`; added `chooseCapitalPlan(planId)` — validates plan exists, no existing plan active, age/resource requirements met; deducts cost, sets `state.capitalPlan`, calls `recalcRates()`, emits events, logs message.
+- `src/systems/resources.js`: Commerce +2g/s + +500 gold cap; Academy +500 mana cap; Arcane Tower +1.5 mana/s — all applied before `Object.assign`.
+- `src/systems/research.js`: Academy plan ×0.75 `totalTicks` in `startResearch()`.
+- `src/systems/spells.js`: Arcane Tower plan ×0.75 mana cost (stacks multiplicatively with arcane archetype).
+- `src/systems/combat.js`: Fortress plan ×1.20 `attackPower` in both `getAttackPreview()` and `attackTile()` after War Banner decree.
+- `src/systems/enemyAI.js`: Fortress plan ×0.80 `winChance` in `_counterattack()` before cap.
+- `src/ui/buildingPanel.js`: Imported `chooseCapitalPlan`, `CAPITAL_PLANS`, `CAPITAL_PLAN_ORDER`; subscribed `CAPITAL_PLAN_CHOSEN`; added `choose-plan` action in `panel.onclick` with `btn--shake` error feedback; added `_capitalPlansSection()` — shows active plan card (gold border, bonus list) or plan picker grid (4 cards with cost, bonuses, age-lock notice, Establish Plan button).
+- `src/ui/summaryPanel.js`: Subscribed `CAPITAL_PLAN_CHOSEN`; added capital plan row in `_statsCard()` (gold text when active, dim "None chosen" otherwise).
+- `src/main.js`: `capitalPlan` in `_save()`/`_applySave()`; save version bumped 32→33; `CAPITAL_PLAN_CHOSEN → _updateScoreBadge`.
+- `styles/main.css`: `.cap-plan-section` (gold border-left), `.cap-plan-grid` (auto-fill), `.cap-plan-card/--locked`, `.btn--cap-plan` (gold gradient), `.cap-plan-chosen` (active card gold border+tint), and all sub-element classes.
+
+**Files modified:**
+- `game/src/systems/map.js`
+- `game/src/systems/resources.js`
+- `game/src/systems/research.js`
+- `game/src/systems/spells.js`
+- `game/src/systems/combat.js`
+- `game/src/systems/enemyAI.js`
+- `game/src/data/capitalPlans.js` (new)
+- `game/src/core/events.js`
+- `game/src/core/state.js`
+- `game/src/core/actions.js`
+- `game/src/ui/buildingPanel.js`
+- `game/src/ui/summaryPanel.js`
+- `game/src/main.js`
+- `game/styles/main.css`
+- `game/.intel/tasks.json`
+- `game/.intel/execution.log`
+
+---
+
 ## 2026-04-17 — Session N+19
 
 **Tasks completed:** T097, T098

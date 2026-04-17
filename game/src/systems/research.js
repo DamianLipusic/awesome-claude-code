@@ -120,6 +120,11 @@ export function startResearch(techId) {
     totalTicks = Math.ceil(totalTicks * scholarMult);
   }
 
+  // T100: Grand Academy capital plan — -25% research time
+  if (state.capitalPlan === 'academy') {
+    totalTicks = Math.ceil(totalTicks * 0.75);
+  }
+
   state.researchQueue.push({ techId, remaining: totalTicks, totalTicks });
   addMessage(`Researching ${def.name}…`, 'research');
   emit(Events.TECH_CHANGED, {});

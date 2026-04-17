@@ -232,6 +232,10 @@ export const state = {
   // { scholars: n, merchants: n, workers: n, soldiers: n }
   // Each role slot = 100 citizens. Max total = floor(population / 100).
   citizenRoles: null,
+
+  // T100: Capital Development Plan — one-time permanent upgrade per game
+  // null | 'fortress' | 'commerce' | 'academy' | 'arcane_tower'
+  capitalPlan: null,
 };
 
 /**
@@ -290,5 +294,6 @@ export function initState(empireName = 'My Empire') {
   state.merchant        = null;  // T087: wandering merchant
   state.landmarks       = null;  // T089: special map landmarks
   state.buildingSpecials = {};   // T090: building specializations
+  state.capitalPlan      = null; // T100: capital development plan (reset per game)
   // Note: state.archetype is NOT reset here — it persists across new games
 }

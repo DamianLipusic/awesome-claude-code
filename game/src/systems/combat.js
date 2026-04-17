@@ -182,6 +182,9 @@ export function getAttackPreview(x, y) {
     attackPower *= 1.40;
   }
 
+  // T100: Fortress capital plan — +20% attack
+  if (state.capitalPlan === 'fortress') attackPower *= 1.20;
+
   // T082/T086: skip hero bonuses if hero is injured or on expedition
   if (state.hero?.recruited && !_heroInjured() && !_heroOnExpedition()) {
     attackPower += HERO_DEF.attack;
@@ -303,6 +306,9 @@ export function attackTile(x, y) {
   if ((state.decrees?.warBannerCharges ?? 0) > 0) {
     attackPower *= 1.40;
   }
+
+  // T100: Fortress capital plan — +20% attack
+  if (state.capitalPlan === 'fortress') attackPower *= 1.20;
 
   // Hero bonus: flat attack power + skills + Battle Cry (×2) on next attack
   // T082/T086: skip all hero bonuses if the hero is injured or on expedition

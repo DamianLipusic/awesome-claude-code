@@ -111,10 +111,11 @@ export function castSpell(spellId) {
   if (spellId === 'aegis'     && ae.aegis     > state.tick) return { ok: false, reason: 'Aegis Ward is already active.' };
   if (spellId === 'manaBolt'  && ae.manaBolt)               return { ok: false, reason: 'Mana Bolt is already primed.' };
 
-  // Mana cost (Arcane archetype: −25%)
-  const manaCost = state.archetype === 'arcane'
-    ? Math.max(1, Math.floor(def.manaCost * 0.75))
-    : def.manaCost;
+  // Mana cost (Arcane archetype: −25%; Arcane Tower capital plan: −25%, stacks multiplicatively)
+  let manaCost = def.manaCost;
+  if (state.archetype === 'arcane')         manaCost = Math.floor(manaCost * 0.75);
+  if (state.capitalPlan === 'arcane_tower') manaCost = Math.floor(manaCost * 0.75);
+  manaCost = Math.max(1, manaCost);
 
   if ((state.resources.mana ?? 0) < manaCost) {
     return { ok: false, reason: `Not enough mana. Need ${manaCost} ✨ mana.` };

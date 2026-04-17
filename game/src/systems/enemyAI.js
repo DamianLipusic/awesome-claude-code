@@ -165,6 +165,8 @@ function _counterattack() {
   if (state.councilBoons?.includes('castle_walls')) winChance *= 0.80;
   // T077: Fortress Doctrine synergy (fortification + tactics) — -25% enemy success
   if (SYNERGIES.fortress_doctrine.techs.every(t => !!state.techs?.[t])) winChance *= 0.75;
+  // T100: Fortress capital plan — -20% enemy counterattack success
+  if (state.capitalPlan === 'fortress') winChance *= 0.80;
   winChance = Math.min(0.9, winChance);
   const roll = Math.random();
 

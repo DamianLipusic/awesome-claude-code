@@ -151,6 +151,23 @@ export function territoryRateBonus() {
   return bonus;
 }
 
+/**
+ * T099: Count player-owned tiles per terrain type.
+ * Returns { grass, forest, hills, river, mountain } counts.
+ */
+export function getTerrainControl() {
+  const counts = { grass: 0, forest: 0, hills: 0, river: 0, mountain: 0 };
+  if (!state.map) return counts;
+  for (const row of state.map.tiles) {
+    for (const tile of row) {
+      if (tile.owner === 'player' && counts[tile.type] !== undefined) {
+        counts[tile.type]++;
+      }
+    }
+  }
+  return counts;
+}
+
 // ── Internal helpers ───────────────────────────────────────────────────────
 
 function _inBounds(x, y, tiles) {
