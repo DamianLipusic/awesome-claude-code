@@ -80,4 +80,6 @@ export const Events = Object.freeze({
   MILITARY_AID_CHANGED:     'militaryAidChanged',     // T102: alliance military aid requested / battle consumed / expired
   FESTIVAL_CHANGED:         'festivalChanged',         // T103: festival declared / expired / charge consumed
   RESOURCE_NODE_CHANGED:    'resourceNodeChanged',     // T104: resource node spawned / collected / expired
+  TITLE_EARNED:             'titleEarned',             // T105: player earned a new empire title
+  RUIN_EXCAVATED:           'ruinExcavated',           // T106: player excavated an ancient ruin
 });

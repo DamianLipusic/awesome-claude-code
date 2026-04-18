@@ -54,6 +54,7 @@ const ENEMY_TINT       = 'rgba(248,81,73,0.28)';
 const BARBARIAN_TINT   = 'rgba(192,60,30,0.38)';   // T056
 const CARAVAN_TINT     = 'rgba(255,200,50,0.28)';  // T063
 const NODE_TINT        = 'rgba(255,170,0,0.35)';   // T104: resource node amber glow
+const RUIN_TINT        = 'rgba(40,160,140,0.30)';  // T106: ancient ruin dark teal glow
 const HOVER_ATTACK     = 'rgba(240,180,41,0.38)';
 const HOVER_NEUTRAL    = 'rgba(255,255,255,0.08)';
 const PLAYER_BORDER    = '#58a6ff';
@@ -179,6 +180,9 @@ export function initMapPanel() {
 
   // T104: re-render when resource nodes spawn, are collected, or expire
   on(Events.RESOURCE_NODE_CHANGED, _render);
+
+  // T106: re-render when a ruin is excavated (teal tint/icon needs to clear)
+  on(Events.RUIN_EXCAVATED, _render);
 
   _render();
 }
@@ -355,11 +359,23 @@ function _showTileTip(tile, x, y, mouseX, mouseY) {
       })()
     : '';
 
+  // T106: ruin hint
+  const ruinHtml = tile.hasRuin && tile.revealed
+    ? (() => {
+        const excavated = !!state.ruins?.excavated?.[tile.hasRuin];
+        return excavated
+          ? `<div class="map-tt-row map-tt-bonus">🏛️ Ancient Ruin (excavated)</div>`
+          : `<div class="map-tt-row" style="color:#28a08c;font-weight:600">🏛️ Ancient Ruins</div>
+             <div class="map-tt-row" style="font-size:0.7rem;color:var(--text-dim)">Capture to excavate for a random reward!</div>`;
+      })()
+    : '';
+
   _tileTipEl.innerHTML = `
     <div class="map-tt-title">${TERRAIN_NAME[tile.type] ?? tile.type}</div>
     <div class="map-tt-row">${ownerHtml}</div>
     ${capitalHtml}
     ${lmHtml}
+    ${ruinHtml}
     ${bonusHtml}
     ${terrainCombatHtml}
     ${barbHtml}
@@ -578,6 +594,20 @@ function _drawTile(tile, x, y, capital) {
     ctx.textBaseline = 'middle';
     ctx.fillStyle    = '#ffd700';
     ctx.fillText('✦', px + TILE_PX / 2, py + TILE_PX / 2 + 1);
+  }
+
+  // T106: draw 🏛 ruin indicator on revealed non-excavated neutral tiles
+  const _ruinId = tile.hasRuin;
+  if (_ruinId && tile.owner !== 'player' && tile.revealed) {
+    const alreadyDone = !!state.ruins?.excavated?.[_ruinId];
+    if (!alreadyDone) {
+      ctx.fillStyle = RUIN_TINT;
+      ctx.fillRect(px, py, TILE_PX, TILE_PX);
+      ctx.font         = `${TILE_PX - 10}px sans-serif`;
+      ctx.textAlign    = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('🏛', px + TILE_PX / 2, py + TILE_PX / 2 + 1);
+    }
   }
 }
 

@@ -13,6 +13,7 @@ import { fmtNum, fmtTime } from '../utils/fmt.js';
 import { TICKS_PER_SECOND } from '../core/tick.js';
 import { RELICS, RELIC_ORDER, TERRAIN_RELIC } from '../data/relics.js';
 import { LANDMARKS, LANDMARK_ORDER } from '../data/landmarks.js';
+import { RUIN_COUNT, RUIN_OUTCOMES } from '../data/ruins.js';
 import { POLICIES, POLICY_ORDER, POLICY_COOLDOWN_TICKS } from '../data/policies.js';
 import { FESTIVALS, FESTIVAL_ORDER } from '../data/festivals.js';
 import { useFestival, getActiveFestival, getFestivalSecsLeft, getFestivalCooldownSecs } from '../systems/festivals.js';
@@ -34,6 +35,7 @@ export function initResearchPanel() {
   on(Events.MASTERY_UNLOCKED,  renderResearchPanel);
   on(Events.SYNERGY_UNLOCKED,  renderResearchPanel);
   on(Events.FESTIVAL_CHANGED,  renderResearchPanel);
+  on(Events.RUIN_EXCAVATED,    renderResearchPanel);
   // Refresh countdown text every second while a festival is active or on cooldown
   on(Events.TICK, _throttle(() => {
     const hasActivity = getActiveFestival() || getFestivalCooldownSecs() > 0;
@@ -84,7 +86,7 @@ function renderResearchPanel() {
     </div>`;
   }).join('');
 
-  panel.innerHTML = _ageSection() + progressHtml + `<div class="tech-grid">${techCards}</div>` + _masteriesSection() + _synergiesSection() + _policySection() + _festivalsSection() + _relicsSection() + _landmarksSection();
+  panel.innerHTML = _ageSection() + progressHtml + `<div class="tech-grid">${techCards}</div>` + _masteriesSection() + _synergiesSection() + _policySection() + _festivalsSection() + _relicsSection() + _landmarksSection() + _ruinsSection();
 
   panel.onclick = (e) => {
     if (e.target.closest('#btn-advance-age')) {
@@ -484,6 +486,51 @@ function _landmarksSection() {
         <span class="relics-count">${count} / ${LANDMARK_ORDER.length} captured</span>
       </div>
       <div class="relics-intro">Legendary sites are marked ★ on the map. Capture them for permanent empire bonuses.</div>
+      <div class="relics-grid">${cards}</div>
+    </div>`;
+}
+
+// ── T106: Ancient Ruins section ───────────────────────────────────────────
+
+function _ruinsSection() {
+  const excavated = state.ruins?.excavated ?? {};
+  const count     = Object.keys(excavated).length;
+
+  // Build per-ruin cards using the 4 ruinId slots (ruin_0 … ruin_3)
+  const cards = Array.from({ length: RUIN_COUNT }, (_, i) => {
+    const ruinId = `ruin_${i}`;
+    const data   = excavated[ruinId];
+
+    if (data) {
+      const outcomeDef = RUIN_OUTCOMES.find(o => o.id === data.outcome);
+      return `
+        <div class="relic-card relic-card--found">
+          <div class="relic-icon">${outcomeDef?.icon ?? '🏛️'}</div>
+          <div class="relic-body">
+            <div class="relic-name">${outcomeDef?.name ?? data.outcome}</div>
+            <div class="relic-desc">${outcomeDef?.desc ?? ''}</div>
+            <div class="relic-bonus">${data.outcome === 'lost_artifact' ? '+0.8 gold/s, +100 gold cap' : 'One-time reward applied'}</div>
+          </div>
+        </div>`;
+    }
+
+    return `
+      <div class="relic-card relic-card--locked">
+        <div class="relic-icon">🏛️</div>
+        <div class="relic-body">
+          <div class="relic-name">Ancient Ruin</div>
+          <div class="relic-hint">Marked 🏛️ on the map — capture the tile to excavate</div>
+        </div>
+      </div>`;
+  }).join('');
+
+  return `
+    <div class="relics-section">
+      <div class="relics-header">
+        <span>🏛️ Ancient Ruins</span>
+        <span class="relics-count">${count} / ${RUIN_COUNT} excavated</span>
+      </div>
+      <div class="relics-intro">Ancient ruins are marked 🏛️ on the map. Capture the tile to excavate and reveal a random reward.</div>
       <div class="relics-grid">${cards}</div>
     </div>`;
 }

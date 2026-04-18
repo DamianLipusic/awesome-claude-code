@@ -270,6 +270,29 @@ export function initStory() {
   on(Events.MAP_CHANGED,       _onMapChanged);
   on(Events.QUEST_COMPLETED,   _onQuestCompleted);
   on(Events.RELIC_DISCOVERED,  _onRelicDiscovered);
+  on(Events.TITLE_EARNED,      _onTitleEarned);
+  on(Events.RUIN_EXCAVATED,    _onRuinExcavated);
+}
+
+function _onTitleEarned({ titleId, level } = {}) {
+  const name = titleId?.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) ?? 'New Title';
+  _add({
+    milestoneId: `title_${titleId}`,
+    icon:        level >= 4 ? '🌟' : '👑',
+    title:       `Title: ${name}`,
+    desc:        `Your growing empire has earned the prestigious title of ${name}.`,
+    type:        'achievement',
+  });
+}
+
+function _onRuinExcavated({ ruinId, outcome } = {}) {
+  _add({
+    milestoneId: `ruin_${ruinId}`,
+    icon:        '🏛️',
+    title:       'Ancient Ruin Excavated',
+    desc:        `Your forces uncovered the secrets of ${ruinId ?? 'an ancient ruin'} (${outcome ?? 'unknown'}).`,
+    type:        'windfall',
+  });
 }
 
 function _onRelicDiscovered({ relicId }) {

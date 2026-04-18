@@ -24,6 +24,8 @@ import { isEmpireInSkirmish, SKIRMISH_ATTACK_BONUS } from './diplomacy.js';
 import { EMPIRES } from '../data/empires.js';
 import { getActiveAid, consumeAidBattle } from './militaryAid.js';
 import { clearResourceNode } from './resourceNodes.js';
+import { getCurrentTitle } from '../data/titles.js';
+import { rollRuinOutcome } from '../data/ruins.js';
 
 /** Returns true if both techs of a named synergy are researched. */
 function _synergy(id) {
@@ -212,6 +214,10 @@ export function getAttackPreview(x, y) {
   // T100: Fortress capital plan — +20% attack
   if (state.capitalPlan === 'fortress') attackPower *= 1.20;
 
+  // T105: Empire title combat bonus
+  const _titlePreview = getCurrentTitle(state);
+  if (_titlePreview.bonus.combatMult) attackPower *= (1 + _titlePreview.bonus.combatMult);
+
   // T103: Military Parade festival — +25% attack while charges remain
   const _paradeActive = state.festivals?.active?.type === 'parade'
     && (state.festivals.active.chargesLeft ?? 0) > 0;
@@ -361,6 +367,10 @@ export function attackTile(x, y) {
 
   // T100: Fortress capital plan — +20% attack
   if (state.capitalPlan === 'fortress') attackPower *= 1.20;
+
+  // T105: Empire title combat bonus
+  const _titleAtk = getCurrentTitle(state);
+  if (_titleAtk.bonus.combatMult) attackPower *= (1 + _titleAtk.bonus.combatMult);
 
   // T103: Military Parade festival — +25% attack while charges remain
   const _paradeUp = state.festivals?.active?.type === 'parade'
@@ -540,6 +550,9 @@ function _victory(tile, x, y, attackPower, defense) {
 
   // T104: remove any resource node on this tile (node is lost when territory changes hands)
   clearResourceNode(x, y);
+
+  // T106: excavate ruin if this tile contains one
+  _tryExcavateRuin(tile, x, y);
 
   // T093: faction capital capture — force peace, award morale bonus
   if (wasFactionCapital) {
@@ -723,6 +736,30 @@ function _tryCaptureLandmark(tile, x, y) {
     'windfall',
   );
   emit(Events.LANDMARK_CAPTURED, { landmarkId: id, x, y });
+  emit(Events.RESOURCE_CHANGED, {});
+}
+
+// ── T106: Ruin excavation ──────────────────────────────────────────────────
+
+function _tryExcavateRuin(tile, x, y) {
+  if (!tile.hasRuin) return;
+  if (!state.ruins) state.ruins = { excavated: {} };
+  const ruinId = tile.hasRuin;
+  if (state.ruins.excavated[ruinId]) return;  // already excavated (shouldn't happen)
+
+  const outcome = rollRuinOutcome();
+  const detail  = outcome.apply ? outcome.apply(state) : '';
+
+  state.ruins.excavated[ruinId] = { tick: state.tick, outcome: outcome.id };
+
+  // Permanent 'lost_artifact' bonus applied via resources.js loop; recalc now
+  recalcRates();
+
+  addMessage(
+    `🏛️ Ancient ruin excavated at (${x},${y}): ${outcome.icon} ${outcome.name}! ${detail}`,
+    'windfall',
+  );
+  emit(Events.RUIN_EXCAVATED, { ruinId, outcome: outcome.id, x, y });
   emit(Events.RESOURCE_CHANGED, {});
 }
 

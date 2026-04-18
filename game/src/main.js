@@ -64,6 +64,7 @@ import { chooseCouncilBoon } from './core/actions.js';
 import { initMinimap, drawMinimap } from './ui/minimap.js';
 import { addMessage } from './core/actions.js';
 import { calcScore } from './utils/score.js';
+import { TITLES, getCurrentTitle } from './data/titles.js';
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
@@ -206,6 +207,13 @@ function boot() {
   _updateStreakBadge();
   on(Events.STREAK_CHANGED, _updateStreakBadge);
 
+  // T105: Title system — check on territory and age changes
+  _lastTitleLevel = getCurrentTitle(state).level;
+  _updateTitleBadge();
+  on(Events.MAP_CHANGED,  _checkTitle);
+  on(Events.AGE_CHANGED,  _checkTitle);
+  on(Events.TITLE_EARNED, _updateTitleBadge);
+
   // T080: Prestige event listeners (registered once — subscriptions persist across new games)
   on(Events.AGE_CHANGED, (d) => {
     const newAge = d?.age ?? 0;
@@ -228,6 +236,7 @@ function boot() {
   });
   on(Events.LANDMARK_CAPTURED, (d) => awardPrestige(150, `landmark captured: ${d?.landmarkId ?? ''}`));
   on(Events.FACTION_CAPITAL_CAPTURED, (d) => awardPrestige(150, `faction capital captured: ${d?.factionId ?? ''}`));
+  on(Events.RUIN_EXCAVATED, () => awardPrestige(80, 'ancient ruin excavated'));
 
   // Update age badge on changes; also show council boon modal on advancement
   _updateAgeBadge();
@@ -341,6 +350,8 @@ function _save() {
         militaryAid:         state.militaryAid         ?? null,  // T102
         festivals:           state.festivals           ?? null,  // T103
         resourceNodes:       state.resourceNodes       ?? null,  // T104
+        titleHistory:        state.titleHistory        ?? [],    // T105
+        ruins:               state.ruins               ?? null,  // T106
         tick:          state.tick,
       }
     }));
@@ -423,6 +434,8 @@ function _applySave(save) {
   state.militaryAid        = s.militaryAid        ?? null;  // T102
   state.festivals          = s.festivals          ?? null;  // T103
   state.resourceNodes      = s.resourceNodes      ?? null;  // T104
+  state.titleHistory       = s.titleHistory       ?? [];    // T105
+  state.ruins              = s.ruins              ?? null;  // T106
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
@@ -540,6 +553,35 @@ function _updateStreakBadge() {
   el.className   = `streak-badge streak-badge--t${tier}`;
   el.title       = `Conquest Streak: ${count} wins${tier > 0 ? ` — ${TIER_DESC[tier]}` : ''}`;
   el.style.display = '';
+}
+
+// ── Title badge (T105) ───────────────────────────────────────────────────
+
+let _lastTitleLevel = 0;
+
+function _checkTitle() {
+  const title = getCurrentTitle(state);
+  if (title.level > _lastTitleLevel) {
+    // Earn titles we've skipped past (shouldn't happen normally but guard it)
+    for (let lvl = _lastTitleLevel + 1; lvl <= title.level; lvl++) {
+      const earned = TITLES[lvl];
+      if (!earned) continue;
+      state.titleHistory.push({ titleId: earned.id, tick: state.tick });
+      addMessage(`👑 New title earned: ${earned.icon} ${earned.name}! ${earned.bonusDesc}`, 'achievement');
+      emit(Events.TITLE_EARNED, { titleId: earned.id, level: lvl });
+    }
+    _lastTitleLevel = title.level;
+    _updateTitleBadge();
+    recalcRates();
+  }
+}
+
+function _updateTitleBadge() {
+  const el = document.getElementById('title-badge');
+  if (!el) return;
+  const title = getCurrentTitle(state);
+  el.textContent = `${title.icon} ${title.name}`;
+  el.title = `Empire Title: ${title.name} — ${title.bonusDesc}`;
 }
 
 // ── Score badge ───────────────────────────────────────────────────────────
@@ -722,6 +764,8 @@ function _newGame(opts = {}) {
   _updatePrestigeBadge();
   _updateSiegeBadge();
   _updateStreakBadge();
+  _lastTitleLevel = 0;
+  _updateTitleBadge();
 }
 
 // ── UI Controls ───────────────────────────────────────────────────────────

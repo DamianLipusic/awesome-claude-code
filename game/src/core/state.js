@@ -253,6 +253,14 @@ export const state = {
   // T104: Resource Nodes — temporary glowing deposits on neutral tiles
   // { nodes: [{ x, y, terrain, resource, amount, expiresAt }], nextSpawnTick: number }
   resourceNodes: null,
+
+  // T105: Title history — records when each title was earned this game
+  // [{ titleId, tick }] — newest first; reset per game
+  titleHistory: [],
+
+  // T106: Ruins excavation state — { excavated: { [ruinId]: { tick, outcome } } }
+  // null until first map; ruin positions stored as tile.hasRuin = ruinId in state.map.tiles
+  ruins: null,
 };
 
 /**
@@ -316,5 +324,7 @@ export function initState(empireName = 'My Empire') {
   state.militaryAid      = null; // T102: reset aid each game
   state.festivals        = null; // T103: reset festivals each game
   state.resourceNodes    = null; // T104: reset resource nodes each game
+  state.titleHistory     = [];   // T105: title history resets per game
+  state.ruins            = null; // T106: ruins reset per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

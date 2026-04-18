@@ -14,6 +14,7 @@ import { state } from '../core/state.js';
 import { emit, Events } from '../core/events.js';
 import { IMPROVEMENTS } from '../data/improvements.js';
 import { LANDMARK_ORDER, LANDMARKS } from '../data/landmarks.js';
+import { RUIN_COUNT } from '../data/ruins.js';
 
 export const MAP_W = 20;
 export const MAP_H = 20;
@@ -85,6 +86,10 @@ export function initMap() {
   // Place special landmarks (T089)
   _placeLandmarks(tiles);
   state.landmarks = { captured: {} };
+
+  // T106: Place ancient ruin sites
+  _placeRuins(tiles);
+  state.ruins = { excavated: {} };
 
   state.map = {
     width:   MAP_W,
@@ -248,6 +253,37 @@ function _designateFactionCapitals(tiles) {
       bestTile.isFactionCapital = faction;
       bestTile.defense = Math.round(bestTile.defense * 1.4);
     }
+  }
+}
+
+/**
+ * T106: Place RUIN_COUNT ancient ruin sites at distance 5–10 from capital
+ * on neutral non-special tiles. Each ruin boosts tile defense slightly.
+ */
+function _placeRuins(tiles) {
+  const candidates = [];
+  for (let y = 0; y < MAP_H; y++) {
+    for (let x = 0; x < MAP_W; x++) {
+      const tile = tiles[y][x];
+      const dist = Math.hypot(x - CAPITAL.x, y - CAPITAL.y);
+      if (
+        dist >= 5 && dist <= 10 &&
+        tile.owner === null &&
+        !tile.landmark &&
+        !tile.hasRuin
+      ) {
+        candidates.push({ x, y });
+      }
+    }
+  }
+  candidates.sort(() => Math.random() - 0.5);
+  let placed = 0;
+  for (const { x, y } of candidates) {
+    if (placed >= RUIN_COUNT) break;
+    const tile = tiles[y][x];
+    tile.hasRuin = `ruin_${placed}`;
+    tile.defense += 8;  // slight defensive bonus
+    placed++;
   }
 }
 

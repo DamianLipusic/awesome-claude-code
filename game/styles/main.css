@@ -6418,6 +6418,28 @@ kbd {
   .streak-badge { display: none; }
 }
 
+/* ── T105: Empire Title badge ───────────────────────────────────────────── */
+
+.title-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  background: rgba(154, 205, 50, 0.12);
+  border: 1px solid rgba(154, 205, 50, 0.45);
+  color: #9acd32;
+  cursor: help;
+  white-space: nowrap;
+  transition: background 0.3s;
+}
+
+.title-badge:hover { background: rgba(154, 205, 50, 0.22); }
+
+@media (max-width: 600px) {
+  .title-badge { display: none; }
+}
+
 /* ── T102: Alliance Military Aid ────────────────────────────────────────── */
 
 /* Diplomacy panel — aid row */

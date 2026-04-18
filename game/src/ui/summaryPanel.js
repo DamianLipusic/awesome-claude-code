@@ -27,6 +27,7 @@ import { TECHS } from '../data/techs.js';
 import { ARCHETYPES } from '../data/archetypes.js';
 import { RELIC_ORDER } from '../data/relics.js';
 import { LANDMARK_ORDER } from '../data/landmarks.js';
+import { RUIN_COUNT } from '../data/ruins.js';
 import { currentSeason, seasonTicksRemaining } from '../systems/seasons.js';
 import { getTerrainControl } from '../systems/map.js';
 import { fmtNum, fmtRate } from '../utils/fmt.js';
@@ -84,6 +85,7 @@ export function initSummaryPanel() {
   on(Events.SEASON_CHANGED,    _render);
   on(Events.RELIC_DISCOVERED,      _render);
   on(Events.LANDMARK_CAPTURED,     _render);
+  on(Events.RUIN_EXCAVATED,        _render);
   on(Events.BUILDING_SPECIALIZED,  _render);
   on(Events.POPULATION_CHANGED,    _render);      // T096: rerender when pop changes (slot count changes)
   on(Events.CITIZEN_ROLES_CHANGED, _render);      // T096: rerender when roles adjusted
@@ -388,6 +390,11 @@ function _progressionCard() {
     <div class="sum-stat-row" style="margin-top:4px">
       <span class="sum-stat-label">🗺️ Landmarks</span>
       <span class="sum-stat-value">${Object.keys(state.landmarks?.captured ?? {}).length} / ${LANDMARK_ORDER.length}</span>
+    </div>
+
+    <div class="sum-stat-row" style="margin-top:4px">
+      <span class="sum-stat-label">🏛️ Ruins</span>
+      <span class="sum-stat-value">${Object.keys(state.ruins?.excavated ?? {}).length} / ${RUIN_COUNT}</span>
     </div>
 
     ${pathHeader('⚔️', 'Conquest Victory', conquestDone)}

@@ -23,6 +23,7 @@ import { SPECIALIZATIONS } from '../data/buildingSpecials.js';
 import { POLICIES } from '../data/policies.js';
 import { BOONS } from '../data/ageBoons.js';
 import { SYNERGIES } from '../data/techs.js';
+import { getCurrentTitle } from '../data/titles.js';
 
 /** Returns true if both techs in the named synergy pair are researched. */
 function _synergy(id) {
@@ -396,6 +397,25 @@ export function recalcRates() {
   }
   if (state.capitalPlan === 'arcane_tower') {
     rates.mana += 1.5;
+  }
+
+  // T106: Ancient ruins — Lost Artifact outcome grants +0.8 gold/s +100 gold cap
+  if (state.ruins?.excavated) {
+    for (const { outcome } of Object.values(state.ruins.excavated)) {
+      if (outcome === 'lost_artifact') {
+        rates.gold += 0.8;
+        caps.gold  += 100;
+      }
+    }
+  }
+
+  // T105: Empire title bonuses — cumulative based on current title level
+  const _title = getCurrentTitle(state);
+  if (_title.bonus.gold)      rates.gold += _title.bonus.gold;
+  if (_title.bonus.ratesMult) {
+    for (const res of RESOURCE_KEYS) {
+      if (rates[res] > 0) rates[res] *= (1 + _title.bonus.ratesMult);
+    }
   }
 
   Object.assign(state.rates, rates);

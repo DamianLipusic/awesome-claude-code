@@ -2,6 +2,39 @@
 
 ---
 
+## 2026-04-18 — Session N+24
+
+**Tasks completed:** T105, T106
+
+**Summary:**
+All prior tasks (T001–T104) were complete. Created two Phase 37 features: Empire Title System (T105) granting milestone-based titles as the empire grows, and Ancient Ruins Excavation (T106) adding map sites with random capture rewards.
+
+**T105 — Empire Title System:**
+- `src/data/titles.js` (new): 5 TITLES (village_chief/regional_lord/high_lord/king/emperor) with territory+age requirements and bonus objects (gold, ratesMult, combatMult). `getCurrentTitle(state)` returns highest earned title.
+- `src/core/events.js`: Added `TITLE_EARNED` event.
+- `src/core/state.js`: Added `titleHistory:[]` to static object + `initState()` reset.
+- `src/systems/resources.js`: Imported `getCurrentTitle`; applied flat gold bonus and `ratesMult` multiplier to all positive rates at end of `recalcRates()`.
+- `src/systems/combat.js`: Imported `getCurrentTitle`; applied `(1+combatMult)` to `attackPower` in both `getAttackPreview()` and `attackTile()` after fortress capital plan.
+- `src/main.js`: `_lastTitleLevel` module var; `_checkTitle()` earns skipped titles (addMessage + TITLE_EARNED + recalcRates); `_updateTitleBadge()` updates `#title-badge`; subscribed MAP_CHANGED+AGE_CHANGED; reset in `_newGame()`; `titleHistory` saved/loaded.
+- `src/systems/story.js`: Subscribed TITLE_EARNED → `_onTitleEarned()` story entry.
+- `index.html`: Added `#title-badge` span between streak-badge and score-badge.
+- `styles/main.css`: `.title-badge` (green-tinted pill badge, hidden ≤600px).
+
+**T106 — Ancient Ruins Excavation:**
+- `src/data/ruins.js` (new): `RUIN_COUNT=4`, `RUIN_OUTCOMES` (resource_cache 35%, ancient_wisdom 30%, cursed_trap 20%, lost_artifact 15%), `rollRuinOutcome()` weighted random.
+- `src/systems/map.js`: Imported `RUIN_COUNT`; `_placeRuins(tiles)` places 4 ruins at distance 5-10 on neutral tiles; called in `initMap()`; `state.ruins = { excavated: {} }` set.
+- `src/core/events.js`: Added `RUIN_EXCAVATED` event.
+- `src/core/state.js`: Added `ruins:null` to static object + `initState()` reset.
+- `src/systems/combat.js`: `_tryExcavateRuin(tile,x,y)` rolls outcome, calls `outcome.apply(state)`, records in `state.ruins.excavated`, calls `recalcRates()`, logs windfall, emits `RUIN_EXCAVATED`; called in `_victory()` after `clearResourceNode`.
+- `src/systems/resources.js`: Ruins bonus loop — `lost_artifact` adds +0.8 gold/s +100 gold cap per excavated artifact.
+- `src/ui/mapPanel.js`: `RUIN_TINT` (dark teal); `_drawTile()` teal tint + 🏛 glyph; `_showTileTip()` ruin tooltip; `RUIN_EXCAVATED` subscription.
+- `src/ui/researchPanel.js`: Imported `RUIN_COUNT+RUIN_OUTCOMES`; `_ruinsSection()` shows 🏛️ Ancient Ruins section; `RUIN_EXCAVATED` subscription.
+- `src/ui/summaryPanel.js`: Imported `RUIN_COUNT`; added Ruins X/4 row in `_progressionCard()`; `RUIN_EXCAVATED` subscription.
+- `src/systems/story.js`: Subscribed `RUIN_EXCAVATED` → `_onRuinExcavated()` story entry.
+- `src/main.js`: `RUIN_EXCAVATED` listener calls `awardPrestige(80)`; ruins saved/loaded (backwards-compatible null).
+
+---
+
 ## 2026-04-18 — Session N+23
 
 **Tasks completed:** T104
