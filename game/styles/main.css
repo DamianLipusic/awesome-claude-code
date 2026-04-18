@@ -6235,6 +6235,73 @@ kbd {
   border-color: #b07ec9;
 }
 
+/* ── Arsenal Upgrades (T107) ─────────────────────────────────────────────── */
+
+.upgrade-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-left: 3px solid #58a6ff;
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+
+.upgrade-title {
+  font-weight: 600;
+  font-size: 13px;
+  margin-bottom: 3px;
+}
+
+.upgrade-intro {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+
+.upgrade-row {
+  display: grid;
+  grid-template-columns: 22px 1fr auto auto;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 0;
+  border-top: 1px solid var(--border);
+}
+
+.upgrade-row:first-of-type { border-top: none; }
+
+.upgrade-icon { text-align: center; font-size: 14px; }
+
+.upgrade-name { font-size: 12px; }
+
+.upgrade-level {
+  font-size: 11px;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+.upgrade-level--max { color: var(--accent-h); font-weight: 600; }
+
+.btn--upgrade {
+  background: var(--bg-panel);
+  border: 1px solid var(--blue);
+  color: var(--blue);
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
+}
+
+.btn--upgrade:hover:not(:disabled) {
+  background: rgba(88, 166, 255, 0.15);
+}
+
+.upgrade-btn--max {
+  border-color: var(--accent-h);
+  color: var(--accent-h);
+}
+
 /* T099: Terrain Control card in Empire Summary */
 .sum-terrain-row {
   display: grid;

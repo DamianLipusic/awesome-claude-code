@@ -781,6 +781,46 @@ export function chooseCapitalPlan(planId) {
 }
 
 // ---------------------------------------------------------------------------
+// Unit Arsenal Upgrades (T107)
+// ---------------------------------------------------------------------------
+
+export const UNIT_UPGRADE_MAX       = 5;     // max levels per unit type
+export const UNIT_UPGRADE_COST_BASE = 100;   // cost multiplier (× level) in gold
+
+/**
+ * Permanently upgrade a unit type's attack power by +10% (up to 5 times).
+ * Requires at least 1 unit of that type trained.
+ * Cost: 100 × (current level + 1) gold.
+ */
+export function upgradeUnit(unitId) {
+  const def = UNITS[unitId];
+  if (!def) return { ok: false, reason: `Unknown unit: ${unitId}` };
+  if ((state.units[unitId] ?? 0) <= 0) {
+    return { ok: false, reason: `Train at least 1 ${def.name} first.` };
+  }
+
+  if (!state.unitUpgrades) state.unitUpgrades = {};
+  const level = state.unitUpgrades[unitId] ?? 0;
+  if (level >= UNIT_UPGRADE_MAX) {
+    return { ok: false, reason: `${def.name} is already at maximum upgrade level.` };
+  }
+
+  const cost = UNIT_UPGRADE_COST_BASE * (level + 1);
+  if ((state.resources.gold ?? 0) < cost) {
+    return { ok: false, reason: `Need ${cost} gold to upgrade.` };
+  }
+
+  state.resources.gold = (state.resources.gold ?? 0) - cost;
+  state.unitUpgrades[unitId] = level + 1;
+
+  emit(Events.UNIT_UPGRADED, { unitId, level: level + 1 });
+  emit(Events.UNIT_CHANGED, {});
+  emit(Events.RESOURCE_CHANGED, {});
+  addMessage(`⬆️ ${def.name} arsenal upgraded to level ${level + 1}! (+${(level + 1) * 10}% attack)`, 'build');
+  return { ok: true };
+}
+
+// ---------------------------------------------------------------------------
 // Internal helpers
 // ---------------------------------------------------------------------------
 

@@ -261,6 +261,14 @@ export const state = {
   // T106: Ruins excavation state — { excavated: { [ruinId]: { tick, outcome } } }
   // null until first map; ruin positions stored as tile.hasRuin = ruinId in state.map.tiles
   ruins: null,
+
+  // T107: Per-unit-type permanent attack upgrade levels (0–5). Each level adds +10% attack.
+  // Cost scales as UNIT_UPGRADE_COST_BASE × (level+1) gold. Reset per game.
+  unitUpgrades: {},
+
+  // T108: Exploration milestone flags — { [pct]: true } when that % of map has been revealed.
+  // Milestones: 50 / 75 / 90. The 90% milestone grants a permanent +0.8 gold/s bonus.
+  explorationMilestones: {},
 };
 
 /**
@@ -326,5 +334,7 @@ export function initState(empireName = 'My Empire') {
   state.resourceNodes    = null; // T104: reset resource nodes each game
   state.titleHistory     = [];   // T105: title history resets per game
   state.ruins            = null; // T106: ruins reset per game
+  state.unitUpgrades       = {}; // T107: arsenal upgrades reset per game
+  state.explorationMilestones = {}; // T108: exploration milestones reset per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

@@ -2,6 +2,31 @@
 
 ---
 
+## 2026-04-18 — Session N+25
+
+**Tasks completed:** T107, T108
+
+**Summary:**
+All prior tasks (T001–T106) were complete. Created two Phase 38 features: Unit Arsenal Upgrades (T107) allowing permanent per-unit attack boosts, and Map Exploration Milestones (T108) rewarding fog-of-war exploration with resources and a permanent gold bonus at 90%.
+
+**T107 — Unit Arsenal Upgrades:**
+- `src/core/events.js`: Added `UNIT_UPGRADED` event constant.
+- `src/core/state.js`: Added `unitUpgrades:{}` to static object + `initState()` reset.
+- `src/core/actions.js`: Added `UNIT_UPGRADE_MAX=5`, `UNIT_UPGRADE_COST_BASE=100`, `upgradeUnit(unitId)` — validates unit exists, level < max, deducts 100×(level+1) gold, increments upgrade level, emits UNIT_UPGRADED+UNIT_CHANGED+RESOURCE_CHANGED, logs build message.
+- `src/systems/combat.js`: Applied `upgradeMult = 1 + (unitUpgrades?.[id]??0) * 0.10` to unit attack in both `getAttackPreview()` and `attackTile()` unit loops.
+- `src/ui/militaryPanel.js`: Imported new exports; subscribed `UNIT_UPGRADED→_render`; added `_upgradeSection()` rendering `.upgrade-section` card with per-trained-unit rows (icon/name/level badge/Upgrade button); injected after `_rallySection()`; added `upgrade-unit` action handler in `_handleClick()`.
+- `src/main.js`: `unitUpgrades` saved/loaded (backwards-compatible default `{}`).
+- `styles/main.css`: `.upgrade-section` (blue left border), `.upgrade-row` (4-col grid), `.btn--upgrade` (blue border), `.upgrade-btn--max` (gold tint).
+
+**T108 — Map Exploration Milestones:**
+- `src/core/events.js`: Added `EXPLORATION_MILESTONE` event constant.
+- `src/core/state.js`: Added `explorationMilestones:{}` to static object + `initState()` reset.
+- `src/systems/resources.js`: Added `state.explorationMilestones?.[90]` check → `rates.gold += 0.8` permanent bonus before `Object.assign`.
+- `src/main.js`: Added `EXPLORATION_MILESTONE_DEFS` (50%/75%/90% milestones); added `_checkExplorationMilestones()` counting revealed tiles, awarding per-milestone rewards+prestige, calling `recalcRates()` at 90%, logging windfall messages; registered on `MAP_CHANGED`; `explorationMilestones` saved/loaded.
+- `src/ui/summaryPanel.js`: Subscribed `EXPLORATION_MILESTONE→_render`; added exploration % progress bar + next-milestone label in `_progressionCard()` below Ruins row.
+
+---
+
 ## 2026-04-18 — Session N+24
 
 **Tasks completed:** T105, T106

@@ -418,6 +418,9 @@ export function recalcRates() {
     }
   }
 
+  // T108: Map exploration 90% milestone — permanent +0.8 gold/s
+  if (state.explorationMilestones?.[90]) rates.gold += 0.8;
+
   Object.assign(state.rates, rates);
   Object.assign(state.caps, caps);
 }

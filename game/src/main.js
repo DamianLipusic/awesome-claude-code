@@ -187,6 +187,9 @@ function boot() {
   // T097: award expansion milestones on territory gains
   on(Events.MAP_CHANGED, _checkExpansionMilestones);
 
+  // T108: award exploration milestones when fog of war clears
+  on(Events.MAP_CHANGED, _checkExplorationMilestones);
+
   // Update weather badge when weather starts/ends; also refresh every 4 ticks for countdown
   _updateWeatherBadge();
   on(Events.WEATHER_CHANGED, _updateWeatherBadge);
@@ -352,6 +355,8 @@ function _save() {
         resourceNodes:       state.resourceNodes       ?? null,  // T104
         titleHistory:        state.titleHistory        ?? [],    // T105
         ruins:               state.ruins               ?? null,  // T106
+        unitUpgrades:        state.unitUpgrades        ?? {},    // T107
+        explorationMilestones: state.explorationMilestones ?? {}, // T108
         tick:          state.tick,
       }
     }));
@@ -436,6 +441,8 @@ function _applySave(save) {
   state.resourceNodes      = s.resourceNodes      ?? null;  // T104
   state.titleHistory       = s.titleHistory       ?? [];    // T105
   state.ruins              = s.ruins              ?? null;  // T106
+  state.unitUpgrades       = s.unitUpgrades       ?? {};    // T107
+  state.explorationMilestones = s.explorationMilestones ?? {}; // T108
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
@@ -667,6 +674,59 @@ function _checkExpansionMilestones() {
       'windfall',
     );
     emit(Events.RESOURCE_CHANGED, {});
+  }
+}
+
+// T108: Map exploration milestones (fog-of-war reveal %)
+const EXPLORATION_MILESTONE_DEFS = [
+  { pct: 50, rewards: { gold: 100 },              prestige: 80,  label: 'Half the World Revealed'   },
+  { pct: 75, rewards: { gold: 150, mana: 50 },    prestige: 120, label: 'Great Explorer'             },
+  { pct: 90, rewards: { gold: 200, mana: 100 },   prestige: 150, label: 'Cartographer' },
+];
+
+/**
+ * Award one-time resource + prestige rewards when the player has revealed
+ * 50 / 75 / 90 % of map tiles. The 90% milestone also grants a permanent
+ * +0.8 gold/s bonus via resources.js (tied to state.explorationMilestones[90]).
+ */
+function _checkExplorationMilestones() {
+  if (!state.map) return;
+  if (!state.explorationMilestones) state.explorationMilestones = {};
+
+  const tiles = state.map.tiles;
+  let total = 0, revealed = 0;
+  for (const row of tiles) {
+    for (const t of row) {
+      total++;
+      if (t.revealed) revealed++;
+    }
+  }
+  if (total === 0) return;
+
+  const exploredPct = Math.round(revealed / total * 100);
+
+  for (const m of EXPLORATION_MILESTONE_DEFS) {
+    if (state.explorationMilestones[m.pct]) continue;
+    if (exploredPct < m.pct) continue;
+
+    state.explorationMilestones[m.pct] = true;
+
+    const lootParts = [];
+    for (const [res, amt] of Object.entries(m.rewards)) {
+      const cap = state.caps[res] ?? 500;
+      state.resources[res] = Math.min(cap, (state.resources[res] ?? 0) + amt);
+      lootParts.push(`+${amt} ${res}`);
+    }
+
+    if (m.pct === 90) recalcRates();  // apply permanent +0.8 gold/s
+
+    awardPrestige(m.prestige, `exploration milestone: ${m.pct}% revealed`);
+    addMessage(
+      `🗺️ Exploration: "${m.label}" — ${m.pct}% of the world revealed! ${lootParts.join(', ')}${m.pct === 90 ? ', permanent +0.8 gold/s' : ''}. +${m.prestige} prestige.`,
+      'windfall',
+    );
+    emit(Events.RESOURCE_CHANGED, {});
+    emit(Events.EXPLORATION_MILESTONE, { pct: m.pct });
   }
 }
 

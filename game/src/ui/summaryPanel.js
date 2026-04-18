@@ -87,6 +87,7 @@ export function initSummaryPanel() {
   on(Events.LANDMARK_CAPTURED,     _render);
   on(Events.RUIN_EXCAVATED,        _render);
   on(Events.BUILDING_SPECIALIZED,  _render);
+  on(Events.EXPLORATION_MILESTONE, _render);   // T108: exploration milestone reached
   on(Events.POPULATION_CHANGED,    _render);      // T096: rerender when pop changes (slot count changes)
   on(Events.CITIZEN_ROLES_CHANGED, _render);      // T096: rerender when roles adjusted
   on(Events.CAPITAL_PLAN_CHOSEN,   _render);      // T100: rerender when capital plan chosen
@@ -396,6 +397,31 @@ function _progressionCard() {
       <span class="sum-stat-label">🏛️ Ruins</span>
       <span class="sum-stat-value">${Object.keys(state.ruins?.excavated ?? {}).length} / ${RUIN_COUNT}</span>
     </div>
+
+    ${(() => {
+      // T108: exploration progress
+      if (!state.map) return '';
+      let total = 0, revealedCount = 0;
+      for (const row of state.map.tiles) {
+        for (const t of row) {
+          total++;
+          if (t.revealed) revealedCount++;
+        }
+      }
+      const exploredPct = total > 0 ? Math.round(revealedCount / total * 100) : 0;
+      const explMilestones = state.explorationMilestones ?? {};
+      const nextMs = [50, 75, 90].find(p => !explMilestones[p]);
+      const statusLabel = nextMs
+        ? `Next at ${nextMs}%`
+        : `<span style="color:var(--accent-h)">All reached!</span>`;
+      return `
+        <div class="sum-stat-row" style="margin-top:6px">
+          <span class="sum-stat-label">🗺️ Exploration</span>
+          <span class="sum-stat-value">${exploredPct}% — ${statusLabel}</span>
+        </div>
+        <div class="sum-progress"><div class="sum-progress__fill sum-progress__fill--quest" style="width:${exploredPct}%"></div></div>
+      `;
+    })()}
 
     ${pathHeader('⚔️', 'Conquest Victory', conquestDone)}
     ${vc('Medieval Age', vicAge, vicAge ? 'Reached' : `Age ${state.age ?? 0}/3`)}

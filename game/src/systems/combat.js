@@ -170,7 +170,11 @@ export function getAttackPreview(x, y) {
   for (const [id, count] of Object.entries(state.units)) {
     if (count <= 0) continue;
     const def = UNITS[id];
-    if (def) attackPower += def.attack * count * _rankMult(id);
+    if (def) {
+      // T107: each arsenal upgrade level adds +10% attack for that unit type
+      const upgradeMult = 1 + (state.unitUpgrades?.[id] ?? 0) * 0.10;
+      attackPower += def.attack * count * _rankMult(id) * upgradeMult;
+    }
   }
 
   if (attackPower <= 0) return { valid: false, reason: 'Train military units first!' };
@@ -321,7 +325,11 @@ export function attackTile(x, y) {
   for (const [id, count] of Object.entries(state.units)) {
     if (count <= 0) continue;
     const def = UNITS[id];
-    if (def) attackPower += def.attack * count * _rankMult(id);
+    if (def) {
+      // T107: each arsenal upgrade level adds +10% attack for that unit type
+      const upgradeMult = 1 + (state.unitUpgrades?.[id] ?? 0) * 0.10;
+      attackPower += def.attack * count * _rankMult(id) * upgradeMult;
+    }
   }
 
   if (attackPower <= 0) {

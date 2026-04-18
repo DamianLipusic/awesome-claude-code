@@ -10,7 +10,7 @@
 
 import { state } from '../core/state.js';
 import { on, Events } from '../core/events.js';
-import { trainUnit, recruitHero, useHeroAbility, setFormation, chooseHeroSkill, rallyTroops, addMessage } from '../core/actions.js';
+import { trainUnit, recruitHero, useHeroAbility, setFormation, chooseHeroSkill, rallyTroops, upgradeUnit, UNIT_UPGRADE_MAX, UNIT_UPGRADE_COST_BASE, addMessage } from '../core/actions.js';
 import { sendOnExpedition, recallExpedition, isOnExpedition, expeditionSecsLeft, expeditionProgress } from '../systems/heroSystem.js';
 import { castSpell, SPELLS, SPELL_ORDER } from '../systems/spells.js';
 import { getMoraleLabel, getMoraleEffect } from '../systems/morale.js';
@@ -54,6 +54,7 @@ export function initMilitaryPanel() {
   _render(panel);
 
   on(Events.UNIT_CHANGED,     () => _render(panel));
+  on(Events.UNIT_UPGRADED,    () => _render(panel));  // T107: arsenal upgrade purchased
   on(Events.BUILDING_CHANGED, () => _render(panel));
   on(Events.TECH_CHANGED,     () => _render(panel));
   on(Events.AGE_CHANGED,      () => _render(panel));
@@ -104,6 +105,7 @@ function _render(panel) {
     ${_formationSection()}
     ${_moraleSection()}
     ${_rallySection()}
+    ${_upgradeSection()}
     ${_spellsSection()}
     ${_decreesSection()}
     ${_heroSection()}
@@ -206,6 +208,45 @@ function _rallySection() {
         data-action="rally" ${disabled ? 'disabled' : ''}>
         📣 Rally
       </button>
+    </div>`;
+}
+
+// ── Arsenal Upgrades section (T107) ──────────────────────────────────────
+
+function _upgradeSection() {
+  const hasAnyUnits = Object.values(state.units ?? {}).some(c => c > 0);
+  if (!hasAnyUnits) return '';  // hide until the player has trained something
+
+  const upgrades = state.unitUpgrades ?? {};
+  const rows = UNIT_ORDER
+    .filter(id => (state.units[id] ?? 0) > 0)
+    .map(id => {
+      const def      = UNITS[id];
+      const level    = upgrades[id] ?? 0;
+      const atMax    = level >= UNIT_UPGRADE_MAX;
+      const nextCost = atMax ? 0 : UNIT_UPGRADE_COST_BASE * (level + 1);
+      const canAff   = atMax || (state.resources.gold ?? 0) >= nextCost;
+      const pctBonus = level * 10;
+
+      return `
+        <div class="upgrade-row">
+          <span class="upgrade-icon">${def?.icon ?? '⚔️'}</span>
+          <span class="upgrade-name">${def?.name ?? id}</span>
+          <span class="upgrade-level ${atMax ? 'upgrade-level--max' : ''}">${level}/${UNIT_UPGRADE_MAX}${pctBonus > 0 ? ` (+${pctBonus}%)` : ''}</span>
+          <button class="btn btn--sm btn--upgrade ${atMax ? 'upgrade-btn--max' : ''} ${(!atMax && !canAff) ? 'btn--disabled' : ''}"
+            data-action="upgrade-unit" data-unit-id="${id}"
+            ${atMax || !canAff ? 'disabled' : ''}
+            title="${atMax ? 'Maximum level reached' : `${nextCost} gold — +10% attack`}">
+            ${atMax ? '✓ MAX' : `⬆️ ${nextCost}💰`}
+          </button>
+        </div>`;
+    }).join('');
+
+  return `
+    <div class="upgrade-section">
+      <div class="upgrade-title">🔧 Arsenal Upgrades</div>
+      <div class="upgrade-intro">+10% attack per level · max ${UNIT_UPGRADE_MAX} levels · cost scales with level</div>
+      ${rows}
     </div>`;
 }
 
@@ -808,6 +849,14 @@ function _handleClick(e) {
     if (!result.ok) addMessage(result.reason, 'info');
   } else if (actionBtn.dataset.action === 'rally') {
     const result = rallyTroops();
+    if (!result.ok) {
+      actionBtn.classList.add('btn--shake');
+      setTimeout(() => actionBtn.classList.remove('btn--shake'), 600);
+      addMessage(result.reason, 'info');
+    }
+  } else if (actionBtn.dataset.action === 'upgrade-unit') {
+    // T107: purchase a unit arsenal upgrade
+    const result = upgradeUnit(actionBtn.dataset.unitId);
     if (!result.ok) {
       actionBtn.classList.add('btn--shake');
       setTimeout(() => actionBtn.classList.remove('btn--shake'), 600);
