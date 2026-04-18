@@ -2,6 +2,31 @@
 
 ---
 
+## 2026-04-18 — Session N+26
+
+**Tasks completed:** T109, T110
+
+**Summary:**
+All prior tasks (T001–T108) were complete. Created two Phase 39 features: Warlord Duel Events (T109) letting enemy champions challenge the hero to single combat, and Pioneer Expeditions (T110) letting players dispatch colonists to settle distant neutral lands.
+
+**T109 — Warlord Duel Events:**
+- `src/systems/duels.js` (new): WARLORD_NAMES map; initDuels() idempotent null guard; duelTick() — expires stale challenges, spawns new ones when hero is recruited/healthy/not on expedition and at least one empire is at war; acceptDuel() — calculates win chance (30% + 15%/skill, +10% Conqueror, cap 85%), resolves with gold loot/prestige/morale for win or hero injury/morale penalty for loss; declineDuel() — morale −5; getDuelSecsLeft() helper.
+- `src/core/events.js`: Added `DUEL_CHANGED:'duelChanged'`.
+- `src/core/state.js`: Added `duels:null` to static object + `initState()` reset.
+- `src/ui/militaryPanel.js`: Imported acceptDuel/declineDuel/getDuelSecsLeft; subscribed DUEL_CHANGED→_render; hasDuelPending added to TICK throttle guard; _duelSection() renders pulsing red banner with warlord name, countdown, urgent blink below 15 s, Accept/Decline buttons; injected first in _render(); 'duel-accept' and 'duel-decline' handlers in _handleClick().
+- `src/main.js`: Imported initDuels+duelTick; registerSystem(duelTick); initDuels() in boot+_newGame; duels saved/loaded.
+- `styles/main.css`: .duel-banner (red tint, pulsing border keyframe), header/icon/title/timer layout, --urgent blink, sub/hint text, .btn--duel-accept (red) / .btn--duel-decline (muted).
+
+**T110 — Pioneer Expeditions:**
+- `src/systems/pioneerExpeditions.js` (new): PIONEER_COST={food:120,wood:80}, PIONEER_MAX=3, EXPEDITION_TICKS=600 (2.5 min); _pickTarget() finds random neutral tile at dist [8,16] from capital; initPioneers() idempotent null guard; sendPioneerExpedition() validates active/max/cost, deducts resources, sets active={endsAt,cx,cy}; pioneerTick() captures up to 3 neutral tiles around target via CAPTURE_OFFSETS, calls revealAround(), recalcRates(), awardPrestige(60), emits PIONEER_CHANGED+MAP_CHANGED; getPioneerProgress()/getPioneerSecsLeft() helpers.
+- `src/core/events.js`: Added `PIONEER_CHANGED:'pioneerChanged'`.
+- `src/core/state.js`: Added `pioneers:null` to static object + `initState()` reset.
+- `src/ui/militaryPanel.js`: Imported sendPioneerExpedition/getPioneerProgress/getPioneerSecsLeft/PIONEER_COST/PIONEER_MAX; subscribed PIONEER_CHANGED→_render; hasPioneerActive in TICK throttle; _pioneerSection() shows active progress bar (% with linear animation), idle dispatch button with cost check + remaining count, or exhausted message; injected before _combatHistorySection(); 'pioneer-send' handler with btn--shake error feedback.
+- `src/main.js`: Imported initPioneers+pioneerTick; registerSystem(pioneerTick); initPioneers() in boot+_newGame; pioneers saved/loaded.
+- `styles/main.css`: .pioneer-section (green left border), header/intro, .pioneer-active/label/progress bar (smooth animation), .pioneer-idle/cost/--bad, .btn--pioneer (green), .pioneer-meta, .pioneer-exhausted.
+
+---
+
 ## 2026-04-18 — Session N+25
 
 **Tasks completed:** T107, T108

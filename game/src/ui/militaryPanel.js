@@ -11,6 +11,8 @@
 import { state } from '../core/state.js';
 import { on, Events } from '../core/events.js';
 import { trainUnit, recruitHero, useHeroAbility, setFormation, chooseHeroSkill, rallyTroops, upgradeUnit, UNIT_UPGRADE_MAX, UNIT_UPGRADE_COST_BASE, addMessage } from '../core/actions.js';
+import { acceptDuel, declineDuel, getDuelSecsLeft } from '../systems/duels.js';
+import { sendPioneerExpedition, getPioneerProgress, getPioneerSecsLeft, PIONEER_COST, PIONEER_MAX } from '../systems/pioneerExpeditions.js';
 import { sendOnExpedition, recallExpedition, isOnExpedition, expeditionSecsLeft, expeditionProgress } from '../systems/heroSystem.js';
 import { castSpell, SPELLS, SPELL_ORDER } from '../systems/spells.js';
 import { getMoraleLabel, getMoraleEffect } from '../systems/morale.js';
@@ -66,6 +68,8 @@ export function initMilitaryPanel() {
   on(Events.MERCENARY_CHANGED,    () => _render(panel));  // T075: mercenary offer spawned/expired
   on(Events.MILITARY_AID_CHANGED, () => _render(panel));  // T102: aid active/expired
   on(Events.DECREE_USED,       () => _render(panel));  // T083: decree activated / expired
+  on(Events.DUEL_CHANGED,      () => _render(panel));  // T109: warlord duel challenged/resolved
+  on(Events.PIONEER_CHANGED,   () => _render(panel));  // T110: pioneer expedition update
   on(Events.RESOURCE_CHANGED,  () => _renderCosts(panel));
   on(Events.GAME_LOADED,       () => _render(panel));
 
@@ -93,7 +97,9 @@ export function initMilitaryPanel() {
     const hasDecreeCooldown = state.decrees &&
       Object.values(state.decrees.cooldowns ?? {}).some(exp => exp > state.tick);
     const hasRallyCooldown = !!(state.rallyState && state.tick < state.rallyState.cooldownUntil);
-    if (hasHeroActivity || hasSpellActivity || hasMercOffer || hasDecreeCooldown || hasRallyCooldown) _render(panel);
+    const hasDuelPending   = !!state.duels?.pending;          // T109: duel countdown
+    const hasPioneerActive = !!state.pioneers?.active;         // T110: expedition countdown
+    if (hasHeroActivity || hasSpellActivity || hasMercOffer || hasDecreeCooldown || hasRallyCooldown || hasDuelPending || hasPioneerActive) _render(panel);
   });
 }
 
@@ -101,6 +107,7 @@ export function initMilitaryPanel() {
 
 function _render(panel) {
   panel.innerHTML = `
+    ${_duelSection()}
     ${_mercenarySection()}
     ${_formationSection()}
     ${_moraleSection()}
@@ -114,10 +121,90 @@ function _render(panel) {
     <div class="unit-grid" id="unit-grid">
       ${UNIT_ORDER.map(id => _unitCard(id)).join('')}
     </div>
+    ${_pioneerSection()}
     ${_combatHistorySection()}
   `;
 
   panel.addEventListener('click', _handleClick);
+}
+
+// ── T109: Warlord Duel Challenge section ──────────────────────────────────
+
+function _duelSection() {
+  if (!state.duels?.pending) return '';
+
+  const { warlordName } = state.duels.pending;
+  const secsLeft = getDuelSecsLeft();
+  const urgent   = secsLeft <= 15;
+
+  return `
+    <div class="duel-banner">
+      <div class="duel-banner__header">
+        <span class="duel-banner__icon">⚔️</span>
+        <span class="duel-banner__title">Champion Duel!</span>
+        <span class="duel-banner__timer ${urgent ? 'duel-banner__timer--urgent' : ''}">${secsLeft}s</span>
+      </div>
+      <div class="duel-banner__sub">
+        ${warlordName} challenges your champion to single combat.
+        <span class="duel-banner__hint">Win chance scales with hero skills.</span>
+      </div>
+      <div class="duel-banner__actions">
+        <button class="btn btn--duel-accept" data-action="duel-accept">⚔️ Accept</button>
+        <button class="btn btn--duel-decline" data-action="duel-decline">🚫 Decline (−5 morale)</button>
+      </div>
+    </div>`;
+}
+
+// ── T110: Pioneer Expedition section ──────────────────────────────────────
+
+function _pioneerSection() {
+  const p = state.pioneers;
+  if (!p) return '';
+
+  const sent      = p.sent ?? 0;
+  const remaining = PIONEER_MAX - sent;
+  const active    = p.active;
+  const canAfford = (state.resources.food ?? 0) >= PIONEER_COST.food
+                 && (state.resources.wood ?? 0) >= PIONEER_COST.wood;
+  const costOk    = canAfford ? '' : 'pioneer-cost--bad';
+
+  let contentHtml;
+  if (active) {
+    const secsLeft = getPioneerSecsLeft();
+    const pct      = Math.round(getPioneerProgress() * 100);
+    contentHtml = `
+      <div class="pioneer-active">
+        <div class="pioneer-active__label">🚶 Expedition in progress — ${secsLeft}s remaining</div>
+        <div class="pioneer-progress-wrap">
+          <div class="pioneer-progress-bar" style="width:${pct}%"></div>
+        </div>
+        <div class="pioneer-active__hint">Pioneers will settle new lands and reveal the surrounding area.</div>
+      </div>`;
+  } else if (remaining > 0) {
+    contentHtml = `
+      <div class="pioneer-idle">
+        <div class="pioneer-cost ${costOk}">
+          Cost: ${PIONEER_COST.food} 🍞 + ${PIONEER_COST.wood} 🪵
+        </div>
+        <button
+          class="btn btn--pioneer ${canAfford ? '' : 'btn--disabled'}"
+          data-action="pioneer-send"
+          ${canAfford ? '' : 'disabled'}
+          title="${canAfford ? 'Dispatch pioneers to distant lands' : 'Insufficient resources'}">
+          🚶 Dispatch Pioneers
+        </button>
+        <div class="pioneer-meta">${remaining} of ${PIONEER_MAX} expeditions remaining this game</div>
+      </div>`;
+  } else {
+    contentHtml = `<div class="pioneer-exhausted">All ${PIONEER_MAX} expeditions have been sent this game.</div>`;
+  }
+
+  return `
+    <div class="pioneer-section">
+      <div class="pioneer-header">🏕️ Pioneer Expeditions</div>
+      <div class="pioneer-intro">Send colonists to settle distant uninhabited lands (2.5 min journey).</div>
+      ${contentHtml}
+    </div>`;
 }
 
 // ── Mercenary offer section (T075) ────────────────────────────────────────
@@ -849,6 +936,21 @@ function _handleClick(e) {
     if (!result.ok) addMessage(result.reason, 'info');
   } else if (actionBtn.dataset.action === 'rally') {
     const result = rallyTroops();
+    if (!result.ok) {
+      actionBtn.classList.add('btn--shake');
+      setTimeout(() => actionBtn.classList.remove('btn--shake'), 600);
+      addMessage(result.reason, 'info');
+    }
+  } else if (actionBtn.dataset.action === 'duel-accept') {
+    // T109: accept warlord duel challenge
+    const result = acceptDuel();
+    if (!result.ok) addMessage(result.reason, 'info');
+  } else if (actionBtn.dataset.action === 'duel-decline') {
+    // T109: decline warlord duel challenge
+    declineDuel();
+  } else if (actionBtn.dataset.action === 'pioneer-send') {
+    // T110: dispatch pioneer expedition
+    const result = sendPioneerExpedition();
     if (!result.ok) {
       actionBtn.classList.add('btn--shake');
       setTimeout(() => actionBtn.classList.remove('btn--shake'), 600);

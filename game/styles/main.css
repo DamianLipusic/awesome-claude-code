@@ -6557,3 +6557,148 @@ kbd {
 
 /* Tile tooltip resource node row uses inline styles (gold colour) */
 /* No additional CSS required beyond existing .map-tt-* classes */
+
+/* ── T109: Warlord Duel Challenge ────────────────────────────────────────── */
+
+.duel-banner {
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  background: rgba(248, 81, 73, 0.10);
+  border: 1px solid rgba(248, 81, 73, 0.55);
+  border-radius: var(--radius);
+  animation: duel-pulse 1.8s ease-in-out infinite;
+}
+@keyframes duel-pulse {
+  0%, 100% { border-color: rgba(248, 81, 73, 0.55); }
+  50%       { border-color: rgba(248, 81, 73, 0.95); }
+}
+.duel-banner__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.duel-banner__icon { font-size: 18px; }
+.duel-banner__title {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--red);
+  flex: 1;
+}
+.duel-banner__timer {
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--accent);
+  min-width: 32px;
+  text-align: right;
+}
+.duel-banner__timer--urgent { color: var(--red); animation: blink 0.5s step-start infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.duel-banner__sub {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+.duel-banner__hint { display: block; font-size: 11px; margin-top: 2px; }
+.duel-banner__actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn--duel-accept {
+  padding: 6px 14px;
+  border: 1px solid var(--red);
+  color: var(--red);
+  background: rgba(248, 81, 73, 0.12);
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 12px;
+  transition: background 0.2s;
+}
+.btn--duel-accept:hover { background: rgba(248, 81, 73, 0.28); }
+.btn--duel-decline {
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  background: transparent;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 12px;
+  transition: background 0.2s;
+}
+.btn--duel-decline:hover { background: rgba(255,255,255,0.05); }
+
+/* ── T110: Pioneer Expeditions ───────────────────────────────────────────── */
+
+.pioneer-section {
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-left: 3px solid #68d391;
+  border-radius: var(--radius);
+}
+.pioneer-header {
+  font-weight: 700;
+  font-size: 13px;
+  color: #68d391;
+  margin-bottom: 4px;
+}
+.pioneer-intro {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-bottom: 10px;
+}
+.pioneer-active { }
+.pioneer-active__label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #68d391;
+  margin-bottom: 6px;
+}
+.pioneer-progress-wrap {
+  height: 8px;
+  background: rgba(104, 211, 145, 0.15);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+.pioneer-progress-bar {
+  height: 100%;
+  background: #68d391;
+  border-radius: 4px;
+  transition: width 0.5s linear;
+}
+.pioneer-active__hint {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+.pioneer-idle { }
+.pioneer-cost {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+.pioneer-cost--bad { color: var(--red); }
+.btn--pioneer {
+  display: inline-block;
+  padding: 7px 16px;
+  border: 1px solid #68d391;
+  color: #68d391;
+  background: rgba(104, 211, 145, 0.08);
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: background 0.2s;
+  margin-bottom: 6px;
+}
+.btn--pioneer:hover:not(:disabled) { background: rgba(104, 211, 145, 0.22); }
+.btn--pioneer:disabled { opacity: 0.45; cursor: not-allowed; }
+.pioneer-meta {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+.pioneer-exhausted {
+  font-size: 12px;
+  color: var(--text-dim);
+  font-style: italic;
+}

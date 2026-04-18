@@ -269,6 +269,14 @@ export const state = {
   // T108: Exploration milestone flags — { [pct]: true } when that % of map has been revealed.
   // Milestones: 50 / 75 / 90. The 90% milestone grants a permanent +0.8 gold/s bonus.
   explorationMilestones: {},
+
+  // T109: Warlord duel state — populated by systems/duels.js initDuels()
+  // { pending: { empireId, warlordName, deadline } | null, nextChallengeTick, cooldownUntil, history }
+  duels: null,
+
+  // T110: Pioneer expedition state — populated by systems/pioneerExpeditions.js initPioneers()
+  // { active: { endsAt, cx, cy } | null, sent: number }
+  pioneers: null,
 };
 
 /**
@@ -336,5 +344,7 @@ export function initState(empireName = 'My Empire') {
   state.ruins            = null; // T106: ruins reset per game
   state.unitUpgrades       = {}; // T107: arsenal upgrades reset per game
   state.explorationMilestones = {}; // T108: exploration milestones reset per game
+  state.duels              = null;  // T109: duel events reset per game
+  state.pioneers           = null;  // T110: pioneer expeditions reset per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

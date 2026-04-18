@@ -36,6 +36,8 @@ import { heroTick }        from './systems/heroSystem.js';
 import { initMilitaryAid } from './systems/militaryAid.js';
 import { initFestivals, festivalTick } from './systems/festivals.js';
 import { initResourceNodes, resourceNodeTick } from './systems/resourceNodes.js';
+import { initDuels, duelTick } from './systems/duels.js';                   // T109: warlord duels
+import { initPioneers, pioneerTick } from './systems/pioneerExpeditions.js'; // T110: pioneer expeditions
 import { SEASONS } from './data/seasons.js';
 import { AGES } from './data/ages.js';
 import { BUILDINGS } from './data/buildings.js';
@@ -124,6 +126,8 @@ function boot() {
   registerSystem(merchantTick);    // T087: wandering merchant
   registerSystem(festivalTick);    // T103: festival expiry
   registerSystem(resourceNodeTick); // T104: resource node spawn/expire
+  registerSystem(duelTick);         // T109: warlord duel challenge spawn/expire
+  registerSystem(pioneerTick);      // T110: pioneer expedition completion
 
   // Init event-driven systems
   initRandomEvents();
@@ -152,6 +156,8 @@ function boot() {
   initMilitaryAid();  // T102: alliance military aid
   initFestivals();    // T103: empire festivals
   initResourceNodes(); // T104: resource nodes
+  initDuels();        // T109: warlord duel events
+  initPioneers();     // T110: pioneer expeditions
 
   // Init UI
   initHUD();
@@ -357,6 +363,8 @@ function _save() {
         ruins:               state.ruins               ?? null,  // T106
         unitUpgrades:        state.unitUpgrades        ?? {},    // T107
         explorationMilestones: state.explorationMilestones ?? {}, // T108
+        duels:               state.duels               ?? null,  // T109
+        pioneers:            state.pioneers            ?? null,  // T110
         tick:          state.tick,
       }
     }));
@@ -443,6 +451,8 @@ function _applySave(save) {
   state.ruins              = s.ruins              ?? null;  // T106
   state.unitUpgrades       = s.unitUpgrades       ?? {};    // T107
   state.explorationMilestones = s.explorationMilestones ?? {}; // T108
+  state.duels                = s.duels                ?? null;  // T109
+  state.pioneers             = s.pioneers             ?? null;  // T110
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
@@ -803,6 +813,8 @@ function _newGame(opts = {}) {
   initMilitaryAid();  // T102
   initFestivals();    // T103
   initResourceNodes(); // T104
+  initDuels();        // T109
+  initPioneers();     // T110
   recalcRates();
   startLoop();  // restart loop in case it was stopped by game-over
   _syncPauseUI();  // ensure pause overlay is hidden on new game

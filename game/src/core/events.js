@@ -84,4 +84,6 @@ export const Events = Object.freeze({
   RUIN_EXCAVATED:           'ruinExcavated',           // T106: player excavated an ancient ruin
   UNIT_UPGRADED:            'unitUpgraded',            // T107: player upgraded a unit type's arsenal
   EXPLORATION_MILESTONE:    'explorationMilestone',    // T108: fog-of-war exploration milestone reached
+  DUEL_CHANGED:             'duelChanged',             // T109: warlord duel challenged / accepted / declined / expired
+  PIONEER_CHANGED:          'pioneerChanged',          // T110: pioneer expedition sent / completed
 });
