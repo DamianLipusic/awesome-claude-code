@@ -6460,3 +6460,11 @@ kbd {
   font-size: 11px;
   color: #68d391;
 }
+
+/* ── T104: Resource Nodes ───────────────────────────────────────────────── */
+
+/* Map stats bar node count is inline text — no special class needed */
+/* The amber ✦ glyph and tint are drawn directly on the canvas */
+
+/* Tile tooltip resource node row uses inline styles (gold colour) */
+/* No additional CSS required beyond existing .map-tt-* classes */

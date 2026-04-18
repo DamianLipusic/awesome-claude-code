@@ -35,6 +35,7 @@ import { initMerchant, merchantTick } from './systems/merchant.js';
 import { heroTick }        from './systems/heroSystem.js';
 import { initMilitaryAid } from './systems/militaryAid.js';
 import { initFestivals, festivalTick } from './systems/festivals.js';
+import { initResourceNodes, resourceNodeTick } from './systems/resourceNodes.js';
 import { SEASONS } from './data/seasons.js';
 import { AGES } from './data/ages.js';
 import { BUILDINGS } from './data/buildings.js';
@@ -121,6 +122,7 @@ function boot() {
   registerSystem(heroTick);        // T086: hero expedition tick
   registerSystem(merchantTick);    // T087: wandering merchant
   registerSystem(festivalTick);    // T103: festival expiry
+  registerSystem(resourceNodeTick); // T104: resource node spawn/expire
 
   // Init event-driven systems
   initRandomEvents();
@@ -148,6 +150,7 @@ function boot() {
   initMerchant();     // T087: wandering merchant
   initMilitaryAid();  // T102: alliance military aid
   initFestivals();    // T103: empire festivals
+  initResourceNodes(); // T104: resource nodes
 
   // Init UI
   initHUD();
@@ -337,6 +340,7 @@ function _save() {
         combatStreak:        state.combatStreak        ?? { count: 0, lastWinTick: 0 }, // T101
         militaryAid:         state.militaryAid         ?? null,  // T102
         festivals:           state.festivals           ?? null,  // T103
+        resourceNodes:       state.resourceNodes       ?? null,  // T104
         tick:          state.tick,
       }
     }));
@@ -418,6 +422,7 @@ function _applySave(save) {
   state.combatStreak       = s.combatStreak       ?? { count: 0, lastWinTick: 0 }; // T101
   state.militaryAid        = s.militaryAid        ?? null;  // T102
   state.festivals          = s.festivals          ?? null;  // T103
+  state.resourceNodes      = s.resourceNodes      ?? null;  // T104
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
@@ -695,6 +700,7 @@ function _newGame(opts = {}) {
   initMerchant();     // T087
   initMilitaryAid();  // T102
   initFestivals();    // T103
+  initResourceNodes(); // T104
   recalcRates();
   startLoop();  // restart loop in case it was stopped by game-over
   _syncPauseUI();  // ensure pause overlay is hidden on new game

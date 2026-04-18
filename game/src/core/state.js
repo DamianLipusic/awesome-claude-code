@@ -249,6 +249,10 @@ export const state = {
   // { active: { type, expiresAt? (timed), chargesLeft? (parade) } | null,
   //   cooldownUntil: tick, totalUsed: number }
   festivals: null,
+
+  // T104: Resource Nodes — temporary glowing deposits on neutral tiles
+  // { nodes: [{ x, y, terrain, resource, amount, expiresAt }], nextSpawnTick: number }
+  resourceNodes: null,
 };
 
 /**
@@ -311,5 +315,6 @@ export function initState(empireName = 'My Empire') {
   state.combatStreak     = { count: 0, lastWinTick: 0 }; // T101: reset streak each game
   state.militaryAid      = null; // T102: reset aid each game
   state.festivals        = null; // T103: reset festivals each game
+  state.resourceNodes    = null; // T104: reset resource nodes each game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

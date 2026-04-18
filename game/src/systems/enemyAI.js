@@ -23,6 +23,7 @@ import { HERO_DEF } from '../data/hero.js';
 import { TICKS_PER_SECOND } from '../core/tick.js';
 import { EMPIRES } from '../data/empires.js';
 import { clearBarbarianCamp } from './barbarianCamps.js';
+import { clearResourceNode } from './resourceNodes.js';
 import { changeMorale, MORALE_TILE_LOST } from './morale.js';
 import { BOONS } from '../data/ageBoons.js';
 import { SYNERGIES } from '../data/techs.js';
@@ -95,6 +96,8 @@ function _expandEnemies() {
     const { nx, ny } = expandable[Math.floor(Math.random() * expandable.length)];
     // T056: clear barbarian camp metadata if the target was a camp
     if (tiles[ny][nx].owner === 'barbarian') clearBarbarianCamp(tiles[ny][nx]);
+    // T104: clear any resource node on the tile being claimed
+    clearResourceNode(nx, ny);
     tiles[ny][nx].owner   = 'enemy';
     tiles[ny][nx].faction = tiles[y][x].faction ?? null;  // T053: inherit parent faction
     emit(Events.MAP_CHANGED, {});

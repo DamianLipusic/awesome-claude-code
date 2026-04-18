@@ -79,4 +79,5 @@ export const Events = Object.freeze({
   STREAK_CHANGED:           'streakChanged',           // T101: conquest streak count changed (win or reset)
   MILITARY_AID_CHANGED:     'militaryAidChanged',     // T102: alliance military aid requested / battle consumed / expired
   FESTIVAL_CHANGED:         'festivalChanged',         // T103: festival declared / expired / charge consumed
+  RESOURCE_NODE_CHANGED:    'resourceNodeChanged',     // T104: resource node spawned / collected / expired
 });

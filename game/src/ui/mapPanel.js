@@ -22,6 +22,7 @@ import { IMPROVEMENTS } from '../data/improvements.js';
 import { EMPIRES } from '../data/empires.js';
 import { acceptCaravanOffer, getCaravanSecsLeft } from '../systems/caravans.js';
 import { LANDMARKS } from '../data/landmarks.js';
+import { collectResourceNode, getNodeAt, nodeSecsLeft, activeNodeCount } from '../systems/resourceNodes.js';
 
 const TILE_PX   = 24;     // pixels per tile side
 const GRID_SIZE = 20;     // tiles per axis
@@ -52,6 +53,7 @@ const PLAYER_TINT      = 'rgba(88,166,255,0.22)';
 const ENEMY_TINT       = 'rgba(248,81,73,0.28)';
 const BARBARIAN_TINT   = 'rgba(192,60,30,0.38)';   // T056
 const CARAVAN_TINT     = 'rgba(255,200,50,0.28)';  // T063
+const NODE_TINT        = 'rgba(255,170,0,0.35)';   // T104: resource node amber glow
 const HOVER_ATTACK     = 'rgba(240,180,41,0.38)';
 const HOVER_NEUTRAL    = 'rgba(255,255,255,0.08)';
 const PLAYER_BORDER    = '#58a6ff';
@@ -174,6 +176,9 @@ export function initMapPanel() {
 
   // T089: re-render when a landmark is captured (tile icon clears)
   on(Events.LANDMARK_CAPTURED, _render);
+
+  // T104: re-render when resource nodes spawn, are collected, or expire
+  on(Events.RESOURCE_NODE_CHANGED, _render);
 
   _render();
 }
@@ -314,7 +319,15 @@ function _showTileTip(tile, x, y, mouseX, mouseY) {
        <div class="map-tt-action">🛒 Click to trade</div>`
     : '';
 
-  const actionHtml = !isCaravanTile && _isAttackable(x, y)
+  // T104: resource node indicator
+  const activeNode    = getNodeAt(x, y);
+  const isNodeTile    = !!(activeNode && state.tick < activeNode.expiresAt);
+  const nodeHtml      = isNodeTile
+    ? `<div class="map-tt-row map-tt-bonus" style="color:#ffd700">✦ Resource Node: +${activeNode.amount} ${activeNode.resource} (${nodeSecsLeft(activeNode)}s left)</div>
+       <div class="map-tt-action">✦ Click to collect</div>`
+    : '';
+
+  const actionHtml = !isCaravanTile && !isNodeTile && _isAttackable(x, y)
     ? `<div class="map-tt-action">⚔️ Click to attack</div>`
     : '';
 
@@ -352,6 +365,7 @@ function _showTileTip(tile, x, y, mouseX, mouseY) {
     ${barbHtml}
     ${impHtml}
     ${caravanHtml}
+    ${nodeHtml}
     <div class="map-tt-row">🛡️ Defense: ${tile.defense}${tile.fortified ? ' 🏰' : ''}</div>
     ${(() => {
       const key = `${x},${y}`;
@@ -462,6 +476,13 @@ function _drawTile(tile, x, y, capital) {
     ctx.fillRect(px, py, TILE_PX, TILE_PX);
   }
 
+  // T104: amber glow tint on resource node tiles
+  const _node = getNodeAt(x, y);
+  if (_node && state.tick < _node.expiresAt) {
+    ctx.fillStyle = NODE_TINT;
+    ctx.fillRect(px, py, TILE_PX, TILE_PX);
+  }
+
   // Hover highlight
   if (hoveredTile && hoveredTile.x === x && hoveredTile.y === y) {
     ctx.fillStyle = _isAttackable(x, y) ? HOVER_ATTACK : HOVER_NEUTRAL;
@@ -549,6 +570,15 @@ function _drawTile(tile, x, y, capital) {
       ctx.textBaseline = 'middle';
     }
   }
+
+  // T104: draw ✦ resource node glyph in tile centre (neutral tiles only, visible on top)
+  if (_node && state.tick < _node.expiresAt) {
+    ctx.font         = `bold ${TILE_PX - 8}px sans-serif`;
+    ctx.textAlign    = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle    = '#ffd700';
+    ctx.fillText('✦', px + TILE_PX / 2, py + TILE_PX / 2 + 1);
+  }
 }
 
 function _drawIcon(px, py, icon) {
@@ -583,8 +613,10 @@ function _updateStats() {
   const barbStr    = barbarianCamps > 0 ? `  ·  💀 Camps: ${barbarianCamps}` : '';
   const caravanStr = state.caravans?.active
     ? `  ·  🛒 Caravan: ${getCaravanSecsLeft()}s left` : '';
+  const nodeCount  = activeNodeCount();
+  const nodeStr    = nodeCount > 0 ? `  ·  ✦ Nodes: ${nodeCount}` : '';
   el.textContent =
-    `Territory: ${playerTiles} tiles  ·  Enemy: ${enemyTiles} tiles${barbStr}  ·  Explored: ${revealedTiles}/${total}${caravanStr}`;
+    `Territory: ${playerTiles} tiles  ·  Enemy: ${enemyTiles} tiles${barbStr}  ·  Explored: ${revealedTiles}/${total}${caravanStr}${nodeStr}`;
 }
 
 // ── Event handlers ─────────────────────────────────────────────────────────
@@ -650,7 +682,15 @@ function _onClick(e) {
   const { x, y } = _tileAt(e);
   if (x < 0 || x >= GRID_SIZE || y < 0 || y >= GRID_SIZE) return;
 
-  // T063: check for caravan tile first
+  // T104: check for resource node before other actions
+  const clickedNode = getNodeAt(x, y);
+  if (clickedNode && state.tick < clickedNode.expiresAt) {
+    const result = collectResourceNode(x, y);
+    if (!result.ok) addMessage(`✦ ${result.reason}`, 'info');
+    return;
+  }
+
+  // T063: check for caravan tile
   const caravan = state.caravans?.active;
   if (caravan && caravan.x === x && caravan.y === y) {
     _showCaravanPicker();

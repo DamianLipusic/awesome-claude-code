@@ -23,6 +23,7 @@ import { SYNERGIES } from '../data/techs.js';
 import { isEmpireInSkirmish, SKIRMISH_ATTACK_BONUS } from './diplomacy.js';
 import { EMPIRES } from '../data/empires.js';
 import { getActiveAid, consumeAidBattle } from './militaryAid.js';
+import { clearResourceNode } from './resourceNodes.js';
 
 /** Returns true if both techs of a named synergy are researched. */
 function _synergy(id) {
@@ -536,6 +537,9 @@ function _victory(tile, x, y, attackPower, defense) {
 
   // T089: check if this tile contains a special landmark
   _tryCaptureLandmark(tile, x, y);
+
+  // T104: remove any resource node on this tile (node is lost when territory changes hands)
+  clearResourceNode(x, y);
 
   // T093: faction capital capture — force peace, award morale bonus
   if (wasFactionCapital) {

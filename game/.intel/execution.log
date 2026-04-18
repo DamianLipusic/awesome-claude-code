@@ -2,6 +2,24 @@
 
 ---
 
+## 2026-04-18 — Session N+23
+
+**Tasks completed:** T104
+
+**Summary:**
+T104 was the only pending task. Implemented the map resource node system — periodic glowing resource deposits that appear on revealed neutral tiles and reward the player with terrain-matched resources on collection.
+
+**T104 — Map Resource Nodes:**
+- `src/systems/resourceNodes.js` (new): 5 terrain mappings (grass→gold, forest→wood, hills→stone, river→food, mountain→iron); `initResourceNodes()`, `resourceNodeTick()` spawning 1–2 nodes every 5–8 min, `collectResourceNode()`, `clearResourceNode()`, `getNodeAt()`, `nodeSecsLeft()`, `activeNodeCount()`.
+- `src/core/events.js`: Added `RESOURCE_NODE_CHANGED` event.
+- `src/core/state.js`: Added `resourceNodes:null` to static object + `initState()` reset.
+- `src/systems/combat.js`: `_victory()` calls `clearResourceNode(x,y)` after landmark check (silent removal on tile capture).
+- `src/systems/enemyAI.js`: `_expandEnemies()` calls `clearResourceNode(nx,ny)` before claiming neutral tile.
+- `src/ui/mapPanel.js`: `NODE_TINT` constant; `_drawTile()` amber tint + ✦ glyph; `_showTileTip()` gold resource/amount/countdown row + collect action; `_onClick()` node check first (collect); `_updateStats()` appends `✦ Nodes: N`; `RESOURCE_NODE_CHANGED` subscription.
+- `src/main.js`: Imported + registered `resourceNodeTick` as 23rd tick system; `initResourceNodes()` in boot + `_newGame`; `resourceNodes` in `_save()`/`_applySave()` (no version bump).
+
+---
+
 ## 2026-04-18 — Session N+22
 
 **Tasks completed:** T103
