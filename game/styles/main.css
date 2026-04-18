@@ -4421,6 +4421,162 @@ kbd {
   .policy-grid { grid-template-columns: 1fr; }
 }
 
+/* ── T103: Empire Festivals ───────────────────────────────────────────────── */
+
+.festival-section {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.festival-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.festival-used-label {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
+.festival-intro {
+  font-size: 0.74rem;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.festival-active-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(210,153,34,0.12);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+}
+
+.festival-active-icon { font-size: 1.5rem; }
+
+.festival-active-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.84rem;
+}
+
+.festival-time,
+.festival-charges {
+  font-size: 0.78rem;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.festival-cooldown-banner {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 6px 10px;
+  margin-bottom: 8px;
+}
+
+.festival-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 8px;
+}
+
+.festival-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-h);
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.festival-card--active {
+  border-color: var(--accent);
+  background: rgba(210,153,34,0.10);
+}
+
+.festival-card__header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.festival-card__icon { font-size: 1.1rem; flex-shrink: 0; }
+
+.festival-card__name {
+  font-size: 0.84rem;
+  color: var(--text);
+  flex: 1;
+}
+
+.festival-badge {
+  font-size: 0.66rem;
+  background: var(--accent);
+  color: #000;
+  border-radius: 3px;
+  padding: 1px 5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.festival-card__desc {
+  font-size: 0.74rem;
+  color: var(--text-dim);
+  line-height: 1.35;
+}
+
+.festival-card__cost {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  font-size: 0.75rem;
+}
+
+.festival-cost--ok  { color: var(--green); }
+.festival-cost--bad { color: #f85149; }
+
+.btn--festival {
+  background: rgba(210,153,34,0.12);
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  margin-top: 2px;
+  transition: background 0.15s;
+  align-self: flex-start;
+}
+
+.btn--festival:hover:not(:disabled) {
+  background: rgba(210,153,34,0.24);
+}
+
+.btn--festival:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+@media (max-width: 480px) {
+  .festival-grid { grid-template-columns: 1fr; }
+}
+
 /* ── T066: Tile Fortification ─────────────────────────────────────────────── */
 
 .imp-fortify-row {

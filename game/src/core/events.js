@@ -78,4 +78,5 @@ export const Events = Object.freeze({
   CAPITAL_PLAN_CHOSEN:      'capitalPlanChosen',      // T100: player selected a capital development plan
   STREAK_CHANGED:           'streakChanged',           // T101: conquest streak count changed (win or reset)
   MILITARY_AID_CHANGED:     'militaryAidChanged',     // T102: alliance military aid requested / battle consumed / expired
+  FESTIVAL_CHANGED:         'festivalChanged',         // T103: festival declared / expired / charge consumed
 });

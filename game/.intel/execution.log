@@ -2,6 +2,26 @@
 
 ---
 
+## 2026-04-18 — Session N+22
+
+**Tasks completed:** T103
+
+**Summary:**
+All prior tasks (T001–T102) were complete. Created T103 (Empire Festivals) and T104 (Map Resource Nodes, spec only). Implemented T103: a player-declared festival system with three festival types providing temporary production/combat boosts, wired into resources.js, combat.js, the Research panel UI, and save/load.
+
+**T103 — Empire Festivals:**
+- `src/data/festivals.js` (new): 3 festival defs (harvest/parade/trade_fair), FESTIVAL_ORDER, FESTIVAL_COOLDOWN_TICKS=1920.
+- `src/systems/festivals.js` (new): `initFestivals()`, `useFestival()`, `festivalTick()`, `getActiveFestival()`, `getFestivalSecsLeft()`, `getFestivalCooldownSecs()`. Charge-based festivals (parade) consumed by combat.js.
+- `src/core/events.js`: Added `FESTIVAL_CHANGED` event.
+- `src/core/state.js`: Added `festivals:null` to static object + `initState()` reset.
+- `src/systems/resources.js`: Harvest festival applies ×1.6 food+wood; trade_fair applies ×1.5 gold in `recalcRates()`.
+- `src/systems/combat.js`: `getAttackPreview()` and `attackTile()` apply ×1.25 parade bonus; charge-consume block clears active and sets cooldownUntil when chargesLeft reaches 0.
+- `src/ui/researchPanel.js`: Imported festival exports; FESTIVAL_CHANGED + throttled TICK subscriptions; `_festivalsSection()` renders active banner (time or charges countdown), cooldown banner, and 3 festival cards; `data-festival` onclick handler.
+- `src/main.js`: Imported `initFestivals`+`festivalTick`; registered as tick system; called in boot+`_newGame`; festivals saved/loaded; save version bumped 33→34.
+- `styles/main.css`: Full festival CSS — `.festival-section`, `.festival-active-banner`, `.festival-cooldown-banner`, `.festival-grid`, `.festival-card/--active`, `.festival-badge`, `.festival-cost--ok/bad`, `.btn--festival`.
+
+---
+
 ## 2026-04-17 — Session N+21
 
 **Tasks completed:** T101, T102

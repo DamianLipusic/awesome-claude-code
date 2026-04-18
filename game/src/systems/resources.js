@@ -374,6 +374,18 @@ export function recalcRates() {
     if (rates.wood > 0) rates.wood *= 1.40;
   }
 
+  // T103: Empire Festival multipliers (applied after decrees for stack clarity)
+  const _festActive = state.festivals?.active;
+  if (_festActive) {
+    if (_festActive.type === 'harvest') {
+      if (rates.food > 0) rates.food *= 1.60;
+      if (rates.wood > 0) rates.wood *= 1.60;
+    } else if (_festActive.type === 'trade_fair') {
+      if (rates.gold > 0) rates.gold *= 1.50;
+    }
+    // parade bonus is applied in combat.js (not a rate effect)
+  }
+
   // T100: Capital Development Plan bonuses
   if (state.capitalPlan === 'commerce') {
     rates.gold += 2.0;

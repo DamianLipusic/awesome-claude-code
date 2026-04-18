@@ -211,6 +211,11 @@ export function getAttackPreview(x, y) {
   // T100: Fortress capital plan — +20% attack
   if (state.capitalPlan === 'fortress') attackPower *= 1.20;
 
+  // T103: Military Parade festival — +25% attack while charges remain
+  const _paradeActive = state.festivals?.active?.type === 'parade'
+    && (state.festivals.active.chargesLeft ?? 0) > 0;
+  if (_paradeActive) attackPower *= 1.25;
+
   // T082/T086: skip hero bonuses if hero is injured or on expedition
   if (state.hero?.recruited && !_heroInjured() && !_heroOnExpedition()) {
     attackPower += HERO_DEF.attack;
@@ -277,6 +282,7 @@ export function getAttackPreview(x, y) {
     aidActive:    !!_aid,
     aidEmpireId:  _aid?.empireId ?? null,
     aidBattlesLeft: _aid?.battlesLeft ?? 0,
+    paradeChargesLeft: _paradeActive ? (state.festivals.active.chargesLeft ?? 0) : 0,
   };
 }
 
@@ -355,6 +361,11 @@ export function attackTile(x, y) {
   // T100: Fortress capital plan — +20% attack
   if (state.capitalPlan === 'fortress') attackPower *= 1.20;
 
+  // T103: Military Parade festival — +25% attack while charges remain
+  const _paradeUp = state.festivals?.active?.type === 'parade'
+    && (state.festivals.active.chargesLeft ?? 0) > 0;
+  if (_paradeUp) attackPower *= 1.25;
+
   // Hero bonus: flat attack power + skills + Battle Cry (×2) on next attack
   // T082/T086: skip all hero bonuses if the hero is injured or on expedition
   if (state.hero?.recruited && !_heroInjured() && !_heroOnExpedition()) {
@@ -432,6 +443,20 @@ export function attackTile(x, y) {
     state.decrees.warBannerCharges--;
     if (state.decrees.warBannerCharges === 0) {
       addMessage('🚩 War Banner spent — all charges used.', 'info');
+    }
+  }
+
+  // T103: consume one Military Parade charge (win or lose — battle has been fought)
+  if (state.festivals?.active?.type === 'parade') {
+    const parade = state.festivals.active;
+    parade.chargesLeft = (parade.chargesLeft ?? 0) - 1;
+    if (parade.chargesLeft <= 0) {
+      state.festivals.active        = null;
+      state.festivals.cooldownUntil = state.tick + 1920; // 8 min
+      addMessage('⚔️ Military Parade glory fades — all charges used.', 'info');
+      emit(Events.FESTIVAL_CHANGED, { ended: true, type: 'parade' });
+    } else {
+      emit(Events.FESTIVAL_CHANGED, { type: 'parade', chargesLeft: parade.chargesLeft });
     }
   }
 

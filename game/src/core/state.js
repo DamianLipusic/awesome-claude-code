@@ -244,6 +244,11 @@ export const state = {
   // T102: Alliance Military Aid — temporary troop reinforcements from allied empires
   // { cooldowns: { [empireId]: tickExpiry }, active: { empireId, units, battlesLeft } | null }
   militaryAid: null,
+
+  // T103: Empire Festivals — temporary production/combat boosts declared by the player
+  // { active: { type, expiresAt? (timed), chargesLeft? (parade) } | null,
+  //   cooldownUntil: tick, totalUsed: number }
+  festivals: null,
 };
 
 /**
@@ -305,5 +310,6 @@ export function initState(empireName = 'My Empire') {
   state.capitalPlan      = null; // T100: capital development plan (reset per game)
   state.combatStreak     = { count: 0, lastWinTick: 0 }; // T101: reset streak each game
   state.militaryAid      = null; // T102: reset aid each game
+  state.festivals        = null; // T103: reset festivals each game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

@@ -14,6 +14,8 @@ import { TICKS_PER_SECOND } from '../core/tick.js';
 import { RELICS, RELIC_ORDER, TERRAIN_RELIC } from '../data/relics.js';
 import { LANDMARKS, LANDMARK_ORDER } from '../data/landmarks.js';
 import { POLICIES, POLICY_ORDER, POLICY_COOLDOWN_TICKS } from '../data/policies.js';
+import { FESTIVALS, FESTIVAL_ORDER } from '../data/festivals.js';
+import { useFestival, getActiveFestival, getFestivalSecsLeft, getFestivalCooldownSecs } from '../systems/festivals.js';
 
 export function initResearchPanel() {
   const panel = document.getElementById('panel-research');
@@ -31,6 +33,12 @@ export function initResearchPanel() {
   on(Events.MORALE_CHANGED,    _throttle(renderResearchPanel, 8));
   on(Events.MASTERY_UNLOCKED,  renderResearchPanel);
   on(Events.SYNERGY_UNLOCKED,  renderResearchPanel);
+  on(Events.FESTIVAL_CHANGED,  renderResearchPanel);
+  // Refresh countdown text every second while a festival is active or on cooldown
+  on(Events.TICK, _throttle(() => {
+    const hasActivity = getActiveFestival() || getFestivalCooldownSecs() > 0;
+    if (hasActivity) renderResearchPanel();
+  }, 4));
 }
 
 function renderResearchPanel() {
@@ -76,7 +84,7 @@ function renderResearchPanel() {
     </div>`;
   }).join('');
 
-  panel.innerHTML = _ageSection() + progressHtml + `<div class="tech-grid">${techCards}</div>` + _masteriesSection() + _synergiesSection() + _policySection() + _relicsSection() + _landmarksSection();
+  panel.innerHTML = _ageSection() + progressHtml + `<div class="tech-grid">${techCards}</div>` + _masteriesSection() + _synergiesSection() + _policySection() + _festivalsSection() + _relicsSection() + _landmarksSection();
 
   panel.onclick = (e) => {
     if (e.target.closest('#btn-advance-age')) {
@@ -97,6 +105,12 @@ function renderResearchPanel() {
       if (!result.ok) {
         policyBtn.title = result.reason;
       }
+      return;
+    }
+    // Festival buttons
+    const festBtn = e.target.closest('[data-festival]');
+    if (festBtn) {
+      useFestival(festBtn.dataset.festival);
       return;
     }
     const btn = e.target.closest('[data-tech]');
@@ -471,6 +485,74 @@ function _landmarksSection() {
       </div>
       <div class="relics-intro">Legendary sites are marked ★ on the map. Capture them for permanent empire bonuses.</div>
       <div class="relics-grid">${cards}</div>
+    </div>`;
+}
+
+// ── T103: Festivals section ────────────────────────────────────────────────
+
+function _festivalsSection() {
+  const active    = getActiveFestival();
+  const cdSecs    = getFestivalCooldownSecs();
+  const secsLeft  = getFestivalSecsLeft();
+
+  // Active festival status banner
+  let statusHtml = '';
+  if (active) {
+    const def = FESTIVALS[active.type];
+    const detailHtml = def.durationTicks
+      ? `<span class="festival-time">⏳ ${secsLeft}s remaining</span>`
+      : `<span class="festival-charges">${active.chargesLeft ?? 0} battle charge${(active.chargesLeft ?? 0) !== 1 ? 's' : ''} left</span>`;
+    statusHtml = `<div class="festival-active-banner">
+      <span class="festival-active-icon">${def.icon}</span>
+      <div class="festival-active-body">
+        <strong>${def.name}</strong>
+        ${detailHtml}
+      </div>
+    </div>`;
+  } else if (cdSecs > 0) {
+    const mins = Math.floor(cdSecs / 60);
+    const secs = cdSecs % 60;
+    const cdStr = mins > 0 ? `${mins}m ${secs}s` : `${cdSecs}s`;
+    statusHtml = `<div class="festival-cooldown-banner">⏳ Festival cooldown: ${cdStr}</div>`;
+  }
+
+  const cards = FESTIVAL_ORDER.map(id => {
+    const def       = FESTIVALS[id];
+    const isActive  = active?.type === id;
+    const onCooldown = cdSecs > 0 || (active && !isActive);
+    const costParts = Object.entries(def.cost)
+      .map(([r, a]) => {
+        const ok = (state.resources[r] ?? 0) >= a;
+        return `<span class="festival-cost ${ok ? 'festival-cost--ok' : 'festival-cost--bad'}">${_resIcon(r)}${fmtNum(a)}</span>`;
+      }).join(' ');
+    const canAfford = Object.entries(def.cost).every(([r, a]) => (state.resources[r] ?? 0) >= a);
+    const disabled  = isActive || onCooldown || !canAfford;
+
+    return `<div class="festival-card ${isActive ? 'festival-card--active' : ''}">
+      <div class="festival-card__header">
+        <span class="festival-card__icon">${def.icon}</span>
+        <strong class="festival-card__name">${def.name}</strong>
+        ${isActive ? '<span class="festival-badge">Active</span>' : ''}
+      </div>
+      <div class="festival-card__desc">${def.desc}</div>
+      <div class="festival-card__cost">${costParts}</div>
+      <button class="btn btn--sm btn--festival"
+              data-festival="${id}"
+              ${disabled ? 'disabled' : ''}>
+        ${isActive ? 'Underway' : 'Declare'}
+      </button>
+    </div>`;
+  }).join('');
+
+  return `
+    <div class="festival-section">
+      <div class="festival-header">
+        <span>🎉 Empire Festivals</span>
+        <span class="festival-used-label">${state.festivals?.totalUsed ?? 0} declared this game</span>
+      </div>
+      <div class="festival-intro">Declare a festival for a temporary empire-wide boost. One at a time, 8-minute cooldown after each.</div>
+      ${statusHtml}
+      <div class="festival-grid">${cards}</div>
     </div>`;
 }
 
