@@ -1914,3 +1914,42 @@ All prior tasks (T001–T094) were complete. Created two new Phase 32 features: 
 - Citizen roles persist across New Game (like formation and archetype) because they represent player playstyle preferences, not per-game progression. `state.citizenRoles = null` is initialised lazily on first `adjustCitizenRole()` call.
 - Workers apply a multiplicative bonus to all positive rates after all other bonuses (including weather, season, policy, mastery) — this makes workers feel powerful in a developed economy where many bonuses stack. Capped at 50% max reduction for scholars and soldiers to prevent degenerate strategies.
 - The `maxSlots = floor(pop/100)` formula means the first slot requires 100 citizens — players must invest in houses and food production to unlock citizen roles, creating meaningful build order decisions.
+
+---
+
+## 2026-04-19 — Session N+20
+
+**Tasks completed:** T117, T118
+
+**Summary:**
+All prior tasks (T001–T116) were complete. Created two new Phase 36 features: an Empire Crisis Response System that fires timed emergencies requiring player resource payment to prevent rate penalties (T117), and a Hero Enshrinement System that lets players retire max-skill champions as permanent legacy bonuses (T118).
+
+**T117 — Empire Crisis Response System:**
+
+**Files created/modified:**
+- `game/src/data/crises.js` (new): 4 CRISIS_TYPES with id/icon/name/desc/resolveCost/penalty/resolve+failMsg/prestigeReward. plague (mana 60, food×0.4 10min), drought (gold 150, food×0.3 12min), rebellion (gold 200, gold×0.4 8min), market_crash (wood 100+stone 80, gold×0.5 6min).
+- `game/src/systems/crises.js` (new): `initCrises()` idempotent init; `crisisTick()` spawns crisis every 8–12min (SPAWN_MIN=1920/MAX=2880 ticks), expires unresolved crisis by pushing penalty modifier to `state.randomEvents.activeModifiers` and calling `recalcRates()`; `canResolveCrisis()` checks resource affordability; `resolveCrisis()` deducts cost + awards prestige + schedules next interval; `getActiveCrisis()` returns active crisis def + secsLeft + canResolve.
+- `game/src/core/events.js`: Added `CRISIS_SPAWNED:'crisisSpawned'` and `CRISIS_RESOLVED:'crisisResolved'` event constants.
+- `game/src/core/state.js`: Added `crises: null` static field + `state.crises = null` in `initState()`.
+- `game/index.html`: Added `<div id="crisis-banner" class="crisis-banner" style="display:none">` between title-bar and HUD.
+- `game/src/main.js`: Imported initCrises/crisisTick/getActiveCrisis/resolveCrisis from crises.js; `registerSystem(crisisTick)`; `initCrises()` at boot and newGame; `_updateCrisisBanner()` function renders crisis-banner innerHTML with icon/title/desc/countdown/resolve-button; CRISIS_SPAWNED + CRISIS_RESOLVED events trigger banner refresh; 4-tick TICK throttle for countdown; delegated click handler on `crisis-banner` div for `#btn-crisis-resolve`; `state.crises` included in save payload + `_applySave()`; save version bumped 34→35.
+- `game/styles/main.css`: `.crisis-banner` (red border-left, pulse animation, flex row), `.crisis-banner__icon/body/title/desc/actions/timer`, `.btn--crisis-resolve` (red gradient, disabled when can't afford); `.log-entry--danger` (red border + subtle bg + bold); mobile media query for flex-col layout.
+
+**T118 — Hero Enshrinement System:**
+
+**Files created/modified:**
+- `game/src/systems/heroSystem.js`: Added `import recalcRates`; `LEGACY_RATES_BY_SKILL` constant mapping each of 10 hero skills to a permanent resource rate bonus at ~50% power (e.g. `battle_hardened→{gold:0.4}`, `logistics→{food:0.3,wood:0.2}`, `arcane_attunement→{mana:0.25}`); exported `ENSHRINE_MAX=2`, `ENSHRINE_PRESTIGE=200`; `canEnshrineHero()` validates recruited + 3 skills + 10 combat wins + below max; `enshrineHero()` computes cumulative rates, appends legacy to `state.heroLegacy.enshrined`, clears `state.hero`, calls `recalcRates()`, emits `HERO_ENSHRINED+HERO_CHANGED+RESOURCE_CHANGED`, logs message.
+- `game/src/systems/resources.js`: Added T118 hero legacy bonus loop after landmark section — iterates `state.heroLegacy?.enshrined` and adds `entry.rates[res]` to each resource rate.
+- `game/src/core/events.js`: Added `HERO_ENSHRINED:'heroEnshrined'` event constant.
+- `game/src/core/state.js`: Added `heroLegacy: null` static field + `state.heroLegacy = null` in `initState()`.
+- `game/src/ui/militaryPanel.js`: Imported `canEnshrineHero/enshrineHero/ENSHRINE_MAX` from heroSystem; subscribed `HERO_ENSHRINED→_render`; added `_heroEnshrineSection()` — amber-bordered panel showing progress toward enshrine requirements, status line (needs X skills / X victories / ready / maxed), and Enshrine button when `canEnshrineHero()`; added `skillsNeeds(n)` helper; added `_heroLegacyPanel()` — gold-bordered panel showing enshrined champion cards with rate pill badges; updated `_heroSection()` to show legacy count in subtitle + `_heroLegacyPanel()` below recruit button; updated active hero section to include `_heroEnshrineSection()` after legendary quest section; added `enshrine-hero` data-action click handler.
+- `game/src/main.js`: Imported `ENSHRINE_PRESTIGE` from heroSystem; `HERO_ENSHRINED` listener awards 200 prestige; `heroLegacy` included in save payload + `_applySave()`.
+- `game/styles/main.css`: `.enshrine-section` (amber left-border, subtle bg), `.enshrine-section__header/desc`, `.enshrine-status/--ready/--maxed`, `.btn--enshrine` (amber gradient), `.hero-legacy-panel`, `.legacy-hero-card`, `.legacy-rate` pill badges.
+
+**Architecture decisions:**
+- Crisis penalties are pushed directly to `state.randomEvents.activeModifiers` (same format as disaster modifiers) so they integrate seamlessly with the existing `recalcRates()` penalty system, including the Grand Cathedral wonder's halving of disaster severity.
+- Crisis spawning is blocked until at least one game-tick cycle after boot/load (nextCrisisTick is set ahead by _nextInterval() in initCrises), so players aren't immediately hit with a crisis at game start.
+- The crisis banner uses DOM-based innerHTML re-render (not a full panel system) since it's a transient overlay — the delegated click listener on the parent div survives innerHTML updates.
+- Hero legacy bonuses are computed once at enshrinement time and stored as a simple `{res→val}` rates object — avoids re-evaluating skill chains on every tick and makes saved data human-readable.
+- LEGACY_RATES_BY_SKILL converts ALL 10 skills to resource rate bonuses (not just the 4 that already give rates), so no skill choice leaves a hero with zero legacy value. Combat-oriented skills convert to gold income (tribute/glory), training/research skills to iron/mana.
+- Maximum 2 enshrinements per game prevents infinite stacking; ENSHRINE_MAX is an exported constant so UI and logic use the same value.

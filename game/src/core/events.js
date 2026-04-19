@@ -90,4 +90,7 @@ export const Events = Object.freeze({
   HERO_QUEST_CHANGED:       'heroQuestChanged',        // T112: hero legendary quest phase advanced
   ALLIANCE_FAVOR_CHANGED:   'allianceFavorChanged',    // T114: alliance favor gained or spent
   RESEARCH_INSPIRATION:     'researchInspiration',     // T116: inspiration event spawned/accepted/dismissed
+  CRISIS_SPAWNED:           'crisisSpawned',            // T117: empire crisis appeared
+  CRISIS_RESOLVED:          'crisisResolved',           // T117: crisis resolved or penalty applied
+  HERO_ENSHRINED:           'heroEnshrined',            // T118: hero retired as a lasting legacy
 });

@@ -285,6 +285,14 @@ export const state = {
   // T116: Research inspiration event state — populated by systems/researchInspiration.js
   // { pending: { typeId, expiresAt } | null, workshopDiscount: bool, nextCheckTick: number }
   researchInspiration: null,
+
+  // T117: Empire crisis state — populated by systems/crises.js initCrises()
+  // { active: { typeId, expiresAt } | null, nextCrisisTick, resolved, failed }
+  crises: null,
+
+  // T118: Hero enshrinement legacy — accumulated from retired max-skill heroes
+  // { enshrined: [{ name, skillIds, rates: {res→bonus} }], totalEnshrined: number }
+  heroLegacy: null,
 };
 
 /**
@@ -356,5 +364,7 @@ export function initState(empireName = 'My Empire') {
   state.pioneers           = null;  // T110: pioneer expeditions reset per game
   state.naturalDisasters   = null;  // T111: natural disaster cooldown resets per game
   state.researchInspiration = null; // T116: inspiration events reset per game
+  state.crises              = null; // T117: crisis system resets per game
+  state.heroLegacy          = null; // T118: legacy resets per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

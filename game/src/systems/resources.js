@@ -328,6 +328,16 @@ export function recalcRates() {
     }
   }
 
+  // T118: Hero legacy bonuses from enshrined champions
+  if (state.heroLegacy?.enshrined?.length) {
+    for (const legacy of state.heroLegacy.enshrined) {
+      if (!legacy.rates) continue;
+      for (const [res, val] of Object.entries(legacy.rates)) {
+        if (rates[res] !== undefined) rates[res] += val;
+      }
+    }
+  }
+
   // T071: Tech mastery flat bonuses (applied after all other rate calculations)
   if (state.masteries) {
     // Military mastery: upkeep reduction already applied above

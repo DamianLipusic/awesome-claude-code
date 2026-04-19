@@ -13,7 +13,7 @@ import { on, Events } from '../core/events.js';
 import { trainUnit, recruitHero, useHeroAbility, setFormation, chooseHeroSkill, rallyTroops, upgradeUnit, UNIT_UPGRADE_MAX, UNIT_UPGRADE_COST_BASE, addMessage } from '../core/actions.js';
 import { acceptDuel, declineDuel, getDuelSecsLeft } from '../systems/duels.js';
 import { sendPioneerExpedition, getPioneerProgress, getPioneerSecsLeft, PIONEER_COST, PIONEER_MAX } from '../systems/pioneerExpeditions.js';
-import { sendOnExpedition, recallExpedition, isOnExpedition, expeditionSecsLeft, expeditionProgress } from '../systems/heroSystem.js';
+import { sendOnExpedition, recallExpedition, isOnExpedition, expeditionSecsLeft, expeditionProgress, canEnshrineHero, enshrineHero, ENSHRINE_MAX } from '../systems/heroSystem.js';
 import { castSpell, SPELLS, SPELL_ORDER } from '../systems/spells.js';
 import { getMoraleLabel, getMoraleEffect } from '../systems/morale.js';
 import { hireMercenary, mercenarySecsLeft } from '../systems/mercenaries.js';
@@ -71,6 +71,7 @@ export function initMilitaryPanel() {
   on(Events.DUEL_CHANGED,      () => _render(panel));  // T109: warlord duel challenged/resolved
   on(Events.PIONEER_CHANGED,   () => _render(panel));  // T110: pioneer expedition update
   on(Events.HERO_QUEST_CHANGED, () => _render(panel)); // T112: legendary quest phase advanced
+  on(Events.HERO_ENSHRINED,    () => _render(panel)); // T118: hero enshrined as legacy
   on(Events.RESOURCE_CHANGED,  () => _renderCosts(panel));
   on(Events.GAME_LOADED,       () => _render(panel));
 
@@ -492,6 +493,7 @@ function _heroSection() {
   const ageOk     = !ageReq || (state.age ?? 0) >= ageReq.minAge;
   const affordable = Object.entries(HERO_DEF.cost).every(([r, a]) => (state.resources[r] ?? 0) >= a);
   const disabled  = !ageOk || !affordable;
+  const enshrined = state.heroLegacy?.totalEnshrined ?? 0;
 
   const costStr = Object.entries(HERO_DEF.cost)
     .map(([r, a]) => `${_resIcon(r)}${fmtNum(a)}`).join(' ');
@@ -500,11 +502,15 @@ function _heroSection() {
     ? `<div class="hero-card__req">🔒 Requires ${AGES[ageReq.minAge]?.name ?? `Age ${ageReq.minAge}`}</div>`
     : `<div class="hero-card__cost">Cost: ${costStr}</div>`;
 
+  const subtitle = enshrined > 0
+    ? `Hero Unit · ${enshrined} champion${enshrined !== 1 ? 's' : ''} enshrined`
+    : 'Hero Unit — Bronze Age+';
+
   return `<div class="hero-card hero-card--recruit">
     <div class="hero-card__header">
       <span class="hero-card__icon">${HERO_DEF.icon}</span>
       <span class="hero-card__name">${HERO_DEF.name}</span>
-      <span class="hero-card__subtitle">Hero Unit — once per game</span>
+      <span class="hero-card__subtitle">${subtitle}</span>
     </div>
     <div class="hero-card__desc">${HERO_DEF.description}</div>
     <div class="hero-card__stats">⚔ +${HERO_DEF.attack} combat power &nbsp; 🛡 ${HERO_DEF.defense}</div>
@@ -514,6 +520,7 @@ function _heroSection() {
       data-action="recruit-hero" ${disabled ? 'disabled' : ''}>
       ⭐ Recruit Champion
     </button>
+    ${_heroLegacyPanel()}
   </div>`;
 }
 
@@ -637,6 +644,84 @@ function _heroActiveSection() {
     </button>
     ${_heroSkillsSection()}
     ${_heroLegendarySection()}
+    ${_heroEnshrineSection()}
+  </div>`;
+}
+
+// ── T118: Hero Enshrine section ────────────────────────────────────────────
+
+function _heroEnshrineSection() {
+  const h = state.hero;
+  if (!h?.recruited) return '';
+
+  const enshrined      = state.heroLegacy?.totalEnshrined ?? 0;
+  const skills         = h.skills ?? [];
+  const wins           = h.combatWins ?? 0;
+  const maxedSkills    = skills.length >= HERO_MAX_SKILLS;
+  const winsOk         = wins >= 10;
+  const atMax          = enshrined >= ENSHRINE_MAX;
+  const canEnshrine    = canEnshrineHero();
+
+  // Don't show at all until at least 5 combat wins (gives a hint this feature exists)
+  if (wins < 5 && skills.length === 0) return '';
+
+  const skillsNeeded = HERO_MAX_SKILLS - skills.length;
+  const winsNeeded   = Math.max(0, 10 - wins);
+
+  let statusLine;
+  if (atMax) {
+    statusLine = `<div class="enshrine-status enshrine-status--maxed">🏛️ Maximum enshrinements reached (${ENSHRINE_MAX}/${ENSHRINE_MAX})</div>`;
+  } else if (!maxedSkills && !winsOk) {
+    statusLine = `<div class="enshrine-status">Needs ${skillsNeeds(skillsNeeded)} · ${wins}/10 victories</div>`;
+  } else if (!maxedSkills) {
+    statusLine = `<div class="enshrine-status">Needs ${skillsNeeds(skillsNeeded)}</div>`;
+  } else if (!winsOk) {
+    statusLine = `<div class="enshrine-status">Needs ${winsNeeded} more combat ${winsNeeded === 1 ? 'victory' : 'victories'} (${wins}/10)</div>`;
+  } else {
+    statusLine = `<div class="enshrine-status enshrine-status--ready">✅ Champion is ready for enshrinement!</div>`;
+  }
+
+  const btn = canEnshrine
+    ? `<button class="btn btn--sm btn--enshrine" data-action="enshrine-hero"
+         title="Retire the Champion as a permanent empire legend. Their skill bonuses live on as passive production bonuses.">
+         🏛️ Enshrine Champion
+       </button>`
+    : '';
+
+  return `<div class="enshrine-section">
+    <div class="enshrine-section__header">🏛️ Legacy Enshrinement (${enshrined}/${ENSHRINE_MAX})</div>
+    <div class="enshrine-section__desc">
+      Max-skilled champions with 10+ victories can be enshrined as empire legends,
+      converting their skills into permanent production bonuses.
+    </div>
+    ${statusLine}
+    ${btn}
+  </div>`;
+}
+
+function skillsNeeds(n) {
+  return `${n} more skill${n !== 1 ? 's' : ''}`;
+}
+
+// ── T118: Hero Legacy panel (shown in recruit card when no hero active) ───
+
+function _heroLegacyPanel() {
+  const legacy = state.heroLegacy;
+  if (!legacy?.enshrined?.length) return '';
+
+  const cards = legacy.enshrined.map((entry, i) => {
+    const rateLines = Object.entries(entry.rates ?? {})
+      .map(([res, val]) => `<span class="legacy-rate">+${val.toFixed(2)}/s ${_resIcon(res)}${res}</span>`)
+      .join('');
+    return `<div class="legacy-hero-card">
+      <div class="legacy-hero-card__header">🏛️ Enshrined Champion #${i + 1}</div>
+      <div class="legacy-hero-card__rates">${rateLines || 'No rate bonuses'}</div>
+    </div>`;
+  }).join('');
+
+  return `<div class="hero-legacy-panel">
+    <div class="hero-legacy-panel__title">📜 Champion Legacies</div>
+    ${cards}
   </div>`;
 }
 
@@ -1006,6 +1091,10 @@ function _handleClick(e) {
     if (!result.ok) addMessage(result.reason, 'info');
   } else if (actionBtn.dataset.action === 'expedition-recall') {
     const result = recallExpedition();
+    if (!result.ok) addMessage(result.reason, 'info');
+  } else if (actionBtn.dataset.action === 'enshrine-hero') {
+    // T118: enshrine current hero as a lasting legacy
+    const result = enshrineHero();
     if (!result.ok) addMessage(result.reason, 'info');
   } else if (actionBtn.dataset.action === 'rally') {
     const result = rallyTroops();

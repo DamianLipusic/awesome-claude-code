@@ -40,6 +40,8 @@ import { initDuels, duelTick } from './systems/duels.js';                   // T
 import { initPioneers, pioneerTick } from './systems/pioneerExpeditions.js'; // T110: pioneer expeditions
 import { initNaturalDisasters, naturalDisasterTick } from './systems/naturalDisasters.js'; // T111
 import { initInspiration, inspirationTick } from './systems/researchInspiration.js';       // T116
+import { initCrises, crisisTick, getActiveCrisis, resolveCrisis } from './systems/crises.js'; // T117
+import { ENSHRINE_PRESTIGE } from './systems/heroSystem.js';                                  // T118
 import { SEASONS } from './data/seasons.js';
 import { AGES } from './data/ages.js';
 import { BUILDINGS } from './data/buildings.js';
@@ -131,7 +133,8 @@ function boot() {
   registerSystem(duelTick);         // T109: warlord duel challenge spawn/expire
   registerSystem(pioneerTick);      // T110: pioneer expedition completion
   registerSystem(naturalDisasterTick); // T111
-  registerSystem(inspirationTick);     // T116: research inspiration events: natural disaster tile damage
+  registerSystem(inspirationTick);     // T116: research inspiration events
+  registerSystem(crisisTick);          // T117: empire crisis response
 
   // Init event-driven systems
   initRandomEvents();
@@ -164,6 +167,7 @@ function boot() {
   initPioneers();     // T110: pioneer expeditions
   initNaturalDisasters(); // T111: natural disaster system
   initInspiration();      // T116: research inspiration events
+  initCrises();           // T117: empire crisis response
 
   // Init UI
   initHUD();
@@ -255,6 +259,14 @@ function boot() {
   on(Events.HERO_QUEST_CHANGED, (d) => {
     if (d?.phase === 3) awardPrestige(200, 'legendary quest completed');  // T112: Supreme Commander unlocked
   });
+  on(Events.HERO_ENSHRINED, () => awardPrestige(ENSHRINE_PRESTIGE, 'champion enshrined'));  // T118
+
+  // T117: Crisis banner — update on crisis spawn/resolve and tick countdown
+  _updateCrisisBanner();
+  on(Events.CRISIS_SPAWNED,  _updateCrisisBanner);
+  on(Events.CRISIS_RESOLVED, _updateCrisisBanner);
+  let _crisisBadgeTick = 0;
+  on(Events.TICK, () => { if (++_crisisBadgeTick % 4 === 0) _updateCrisisBanner(); });
 
   // Update age badge on changes; also show council boon modal on advancement
   _updateAgeBadge();
@@ -307,7 +319,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 34,
+      version: 35,
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -376,6 +388,8 @@ function _save() {
         pioneers:            state.pioneers            ?? null,  // T110
         naturalDisasters:    state.naturalDisasters    ?? null,  // T111
         researchInspiration: state.researchInspiration ?? null,  // T116
+        crises:              state.crises              ?? null,  // T117
+        heroLegacy:          state.heroLegacy          ?? null,  // T118
         tick:          state.tick,
       }
     }));
@@ -471,6 +485,8 @@ function _applySave(save) {
   state.pioneers             = s.pioneers             ?? null;  // T110
   state.naturalDisasters     = s.naturalDisasters     ?? null;  // T111
   state.researchInspiration  = s.researchInspiration  ?? null;  // T116
+  state.crises               = s.crises               ?? null;  // T117
+  state.heroLegacy           = s.heroLegacy           ?? null;  // T118
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
@@ -544,6 +560,45 @@ function _updateSiegeBadge() {
   el.textContent = `⚔️ SIEGE in ${secsLeft}s`;
   el.title = 'Barbarian Grand Siege incoming! Muster your forces to repel the horde.';
   el.style.display = '';
+}
+
+// ── Crisis banner (T117) ──────────────────────────────────────────────────
+
+function _updateCrisisBanner() {
+  const banner = document.getElementById('crisis-banner');
+  if (!banner) return;
+
+  const crisis = getActiveCrisis();
+  if (!crisis) {
+    banner.style.display = 'none';
+    banner.innerHTML = '';
+    return;
+  }
+
+  const { def, secsLeft, canResolve } = crisis;
+  const costStr = Object.entries(def.resolveCost)
+    .map(([res, amt]) => `${amt} ${res}`)
+    .join(' + ');
+  const mins = Math.floor(secsLeft / 60);
+  const secs = secsLeft % 60;
+  const timeStr = mins > 0 ? `${mins}m ${String(secs).padStart(2, '0')}s` : `${secsLeft}s`;
+
+  banner.innerHTML = `
+    <div class="crisis-banner__icon">${def.icon}</div>
+    <div class="crisis-banner__body">
+      <div class="crisis-banner__title">⚠️ CRISIS: ${def.name}</div>
+      <div class="crisis-banner__desc">${def.desc}</div>
+    </div>
+    <div class="crisis-banner__actions">
+      <div class="crisis-banner__timer">Expires in ${timeStr}</div>
+      <button class="btn btn--sm btn--crisis-resolve ${canResolve ? '' : 'btn--disabled'}"
+        id="btn-crisis-resolve"
+        ${canResolve ? '' : 'disabled'}
+        title="Cost: ${costStr}">
+        Resolve (${costStr})
+      </button>
+    </div>`;
+  banner.style.display = 'flex';
 }
 
 // ── Prestige badge (T080) ─────────────────────────────────────────────────
@@ -835,6 +890,7 @@ function _newGame(opts = {}) {
   initPioneers();         // T110
   initNaturalDisasters(); // T111
   initInspiration();      // T116
+  initCrises();           // T117
   recalcRates();
   startLoop();  // restart loop in case it was stopped by game-over
   _syncPauseUI();  // ensure pause overlay is hidden on new game
@@ -885,6 +941,15 @@ function _bindControls() {
 
   // Pause button
   document.getElementById('btn-pause')?.addEventListener('click', _togglePause);
+
+  // T117: Crisis resolve button (delegated — banner content is dynamic)
+  document.getElementById('crisis-banner')?.addEventListener('click', (e) => {
+    if (e.target.closest('#btn-crisis-resolve')) {
+      const result = resolveCrisis();
+      if (!result.ok) addMessage(result.reason, 'info');
+      _updateCrisisBanner();
+    }
+  });
 
   _bindKeyboard();
 }

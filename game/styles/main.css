@@ -844,6 +844,7 @@ body {
 .log-entry--raid     { border-color: var(--red); }
 .log-entry--windfall { border-color: var(--green); }
 .log-entry--disaster { border-color: #ff9800; }
+.log-entry--danger   { border-color: var(--red); background: rgba(239, 68, 68, 0.07); font-weight: 600; }
 .log-entry--quest    { border-color: #ffd700; background: rgba(255,215,0,.05); }
 
 /* ── Quest panel ─────────────────────────────────────────────────────────── */
@@ -6922,4 +6923,206 @@ kbd {
   font-size: 12px;
   color: #c084fc;
   margin-bottom: 10px;
+}
+
+/* ── T117: Empire Crisis Banner ─────────────────────────────────────────── */
+
+.crisis-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(239, 68, 68, 0.15);
+  border-left: 4px solid #ef4444;
+  border-bottom: 1px solid rgba(239, 68, 68, 0.4);
+  padding: 10px 16px;
+  animation: crisis-pulse 2s ease-in-out infinite;
+}
+
+@keyframes crisis-pulse {
+  0%, 100% { background: rgba(239, 68, 68, 0.15); }
+  50%       { background: rgba(239, 68, 68, 0.28); }
+}
+
+.crisis-banner__icon {
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.crisis-banner__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.crisis-banner__title {
+  font-weight: 700;
+  font-size: 14px;
+  color: #f87171;
+  margin-bottom: 2px;
+}
+
+.crisis-banner__desc {
+  font-size: 12px;
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.crisis-banner__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.crisis-banner__timer {
+  font-size: 12px;
+  color: #fca5a5;
+  font-variant-numeric: tabular-nums;
+}
+
+.btn--crisis-resolve {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  border: 1px solid #ef4444;
+  color: #fff;
+  font-size: 12px;
+  padding: 4px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.btn--crisis-resolve:hover:not(:disabled) {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+.btn--crisis-resolve:disabled,
+.btn--crisis-resolve.btn--disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ── T118: Hero Enshrine Section ────────────────────────────────────────── */
+
+.enshrine-section {
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: rgba(251, 191, 36, 0.08);
+  border-left: 3px solid #f59e0b;
+  border-radius: 0 4px 4px 0;
+}
+
+.enshrine-section__header {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fbbf24;
+  margin-bottom: 4px;
+}
+
+.enshrine-section__desc {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.enshrine-status {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+  padding: 4px 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 3px;
+}
+
+.enshrine-status--ready {
+  color: #86efac;
+  background: rgba(134, 239, 172, 0.08);
+}
+
+.enshrine-status--maxed {
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.08);
+}
+
+.btn--enshrine {
+  background: linear-gradient(135deg, #d97706, #b45309);
+  border: 1px solid #f59e0b;
+  color: #fff;
+  font-size: 12px;
+  padding: 5px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn--enshrine:hover {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+/* Hero Legacy Panel (shown in recruit card when no hero is active) */
+
+.hero-legacy-panel {
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: rgba(251, 191, 36, 0.07);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  border-radius: 4px;
+}
+
+.hero-legacy-panel__title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fbbf24;
+  margin-bottom: 8px;
+}
+
+.legacy-hero-card {
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  margin-bottom: 6px;
+}
+
+.legacy-hero-card:last-child {
+  margin-bottom: 0;
+}
+
+.legacy-hero-card__header {
+  font-size: 12px;
+  font-weight: 600;
+  color: #fbbf24;
+  margin-bottom: 4px;
+}
+
+.legacy-hero-card__rates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.legacy-rate {
+  font-size: 11px;
+  color: #86efac;
+  background: rgba(134, 239, 172, 0.1);
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+@media (max-width: 600px) {
+  .crisis-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .crisis-banner__actions {
+    align-items: flex-start;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .crisis-banner__desc {
+    white-space: normal;
+  }
 }

@@ -18,6 +18,7 @@ import { emit, Events } from '../core/events.js';
 import { addMessage } from '../core/actions.js';
 import { HERO_DEF, HERO_SKILLS, HERO_SKILL_WIN_INTERVAL, HERO_MAX_SKILLS } from '../data/hero.js';
 import { TICKS_PER_SECOND } from '../core/tick.js';
+import { recalcRates } from './resources.js';
 
 // Expedition duration: random 2–3 minutes
 const EXPEDITION_MIN_TICKS = 480;  // 2 min
@@ -160,4 +161,102 @@ export function expeditionProgress() {
   const total   = exp.totalTicks ?? EXPEDITION_MAX_TICKS;
   const elapsed = state.tick - (exp.startedAt ?? (exp.endsAt - total));
   return Math.max(0, Math.min(1, elapsed / total));
+}
+
+// ── T118: Hero Enshrinement ───────────────────────────────────────────────
+
+// Legacy resource rate bonus per skill type (at ~50% of the live skill's value).
+// Converts every skill into a meaningful permanent rate bonus.
+const LEGACY_RATES_BY_SKILL = {
+  battle_hardened:    { gold: 0.4 },               // veteran soldiers send tribute
+  war_drums:          { gold: 0.6 },               // war glory generates wealth
+  logistics:          { food: 0.3, wood: 0.2 },    // supply chain expertise
+  treasury_guard:     { gold: 0.4 },               // half of +0.8 gold/s
+  quartermaster:      { food: 0.3 },               // half of +0.6 food/s
+  arcane_attunement:  { mana: 0.25 },              // half of +0.5 mana/s
+  swift_training:     { iron: 0.3 },               // weapons mastery legacy
+  veteran_knowledge:  { mana: 0.3 },               // accumulated scholarship
+  iron_will:          { food: 0.3 },               // inspired citizens produce more
+  war_profiteer:      { gold: 0.5 },               // stored war treasure dividends
+};
+
+/** Max number of heroes that can be enshrined per game. */
+export const ENSHRINE_MAX = 2;
+
+/** Prestige awarded when a hero is enshrined. */
+export const ENSHRINE_PRESTIGE = 200;
+
+/** Returns true if the current hero meets the enshrinement requirements. */
+export function canEnshrineHero() {
+  const h  = state.hero;
+  if (!h?.recruited) return false;
+  if (h.expedition?.active || h.injured) return false;
+  if ((h.skills ?? []).length < HERO_MAX_SKILLS) return false;
+  if ((h.combatWins ?? 0) < 10) return false;
+  const enshrined = state.heroLegacy?.totalEnshrined ?? 0;
+  if (enshrined >= ENSHRINE_MAX) return false;
+  return true;
+}
+
+/**
+ * Enshrine the current hero as a lasting empire legacy.
+ * Clears state.hero (allowing a new recruit) and records the legacy rates.
+ * @returns {{ ok: boolean, reason?: string }}
+ */
+export function enshrineHero() {
+  if (!canEnshrineHero()) {
+    const h = state.hero;
+    if (!h?.recruited) return { ok: false, reason: 'No hero recruited.' };
+    if (h.expedition?.active) return { ok: false, reason: 'Champion is on expedition.' };
+    if (h.injured) return { ok: false, reason: 'Champion is still recovering.' };
+    if ((h.skills ?? []).length < HERO_MAX_SKILLS) {
+      return { ok: false, reason: `Champion needs all ${HERO_MAX_SKILLS} skills before enshrinement.` };
+    }
+    if ((h.combatWins ?? 0) < 10) {
+      return { ok: false, reason: 'Champion needs 10+ combat victories to be enshrined.' };
+    }
+    const enshrined = state.heroLegacy?.totalEnshrined ?? 0;
+    if (enshrined >= ENSHRINE_MAX) {
+      return { ok: false, reason: `Maximum ${ENSHRINE_MAX} heroes can be enshrined per game.` };
+    }
+  }
+
+  const skills = [...(state.hero.skills ?? [])];
+
+  // Compute cumulative legacy rates from this hero's skills
+  const rates = {};
+  for (const id of skills) {
+    const bonus = LEGACY_RATES_BY_SKILL[id];
+    if (!bonus) continue;
+    for (const [res, val] of Object.entries(bonus)) {
+      rates[res] = (rates[res] ?? 0) + val;
+    }
+  }
+
+  // Build rate description for display
+  const rateDesc = Object.entries(rates)
+    .map(([res, val]) => `+${val.toFixed(2)}/s ${res}`)
+    .join(', ');
+
+  if (!state.heroLegacy) {
+    state.heroLegacy = { enshrined: [], totalEnshrined: 0 };
+  }
+
+  state.heroLegacy.enshrined.push({ skillIds: skills, rates });
+  state.heroLegacy.totalEnshrined++;
+
+  // Retire the hero
+  state.hero = null;
+
+  recalcRates();
+  emit(Events.HERO_ENSHRINED, { skillIds: skills, rates });
+  emit(Events.HERO_CHANGED, {});
+  emit(Events.RESOURCE_CHANGED);
+
+  addMessage(
+    `🏛️ Champion enshrined as a legend of the empire! Their legacy lives on: ${rateDesc}.`,
+    'success',
+  );
+
+  return { ok: true, rates, rateDesc };
 }
