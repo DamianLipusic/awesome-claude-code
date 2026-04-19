@@ -74,7 +74,13 @@ const FORMATION_ATTACK = { defensive: 0.85, balanced: 1.0, aggressive: 1.25 };
 
 /** Returns the player's current formation attack multiplier. */
 function _formationAttackMult() {
-  return FORMATION_ATTACK[state.formation ?? 'balanced'] ?? 1.0;
+  const base = FORMATION_ATTACK[state.formation ?? 'balanced'] ?? 1.0;
+  // T119: Tactician trait doubles formation bonus/penalty
+  if (state.hero?.trait === 'tactician' && !state.hero.pendingTrait) {
+    const delta = base - 1.0;
+    return 1.0 + delta * 2;
+  }
+  return base;
 }
 
 // T071: Per-terrain attack and defense modifiers applied during combat resolution.
@@ -238,6 +244,12 @@ export function getAttackPreview(x, y) {
     if (state.hero.activeEffects?.battleCry) attackPower *= 2;  // preview includes Battle Cry bonus
     // T112: Legendary Quest — Battle Master permanent attack bonus
     attackPower += (state.hero.legendaryAttack ?? 0);
+    // T119: commander trait combat bonuses (when hero is active)
+    const herTrait = state.hero.trait;
+    if (herTrait && !state.hero.pendingTrait) {
+      if (herTrait === 'iron_fist')  attackPower += 30;
+      if (herTrait === 'war_scholar') attackPower *= 1.15;
+    }
   }
 
   // T071: terrain combat modifiers
@@ -404,6 +416,12 @@ export function attackTile(x, y) {
     }
     // T112: Legendary Quest — Battle Master permanent attack bonus
     attackPower += (state.hero.legendaryAttack ?? 0);
+    // T119: commander trait combat bonuses (when hero is active)
+    const herTraitAtk = state.hero.trait;
+    if (herTraitAtk && !state.hero.pendingTrait) {
+      if (herTraitAtk === 'iron_fist')   attackPower += 30;
+      if (herTraitAtk === 'war_scholar') attackPower *= 1.15;
+    }
   }
 
   // T071: terrain attack modifier (applied before siege/mana-bolt override)
@@ -536,7 +554,11 @@ function _victory(tile, x, y, attackPower, defense) {
   _grantCombatXP();
 
   // T057 + T070 Iron Will: victory boosts army morale
-  const moraleGain = MORALE_COMBAT_WIN +
+  // T119: rally_master and iron_will traits add extra morale per win
+  const traitMoraleWin = (state.hero?.recruited && !state.hero.pendingTrait)
+    ? (state.hero.trait === 'rally_master' || state.hero.trait === 'iron_will' ? 10 : 0)
+    : 0;
+  const moraleGain = MORALE_COMBAT_WIN + traitMoraleWin +
     (state.hero?.recruited ? heroSkillBonus(state.hero.skills ?? [], 'moraleBonus') : 0);
   changeMorale(moraleGain);
 
@@ -847,7 +869,9 @@ function _defeat(tile, x, y, attackPower, defense) {
   _recordHistory({ outcome: 'loss', terrain: tile.type, x, y, power: Math.round(attackPower), defense, lost });
 
   // T057: defeat damages army morale
-  changeMorale(MORALE_COMBAT_LOSS);
+  // T119: iron_will trait halves morale loss on defeat
+  const ironWillActive = state.hero?.recruited && state.hero.trait === 'iron_will' && !state.hero.pendingTrait;
+  changeMorale(ironWillActive ? Math.round(MORALE_COMBAT_LOSS * 0.5) : MORALE_COMBAT_LOSS);
 
   // T101: Reset conquest streak on defeat
   if ((state.combatStreak?.count ?? 0) > 0) {

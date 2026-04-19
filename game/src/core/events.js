@@ -93,4 +93,6 @@ export const Events = Object.freeze({
   CRISIS_SPAWNED:           'crisisSpawned',            // T117: empire crisis appeared
   CRISIS_RESOLVED:          'crisisResolved',           // T117: crisis resolved or penalty applied
   HERO_ENSHRINED:           'heroEnshrined',            // T118: hero retired as a lasting legacy
+  HERO_TRAIT_CHOSEN:        'heroTraitChosen',          // T119: commander trait chosen at recruitment
+  CAP_UPGRADED:             'capUpgraded',              // T120: resource cap expanded via treasury upgrade
 });

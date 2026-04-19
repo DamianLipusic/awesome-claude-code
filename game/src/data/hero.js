@@ -139,6 +139,76 @@ export const HERO_SKILLS = Object.freeze([
   },
 ]);
 
+// ── T119: Hero Commander Traits ──────────────────────────────────────────────
+
+/**
+ * Pool of 8 commander traits. One is chosen at hero recruitment and persists
+ * for the champion's lifetime.  Effects are applied in combat.js, resources.js,
+ * research.js, spells.js, and core/actions.js.
+ *
+ * effect.types (checked by name in each system):
+ *   iron_fist       — +30 flat attack, all positive rates ×0.90
+ *   war_scholar     — research ×0.80, +15% combat attack
+ *   merchant_heart  — +0.8 gold/s
+ *   tactician       — formation bonuses doubled
+ *   naturalist      — +25% food and wood rates
+ *   rally_master    — rally is free (0 gold cost), +10 morale/win
+ *   arcane_mind     — +0.5 mana/s, spell mana costs ×0.70
+ *   iron_will       — +10 morale/win, morale loss on defeat ×0.50
+ */
+export const HERO_TRAITS = Object.freeze([
+  {
+    id:   'iron_fist',
+    icon: '🔱',
+    name: 'Iron Fist',
+    desc: '+30 bonus attack. All positive resource rates −10%.',
+  },
+  {
+    id:   'war_scholar',
+    icon: '📜',
+    name: 'War Scholar',
+    desc: '+15% combat attack. Research time −20%.',
+  },
+  {
+    id:   'merchant_heart',
+    icon: '💛',
+    name: 'Merchant Heart',
+    desc: '+0.8 gold/s passive income from champion\'s trade connections.',
+  },
+  {
+    id:   'tactician',
+    icon: '🗺️',
+    name: 'Tactician',
+    desc: 'Formation bonuses doubled (Defensive/Aggressive multipliers doubled).',
+  },
+  {
+    id:   'naturalist',
+    icon: '🌿',
+    name: 'Naturalist',
+    desc: '+25% food production rate and +25% wood production rate.',
+  },
+  {
+    id:   'rally_master',
+    icon: '📣',
+    name: 'Rally Master',
+    desc: 'Rally Troops costs 0 gold. +10 morale per combat victory.',
+  },
+  {
+    id:   'arcane_mind',
+    icon: '🔮',
+    name: 'Arcane Mind',
+    desc: '+0.5 mana/s. All spell mana costs reduced by 30%.',
+  },
+  {
+    id:   'iron_will',
+    icon: '🛡️',
+    name: 'Iron Will',
+    desc: '+10 morale per combat victory. Morale loss on defeat halved.',
+  },
+]);
+
+export const HERO_TRAIT_ORDER = HERO_TRAITS.map(t => t.id);
+
 /**
  * Compute the combined numeric value for a given effect type across
  * an array of learned skill IDs.  Pure function — no state access.

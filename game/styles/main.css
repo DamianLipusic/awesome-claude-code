@@ -7126,3 +7126,155 @@ kbd {
     white-space: normal;
   }
 }
+
+/* ── T119: Hero Commander Traits ─────────────────────────────────────── */
+.trait-chooser {
+  background: var(--bg-card);
+  border: 1px solid var(--border-h);
+  border-left: 3px solid #f6c90e;
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 10px;
+  animation: pop-in 0.25s ease;
+}
+.trait-chooser__header {
+  font-size: 14px;
+  font-weight: 600;
+  color: #f6c90e;
+  margin-bottom: 4px;
+}
+.trait-chooser__sub {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-bottom: 10px;
+}
+.trait-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-h);
+  border-radius: 5px;
+  padding: 8px 10px;
+  margin-bottom: 8px;
+}
+.trait-option__icon {
+  font-size: 20px;
+  flex-shrink: 0;
+  width: 24px;
+  text-align: center;
+}
+.trait-option__body {
+  flex: 1;
+  min-width: 0;
+}
+.trait-option__name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-h);
+  margin-bottom: 3px;
+}
+.trait-option__desc {
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.4;
+}
+.btn--trait-choose {
+  flex-shrink: 0;
+  padding: 5px 10px;
+  font-size: 12px;
+  background: linear-gradient(135deg, #b7791f, #f6c90e);
+  color: #000;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  white-space: nowrap;
+  align-self: center;
+}
+.btn--trait-choose:hover { filter: brightness(1.15); }
+
+/* Trait badge shown on the active hero card */
+.hero-trait-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: rgba(246, 201, 14, 0.12);
+  border: 1px solid rgba(246, 201, 14, 0.4);
+  color: #f6c90e;
+  margin-bottom: 6px;
+}
+
+@media (max-width: 480px) {
+  .trait-option { flex-wrap: wrap; }
+  .btn--trait-choose { margin-top: 6px; }
+}
+
+/* ── T120: Resource Cap Upgrades (Treasury) ──────────────────────────── */
+.treasury-section {
+  border-left: 3px solid #48bb78;
+  background: var(--bg-card);
+  border-radius: 6px;
+  padding: 12px;
+  margin-top: 12px;
+}
+.treasury-section__header {
+  font-size: 13px;
+  font-weight: 600;
+  color: #48bb78;
+  margin-bottom: 4px;
+}
+.treasury-section__intro {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-bottom: 10px;
+}
+.treasury-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 8px;
+}
+.treasury-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-h);
+  border-radius: 5px;
+  padding: 6px 8px;
+  gap: 6px;
+}
+.treasury-row__icon { font-size: 16px; }
+.treasury-row__name { flex: 1; font-size: 12px; color: var(--text-h); }
+.treasury-row__level {
+  font-size: 11px;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+.treasury-row__level--max { color: #f6c90e; }
+.btn--treasury-upgrade {
+  padding: 3px 8px;
+  font-size: 11px;
+  background: none;
+  border: 1px solid #48bb78;
+  color: #48bb78;
+  border-radius: 3px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn--treasury-upgrade:hover { background: rgba(72,187,120,0.15); }
+.btn--treasury-max {
+  padding: 3px 8px;
+  font-size: 11px;
+  color: #f6c90e;
+  border: 1px solid rgba(246,201,14,0.4);
+  border-radius: 3px;
+  background: none;
+  cursor: default;
+}
+@media (max-width: 480px) {
+  .treasury-grid { grid-template-columns: 1fr 1fr; }
+}

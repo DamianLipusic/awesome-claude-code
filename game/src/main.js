@@ -319,7 +319,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 35,
+      version: 36,
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -390,6 +390,7 @@ function _save() {
         researchInspiration: state.researchInspiration ?? null,  // T116
         crises:              state.crises              ?? null,  // T117
         heroLegacy:          state.heroLegacy          ?? null,  // T118
+        capUpgrades:         state.capUpgrades         ?? {},    // T120
         tick:          state.tick,
       }
     }));
@@ -436,6 +437,10 @@ function _applySave(save) {
     if (state.hero.cdReduction      === undefined) state.hero.cdReduction      = false;
     if (state.hero.supremeCommander === undefined) state.hero.supremeCommander = false;
     // legendaryQuest stays null for saves where it hasn't unlocked yet — that's correct
+    // T119: migrate hero from pre-trait saves — old heroes get no trait (legacy, no penalty)
+    if (state.hero.trait         === undefined) state.hero.trait         = null;
+    if (state.hero.pendingTrait  === undefined) state.hero.pendingTrait  = false;
+    if (state.hero.traitOffer    === undefined) state.hero.traitOffer    = null;
   }
   state.stats          = s.stats          ?? { goldEarned: 0, peakTerritory: 0 };
   state.market         = s.market         ?? null;
@@ -487,6 +492,7 @@ function _applySave(save) {
   state.researchInspiration  = s.researchInspiration  ?? null;  // T116
   state.crises               = s.crises               ?? null;  // T117
   state.heroLegacy           = s.heroLegacy           ?? null;  // T118
+  state.capUpgrades          = s.capUpgrades          ?? {};    // T120
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };

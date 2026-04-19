@@ -293,6 +293,10 @@ export const state = {
   // T118: Hero enshrinement legacy — accumulated from retired max-skill heroes
   // { enshrined: [{ name, skillIds, rates: {res→bonus} }], totalEnshrined: number }
   heroLegacy: null,
+
+  // T120: Per-resource cap upgrade levels (0–5). Each level adds +250 to cap.
+  // Cost: 150 × (level+1) gold. Reset on new game.
+  capUpgrades: {},
 };
 
 /**
@@ -366,5 +370,6 @@ export function initState(empireName = 'My Empire') {
   state.researchInspiration = null; // T116: inspiration events reset per game
   state.crises              = null; // T117: crisis system resets per game
   state.heroLegacy          = null; // T118: legacy resets per game
+  state.capUpgrades         = {};   // T120: reset cap upgrades per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

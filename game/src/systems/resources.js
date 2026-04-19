@@ -214,6 +214,23 @@ export function recalcRates() {
         }
       }
     }
+
+    // T119: Commander trait resource effects (only when trait is chosen)
+    const trait = state.hero.trait;
+    if (trait && !state.hero.pendingTrait) {
+      if (trait === 'iron_fist') {
+        for (const res of RESOURCE_KEYS) {
+          if (rates[res] > 0) rates[res] *= 0.90;
+        }
+      } else if (trait === 'merchant_heart') {
+        rates.gold += 0.8;
+      } else if (trait === 'naturalist') {
+        if (rates.food > 0) rates.food *= 1.25;
+        if (rates.wood > 0) rates.wood *= 1.25;
+      } else if (trait === 'arcane_mind') {
+        rates.mana += 0.5;
+      }
+    }
   }
 
   // T068: Garrison upkeep (units removed from army but still consume resources)
@@ -430,6 +447,15 @@ export function recalcRates() {
 
   // T108: Map exploration 90% milestone — permanent +0.8 gold/s
   if (state.explorationMilestones?.[90]) rates.gold += 0.8;
+
+  // T120: Resource cap upgrades — each level adds 250 to cap
+  if (state.capUpgrades) {
+    for (const [res, level] of Object.entries(state.capUpgrades)) {
+      if (caps[res] !== undefined && level > 0) {
+        caps[res] += level * 250;
+      }
+    }
+  }
 
   Object.assign(state.rates, rates);
   Object.assign(state.caps, caps);

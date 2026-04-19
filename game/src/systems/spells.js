@@ -111,10 +111,14 @@ export function castSpell(spellId) {
   if (spellId === 'aegis'     && ae.aegis     > state.tick) return { ok: false, reason: 'Aegis Ward is already active.' };
   if (spellId === 'manaBolt'  && ae.manaBolt)               return { ok: false, reason: 'Mana Bolt is already primed.' };
 
-  // Mana cost (Arcane archetype: −25%; Arcane Tower capital plan: −25%, stacks multiplicatively)
+  // Mana cost (Arcane archetype: −25%; Arcane Tower capital plan: −25%; arcane_mind trait: −30%, stack multiplicatively)
   let manaCost = def.manaCost;
   if (state.archetype === 'arcane')         manaCost = Math.floor(manaCost * 0.75);
   if (state.capitalPlan === 'arcane_tower') manaCost = Math.floor(manaCost * 0.75);
+  // T119: arcane_mind trait — -30% spell mana costs
+  if (state.hero?.trait === 'arcane_mind' && !state.hero.pendingTrait) {
+    manaCost = Math.floor(manaCost * 0.70);
+  }
   manaCost = Math.max(1, manaCost);
 
   if ((state.resources.mana ?? 0) < manaCost) {

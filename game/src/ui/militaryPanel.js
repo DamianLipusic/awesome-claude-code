@@ -10,7 +10,7 @@
 
 import { state } from '../core/state.js';
 import { on, Events } from '../core/events.js';
-import { trainUnit, recruitHero, useHeroAbility, setFormation, chooseHeroSkill, rallyTroops, upgradeUnit, UNIT_UPGRADE_MAX, UNIT_UPGRADE_COST_BASE, addMessage } from '../core/actions.js';
+import { trainUnit, recruitHero, useHeroAbility, setFormation, chooseHeroSkill, rallyTroops, upgradeUnit, UNIT_UPGRADE_MAX, UNIT_UPGRADE_COST_BASE, addMessage, chooseHeroTrait } from '../core/actions.js';
 import { acceptDuel, declineDuel, getDuelSecsLeft } from '../systems/duels.js';
 import { sendPioneerExpedition, getPioneerProgress, getPioneerSecsLeft, PIONEER_COST, PIONEER_MAX } from '../systems/pioneerExpeditions.js';
 import { sendOnExpedition, recallExpedition, isOnExpedition, expeditionSecsLeft, expeditionProgress, canEnshrineHero, enshrineHero, ENSHRINE_MAX } from '../systems/heroSystem.js';
@@ -24,7 +24,7 @@ import { UNITS } from '../data/units.js';
 import { BUILDINGS } from '../data/buildings.js';
 import { TECHS } from '../data/techs.js';
 import { AGES } from '../data/ages.js';
-import { HERO_DEF, HERO_SKILLS, HERO_SKILL_WIN_INTERVAL, HERO_MAX_SKILLS } from '../data/hero.js';
+import { HERO_DEF, HERO_SKILLS, HERO_SKILL_WIN_INTERVAL, HERO_MAX_SKILLS, HERO_TRAITS } from '../data/hero.js';
 import { fmtNum } from '../utils/fmt.js';
 
 const UNIT_ORDER = ['soldier', 'archer', 'knight', 'mage'];
@@ -72,6 +72,7 @@ export function initMilitaryPanel() {
   on(Events.PIONEER_CHANGED,   () => _render(panel));  // T110: pioneer expedition update
   on(Events.HERO_QUEST_CHANGED, () => _render(panel)); // T112: legendary quest phase advanced
   on(Events.HERO_ENSHRINED,    () => _render(panel)); // T118: hero enshrined as legacy
+  on(Events.HERO_TRAIT_CHOSEN, () => _render(panel)); // T119: trait chosen → switch from chooser to active view
   on(Events.RESOURCE_CHANGED,  () => _renderCosts(panel));
   on(Events.GAME_LOADED,       () => _render(panel));
 
@@ -485,8 +486,45 @@ function _spellsSection() {
 
 // ── Hero section ───────────────────────────────────────────────────────────
 
+// T119: Trait chooser — shown when hero is recruited but trait not yet chosen
+function _traitChooserSection() {
+  const h      = state.hero;
+  const offer  = h.traitOffer ?? [];
+  const traits = HERO_TRAITS.filter(t => offer.includes(t.id));
+
+  const cards = traits.map(t => `
+    <div class="trait-option">
+      <div class="trait-option__icon">${t.icon}</div>
+      <div class="trait-option__body">
+        <div class="trait-option__name">${t.name}</div>
+        <div class="trait-option__desc">${t.desc}</div>
+      </div>
+      <button class="btn btn--trait-choose" data-action="choose-trait" data-trait="${t.id}">
+        Choose
+      </button>
+    </div>`).join('');
+
+  return `<div class="trait-chooser">
+    <div class="trait-chooser__header">⭐ Choose Commander Trait</div>
+    <div class="trait-chooser__sub">Select a permanent personality trait for your Champion:</div>
+    ${cards}
+  </div>`;
+}
+
+// T119: Trait badge for the active hero card
+function _traitBadge() {
+  const h = state.hero;
+  if (!h?.trait || h.pendingTrait) return '';
+  const trait = HERO_TRAITS.find(t => t.id === h.trait);
+  if (!trait) return '';
+  return `<div class="hero-trait-badge">${trait.icon} ${trait.name}</div>`;
+}
+
 function _heroSection() {
-  if (state.hero?.recruited) return _heroActiveSection();
+  if (state.hero?.recruited) {
+    if (state.hero.pendingTrait) return _traitChooserSection();
+    return _heroActiveSection();
+  }
 
   // Recruit card
   const ageReq    = HERO_DEF.requires.find(r => r.type === 'age');
@@ -542,6 +580,7 @@ function _heroActiveSection() {
         <span class="hero-card__name">${HERO_DEF.name}</span>
         <span class="hero-card__badge hero-card__badge--expedition">🏕️ On Expedition</span>
       </div>
+      ${_traitBadge()}
       <div class="hero-expedition-msg">
         🏕️ Champion is training in the field — unavailable for combat.
         Returns with +2 combat victories and a chance of gold.
@@ -578,6 +617,7 @@ function _heroActiveSection() {
         <span class="hero-card__name">${HERO_DEF.name}</span>
         <span class="hero-card__badge hero-card__badge--injured">⚕️ Recovering</span>
       </div>
+      ${_traitBadge()}
       <div class="hero-injured-msg">
         ⚠️ Champion was wounded in battle and is recovering from injuries.
         Abilities and combat bonus are unavailable until healed.
@@ -636,6 +676,7 @@ function _heroActiveSection() {
       <span class="hero-card__name">${HERO_DEF.name}</span>
       <span class="hero-card__badge">Active</span>
     </div>
+    ${_traitBadge()}
     <div class="hero-card__stats">⚔ +${HERO_DEF.attack} combat power &nbsp; Upkeep: ${upkeepStr}</div>
     <div class="hero-abilities">${abilities}</div>
     <button class="btn btn--xs btn--expedition-send" data-action="expedition-send"
@@ -1126,6 +1167,10 @@ function _handleClick(e) {
       setTimeout(() => actionBtn.classList.remove('btn--shake'), 600);
       addMessage(result.reason, 'info');
     }
+  } else if (actionBtn.dataset.action === 'choose-trait') {
+    // T119: choose commander trait for the hero
+    const result = chooseHeroTrait(actionBtn.dataset.trait);
+    if (!result.ok) addMessage(result.reason, 'info');
   }
 }
 

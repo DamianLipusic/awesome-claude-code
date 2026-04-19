@@ -5,7 +5,7 @@
 
 import { state } from '../core/state.js';
 import { on, Events } from '../core/events.js';
-import { buildBuilding, demolishBuilding, specializeBuilding, chooseCapitalPlan } from '../core/actions.js';
+import { buildBuilding, demolishBuilding, specializeBuilding, chooseCapitalPlan, upgradeResourceCap, CAP_UPGRADE_MAX, CAP_UPGRADE_BONUS, CAP_UPGRADE_BASE } from '../core/actions.js';
 import { BUILDINGS } from '../data/buildings.js';
 import { SPECIALIZATIONS, SPECIALS_BY_BUILDING, ELIGIBLE_BUILDINGS } from '../data/buildingSpecials.js';
 import { CAPITAL_PLANS, CAPITAL_PLAN_ORDER } from '../data/capitalPlans.js';
@@ -26,6 +26,7 @@ export function initBuildingPanel() {
   on(Events.AGE_CHANGED,           renderBuildingPanel);
   on(Events.BUILDING_SPECIALIZED,  renderBuildingPanel);
   on(Events.CAPITAL_PLAN_CHOSEN,   renderBuildingPanel);
+  on(Events.CAP_UPGRADED,          renderBuildingPanel);
   on(Events.RESOURCE_CHANGED,      _throttleRender());
 }
 
@@ -109,6 +110,7 @@ function renderBuildingPanel() {
 
   html += _specializationsSection();
   html += _capitalPlansSection();
+  html += _treasurySection();
 
   panel.innerHTML = html;
 
@@ -116,12 +118,19 @@ function renderBuildingPanel() {
   panel.onclick = (e) => {
     const btn = e.target.closest('[data-action]');
     if (!btn) return;
-    const { action, id, specid, planid } = btn.dataset;
+    const { action, id, specid, planid, res } = btn.dataset;
     if (action === 'build')           buildBuilding(id);
     if (action === 'demolish')        demolishBuilding(id);
     if (action === 'specialize')      specializeBuilding(id, specid);
     if (action === 'choose-plan') {
       const result = chooseCapitalPlan(planid);
+      if (!result.ok) {
+        btn.classList.add('btn--shake');
+        setTimeout(() => btn.classList.remove('btn--shake'), 400);
+      }
+    }
+    if (action === 'upgrade-cap') {
+      const result = upgradeResourceCap(res);
       if (!result.ok) {
         btn.classList.add('btn--shake');
         setTimeout(() => btn.classList.remove('btn--shake'), 400);
@@ -245,6 +254,49 @@ function _capitalPlansSection() {
       <div class="cap-plan-section__header">🏛️ Capital Development Plan</div>
       <div class="cap-plan-section__intro">Choose one permanent strategic development for your capital. This decision cannot be undone.</div>
       <div class="cap-plan-grid">${cards}</div>
+    </div>`;
+}
+
+// ── Treasury: Resource Cap Upgrades (T120) ────────────────────────────────────
+
+const RES_ORDER = ['gold', 'food', 'wood', 'stone', 'iron', 'mana'];
+const CAP_RES_ICONS = { gold: '💰', food: '🍞', wood: '🪵', stone: '🪨', iron: '⚙️', mana: '✨' };
+const CAP_RES_NAMES = { gold: 'Gold', food: 'Food', wood: 'Wood', stone: 'Stone', iron: 'Iron', mana: 'Mana' };
+
+function _treasurySection() {
+  const upgrades = state.capUpgrades ?? {};
+
+  const rows = RES_ORDER.map(res => {
+    const level    = upgrades[res] ?? 0;
+    const maxed    = level >= CAP_UPGRADE_MAX;
+    const cost     = CAP_UPGRADE_BASE * (level + 1);
+    const canBuy   = !maxed && (state.resources.gold ?? 0) >= cost;
+    const baseCap  = state.caps[res] ?? 500;
+    const bonusCap = level * CAP_UPGRADE_BONUS;
+    const nextBonus = CAP_UPGRADE_BONUS;
+
+    return `
+      <div class="treasury-row">
+        <span class="treasury-row__icon">${CAP_RES_ICONS[res]}</span>
+        <span class="treasury-row__name">${CAP_RES_NAMES[res]}</span>
+        <span class="treasury-row__cap">Cap: ${fmtNum(baseCap + bonusCap)}</span>
+        <span class="treasury-row__level">${level}/${CAP_UPGRADE_MAX}</span>
+        ${maxed
+          ? `<span class="treasury-row__maxed">Maxed</span>`
+          : `<button class="btn btn--treasury-upgrade ${canBuy ? '' : 'btn--disabled'}"
+                     data-action="upgrade-cap" data-res="${res}"
+                     ${canBuy ? '' : 'disabled'}
+                     title="+${fmtNum(nextBonus)} cap">
+               💰${fmtNum(cost)}
+             </button>`}
+      </div>`;
+  }).join('');
+
+  return `
+    <div class="treasury-section">
+      <div class="treasury-section__header">🏦 Treasury Expansion</div>
+      <div class="treasury-section__intro">Invest gold to permanently increase resource storage caps. Each upgrade adds +${CAP_UPGRADE_BONUS} capacity. Max ${CAP_UPGRADE_MAX} upgrades per resource.</div>
+      <div class="treasury-grid">${rows}</div>
     </div>`;
 }
 

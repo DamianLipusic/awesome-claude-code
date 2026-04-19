@@ -1953,3 +1953,40 @@ All prior tasks (T001–T116) were complete. Created two new Phase 36 features: 
 - Hero legacy bonuses are computed once at enshrinement time and stored as a simple `{res→val}` rates object — avoids re-evaluating skill chains on every tick and makes saved data human-readable.
 - LEGACY_RATES_BY_SKILL converts ALL 10 skills to resource rate bonuses (not just the 4 that already give rates), so no skill choice leaves a hero with zero legacy value. Combat-oriented skills convert to gold income (tribute/glory), training/research skills to iron/mana.
 - Maximum 2 enshrinements per game prevents infinite stacking; ENSHRINE_MAX is an exported constant so UI and logic use the same value.
+
+---
+
+## 2026-04-19 — Session N+30
+
+**Tasks completed:** T119, T120
+
+**Summary:**
+All prior tasks (T001–T118) were complete. Created T119+T120 task specs then implemented two Phase 43 features: Hero Commander Traits (T119) adding personality modifiers chosen at recruitment, and Resource Cap Upgrades (T120) allowing gold investment to expand resource storage limits.
+
+**T119 — Hero Commander Traits:**
+- `src/data/hero.js`: Added HERO_TRAITS array (8 trait objects: iron_fist, war_scholar, merchant_heart, tactician, naturalist, rally_master, arcane_mind, iron_will) and HERO_TRAIT_ORDER constant.
+- `src/core/events.js`: Added HERO_TRAIT_CHOSEN event.
+- `src/core/actions.js`: Added _pickTraitOffer() (picks 3 random trait IDs); recruitHero() sets trait/pendingTrait/traitOffer on hero; chooseHeroTrait(traitId) validates and applies chosen trait; rallyTroops() grants free rally for rally_master.
+- `src/systems/resources.js`: Added trait rate effects (iron_fist: -10% non-zero rates, merchant_heart: +0.8 gold/s, naturalist: food+wood ×1.25, arcane_mind: +0.5 mana/s).
+- `src/systems/combat.js`: tactician doubles formation modifier delta; iron_fist +30 atk; war_scholar ×1.15 atk; rally_master+iron_will +10 morale on victory; iron_will halves morale loss on defeat.
+- `src/systems/research.js`: war_scholar reduces research time by 20%.
+- `src/systems/spells.js`: arcane_mind reduces spell mana cost by 30%.
+- `src/main.js`: Added T119 migration guards in _applySave() for hero.trait/pendingTrait/traitOffer.
+- `src/ui/militaryPanel.js`: Fixed duplicate import; added _traitChooserSection(), _traitBadge(); heroSection shows chooser when pendingTrait=true; choose-trait click handler.
+- `styles/main.css`: Trait chooser card styles, .hero-trait-badge pill.
+
+**T120 — Resource Cap Upgrades:**
+- `src/core/state.js`: Added capUpgrades:{} field and initState() reset.
+- `src/core/events.js`: Added CAP_UPGRADED event.
+- `src/core/actions.js`: Added CAP_UPGRADE_MAX=5, CAP_UPGRADE_BONUS=250, CAP_UPGRADE_BASE=150; upgradeResourceCap(resId) validates and applies upgrade.
+- `src/systems/resources.js`: Added cap upgrade block adding level×250 to each upgraded resource cap.
+- `src/ui/buildingPanel.js`: Imported upgrade constants; added CAP_UPGRADED listener; _treasurySection() renders upgrade rows for all 6 resources; panel onclick handles upgrade-cap action.
+- `src/main.js`: Save version bumped 35→36; capUpgrades saved/loaded.
+- `styles/main.css`: .treasury-section, .treasury-row, .btn--treasury-upgrade styles.
+
+**Design notes:**
+- Trait chooser uses pendingTrait:true flag so the hero exists in state but no bonuses apply until the player picks a trait — avoids a blank hero state mid-choice.
+- Older saves get trait=null/pendingTrait=false via migration guards, preserving existing heroes without forcing a chooser on them.
+- Treasury section reuses the existing buildingPanel.js structure (section + row pattern) for visual consistency; no new panel needed.
+- Cap upgrade costs scale as 150, 300, 450, 600, 750 gold for levels 1–5, making early upgrades affordable but maxing out expensive.
+- capUpgrades is applied in resources.js recalcRates() after the base caps are set, ensuring all other cap modifiers (buildings, techs) apply first and treasury expansion stacks cleanly on top.

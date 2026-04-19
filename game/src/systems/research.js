@@ -132,6 +132,11 @@ export function startResearch(techId) {
     addMessage('⚗️ Workshop Discount applied! (−20% research time)', 'tech');
   }
 
+  // T119: war_scholar commander trait — −20% research time
+  if (state.hero?.recruited && state.hero.trait === 'war_scholar' && !state.hero.pendingTrait) {
+    totalTicks = Math.ceil(totalTicks * 0.80);
+  }
+
   state.researchQueue.push({ techId, remaining: totalTicks, totalTicks });
   addMessage(`Researching ${def.name}…`, 'research');
   emit(Events.TECH_CHANGED, {});

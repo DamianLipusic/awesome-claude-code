@@ -9,7 +9,7 @@ import { BUILDINGS } from '../data/buildings.js';
 import { UNITS } from '../data/units.js';
 import { TECHS } from '../data/techs.js';
 import { AGES } from '../data/ages.js';
-import { HERO_DEF, HERO_SKILLS, HERO_MAX_SKILLS, heroSkillBonus } from '../data/hero.js';
+import { HERO_DEF, HERO_SKILLS, HERO_MAX_SKILLS, heroSkillBonus, HERO_TRAITS } from '../data/hero.js';
 import { IMPROVEMENTS } from '../data/improvements.js';
 import { POLICIES, POLICY_COOLDOWN_TICKS } from '../data/policies.js';
 import { BOONS } from '../data/ageBoons.js';
@@ -238,13 +238,50 @@ export function recruitHero() {
     legendaryAttack:   0,     // permanent flat attack bonus (phase 1 reward)
     cdReduction:       false, // halved ability cooldowns (phase 2 reward)
     supremeCommander:  false, // zero-cooldown abilities (phase 3 reward)
+    // T119: commander trait — null until chosen via chooseHeroTrait()
+    trait:             null,
+    pendingTrait:      true,  // set to false once a trait is chosen
+    traitOffer:        _pickTraitOffer(),  // 3 random trait IDs to display
   };
   recalcRates();
 
   emit(Events.HERO_CHANGED, {});
   emit(Events.RESOURCE_CHANGED, {});
-  addMessage(`⭐ ${HERO_DEF.name} has joined your empire!`, 'hero');
+  addMessage(`⭐ ${HERO_DEF.name} has joined your empire! Choose a commander trait.`, 'hero');
   log('hero recruited');
+  return { ok: true };
+}
+
+/** Pick 3 unique random trait IDs from the HERO_TRAITS pool for the chooser. */
+function _pickTraitOffer() {
+  const shuffled = [...HERO_TRAITS].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, 3).map(t => t.id);
+}
+
+/**
+ * Confirm the chosen commander trait for the hero.
+ * Clears pendingTrait and stores the chosen trait ID.
+ * @param {string} traitId — one of the HERO_TRAIT_ORDER ids
+ */
+export function chooseHeroTrait(traitId) {
+  if (!state.hero?.recruited) {
+    return { ok: false, reason: 'No hero to assign a trait to.' };
+  }
+  if (!state.hero.pendingTrait) {
+    return { ok: false, reason: 'Hero already has a trait.' };
+  }
+  const trait = HERO_TRAITS.find(t => t.id === traitId);
+  if (!trait) return { ok: false, reason: `Unknown trait: ${traitId}` };
+
+  state.hero.trait        = traitId;
+  state.hero.pendingTrait = false;
+  state.hero.traitOffer   = null;  // clear the offer
+  recalcRates();
+
+  emit(Events.HERO_TRAIT_CHOSEN, { traitId });
+  emit(Events.HERO_CHANGED, {});
+  emit(Events.RESOURCE_CHANGED, {});
+  addMessage(`⭐ Champion trait chosen: ${trait.icon} ${trait.name} — ${trait.desc}`, 'hero');
   return { ok: true };
 }
 
@@ -726,10 +763,12 @@ export function rallyTroops() {
     return { ok: false, reason: `Rally on cooldown (${secsLeft}s remaining).` };
   }
 
-  if (!canAfford(RALLY_COST)) {
+  // T119: rally_master trait makes rally free
+  const rallyFree = state.hero?.trait === 'rally_master';
+  if (!rallyFree && !canAfford(RALLY_COST)) {
     return { ok: false, reason: 'Need 50 gold and 25 mana to rally troops.' };
   }
-  deductCost(RALLY_COST);
+  if (!rallyFree) deductCost(RALLY_COST);
 
   if (!state.unitXP)    state.unitXP    = {};
   if (!state.unitRanks) state.unitRanks = {};
@@ -751,13 +790,53 @@ export function rallyTroops() {
   }
 
   // Boost morale directly (morale.js imports actions.js, so we avoid circular import)
-  state.morale = Math.min(100, (state.morale ?? 50) + 5);
+  // T119: rally_master trait gives +10 morale instead of +5
+  const rallyMorale = state.hero?.trait === 'rally_master' ? 10 : 5;
+  state.morale = Math.min(100, (state.morale ?? 50) + rallyMorale);
   state.rallyState.cooldownUntil = state.tick + RALLY_COOLDOWN_TICKS;
 
   emit(Events.UNIT_CHANGED, {});
   emit(Events.MORALE_CHANGED, {});
   emit(Events.RESOURCE_CHANGED, {});
-  addMessage('📣 Rally! Troops reinvigorated. +1 XP to all units, +5 morale.', 'hero');
+  addMessage(`📣 Rally! Troops reinvigorated. +1 XP to all units, +${rallyMorale} morale.`, 'hero');
+  return { ok: true };
+}
+
+// ---------------------------------------------------------------------------
+// Resource Cap Upgrades (T120)
+// ---------------------------------------------------------------------------
+
+export const CAP_UPGRADE_MAX    = 5;
+export const CAP_UPGRADE_BONUS  = 250;  // +250 cap per level
+export const CAP_UPGRADE_BASE   = 150;  // 150 × (level+1) gold cost
+
+const VALID_CAP_RESOURCES = ['gold', 'food', 'wood', 'stone', 'iron', 'mana'];
+
+/**
+ * Purchase one level of cap expansion for a resource.
+ * Cost = CAP_UPGRADE_BASE × (currentLevel + 1) gold.
+ * Maximum CAP_UPGRADE_MAX levels per resource.
+ */
+export function upgradeResourceCap(resId) {
+  if (!VALID_CAP_RESOURCES.includes(resId)) {
+    return { ok: false, reason: `Unknown resource: ${resId}` };
+  }
+  if (!state.capUpgrades) state.capUpgrades = {};
+  const level = state.capUpgrades[resId] ?? 0;
+  if (level >= CAP_UPGRADE_MAX) {
+    return { ok: false, reason: `${resId} cap is already at max level.` };
+  }
+  const cost = CAP_UPGRADE_BASE * (level + 1);
+  if ((state.resources.gold ?? 0) < cost) {
+    return { ok: false, reason: `Need ${cost} gold to expand ${resId} storage.` };
+  }
+  state.resources.gold -= cost;
+  state.capUpgrades[resId] = level + 1;
+  recalcRates();
+
+  emit(Events.CAP_UPGRADED, { resId, level: level + 1 });
+  emit(Events.RESOURCE_CHANGED, {});
+  addMessage(`📦 ${resId.charAt(0).toUpperCase() + resId.slice(1)} storage expanded to +${(level + 1) * CAP_UPGRADE_BONUS} cap (Level ${level + 1}).`, 'build');
   return { ok: true };
 }
 
