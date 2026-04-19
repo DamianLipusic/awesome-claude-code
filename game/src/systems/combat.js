@@ -236,6 +236,8 @@ export function getAttackPreview(x, y) {
     attackPower += skillAtk;
     attackPower *= skillMult;
     if (state.hero.activeEffects?.battleCry) attackPower *= 2;  // preview includes Battle Cry bonus
+    // T112: Legendary Quest — Battle Master permanent attack bonus
+    attackPower += (state.hero.legendaryAttack ?? 0);
   }
 
   // T071: terrain combat modifiers
@@ -400,6 +402,8 @@ export function attackTile(x, y) {
       emit(Events.HERO_CHANGED, {});
       addMessage('📣 Battle Cry: attack power doubled this strike!', 'hero');
     }
+    // T112: Legendary Quest — Battle Master permanent attack bonus
+    attackPower += (state.hero.legendaryAttack ?? 0);
   }
 
   // T071: terrain attack modifier (applied before siege/mana-bolt override)
@@ -616,6 +620,7 @@ function _victory(tile, x, y, attackPower, defense) {
 /**
  * T070: Increment hero combat win counter and offer a skill choice when
  * the HERO_SKILL_WIN_INTERVAL milestone is reached (up to HERO_MAX_SKILLS).
+ * T112: Also initialises and advances the legendary quest.
  */
 function _trackHeroCombatWin() {
   const h = state.hero;
@@ -645,7 +650,70 @@ function _trackHeroCombatWin() {
     }
   }
 
+  // T112: Legendary Quest — unlock at 10+ combat wins, then advance through 3 phases
+  _handleLegendaryQuest(h);
+
   emit(Events.HERO_CHANGED, {});
+}
+
+/**
+ * T112: Legendary Quest phase management.
+ * Phase 0 → 1 (Battle Master):    +5 wins after unlock  → +20 flat legendaryAttack
+ * Phase 1 → 2 (War Strategist):   +3 wins               → halved ability cooldowns
+ * Phase 2 → 3 (Supreme Commander):+5 wins               → zero-cooldown abilities
+ */
+const _LEGENDARY_PHASE_WINS      = [5, 3, 5];  // wins required per phase
+const _LEGENDARY_PHASE_NAMES     = ['Battle Master', 'War Strategist', 'Supreme Commander'];
+const _LEGENDARY_PHASE_REWARDS   = [
+  '⭐ Battle Master: Champion permanently gains +20 attack power!',
+  '⭐ War Strategist: Champion\'s ability cooldowns are now halved!',
+  '⭐ Supreme Commander: Champion\'s abilities have no cooldown!',
+];
+
+function _handleLegendaryQuest(h) {
+  // Initialise quest when the hero has ≥10 combat wins and quest hasn't started yet
+  if (!h.legendaryQuest && h.combatWins >= 10) {
+    h.legendaryQuest = { phase: 0, winsAtPhaseStart: h.combatWins };
+    if (h.legendaryAttack   === undefined) h.legendaryAttack   = 0;
+    if (h.cdReduction       === undefined) h.cdReduction       = false;
+    if (h.supremeCommander  === undefined) h.supremeCommander  = false;
+    addMessage(
+      `🌟 ${HERO_DEF.name} has proven their valor after ${h.combatWins} victories! The Legendary Quest begins — win 5 more battles for the first reward.`,
+      'hero',
+    );
+    emit(Events.HERO_QUEST_CHANGED, { phase: 0, unlocked: true });
+    return;
+  }
+
+  if (!h.legendaryQuest || h.legendaryQuest.phase >= 3) return;
+
+  // Ensure legacy fields from older saves
+  if (h.legendaryAttack  === undefined) h.legendaryAttack  = 0;
+  if (h.cdReduction      === undefined) h.cdReduction      = false;
+  if (h.supremeCommander === undefined) h.supremeCommander = false;
+
+  const lq             = h.legendaryQuest;
+  const winsThisPhase  = h.combatWins - lq.winsAtPhaseStart;
+  const required       = _LEGENDARY_PHASE_WINS[lq.phase];
+
+  if (winsThisPhase < required) return;
+
+  // Complete current phase
+  const phase = lq.phase;
+
+  if (phase === 0) {
+    h.legendaryAttack = (h.legendaryAttack ?? 0) + 20;
+  } else if (phase === 1) {
+    h.cdReduction = true;
+  } else if (phase === 2) {
+    h.supremeCommander = true;
+  }
+
+  lq.phase++;
+  lq.winsAtPhaseStart = h.combatWins;
+
+  addMessage(_LEGENDARY_PHASE_REWARDS[phase], 'achievement');
+  emit(Events.HERO_QUEST_CHANGED, { phase: lq.phase });
 }
 
 /**

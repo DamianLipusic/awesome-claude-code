@@ -86,4 +86,6 @@ export const Events = Object.freeze({
   EXPLORATION_MILESTONE:    'explorationMilestone',    // T108: fog-of-war exploration milestone reached
   DUEL_CHANGED:             'duelChanged',             // T109: warlord duel challenged / accepted / declined / expired
   PIONEER_CHANGED:          'pioneerChanged',          // T110: pioneer expedition sent / completed
+  NATURAL_DISASTER:         'naturalDisaster',         // T111: tile improvement damaged by natural disaster
+  HERO_QUEST_CHANGED:       'heroQuestChanged',        // T112: hero legendary quest phase advanced
 });

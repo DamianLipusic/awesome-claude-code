@@ -70,6 +70,7 @@ export function initMilitaryPanel() {
   on(Events.DECREE_USED,       () => _render(panel));  // T083: decree activated / expired
   on(Events.DUEL_CHANGED,      () => _render(panel));  // T109: warlord duel challenged/resolved
   on(Events.PIONEER_CHANGED,   () => _render(panel));  // T110: pioneer expedition update
+  on(Events.HERO_QUEST_CHANGED, () => _render(panel)); // T112: legendary quest phase advanced
   on(Events.RESOURCE_CHANGED,  () => _renderCosts(panel));
   on(Events.GAME_LOADED,       () => _render(panel));
 
@@ -548,6 +549,7 @@ function _heroActiveSection() {
         Recall (no reward)
       </button>
       ${_heroSkillsSection()}
+      ${_heroLegendarySection()}
     </div>`;
   }
 
@@ -580,6 +582,7 @@ function _heroActiveSection() {
         <div class="hero-recovery-time">Returns in ${timeStr}</div>
       </div>
       ${_heroSkillsSection()}
+      ${_heroLegendarySection()}
     </div>`;
   }
 
@@ -633,6 +636,7 @@ function _heroActiveSection() {
       🏕️ Send on Training Expedition
     </button>
     ${_heroSkillsSection()}
+    ${_heroLegendarySection()}
   </div>`;
 }
 
@@ -696,6 +700,75 @@ function _heroSkillsSection() {
     ${emptyHint}
     ${skillItems}
     ${progressHtml}
+  </div>`;
+}
+
+// ── T112: Hero Legendary Quest section ────────────────────────────────────
+
+function _heroLegendarySection() {
+  const h = state.hero;
+  if (!h?.recruited) return '';
+
+  const lq = h.legendaryQuest;
+
+  // Before quest unlocks, show teaser if hero has 5+ wins and quest not yet started
+  if (!lq) {
+    const wins = h.combatWins ?? 0;
+    if (wins < 5) return '';
+    const needed = 10 - wins;
+    return `<div class="hero-legendary-section hero-legendary-section--teaser">
+      <div class="hero-legendary-title">🌟 Legendary Quest</div>
+      <div class="hero-legendary-desc">
+        Achieve ${needed} more combat ${needed === 1 ? 'victory' : 'victories'} (${wins}/10) to unlock the Legendary Quest and earn permanent rewards.
+      </div>
+    </div>`;
+  }
+
+  const phase = lq.phase;
+
+  // Quest complete
+  if (phase >= 3) {
+    const bonuses = [];
+    if ((h.legendaryAttack ?? 0) > 0) bonuses.push(`+${h.legendaryAttack} permanent attack`);
+    if (h.cdReduction)    bonuses.push('Halved ability cooldowns');
+    if (h.supremeCommander) bonuses.push('Zero-cooldown abilities');
+    return `<div class="hero-legendary-section hero-legendary-section--complete">
+      <div class="hero-legendary-title">🏆 Legendary Quest — Complete!</div>
+      <div class="hero-legendary-rewards">
+        ${bonuses.map(b => `<div class="hero-legendary-reward">✅ ${b}</div>`).join('')}
+      </div>
+    </div>`;
+  }
+
+  // Active quest phase
+  const PHASE_WINS_REQUIRED = [5, 3, 5];
+  const PHASE_NAMES          = ['Battle Master', 'War Strategist', 'Supreme Commander'];
+  const PHASE_DESCS          = [
+    'Win battles to prove your valor → +20 permanent attack power',
+    'Demonstrate strategic brilliance → halved ability cooldowns',
+    'Reach the pinnacle of command → zero-cooldown abilities',
+  ];
+
+  const required   = PHASE_WINS_REQUIRED[phase];
+  const winsSoFar  = (h.combatWins ?? 0) - (lq.winsAtPhaseStart ?? 0);
+  const progress   = Math.min(1, winsSoFar / required);
+  const pct        = Math.round(progress * 100);
+  const remaining  = Math.max(0, required - winsSoFar);
+
+  const earnedRewards = [];
+  if ((h.legendaryAttack ?? 0) > 0) earnedRewards.push(`+${h.legendaryAttack} atk`);
+  if (h.cdReduction)    earnedRewards.push('½ CD');
+
+  return `<div class="hero-legendary-section">
+    <div class="hero-legendary-title">🌟 Legendary Quest — Phase ${phase + 1}/3: ${PHASE_NAMES[phase]}</div>
+    <div class="hero-legendary-desc">${PHASE_DESCS[phase]}</div>
+    <div class="hero-legendary-progress-wrap">
+      <div class="hero-legendary-bar" style="width:${pct}%"></div>
+    </div>
+    <div class="hero-legendary-meta">
+      ${winsSoFar}/${required} victories · ${remaining} more needed
+      ${earnedRewards.length ? `&nbsp;·&nbsp; Earned: ${earnedRewards.join(', ')}` : ''}
+    </div>
   </div>`;
 }
 

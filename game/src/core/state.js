@@ -277,6 +277,10 @@ export const state = {
   // T110: Pioneer expedition state — populated by systems/pioneerExpeditions.js initPioneers()
   // { active: { endsAt, cx, cy } | null, sent: number }
   pioneers: null,
+
+  // T111: Natural disaster state — populated by systems/naturalDisasters.js initNaturalDisasters()
+  // { nextSpawnTick: number, lastType: string|null, totalFired: number }
+  naturalDisasters: null,
 };
 
 /**
@@ -346,5 +350,6 @@ export function initState(empireName = 'My Empire') {
   state.explorationMilestones = {}; // T108: exploration milestones reset per game
   state.duels              = null;  // T109: duel events reset per game
   state.pioneers           = null;  // T110: pioneer expeditions reset per game
+  state.naturalDisasters   = null;  // T111: natural disaster cooldown resets per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

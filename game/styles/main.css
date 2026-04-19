@@ -6702,3 +6702,63 @@ kbd {
   color: var(--text-dim);
   font-style: italic;
 }
+
+/* ── T112: Hero Legendary Quest section ─────────────────────────────────── */
+.hero-legendary-section {
+  background: rgba(214, 175, 55, 0.06);
+  border: 1px solid rgba(214, 175, 55, 0.3);
+  border-left: 3px solid #d4af37;
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  margin-top: 10px;
+}
+.hero-legendary-section--teaser {
+  border-color: rgba(150, 150, 150, 0.2);
+  border-left-color: var(--text-dim);
+  background: transparent;
+}
+.hero-legendary-section--complete {
+  border-color: rgba(214, 175, 55, 0.5);
+  background: rgba(214, 175, 55, 0.10);
+}
+.hero-legendary-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #d4af37;
+  margin-bottom: 6px;
+}
+.hero-legendary-section--teaser .hero-legendary-title {
+  color: var(--text-dim);
+}
+.hero-legendary-desc {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+.hero-legendary-progress-wrap {
+  height: 7px;
+  background: rgba(214, 175, 55, 0.15);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 5px;
+}
+.hero-legendary-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #b7791f, #d4af37);
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+.hero-legendary-meta {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+.hero-legendary-rewards {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.hero-legendary-reward {
+  font-size: 11px;
+  color: #d4af37;
+  font-weight: 600;
+}

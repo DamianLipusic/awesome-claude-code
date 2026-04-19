@@ -2,6 +2,29 @@
 
 ---
 
+## 2026-04-19 — Session N+27
+
+**Tasks completed:** T111, T112
+
+**Summary:**
+All prior tasks (T001–T110) were complete. Created two Phase 40 features: Map Natural Disasters (T111) periodically damaging tile improvements, and Hero Legendary Quest Chain (T112) rewarding battle-hardened champions with permanent bonuses.
+
+**T111 — Map Natural Disasters:**
+- `src/systems/naturalDisasters.js` (new): DISASTER_TYPES (4 entries: wildfire/forest, earthquake/mountain+hills, flood/river, locust_swarm/grass); initNaturalDisasters() idempotent null guard; naturalDisasterTick() fires on 8–10 min schedule, picks random type, finds up to 2 player tiles of matching terrain with improvements/fortifications, clears tile.improvement+tile.improvementLevel or tile.fortified+defense; silently skips if no eligible targets; recalcRates()+MAP_CHANGED+RESOURCE_CHANGED+NATURAL_DISASTER emitted; disaster-type log message with affected coords.
+- `src/core/events.js`: Added `NATURAL_DISASTER:'naturalDisaster'`.
+- `src/core/state.js`: Added `naturalDisasters:null` to static object + `initState()` reset.
+- `src/main.js`: Imported initNaturalDisasters+naturalDisasterTick; registerSystem(naturalDisasterTick); initNaturalDisasters() in boot+_newGame; naturalDisasters saved/loaded (backwards-compatible null).
+
+**T112 — Hero Legendary Quest Chain:**
+- `src/core/events.js`: Added `HERO_QUEST_CHANGED:'heroQuestChanged'`.
+- `src/core/actions.js`: recruitHero() adds legendaryQuest:null/legendaryAttack:0/cdReduction:false/supremeCommander:false; useHeroAbility() applies cdTicks reduction — supremeCommander→0, cdReduction→floor(cd/2), else full.
+- `src/systems/combat.js`: getAttackPreview()+attackTile() hero blocks add legendaryAttack bonus after skills; _trackHeroCombatWin() calls _handleLegendaryQuest(h) — initialises quest at 10 wins, checks per-phase win targets [5,3,5], applies rewards (legendaryAttack+=20 / cdReduction=true / supremeCommander=true), emits HERO_QUEST_CHANGED on each phase advance.
+- `src/ui/militaryPanel.js`: Added HERO_QUEST_CHANGED→_render listener; added _heroLegendarySection() showing teaser (5≤wins<10), active phase card (progress bar+meta), or completion card with earned bonuses; injected into all 3 hero card states (active/expedition/injured).
+- `src/main.js`: on(HERO_QUEST_CHANGED, phase===3) awards prestige +200; migration guard in _applySave adds legendaryAttack/cdReduction/supremeCommander defaults for older saves.
+- `styles/main.css`: .hero-legendary-section (gold border-left), --teaser/--complete variants, .hero-legendary-title/desc/progress-wrap/bar/meta/rewards.
+
+---
+
 ## 2026-04-18 — Session N+26
 
 **Tasks completed:** T109, T110

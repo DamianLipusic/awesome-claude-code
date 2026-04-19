@@ -233,6 +233,11 @@ export function recruitHero() {
     skills:            [],
     combatWins:        0,
     pendingSkillOffer: null,
+    // T112: legendary quest — initialized when hero reaches 10+ combat wins
+    legendaryQuest:    null,  // { phase: 0|1|2|3, winsAtPhaseStart: number }
+    legendaryAttack:   0,     // permanent flat attack bonus (phase 1 reward)
+    cdReduction:       false, // halved ability cooldowns (phase 2 reward)
+    supremeCommander:  false, // zero-cooldown abilities (phase 3 reward)
   };
   recalcRates();
 
@@ -277,8 +282,15 @@ export function useHeroAbility(abilityId) {
     state.hero.activeEffects.siege = true;
   }
 
-  // Set cooldown from now
-  state.hero.abilityCooldowns[abilityId] = state.tick + ability.cooldownTicks;
+  // T112: Legendary Quest — Supreme Commander (phase 3) removes cooldowns;
+  // War Strategist (phase 2) halves cooldowns.
+  let cdTicks = ability.cooldownTicks;
+  if (state.hero.supremeCommander) {
+    cdTicks = 0;
+  } else if (state.hero.cdReduction) {
+    cdTicks = Math.floor(cdTicks / 2);
+  }
+  state.hero.abilityCooldowns[abilityId] = state.tick + cdTicks;
 
   emit(Events.HERO_CHANGED, {});
   addMessage(`${ability.icon} ${HERO_DEF.name} used ${ability.name}!`, 'hero');
