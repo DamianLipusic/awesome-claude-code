@@ -319,7 +319,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 36,
+      version: 37, // T121: city founding; T122: hero companions
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -441,6 +441,9 @@ function _applySave(save) {
     if (state.hero.trait         === undefined) state.hero.trait         = null;
     if (state.hero.pendingTrait  === undefined) state.hero.pendingTrait  = false;
     if (state.hero.traitOffer    === undefined) state.hero.traitOffer    = null;
+    // T122: migrate hero from pre-companion saves
+    if (state.hero.companion      === undefined) state.hero.companion      = null;
+    if (state.hero.companionOffer === undefined) state.hero.companionOffer = false;
   }
   state.stats          = s.stats          ?? { goldEarned: 0, peakTerritory: 0 };
   state.market         = s.market         ?? null;

@@ -185,12 +185,18 @@ function _counterattack() {
       }
     }
 
-    // Enemy captures the tile — destroy any improvement, fortification, or garrison (T051/T066/T068)
+    // Enemy captures the tile — destroy any improvement, fortification, garrison, or city (T051/T066/T068/T121)
     tile.owner   = 'enemy';
     tile.faction = attackingFaction;   // T053: tag with attacking empire
     if (tile.improvement) tile.improvement = null;
     if (tile.fortified) { tile.fortified = false; tile.defense = Math.max(0, tile.defense - 15); }
     destroyGarrison(target.x, target.y);  // T068: garrison units lost on capture
+    if (tile.hasCity) {
+      tile.hasCity = false;
+      const empDef = attackingFaction ? EMPIRES[attackingFaction] : null;
+      const razStr = empDef ? `${empDef.icon} ${empDef.name}` : 'Enemy forces';
+      addMessage(`🏙️ ${razStr} razed your city at (${target.x},${target.y})!`, 'raid');
+    }
 
     // Player loses one random unit defending the border
     const unitIds = Object.keys(state.units).filter(id => (state.units[id] ?? 0) > 0);

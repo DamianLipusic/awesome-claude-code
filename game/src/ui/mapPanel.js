@@ -16,7 +16,7 @@
 import { state } from '../core/state.js';
 import { on, Events } from '../core/events.js';
 import { attackTile, getAttackPreview } from '../systems/combat.js';
-import { buildTileImprovement, upgradeTileImprovement, fortifyTile, garrisonUnit, withdrawGarrison, getTotalGarrisoned, GARRISON_MAX_TOTAL, addMessage } from '../core/actions.js';
+import { buildTileImprovement, upgradeTileImprovement, fortifyTile, garrisonUnit, withdrawGarrison, getTotalGarrisoned, GARRISON_MAX_TOTAL, addMessage, foundCity } from '../core/actions.js';
 import { UNITS } from '../data/units.js';
 import { IMPROVEMENTS } from '../data/improvements.js';
 import { EMPIRES } from '../data/empires.js';
@@ -184,6 +184,9 @@ export function initMapPanel() {
   // T106: re-render when a ruin is excavated (teal tint/icon needs to clear)
   on(Events.RUIN_EXCAVATED, _render);
 
+  // T121: re-render when a city is founded
+  on(Events.CITY_FOUNDED, _render);
+
   _render();
 }
 
@@ -295,6 +298,11 @@ function _showTileTip(tile, x, y, mouseX, mouseY) {
   const activeCaravan = state.caravans?.active;
   const isCaravanTile = !!(activeCaravan && activeCaravan.x === x && activeCaravan.y === y);
 
+  // T121: city indicator in tooltip
+  const cityHtml = tile.hasCity && tile.owner === 'player'
+    ? `<div class="map-tt-row map-tt-bonus">🏙️ City (+1.5 gold/s, +0.5 food/s)</div>`
+    : '';
+
   // T051: show improvement status or build hint (not for barbarian camps, not when caravan present)
   const impDef = IMPROVEMENTS[tile.type];
   let impHtml = '';
@@ -376,6 +384,7 @@ function _showTileTip(tile, x, y, mouseX, mouseY) {
     ${capitalHtml}
     ${lmHtml}
     ${ruinHtml}
+    ${cityHtml}
     ${bonusHtml}
     ${terrainCombatHtml}
     ${barbHtml}
@@ -534,6 +543,9 @@ function _drawTile(tile, x, y, capital) {
     _drawIcon(px, py, '💀');   // T056: barbarian camp skull
   } else if (tile.owner === 'enemy' && tile.revealed) {
     _drawIcon(px, py, tile.isFactionCapital ? '👑' : '⚔️');  // T093: crown for faction capitals
+  } else if (tile.owner === 'player' && tile.hasCity) {
+    // T121: draw city icon on city tiles (takes precedence over improvement)
+    _drawIcon(px, py, '🏙️');
   } else if (tile.owner === 'player' && tile.improvement) {
     // T051: draw improvement icon on player-owned improved tiles
     const impDef = IMPROVEMENTS[tile.type];
@@ -943,6 +955,13 @@ function _createImprovementPicker() {
       if (!result.ok) addMessage(`❌ ${result.reason}`, 'info');
       else _hideImprovementPicker();
     }
+    // T121: Found city button
+    if (e.target.dataset.foundCity) {
+      const [sx, sy] = e.target.dataset.foundCity.split(',').map(Number);
+      _hideImprovementPicker();
+      const result = foundCity(sx, sy);
+      if (!result.ok) addMessage(`❌ ${result.reason}`, 'info');
+    }
     // T068: Withdraw garrison button
     if (e.target.dataset.withdrawGarrison) {
       const [sx, sy] = e.target.dataset.withdrawGarrison.split(',').map(Number);
@@ -956,6 +975,37 @@ function _createImprovementPicker() {
     if (_impPickerEl?.classList.contains('imp-picker--hidden')) return;
     if (e.key === 'Escape') { e.stopPropagation(); _hideImprovementPicker(); }
   });
+}
+
+function _citySection(x, y, tile) {
+  if (tile.type === 'capital') return '';
+  if (tile.hasCity) return `<div class="imp-city-built">🏙️ City established (+1.5 gold/s, +0.5 food/s)</div>`;
+
+  const bronzeAge = (state.age ?? 0) >= 1;
+  let cityCount = 0;
+  for (const row of (state.map?.tiles ?? [])) {
+    for (const t of row) { if (t.hasCity) cityCount++; }
+  }
+  const atCityMax  = cityCount >= 5;
+  const canAfford  = (state.resources.gold  ?? 0) >= 200
+                  && (state.resources.stone ?? 0) >= 100
+                  && (state.resources.iron  ?? 0) >= 50;
+  const disabled   = !bronzeAge || atCityMax || !canAfford;
+  const costClass  = canAfford ? 'imp-cost--ok' : 'imp-cost--bad';
+  const ageNote    = !bronzeAge ? '<span class="imp-note">🔒 Requires Bronze Age</span>' : '';
+  const maxNote    = atCityMax  ? '<span class="imp-note">City limit (5) reached</span>' : '';
+
+  return `
+    <div class="imp-city-section">
+      <div class="imp-city-header">🏙️ Found City — 200💰 100🪨 50⚙️ (${cityCount}/5)</div>
+      <div class="imp-city-desc">+1.5 gold/s and +0.5 food/s permanently.</div>
+      <span class="${costClass}">200 gold · 100 stone · 50 iron</span>
+      ${ageNote}${maxNote}
+      <button class="btn btn--sm btn--city-found" data-found-city="${x},${y}"
+        ${disabled ? 'disabled' : ''}>
+        🏙️ Found City
+      </button>
+    </div>`;
 }
 
 function _showImprovementPicker(x, y, tile) {
@@ -1019,6 +1069,7 @@ function _showImprovementPicker(x, y, tile) {
         ${upgradeSection}
         ${fortifySection}
         ${garrisonSection}
+        ${_citySection(x, y, tile)}
         <div class="imp-actions">
           <button id="imp-picker-cancel" class="btn btn--sm btn--ghost">Close</button>
         </div>
@@ -1032,6 +1083,7 @@ function _showImprovementPicker(x, y, tile) {
         <div class="imp-note">No terrain improvement available here.</div>
         ${fortifySection}
         ${garrisonSection}
+        ${_citySection(x, y, tile)}
         <div class="imp-actions">
           <button id="imp-picker-cancel" class="btn btn--sm btn--ghost">Close</button>
         </div>
@@ -1066,6 +1118,7 @@ function _showImprovementPicker(x, y, tile) {
         </div>
         ${fortifySection}
         ${garrisonSection}
+        ${_citySection(x, y, tile)}
         <div class="imp-hint">Escape to cancel</div>
       </div>`;
   }

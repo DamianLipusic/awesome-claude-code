@@ -209,6 +209,38 @@ export const HERO_TRAITS = Object.freeze([
 
 export const HERO_TRAIT_ORDER = HERO_TRAITS.map(t => t.id);
 
+// ── T122: Hero Companions ─────────────────────────────────────────────────────
+
+/** Combat victories needed to unlock a companion offer. */
+export const COMPANION_UNLOCK_WINS = 15;
+
+/**
+ * Three companion types, each providing a passive combat bonus.
+ * The player chooses one when the offer appears (15 wins, no existing companion).
+ */
+export const COMPANIONS = Object.freeze({
+  scout: Object.freeze({
+    id:   'scout',
+    icon: '🦅',
+    name: 'Scout',
+    desc: 'Reveals extra tiles in a wider radius after each combat victory.',
+  }),
+  healer: Object.freeze({
+    id:   'healer',
+    icon: '🩺',
+    name: 'Healer',
+    desc: '15% chance to prevent a unit casualty when your attack is repelled.',
+  }),
+  warlock: Object.freeze({
+    id:   'warlock',
+    icon: '🔮',
+    name: 'Warlock',
+    desc: 'Grants +12 mana after every combat victory.',
+  }),
+});
+
+export const COMPANION_ORDER = ['scout', 'healer', 'warlock'];
+
 /**
  * Compute the combined numeric value for a given effect type across
  * an array of learned skill IDs.  Pure function — no state access.

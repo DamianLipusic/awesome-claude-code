@@ -9,7 +9,7 @@ import { BUILDINGS } from '../data/buildings.js';
 import { UNITS } from '../data/units.js';
 import { TECHS } from '../data/techs.js';
 import { AGES } from '../data/ages.js';
-import { HERO_DEF, HERO_SKILLS, HERO_MAX_SKILLS, heroSkillBonus, HERO_TRAITS } from '../data/hero.js';
+import { HERO_DEF, HERO_SKILLS, HERO_MAX_SKILLS, heroSkillBonus, HERO_TRAITS, COMPANIONS } from '../data/hero.js';
 import { IMPROVEMENTS } from '../data/improvements.js';
 import { POLICIES, POLICY_COOLDOWN_TICKS } from '../data/policies.js';
 import { BOONS } from '../data/ageBoons.js';
@@ -908,6 +908,74 @@ export function upgradeUnit(unitId) {
   emit(Events.UNIT_CHANGED, {});
   emit(Events.RESOURCE_CHANGED, {});
   addMessage(`⬆️ ${def.name} arsenal upgraded to level ${level + 1}! (+${(level + 1) * 10}% attack)`, 'build');
+  return { ok: true };
+}
+
+// ---------------------------------------------------------------------------
+// T121: City Founding
+// ---------------------------------------------------------------------------
+
+const CITY_COST = { gold: 200, stone: 100, iron: 50 };
+const CITY_MAX  = 5;
+
+/**
+ * Found a city on a player-owned tile.
+ * Requires Bronze Age, costs 200 gold + 100 stone + 50 iron.
+ * Cities grant +1.5 gold/s + 0.5 food/s each (up to 5 total).
+ */
+export function foundCity(x, y) {
+  if (!state.map) return { ok: false, reason: 'No map loaded.' };
+  if ((state.age ?? 0) < 1) return { ok: false, reason: 'City founding requires the Bronze Age.' };
+
+  const tile = state.map.tiles[y]?.[x];
+  if (!tile)                    return { ok: false, reason: 'Invalid tile coordinates.' };
+  if (tile.owner !== 'player')  return { ok: false, reason: 'You can only found a city on your own territory.' };
+  if (tile.type === 'capital')  return { ok: false, reason: 'The capital cannot become a city.' };
+  if (tile.hasCity)             return { ok: false, reason: 'This tile already has a city.' };
+
+  let cityCount = 0;
+  for (const row of state.map.tiles) {
+    for (const t of row) { if (t.hasCity) cityCount++; }
+  }
+  if (cityCount >= CITY_MAX) return { ok: false, reason: `City limit reached (max ${CITY_MAX}).` };
+
+  if (!canAfford(CITY_COST)) {
+    const needed = Object.entries(CITY_COST).map(([r, a]) => `${a} ${r}`).join(', ');
+    return { ok: false, reason: `Need ${needed} to found a city.` };
+  }
+
+  deductCost(CITY_COST);
+  tile.hasCity = true;
+  recalcRates();
+  emit(Events.CITY_FOUNDED, { x, y });
+  emit(Events.MAP_CHANGED, {});
+  emit(Events.RESOURCE_CHANGED, {});
+  addMessage(`🏙️ City founded at (${x},${y})! +1.5 gold/s and +0.5 food/s. (${cityCount + 1}/${CITY_MAX})`, 'build');
+  return { ok: true };
+}
+
+// ---------------------------------------------------------------------------
+// T122: Hero Companion
+// ---------------------------------------------------------------------------
+
+/**
+ * Choose a hero companion type when a companion offer is pending.
+ * Companion provides a passive combat bonus for the rest of the game.
+ */
+export function chooseCompanion(type) {
+  const h = state.hero;
+  if (!h?.recruited)       return { ok: false, reason: 'No hero recruited.' };
+  if (!h.companionOffer)   return { ok: false, reason: 'No companion offer is available.' };
+  if (h.companion)         return { ok: false, reason: 'Hero already has a companion.' };
+  if (!COMPANIONS[type])   return { ok: false, reason: 'Unknown companion type.' };
+
+  h.companion      = { type };
+  h.companionOffer = false;
+
+  emit(Events.COMPANION_RECRUITED, { type });
+  emit(Events.HERO_CHANGED, {});
+  const c = COMPANIONS[type];
+  addMessage(`${c.icon} ${c.name} joined the Champion as a companion! ${c.desc}`, 'hero');
   return { ok: true };
 }
 

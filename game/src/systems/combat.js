@@ -11,7 +11,7 @@
 import { state } from '../core/state.js';
 import { emit, Events } from '../core/events.js';
 import { UNITS } from '../data/units.js';
-import { HERO_DEF, HERO_SKILLS, HERO_SKILL_WIN_INTERVAL, HERO_MAX_SKILLS, heroSkillBonus } from '../data/hero.js';
+import { HERO_DEF, HERO_SKILLS, HERO_SKILL_WIN_INTERVAL, HERO_MAX_SKILLS, heroSkillBonus, COMPANIONS, COMPANION_UNLOCK_WINS } from '../data/hero.js';
 import { addMessage } from '../core/actions.js';
 import { revealAround } from './map.js';
 import { recalcRates } from './resources.js';
@@ -588,6 +588,32 @@ function _victory(tile, x, y, attackPower, defense) {
   // T106: excavate ruin if this tile contains one
   _tryExcavateRuin(tile, x, y);
 
+  // T122: Companion passive effects on victory
+  if (state.hero?.recruited && state.hero.companion) {
+    const companionType = state.hero.companion.type;
+    if (companionType === 'warlock') {
+      // Warlock: +12 mana per victory, capped
+      const manaCap  = state.caps.mana ?? 500;
+      const prevMana = state.resources.mana ?? 0;
+      state.resources.mana = Math.min(manaCap, prevMana + 12);
+    } else if (companionType === 'scout') {
+      // Scout: reveal extra tiles in Manhattan-distance-2 ring
+      if (state.map) {
+        const { tiles } = state.map;
+        for (let dy = -2; dy <= 2; dy++) {
+          for (let dx = -2; dx <= 2; dx++) {
+            if (Math.abs(dx) + Math.abs(dy) > 2) continue;
+            const nx = x + dx;
+            const ny = y + dy;
+            if (nx >= 0 && nx < state.map.width && ny >= 0 && ny < state.map.height) {
+              tiles[ny][nx].revealed = true;
+            }
+          }
+        }
+      }
+    }
+  }
+
   // T093: faction capital capture — force peace, award morale bonus
   if (wasFactionCapital) {
     if (state.diplomacy) {
@@ -674,6 +700,15 @@ function _trackHeroCombatWin() {
 
   // T112: Legendary Quest — unlock at 10+ combat wins, then advance through 3 phases
   _handleLegendaryQuest(h);
+
+  // T122: Companion offer — unlock at COMPANION_UNLOCK_WINS if hero has no companion yet
+  if (h.combatWins >= COMPANION_UNLOCK_WINS && !h.companion && !h.companionOffer) {
+    h.companionOffer = true;
+    addMessage(
+      `🦅 ${HERO_DEF.name} has earned a loyal companion after ${h.combatWins} victories! Choose one in the Military panel.`,
+      'hero',
+    );
+  }
 
   emit(Events.HERO_CHANGED, {});
 }
@@ -862,8 +897,14 @@ function _tryExcavateRuin(tile, x, y) {
 }
 
 function _defeat(tile, x, y, attackPower, defense) {
-  // Lose 1 random unit as a casualty
-  const lost = _loseOneUnit();
+  // T122: Healer companion — 15% chance to prevent unit casualty
+  const healerActive = state.hero?.recruited && state.hero.companion?.type === 'healer';
+  const healerSaved  = healerActive && Math.random() < 0.15;
+
+  const lost = healerSaved ? null : _loseOneUnit();
+  if (healerSaved) {
+    addMessage(`🩺 Healer companion saved a unit from the fallen battle!`, 'hero');
+  }
 
   // Record combat history entry
   _recordHistory({ outcome: 'loss', terrain: tile.type, x, y, power: Math.round(attackPower), defense, lost });

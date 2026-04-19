@@ -448,6 +448,18 @@ export function recalcRates() {
   // T108: Map exploration 90% milestone — permanent +0.8 gold/s
   if (state.explorationMilestones?.[90]) rates.gold += 0.8;
 
+  // T121: City bonuses — each founded city tile grants +1.5 gold/s and +0.5 food/s
+  if (state.map) {
+    let _cityCount = 0;
+    for (const row of state.map.tiles) {
+      for (const _ct of row) { if (_ct.hasCity) _cityCount++; }
+    }
+    if (_cityCount > 0) {
+      rates.gold += _cityCount * 1.5;
+      rates.food += _cityCount * 0.5;
+    }
+  }
+
   // T120: Resource cap upgrades — each level adds 250 to cap
   if (state.capUpgrades) {
     for (const [res, level] of Object.entries(state.capUpgrades)) {

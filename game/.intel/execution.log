@@ -2,6 +2,33 @@
 
 ---
 
+## 2026-04-19 — Session N+30
+
+**Tasks completed:** T121, T122
+
+**Summary:**
+All prior tasks (T001–T120) were complete. Created T121+T122 task specs then implemented two Phase 44 features: City Founding System (T121) letting players convert owned tiles into income-generating cities, and Hero Companion System (T122) adding a passive combat ally unlocked after 15 hero victories.
+
+**T121 — City Founding System:**
+- `src/core/events.js`: Added CITY_FOUNDED event.
+- `src/core/actions.js`: Imported COMPANIONS; added CITY_COST={gold:200,stone:100,iron:50}, CITY_MAX=5; foundCity(x,y) validates Bronze Age+ownership+not capital+not already city+count limit+can afford; deducts cost, sets tile.hasCity=true, recalcRates(), emits CITY_FOUNDED+MAP_CHANGED+RESOURCE_CHANGED.
+- `src/systems/resources.js`: T121 city bonus block before T120 cap section — counts hasCity tiles, adds 1.5 gold/s and 0.5 food/s per city.
+- `src/systems/enemyAI.js`: In _counterattack() on enemy capture: if tile.hasCity, clear it and log raze message.
+- `src/ui/mapPanel.js`: Imported foundCity; on(CITY_FOUNDED) re-render; _drawTile() draws 🏙️ icon on hasCity tiles (before improvement check); _showTileTip() city bonus HTML; _citySection() helper with cost/age/max checks; all 3 improvement picker branches include _citySection(); click handler for data-found-city.
+- `src/main.js`: Save version bumped 36→37.
+- `styles/main.css`: .imp-city-section, .imp-city-header/desc/built, .btn--city-found.
+
+**T122 — Hero Companion System:**
+- `src/data/hero.js`: Added COMPANION_UNLOCK_WINS=15; COMPANIONS object (scout/healer/warlock); COMPANION_ORDER array.
+- `src/core/events.js`: Added COMPANION_RECRUITED event.
+- `src/core/actions.js`: chooseCompanion(type) — validates + sets hero.companion+clears offer, emits COMPANION_RECRUITED+HERO_CHANGED.
+- `src/systems/combat.js`: Imported COMPANIONS+COMPANION_UNLOCK_WINS; _trackHeroCombatWin() offers companion at 15 wins; _victory() warlock adds +12 mana, scout reveals radius-2 ring; _defeat() healer 15% skips _loseOneUnit().
+- `src/ui/militaryPanel.js`: Imported COMPANIONS+COMPANION_ORDER+chooseCompanion; COMPANION_RECRUITED subscription; _companionSection() renders locked/offer/active states; integrated after _heroSection(); companion-pick click handler.
+- `src/main.js`: Migration guards hero.companion=null + hero.companionOffer=false.
+- `styles/main.css`: .companion-section variants, .companion-header/card/icon/name/desc, .btn--companion-pick, .companion-pick__icon/name/desc.
+
+---
+
 ## 2026-04-19 — Session N+29
 
 **Tasks completed:** T115, T116

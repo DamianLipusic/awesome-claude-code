@@ -10,7 +10,7 @@
 
 import { state } from '../core/state.js';
 import { on, Events } from '../core/events.js';
-import { trainUnit, recruitHero, useHeroAbility, setFormation, chooseHeroSkill, rallyTroops, upgradeUnit, UNIT_UPGRADE_MAX, UNIT_UPGRADE_COST_BASE, addMessage, chooseHeroTrait } from '../core/actions.js';
+import { trainUnit, recruitHero, useHeroAbility, setFormation, chooseHeroSkill, rallyTroops, upgradeUnit, UNIT_UPGRADE_MAX, UNIT_UPGRADE_COST_BASE, addMessage, chooseHeroTrait, chooseCompanion } from '../core/actions.js';
 import { acceptDuel, declineDuel, getDuelSecsLeft } from '../systems/duels.js';
 import { sendPioneerExpedition, getPioneerProgress, getPioneerSecsLeft, PIONEER_COST, PIONEER_MAX } from '../systems/pioneerExpeditions.js';
 import { sendOnExpedition, recallExpedition, isOnExpedition, expeditionSecsLeft, expeditionProgress, canEnshrineHero, enshrineHero, ENSHRINE_MAX } from '../systems/heroSystem.js';
@@ -24,7 +24,7 @@ import { UNITS } from '../data/units.js';
 import { BUILDINGS } from '../data/buildings.js';
 import { TECHS } from '../data/techs.js';
 import { AGES } from '../data/ages.js';
-import { HERO_DEF, HERO_SKILLS, HERO_SKILL_WIN_INTERVAL, HERO_MAX_SKILLS, HERO_TRAITS } from '../data/hero.js';
+import { HERO_DEF, HERO_SKILLS, HERO_SKILL_WIN_INTERVAL, HERO_MAX_SKILLS, HERO_TRAITS, COMPANIONS, COMPANION_ORDER } from '../data/hero.js';
 import { fmtNum } from '../utils/fmt.js';
 
 const UNIT_ORDER = ['soldier', 'archer', 'knight', 'mage'];
@@ -72,7 +72,8 @@ export function initMilitaryPanel() {
   on(Events.PIONEER_CHANGED,   () => _render(panel));  // T110: pioneer expedition update
   on(Events.HERO_QUEST_CHANGED, () => _render(panel)); // T112: legendary quest phase advanced
   on(Events.HERO_ENSHRINED,    () => _render(panel)); // T118: hero enshrined as legacy
-  on(Events.HERO_TRAIT_CHOSEN, () => _render(panel)); // T119: trait chosen → switch from chooser to active view
+  on(Events.HERO_TRAIT_CHOSEN,    () => _render(panel)); // T119: trait chosen → switch from chooser to active view
+  on(Events.COMPANION_RECRUITED, () => _render(panel)); // T122: companion chosen
   on(Events.RESOURCE_CHANGED,  () => _renderCosts(panel));
   on(Events.GAME_LOADED,       () => _render(panel));
 
@@ -119,6 +120,7 @@ function _render(panel) {
     ${_spellsSection()}
     ${_decreesSection()}
     ${_heroSection()}
+    ${_companionSection()}
     ${_armySection()}
     ${_queueSection()}
     <div class="unit-grid" id="unit-grid">
@@ -898,6 +900,64 @@ function _heroLegendarySection() {
   </div>`;
 }
 
+// ── T122: Hero Companion section ──────────────────────────────────────────
+
+function _companionSection() {
+  const h = state.hero;
+  if (!h?.recruited) return '';
+
+  // Active companion display
+  if (h.companion) {
+    const c = COMPANIONS[h.companion.type];
+    if (!c) return '';
+    return `
+      <div class="companion-section companion-section--active">
+        <div class="companion-header">🤝 Companion</div>
+        <div class="companion-card">
+          <span class="companion-icon">${c.icon}</span>
+          <div class="companion-body">
+            <div class="companion-name">${c.name}</div>
+            <div class="companion-desc">${c.desc}</div>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  // Companion offer: let player choose
+  if (h.companionOffer) {
+    const cards = COMPANION_ORDER.map(type => {
+      const c = COMPANIONS[type];
+      return `
+        <button class="btn btn--companion-pick" data-action="companion-pick" data-companion="${type}"
+          title="${c.desc}">
+          <span class="companion-pick__icon">${c.icon}</span>
+          <span class="companion-pick__name">${c.name}</span>
+          <span class="companion-pick__desc">${c.desc}</span>
+        </button>`;
+    }).join('');
+
+    return `
+      <div class="companion-section companion-section--offer">
+        <div class="companion-header">🤝 Choose a Companion</div>
+        <div class="companion-offer-desc">Your champion has earned a loyal companion after ${h.combatWins} victories!</div>
+        <div class="companion-picks">${cards}</div>
+      </div>`;
+  }
+
+  // No offer yet — show progress hint toward COMPANION_UNLOCK_WINS (15)
+  const wins = h.combatWins ?? 0;
+  if (wins < 15) {
+    const remaining = 15 - wins;
+    return `
+      <div class="companion-section companion-section--locked">
+        <div class="companion-header">🤝 Companion</div>
+        <div class="companion-locked-hint">Win ${remaining} more battle${remaining !== 1 ? 's' : ''} to earn a companion.</div>
+      </div>`;
+  }
+
+  return '';
+}
+
 // ── Army summary ───────────────────────────────────────────────────────────
 
 function _armySection() {
@@ -1170,6 +1230,10 @@ function _handleClick(e) {
   } else if (actionBtn.dataset.action === 'choose-trait') {
     // T119: choose commander trait for the hero
     const result = chooseHeroTrait(actionBtn.dataset.trait);
+    if (!result.ok) addMessage(result.reason, 'info');
+  } else if (actionBtn.dataset.action === 'companion-pick') {
+    // T122: choose a hero companion
+    const result = chooseCompanion(actionBtn.dataset.companion);
     if (!result.ok) addMessage(result.reason, 'info');
   }
 }
