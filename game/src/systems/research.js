@@ -125,6 +125,13 @@ export function startResearch(techId) {
     totalTicks = Math.ceil(totalTicks * 0.75);
   }
 
+  // T116: Workshop Boost inspiration discount — -20% time, consumed on use
+  if (state.researchInspiration?.workshopDiscount) {
+    totalTicks = Math.ceil(totalTicks * 0.80);
+    state.researchInspiration.workshopDiscount = false;
+    addMessage('⚗️ Workshop Discount applied! (−20% research time)', 'tech');
+  }
+
   state.researchQueue.push({ techId, remaining: totalTicks, totalTicks });
   addMessage(`Researching ${def.name}…`, 'research');
   emit(Events.TECH_CHANGED, {});

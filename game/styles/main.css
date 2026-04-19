@@ -6811,3 +6811,115 @@ kbd {
   color: #d4af37;
   font-weight: 600;
 }
+
+/* ── T115: Seasonal Market Commodities ──────────────────────────────────���─── */
+.market-seasonal-note {
+  font-size: 11px;
+  background: rgba(159, 122, 234, 0.08);
+  border: 1px solid rgba(159, 122, 234, 0.35);
+  border-radius: 4px;
+  color: #c084fc;
+  padding: 5px 10px;
+  margin-bottom: 8px;
+  text-align: center;
+}
+.market-seasonal-badge {
+  display: inline-block;
+  font-size: 10px;
+  background: rgba(159, 122, 234, 0.2);
+  border: 1px solid rgba(159, 122, 234, 0.5);
+  border-radius: 3px;
+  padding: 1px 5px;
+  margin-left: 5px;
+  color: #c084fc;
+  vertical-align: middle;
+}
+.market-row--seasonal .market-price--sell {
+  color: #68d391;
+  font-weight: 600;
+}
+.market-row--seasonal .market-price--buy {
+  color: #fc8181;
+  font-weight: 600;
+}
+.market-row--seasonal {
+  background: rgba(159, 122, 234, 0.04);
+}
+
+/* ── T116: Research Inspiration Events ─────────────────────────────────────── */
+.inspiration-card {
+  background: linear-gradient(135deg, var(--bg-card) 60%, rgba(159, 122, 234, 0.08));
+  border: 1px solid rgba(159, 122, 234, 0.5);
+  border-left: 3px solid #9f7aea;
+  border-radius: 4px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  animation: pop-in 0.25s ease;
+}
+.inspiration-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.inspiration-icon {
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+.inspiration-title {
+  font-weight: 600;
+  color: #c084fc;
+  flex: 1;
+}
+.inspiration-timer {
+  font-size: 11px;
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+.inspiration-timer--urgent {
+  color: #fc8181;
+  animation: blink 1s steps(1) infinite;
+}
+.inspiration-desc {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+.inspiration-actions {
+  display: flex;
+  gap: 8px;
+}
+.btn--inspiration-accept {
+  background: linear-gradient(135deg, #7c3aed, #6d28d9);
+  border: 1px solid #7c3aed;
+  color: #fff;
+  padding: 4px 14px;
+  font-size: 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.btn--inspiration-accept:hover {
+  background: linear-gradient(135deg, #9f7aea, #7c3aed);
+}
+.btn--inspiration-dismiss {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  padding: 4px 12px;
+  font-size: 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.btn--inspiration-dismiss:hover {
+  border-color: #9f7aea;
+  color: #c084fc;
+}
+.inspiration-discount-banner {
+  background: rgba(159, 122, 234, 0.12);
+  border: 1px solid rgba(159, 122, 234, 0.45);
+  border-radius: 4px;
+  padding: 6px 10px;
+  font-size: 12px;
+  color: #c084fc;
+  margin-bottom: 10px;
+}

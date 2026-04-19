@@ -36,6 +36,22 @@ const UPDATE_INTERVAL = 15 * TICKS_PER_SECOND; // every 15s
 // Buy/sell spread: buyers pay more, sellers receive less than spot
 const SPREAD = 0.20; // 20%
 
+// T115: Seasonal commodity pricing — one or two resources trade at premium each season
+const SEASONAL_COMMODITIES = Object.freeze({
+  0: ['food'],           // Spring  — food is freshly harvested; demand surges
+  1: ['wood'],           // Summer  — logging season at peak; woodworkers pay premium
+  2: ['stone', 'iron'],  // Autumn  — mining season; quarries and forges in high demand
+  3: ['mana'],           // Winter  — magical introspection; mana fetches top gold
+});
+const SEASONAL_SELL_MULT = 2.0;  // ×2 gold when selling a seasonal resource
+const SEASONAL_BUY_MULT  = 0.5;  // ×0.5 gold when buying a seasonal resource (stock-up opportunity)
+
+/** Returns the list of seasonal commodity resource ids for the current season. */
+export function getSeasonalCommodities() {
+  const index = state.season?.index ?? 0;
+  return SEASONAL_COMMODITIES[index] ?? [];
+}
+
 // Lifetime trade counter key (in state.market)
 // Used by achievements system
 
@@ -86,17 +102,19 @@ export function marketTick() {
 /** Gold cost to buy `amount` units of `resource`. */
 export function buyPrice(resource, amount = 1) {
   if (!state.market) return Infinity;
-  const base = BASE_PRICES[resource] ?? 1;
-  const mult = state.market.prices[resource] ?? 1;
-  return Math.ceil(base * mult * (1 + SPREAD) * amount);
+  const base     = BASE_PRICES[resource] ?? 1;
+  const mult     = state.market.prices[resource] ?? 1;
+  const seasonal = getSeasonalCommodities().includes(resource) ? SEASONAL_BUY_MULT : 1.0;
+  return Math.ceil(base * mult * seasonal * (1 + SPREAD) * amount);
 }
 
 /** Gold earned for selling `amount` units of `resource`. */
 export function sellPrice(resource, amount = 1) {
   if (!state.market) return 0;
-  const base = BASE_PRICES[resource] ?? 1;
-  const mult = state.market.prices[resource] ?? 1;
-  return Math.floor(base * mult * (1 - SPREAD) * amount);
+  const base     = BASE_PRICES[resource] ?? 1;
+  const mult     = state.market.prices[resource] ?? 1;
+  const seasonal = getSeasonalCommodities().includes(resource) ? SEASONAL_SELL_MULT : 1.0;
+  return Math.floor(base * mult * seasonal * (1 - SPREAD) * amount);
 }
 
 // ---------------------------------------------------------------------------

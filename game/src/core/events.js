@@ -89,4 +89,5 @@ export const Events = Object.freeze({
   NATURAL_DISASTER:         'naturalDisaster',         // T111: tile improvement damaged by natural disaster
   HERO_QUEST_CHANGED:       'heroQuestChanged',        // T112: hero legendary quest phase advanced
   ALLIANCE_FAVOR_CHANGED:   'allianceFavorChanged',    // T114: alliance favor gained or spent
+  RESEARCH_INSPIRATION:     'researchInspiration',     // T116: inspiration event spawned/accepted/dismissed
 });

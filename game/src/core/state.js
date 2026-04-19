@@ -281,6 +281,10 @@ export const state = {
   // T111: Natural disaster state — populated by systems/naturalDisasters.js initNaturalDisasters()
   // { nextSpawnTick: number, lastType: string|null, totalFired: number }
   naturalDisasters: null,
+
+  // T116: Research inspiration event state — populated by systems/researchInspiration.js
+  // { pending: { typeId, expiresAt } | null, workshopDiscount: bool, nextCheckTick: number }
+  researchInspiration: null,
 };
 
 /**
@@ -351,5 +355,6 @@ export function initState(empireName = 'My Empire') {
   state.duels              = null;  // T109: duel events reset per game
   state.pioneers           = null;  // T110: pioneer expeditions reset per game
   state.naturalDisasters   = null;  // T111: natural disaster cooldown resets per game
+  state.researchInspiration = null; // T116: inspiration events reset per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

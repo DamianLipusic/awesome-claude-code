@@ -2,6 +2,29 @@
 
 ---
 
+## 2026-04-19 — Session N+29
+
+**Tasks completed:** T115, T116
+
+**Summary:**
+All prior tasks (T001–T114) were complete. Created T115+T116 task specs then implemented two Phase 42 features: Seasonal Market Commodities (T115) making 1–2 resources premium-priced each season, and Research Inspiration Events (T116) adding random windfall events that speed up research or grant mana.
+
+**T115 — Seasonal Market Commodities:**
+- `src/systems/market.js`: Added SEASONAL_COMMODITIES (Spring→food, Summer→wood, Autumn→stone+iron, Winter→mana), SEASONAL_SELL_MULT=2.0, SEASONAL_BUY_MULT=0.5, getSeasonalCommodities() export; buyPrice() and sellPrice() apply seasonal multiplier when resource matches current season.
+- `src/ui/marketPanel.js`: Imported getSeasonalCommodities; added SEASON_CHANGED→_render listener; _render() shows seasonal note banner; _row() adds .market-row--seasonal class and 🌟 badge for seasonal resources.
+- `styles/main.css`: .market-seasonal-note, .market-seasonal-badge, .market-row--seasonal colour overrides (green sell, red buy).
+
+**T116 — Research Inspiration Events:**
+- `src/systems/researchInspiration.js`: New file — 3 inspiration types, 3–5 min spawn interval, 90s expiry, accept/dismiss actions, workshop discount flag.
+- `src/core/events.js`: RESEARCH_INSPIRATION event added.
+- `src/core/state.js`: researchInspiration:null field in static object + initState() reset.
+- `src/systems/research.js`: workshopDiscount applied in startResearch() after academy check (−20% totalTicks, flag cleared).
+- `src/ui/researchPanel.js`: Imported inspiration helpers; RESEARCH_INSPIRATION subscription; TICK handler checks pending; _inspirationCard() renders notification card or discount banner; click handlers for insp-accept/insp-dismiss.
+- `src/main.js`: inspirationTick registered; initInspiration() in boot+_newGame; researchInspiration saved/loaded.
+- `styles/main.css`: .inspiration-card, .inspiration-header, .btn--inspiration-accept/dismiss, .inspiration-discount-banner.
+
+---
+
 ## 2026-04-19 — Session N+28
 
 **Tasks completed:** T113, T114

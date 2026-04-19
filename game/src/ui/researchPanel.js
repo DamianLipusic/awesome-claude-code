@@ -17,6 +17,7 @@ import { RUIN_COUNT, RUIN_OUTCOMES } from '../data/ruins.js';
 import { POLICIES, POLICY_ORDER, POLICY_COOLDOWN_TICKS } from '../data/policies.js';
 import { FESTIVALS, FESTIVAL_ORDER } from '../data/festivals.js';
 import { useFestival, getActiveFestival, getFestivalSecsLeft, getFestivalCooldownSecs } from '../systems/festivals.js';
+import { acceptInspiration, dismissInspiration, getInspirationSecsLeft, INSPIRATION_TYPES } from '../systems/researchInspiration.js';
 
 export function initResearchPanel() {
   const panel = document.getElementById('panel-research');
@@ -34,11 +35,13 @@ export function initResearchPanel() {
   on(Events.MORALE_CHANGED,    _throttle(renderResearchPanel, 8));
   on(Events.MASTERY_UNLOCKED,  renderResearchPanel);
   on(Events.SYNERGY_UNLOCKED,  renderResearchPanel);
-  on(Events.FESTIVAL_CHANGED,  renderResearchPanel);
-  on(Events.RUIN_EXCAVATED,    renderResearchPanel);
-  // Refresh countdown text every second while a festival is active or on cooldown
+  on(Events.FESTIVAL_CHANGED,       renderResearchPanel);
+  on(Events.RUIN_EXCAVATED,         renderResearchPanel);
+  on(Events.RESEARCH_INSPIRATION,   renderResearchPanel);
+  // Refresh countdown text every second while a festival or inspiration event is active
   on(Events.TICK, _throttle(() => {
-    const hasActivity = getActiveFestival() || getFestivalCooldownSecs() > 0;
+    const hasActivity = getActiveFestival() || getFestivalCooldownSecs() > 0
+      || !!state.researchInspiration?.pending;
     if (hasActivity) renderResearchPanel();
   }, 4));
 }
@@ -86,9 +89,18 @@ function renderResearchPanel() {
     </div>`;
   }).join('');
 
-  panel.innerHTML = _ageSection() + progressHtml + `<div class="tech-grid">${techCards}</div>` + _masteriesSection() + _synergiesSection() + _policySection() + _festivalsSection() + _relicsSection() + _landmarksSection() + _ruinsSection();
+  panel.innerHTML = _ageSection() + progressHtml + _inspirationCard() + `<div class="tech-grid">${techCards}</div>` + _masteriesSection() + _synergiesSection() + _policySection() + _festivalsSection() + _relicsSection() + _landmarksSection() + _ruinsSection();
 
   panel.onclick = (e) => {
+    // T116: Research inspiration accept/dismiss
+    if (e.target.closest('[data-action="insp-accept"]')) {
+      acceptInspiration();
+      return;
+    }
+    if (e.target.closest('[data-action="insp-dismiss"]')) {
+      dismissInspiration();
+      return;
+    }
     if (e.target.closest('#btn-advance-age')) {
       advanceAge();
       return;
@@ -119,6 +131,43 @@ function renderResearchPanel() {
     if (!btn) return;
     startResearch(btn.dataset.tech);
   };
+}
+
+// ── T116: Research Inspiration card ───────────────────────────────────────
+
+function _inspirationCard() {
+  const insp = state.researchInspiration;
+  if (!insp) return '';
+
+  // Pending inspiration awaiting player response
+  if (insp.pending) {
+    const def      = INSPIRATION_TYPES.find(t => t.id === insp.pending.typeId);
+    if (!def) return '';
+    const secsLeft = getInspirationSecsLeft();
+    const urgent   = secsLeft <= 15;
+    return `
+      <div class="inspiration-card">
+        <div class="inspiration-header">
+          <span class="inspiration-icon">${def.icon}</span>
+          <span class="inspiration-title">${def.name}</span>
+          <span class="inspiration-timer ${urgent ? 'inspiration-timer--urgent' : ''}">⏳ ${secsLeft}s</span>
+        </div>
+        <div class="inspiration-desc">${def.desc}<br>
+          <strong>${def.effectDesc}</strong>
+        </div>
+        <div class="inspiration-actions">
+          <button class="btn btn--inspiration-accept" data-action="insp-accept">✓ Accept</button>
+          <button class="btn btn--inspiration-dismiss" data-action="insp-dismiss">✕ Dismiss</button>
+        </div>
+      </div>`;
+  }
+
+  // Workshop discount active (consumed when next research starts)
+  if (insp.workshopDiscount) {
+    return `<div class="inspiration-discount-banner">⚗️ <strong>Workshop Discount Active</strong> — next research takes 20% less time</div>`;
+  }
+
+  return '';
 }
 
 // ── Research queue section ─────────────────────────────────────────────────

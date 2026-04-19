@@ -7,7 +7,7 @@
 
 import { on, Events } from '../core/events.js';
 import { state } from '../core/state.js';
-import { buyPrice, sellPrice, buyResources, sellResources, MARKET_RESOURCES } from '../systems/market.js';
+import { buyPrice, sellPrice, buyResources, sellResources, MARKET_RESOURCES, getSeasonalCommodities } from '../systems/market.js';
 import { acceptContract, cancelContract, contractProgress, contractSecsLeft, contractsRefreshSecs } from '../systems/contracts.js';
 import { buyMerchantItem, merchantSecsLeft, merchantNextVisitSecs, canAffordItem } from '../systems/merchant.js';
 import { fmtNum } from '../utils/fmt.js';
@@ -34,6 +34,7 @@ export function initMarketPanel() {
   on(Events.RESOURCE_CHANGED,  _render);
   on(Events.CONTRACTS_CHANGED, _render);
   on(Events.MERCHANT_CHANGED,  _render);
+  on(Events.SEASON_CHANGED,    _render);  // T115: reprice seasonal commodities on season change
 
   // Refresh contract/merchant countdowns every ~4 ticks (~1 s)
   let _contractTickCount = 0;
@@ -71,7 +72,12 @@ function _render() {
     return;
   }
 
-  const rows = MARKET_RESOURCES.map(res => _row(res)).join('');
+  const seasonal = getSeasonalCommodities();
+  const rows = MARKET_RESOURCES.map(res => _row(res, seasonal)).join('');
+
+  const seasonalNote = seasonal.length > 0
+    ? `<div class="market-seasonal-note">🌟 Seasonal Premium: <strong>${seasonal.map(r => r.charAt(0).toUpperCase() + r.slice(1)).join(' &amp; ')}</strong> — sell for ×2 gold · buy at ×0.5 gold!</div>`
+    : '';
 
   _panel.innerHTML = `
     <div class="market-header">
@@ -79,6 +85,7 @@ function _render() {
       <span class="market-trades">Total trades: ${state.market.totalTrades ?? 0}</span>
     </div>
     <div class="market-note">Prices update every 15 seconds. Buy price includes a 20% premium; sell price has a 20% discount.</div>
+    ${seasonalNote}
     <div class="market-table">
       <div class="market-table__head">
         <span>Resource</span>
@@ -93,20 +100,22 @@ function _render() {
     ${_contractsSection()}`;
 }
 
-function _row(res) {
-  const trend  = state.market.trends[res] ?? 0;
-  const icon   = RESOURCE_ICONS[res] ?? res;
-  const sp     = sellPrice(res, 1);
-  const bp     = buyPrice(res, 1);
-  const stock  = Math.floor(state.resources[res] ?? 0);
-  const cap    = state.caps[res] ?? 500;
-  const tIcon  = TREND_ICONS[String(trend)];
-  const tClass = TREND_CLASS[String(trend)];
+function _row(res, seasonal = []) {
+  const trend      = state.market.trends[res] ?? 0;
+  const icon       = RESOURCE_ICONS[res] ?? res;
+  const sp         = sellPrice(res, 1);
+  const bp         = buyPrice(res, 1);
+  const stock      = Math.floor(state.resources[res] ?? 0);
+  const cap        = state.caps[res] ?? 500;
+  const tIcon      = TREND_ICONS[String(trend)];
+  const tClass     = TREND_CLASS[String(trend)];
+  const isSeasonal = seasonal.includes(res);
 
   return `
-    <div class="market-row" data-res="${res}">
+    <div class="market-row ${isSeasonal ? 'market-row--seasonal' : ''}" data-res="${res}">
       <span class="market-res-name">${icon} ${res.charAt(0).toUpperCase() + res.slice(1)}
         <span class="market-stock">${fmtNum(stock)}/${fmtNum(cap)}</span>
+        ${isSeasonal ? '<span class="market-seasonal-badge">🌟 Seasonal</span>' : ''}
       </span>
       <span class="market-price market-price--sell">${sp}g <span class="${tClass}">${tIcon}</span></span>
       <span class="market-price market-price--buy">${bp}g</span>

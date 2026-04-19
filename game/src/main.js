@@ -39,6 +39,7 @@ import { initResourceNodes, resourceNodeTick } from './systems/resourceNodes.js'
 import { initDuels, duelTick } from './systems/duels.js';                   // T109: warlord duels
 import { initPioneers, pioneerTick } from './systems/pioneerExpeditions.js'; // T110: pioneer expeditions
 import { initNaturalDisasters, naturalDisasterTick } from './systems/naturalDisasters.js'; // T111
+import { initInspiration, inspirationTick } from './systems/researchInspiration.js';       // T116
 import { SEASONS } from './data/seasons.js';
 import { AGES } from './data/ages.js';
 import { BUILDINGS } from './data/buildings.js';
@@ -129,7 +130,8 @@ function boot() {
   registerSystem(resourceNodeTick); // T104: resource node spawn/expire
   registerSystem(duelTick);         // T109: warlord duel challenge spawn/expire
   registerSystem(pioneerTick);      // T110: pioneer expedition completion
-  registerSystem(naturalDisasterTick); // T111: natural disaster tile damage
+  registerSystem(naturalDisasterTick); // T111
+  registerSystem(inspirationTick);     // T116: research inspiration events: natural disaster tile damage
 
   // Init event-driven systems
   initRandomEvents();
@@ -161,6 +163,7 @@ function boot() {
   initDuels();        // T109: warlord duel events
   initPioneers();     // T110: pioneer expeditions
   initNaturalDisasters(); // T111: natural disaster system
+  initInspiration();      // T116: research inspiration events
 
   // Init UI
   initHUD();
@@ -372,6 +375,7 @@ function _save() {
         duels:               state.duels               ?? null,  // T109
         pioneers:            state.pioneers            ?? null,  // T110
         naturalDisasters:    state.naturalDisasters    ?? null,  // T111
+        researchInspiration: state.researchInspiration ?? null,  // T116
         tick:          state.tick,
       }
     }));
@@ -466,6 +470,7 @@ function _applySave(save) {
   state.duels                = s.duels                ?? null;  // T109
   state.pioneers             = s.pioneers             ?? null;  // T110
   state.naturalDisasters     = s.naturalDisasters     ?? null;  // T111
+  state.researchInspiration  = s.researchInspiration  ?? null;  // T116
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
@@ -829,6 +834,7 @@ function _newGame(opts = {}) {
   initDuels();            // T109
   initPioneers();         // T110
   initNaturalDisasters(); // T111
+  initInspiration();      // T116
   recalcRates();
   startLoop();  // restart loop in case it was stopped by game-over
   _syncPauseUI();  // ensure pause overlay is hidden on new game
