@@ -1460,6 +1460,29 @@ body {
 .dipl-esp-log-time { color: var(--text-dim); font-size: 10px; white-space: nowrap; }
 .dipl-esp-log-empty { font-size: 12px; color: var(--text-dim); }
 
+/* ── T113: Spy network upgrade ─────────────────────────────────────────────── */
+.spy-network-section {
+  background: rgba(0,0,0,0.2);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin-bottom: 10px;
+}
+.spy-net-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+.spy-net-name { font-size: 12px; font-weight: 600; color: var(--text-main); }
+.spy-net-pips { display: flex; gap: 4px; }
+.spy-net-pip {
+  width: 10px; height: 10px; border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.08);
+}
+.spy-net-pip--filled { background: var(--blue); border-color: var(--blue); }
+.spy-net-bonuses { font-size: 11px; color: var(--text-dim); margin-bottom: 6px; }
+.spy-net-upgrade { display: flex; align-items: center; gap: 6px; }
+.spy-net-maxed { font-size: 11px; color: var(--green); }
+.btn--spy-upgrade { background: rgba(59,130,246,0.2); border-color: var(--blue); color: var(--blue); }
+.btn--spy-upgrade:not(.btn--disabled):hover { background: rgba(59,130,246,0.35); }
+
 /* ── Season badge ─────────────────────────────────────────────────────────── */
 
 .season-badge {
@@ -6538,6 +6561,32 @@ kbd {
 }
 .btn--request-aid:hover:not(:disabled) { background: rgba(104,211,145,0.2); }
 .btn--request-aid:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* ── T114: Alliance Favor row ──────────────────────────────────────────────── */
+.dipl-favor-row {
+  border-top: 1px solid rgba(255,255,255,0.06);
+  padding-top: 8px;
+  margin-top: 6px;
+}
+.dipl-favor-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.dipl-favor-label { font-size: 11px; color: var(--text-dim); white-space: nowrap; }
+.dipl-favor-bar-wrap {
+  flex: 1; height: 4px; background: rgba(255,255,255,0.08);
+  border-radius: 2px; overflow: hidden;
+}
+.dipl-favor-bar {
+  height: 100%; background: linear-gradient(90deg, #a78bfa, #7c3aed);
+  border-radius: 2px; transition: width 0.4s ease;
+}
+.dipl-favor-requests { display: flex; flex-wrap: wrap; gap: 4px; }
+.btn--favor {
+  font-size: 10px; padding: 2px 7px;
+  border: 1px solid #a78bfa; color: #a78bfa;
+  background: rgba(167,139,250,0.08);
+  border-radius: 4px; cursor: pointer; transition: background 0.2s;
+}
+.btn--favor:hover:not(:disabled) { background: rgba(167,139,250,0.22); }
+.btn--favor:disabled { opacity: 0.4; cursor: not-allowed; }
 
 /* Military panel — aid troops row */
 .mil-aid-row {

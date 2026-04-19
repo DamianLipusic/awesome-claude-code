@@ -156,7 +156,7 @@ export const state = {
   population: null,
 
   // Espionage state — populated by systems/espionage.js initEspionage()
-  // { cooldownUntil: tick, log: [{ tick, mission, empireId, success, text }] }
+  // { cooldownUntil: tick, log: [...], networkLevel: 0-3 (T113) }
   espionage: null,
 
   // Active timed challenge state — populated by systems/challenges.js initChallenges()

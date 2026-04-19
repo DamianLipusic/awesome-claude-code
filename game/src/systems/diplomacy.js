@@ -65,6 +65,15 @@ export const GIFT_SMALL_ALLY_CHANCE    = 0.30;  // 30% chance neutral→allied o
 export const GIFT_LARGE_ALLY_CHANCE    = 0.70;  // 70% chance neutral→allied on large gift
 const PLAYER_GIFT_COOLDOWN_TICKS       = 120 * TICKS_PER_SECOND; // 30 s cooldown per empire
 
+// T114: Alliance Favor constants
+export const FAVOR_MAX          = 50;                        // max favor per allied empire
+const FAVOR_ACCRUAL_TICKS       = 60 * TICKS_PER_SECOND;    // 1 point every 60 ticks (15s)
+export const FAVOR_REQUESTS = {
+  gold_loan:      { label: '💰 Gold Loan',       cost: 25, desc: 'Receive 300 gold from your ally.' },
+  supply_convoy:  { label: '🚚 Supply Convoy',   cost: 35, desc: 'Receive 100 food + 50 wood + 50 stone.' },
+  war_party:      { label: '⚔️ War Party',        cost: 45, desc: 'Ally sends a war party — +10 morale, +80 prestige.' },
+};
+
 // T088: Border Skirmish constants
 const SKIRMISH_INTERVAL_MIN  = 15 * 60 * TICKS_PER_SECOND;  // 15 min between skirmishes
 const SKIRMISH_INTERVAL_MAX  = 20 * 60 * TICKS_PER_SECOND;  // 20 min between skirmishes
@@ -121,6 +130,11 @@ export function initDiplomacy() {
   // T088: migrate saves that predate border skirmish fields
   if (state.diplomacy.skirmish         === undefined) state.diplomacy.skirmish         = null;
   if (state.diplomacy.nextSkirmishTick === undefined) state.diplomacy.nextSkirmishTick = state.tick + _skirmishInterval();
+  // T114: migrate saves that predate alliance favor
+  for (const emp of state.diplomacy.empires) {
+    if (emp.favor         === undefined) emp.favor         = 0;
+    if (emp.nextFavorTick === undefined) emp.nextFavorTick = state.tick + FAVOR_ACCRUAL_TICKS;
+  }
 }
 
 /**
@@ -140,6 +154,13 @@ export function diplomacyTick() {
     // T076: Alliance gifts — allied empires periodically send resource gifts
     if (emp.relations === 'allied' && state.tick >= (emp.nextGiftTick ?? Infinity)) {
       _allianceGift(emp);
+    }
+
+    // T114: Alliance favor accrual — 1 point per FAVOR_ACCRUAL_TICKS when allied
+    if (emp.relations === 'allied' && state.tick >= (emp.nextFavorTick ?? Infinity)) {
+      emp.favor = Math.min(FAVOR_MAX, (emp.favor ?? 0) + 1);
+      emp.nextFavorTick = state.tick + FAVOR_ACCRUAL_TICKS;
+      emit(Events.ALLIANCE_FAVOR_CHANGED, { empireId: emp.id, favor: emp.favor });
     }
 
     // AI diplomatic stance change
@@ -225,6 +246,7 @@ export function declareWar(empireId) {
   emp.relations     = 'war';
   emp.tradeRoutes   = 0;
   emp.warScore      = 0;   // T058: fresh war score when war begins
+  emp.favor         = 0;   // T114: reset favor when alliance broken
   emp.nextWarRaidTick = state.tick + WAR_RAID_MIN;
   const def = EMPIRES[empireId];
   recalcRates();
@@ -402,6 +424,54 @@ export function sendGift(empireId, size = 'small') {
     addMessage(`🎁 Appreciation gifts sent to ${def.icon} ${def.name}. Your friendship strengthens.`, 'info');
   }
 
+  return { ok: true };
+}
+
+// ── T114: Alliance Favor public API ──────────────────────────────────────────
+
+/**
+ * Spend accumulated favor with an allied empire for a powerful one-time benefit.
+ * @param {string} empireId
+ * @param {'gold_loan'|'supply_convoy'|'war_party'} requestType
+ */
+export function requestAllianceFavor(empireId, requestType) {
+  const emp = _findEmpire(empireId);
+  if (!emp) return { ok: false, reason: 'Unknown empire.' };
+  if (emp.relations !== 'allied') return { ok: false, reason: 'Must be allied to request favors.' };
+
+  const req = FAVOR_REQUESTS[requestType];
+  if (!req) return { ok: false, reason: 'Unknown request type.' };
+
+  const favor = emp.favor ?? 0;
+  if (favor < req.cost)
+    return { ok: false, reason: `Need ${req.cost} favor (have ${favor}).` };
+
+  emp.favor -= req.cost;
+
+  const empDef = EMPIRES[empireId];
+  let rewardText = '';
+
+  if (requestType === 'gold_loan') {
+    state.resources.gold = Math.min(state.caps?.gold ?? 500, (state.resources.gold ?? 0) + 300);
+    emit(Events.RESOURCE_CHANGED, {});
+    rewardText = '+300 gold';
+  } else if (requestType === 'supply_convoy') {
+    state.resources.food  = Math.min(state.caps?.food  ?? 500, (state.resources.food  ?? 0) + 100);
+    state.resources.wood  = Math.min(state.caps?.wood  ?? 500, (state.resources.wood  ?? 0) + 50);
+    state.resources.stone = Math.min(state.caps?.stone ?? 500, (state.resources.stone ?? 0) + 50);
+    emit(Events.RESOURCE_CHANGED, {});
+    rewardText = '+100 food, +50 wood, +50 stone';
+  } else if (requestType === 'war_party') {
+    // Import lazily to avoid circular deps
+    import('./morale.js').then(m => m.changeMorale(10));
+    import('./prestige.js').then(m => m.awardPrestige(80, `war party from ${empDef.name}`));
+    rewardText = '+10 morale, +80 prestige';
+  }
+
+  emit(Events.ALLIANCE_FAVOR_CHANGED, { empireId, favor: emp.favor, requestType });
+  emit(Events.DIPLOMACY_CHANGED, { empireId });
+  addMessage(`🤝 ${empDef.icon} ${empDef.name} granted your request: ${rewardText}!`, 'diplomacy');
+  _logDiplomacy(empireId, 'gift', `Favor request: ${req.label} (${rewardText})`);
   return { ok: true };
 }
 

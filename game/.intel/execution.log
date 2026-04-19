@@ -2,6 +2,26 @@
 
 ---
 
+## 2026-04-19 — Session N+28
+
+**Tasks completed:** T113, T114
+
+**Summary:**
+All prior tasks (T001–T112) were complete. Created T113+T114 task specs then implemented two Phase 41 features: Spy Network Upgrades (T113) giving 3 purchasable espionage tiers with better success rates and reduced cooldowns, and Alliance Favor (T114) accumulating diplomatic capital with allied empires for three powerful one-time requests.
+
+**T113 — Spy Network Upgrades:**
+- `src/systems/espionage.js`: Added NETWORK_LEVELS array (4 entries, level 0-3): each entry has name/cost/successBonus/cooldownRedSecs/heistBonus/counterspy; upgradeSpyNetwork() validates espionage tech+gold, increments networkLevel, deducts cost, emits ESPIONAGE_EVENT{type:'upgrade'}; getNetworkLevel()/getNextNetworkLevel() helpers; effectiveCooldownTicks() = ESPIONAGE_COOLDOWN minus level's cooldownRedSecs*TPS; _successChance() adds networkLevel.successBonus (cap raised to 0.95); _resolve() uses heistBonus on success and counterspy passive on failure (halves gold penalty and counter-raid damage); launchMission() uses effectiveCooldownTicks(); initEspionage() adds networkLevel:0 migration guard.
+- `src/ui/diplomacyPanel.js`: Imported upgrade helpers; _spyNetworkSection() renders upgrade widget with name, 4 pip dots, bonus summary, Upgrade button (or Max Level); injected into _espionageSection(); data-action 'spy-upgrade' handler.
+- `styles/main.css`: .spy-network-section (dark rounded panel), pip indicators (blue filled), .btn--spy-upgrade (blue).
+
+**T114 — Alliance Favor System:**
+- `src/core/events.js`: Added `ALLIANCE_FAVOR_CHANGED:'allianceFavorChanged'`.
+- `src/systems/diplomacy.js`: Added FAVOR_MAX=50, FAVOR_ACCRUAL_TICKS=60*TPS, FAVOR_REQUESTS (gold_loan 25f/supply_convoy 35f/war_party 45f); initDiplomacy() migration adds emp.favor=0/emp.nextFavorTick per empire; diplomacyTick() accrues +1 favor per interval for allied empires, emits ALLIANCE_FAVOR_CHANGED; declareWar() resets emp.favor=0; requestAllianceFavor(empireId, requestType) validates allied+favor cost, deducts favor, delivers reward (300 gold / +100f+50w+50s / +10 morale+80 prestige via dynamic import), logs to diplomacy history.
+- `src/ui/diplomacyPanel.js`: Imported requestAllianceFavor/FAVOR_MAX/FAVOR_REQUESTS; on(ALLIANCE_FAVOR_CHANGED) listener; _favorRow(emp) renders purple favor bar (w/ pct fill) and 3 request buttons per allied empire; injected into _empireCard; 'alliance-favor' click handler.
+- `styles/main.css`: .dipl-favor-row (top border section), .dipl-favor-bar (purple gradient), .btn--favor (purple accent).
+
+---
+
 ## 2026-04-19 — Session N+27
 
 **Tasks completed:** T111, T112

@@ -33,7 +33,7 @@ import { changeMorale } from './morale.js';
 import { EMPIRES } from '../data/empires.js';
 import { TICKS_PER_SECOND } from '../core/tick.js';
 
-// Cooldown in ticks (60 seconds)
+// Cooldown in ticks (60 seconds base)
 export const ESPIONAGE_COOLDOWN = 60 * TICKS_PER_SECOND;
 
 // Mission costs (gold)
@@ -42,6 +42,14 @@ const COST = {
   sabotage:   75,
   intel:      30,
 };
+
+// T113: Spy network upgrade levels
+export const NETWORK_LEVELS = [
+  { level: 0, name: 'Basic Spy Ring',        cost: 0,   successBonus: 0,    cooldownRedSecs: 0,  heistBonus: 0,  counterspy: false },
+  { level: 1, name: 'Agent Network',         cost: 150, successBonus: 0.15, cooldownRedSecs: 15, heistBonus: 0,  counterspy: false },
+  { level: 2, name: 'Intelligence Bureau',   cost: 300, successBonus: 0.25, cooldownRedSecs: 30, heistBonus: 0,  counterspy: true  },
+  { level: 3, name: 'Shadow Ministry',       cost: 600, successBonus: 0.35, cooldownRedSecs: 45, heistBonus: 100, counterspy: true },
+];
 
 // ── Public API ─────────────────────────────────────────────────────────────
 
@@ -53,11 +61,59 @@ export function initEspionage() {
     state.espionage = {
       cooldownUntil: 0,   // tick when next mission becomes available
       log:           [],  // [{ tick, mission, empireId, success, text }]
+      networkLevel:  0,   // T113: spy network upgrade level (0-3)
     };
   }
   // Migrate older saves
-  if (!state.espionage.log) state.espionage.log = [];
+  if (!state.espionage.log)                       state.espionage.log           = [];
   if (state.espionage.cooldownUntil === undefined) state.espionage.cooldownUntil = 0;
+  if (state.espionage.networkLevel  === undefined) state.espionage.networkLevel  = 0;  // T113
+}
+
+/**
+ * T113: Upgrade the spy network to the next level.
+ * Requires espionage tech. Costs increase per level.
+ * @returns {{ ok: boolean, reason?: string }}
+ */
+export function upgradeSpyNetwork() {
+  if (!state.techs?.espionage)
+    return { ok: false, reason: 'Research the Espionage tech first.' };
+
+  const currentLevel = state.espionage?.networkLevel ?? 0;
+  const nextDef = NETWORK_LEVELS[currentLevel + 1];
+  if (!nextDef)
+    return { ok: false, reason: 'Spy network is already at maximum level.' };
+
+  if ((state.resources?.gold ?? 0) < nextDef.cost)
+    return { ok: false, reason: `Need ${nextDef.cost} gold to upgrade.` };
+
+  state.resources.gold -= nextDef.cost;
+  state.espionage.networkLevel = nextDef.level;
+
+  emit(Events.RESOURCE_CHANGED, {});
+  emit(Events.ESPIONAGE_EVENT, { type: 'upgrade', level: nextDef.level, name: nextDef.name });
+  addMessage(`🕵️ Spy network upgraded to ${nextDef.name}! ${_networkBenefitDesc(nextDef)}`, 'info');
+  return { ok: true };
+}
+
+/** Human-readable description of the benefits of a network level def. */
+function _networkBenefitDesc(def) {
+  const parts = [`+${Math.round(def.successBonus * 100)}% mission success`];
+  if (def.cooldownRedSecs > 0) parts.push(`-${def.cooldownRedSecs}s cooldown`);
+  if (def.counterspy)          parts.push('counterspy passive');
+  if (def.heistBonus > 0)      parts.push(`+${def.heistBonus} heist bonus`);
+  return parts.join(', ') + '.';
+}
+
+/** Returns the current network level definition. */
+export function getNetworkLevel() {
+  return NETWORK_LEVELS[state.espionage?.networkLevel ?? 0] ?? NETWORK_LEVELS[0];
+}
+
+/** Returns the next network level definition, or null if maxed. */
+export function getNextNetworkLevel() {
+  const lvl = state.espionage?.networkLevel ?? 0;
+  return NETWORK_LEVELS[lvl + 1] ?? null;
 }
 
 /**
@@ -77,6 +133,12 @@ export function canLaunchMission(missionId) {
     return { ok: false, reason: `Spy network on cooldown — ${secsLeft}s remaining.` };
   }
   return { ok: true };
+}
+
+/** T113: Returns the effective cooldown in ticks for the current network level. */
+export function effectiveCooldownTicks() {
+  const netDef = getNetworkLevel();
+  return Math.max(TICKS_PER_SECOND * 10, ESPIONAGE_COOLDOWN - netDef.cooldownRedSecs * TICKS_PER_SECOND);
 }
 
 /**
@@ -100,8 +162,8 @@ export function launchMission(missionId, empireId) {
   state.resources.gold = Math.max(0, (state.resources.gold ?? 0) - cost);
   emit(Events.RESOURCE_CHANGED, {});
 
-  // Set cooldown
-  state.espionage.cooldownUntil = state.tick + ESPIONAGE_COOLDOWN;
+  // Set cooldown (T113: reduced by network level)
+  state.espionage.cooldownUntil = state.tick + effectiveCooldownTicks();
 
   // Resolve success
   const success = Math.random() < _successChance(emp);
@@ -146,15 +208,19 @@ function _successChance(emp) {
   chance += alliedCount * 0.05;
   // At war with target: harder to infiltrate
   if (emp.relations === 'war') chance -= 0.10;
-  return Math.max(0.15, Math.min(0.90, chance));
+  // T113: spy network level bonus
+  chance += getNetworkLevel().successBonus;
+  return Math.max(0.15, Math.min(0.95, chance));
 }
 
 function _resolve(missionId, emp, empDef, success) {
   let text = '';
+  const netDef = getNetworkLevel();  // T113
 
   if (missionId === 'gold_heist') {
     if (success) {
-      const loot = Math.round(150 + Math.random() * 200);
+      // T113: Shadow Ministry adds +heistBonus gold
+      const loot = Math.round(150 + Math.random() * 200) + netDef.heistBonus;
       state.resources.gold = Math.min(
         state.caps?.gold ?? 500,
         (state.resources.gold ?? 0) + loot
@@ -163,10 +229,12 @@ function _resolve(missionId, emp, empDef, success) {
       text = `🕵️ Spy heist on ${empDef.name} succeeded! Stole ${loot} gold.`;
       addMessage(text, 'info');
     } else {
-      const penalty = 50;
+      let penalty = 50;
+      // T113: Intelligence Bureau+ counterspy refunds 50% of failure cost
+      if (netDef.counterspy) penalty = Math.round(penalty * 0.5);
       state.resources.gold = Math.max(0, (state.resources.gold ?? 0) - penalty);
       emit(Events.RESOURCE_CHANGED, {});
-      text = `🕵️ Spy heist on ${empDef.name} failed. Spy was bribed — lost ${penalty} gold.`;
+      text = `🕵️ Spy heist on ${empDef.name} failed. Spy was bribed — lost ${penalty} gold.${netDef.counterspy ? ' (counterspy halved penalty)' : ''}`;
       addMessage(text, 'raid');
     }
   }
@@ -177,11 +245,12 @@ function _resolve(missionId, emp, empDef, success) {
       text = `🕵️ Sabotage of ${empDef.name} succeeded! Supply lines disrupted — morale up.`;
       addMessage(text, 'info');
     } else {
-      // Counter-raid: enemy steals gold
-      const stolen = Math.round(200 + Math.random() * 200);
+      // T113: counterspy passive reduces counter-raid damage by 50%
+      let stolen = Math.round(200 + Math.random() * 200);
+      if (netDef.counterspy) stolen = Math.round(stolen * 0.5);
       state.resources.gold = Math.max(0, (state.resources.gold ?? 0) - stolen);
       emit(Events.RESOURCE_CHANGED, {});
-      text = `🕵️ Sabotage on ${empDef.name} failed! Counter-agents raided your treasury for ${stolen} gold.`;
+      text = `🕵️ Sabotage on ${empDef.name} failed! Counter-agents raided your treasury for ${stolen} gold.${netDef.counterspy ? ' (counterspy halved raid)' : ''}`;
       addMessage(text, 'raid');
     }
   }

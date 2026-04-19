@@ -88,4 +88,5 @@ export const Events = Object.freeze({
   PIONEER_CHANGED:          'pioneerChanged',          // T110: pioneer expedition sent / completed
   NATURAL_DISASTER:         'naturalDisaster',         // T111: tile improvement damaged by natural disaster
   HERO_QUEST_CHANGED:       'heroQuestChanged',        // T112: hero legendary quest phase advanced
+  ALLIANCE_FAVOR_CHANGED:   'allianceFavorChanged',    // T114: alliance favor gained or spent
 });

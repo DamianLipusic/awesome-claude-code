@@ -13,16 +13,19 @@ import {
   proposeAlliance, openTradeRoute, closeTradeRoute,
   declareWar, proposePeace, demandSurrender,
   payTribute, demandTribute, sendGift,
+  requestAllianceFavor,
   ALLIANCE_COST, TRADE_ROUTE_COST, PEACE_COST, MAX_TRADE_ROUTES,
   SURRENDER_COST, WAR_SCORE_THRESHOLD,
   TRIBUTE_COST, TRIBUTE_DEMAND, DEMAND_WARSCORE_MIN,
   GIFT_SMALL_COST, GIFT_LARGE_COST, GIFT_SMALL_ALLY_CHANCE, GIFT_LARGE_ALLY_CHANCE,
   isSkirmishActive, getSkirmish, skirmishSecsLeft, mediateSkirmish,
   MEDIATE_MIN_ALLIANCES, MEDIATE_GOLD_REWARD, MEDIATE_PRESTIGE,
+  FAVOR_MAX, FAVOR_REQUESTS,
 } from '../systems/diplomacy.js';
 import {
   launchMission, canLaunchMission, espionageCooldownSecs,
   MISSION_LABELS, MISSION_DESCS,
+  upgradeSpyNetwork, getNetworkLevel, getNextNetworkLevel, NETWORK_LEVELS,
 } from '../systems/espionage.js';
 import {
   requestMilitaryAid, canRequestAid, getAidCooldownSecs, getActiveAid,
@@ -49,8 +52,9 @@ export function initDiplomacyPanel() {
   on(Events.BORDER_SKIRMISH,   () => _render(panel));  // T088
   on(Events.RESOURCE_CHANGED,  _throttle(() => _render(panel), 8));
   on(Events.TECH_CHANGED,          () => _render(panel));
-  on(Events.ESPIONAGE_EVENT,       () => _render(panel));
-  on(Events.MILITARY_AID_CHANGED,  () => _render(panel));
+  on(Events.ESPIONAGE_EVENT,        () => _render(panel));
+  on(Events.MILITARY_AID_CHANGED,   () => _render(panel));
+  on(Events.ALLIANCE_FAVOR_CHANGED, () => _render(panel));  // T114
   // Refresh cooldown countdown every second; also refresh ceasefire/gift/skirmish/aid timers when active
   on(Events.TICK, _throttle(() => {
     const cd = document.getElementById('espionage-cooldown');
@@ -199,9 +203,48 @@ function _espionageSection() {
     <div class="dipl-espionage">
       <div class="dipl-esp-header">🕵️ Espionage</div>
       <div class="dipl-esp-status" id="espionage-cooldown">${cdText}</div>
+      ${_spyNetworkSection()}
       <div class="dipl-esp-missions">${missionRows}</div>
       <div class="dipl-esp-log-header">Mission Log</div>
       <div class="dipl-esp-log">${logEntries}</div>
+    </div>`;
+}
+
+// T113: Spy network upgrade section
+function _spyNetworkSection() {
+  const current = getNetworkLevel();
+  const next    = getNextNetworkLevel();
+
+  const levelPips = NETWORK_LEVELS.slice(0, 4).map((lvl, i) => {
+    const filled = i <= current.level;
+    return `<span class="spy-net-pip${filled ? ' spy-net-pip--filled' : ''}"></span>`;
+  }).join('');
+
+  const upgradeBtn = next
+    ? (() => {
+        const canAfford = (state.resources?.gold ?? 0) >= next.cost;
+        return `<button
+          class="btn btn--sm btn--spy-upgrade ${canAfford ? '' : 'btn--disabled'}"
+          data-action="spy-upgrade"
+          ${canAfford ? '' : 'disabled'}
+          title="Upgrade to ${next.name}: +${Math.round(next.successBonus*100)}% success, -${next.cooldownRedSecs}s cooldown${next.counterspy ? ', counterspy passive' : ''}${next.heistBonus > 0 ? ', +'+next.heistBonus+' heist gold' : ''}">
+          Upgrade (${next.cost}💰)
+        </button>`;
+      })()
+    : `<span class="spy-net-maxed">✅ Max Level</span>`;
+
+  const bonuses = current.level > 0
+    ? `+${Math.round(current.successBonus*100)}% success, -${current.cooldownRedSecs}s cd${current.counterspy ? ', counterspy' : ''}${current.heistBonus > 0 ? ', +'+current.heistBonus+' heist gold' : ''}`
+    : 'No bonuses yet';
+
+  return `
+    <div class="spy-network-section">
+      <div class="spy-net-row">
+        <span class="spy-net-name">🔐 ${current.name}</span>
+        <span class="spy-net-pips">${levelPips}</span>
+      </div>
+      <div class="spy-net-bonuses">${bonuses}</div>
+      <div class="spy-net-upgrade">${upgradeBtn}</div>
     </div>`;
 }
 
@@ -416,9 +459,42 @@ function _empireCard(emp) {
       ${warScoreHtml}
       ${_giftRow(emp)}
       ${_aidRow(emp)}
+      ${_favorRow(emp)}
       <div class="dipl-empire-card__actions">${btns.join('')}</div>
     </div>
   `;
+}
+
+// ── T114: Alliance Favor row ──────────────────────────────────────────────────
+
+function _favorRow(emp) {
+  if (emp.relations !== 'allied') return '';
+
+  const favor   = emp.favor ?? 0;
+  const pct     = Math.round(favor / FAVOR_MAX * 100);
+  const empDef  = EMPIRES[emp.id];
+
+  const reqBtns = Object.entries(FAVOR_REQUESTS).map(([reqId, req]) => {
+    const canAfford = favor >= req.cost;
+    return `<button
+      class="btn btn--xs btn--favor ${canAfford ? '' : 'btn--disabled'}"
+      data-action="alliance-favor" data-empire="${emp.id}" data-req-type="${reqId}"
+      ${canAfford ? '' : 'disabled'}
+      title="${req.desc} (costs ${req.cost} favor)">
+      ${req.label} (${req.cost}✨)
+    </button>`;
+  }).join('');
+
+  return `
+    <div class="dipl-favor-row">
+      <div class="dipl-favor-header">
+        <span class="dipl-favor-label">✨ Alliance Favor: ${favor}/${FAVOR_MAX}</span>
+        <div class="dipl-favor-bar-wrap" title="Accumulates 1 point every 15s while allied">
+          <div class="dipl-favor-bar" style="width:${pct}%"></div>
+        </div>
+      </div>
+      <div class="dipl-favor-requests">${reqBtns}</div>
+    </div>`;
 }
 
 // ── T102: Military Aid row ────────────────────────────────────────────────────
@@ -602,6 +678,17 @@ function _onClick(e) {
         setTimeout(() => btn.classList.remove('btn--shake'), 400);
         addMessageFallback(result.reason);
       }
+      break;
+    }
+    case 'spy-upgrade': {  // T113
+      result = upgradeSpyNetwork();
+      if (!result.ok) addMessageFallback(result.reason);
+      break;
+    }
+    case 'alliance-favor': {  // T114
+      const reqType = btn.dataset.reqType;
+      result = requestAllianceFavor(empire, reqType);
+      if (!result.ok) addMessageFallback(result.reason);
       break;
     }
   }
