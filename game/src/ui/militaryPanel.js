@@ -26,6 +26,7 @@ import { TECHS } from '../data/techs.js';
 import { AGES } from '../data/ages.js';
 import { HERO_DEF, HERO_SKILLS, HERO_SKILL_WIN_INTERVAL, HERO_MAX_SKILLS, HERO_TRAITS, COMPANIONS, COMPANION_ORDER } from '../data/hero.js';
 import { fmtNum } from '../utils/fmt.js';
+import { SEASON_UNIT_DISCOUNT } from '../data/seasons.js';
 
 const UNIT_ORDER = ['soldier', 'archer', 'knight', 'mage'];
 
@@ -1100,10 +1101,17 @@ function _unitCard(id) {
   const locked   = !unlocked;
   const disabled = locked || !canAfford;
 
+  // T130: seasonal unit discount badge
+  const seasonDiscount = SEASON_UNIT_DISCOUNT[state.season?.index ?? 0] === id;
+  const discountBadge  = seasonDiscount && !locked
+    ? `<span class="unit-card__discount">🟢 20% Off</span>`
+    : '';
+
   return `<div class="unit-card ${locked ? 'unit-card--locked' : ''} ${!locked && !canAfford ? 'unit-card--cant-afford' : ''}">
     <div class="unit-card__header">
       <span class="unit-card__icon">${def.icon}</span>
       <span class="unit-card__name">${def.name}</span>
+      ${discountBadge}
       <span class="unit-card__count">${state.units[id] ?? 0}</span>
     </div>
     <div class="unit-card__desc">${def.description}</div>

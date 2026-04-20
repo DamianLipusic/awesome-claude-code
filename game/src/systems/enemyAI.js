@@ -158,6 +158,8 @@ function _counterattack() {
   if (state.techs?.fortification) winChance *= 0.6;
   // T066: tile-level fortification adds extra defense, reducing win chance further
   if (tile.fortified) winChance *= 0.70;
+  // T129: fortified strategic chokepoints get an extra −35% enemy success
+  if (tile.isChokepoint && tile.fortified) winChance *= 0.65;
   // Formation: Defensive reduces enemy counterattack success by 30%; Aggressive increases by 25% (T052)
   const formation = state.formation ?? 'balanced';
   if (formation === 'defensive')  winChance *= 0.70;
@@ -191,7 +193,7 @@ function _counterattack() {
     tile.owner   = 'enemy';
     tile.faction = attackingFaction;   // T053: tag with attacking empire
     if (tile.improvement) tile.improvement = null;
-    if (tile.fortified) { tile.fortified = false; tile.defense = Math.max(0, tile.defense - 15); }
+    if (tile.fortified) { tile.fortified = false; tile.defense = Math.max(0, tile.defense - (tile.fortifyBonus ?? 15)); tile.fortifyBonus = undefined; }
     destroyGarrison(target.x, target.y);  // T068: garrison units lost on capture
     if (tile.hasCity) {
       tile.hasCity = false;

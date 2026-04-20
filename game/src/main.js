@@ -42,7 +42,7 @@ import { initNaturalDisasters, naturalDisasterTick } from './systems/naturalDisa
 import { initInspiration, inspirationTick } from './systems/researchInspiration.js';       // T116
 import { initCrises, crisisTick, getActiveCrisis, resolveCrisis } from './systems/crises.js'; // T117
 import { ENSHRINE_PRESTIGE } from './systems/heroSystem.js';                                  // T118
-import { SEASONS, SEASON_BUILDING_LABELS } from './data/seasons.js';
+import { SEASONS, SEASON_BUILDING_LABELS, SEASON_UNIT_LABELS } from './data/seasons.js';
 import { AGES } from './data/ages.js';
 import { BUILDINGS } from './data/buildings.js';
 import { TICKS_PER_SECOND } from './core/tick.js';
@@ -544,8 +544,9 @@ function _updateSeasonBadge() {
   const secs = secsLeft % 60;
   const timeStr = mins > 0 ? `${mins}m${String(secs).padStart(2,'0')}s` : `${secs}s`;
   const buildingLabel = SEASON_BUILDING_LABELS[state.season?.index ?? 0] ?? '';
+  const unitLabel     = SEASON_UNIT_LABELS[state.season?.index ?? 0] ?? '';
   el.textContent = `${s.icon} ${s.name}`;
-  el.title = `${s.name}: ${s.desc} — Changes in ${timeStr}\n🏗️ Building bonus: ${buildingLabel}`;
+  el.title = `${s.name}: ${s.desc} — Changes in ${timeStr}\n🏗️ Building bonus: ${buildingLabel}\n⚔️ Unit discount: ${unitLabel}`;
 }
 
 // ── Weather badge ─────────────────────────────────────────────────────────

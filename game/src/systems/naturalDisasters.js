@@ -128,7 +128,8 @@ export function naturalDisasterTick() {
 
     if (type.affectsFortification && tile.fortified) {
       tile.fortified = false;
-      tile.defense   = Math.max(0, (tile.defense ?? 0) - 15);
+      tile.defense   = Math.max(0, (tile.defense ?? 0) - (tile.fortifyBonus ?? 15));
+      tile.fortifyBonus = undefined;
       damaged = true;
     }
 

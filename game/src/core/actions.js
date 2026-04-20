@@ -16,6 +16,7 @@ import { BOONS } from '../data/ageBoons.js';
 import { SPECIALIZATIONS } from '../data/buildingSpecials.js';
 import { CAPITAL_PLANS } from '../data/capitalPlans.js';
 import { FORGE_ITEMS } from '../data/forgeItems.js';
+import { SEASON_UNIT_DISCOUNT } from '../data/seasons.js';
 import { recalcRates } from '../systems/resources.js';
 import { log } from '../utils/logger.js';
 
@@ -92,11 +93,17 @@ export function trainUnit(id) {
   const def = UNITS[id];
   if (!def) return { ok: false, reason: `Unknown unit: ${id}` };
 
-  if (!canAfford(def.cost)) {
+  // T130: Seasonal unit discount — 20% off for the season-matched unit type
+  const discountUnit = SEASON_UNIT_DISCOUNT[state.season?.index ?? 0];
+  const effectiveCost = (discountUnit === id)
+    ? Object.fromEntries(Object.entries(def.cost).map(([r, v]) => [r, Math.floor(v * 0.80)]))
+    : def.cost;
+
+  if (!canAfford(effectiveCost)) {
     return { ok: false, reason: 'Insufficient resources' };
   }
 
-  deductCost(def.cost);
+  deductCost(effectiveCost);
   // Warcraft tech: -25% training time; Colosseum wonder: -33%; Martial Law policy: -30%
   let totalTicks = def.trainTicks;
   if (state.techs.warcraft)                  totalTicks = Math.ceil(totalTicks * 0.75);
@@ -121,7 +128,8 @@ export function trainUnit(id) {
   state.trainingQueue.push({ unitId: id, remaining: totalTicks, totalTicks });
 
   emit(Events.UNIT_CHANGED, {});
-  addMessage(`Training ${def.name}…`, 'train');
+  const discountNote = (discountUnit === id) ? ' (seasonal discount)' : '';
+  addMessage(`Training ${def.name}…${discountNote}`, 'train');
   return { ok: true };
 }
 
@@ -467,11 +475,17 @@ export function fortifyTile(x, y) {
 
   deductCost(cost);
   tile.fortified = true;
-  tile.defense   = (tile.defense ?? 10) + 15;
+  // T129: chokepoint tiles get +40 defense bonus instead of the standard +15
+  const defBonus = tile.isChokepoint ? 40 : 15;
+  tile.fortifyBonus = defBonus;
+  tile.defense = (tile.defense ?? 10) + defBonus;
 
   emit(Events.MAP_CHANGED, {});
   emit(Events.RESOURCE_CHANGED, {});
-  addMessage(`🏰 Fortified tile (${x},${y}). Defense +15.`, 'build');
+  const msg = tile.isChokepoint
+    ? `◈ Chokepoint fortified (${x},${y})! Defense +40.`
+    : `🏰 Fortified tile (${x},${y}). Defense +15.`;
+  addMessage(msg, 'build');
   return { ok: true };
 }
 

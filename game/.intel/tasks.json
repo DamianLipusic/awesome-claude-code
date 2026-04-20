@@ -1144,5 +1144,23 @@
     "status": "done",
     "phase": 47,
     "notes": "data/seasons.js: Added SEASON_BUILDING_BONUSES (array of 4 season objects keyed by buildingId→mult) and SEASON_BUILDING_LABELS (human-readable label per season listing the boosted buildings). systems/resources.js: Added SEASON_BUILDING_BONUSES to import from data/seasons.js; added T128 seasonal building bonus block at end of _buildingProdMultiplier() — reads SEASON_BUILDING_BONUSES[state.season?.index] and applies building-specific mult when found. getBreakdown() calls _buildingProdMultiplier() so HUD tooltips automatically show correct boosted values. main.js: Added SEASON_BUILDING_LABELS to import from data/seasons.js; updated _updateSeasonBadge() to append '🏗️ Building bonus: <labels>' line to the season badge tooltip. No save version bump — all computed dynamically from season state."
+  },
+  {
+    "id": "T129",
+    "title": "strategic map chokepoints",
+    "description": "During map generation, 3 neutral river/mountain tiles at distance 3–9 from capital are designated as strategic chokepoints (tile.isChokepoint=true). When fortified by the player, chokepoints grant +40 defense (instead of +15) and enemy AI counterattacks get an extra −35% win chance. Canvas: amber ◈ glyph in top-left corner on revealed chokepoint tiles. Tile tooltip shows '◈ Strategic Chokepoint' with bonus info and updated fortify hint. tile.fortifyBonus persists the actual defense delta so enemy captures and natural disasters correctly restore the original value. No save version bump.",
+    "priority": 129,
+    "status": "done",
+    "phase": 48,
+    "notes": "systems/map.js: Added CHOKEPOINT_COUNT=3, CHOKEPOINT_TERRAINS (river/mountain), _placeChokepoints(tiles) — finds neutral river/mountain tiles at dist 3–9, shuffles, marks first 3 as tile.isChokepoint=true; called from initMap() after _placeRuins. core/actions.js: fortifyTile() now computes defBonus = tile.isChokepoint ? 40 : 15, stores tile.fortifyBonus=defBonus, applies it to tile.defense; message differs for chokepoints ('◈ Chokepoint fortified!'). systems/enemyAI.js: Added 'if (tile.isChokepoint && tile.fortified) winChance *= 0.65' after the existing tile.fortified check; fixed fortification removal to use tile.fortifyBonus ?? 15 (instead of hardcoded 15) and clears tile.fortifyBonus. systems/naturalDisasters.js: Same fortifyBonus fix for earthquake-type fortification removal. ui/mapPanel.js: _drawTile() draws amber ◈ glyph in top-left corner (blue when player-owned, amber otherwise) on all revealed chokepoint tiles; _showTileTip() builds chokepointHtml (color:#ffc070 label + dim desc line, two states: fortified/unfortified) and injects it after capitalHtml; fortify hint updated to show '+40 def — chokepoint!' vs normal '+15 def'."
+  },
+  {
+    "id": "T130",
+    "title": "seasonal unit recruitment discounts",
+    "description": "Each season, one unit type trains at 20% reduced cost: Spring=soldier, Summer=archer, Autumn=knight, Winter=mage. Applied in trainUnit() using a derived effectiveCost. Season badge tooltip gains a '⚔️ Unit discount: X 20% cheaper' line. Military panel unit cards show a green '20% Off' badge on the discounted unit. No state or save version changes needed — discount computed dynamically from state.season.",
+    "priority": 130,
+    "status": "done",
+    "phase": 48,
+    "notes": "data/seasons.js: Added SEASON_UNIT_DISCOUNT export (array of 4 unit IDs: soldier/archer/knight/mage) and SEASON_UNIT_LABELS export (human-readable per-season discount descriptions). core/actions.js: Imported SEASON_UNIT_DISCOUNT from data/seasons.js; trainUnit() now computes discountUnit=SEASON_UNIT_DISCOUNT[state.season?.index??0] and effectiveCost (floors each cost component at 0.80× when matched); canAfford+deductCost use effectiveCost; message appends '(seasonal discount)' when discount applied. ui/militaryPanel.js: Imported SEASON_UNIT_DISCOUNT; _unitCard() computes seasonDiscount boolean (current season's unit === id); if true and not locked, injects .unit-card__discount badge '🟢 20% Off' into card header (before count span). src/main.js: Added SEASON_UNIT_LABELS to seasons import; _updateSeasonBadge() tooltip appended '⚔️ Unit discount: ${unitLabel}' line. styles/main.css: Added .unit-card__discount (green text, faint green bg, rounded border pill badge)."
   }
 ]

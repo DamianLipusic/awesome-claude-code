@@ -378,10 +378,20 @@ function _showTileTip(tile, x, y, mouseX, mouseY) {
       })()
     : '';
 
+  // T129: chokepoint label (shown on all revealed chokepoint tiles)
+  const chokepointHtml = tile.isChokepoint && tile.revealed
+    ? (tile.fortified
+        ? `<div class="map-tt-row" style="color:#ffc070;font-weight:600">◈ Strategic Chokepoint</div>
+           <div class="map-tt-row" style="font-size:0.7rem;color:var(--text-dim)">Fortified — enemies: −35% win chance</div>`
+        : `<div class="map-tt-row" style="color:#ffc070;font-weight:600">◈ Strategic Chokepoint</div>
+           <div class="map-tt-row" style="font-size:0.7rem;color:var(--text-dim)">Fortify for +40 def &amp; −35% enemy success</div>`)
+    : '';
+
   _tileTipEl.innerHTML = `
     <div class="map-tt-title">${TERRAIN_NAME[tile.type] ?? tile.type}</div>
     <div class="map-tt-row">${ownerHtml}</div>
     ${capitalHtml}
+    ${chokepointHtml}
     ${lmHtml}
     ${ruinHtml}
     ${cityHtml}
@@ -400,7 +410,7 @@ function _showTileTip(tile, x, y, mouseX, mouseY) {
       return `<div class="map-tt-row" style="color:#ffd700">🛡️ Garrison: ${g.count}× ${unitDef?.name ?? g.unitId} (+${(unitDef?.defense ?? 0) * g.count} def)</div>`;
     })()}
     ${tile.owner === 'player' && !tile.fortified && tile.type !== 'capital'
-      ? `<div class="map-tt-row" style="font-size:0.7rem;color:var(--text-dim)">🏰 Click → Fortify (+15 def)</div>`
+      ? `<div class="map-tt-row" style="font-size:0.7rem;color:var(--text-dim)">🏰 Click → Fortify (${tile.isChokepoint ? '+40 def — chokepoint!' : '+15 def'})</div>`
       : ''}
     ${actionHtml}
   `;
@@ -560,6 +570,17 @@ function _drawTile(tile, x, y, capital) {
       ctx.textAlign     = 'center';
       ctx.textBaseline  = 'middle';
     }
+  }
+
+  // T129: draw chokepoint indicator (◈) in top-left corner on revealed chokepoint tiles
+  if (tile.revealed && tile.isChokepoint) {
+    ctx.font          = '7px sans-serif';
+    ctx.textAlign     = 'left';
+    ctx.textBaseline  = 'top';
+    ctx.fillStyle     = tile.owner === 'player' ? '#88ddff' : '#ffc070';
+    ctx.fillText('◈', px + 2, py + 2);
+    ctx.textAlign     = 'center';
+    ctx.textBaseline  = 'middle';
   }
 
   // T066: draw fortification indicator (small corner mark) on fortified player tiles

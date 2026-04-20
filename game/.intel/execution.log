@@ -2,6 +2,29 @@
 
 ---
 
+## 2026-04-20 — Session N+34
+
+**Tasks completed:** T129, T130
+
+**Summary:**
+All prior tasks (T001–T128) were complete. Created T129+T130 task specs then implemented two Phase 48 features: Strategic Map Chokepoints (T129) and Seasonal Unit Recruitment Discounts (T130).
+
+**T129 — Strategic Map Chokepoints:**
+- `src/systems/map.js`: Added `CHOKEPOINT_COUNT=3`, `CHOKEPOINT_TERRAINS` (river/mountain), `_placeChokepoints(tiles)` — finds neutral river/mountain tiles at distance 3–9 from capital, shuffles, marks first 3 with `tile.isChokepoint=true`. Called from `initMap()` after `_placeRuins`.
+- `src/core/actions.js`: `fortifyTile()` now computes `defBonus = tile.isChokepoint ? 40 : 15`, stores `tile.fortifyBonus = defBonus`, applies it to `tile.defense`. Message shows `◈ Chokepoint fortified!` vs normal fortify message.
+- `src/systems/enemyAI.js`: Added `if (tile.isChokepoint && tile.fortified) winChance *= 0.65` after the existing `tile.fortified` check for extra −35% enemy success. Fixed fortification removal to use `tile.fortifyBonus ?? 15` (was hardcoded 15) and clears `tile.fortifyBonus`.
+- `src/systems/naturalDisasters.js`: Same `tile.fortifyBonus ?? 15` fix for earthquake fortification removal.
+- `src/ui/mapPanel.js`: `_drawTile()` draws amber `◈` glyph in top-left corner on all revealed chokepoint tiles (blue when player-owned). `_showTileTip()` injects `chokepointHtml` (amber label + dim description, two states: fortified/unfortified) after `capitalHtml`; fortify hint updated to show `+40 def — chokepoint!` vs normal `+15 def`.
+
+**T130 — Seasonal Unit Recruitment Discounts:**
+- `src/data/seasons.js`: Added `SEASON_UNIT_DISCOUNT` export (`['soldier','archer','knight','mage']`) and `SEASON_UNIT_LABELS` export (human-readable per-season descriptions).
+- `src/core/actions.js`: Imported `SEASON_UNIT_DISCOUNT`; `trainUnit()` computes `discountUnit` and `effectiveCost` (floors each cost at ×0.80 when season matches); `canAfford`+`deductCost` use `effectiveCost`; message appends `(seasonal discount)` when applied.
+- `src/ui/militaryPanel.js`: Imported `SEASON_UNIT_DISCOUNT`; `_unitCard()` shows `.unit-card__discount` `🟢 20% Off` badge in header for the matched unit when not locked.
+- `src/main.js`: Added `SEASON_UNIT_LABELS` to seasons import; `_updateSeasonBadge()` tooltip appends `⚔️ Unit discount: …` line.
+- `styles/main.css`: Added `.unit-card__discount` (green text, faint green background, rounded border badge).
+
+---
+
 ## 2026-04-20 — Session N+33
 
 **Tasks completed:** T127, T128

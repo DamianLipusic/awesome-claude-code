@@ -56,3 +56,17 @@ export const SEASON_BUILDING_LABELS = [
   '🪨 Quarries +30%  ·  🏪 Markets +25%',
   '⚒️ Iron Foundries +25%  ·  🗼 Watchtowers +50%',
 ];
+
+/**
+ * T130: Unit type that trains at 20% reduced cost each season.
+ * Index matches SEASONS (0=Spring, 1=Summer, 2=Autumn, 3=Winter).
+ */
+export const SEASON_UNIT_DISCOUNT = ['soldier', 'archer', 'knight', 'mage'];
+
+/** Human-readable unit discount labels per season (for the season badge tooltip). */
+export const SEASON_UNIT_LABELS = [
+  '⚔️ Soldiers 20% cheaper',
+  '🏹 Archers 20% cheaper',
+  '🗡️ Knights 20% cheaper',
+  '🔮 Mages 20% cheaper',
+];

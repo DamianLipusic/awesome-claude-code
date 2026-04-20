@@ -91,6 +91,9 @@ export function initMap() {
   _placeRuins(tiles);
   state.ruins = { excavated: {} };
 
+  // T129: Designate strategic chokepoints
+  _placeChokepoints(tiles);
+
   state.map = {
     width:   MAP_W,
     height:  MAP_H,
@@ -283,6 +286,41 @@ function _placeRuins(tiles) {
     const tile = tiles[y][x];
     tile.hasRuin = `ruin_${placed}`;
     tile.defense += 8;  // slight defensive bonus
+    placed++;
+  }
+}
+
+/**
+ * T129: Designate 3 river/mountain neutral tiles at distance 3–9 as strategic chokepoints.
+ * Chokepoints get tile.isChokepoint = true and yield +40 defense when the player fortifies
+ * them (instead of the normal +15). Enemy AI also gets an extra −35% win chance against
+ * fortified chokepoints. No save version bump — stored directly in tile data.
+ */
+const CHOKEPOINT_COUNT    = 3;
+const CHOKEPOINT_TERRAINS = new Set(['river', 'mountain']);
+
+function _placeChokepoints(tiles) {
+  const candidates = [];
+  for (let y = 0; y < MAP_H; y++) {
+    for (let x = 0; x < MAP_W; x++) {
+      const tile = tiles[y][x];
+      const dist = Math.hypot(x - CAPITAL.x, y - CAPITAL.y);
+      if (
+        dist >= 3 && dist <= 9 &&
+        tile.owner === null &&
+        CHOKEPOINT_TERRAINS.has(tile.type) &&
+        !tile.landmark &&
+        !tile.hasRuin
+      ) {
+        candidates.push({ x, y });
+      }
+    }
+  }
+  candidates.sort(() => Math.random() - 0.5);
+  let placed = 0;
+  for (const { x, y } of candidates) {
+    if (placed >= CHOKEPOINT_COUNT) break;
+    tiles[y][x].isChokepoint = true;
     placed++;
   }
 }
