@@ -1126,5 +1126,23 @@
     "status": "done",
     "phase": 46,
     "notes": "Created src/systems/auction.js: AUCTION_MIN/MAX=3-5min, DURATION=90s; BUNDLE_TEMPLATES (8 2-3 resource bundles); _nextAuctionTick()/_bundleValue()/_spawnAuction() helpers; initAuction() initializes state.auction={current:null,nextAuctionTick,won:0} if not already set; auctionTick() — checks expiry (awards bundle or expires silently, clears current), spawns new auction when timer fires and market exists; bidOnAuction(amount) — validates active auction + gold + not already met; deducts gold, adds to playerBid (capped at bidGoal), emits AUCTION_CHANGED+RESOURCE_CHANGED; passAuction() — refunds partial bid, clears current, emits AUCTION_CHANGED. core/events.js: Added AUCTION_CHANGED event. core/state.js: state.auction=null; initState() resets. main.js: imported initAuction+auctionTick; registerSystem(auctionTick); initAuction(); state.auction saved/loaded. ui/marketPanel.js: imported bidOnAuction+passAuction from auction.js; on(AUCTION_CHANGED) subscription; TICK handler extended to refresh on auction.current; _auctionSection() renders idle (countdown+total won) or active (bundle, bid goal, progress bar, Bid 10/50+Pass buttons, met state); html injected after _contractsSection(); click handlers for auction-bid and auction-pass. styles/main.css: .auction-section/--active, .auction-header, .auction-timer, .auction-idle, .auction-bundle, .auction-bid-info, .auction-progress-bar/fill, .auction-won-msg, .auction-actions, .btn--auction, .btn--auction-pass styles added."
+  },
+  {
+    "id": "T127",
+    "title": "resource raid action — steal resources from enemy tiles without capturing",
+    "description": "New tactical action in the combat preview modal: '⚡ Raid for Resources'. Raids an adjacent enemy tile to steal resources without capturing territory. Costs 30 food. Enemy defense is halved (40% of normal). Win chance clamped [40%, 85%]. Win: steal 60% of tile loot + bonus gold (scales with tick). Loss: lose 1 unit. Global 5-minute cooldown. RAID_CHANGED event. state.raids saved/loaded.",
+    "priority": 127,
+    "status": "done",
+    "phase": 47,
+    "notes": "RAID_CHANGED event added to events.js. state.raids = {cooldownUntil, totalRaids} added to state.js + reset in initState(). systems/combat.js: imported TICKS_PER_SECOND; added RAID_FOOD_COST=30, RAID_COOLDOWN_TICKS=1200 (5min); added _initRaids() helper; added getRaidPreview(x,y) — validates adjacency+enemy+units, computes attackPower (same unit loop as getAttackPreview), enemyDef=tile.defense*0.4, winChance=clamp(0.40,0.85), loot=60% of tile.loot + bonus gold; added raidTile(x,y) — validates preview, checks cooldown+food, deducts food, rolls, win: grants resources+increments totalRaids+logs windfall, loss: _loseOneUnit()+logs combat-loss; sets cooldownUntil either way. ui/mapPanel.js: imported raidTile+getRaidPreview from combat.js; _showCombatPreview() builds raidHtml section (win%, cost, loot preview) and appends Raid button to .cp-actions; _createCombatPreview() click handler handles cp-raid-btn. main.js: raids saved/loaded (backwards-compatible null default). styles/main.css: .cp-raid-section (purple tinted card), .cp-raid-header/.info/.desc, .btn--cp-raid (purple gradient)."
+  },
+  {
+    "id": "T128",
+    "title": "seasonal building bonuses — per-building production multipliers tied to the active season",
+    "description": "Each season activates passive production bonuses for specific building types: Spring (Farms +50%, Mana Wells +20%), Summer (Lumber Mills +30%, Gold Mines +20%), Autumn (Quarries +30%, Markets +25%), Winter (Iron Foundries +25%, Watchtowers +50%). Applied inside _buildingProdMultiplier() in resources.js so they stack correctly with tech/age multipliers and are reflected in HUD tooltips. Season badge tooltip updated to list which buildings are boosted.",
+    "priority": 128,
+    "status": "done",
+    "phase": 47,
+    "notes": "data/seasons.js: Added SEASON_BUILDING_BONUSES (array of 4 season objects keyed by buildingId→mult) and SEASON_BUILDING_LABELS (human-readable label per season listing the boosted buildings). systems/resources.js: Added SEASON_BUILDING_BONUSES to import from data/seasons.js; added T128 seasonal building bonus block at end of _buildingProdMultiplier() — reads SEASON_BUILDING_BONUSES[state.season?.index] and applies building-specific mult when found. getBreakdown() calls _buildingProdMultiplier() so HUD tooltips automatically show correct boosted values. main.js: Added SEASON_BUILDING_LABELS to import from data/seasons.js; updated _updateSeasonBadge() to append '🏗️ Building bonus: <labels>' line to the season badge tooltip. No save version bump — all computed dynamically from season state."
   }
 ]

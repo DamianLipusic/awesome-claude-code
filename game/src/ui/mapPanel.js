@@ -15,7 +15,7 @@
 
 import { state } from '../core/state.js';
 import { on, Events } from '../core/events.js';
-import { attackTile, getAttackPreview } from '../systems/combat.js';
+import { attackTile, getAttackPreview, raidTile, getRaidPreview } from '../systems/combat.js';
 import { buildTileImprovement, upgradeTileImprovement, fortifyTile, garrisonUnit, withdrawGarrison, getTotalGarrisoned, GARRISON_MAX_TOTAL, addMessage, foundCity } from '../core/actions.js';
 import { UNITS } from '../data/units.js';
 import { IMPROVEMENTS } from '../data/improvements.js';
@@ -787,6 +787,10 @@ function _createCombatPreview() {
       const t = _previewTarget;
       _hideCombatPreview();
       if (t) attackTile(t.x, t.y);
+    } else if (e.target.id === 'cp-raid-btn') {
+      const t = _previewTarget;
+      _hideCombatPreview();
+      if (t) raidTile(t.x, t.y);
     } else if (e.target.id === 'cp-cancel-btn' || e.target === _previewEl) {
       _hideCombatPreview();
     }
@@ -873,6 +877,31 @@ function _showCombatPreview(x, y) {
     ? `${p.effectiveDefense} <span style="font-size:0.75em;opacity:0.6">(base ${p.defense})</span>`
     : `${p.defense}`;
 
+  // T127: Raid preview info
+  const raidP = getRaidPreview(x, y);
+  const raidHtml = raidP.valid
+    ? (() => {
+        const raidPct  = Math.round(raidP.winChance * 100);
+        const raidCol  = raidPct >= 65 ? 'var(--green)' : raidPct >= 45 ? 'var(--accent)' : 'var(--red)';
+        const raidLoot = Object.entries(raidP.loot).filter(([, v]) => v > 0)
+          .map(([r, v]) => `+${v} ${r}`).join(', ');
+        const cdNote   = raidP.onCooldown
+          ? `<span style="color:var(--red);font-size:10px"> (cooldown: ${raidP.cooldownSecs}s)</span>` : '';
+        return `
+          <div class="cp-raid-section">
+            <div class="cp-raid-header">⚡ Raid for Resources${cdNote}</div>
+            <div class="cp-raid-info">
+              <span>Win: <b style="color:${raidCol}">${raidPct}%</b></span>
+              <span>·</span>
+              <span>Cost: <b>30 🍞</b></span>
+              <span>·</span>
+              <span style="font-size:10px;color:var(--text-dim)">${raidLoot}</span>
+            </div>
+            <div class="cp-raid-desc">Steal resources without capturing territory.</div>
+          </div>`;
+      })()
+    : '';
+
   _previewEl.innerHTML = `
     <div class="cp-box">
       <div class="cp-header">⚔️ Attack Preview</div>
@@ -896,8 +925,10 @@ function _showCombatPreview(x, y) {
         <span class="cp-loot-label">Loot on victory:</span>
         <span class="cp-loot-items">${lootHtml}</span>
       </div>
+      ${raidHtml}
       <div class="cp-actions">
         <button id="cp-attack-btn" class="btn btn--sm btn--cp-attack">⚔️ Attack</button>
+        ${raidP.valid ? `<button id="cp-raid-btn" class="btn btn--sm btn--cp-raid" ${raidP.onCooldown ? 'disabled' : ''}>⚡ Raid</button>` : ''}
         <button id="cp-cancel-btn" class="btn btn--sm btn--ghost">✕ Cancel</button>
       </div>
       <div class="cp-hint">Enter to confirm · Escape to cancel</div>

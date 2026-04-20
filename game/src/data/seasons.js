@@ -36,3 +36,23 @@ export const SEASONS = [
     modifiers: { food: 0.70, wood: 0.80 },
   },
 ];
+
+/**
+ * T128: Per-building production bonuses by season index.
+ * Applied as a multiplier inside _buildingProdMultiplier() in resources.js.
+ * Stacks on top of existing tech/age multipliers and the global season rate modifier.
+ */
+export const SEASON_BUILDING_BONUSES = [
+  { farm: 1.5, manaWell: 1.2 },              // Spring: farms flourish, ley lines surge
+  { lumberMill: 1.3, goldMine: 1.2 },        // Summer: peak lumbering and mining
+  { quarry: 1.3, market: 1.25 },             // Autumn: quarrying and trade fair season
+  { ironFoundry: 1.25, watchtower: 1.5 },    // Winter: smithing and vigilant watch
+];
+
+/** Human-readable building bonus labels per season (for the season badge tooltip). */
+export const SEASON_BUILDING_LABELS = [
+  '🌾 Farms +50%  ·  ✨ Mana Wells +20%',
+  '🪵 Lumber Mills +30%  ·  ⛏️ Gold Mines +20%',
+  '🪨 Quarries +30%  ·  🏪 Markets +25%',
+  '⚒️ Iron Foundries +25%  ·  🗼 Watchtowers +50%',
+];

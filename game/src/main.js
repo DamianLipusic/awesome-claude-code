@@ -42,7 +42,7 @@ import { initNaturalDisasters, naturalDisasterTick } from './systems/naturalDisa
 import { initInspiration, inspirationTick } from './systems/researchInspiration.js';       // T116
 import { initCrises, crisisTick, getActiveCrisis, resolveCrisis } from './systems/crises.js'; // T117
 import { ENSHRINE_PRESTIGE } from './systems/heroSystem.js';                                  // T118
-import { SEASONS } from './data/seasons.js';
+import { SEASONS, SEASON_BUILDING_LABELS } from './data/seasons.js';
 import { AGES } from './data/ages.js';
 import { BUILDINGS } from './data/buildings.js';
 import { TICKS_PER_SECOND } from './core/tick.js';
@@ -400,6 +400,7 @@ function _save() {
         capUpgrades:         state.capUpgrades         ?? {},    // T120
         forge:               state.forge               ?? null,  // T125
         auction:             state.auction             ?? null,  // T126
+        raids:               state.raids               ?? null,  // T127
         tick:          state.tick,
       }
     }));
@@ -507,6 +508,7 @@ function _applySave(save) {
   state.capUpgrades          = s.capUpgrades          ?? {};    // T120
   state.forge                = s.forge                ?? null;  // T125
   state.auction              = s.auction              ?? null;  // T126
+  state.raids                = s.raids                ?? null;  // T127
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
@@ -541,8 +543,9 @@ function _updateSeasonBadge() {
   const mins = Math.floor(secsLeft / 60);
   const secs = secsLeft % 60;
   const timeStr = mins > 0 ? `${mins}m${String(secs).padStart(2,'0')}s` : `${secs}s`;
+  const buildingLabel = SEASON_BUILDING_LABELS[state.season?.index ?? 0] ?? '';
   el.textContent = `${s.icon} ${s.name}`;
-  el.title = `${s.name}: ${s.desc} — Changes in ${timeStr}`;
+  el.title = `${s.name}: ${s.desc} — Changes in ${timeStr}\n🏗️ Building bonus: ${buildingLabel}`;
 }
 
 // ── Weather badge ─────────────────────────────────────────────────────────

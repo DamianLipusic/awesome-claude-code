@@ -13,7 +13,7 @@ import { BUILDINGS } from '../data/buildings.js';
 import { UNITS } from '../data/units.js';
 import { AGES } from '../data/ages.js';
 import { EMPIRES } from '../data/empires.js';
-import { SEASONS } from '../data/seasons.js';
+import { SEASONS, SEASON_BUILDING_BONUSES } from '../data/seasons.js';
 import { HERO_DEF, heroSkillBonus } from '../data/hero.js';
 import { TICKS_PER_SECOND } from '../core/tick.js';
 import { territoryRateBonus, getTerrainControl } from './map.js';
@@ -743,6 +743,11 @@ function _buildingProdMultiplier(buildingId) {
     if (techs.divine_favor)        mult *= 1.3;
     if (state.archetype === 'arcane') mult *= 2.0;  // Arcane archetype: ×2 mana well output
   }
+
+  // T128: Seasonal building bonus — per-building multiplier based on current season
+  const seasonIdx = state.season?.index ?? -1;
+  const seasonBuildingBonus = seasonIdx >= 0 ? SEASON_BUILDING_BONUSES[seasonIdx]?.[buildingId] : undefined;
+  if (seasonBuildingBonus) mult *= seasonBuildingBonus;
 
   return mult;
 }

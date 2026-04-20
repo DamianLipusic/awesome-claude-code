@@ -7793,3 +7793,42 @@ kbd {
   cursor: pointer;
 }
 .btn--auction-pass:hover { color: var(--text-h); border-color: var(--text-dim); }
+
+/* ── T127: Resource Raid ──────────────────────────────────────────────────── */
+.cp-raid-section {
+  margin: 8px 0 4px;
+  padding: 8px 10px;
+  background: rgba(159, 122, 234, 0.06);
+  border: 1px solid rgba(159, 122, 234, 0.25);
+  border-radius: 6px;
+}
+.cp-raid-header {
+  font-size: 11px;
+  font-weight: 600;
+  color: #9f7aea;
+  margin-bottom: 4px;
+}
+.cp-raid-info {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 11px;
+  flex-wrap: wrap;
+}
+.cp-raid-desc {
+  font-size: 10px;
+  color: var(--text-dim);
+  margin-top: 3px;
+}
+.btn--cp-raid {
+  padding: 6px 14px;
+  font-size: 12px;
+  background: linear-gradient(135deg, #553c9a, #9f7aea);
+  border: none;
+  color: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.btn--cp-raid:hover { opacity: 0.85; }
+.btn--cp-raid:disabled { opacity: 0.35; cursor: default; }

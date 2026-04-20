@@ -2,6 +2,28 @@
 
 ---
 
+## 2026-04-20 — Session N+33
+
+**Tasks completed:** T127, T128
+
+**Summary:**
+All prior tasks (T001–T126) were complete. Created T127+T128 task specs then implemented two Phase 47 features: Resource Raid Action (T127) adding a tactical "steal without capture" option to the combat preview modal, and Seasonal Building Bonuses (T128) making specific buildings more productive depending on the active season.
+
+**T127 — Resource Raid Action:**
+- `src/core/events.js`: Added `RAID_CHANGED` event.
+- `src/core/state.js`: Added `raids: null` to static object; reset in `initState()`.
+- `src/systems/combat.js`: Added `TICKS_PER_SECOND` import; added `RAID_FOOD_COST=30`, `RAID_COOLDOWN_TICKS=1200` constants; added `_initRaids()`, `getRaidPreview(x,y)`, `raidTile(x,y)` exports. Raid uses 40% of tile defense, win chance clamped [40%, 85%], loot is 60% of base + bonus gold scaled by tick. On loss uses existing `_loseOneUnit()`. 5-minute global cooldown.
+- `src/ui/mapPanel.js`: Imported `raidTile`, `getRaidPreview`; `_showCombatPreview()` now builds a raid info section (win%, cost, loot preview) and appends a purple "⚡ Raid" button to the `.cp-actions` row; click handler in `_createCombatPreview()` handles `cp-raid-btn`.
+- `src/main.js`: `raids` added to `_save()` payload and `_applySave()` restore (backwards-compatible null default).
+- `styles/main.css`: `.cp-raid-section` (purple tinted card), `.cp-raid-header/.info/.desc`, `.btn--cp-raid` (purple gradient, disabled state).
+
+**T128 — Seasonal Building Bonuses:**
+- `src/data/seasons.js`: Added `SEASON_BUILDING_BONUSES` export (array of 4 season objects mapping buildingId→multiplier: Spring farm×1.5/manaWell×1.2, Summer lumberMill×1.3/goldMine×1.2, Autumn quarry×1.3/market×1.25, Winter ironFoundry×1.25/watchtower×1.5). Added `SEASON_BUILDING_LABELS` export with human-readable per-season descriptions.
+- `src/systems/resources.js`: Added `SEASON_BUILDING_BONUSES` to import; added T128 block at end of `_buildingProdMultiplier()` — reads current season index from `state.season.index` and multiplies production when a building-specific bonus exists. `getBreakdown()` already calls `_buildingProdMultiplier()` so HUD tooltips reflect boosted values automatically.
+- `src/main.js`: Added `SEASON_BUILDING_LABELS` to import from `data/seasons.js`; updated `_updateSeasonBadge()` to append `🏗️ Building bonus: <label>` to the tooltip, giving players upfront visibility of the seasonal building effects.
+
+---
+
 ## 2026-04-20 — Session N+32
 
 **Tasks completed:** T125, T126

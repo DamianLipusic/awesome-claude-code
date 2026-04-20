@@ -305,6 +305,10 @@ export const state = {
   // T126: Resource auction — { current: { bundles, bids, expiresAt } | null, nextAuctionTick }
   // null until Market building is constructed.
   auction: null,
+
+  // T127: Resource raid state — { cooldownUntil: tick, totalRaids: number }
+  // null until first raid attempt.
+  raids: null,
 };
 
 /**
@@ -381,5 +385,6 @@ export function initState(empireName = 'My Empire') {
   state.capUpgrades         = {};   // T120: reset cap upgrades per game
   state.forge               = null; // T125: forge items reset per game
   state.auction             = null; // T126: auction state reset per game
+  state.raids               = null; // T127: raid cooldown resets per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

@@ -11,6 +11,7 @@
 import { state } from '../core/state.js';
 import { emit, Events } from '../core/events.js';
 import { UNITS } from '../data/units.js';
+import { TICKS_PER_SECOND } from '../core/tick.js';
 import { HERO_DEF, HERO_SKILLS, HERO_SKILL_WIN_INTERVAL, HERO_MAX_SKILLS, heroSkillBonus, COMPANIONS, COMPANION_UNLOCK_WINS } from '../data/hero.js';
 import { addMessage } from '../core/actions.js';
 import { revealAround } from './map.js';
@@ -985,4 +986,124 @@ function _tileName(tile) {
     river: 'River', mountain: 'Mountain', capital: 'Capital',
   };
   return names[tile.type] ?? tile.type;
+}
+
+// ── T127: Resource Raid ────────────────────────────────────────────────────
+
+const RAID_FOOD_COST      = 30;                         // food consumed per raid
+const RAID_COOLDOWN_TICKS = 5 * 60 * TICKS_PER_SECOND; // 5-minute global cooldown
+
+function _initRaids() {
+  if (!state.raids) state.raids = { cooldownUntil: 0, totalRaids: 0 };
+}
+
+/**
+ * Preview a resource raid without mutating state.
+ * Returns { valid, attackPower, enemyDef, winChance, loot, onCooldown, cooldownSecs, food }
+ */
+export function getRaidPreview(x, y) {
+  _initRaids();
+  if (!state.map) return { valid: false, reason: 'No map loaded.' };
+  const { tiles, width, height } = state.map;
+  const tile = tiles[y]?.[x];
+
+  if (!tile?.revealed)                                   return { valid: false, reason: 'Tile not revealed.' };
+  if (tile.owner !== 'enemy' && tile.owner !== 'barbarian') return { valid: false, reason: 'Not an enemy tile.' };
+
+  const adjacent = NEIGHBORS.some(([dx, dy]) => {
+    const nx = x + dx; const ny = y + dy;
+    return nx >= 0 && nx < width && ny >= 0 && ny < height && tiles[ny][nx].owner === 'player';
+  });
+  if (!adjacent) return { valid: false, reason: 'Target not adjacent to your territory.' };
+
+  // Compute attack power (mirrors attackTile logic)
+  let attackPower = 0;
+  for (const [id, count] of Object.entries(state.units)) {
+    if (count <= 0) continue;
+    const def = UNITS[id];
+    if (!def) continue;
+    const upgMult = 1 + (state.unitUpgrades?.[id] ?? 0) * 0.10;
+    attackPower += def.attack * count * _rankMult(id) * upgMult;
+  }
+  if (attackPower <= 0) return { valid: false, reason: 'Train military units first.' };
+
+  // Raid uses 40% of tile defense (raiders hit fast and light, not a siege)
+  const enemyDef  = Math.round(tile.defense * 0.4);
+  const winChance = Math.min(0.85, Math.max(0.40, attackPower / (attackPower + enemyDef)));
+
+  // Loot preview: 60% of tile loot values + bonus gold scaled with game time
+  const loot = {};
+  if (tile.loot) {
+    for (const [res, amt] of Object.entries(tile.loot)) {
+      if (amt > 0) loot[res] = Math.floor(amt * 0.6);
+    }
+  }
+  loot.gold = (loot.gold || 0) + 20 + Math.floor(state.tick / 150);
+
+  const onCooldown  = (state.raids.cooldownUntil ?? 0) > state.tick;
+  const cooldownSecs = onCooldown
+    ? Math.ceil((state.raids.cooldownUntil - state.tick) / TICKS_PER_SECOND) : 0;
+
+  return {
+    valid: true,
+    attackPower: Math.round(attackPower),
+    enemyDef,
+    winChance,
+    loot,
+    onCooldown,
+    cooldownSecs,
+    food: RAID_FOOD_COST,
+  };
+}
+
+/**
+ * Attempt a resource raid on an adjacent enemy tile.
+ * Win: steal resources (no territory change). Loss: lose 1 unit.
+ * Triggers a 5-minute global raid cooldown either way.
+ */
+export function raidTile(x, y) {
+  _initRaids();
+  const preview = getRaidPreview(x, y);
+  if (!preview.valid) {
+    addMessage(`❌ Raid: ${preview.reason}`, 'info');
+    return { ok: false };
+  }
+  if (preview.onCooldown) {
+    addMessage(`⚔️ Raiders are resting (cooldown: ${preview.cooldownSecs}s).`, 'info');
+    return { ok: false };
+  }
+  if ((state.resources.food ?? 0) < RAID_FOOD_COST) {
+    addMessage(`⚔️ Not enough food for a raid (need ${RAID_FOOD_COST} 🍞).`, 'info');
+    return { ok: false };
+  }
+
+  state.resources.food -= RAID_FOOD_COST;
+  state.raids.cooldownUntil = state.tick + RAID_COOLDOWN_TICKS;
+
+  const tile    = state.map.tiles[y][x];
+  const terrain = _tileName(tile);
+
+  if (Math.random() < preview.winChance) {
+    // Victory: steal resources (no capture, no territory change)
+    const gained = {};
+    for (const [res, amt] of Object.entries(preview.loot)) {
+      const space   = (state.caps[res] ?? 0) - (state.resources[res] ?? 0);
+      const g       = Math.min(amt, Math.max(0, space));
+      if (g > 0) { state.resources[res] = (state.resources[res] ?? 0) + g; gained[res] = g; }
+    }
+    state.raids.totalRaids = (state.raids.totalRaids ?? 0) + 1;
+
+    const parts = Object.entries(gained).filter(([, v]) => v > 0).map(([r, v]) => `+${v} ${r}`).join(', ');
+    addMessage(`⚔️ Raid successful! Plundered ${terrain} (${x},${y})! ${parts || 'Nothing seized.'}`, 'windfall');
+    emit(Events.RESOURCE_CHANGED, {});
+    emit(Events.RAID_CHANGED, { outcome: 'win', x, y, loot: gained });
+  } else {
+    // Defeat: lose 1 unit
+    const lost = _loseOneUnit();
+    addMessage(`⚔️ Raid repelled at (${x},${y})! Raiders retreat${lost ? `; lost 1 ${lost}` : ''}.`, 'combat-loss');
+    emit(Events.UNIT_CHANGED, {});
+    emit(Events.RAID_CHANGED, { outcome: 'loss', x, y });
+  }
+
+  return { ok: true };
 }
