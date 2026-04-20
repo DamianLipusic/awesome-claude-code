@@ -137,6 +137,9 @@ export function startResearch(techId) {
     totalTicks = Math.ceil(totalTicks * 0.80);
   }
 
+  // T125: Arcane Tome forge item — −20% research time
+  if (state.forge?.crafted?.arcane_tome) totalTicks = Math.ceil(totalTicks * 0.80);
+
   state.researchQueue.push({ techId, remaining: totalTicks, totalTicks });
   addMessage(`Researching ${def.name}…`, 'research');
   emit(Events.TECH_CHANGED, {});

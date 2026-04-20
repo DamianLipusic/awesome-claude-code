@@ -469,6 +469,12 @@ export function recalcRates() {
     }
   }
 
+  // T125: Forge item rate bonuses
+  if (state.forge?.crafted) {
+    if (state.forge.crafted.ring_of_prosperity) rates.gold += 0.8;
+    if (state.forge.crafted.farmers_almanac)    rates.food += 1.5;
+  }
+
   Object.assign(state.rates, rates);
   Object.assign(state.caps, caps);
 }

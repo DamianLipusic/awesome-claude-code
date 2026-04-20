@@ -7611,3 +7611,185 @@ kbd {
 @media (max-width: 480px) {
   .legacy-grid { grid-template-columns: 1fr; }
 }
+
+/* ── T125: Forge System ──────────────────────────────────────────────────── */
+.forge-section {
+  border-top: 1px solid var(--border);
+  margin-top: 14px;
+  padding-top: 10px;
+}
+.forge-section__header {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-h);
+  margin-bottom: 4px;
+}
+.forge-section__intro {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-bottom: 10px;
+}
+.forge-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 8px;
+}
+.forge-item {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-h);
+  border-radius: 6px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.forge-item--locked {
+  opacity: 0.6;
+}
+.forge-item--crafted {
+  border-color: #d4a017;
+  background: rgba(212, 160, 23, 0.08);
+}
+.forge-item__header {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.forge-item__icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.forge-item__name {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-h);
+}
+.forge-item__bonus {
+  font-size: 11px;
+  color: #68d391;
+}
+.forge-item__crafted-badge {
+  margin-left: auto;
+  font-size: 11px;
+  color: #d4a017;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.forge-item__desc {
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.4;
+}
+.forge-item__cost {
+  font-size: 11px;
+  font-weight: 600;
+}
+.forge-cost--ok { color: #68d391; }
+.forge-cost--bad { color: #fc8181; }
+.forge-item__lock {
+  font-size: 11px;
+  color: #fc8181;
+}
+.btn--forge {
+  margin-top: 4px;
+  background: linear-gradient(135deg, #c05621, #dd6b20);
+  border: none;
+  color: #fff;
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: opacity 0.15s;
+}
+.btn--forge:hover { opacity: 0.85; }
+.btn--forge:disabled { opacity: 0.35; cursor: default; }
+@media (max-width: 480px) {
+  .forge-grid { grid-template-columns: 1fr; }
+}
+
+/* ── T126: Auction House ─────────────────────────────────────────────────── */
+.auction-section {
+  border-top: 1px solid var(--border);
+  margin-top: 14px;
+  padding-top: 10px;
+}
+.auction-section--active {
+  border-color: #d4a017;
+  background: rgba(212, 160, 23, 0.06);
+  border-radius: 6px;
+  padding: 10px;
+}
+.auction-header {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-h);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.auction-timer {
+  font-size: 11px;
+  color: #fc8181;
+  font-weight: 600;
+}
+.auction-idle {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+.auction-bundle {
+  font-size: 14px;
+  margin-bottom: 6px;
+  letter-spacing: 2px;
+}
+.auction-bid-info {
+  font-size: 12px;
+  color: var(--text-h);
+  margin-bottom: 6px;
+}
+.auction-progress-bar {
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+.auction-progress-fill {
+  height: 100%;
+  background: #d4a017;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+.auction-won-msg {
+  font-size: 12px;
+  color: #68d391;
+  font-weight: 600;
+}
+.auction-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.btn--auction {
+  padding: 4px 10px;
+  font-size: 11px;
+  background: linear-gradient(135deg, #b7791f, #d4a017);
+  border: none;
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.btn--auction:hover { opacity: 0.85; }
+.btn--auction:disabled { opacity: 0.35; cursor: default; }
+.btn--auction-pass {
+  padding: 4px 10px;
+  font-size: 11px;
+  background: none;
+  border: 1px solid var(--border-h);
+  color: var(--text-dim);
+  border-radius: 4px;
+  cursor: pointer;
+}
+.btn--auction-pass:hover { color: var(--text-h); border-color: var(--text-dim); }

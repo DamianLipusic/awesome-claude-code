@@ -297,6 +297,14 @@ export const state = {
   // T120: Per-resource cap upgrade levels (0–5). Each level adds +250 to cap.
   // Cost: 150 × (level+1) gold. Reset on new game.
   capUpgrades: {},
+
+  // T125: Forge system — { crafted: { [itemId]: tick } } when items are forged.
+  // null until first forging action.
+  forge: null,
+
+  // T126: Resource auction — { current: { bundles, bids, expiresAt } | null, nextAuctionTick }
+  // null until Market building is constructed.
+  auction: null,
 };
 
 /**
@@ -371,5 +379,7 @@ export function initState(empireName = 'My Empire') {
   state.crises              = null; // T117: crisis system resets per game
   state.heroLegacy          = null; // T118: legacy resets per game
   state.capUpgrades         = {};   // T120: reset cap upgrades per game
+  state.forge               = null; // T125: forge items reset per game
+  state.auction             = null; // T126: auction state reset per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

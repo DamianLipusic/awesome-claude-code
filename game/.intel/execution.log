@@ -2,6 +2,36 @@
 
 ---
 
+## 2026-04-20 — Session N+32
+
+**Tasks completed:** T125, T126
+
+**Summary:**
+All prior tasks (T001–T124) were complete. Created T125+T126 task specs then implemented two Phase 46 features: Forge System (T125) adding 6 craftable permanent-bonus items at the Iron Foundry, and Resource Auction House (T126) adding periodic commodity bundle auctions in the Market panel.
+
+**T125 — Forge System:**
+- `src/data/forgeItems.js`: Created from scratch. `FORGE_ITEMS` object with 6 items (iron_helm/ring_of_prosperity/arcane_tome/war_drums/farmers_almanac/ironwood_shield) each with id/icon/name/desc/cost/requires.tech/bonusLabel. `FORGE_ORDER` array.
+- `src/core/events.js`: Added `FORGE_CHANGED` event.
+- `src/core/state.js`: Added `state.forge = null`; `initState()` resets it.
+- `src/core/actions.js`: Imported `FORGE_ITEMS`; added War Drums −20% training time in `trainUnit()`; added `forgeItem(itemId)` — validates Iron Foundry + metalworking + item tech req + not already crafted + canAfford; deducts cost, stamps crafted tick, calls `recalcRates()`, emits events.
+- `src/systems/resources.js`: Ring of Prosperity +0.8 gold/s and Farmer's Almanac +1.5 food/s in `recalcRates()`.
+- `src/systems/combat.js`: Iron Helm +25 flat attackPower in both `getAttackPreview()` and `attackTile()`.
+- `src/systems/research.js`: Arcane Tome −20% research time in `startResearch()`.
+- `src/systems/enemyAI.js`: Ironwood Shield −20% enemy counterattack winChance in `_counterattack()`.
+- `src/ui/buildingPanel.js`: Imported `forgeItem`/`FORGE_ITEMS`/`FORGE_ORDER`; subscribed `FORGE_CHANGED`; added `_forgeSection()` rendering locked/available/crafted states; html injected after `_treasurySection()`; click handler for `forge-item` action.
+- `src/main.js`: `state.forge` saved/loaded.
+- `styles/main.css`: `.forge-section`, `.forge-grid`, `.forge-item` variants, `.btn--forge` (orange gradient) styles added.
+
+**T126 — Resource Auction House:**
+- `src/systems/auction.js`: Created from scratch. 8 bundle templates spanning all 6 resources. `initAuction()` seeds `state.auction`. `auctionTick()` checks expiry (awards bundle or expires, clears current) and spawns new auction every 3–5 min when market exists. `bidOnAuction(amount)` deducts gold, accumulates playerBid toward bidGoal. `passAuction()` refunds partial bid and dismisses.
+- `src/core/events.js`: Added `AUCTION_CHANGED` event.
+- `src/core/state.js`: `state.auction = null`; reset in `initState()`.
+- `src/main.js`: Imported + registered `auctionTick`; called `initAuction()`; `state.auction` saved/loaded.
+- `src/ui/marketPanel.js`: Imported `bidOnAuction`/`passAuction`; subscribed `AUCTION_CHANGED`; TICK handler refreshes on `auction.current`; `_auctionSection()` renders idle state (countdown, total won) or active state (bundle display, progress bar, Bid 10/50 + Pass buttons, met indicator); click handlers for `auction-bid` and `auction-pass`.
+- `styles/main.css`: `.auction-section/--active`, progress bar, `.btn--auction` (gold gradient), `.btn--auction-pass` styles added.
+
+---
+
 ## 2026-04-20 — Session N+31
 
 **Tasks completed:** T123, T124

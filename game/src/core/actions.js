@@ -15,6 +15,7 @@ import { POLICIES, POLICY_COOLDOWN_TICKS } from '../data/policies.js';
 import { BOONS } from '../data/ageBoons.js';
 import { SPECIALIZATIONS } from '../data/buildingSpecials.js';
 import { CAPITAL_PLANS } from '../data/capitalPlans.js';
+import { FORGE_ITEMS } from '../data/forgeItems.js';
 import { recalcRates } from '../systems/resources.js';
 import { log } from '../utils/logger.js';
 
@@ -114,6 +115,9 @@ export function trainUnit(id) {
     const soldierMult = Math.max(0.50, 1 - soldierSlots * 0.05);
     totalTicks = Math.ceil(totalTicks * soldierMult);
   }
+  // T125: War Drums forge item — -20% training time
+  if (state.forge?.crafted?.war_drums) totalTicks = Math.ceil(totalTicks * 0.80);
+
   state.trainingQueue.push({ unitId: id, remaining: totalTicks, totalTicks });
 
   emit(Events.UNIT_CHANGED, {});
@@ -976,6 +980,52 @@ export function chooseCompanion(type) {
   emit(Events.HERO_CHANGED, {});
   const c = COMPANIONS[type];
   addMessage(`${c.icon} ${c.name} joined the Champion as a companion! ${c.desc}`, 'hero');
+  return { ok: true };
+}
+
+// ---------------------------------------------------------------------------
+// Forge System (T125)
+// ---------------------------------------------------------------------------
+
+/**
+ * Craft a unique forge item at the Iron Foundry.
+ * Requires metalworking tech and the specific tech listed on the item.
+ * Each item can only be crafted once per game.
+ */
+export function forgeItem(itemId) {
+  const def = FORGE_ITEMS[itemId];
+  if (!def) return { ok: false, reason: `Unknown forge item: ${itemId}` };
+
+  // Requires Iron Foundry building
+  if ((state.buildings.ironFoundry ?? 0) < 1) {
+    return { ok: false, reason: 'Build an Iron Foundry first.' };
+  }
+  // Requires metalworking tech
+  if (!state.techs.metalworking) {
+    return { ok: false, reason: 'Research Metalworking first.' };
+  }
+  // Item-specific tech requirement
+  if (def.requires?.tech && !state.techs[def.requires.tech]) {
+    const techName = def.requires.tech.replace(/([A-Z])/g, ' $1').toLowerCase().trim();
+    return { ok: false, reason: `Requires the ${techName} technology.` };
+  }
+
+  if (!state.forge) state.forge = { crafted: {} };
+  if (state.forge.crafted[itemId]) {
+    return { ok: false, reason: `${def.name} is already forged.` };
+  }
+
+  if (!canAfford(def.cost)) {
+    return { ok: false, reason: 'Insufficient resources.' };
+  }
+
+  deductCost(def.cost);
+  state.forge.crafted[itemId] = state.tick;
+
+  recalcRates();
+  emit(Events.FORGE_CHANGED, { itemId });
+  emit(Events.RESOURCE_CHANGED, {});
+  addMessage(`⚒️ Forged: ${def.icon} ${def.name}! ${def.bonusLabel}`, 'windfall');
   return { ok: true };
 }
 

@@ -5,10 +5,11 @@
 
 import { state } from '../core/state.js';
 import { on, Events } from '../core/events.js';
-import { buildBuilding, demolishBuilding, specializeBuilding, chooseCapitalPlan, upgradeResourceCap, CAP_UPGRADE_MAX, CAP_UPGRADE_BONUS, CAP_UPGRADE_BASE } from '../core/actions.js';
+import { buildBuilding, demolishBuilding, specializeBuilding, chooseCapitalPlan, upgradeResourceCap, CAP_UPGRADE_MAX, CAP_UPGRADE_BONUS, CAP_UPGRADE_BASE, forgeItem } from '../core/actions.js';
 import { BUILDINGS } from '../data/buildings.js';
 import { SPECIALIZATIONS, SPECIALS_BY_BUILDING, ELIGIBLE_BUILDINGS } from '../data/buildingSpecials.js';
 import { CAPITAL_PLANS, CAPITAL_PLAN_ORDER } from '../data/capitalPlans.js';
+import { FORGE_ITEMS, FORGE_ORDER } from '../data/forgeItems.js';
 import { fmtNum } from '../utils/fmt.js';
 
 export function initBuildingPanel() {
@@ -27,6 +28,7 @@ export function initBuildingPanel() {
   on(Events.BUILDING_SPECIALIZED,  renderBuildingPanel);
   on(Events.CAPITAL_PLAN_CHOSEN,   renderBuildingPanel);
   on(Events.CAP_UPGRADED,          renderBuildingPanel);
+  on(Events.FORGE_CHANGED,         renderBuildingPanel);
   on(Events.RESOURCE_CHANGED,      _throttleRender());
 }
 
@@ -111,6 +113,7 @@ function renderBuildingPanel() {
   html += _specializationsSection();
   html += _capitalPlansSection();
   html += _treasurySection();
+  html += _forgeSection();
 
   panel.innerHTML = html;
 
@@ -131,6 +134,13 @@ function renderBuildingPanel() {
     }
     if (action === 'upgrade-cap') {
       const result = upgradeResourceCap(res);
+      if (!result.ok) {
+        btn.classList.add('btn--shake');
+        setTimeout(() => btn.classList.remove('btn--shake'), 400);
+      }
+    }
+    if (action === 'forge-item') {
+      const result = forgeItem(id);
       if (!result.ok) {
         btn.classList.add('btn--shake');
         setTimeout(() => btn.classList.remove('btn--shake'), 400);
@@ -297,6 +307,66 @@ function _treasurySection() {
       <div class="treasury-section__header">🏦 Treasury Expansion</div>
       <div class="treasury-section__intro">Invest gold to permanently increase resource storage caps. Each upgrade adds +${CAP_UPGRADE_BONUS} capacity. Max ${CAP_UPGRADE_MAX} upgrades per resource.</div>
       <div class="treasury-grid">${rows}</div>
+    </div>`;
+}
+
+// ── Forge section (T125) ─────────────────────────────────────────────────────
+
+function _forgeSection() {
+  // Requires Iron Foundry + Metalworking
+  if ((state.buildings.ironFoundry ?? 0) < 1) return '';
+
+  const crafted = state.forge?.crafted ?? {};
+
+  const cards = FORGE_ORDER.map(itemId => {
+    const def        = FORGE_ITEMS[itemId];
+    const isCrafted  = !!crafted[itemId];
+    const techOk     = !def.requires?.tech || !!state.techs[def.requires.tech];
+    const affordable = canAfford(def.cost);
+    const avail      = techOk && affordable && !isCrafted;
+    const costStr    = Object.entries(def.cost).map(([r, a]) => `${_resIcon(r)}${fmtNum(a)}`).join(' ');
+
+    if (isCrafted) {
+      return `
+        <div class="forge-item forge-item--crafted" title="${def.desc}">
+          <div class="forge-item__header">
+            <span class="forge-item__icon">${def.icon}</span>
+            <div>
+              <div class="forge-item__name">${def.name}</div>
+              <div class="forge-item__bonus">${def.bonusLabel}</div>
+            </div>
+            <span class="forge-item__crafted-badge">✓ Forged</span>
+          </div>
+        </div>`;
+    }
+
+    const lockNote = !techOk
+      ? `<div class="forge-item__lock">🔒 Requires ${def.requires.tech}</div>`
+      : '';
+
+    return `
+      <div class="forge-item ${avail ? '' : 'forge-item--locked'}" title="${def.desc}">
+        <div class="forge-item__header">
+          <span class="forge-item__icon">${def.icon}</span>
+          <div>
+            <div class="forge-item__name">${def.name}</div>
+            <div class="forge-item__bonus">${def.bonusLabel}</div>
+          </div>
+        </div>
+        <div class="forge-item__desc">${def.desc}</div>
+        <div class="forge-item__cost ${affordable && techOk ? 'forge-cost--ok' : 'forge-cost--bad'}">${costStr}</div>
+        ${lockNote}
+        <button class="btn btn--forge ${avail ? '' : 'btn--disabled'}"
+                data-action="forge-item" data-id="${itemId}"
+                ${avail ? '' : 'disabled'}>Forge</button>
+      </div>`;
+  }).join('');
+
+  return `
+    <div class="forge-section">
+      <div class="forge-section__header">⚒️ Iron Foundry</div>
+      <div class="forge-section__intro">Craft permanent items that grant powerful bonuses. Each item can only be forged once.</div>
+      <div class="forge-grid">${cards}</div>
     </div>`;
 }
 

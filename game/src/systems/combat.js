@@ -252,6 +252,9 @@ export function getAttackPreview(x, y) {
     }
   }
 
+  // T125: Iron Helm forge item — +25 flat attack power
+  if (state.forge?.crafted?.iron_helm) attackPower += 25;
+
   // T071: terrain combat modifiers
   const terrainMod     = _terrainMod(tile.type);
   attackPower         *= terrainMod.attackMult;
@@ -423,6 +426,9 @@ export function attackTile(x, y) {
       if (herTraitAtk === 'war_scholar') attackPower *= 1.15;
     }
   }
+
+  // T125: Iron Helm forge item — +25 flat attack power
+  if (state.forge?.crafted?.iron_helm) attackPower += 25;
 
   // T071: terrain attack modifier (applied before siege/mana-bolt override)
   const _terrainM = _terrainMod(tile.type);

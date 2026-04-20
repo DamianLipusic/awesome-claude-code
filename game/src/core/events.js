@@ -97,4 +97,6 @@ export const Events = Object.freeze({
   CAP_UPGRADED:             'capUpgraded',              // T120: resource cap expanded via treasury upgrade
   CITY_FOUNDED:             'cityFounded',              // T121: player founded a city on a tile
   COMPANION_RECRUITED:      'companionRecruited',        // T122: hero companion joined
+  FORGE_CHANGED:            'forgeChanged',             // T125: forge item crafted
+  AUCTION_CHANGED:          'auctionChanged',           // T126: auction spawned/bid/expired
 });

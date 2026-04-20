@@ -10,6 +10,7 @@ import { state } from '../core/state.js';
 import { buyPrice, sellPrice, buyResources, sellResources, MARKET_RESOURCES, getSeasonalCommodities } from '../systems/market.js';
 import { acceptContract, cancelContract, contractProgress, contractSecsLeft, contractsRefreshSecs } from '../systems/contracts.js';
 import { buyMerchantItem, merchantSecsLeft, merchantNextVisitSecs, canAffordItem } from '../systems/merchant.js';
+import { bidOnAuction, passAuction } from '../systems/auction.js';
 import { fmtNum } from '../utils/fmt.js';
 
 const RESOURCE_ICONS = {
@@ -35,12 +36,13 @@ export function initMarketPanel() {
   on(Events.CONTRACTS_CHANGED, _render);
   on(Events.MERCHANT_CHANGED,  _render);
   on(Events.SEASON_CHANGED,    _render);  // T115: reprice seasonal commodities on season change
+  on(Events.AUCTION_CHANGED,   _render);  // T126: auction updates
 
-  // Refresh contract/merchant countdowns every ~4 ticks (~1 s)
+  // Refresh contract/merchant/auction countdowns every ~4 ticks (~1 s)
   let _contractTickCount = 0;
   on(Events.TICK, () => {
     if (++_contractTickCount % 4 !== 0) return;
-    if (state.contracts?.active || state.merchant?.offer) _render();
+    if (state.contracts?.active || state.merchant?.offer || state.auction?.current) _render();
   });
 
   _panel.addEventListener('click', _handleClick);
@@ -97,7 +99,8 @@ function _render() {
       ${rows}
     </div>
     ${_merchantSection()}
-    ${_contractsSection()}`;
+    ${_contractsSection()}
+    ${_auctionSection()}`;
 }
 
 function _row(res, seasonal = []) {
@@ -291,6 +294,53 @@ function _contractsSection() {
 }
 
 // ---------------------------------------------------------------------------
+// T126: Auction section
+// ---------------------------------------------------------------------------
+
+const _AUCTION_RES_ICONS = { gold: '💰', food: '🍞', wood: '🪵', stone: '🪨', iron: '⚙️', mana: '✨' };
+
+function _auctionSection() {
+  const a = state.auction;
+  if (!a) return '';
+
+  if (!a.current) {
+    const secsUntil = Math.max(0, Math.ceil((a.nextAuctionTick - state.tick) / 4));
+    return `
+      <div class="auction-section">
+        <div class="auction-header">🔨 Auction House</div>
+        <div class="auction-idle">Next auction in ~${secsUntil}s · Total won: ${a.won ?? 0}</div>
+      </div>`;
+  }
+
+  const c          = a.current;
+  const bundleStr  = Object.entries(c.bundle).map(([r, v]) => `${_AUCTION_RES_ICONS[r]}${v}`).join(' ');
+  const secsLeft   = Math.max(0, Math.ceil((c.expiresAt - state.tick) / 4));
+  const bidPct     = Math.floor((c.playerBid / c.bidGoal) * 100);
+  const canBid10   = (state.resources.gold ?? 0) >= 10;
+  const canBid50   = (state.resources.gold ?? 0) >= 50;
+  const isMet      = c.playerBid >= c.bidGoal;
+
+  return `
+    <div class="auction-section auction-section--active">
+      <div class="auction-header">🔨 Live Auction <span class="auction-timer">${secsLeft}s left</span></div>
+      <div class="auction-bundle">${bundleStr}</div>
+      <div class="auction-bid-info">
+        Bid goal: 💰${c.bidGoal} · Your bid: 💰${c.playerBid} (${bidPct}%)
+      </div>
+      <div class="auction-progress-bar">
+        <div class="auction-progress-fill" style="width:${bidPct}%"></div>
+      </div>
+      ${isMet
+        ? `<div class="auction-won-msg">✅ Bid met! Collecting when time expires…</div>`
+        : `<div class="auction-actions">
+             <button class="btn btn--auction ${canBid10 ? '' : 'btn--disabled'}" data-action="auction-bid" data-amt="10" ${canBid10 ? '' : 'disabled'}>Bid 💰10</button>
+             <button class="btn btn--auction ${canBid50 ? '' : 'btn--disabled'}" data-action="auction-bid" data-amt="50" ${canBid50 ? '' : 'disabled'}>Bid 💰50</button>
+             <button class="btn btn--auction-pass" data-action="auction-pass">Pass</button>
+           </div>`}
+    </div>`;
+}
+
+// ---------------------------------------------------------------------------
 // Click handling
 // ---------------------------------------------------------------------------
 
@@ -315,6 +365,10 @@ function _handleClick(e) {
   } else if (action === 'merchant-buy') {
     const idx = parseInt(btn.dataset.idx, 10);
     result = buyMerchantItem(idx);
+  } else if (action === 'auction-bid') {
+    result = bidOnAuction(parseInt(btn.dataset.amt, 10));
+  } else if (action === 'auction-pass') {
+    result = passAuction();
   }
 
   if (result && !result.ok) {

@@ -73,6 +73,7 @@ import { calcScore } from './utils/score.js';
 import { TITLES, getCurrentTitle } from './data/titles.js';
 import { initNotificationCenter } from './ui/notificationCenter.js'; // T123
 import { loadLegacy, awardLegacyPoints, LEGACY_TRAITS } from './data/legacyTraits.js'; // T124
+import { initAuction, auctionTick } from './systems/auction.js';                       // T126
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
@@ -138,6 +139,7 @@ function boot() {
   registerSystem(naturalDisasterTick); // T111
   registerSystem(inspirationTick);     // T116: research inspiration events
   registerSystem(crisisTick);          // T117: empire crisis response
+  registerSystem(auctionTick);         // T126: resource auction house
 
   // Init event-driven systems
   initRandomEvents();
@@ -171,6 +173,7 @@ function boot() {
   initNaturalDisasters(); // T111: natural disaster system
   initInspiration();      // T116: research inspiration events
   initCrises();           // T117: empire crisis response
+  initAuction();          // T126: resource auction house
 
   // Init UI
   initHUD();
@@ -395,6 +398,8 @@ function _save() {
         crises:              state.crises              ?? null,  // T117
         heroLegacy:          state.heroLegacy          ?? null,  // T118
         capUpgrades:         state.capUpgrades         ?? {},    // T120
+        forge:               state.forge               ?? null,  // T125
+        auction:             state.auction             ?? null,  // T126
         tick:          state.tick,
       }
     }));
@@ -500,6 +505,8 @@ function _applySave(save) {
   state.crises               = s.crises               ?? null;  // T117
   state.heroLegacy           = s.heroLegacy           ?? null;  // T118
   state.capUpgrades          = s.capUpgrades          ?? {};    // T120
+  state.forge                = s.forge                ?? null;  // T125
+  state.auction              = s.auction              ?? null;  // T126
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
