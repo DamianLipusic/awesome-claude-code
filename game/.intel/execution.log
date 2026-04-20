@@ -2142,3 +2142,46 @@ All prior tasks (T001–T118) were complete. Created T119+T120 task specs then i
 - Treasury section reuses the existing buildingPanel.js structure (section + row pattern) for visual consistency; no new panel needed.
 - Cap upgrade costs scale as 150, 300, 450, 600, 750 gold for levels 1–5, making early upgrades affordable but maxing out expensive.
 - capUpgrades is applied in resources.js recalcRates() after the base caps are set, ensuring all other cap modifiers (buildings, techs) apply first and treasury expansion stacks cleanly on top.
+
+---
+
+## 2026-04-20 — Session N+31
+
+**Tasks completed:** T133, T134
+
+**Summary:**
+All prior tasks (T001–T132) were complete. Created two new Phase 50 features: Wonder Projects (T133) giving players one massive late-game construction with permanent empire-wide bonuses, and Wandering Scholar Events (T134) adding periodic knowledge offers via a green banner popup.
+
+**T133 — Wonder Projects:**
+
+**Files created/modified:**
+- `game/src/data/wonders.js` (new): WONDERS object with 3 entries (colosseum/grand_bazaar/tower_of_babel) each with id/icon/name/desc/flavorText/cost/buildTicks/requires/bonusLabel. WONDER_ORDER array.
+- `game/src/systems/wonders.js` (new): initWonders() idempotent init; wonderTick() checks build timer completion; startWonder(id) validates Medieval age + optional tech + affordability + uniqueness, deducts cost, sets state.wonder.buildingId/startTick/endsAt; _completeWonder() applies colosseum +10 morale via changeMorale(), sets completedId, calls recalcRates(), emits WONDER_CHANGED; getWonderProgress() returns {pct, secsLeft}; getCompletedWonder()/isWonderBuilding() helpers.
+- `game/src/core/events.js`: Added WONDER_CHANGED and SCHOLAR_CHANGED event constants.
+- `game/src/core/state.js`: Added wonder field (buildingId/startTick/endsAt/completedId|null); initState() resets to null.
+- `game/src/systems/resources.js`: T133 wonder bonus block at end of recalcRates(): grand_bazaar adds +2.5 gold/s; tower_of_babel adds +1.5 mana/s and +300 mana cap. Festival multiplier block augmented with _colosseumMult (1.25 when colosseum complete) applied to harvest and trade_fair festival rate bonuses. T134 scholar agricultural_wisdom block applies rates.food*2.0 and rates.wood*2.0 while activeEffect is live.
+- `game/src/systems/research.js`: Tower of Babel wonder applies -20% research time (totalTicks*0.80) after arcane_tome block.
+- `game/src/systems/market.js`: sellResources(): earned*1.5 if grand_bazaar complete + T134 trade_secrets scholar effect; buyResources(): finalAmount = min(room, actual*1.5) if grand_bazaar complete.
+- `game/src/ui/researchPanel.js`: Added WONDERS/WONDER_ORDER import from data/wonders.js; startWonder/getWonderProgress/getCompletedWonder/isWonderBuilding import from systems/wonders.js; WONDER_CHANGED event subscription re-renders panel; tick throttle now also checks isWonderBuilding(); panel.innerHTML includes _wondersSection(); onclick delegate handles [data-wonder] buttons; _wondersSection() renders wonder-grid with 3 cards showing locked/building/completed states, a progress bar section while building, and a completed banner with bonusLabel when done.
+- `game/src/main.js`: Imports initWonders+wonderTick; registerSystem(wonderTick); initWonders() in boot and newGame; state.wonder saved/loaded (save version bumped to 39); WONDER_CHANGED event wired.
+- `game/styles/main.css`: Full wonder section CSS: .wonder-section/header/intro, .wonder-completed-banner/bonus-pill, .wonder-progress-banner/header/bar/fill, .wonder-grid, .wonder-card/--completed/--building, .wonder-card__header/icon/name/desc/flavor/bonus/cost/lock, .wonder-badge/--done/--wip, .wonder-cost/--ok/--bad, .btn--wonder (purple gradient + disabled state).
+
+**T134 — Wandering Scholar Events:**
+
+**Files created/modified:**
+- `game/src/systems/scholars.js` (new): TEACHINGS array (5 teachings: arcane_revelation/agricultural_wisdom/military_doctrine/trade_secrets/engineering_plans); initScholars() idempotent; scholarTick() expires timed activeEffect via recalcRates(), expires stale visit, spawns new scholar when nextScholarTick fires; acceptTeaching() applies teaching, resets timer; dismissScholar() clears visit; _applyTeaching() handles all 5 cases; _nextInterval() returns 5–8 min random interval.
+- `game/src/core/state.js`: Added scholar field ({active,nextScholarTick,totalAccepted,activeEffect}|null); initState() resets to null.
+- `game/src/core/actions.js`: trainUnit() checks activeEffect.type==='military_doctrine' && chargesLeft>0, applies 0.50× cost multiplier, decrements chargesLeft; scaledCost() checks activeEffect.type==='engineering_plans' && tick<expiresAt, applies 0.60× multiplier to building costs.
+- `game/src/systems/market.js`: sellResources() checks trade_secrets activeEffect with chargesLeft>0, multiplies earned by 1.5, decrements chargesLeft.
+- `game/index.html`: Added scholar-banner div (class scholar-banner, style=display:none) after crisis-banner.
+- `game/src/main.js`: Imports initScholars+scholarTick+acceptTeaching+dismissScholar from scholars.js; registerSystem(scholarTick); initScholars() in boot and newGame; state.scholar saved/loaded; _updateScholarBanner() function renders green banner with icon/title/desc/timer/Accept+Dismiss buttons (hidden when no active visit); SCHOLAR_CHANGED and TICK listeners update banner; scholar-banner click handler delegates to acceptTeaching()/dismissScholar().
+- `game/styles/main.css`: Full scholar banner CSS: .scholar-banner (green left-border, scholar-glow animation), .scholar-banner__icon/body/title/desc/actions/timer, .btn--scholar-accept (green gradient), .btn--scholar-dismiss (outlined transparent).
+
+**Architecture decisions:**
+- Wonders intentionally gate on Medieval Age (age===3) without a save-version migration because state.wonder=null on new games and the field is always initialized by initWonders() on boot — older saves without the field safely get null via the ?? null fallback in _applySave.
+- The Grand Colosseum +10 morale applies once on completion via changeMorale() rather than being recalculated each tick — this is correct because morale is a semi-persistent value with its own drift, not a rate.
+- Grand Bazaar trade multiplier is applied in the buy/sell functions themselves (not as a rate bonus) so it compounds naturally with market price fluctuations and seasonal premium pricing.
+- Tower of Babel research time reduction stacks multiplicatively with all other modifiers (arcane_tome, war_scholar, workshop discount, etc.) — order-independent since all are multiplied together.
+- Scholar activeEffect is a single slot (not an array) because only one teaching can be active at a time — accepting a new teaching while one is running would replace it, but the system prevents this since visits only spawn when no visit is active.
+- Engineering Plans discount is applied in scaledCost() (shared by all build paths) rather than in buildBuilding() directly, ensuring it also works with any future build paths that call scaledCost.
+- Scholar visits only spawn when state.scholar.active === null, preventing overlap with expiry mechanics.

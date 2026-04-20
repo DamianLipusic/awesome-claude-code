@@ -138,7 +138,16 @@ export function sellResources(resource, amount) {
     return { ok: false, reason: `No ${resource} to sell.` };
   }
 
-  const earned = sellPrice(resource, actual);
+  let earned = sellPrice(resource, actual);
+  // T133: Grand Bazaar wonder — market trades yield 50% more gold
+  if (state.wonder?.completedId === 'grand_bazaar') earned = Math.floor(earned * 1.5);
+  // T134: Scholar Trade Secrets — +50% sell gold for next 3 sells
+  const _ts = state.scholar?.activeEffect;
+  if (_ts?.type === 'trade_secrets' && (_ts.chargesLeft ?? 0) > 0) {
+    earned = Math.floor(earned * 1.5);
+    _ts.chargesLeft--;
+    if (_ts.chargesLeft <= 0) state.scholar.activeEffect = null;
+  }
   state.resources[resource]  = available - actual;
   state.resources.gold = Math.min(state.caps.gold, (state.resources.gold ?? 0) + earned);
   state.market.totalTrades++;
@@ -167,19 +176,22 @@ export function buyResources(resource, amount) {
     return { ok: false, reason: `${resource} storage is full.` };
   }
 
-  const actual    = Math.min(amount, room);
-  const totalCost = buyPrice(resource, actual);
+  let actual      = Math.min(amount, room);
+  // T133: Grand Bazaar wonder — buy 50% more resource for the same gold
+  const _bazaarMult = state.wonder?.completedId === 'grand_bazaar' ? 1.5 : 1.0;
+  const totalCost   = buyPrice(resource, actual);
 
   if ((state.resources.gold ?? 0) < totalCost) {
     return { ok: false, reason: `Need ${totalCost}g (have ${Math.floor(state.resources.gold)}g).` };
   }
 
+  const finalAmount = Math.min(room, Math.floor(actual * _bazaarMult));
   state.resources.gold -= totalCost;
-  state.resources[resource] = current + actual;
+  state.resources[resource] = current + finalAmount;
   state.market.totalTrades++;
 
   emit(Events.RESOURCE_CHANGED, {});
   emit(Events.MARKET_CHANGED, {});
-  addMessage(`Bought ${actual} ${resource} for ${totalCost}g.`, 'market');
+  addMessage(`Bought ${finalAmount} ${resource} for ${totalCost}g.`, 'market');
   return { ok: true };
 }

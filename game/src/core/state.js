@@ -316,6 +316,16 @@ export const state = {
 
   // T132: Siege engine cap flag — drives the 1-max constraint enforced in actions.js.
   // siege_engine count lives in state.units as normal; this comment documents the design.
+
+  // T133: Wonder project state — one wonder per game.
+  // { buildingId: string|null, startTick, endsAt, completedId: string|null }
+  wonder: null,
+
+  // T134: Wandering scholar event state.
+  // { active: { teachingId, expiresAt, icon, name, desc } | null,
+  //   nextScholarTick: number, totalAccepted: number,
+  //   activeEffect: { type, expiresAt, chargesLeft } | null }
+  scholar: null,
 };
 
 /**
@@ -394,5 +404,7 @@ export function initState(empireName = 'My Empire') {
   state.auction             = null; // T126: auction state reset per game
   state.raids               = null; // T127: raid cooldown resets per game
   state.proclamation        = { activeId: null, ageWhenIssued: -1 }; // T131
+  state.wonder              = null; // T133: wonder resets per game
+  state.scholar             = null; // T134: scholar resets per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

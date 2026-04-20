@@ -74,6 +74,8 @@ import { TITLES, getCurrentTitle } from './data/titles.js';
 import { initNotificationCenter } from './ui/notificationCenter.js'; // T123
 import { loadLegacy, awardLegacyPoints, LEGACY_TRAITS } from './data/legacyTraits.js'; // T124
 import { initAuction, auctionTick } from './systems/auction.js';                       // T126
+import { initWonders, wonderTick } from './systems/wonders.js'; // T133
+import { initScholars, scholarTick, acceptTeaching, dismissScholar } from './systems/scholars.js'; // T134
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
@@ -140,6 +142,8 @@ function boot() {
   registerSystem(inspirationTick);     // T116: research inspiration events
   registerSystem(crisisTick);          // T117: empire crisis response
   registerSystem(auctionTick);         // T126: resource auction house
+  registerSystem(wonderTick);          // T133: wonder project build timer
+  registerSystem(scholarTick);         // T134: wandering scholar events
 
   // Init event-driven systems
   initRandomEvents();
@@ -174,6 +178,8 @@ function boot() {
   initInspiration();      // T116: research inspiration events
   initCrises();           // T117: empire crisis response
   initAuction();          // T126: resource auction house
+  initWonders();          // T133: wonder projects
+  initScholars();         // T134: wandering scholar events
 
   // Init UI
   initHUD();
@@ -275,6 +281,12 @@ function boot() {
   let _crisisBadgeTick = 0;
   on(Events.TICK, () => { if (++_crisisBadgeTick % 4 === 0) _updateCrisisBanner(); });
 
+  // T134: Scholar banner — update on scholar arrive/accept/dismiss and tick countdown
+  _updateScholarBanner();
+  on(Events.SCHOLAR_CHANGED, _updateScholarBanner);
+  let _scholarBadgeTick = 0;
+  on(Events.TICK, () => { if (++_scholarBadgeTick % 4 === 0) _updateScholarBanner(); });
+
   // Update age badge on changes; also show council boon modal on advancement
   _updateAgeBadge();
   on(Events.AGE_CHANGED, (data) => {
@@ -334,7 +346,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 38, // T131: proclamations; T132: siege engine unit
+      version: 39, // T133: wonder projects; T134: wandering scholar events
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -410,6 +422,8 @@ function _save() {
         auction:             state.auction             ?? null,  // T126
         raids:               state.raids               ?? null,  // T127
         proclamation:        state.proclamation        ?? null,  // T131
+        wonder:              state.wonder              ?? null,  // T133
+        scholar:             state.scholar             ?? null,  // T134
         tick:          state.tick,
       }
     }));
@@ -519,6 +533,8 @@ function _applySave(save) {
   state.auction              = s.auction              ?? null;  // T126
   state.raids                = s.raids                ?? null;  // T127
   state.proclamation         = s.proclamation         ?? { activeId: null, ageWhenIssued: -1 }; // T131
+  state.wonder               = s.wonder               ?? null;  // T133
+  state.scholar              = s.scholar              ?? null;  // T134
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
@@ -631,6 +647,35 @@ function _updateCrisisBanner() {
         title="Cost: ${costStr}">
         Resolve (${costStr})
       </button>
+    </div>`;
+  banner.style.display = 'flex';
+}
+
+// ── Scholar banner (T134) ─────────────────────────────────────────────────
+
+function _updateScholarBanner() {
+  const banner = document.getElementById('scholar-banner');
+  if (!banner) return;
+
+  const active = state.scholar?.active;
+  if (!active || state.tick >= active.expiresAt) {
+    banner.style.display = 'none';
+    banner.innerHTML = '';
+    return;
+  }
+
+  const secsLeft = Math.max(0, Math.ceil((active.expiresAt - state.tick) / TICKS_PER_SECOND));
+
+  banner.innerHTML = `
+    <div class="scholar-banner__icon">${active.icon}</div>
+    <div class="scholar-banner__body">
+      <div class="scholar-banner__title">📚 Wandering Scholar: ${active.name}</div>
+      <div class="scholar-banner__desc">${active.desc}</div>
+    </div>
+    <div class="scholar-banner__actions">
+      <div class="scholar-banner__timer">Departs in ${secsLeft}s</div>
+      <button class="btn btn--sm btn--scholar-accept" id="btn-scholar-accept">Accept</button>
+      <button class="btn btn--sm btn--scholar-dismiss" id="btn-scholar-dismiss">Dismiss</button>
     </div>`;
   banner.style.display = 'flex';
 }
@@ -1006,6 +1051,17 @@ function _bindControls() {
       const result = resolveCrisis();
       if (!result.ok) addMessage(result.reason, 'info');
       _updateCrisisBanner();
+    }
+  });
+
+  // T134: Scholar banner accept/dismiss
+  document.getElementById('scholar-banner')?.addEventListener('click', (e) => {
+    if (e.target.closest('#btn-scholar-accept')) {
+      acceptTeaching();
+      _updateScholarBanner();
+    } else if (e.target.closest('#btn-scholar-dismiss')) {
+      dismissScholar();
+      _updateScholarBanner();
     }
   });
 

@@ -101,4 +101,6 @@ export const Events = Object.freeze({
   AUCTION_CHANGED:          'auctionChanged',           // T126: auction spawned/bid/expired
   RAID_CHANGED:             'raidChanged',              // T127: resource raid resolved (win/loss)
   PROCLAMATION_ISSUED:      'proclamationIssued',       // T131: proclamation issued or expired
+  WONDER_CHANGED:           'wonderChanged',             // T133: wonder started or completed
+  SCHOLAR_CHANGED:          'scholarChanged',            // T134: scholar arrived/dismissed/accepted
 });

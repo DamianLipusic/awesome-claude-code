@@ -7005,6 +7005,290 @@ kbd {
   cursor: not-allowed;
 }
 
+/* ── T133: Wonder Projects ──────────────────────────────────────────────── */
+
+.wonder-section {
+  margin-top: 16px;
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+}
+
+.wonder-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+  font-weight: 700;
+  color: var(--text-bright);
+}
+
+.wonder-header-sub {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-weight: 400;
+}
+
+.wonder-intro {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-bottom: 10px;
+}
+
+.wonder-completed-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(251, 191, 36, 0.12);
+  border-left: 3px solid #f59e0b;
+  padding: 8px 12px;
+  border-radius: 0 4px 4px 0;
+  margin-bottom: 10px;
+  font-weight: 600;
+  color: #fde68a;
+}
+
+.wonder-bonus-pill {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-dim);
+  background: rgba(255,255,255,0.06);
+  border-radius: 8px;
+  padding: 2px 8px;
+}
+
+.wonder-progress-banner {
+  background: rgba(96, 165, 250, 0.08);
+  border-left: 3px solid #3b82f6;
+  padding: 8px 12px;
+  border-radius: 0 4px 4px 0;
+  margin-bottom: 10px;
+}
+
+.wonder-progress-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #93c5fd;
+  margin-bottom: 6px;
+}
+
+.wonder-progress-bar {
+  height: 8px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.wonder-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #60a5fa);
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+.wonder-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+}
+
+.wonder-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.wonder-card--completed {
+  border-color: #f59e0b;
+  background: rgba(251, 191, 36, 0.05);
+}
+
+.wonder-card--building {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.05);
+}
+
+.wonder-card__header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wonder-card__icon { font-size: 20px; }
+
+.wonder-card__name {
+  font-size: 13px;
+  color: var(--text-bright);
+  flex: 1;
+}
+
+.wonder-badge {
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.wonder-badge--done {
+  background: rgba(251, 191, 36, 0.2);
+  color: #f59e0b;
+}
+
+.wonder-badge--wip {
+  background: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+}
+
+.wonder-card__desc {
+  font-size: 12px;
+  color: var(--text);
+  line-height: 1.4;
+}
+
+.wonder-card__flavor {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+.wonder-card__bonus {
+  font-size: 11px;
+  font-weight: 600;
+  color: #6ee7b7;
+  margin-top: 2px;
+}
+
+.wonder-card__cost {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.wonder-cost { font-size: 11px; }
+.wonder-cost--ok  { color: var(--text); }
+.wonder-cost--bad { color: var(--red); }
+
+.wonder-card__lock {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+.btn--wonder {
+  margin-top: 6px;
+  background: linear-gradient(135deg, #7c3aed, #6d28d9);
+  border: 1px solid #8b5cf6;
+  color: #fff;
+  font-size: 12px;
+  padding: 4px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn--wonder:hover:not(:disabled) {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+}
+
+.btn--wonder:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ── T134: Scholar Banner ────────────────────────────────────────────────── */
+
+.scholar-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(16, 185, 129, 0.12);
+  border-left: 4px solid #10b981;
+  border-bottom: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 10px 16px;
+  animation: scholar-glow 3s ease-in-out infinite;
+}
+
+@keyframes scholar-glow {
+  0%, 100% { background: rgba(16, 185, 129, 0.12); }
+  50%       { background: rgba(16, 185, 129, 0.20); }
+}
+
+.scholar-banner__icon {
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.scholar-banner__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.scholar-banner__title {
+  font-weight: 700;
+  font-size: 14px;
+  color: #6ee7b7;
+  margin-bottom: 2px;
+}
+
+.scholar-banner__desc {
+  font-size: 12px;
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.scholar-banner__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.scholar-banner__timer {
+  font-size: 12px;
+  color: #6ee7b7;
+  font-variant-numeric: tabular-nums;
+}
+
+.btn--scholar-accept {
+  background: linear-gradient(135deg, #059669, #047857);
+  border: 1px solid #10b981;
+  color: #fff;
+  font-size: 12px;
+  padding: 4px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.btn--scholar-accept:hover {
+  background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.btn--scholar-dismiss {
+  background: transparent;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #6ee7b7;
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.btn--scholar-dismiss:hover {
+  background: rgba(16, 185, 129, 0.1);
+}
+
 /* ── T118: Hero Enshrine Section ────────────────────────────────────────── */
 
 .enshrine-section {

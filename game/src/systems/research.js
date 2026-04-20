@@ -141,6 +141,9 @@ export function startResearch(techId) {
   // T125: Arcane Tome forge item — −20% research time
   if (state.forge?.crafted?.arcane_tome) totalTicks = Math.ceil(totalTicks * 0.80);
 
+  // T133: Tower of Babel wonder — −20% research time
+  if (state.wonder?.completedId === 'tower_of_babel') totalTicks = Math.ceil(totalTicks * 0.80);
+
   state.researchQueue.push({ techId, remaining: totalTicks, totalTicks });
   addMessage(`Researching ${def.name}…`, 'research');
   emit(Events.TECH_CHANGED, {});

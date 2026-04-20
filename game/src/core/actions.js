@@ -105,9 +105,17 @@ export function trainUnit(id) {
 
   // T130: Seasonal unit discount — 20% off for the season-matched unit type
   const discountUnit = SEASON_UNIT_DISCOUNT[state.season?.index ?? 0];
-  const effectiveCost = (discountUnit === id)
+  let effectiveCost = (discountUnit === id)
     ? Object.fromEntries(Object.entries(def.cost).map(([r, v]) => [r, Math.floor(v * 0.80)]))
-    : def.cost;
+    : { ...def.cost };
+
+  // T134: Scholar Military Doctrine — 50% cost for next 3 units
+  const _md = state.scholar?.activeEffect;
+  if (_md?.type === 'military_doctrine' && (_md.chargesLeft ?? 0) > 0) {
+    effectiveCost = Object.fromEntries(Object.entries(effectiveCost).map(([r, v]) => [r, Math.floor(v * 0.50)]));
+    _md.chargesLeft--;
+    if (_md.chargesLeft <= 0) state.scholar.activeEffect = null;
+  }
 
   if (!canAfford(effectiveCost)) {
     return { ok: false, reason: 'Insufficient resources' };
@@ -1099,9 +1107,12 @@ function scaledCost(base, existing) {
   const archMult = state.archetype === 'conqueror' ? 0.9 : 1.0;
   // T071 Agrarian Mastery: −15% building costs
   const masteryMult = state.masteries?.agrarian ? 0.85 : 1.0;
+  // T134: Scholar Engineering Plans — −40% building costs while active
+  const _ep = state.scholar?.activeEffect;
+  const scholarMult = (_ep?.type === 'engineering_plans' && state.tick < _ep.expiresAt) ? 0.60 : 1.0;
   const scaled = {};
   for (const [res, amt] of Object.entries(base)) {
-    scaled[res] = Math.ceil(amt * factor * archMult * masteryMult);
+    scaled[res] = Math.ceil(amt * factor * archMult * masteryMult * scholarMult);
   }
   return scaled;
 }

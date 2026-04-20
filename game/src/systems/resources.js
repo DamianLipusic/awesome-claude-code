@@ -405,11 +405,13 @@ export function recalcRates() {
   // T103: Empire Festival multipliers (applied after decrees for stack clarity)
   const _festActive = state.festivals?.active;
   if (_festActive) {
+    // T133: Grand Colosseum wonder amplifies festival rate bonuses by +25%
+    const _colosseumMult = state.wonder?.completedId === 'colosseum' ? 1.25 : 1.0;
     if (_festActive.type === 'harvest') {
-      if (rates.food > 0) rates.food *= 1.60;
-      if (rates.wood > 0) rates.wood *= 1.60;
+      if (rates.food > 0) rates.food *= 1.60 * _colosseumMult;
+      if (rates.wood > 0) rates.wood *= 1.60 * _colosseumMult;
     } else if (_festActive.type === 'trade_fair') {
-      if (rates.gold > 0) rates.gold *= 1.50;
+      if (rates.gold > 0) rates.gold *= 1.50 * _colosseumMult;
     }
     // parade bonus is applied in combat.js (not a rate effect)
   }
@@ -485,6 +487,22 @@ export function recalcRates() {
     rates.wood *= 0.80;
   } else if (_procId === 'great_works') {
     rates.mana *= 0.75;
+  }
+
+  // T133: Wonder project permanent rate / cap bonuses
+  const _wonder = state.wonder?.completedId;
+  if (_wonder === 'grand_bazaar') {
+    rates.gold += 2.5;
+  } else if (_wonder === 'tower_of_babel') {
+    rates.mana += 1.5;
+    caps.mana   = (caps.mana ?? 500) + 300;
+  }
+
+  // T134: Wandering scholar active effect on rates
+  const _scholEff = state.scholar?.activeEffect;
+  if (_scholEff?.type === 'agricultural_wisdom' && state.tick < _scholEff.expiresAt) {
+    if (rates.food > 0) rates.food *= 2.0;
+    if (rates.wood > 0) rates.wood *= 2.0;
   }
 
   Object.assign(state.rates, rates);

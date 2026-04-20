@@ -18,6 +18,8 @@ import { POLICIES, POLICY_ORDER, POLICY_COOLDOWN_TICKS } from '../data/policies.
 import { FESTIVALS, FESTIVAL_ORDER } from '../data/festivals.js';
 import { useFestival, getActiveFestival, getFestivalSecsLeft, getFestivalCooldownSecs } from '../systems/festivals.js';
 import { acceptInspiration, dismissInspiration, getInspirationSecsLeft, INSPIRATION_TYPES } from '../systems/researchInspiration.js';
+import { WONDERS, WONDER_ORDER } from '../data/wonders.js';
+import { startWonder, getWonderProgress, getCompletedWonder, isWonderBuilding } from '../systems/wonders.js';
 
 export function initResearchPanel() {
   const panel = document.getElementById('panel-research');
@@ -38,10 +40,11 @@ export function initResearchPanel() {
   on(Events.FESTIVAL_CHANGED,       renderResearchPanel);
   on(Events.RUIN_EXCAVATED,         renderResearchPanel);
   on(Events.RESEARCH_INSPIRATION,   renderResearchPanel);
-  // Refresh countdown text every second while a festival or inspiration event is active
+  on(Events.WONDER_CHANGED,         renderResearchPanel);  // T133
+  // Refresh countdown text every second while a festival, inspiration, or wonder is active
   on(Events.TICK, _throttle(() => {
     const hasActivity = getActiveFestival() || getFestivalCooldownSecs() > 0
-      || !!state.researchInspiration?.pending;
+      || !!state.researchInspiration?.pending || isWonderBuilding();
     if (hasActivity) renderResearchPanel();
   }, 4));
 }
@@ -89,7 +92,7 @@ function renderResearchPanel() {
     </div>`;
   }).join('');
 
-  panel.innerHTML = _ageSection() + progressHtml + _inspirationCard() + `<div class="tech-grid">${techCards}</div>` + _masteriesSection() + _synergiesSection() + _policySection() + _festivalsSection() + _relicsSection() + _landmarksSection() + _ruinsSection();
+  panel.innerHTML = _ageSection() + progressHtml + _inspirationCard() + `<div class="tech-grid">${techCards}</div>` + _masteriesSection() + _synergiesSection() + _policySection() + _festivalsSection() + _wondersSection() + _relicsSection() + _landmarksSection() + _ruinsSection();
 
   panel.onclick = (e) => {
     // T116: Research inspiration accept/dismiss
@@ -125,6 +128,13 @@ function renderResearchPanel() {
     const festBtn = e.target.closest('[data-festival]');
     if (festBtn) {
       useFestival(festBtn.dataset.festival);
+      return;
+    }
+    // T133: Wonder commission buttons
+    const wonderBtn = e.target.closest('[data-wonder]');
+    if (wonderBtn) {
+      const result = startWonder(wonderBtn.dataset.wonder);
+      if (!result.ok) wonderBtn.title = result.reason;
       return;
     }
     const btn = e.target.closest('[data-tech]');
@@ -278,6 +288,88 @@ function _ageSection() {
       </button>
     </div>
   </div>`;
+}
+
+// ── T133: Wonders section ─────────────────────────────────────────────────
+
+function _wondersSection() {
+  const completedId  = state.wonder?.completedId ?? null;
+  const buildingId   = state.wonder?.buildingId  ?? null;
+  const prog         = getWonderProgress();
+  const isAtMedieval = (state.age ?? 0) >= 3;
+
+  let statusHtml = '';
+  if (completedId) {
+    const w = WONDERS[completedId];
+    statusHtml = `<div class="wonder-completed-banner">
+      ${w.icon} <strong>${w.name}</strong> completed! <span class="wonder-bonus-pill">${w.bonusLabel}</span>
+    </div>`;
+  } else if (buildingId && prog) {
+    const w       = WONDERS[buildingId];
+    const pctInt  = Math.round(prog.pct * 100);
+    const minsLeft = Math.floor(prog.secsLeft / 60);
+    const secsLeft  = prog.secsLeft % 60;
+    const timeStr   = minsLeft > 0 ? `${minsLeft}m ${String(secsLeft).padStart(2,'0')}s` : `${prog.secsLeft}s`;
+    statusHtml = `<div class="wonder-progress-banner">
+      <div class="wonder-progress-header">
+        <span>${w.icon} ${w.name} — under construction</span>
+        <span>${timeStr} remaining</span>
+      </div>
+      <div class="wonder-progress-bar"><div class="wonder-progress-fill" style="width:${pctInt}%"></div></div>
+    </div>`;
+  }
+
+  const cards = WONDER_ORDER.map(id => {
+    const def          = WONDERS[id];
+    const isCompleted  = completedId === id;
+    const isBuilding   = buildingId  === id;
+    const anyWonder    = !!(completedId || buildingId);
+    const ageOk        = isAtMedieval;
+    const techOk       = !def.requires?.tech || !!state.techs?.[def.requires.tech];
+    const canAfford    = Object.entries(def.cost).every(([r, a]) => (state.resources[r] ?? 0) >= a);
+    const disabled     = anyWonder || !ageOk || !techOk || !canAfford;
+
+    const costParts = Object.entries(def.cost).map(([r, a]) => {
+      const ok = (state.resources[r] ?? 0) >= a;
+      return `<span class="wonder-cost ${ok ? 'wonder-cost--ok' : 'wonder-cost--bad'}">${_resIcon(r)}${fmtNum(a)}</span>`;
+    }).join(' ');
+
+    let lockMsg = '';
+    if (!ageOk)   lockMsg = '🔒 Medieval Age required';
+    else if (!techOk) lockMsg = `🔒 Requires ${def.requires.tech} tech`;
+
+    let btnLabel = 'Commission';
+    if (isCompleted) btnLabel = '✓ Completed';
+    else if (isBuilding) btnLabel = '🏗️ Building…';
+    else if (anyWonder) btnLabel = 'Already Built';
+
+    return `<div class="wonder-card ${isCompleted ? 'wonder-card--completed' : ''} ${isBuilding ? 'wonder-card--building' : ''}">
+      <div class="wonder-card__header">
+        <span class="wonder-card__icon">${def.icon}</span>
+        <strong class="wonder-card__name">${def.name}</strong>
+        ${isCompleted ? '<span class="wonder-badge wonder-badge--done">✓ Done</span>' : ''}
+        ${isBuilding  ? '<span class="wonder-badge wonder-badge--wip">Building</span>' : ''}
+      </div>
+      <div class="wonder-card__desc">${def.desc}</div>
+      <div class="wonder-card__flavor">${def.flavorText}</div>
+      <div class="wonder-card__bonus">${def.bonusLabel}</div>
+      ${lockMsg ? `<div class="wonder-card__lock">${lockMsg}</div>` : `<div class="wonder-card__cost">${costParts} · ⏱4m</div>`}
+      <button class="btn btn--sm btn--wonder"
+              data-wonder="${id}"
+              ${disabled ? 'disabled' : ''}>${btnLabel}</button>
+    </div>`;
+  }).join('');
+
+  return `
+    <div class="wonder-section">
+      <div class="wonder-header">
+        <span>🏛️ Wonder Projects</span>
+        <span class="wonder-header-sub">One per game — Medieval Age required</span>
+      </div>
+      <div class="wonder-intro">Commission a great Wonder to leave a permanent mark on history. Each provides a massive empire-wide bonus.</div>
+      ${statusHtml}
+      <div class="wonder-grid">${cards}</div>
+    </div>`;
 }
 
 // ── T064: Relics section ───────────────────────────────────────────────────
