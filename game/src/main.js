@@ -290,6 +290,14 @@ function boot() {
         showCouncilModal(newAge, offer, chooseCouncilBoon);
       }
     }
+    // T131: clear active proclamation on age advance
+    if (state.proclamation?.activeId) {
+      state.proclamation.activeId      = null;
+      state.proclamation.ageWhenIssued = -1;
+      recalcRates();
+      addMessage('📜 Age proclamation has expired with the age transition.', 'info');
+      emit(Events.PROCLAMATION_ISSUED, { id: null });
+    }
   });
 
   // Update season badge on changes (also on TICK for countdown display)
@@ -326,7 +334,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 37, // T121: city founding; T122: hero companions
+      version: 38, // T131: proclamations; T132: siege engine unit
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -401,6 +409,7 @@ function _save() {
         forge:               state.forge               ?? null,  // T125
         auction:             state.auction             ?? null,  // T126
         raids:               state.raids               ?? null,  // T127
+        proclamation:        state.proclamation        ?? null,  // T131
         tick:          state.tick,
       }
     }));
@@ -509,6 +518,7 @@ function _applySave(save) {
   state.forge                = s.forge                ?? null;  // T125
   state.auction              = s.auction              ?? null;  // T126
   state.raids                = s.raids                ?? null;  // T127
+  state.proclamation         = s.proclamation         ?? { activeId: null, ageWhenIssued: -1 }; // T131
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };

@@ -17,6 +17,7 @@ import { SPECIALIZATIONS } from '../data/buildingSpecials.js';
 import { CAPITAL_PLANS } from '../data/capitalPlans.js';
 import { FORGE_ITEMS } from '../data/forgeItems.js';
 import { SEASON_UNIT_DISCOUNT } from '../data/seasons.js';
+import { PROCLAMATIONS } from '../data/proclamations.js';
 import { recalcRates } from '../systems/resources.js';
 import { log } from '../utils/logger.js';
 
@@ -92,6 +93,15 @@ export function demolishBuilding(id) {
 export function trainUnit(id) {
   const def = UNITS[id];
   if (!def) return { ok: false, reason: `Unknown unit: ${id}` };
+
+  // T132: Siege Engine cap — only 1 allowed (owned or in queue)
+  if (id === 'siege_engine') {
+    const alreadyOwned = (state.units.siege_engine ?? 0) > 0;
+    const inQueue      = state.trainingQueue.some(e => e.unitId === 'siege_engine');
+    if (alreadyOwned || inQueue) {
+      return { ok: false, reason: 'You can only field 1 Siege Engine at a time.' };
+    }
+  }
 
   // T130: Seasonal unit discount — 20% off for the season-matched unit type
   const discountUnit = SEASON_UNIT_DISCOUNT[state.season?.index ?? 0];
@@ -1040,6 +1050,41 @@ export function forgeItem(itemId) {
   emit(Events.FORGE_CHANGED, { itemId });
   emit(Events.RESOURCE_CHANGED, {});
   addMessage(`⚒️ Forged: ${def.icon} ${def.name}! ${def.bonusLabel}`, 'windfall');
+  return { ok: true };
+}
+
+// ---------------------------------------------------------------------------
+// T131: Empire Proclamations
+// ---------------------------------------------------------------------------
+
+/**
+ * Issue a proclamation for the current age.
+ * Only one proclamation may be active per age; resets on age advance.
+ */
+export function issueProclamation(id) {
+  if (!state.proclamation) state.proclamation = { activeId: null, ageWhenIssued: -1 };
+
+  if (state.proclamation.activeId) {
+    return { ok: false, reason: 'A proclamation has already been issued this age.' };
+  }
+
+  const def = PROCLAMATIONS.find(p => p.id === id);
+  if (!def) return { ok: false, reason: 'Unknown proclamation.' };
+
+  if (!canAfford(def.cost)) return { ok: false, reason: 'Insufficient resources.' };
+  deductCost(def.cost);
+
+  state.proclamation.activeId      = id;
+  state.proclamation.ageWhenIssued = state.age;
+
+  // iron_will: immediate morale cost
+  if (id === 'iron_will') {
+    state.morale = Math.max(0, (state.morale ?? 50) - 10);
+  }
+
+  recalcRates();
+  addMessage(`📜 Proclamation: ${def.name}! ${def.desc} (${def.tradeoff})`, 'windfall');
+  emit(Events.PROCLAMATION_ISSUED, { id });
   return { ok: true };
 }
 

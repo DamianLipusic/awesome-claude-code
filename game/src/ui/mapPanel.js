@@ -893,6 +893,11 @@ function _showCombatPreview(x, y) {
     ? `<div class="cp-siege-notice" style="color:#68d391">🛡️ Allied Aid: ${p.aidBattlesLeft} battle${p.aidBattlesLeft !== 1 ? 's' : ''} remaining</div>`
     : '';
 
+  // T132: Siege Engine notice
+  const siegeEngineHtml = p.siegeEngineActive
+    ? `<div class="cp-siege-notice" style="color:#fbd38d">🏰 Siege Engine: fortification defenses halved!</div>`
+    : '';
+
   // Use effective defense (after terrain) for the stat display; show base if different
   const defDisplay = (p.effectiveDefense !== undefined && p.effectiveDefense !== p.defense)
     ? `${p.effectiveDefense} <span style="font-size:0.75em;opacity:0.6">(base ${p.defense})</span>`
@@ -941,7 +946,7 @@ function _showCombatPreview(x, y) {
           <span class="cp-stat__value" style="color:${winColor}">${winPct}%</span>
         </div>
       </div>
-      ${terrainNoticeHtml}${siegeHtml}${manaBoltHtml}${battleCryHtml}${formationHtml}${streakHtmlPreview}${aidHtmlPreview}
+      ${terrainNoticeHtml}${siegeHtml}${manaBoltHtml}${battleCryHtml}${formationHtml}${streakHtmlPreview}${aidHtmlPreview}${siegeEngineHtml}
       <div class="cp-loot-row">
         <span class="cp-loot-label">Loot on victory:</span>
         <span class="cp-loot-items">${lootHtml}</span>

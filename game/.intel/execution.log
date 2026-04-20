@@ -2,6 +2,36 @@
 
 ---
 
+## 2026-04-20 — Session N+35
+
+**Tasks completed:** T131, T132
+
+**Summary:**
+All prior tasks (T001–T130) were complete. Created T131+T132 task specs then implemented two Phase 49 features: Empire Proclamations (T131) and Siege Engine Unit (T132).
+
+**T131 — Empire Proclamations:**
+- `src/data/proclamations.js`: New file. `PROCLAMATIONS` array with 4 entries: `war_economy` (⚔️ +25% attack, −15% all rates, 150g), `golden_era` (💰 +40% gold, −20% food/wood, 100g), `great_works` (📚 +30% research speed, −25% mana, 200g+50 mana), `iron_will` (🛡️ −20% enemy counterattack, 120g+30 iron + −10 morale on issue).
+- `src/core/events.js`: Added `PROCLAMATION_ISSUED` event.
+- `src/core/state.js`: Added `state.proclamation = null` field with comment; `initState()` resets to `{ activeId: null, ageWhenIssued: -1 }`.
+- `src/core/actions.js`: Imported `PROCLAMATIONS`; added `issueProclamation(id)` — validates one-per-age, deducts cost, applies iron_will morale hit (−10), `recalcRates()`, emits `PROCLAMATION_ISSUED`.
+- `src/systems/resources.js`: At end of `recalcRates()`, T131 block: `war_economy` all rates ×0.85; `golden_era` gold ×1.40, food/wood ×0.80; `great_works` mana ×0.75.
+- `src/systems/research.js`: `researchTick()` decrements `entry.remaining` by 1.3 (not 1.0) when `great_works` active.
+- `src/systems/combat.js`: Both `getAttackPreview()` and `attackTile()` multiply `attackPower` by 1.25 when `war_economy` active (after Iron Helm line).
+- `src/systems/enemyAI.js`: `_counterattack()` multiplies `winChance` by 0.80 when `iron_will` active.
+- `src/ui/militaryPanel.js`: Imported `issueProclamation` + `PROCLAMATIONS`; added `PROCLAMATION_ISSUED` listener; added `_proclamationsSection()` (active state = purple card, chooser state = 4 proclamation-cards in decree-grid); inserted after `_decreesSection()` in `_render()`; click handler for `[data-issue-proclamation]`.
+- `src/main.js`: `proclamation` added to `_save()` and `_applySave()`; on `AGE_CHANGED` handler clears `proclamation.activeId`, `recalcRates()`, emits `PROCLAMATION_ISSUED`. Version bumped to 38.
+- `styles/main.css`: `.proclamations-section` (purple left border), `.proclamation-card`, `.proclamation-card__tradeoff`, `.proclamation-active` (purple tint), `.btn--proclamation` (purple gradient).
+
+**T132 — Siege Engine Unit:**
+- `src/data/units.js`: Added `siege_engine` (🏰 Siege Engine, attack 40, defense 3, cost 400g+150s+100i, 15s train, upkeep 0.3 food+0.5 gold/s, requires ironFoundry+engineering+Iron Age).
+- `src/core/actions.js`: `trainUnit()` cap check at top — if `id === 'siege_engine'` and already owned or in queue, returns error "You can only field 1 Siege Engine at a time."
+- `src/systems/combat.js`: Both `getAttackPreview()` and `attackTile()` apply `effectiveDefense *= 0.50` when `state.units.siege_engine >= 1` and `tile.fortified` (using `let` not `const`). `attackTile()` logs a message. `getAttackPreview()` return value includes `siegeEngineActive` flag.
+- `src/ui/mapPanel.js`: Combat preview modal shows amber notice "🏰 Siege Engine: fortification defenses halved!" when `siegeEngineActive`.
+- `src/ui/militaryPanel.js`: Added `'siege_engine'` to `UNIT_ORDER`; `_unitCard()` computes `siegeCapped` (owned or in queue) and `trainDisabled` (includes `siegeCapped`); shows `unit-card__cap` badge (🟡 1 max / 🔴 1/1).
+- `styles/main.css`: `.unit-card__cap` (amber), `.unit-card__cap--full` (red).
+
+---
+
 ## 2026-04-20 — Session N+34
 
 **Tasks completed:** T129, T130

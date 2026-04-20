@@ -7833,3 +7833,128 @@ kbd {
 }
 .btn--cp-raid:hover { opacity: 0.85; }
 .btn--cp-raid:disabled { opacity: 0.35; cursor: default; }
+
+/* ── T131: Empire Proclamations ─────────────────────────────────────────── */
+.proclamations-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-left: 3px solid #805ad5;
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  margin-bottom: 10px;
+}
+
+.proclamations-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  margin-bottom: 4px;
+}
+
+.proclamations-desc {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+
+.proclamation-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.proclamation-card__tradeoff {
+  font-size: 11px;
+  color: #fc8181;
+}
+
+.proclamation-note {
+  font-size: 10px;
+  color: var(--text-dim);
+  margin-top: 4px;
+  font-style: italic;
+}
+
+/* Active proclamation display */
+.proclamation-active {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: rgba(128, 90, 213, 0.12);
+  border: 1px solid rgba(128, 90, 213, 0.4);
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+
+.proclamation-active__icon { font-size: 20px; }
+
+.proclamation-active__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.proclamation-active__name {
+  font-weight: 700;
+  font-size: 13px;
+  color: #b794f4;
+}
+
+.proclamation-active__desc {
+  font-size: 12px;
+  color: var(--text);
+}
+
+.proclamation-active__trade {
+  font-size: 11px;
+  color: #fc8181;
+}
+
+.proclamation-active__badge {
+  font-size: 10px;
+  font-weight: 700;
+  color: #b794f4;
+  background: rgba(128, 90, 213, 0.25);
+  border: 1px solid rgba(128, 90, 213, 0.5);
+  border-radius: 3px;
+  padding: 1px 6px;
+  white-space: nowrap;
+  align-self: flex-start;
+}
+
+.btn--proclamation {
+  margin-top: 2px;
+  background: linear-gradient(135deg, #44337a, #6b46c1);
+  color: #e9d8fd;
+  border-color: #805ad5;
+}
+
+.btn--proclamation:hover:not(.btn--disabled) {
+  background: linear-gradient(135deg, #553c9a, #9f7aea);
+  border-color: #b794f4;
+  color: #faf5ff;
+}
+
+/* ── T132: Siege Engine cap badge ────────────────────────────────────────── */
+.unit-card__cap {
+  font-size: 10px;
+  font-weight: 600;
+  color: #f6ad55;
+  background: rgba(246, 173, 85, 0.15);
+  border: 1px solid rgba(246, 173, 85, 0.4);
+  border-radius: 3px;
+  padding: 1px 4px;
+}
+
+.unit-card__cap--full {
+  color: #fc8181;
+  background: rgba(252, 129, 129, 0.15);
+  border-color: rgba(252, 129, 129, 0.4);
+}

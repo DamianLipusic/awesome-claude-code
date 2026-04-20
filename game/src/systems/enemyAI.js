@@ -174,6 +174,8 @@ function _counterattack() {
   if (state.capitalPlan === 'fortress') winChance *= 0.80;
   // T125: Ironwood Shield forge item — -20% enemy counterattack success
   if (state.forge?.crafted?.ironwood_shield) winChance *= 0.80;
+  // T131: Iron Will proclamation — -20% enemy counterattack success
+  if (state.proclamation?.activeId === 'iron_will') winChance *= 0.80;
   winChance = Math.min(0.9, winChance);
   const roll = Math.random();
 

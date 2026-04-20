@@ -256,10 +256,16 @@ export function getAttackPreview(x, y) {
   // T125: Iron Helm forge item — +25 flat attack power
   if (state.forge?.crafted?.iron_helm) attackPower += 25;
 
+  // T131: War Economy proclamation — +25% attack power
+  if (state.proclamation?.activeId === 'war_economy') attackPower *= 1.25;
+
   // T071: terrain combat modifiers
-  const terrainMod     = _terrainMod(tile.type);
-  attackPower         *= terrainMod.attackMult;
-  const effectiveDefense = (tile.defense ?? 0) * terrainMod.defMult;
+  const terrainMod = _terrainMod(tile.type);
+  attackPower     *= terrainMod.attackMult;
+  let effectiveDefense = (tile.defense ?? 0) * terrainMod.defMult;
+
+  // T132: Siege Engine — halves effective defense of fortified tiles
+  if ((state.units?.siege_engine ?? 0) > 0 && tile.fortified) effectiveDefense *= 0.50;
 
   const heroReady      = state.hero?.recruited && !_heroInjured() && !_heroOnExpedition();
   const siegeActive    = !!(heroReady && state.hero.activeEffects?.siege);
@@ -311,6 +317,7 @@ export function getAttackPreview(x, y) {
     aidActive:    !!_aid,
     aidEmpireId:  _aid?.empireId ?? null,
     aidBattlesLeft: _aid?.battlesLeft ?? 0,
+    siegeEngineActive: (state.units?.siege_engine ?? 0) > 0 && tile.fortified, // T132
     paradeChargesLeft: _paradeActive ? (state.festivals.active.chargesLeft ?? 0) : 0,
   };
 }
@@ -431,6 +438,9 @@ export function attackTile(x, y) {
   // T125: Iron Helm forge item — +25 flat attack power
   if (state.forge?.crafted?.iron_helm) attackPower += 25;
 
+  // T131: War Economy proclamation — +25% attack power
+  if (state.proclamation?.activeId === 'war_economy') attackPower *= 1.25;
+
   // T071: terrain attack modifier (applied before siege/mana-bolt override)
   const _terrainM = _terrainMod(tile.type);
   attackPower *= _terrainM.attackMult;
@@ -458,7 +468,13 @@ export function attackTile(x, y) {
   }
 
   // T071: apply terrain defense multiplier (0 × anything = 0, so siege still guarantees win)
-  const effectiveDefense = defense * _terrainM.defMult;
+  let effectiveDefense = defense * _terrainM.defMult;
+
+  // T132: Siege Engine — halves effective defense of fortified tiles
+  if ((state.units?.siege_engine ?? 0) > 0 && tile.fortified) {
+    effectiveDefense *= 0.50;
+    addMessage('🏰 Siege Engine: fortification defenses halved!', 'info');
+  }
 
   let winChance = siegeActive
     ? 1.0

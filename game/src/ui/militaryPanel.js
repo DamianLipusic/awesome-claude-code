@@ -10,7 +10,7 @@
 
 import { state } from '../core/state.js';
 import { on, Events } from '../core/events.js';
-import { trainUnit, recruitHero, useHeroAbility, setFormation, chooseHeroSkill, rallyTroops, upgradeUnit, UNIT_UPGRADE_MAX, UNIT_UPGRADE_COST_BASE, addMessage, chooseHeroTrait, chooseCompanion } from '../core/actions.js';
+import { trainUnit, recruitHero, useHeroAbility, setFormation, chooseHeroSkill, rallyTroops, upgradeUnit, UNIT_UPGRADE_MAX, UNIT_UPGRADE_COST_BASE, addMessage, chooseHeroTrait, chooseCompanion, issueProclamation } from '../core/actions.js';
 import { acceptDuel, declineDuel, getDuelSecsLeft } from '../systems/duels.js';
 import { sendPioneerExpedition, getPioneerProgress, getPioneerSecsLeft, PIONEER_COST, PIONEER_MAX } from '../systems/pioneerExpeditions.js';
 import { sendOnExpedition, recallExpedition, isOnExpedition, expeditionSecsLeft, expeditionProgress, canEnshrineHero, enshrineHero, ENSHRINE_MAX } from '../systems/heroSystem.js';
@@ -20,6 +20,7 @@ import { hireMercenary, mercenarySecsLeft } from '../systems/mercenaries.js';
 import { useDecree, canUseDecree, getDecreeSecsLeft, isHarvestEdictActive, getWarBannerCharges } from '../systems/decrees.js';
 import { getActiveAid } from '../systems/militaryAid.js';
 import { DECREES } from '../data/decrees.js';
+import { PROCLAMATIONS } from '../data/proclamations.js';
 import { UNITS } from '../data/units.js';
 import { BUILDINGS } from '../data/buildings.js';
 import { TECHS } from '../data/techs.js';
@@ -28,7 +29,7 @@ import { HERO_DEF, HERO_SKILLS, HERO_SKILL_WIN_INTERVAL, HERO_MAX_SKILLS, HERO_T
 import { fmtNum } from '../utils/fmt.js';
 import { SEASON_UNIT_DISCOUNT } from '../data/seasons.js';
 
-const UNIT_ORDER = ['soldier', 'archer', 'knight', 'mage'];
+const UNIT_ORDER = ['soldier', 'archer', 'knight', 'mage', 'siege_engine'];
 
 // XP thresholds (mirrors combat.js constants)
 const VETERAN_XP = 3;
@@ -74,7 +75,8 @@ export function initMilitaryPanel() {
   on(Events.HERO_QUEST_CHANGED, () => _render(panel)); // T112: legendary quest phase advanced
   on(Events.HERO_ENSHRINED,    () => _render(panel)); // T118: hero enshrined as legacy
   on(Events.HERO_TRAIT_CHOSEN,    () => _render(panel)); // T119: trait chosen → switch from chooser to active view
-  on(Events.COMPANION_RECRUITED, () => _render(panel)); // T122: companion chosen
+  on(Events.COMPANION_RECRUITED,   () => _render(panel)); // T122: companion chosen
+  on(Events.PROCLAMATION_ISSUED,   () => _render(panel)); // T131: proclamation issued/cleared
   on(Events.RESOURCE_CHANGED,  () => _renderCosts(panel));
   on(Events.GAME_LOADED,       () => _render(panel));
 
@@ -120,6 +122,7 @@ function _render(panel) {
     ${_upgradeSection()}
     ${_spellsSection()}
     ${_decreesSection()}
+    ${_proclamationsSection()}
     ${_heroSection()}
     ${_companionSection()}
     ${_armySection()}
@@ -1107,11 +1110,20 @@ function _unitCard(id) {
     ? `<span class="unit-card__discount">🟢 20% Off</span>`
     : '';
 
+  // T132: siege engine cap badge
+  const siegeCapped = id === 'siege_engine' &&
+    ((state.units.siege_engine ?? 0) > 0 || state.trainingQueue.some(e => e.unitId === 'siege_engine'));
+  const capBadge = (id === 'siege_engine' && !locked)
+    ? `<span class="unit-card__cap ${siegeCapped ? 'unit-card__cap--full' : ''}">${siegeCapped ? '🔴 1/1' : '🟡 1 max'}</span>`
+    : '';
+
+  const trainDisabled = locked || !canAfford || siegeCapped;
+
   return `<div class="unit-card ${locked ? 'unit-card--locked' : ''} ${!locked && !canAfford ? 'unit-card--cant-afford' : ''}">
     <div class="unit-card__header">
       <span class="unit-card__icon">${def.icon}</span>
       <span class="unit-card__name">${def.name}</span>
-      ${discountBadge}
+      ${discountBadge}${capBadge}
       <span class="unit-card__count">${state.units[id] ?? 0}</span>
     </div>
     <div class="unit-card__desc">${def.description}</div>
@@ -1122,8 +1134,8 @@ function _unitCard(id) {
     ${upkeepStr ? `<div class="unit-card__upkeep">Upkeep: ${upkeepStr}</div>` : ''}
     ${xpLine}
     <div class="unit-card__actions">
-      <button class="btn btn--build ${disabled ? 'btn--disabled' : ''}"
-        data-train="${id}" ${disabled ? 'disabled' : ''}>Train</button>
+      <button class="btn btn--build ${trainDisabled ? 'btn--disabled' : ''}"
+        data-train="${id}" ${trainDisabled ? 'disabled' : ''}>Train</button>
     </div>
   </div>`;
 }
@@ -1176,6 +1188,14 @@ function _handleClick(e) {
   if (decreeBtn && !decreeBtn.disabled) {
     const result = useDecree(decreeBtn.dataset.useDecree);
     if (!result.ok) addMessage(result.reason ?? 'Cannot use decree right now.', 'info');
+    return;
+  }
+
+  // T131: issue-proclamation button
+  const proclamationBtn = e.target.closest('[data-issue-proclamation]');
+  if (proclamationBtn && !proclamationBtn.disabled) {
+    const result = issueProclamation(proclamationBtn.dataset.issueProclamation);
+    if (!result.ok) addMessage(result.reason ?? 'Cannot issue proclamation.', 'info');
     return;
   }
 
@@ -1304,6 +1324,60 @@ function _decreesSection() {
   return `<div class="decrees-section">
     <div class="decrees-title">📜 Empire Decrees</div>
     <div class="decrees-desc">Activate powerful one-time edicts to swing the tide of war or economy. Each has a cooldown.</div>
+    <div class="decree-grid">${cards}</div>
+  </div>`;
+}
+
+// ── T131: Empire Proclamations section ───────────────────────────────────
+
+function _proclamationsSection() {
+  const proc    = state.proclamation ?? { activeId: null, ageWhenIssued: -1 };
+  const activeId = proc.activeId;
+
+  if (activeId) {
+    const def = PROCLAMATIONS.find(p => p.id === activeId);
+    return `<div class="proclamations-section">
+      <div class="proclamations-title">📜 Age Proclamation</div>
+      <div class="proclamation-active">
+        <span class="proclamation-active__icon">${def?.icon ?? '📜'}</span>
+        <div class="proclamation-active__body">
+          <span class="proclamation-active__name">${_escHtml(def?.name ?? activeId)}</span>
+          <span class="proclamation-active__desc">${_escHtml(def?.desc ?? '')}</span>
+          <span class="proclamation-active__trade">${_escHtml(def?.tradeoff ?? '')}</span>
+        </div>
+        <span class="proclamation-active__badge">Active</span>
+      </div>
+      <div class="proclamation-note">One proclamation per age. Clears on age advance.</div>
+    </div>`;
+  }
+
+  const cards = PROCLAMATIONS.map(def => {
+    const costParts = Object.entries(def.cost).map(([res, amt]) => {
+      const has = (state.resources[res] ?? 0) >= amt;
+      return `<span class="decree-cost ${has ? 'decree-cost--ok' : 'decree-cost--bad'}">${RES_ICONS[res] ?? ''} ${amt}</span>`;
+    });
+    const costHtml = `<div class="decree-costs">${costParts.join(' ')}</div>`;
+    const canAfford = Object.entries(def.cost).every(([res, amt]) => (state.resources[res] ?? 0) >= amt);
+
+    return `<div class="proclamation-card">
+      <div class="decree-card__header">
+        <span class="decree-card__icon">${def.icon}</span>
+        <span class="decree-card__name">${_escHtml(def.name)}</span>
+        ${costHtml}
+      </div>
+      <div class="decree-card__desc">${_escHtml(def.desc)}</div>
+      <div class="proclamation-card__tradeoff">⚠️ ${_escHtml(def.tradeoff)}</div>
+      <button
+        class="btn btn--proclamation ${canAfford ? '' : 'btn--disabled'}"
+        data-issue-proclamation="${def.id}"
+        ${canAfford ? '' : 'disabled'}
+      >Proclaim</button>
+    </div>`;
+  }).join('');
+
+  return `<div class="proclamations-section">
+    <div class="proclamations-title">📜 Age Proclamation</div>
+    <div class="proclamations-desc">Issue one strategic proclamation per age. Effects last until the next age advance.</div>
     <div class="decree-grid">${cards}</div>
   </div>`;
 }

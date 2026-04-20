@@ -100,4 +100,5 @@ export const Events = Object.freeze({
   FORGE_CHANGED:            'forgeChanged',             // T125: forge item crafted
   AUCTION_CHANGED:          'auctionChanged',           // T126: auction spawned/bid/expired
   RAID_CHANGED:             'raidChanged',              // T127: resource raid resolved (win/loss)
+  PROCLAMATION_ISSUED:      'proclamationIssued',       // T131: proclamation issued or expired
 });

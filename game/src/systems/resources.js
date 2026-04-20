@@ -475,6 +475,18 @@ export function recalcRates() {
     if (state.forge.crafted.farmers_almanac)    rates.food += 1.5;
   }
 
+  // T131: Proclamation rate effects
+  const _procId = state.proclamation?.activeId;
+  if (_procId === 'war_economy') {
+    for (const r of RESOURCE_KEYS) rates[r] *= 0.85;
+  } else if (_procId === 'golden_era') {
+    rates.gold *= 1.40;
+    rates.food *= 0.80;
+    rates.wood *= 0.80;
+  } else if (_procId === 'great_works') {
+    rates.mana *= 0.75;
+  }
+
   Object.assign(state.rates, rates);
   Object.assign(state.caps, caps);
 }

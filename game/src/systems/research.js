@@ -18,7 +18,8 @@ export function researchTick() {
   if (state.researchQueue.length === 0) return;
 
   const entry = state.researchQueue[0];
-  entry.remaining--;
+  // T131: Great Works proclamation — research progresses 30% faster
+  entry.remaining -= (state.proclamation?.activeId === 'great_works') ? 1.3 : 1;
 
   if (entry.remaining <= 0) {
     state.researchQueue.shift();

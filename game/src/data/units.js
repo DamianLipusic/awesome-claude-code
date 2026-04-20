@@ -70,4 +70,20 @@ export const UNITS = Object.freeze({
     ],
   },
 
+  siege_engine: {
+    name: 'Siege Engine',
+    icon: '🏰',
+    description: 'Heavy catapult. Max 1. Halves the effective defense of fortified tiles.',
+    cost: { gold: 400, stone: 150, iron: 100 },
+    trainTicks: 60,   // 15 seconds
+    attack: 40,
+    defense: 3,
+    upkeep: { food: 0.3, gold: 0.5 },
+    requires: [
+      { type: 'building', id: 'ironFoundry' },
+      { type: 'tech',     id: 'engineering' },
+      { type: 'age',      minAge: 2 },
+    ],
+  },
+
 });

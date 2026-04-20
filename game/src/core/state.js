@@ -309,6 +309,13 @@ export const state = {
   // T127: Resource raid state — { cooldownUntil: tick, totalRaids: number }
   // null until first raid attempt.
   raids: null,
+
+  // T131: Active proclamation — one strategic declaration per age; cleared on age advance.
+  // null | { activeId: string|null, ageWhenIssued: number }
+  proclamation: null,
+
+  // T132: Siege engine cap flag — drives the 1-max constraint enforced in actions.js.
+  // siege_engine count lives in state.units as normal; this comment documents the design.
 };
 
 /**
@@ -386,5 +393,6 @@ export function initState(empireName = 'My Empire') {
   state.forge               = null; // T125: forge items reset per game
   state.auction             = null; // T126: auction state reset per game
   state.raids               = null; // T127: raid cooldown resets per game
+  state.proclamation        = { activeId: null, ageWhenIssued: -1 }; // T131
   // Note: state.archetype is NOT reset here — it persists across new games
 }
