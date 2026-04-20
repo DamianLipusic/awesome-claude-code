@@ -2,6 +2,26 @@
 
 ---
 
+## 2026-04-20 — Session N+31
+
+**Tasks completed:** T123, T124
+
+**Summary:**
+All prior tasks (T001–T122) were complete. Created T123+T124 task specs then implemented two Phase 45 features: Notification Center (T123) adding a persistent event history drawer in the title bar, and Empire Legacy Traits (T124) adding cross-game meta-progression via localStorage-persisted legacy points and purchasable starting bonuses.
+
+**T123 — Notification Center:**
+- `src/ui/notificationCenter.js`: Created from scratch. Tracks last 25 important MESSAGE events (quest/achievement/age/raid/windfall/disaster/hero/barbarian/crisis/duel/relic/landmark/ruin/prestige/title/pioneer/siege/espionage/festival/synergy/mastery/boon/companion types) in a module-level ring buffer. `initNotificationCenter()` injects a 🔔 bell button before the score badge in the title bar and appends a fixed dropdown drawer to the body. Unread count badge appears when new events arrive while the drawer is closed; cleared when opened. Clear All button resets the log. Click-outside handler closes the drawer. Relative timestamps (just now / Xs / Xm / Xh ago). Resets on GAME_STARTED.
+- `src/main.js`: Imported `initNotificationCenter`; called in boot() after `initMinimap()`.
+- `styles/main.css`: `.notif-bell` pill button, `.notif-badge` red pill, `.notif-drawer` fixed 300px dropdown with flex column layout, `.notif-item--{type}` 25 type-coloured left borders (gold/quest, purple/age, red/raids, green/windfalls, orange/disasters, blue/hero, etc.). Hidden on ≤480px.
+
+**T124 — Empire Legacy Traits:**
+- `src/data/legacyTraits.js`: Created from scratch. `LEGACY_TRAITS` object with 8 trait definitions (ancient_bloodline/military_tradition/trade_heritage/scholars_legacy/iron_constitution/builders_instinct/explorers_heritage/arcane_lineage), each with icon/name/desc/cost/apply(state) function. `LEGACY_TRAIT_ORDER` array. `loadLegacy()`/`saveLegacy()` LocalStorage helpers. `awardLegacyPoints(score)` awards floor(score/100) points. `buyLegacyTrait(traitId)` validates and purchases.
+- `src/main.js`: Imported `loadLegacy`/`awardLegacyPoints`/`LEGACY_TRAITS`. Added `_applyLegacyBonuses()` which iterates owned traits and calls their `apply(state)` function — called after `_applyDifficultyStart()` in both the boot new-game path and `_newGame()`. Added `awardLegacyPoints(calcScore())` at the end of `_saveToLeaderboard()` (fires before every new game).
+- `src/ui/settingsPanel.js`: Imported legacy exports; injected `_legacySection()` between leaderboard and shortcuts; added buy-button click delegates with btn--shake feedback. Section shows points balance bar and 8 trait cards (owned=purple border+badge, locked=dim with affordability-coloured cost and disabled Buy button).
+- `styles/main.css`: `.legacy-points-bar` (purple tint), `.legacy-grid` (auto-fill 210px), `.legacy-card/--owned/--locked`, `.legacy-card__header/icon/name/desc/cost/cost--cant`, `.legacy-owned-badge`, `.btn--legacy-buy` (purple gradient).
+
+---
+
 ## 2026-04-19 — Session N+30
 
 **Tasks completed:** T121, T122

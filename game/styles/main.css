@@ -7389,3 +7389,225 @@ kbd {
   color: var(--text-dim);
   flex: 1;
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   T123 — Notification Center
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Bell button in title bar */
+.notif-bell {
+  position: relative;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 2px 8px;
+  line-height: 1.4;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: border-color 0.15s, color 0.15s;
+}
+.notif-bell:hover,
+.notif-bell--open {
+  border-color: var(--accent-h);
+  color: var(--text);
+}
+
+/* Unread badge */
+.notif-badge {
+  background: #e53e3e;
+  color: #fff;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  line-height: 16px;
+  padding: 0 4px;
+  text-align: center;
+  display: inline-block;
+}
+.notif-badge--hidden { display: none; }
+
+/* Dropdown drawer */
+.notif-drawer {
+  position: fixed;
+  width: 300px;
+  max-height: 380px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+  z-index: 1500;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.notif-drawer--hidden { display: none; }
+
+.notif-drawer__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-panel);
+  flex-shrink: 0;
+}
+.notif-drawer__title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.notif-clear {
+  font-size: 10px;
+  padding: 2px 6px;
+  opacity: 0.65;
+}
+.notif-clear:hover { opacity: 1; }
+
+/* Scrollable list */
+.notif-list {
+  overflow-y: auto;
+  flex: 1;
+  padding: 4px 0;
+}
+
+.notif-empty {
+  padding: 16px 12px;
+  font-size: 12px;
+  color: var(--text-dim);
+  text-align: center;
+}
+
+/* Individual notification item */
+.notif-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 6px 12px;
+  border-left: 3px solid transparent;
+  transition: background 0.1s;
+}
+.notif-item:hover { background: rgba(255,255,255,0.04); }
+
+/* Type-coloured left border */
+.notif-item--quest       { border-left-color: #d69e2e; }
+.notif-item--achievement { border-left-color: #b7791f; }
+.notif-item--age         { border-left-color: #9f7aea; }
+.notif-item--raid,
+.notif-item--duel        { border-left-color: #e53e3e; }
+.notif-item--windfall,
+.notif-item--relic,
+.notif-item--landmark,
+.notif-item--ruin        { border-left-color: #38a169; }
+.notif-item--disaster,
+.notif-item--crisis,
+.notif-item--siege,
+.notif-item--barbarian   { border-left-color: #dd6b20; }
+.notif-item--hero,
+.notif-item--companion   { border-left-color: #4299e1; }
+.notif-item--title,
+.notif-item--prestige    { border-left-color: #f6e05e; }
+
+.notif-icon {
+  font-size: 14px;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.notif-body   { flex: 1; min-width: 0; }
+.notif-text   { font-size: 11px; color: var(--text); line-height: 1.35; word-break: break-word; }
+.notif-time   { font-size: 10px; color: var(--text-dim); margin-top: 2px; }
+
+/* Hide on very narrow screens */
+@media (max-width: 480px) {
+  .notif-bell  { display: none; }
+  .notif-drawer { width: calc(100vw - 16px); }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   T124 — Empire Legacy Traits (Settings panel section)
+   ═══════════════════════════════════════════════════════════════════ */
+
+.legacy-section { }
+
+.legacy-points-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  background: rgba(159,122,234,0.12);
+  border: 1px solid rgba(159,122,234,0.35);
+  border-radius: 6px;
+}
+.legacy-points-icon  { font-size: 20px; }
+.legacy-points-label { font-size: 11px; color: var(--text-dim); }
+.legacy-points-value { font-size: 18px; font-weight: 700; color: #b794f4; }
+
+.legacy-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 8px;
+}
+
+.legacy-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: border-color 0.15s;
+}
+.legacy-card--owned {
+  border-color: #b794f4;
+  background: rgba(159,122,234,0.10);
+}
+.legacy-card--locked { opacity: 0.6; }
+
+.legacy-card__header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+.legacy-card__icon { font-size: 18px; }
+.legacy-card__name { font-size: 12px; font-weight: 600; color: var(--text); }
+.legacy-owned-badge {
+  margin-left: auto;
+  font-size: 10px;
+  background: #b794f4;
+  color: #1a1a2e;
+  border-radius: 999px;
+  padding: 1px 6px;
+  font-weight: 700;
+}
+.legacy-card__desc { font-size: 11px; color: var(--text-dim); line-height: 1.35; }
+.legacy-card__cost { font-size: 11px; color: #b794f4; font-weight: 600; margin-top: 2px; }
+.legacy-card__cost--cant { color: #e53e3e; }
+
+.btn--legacy-buy {
+  margin-top: 4px;
+  background: linear-gradient(135deg, #6b46c1, #805ad5);
+  border: none;
+  color: #fff;
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: opacity 0.15s;
+}
+.btn--legacy-buy:hover { opacity: 0.85; }
+.btn--legacy-buy:disabled { opacity: 0.35; cursor: default; }
+
+@media (max-width: 480px) {
+  .legacy-grid { grid-template-columns: 1fr; }
+}

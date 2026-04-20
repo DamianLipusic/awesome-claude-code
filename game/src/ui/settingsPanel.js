@@ -13,6 +13,7 @@ import { exportSave, importSave } from './saveModal.js';
 import { ACHIEVEMENTS, loadAchievements, setAchievementRenderer } from '../systems/achievements.js';
 import { state } from '../core/state.js';
 import { emit, Events } from '../core/events.js';
+import { loadLegacy, buyLegacyTrait, LEGACY_TRAITS, LEGACY_TRAIT_ORDER } from '../data/legacyTraits.js'; // T124
 
 const PANEL_ID   = 'panel-settings';
 const LB_KEY     = 'empireos-leaderboard';
@@ -63,6 +64,8 @@ function _render(panel) {
     ${_achievementsSection()}
 
     ${_leaderboardSection()}
+
+    ${_legacySection()}
 
     ${_shortcutsSection()}
 
@@ -142,6 +145,21 @@ function _render(panel) {
         delete state.alerts[res];
       } else {
         state.alerts[res] = Math.floor(v);
+      }
+    });
+  });
+
+  // T124: Bind legacy trait buy buttons
+  panel.querySelectorAll('.btn--legacy-buy').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const traitId = btn.dataset.legacyTrait;
+      const result  = buyLegacyTrait(traitId);
+      if (result.ok) {
+        _render(panel);
+      } else {
+        btn.classList.add('btn--shake');
+        btn.title = result.reason;
+        setTimeout(() => btn.classList.remove('btn--shake'), 500);
       }
     });
   });
@@ -356,6 +374,65 @@ function _shortcutsSection() {
       Active when not typing in an input field. Tab keys match the tab bar order.
     </div>
     <div class="kbd-grid">${rows}</div>
+  </div>`;
+}
+
+// ---------------------------------------------------------------------------
+// T124: Legacy Traits section
+// ---------------------------------------------------------------------------
+
+function _legacySection() {
+  const legacy = loadLegacy();
+  const { points, owned } = legacy;
+
+  const cards = LEGACY_TRAIT_ORDER.map(id => {
+    const def    = LEGACY_TRAITS[id];
+    const isOwned = owned.includes(id);
+    const canAfford = points >= def.cost;
+
+    if (isOwned) {
+      return `<div class="legacy-card legacy-card--owned">
+        <div class="legacy-card__header">
+          <span class="legacy-card__icon">${def.icon}</span>
+          <span class="legacy-card__name">${_escHtml(def.name)}</span>
+          <span class="legacy-owned-badge">✓ Owned</span>
+        </div>
+        <div class="legacy-card__desc">${_escHtml(def.desc)}</div>
+      </div>`;
+    }
+
+    return `<div class="legacy-card legacy-card--locked">
+      <div class="legacy-card__header">
+        <span class="legacy-card__icon">${def.icon}</span>
+        <span class="legacy-card__name">${_escHtml(def.name)}</span>
+      </div>
+      <div class="legacy-card__desc">${_escHtml(def.desc)}</div>
+      <div class="legacy-card__cost ${canAfford ? '' : 'legacy-card__cost--cant'}">
+        ✨ ${def.cost} legacy pts
+      </div>
+      <button
+        class="btn btn--legacy-buy"
+        data-legacy-trait="${id}"
+        ${canAfford ? '' : 'disabled'}
+        title="${canAfford ? `Buy for ${def.cost} pts` : `Need ${def.cost} pts (have ${points})`}"
+      >Buy Trait</button>
+    </div>`;
+  }).join('');
+
+  return `<div class="settings-section legacy-section">
+    <div class="settings-section__title">✨ Empire Legacy</div>
+    <div class="settings-section__desc">
+      Earn legacy points at the end of each game (1 point per 100 score).
+      Spend them on permanent starting bonuses that apply to every new game — your dynasty's lasting gifts.
+    </div>
+    <div class="legacy-points-bar">
+      <span class="legacy-points-icon">✨</span>
+      <div>
+        <div class="legacy-points-label">Available Legacy Points</div>
+        <div class="legacy-points-value">${points}</div>
+      </div>
+    </div>
+    <div class="legacy-grid">${cards}</div>
   </div>`;
 }
 

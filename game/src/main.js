@@ -71,6 +71,8 @@ import { initMinimap, drawMinimap } from './ui/minimap.js';
 import { addMessage } from './core/actions.js';
 import { calcScore } from './utils/score.js';
 import { TITLES, getCurrentTitle } from './data/titles.js';
+import { initNotificationCenter } from './ui/notificationCenter.js'; // T123
+import { loadLegacy, awardLegacyPoints, LEGACY_TRAITS } from './data/legacyTraits.js'; // T124
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
@@ -100,6 +102,7 @@ function boot() {
   } else {
     initState('My Empire');
     _applyDifficultyStart();
+    _applyLegacyBonuses(); // T124: apply purchased legacy traits
     initMap();
     addMessage('Welcome to EmpireOS. Build your empire!', 'info');
     addMessage('Start by constructing Farms and Lumber Mills.', 'info');
@@ -187,6 +190,7 @@ function boot() {
   initToasts();
   initSummaryPanel();
   initMinimap();
+  initNotificationCenter(); // T123: notification center
 
   // Show offline progress modal if the player was away when they last saved
   if (_pendingOffline) {
@@ -727,6 +731,12 @@ function _saveToLeaderboard() {
     lb.scores = lb.scores.slice(0, 10);
 
     localStorage.setItem(LB_KEY, JSON.stringify(lb));
+
+    // T124: Award legacy points based on final score
+    const pts = awardLegacyPoints(calcScore());
+    if (pts > 0) {
+      console.info(`[legacy] +${pts} legacy points awarded`);
+    }
   } catch (e) {
     console.error('[leaderboard save error]', e);
   }
@@ -853,6 +863,23 @@ function _applyDifficultyStart() {
   }
 }
 
+// ── T124: Legacy Traits ────────────────────────────────────────────────────
+
+/**
+ * Apply all owned legacy traits to the current (freshly-initialised) state.
+ * Called immediately after initState() + _applyDifficultyStart() in both the
+ * first-boot new-game path and every subsequent _newGame() call.
+ */
+function _applyLegacyBonuses() {
+  const legacy = loadLegacy();
+  for (const traitId of legacy.owned) {
+    const def = LEGACY_TRAITS[traitId];
+    if (def?.apply) {
+      try { def.apply(state); } catch (e) { console.warn('[legacy]', traitId, e); }
+    }
+  }
+}
+
 // ── New Game ──────────────────────────────────────────────────────────────
 
 /**
@@ -870,6 +897,7 @@ function _newGame(opts = {}) {
   if (opts.archetype)  state.archetype  = opts.archetype;
   initState(opts.name ?? 'My Empire');
   _applyDifficultyStart();
+  _applyLegacyBonuses(); // T124: apply purchased legacy traits
   initMap();
   initRandomEvents();
   initDiplomacy();
