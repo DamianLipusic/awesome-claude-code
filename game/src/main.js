@@ -79,6 +79,7 @@ import { initScholars, scholarTick, acceptTeaching, dismissScholar } from './sys
 import { initBounty, bountyTick } from './systems/bounty.js'; // T135
 import { initGreatPersons, greatPersonTick } from './systems/greatPersons.js'; // T136
 import { addToBuildQueue, removeFromBuildQueue, BUILD_QUEUE_MAX, buildBuilding } from './core/actions.js'; // T137 (re-import build)
+import { initAllianceMissions, allianceMissionTick, checkMissionProgress } from './systems/allianceMissions.js'; // T142
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
@@ -150,6 +151,7 @@ function boot() {
   registerSystem(scholarTick);         // T134: wandering scholar events
   registerSystem(bountyTick);          // T135: territory bounty system
   registerSystem(greatPersonTick);     // T136: great person system
+  registerSystem(allianceMissionTick); // T142: alliance missions
 
   // Init event-driven systems
   initRandomEvents();
@@ -188,6 +190,7 @@ function boot() {
   initScholars();         // T134: wandering scholar events
   initBounty();           // T135: territory bounty system
   initGreatPersons();     // T136: great person system
+  initAllianceMissions(); // T142: alliance missions
 
   // Init UI
   initHUD();
@@ -226,6 +229,14 @@ function boot() {
 
   // T108: award exploration milestones when fog of war clears
   on(Events.MAP_CHANGED, _checkExplorationMilestones);
+
+  // T141: award tech milestone rewards when research count increases
+  on(Events.TECH_CHANGED, _checkTechMilestones);
+
+  // T142: check alliance mission progress when relevant game events fire
+  on(Events.MAP_CHANGED,      () => checkMissionProgress('map'));
+  on(Events.RESOURCE_CHANGED, () => checkMissionProgress('resource'));
+  on(Events.TECH_CHANGED,     () => checkMissionProgress('tech'));
 
   // Update weather badge when weather starts/ends; also refresh every 4 ticks for countdown
   _updateWeatherBadge();
@@ -438,6 +449,8 @@ function _save() {
         bounty:              state.bounty              ?? null,  // T135
         greatPersons:        state.greatPersons        ?? null,  // T136
         buildQueue:          state.buildQueue          ?? [],    // T137
+        techMilestones:      state.techMilestones      ?? {},    // T141
+        allianceMissions:    state.allianceMissions    ?? null,  // T142
         tick:          state.tick,
       }
     }));
@@ -552,6 +565,8 @@ function _applySave(save) {
   state.bounty               = s.bounty               ?? null;  // T135
   state.greatPersons         = s.greatPersons         ?? null;  // T136
   state.buildQueue           = s.buildQueue           ?? [];    // T137
+  state.techMilestones       = s.techMilestones       ?? {};   // T141
+  state.allianceMissions     = s.allianceMissions     ?? null; // T142
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
@@ -929,6 +944,53 @@ function _checkExplorationMilestones() {
   }
 }
 
+// T141: Tech milestone rewards — one-time bonuses at tech-count thresholds
+const TECH_MILESTONE_DEFS = [
+  { threshold: 4,     rewards: { gold: 200, mana: 50 },        prestige: 0,   permanent: null,         label: 'Curious Scholar'   },
+  { threshold: 8,     rewards: { gold: 400, mana: 100 },       prestige: 50,  permanent: null,         label: 'Learned Sage'      },
+  { threshold: 12,    rewards: { gold: 600 },                  prestige: 200, permanent: '+1.5 gold/s', label: 'Master Scholar'    },
+  { threshold: 'all', rewards: {},                              prestige: 300, permanent: '+10% all rates', label: 'Omniscient'   },
+];
+const TOTAL_TECHS = 16; // agriculture/masonry/metalworking/tradeRoutes/warcraft/tactics/steel/engineering/arcane/navigation/alchemy/siege_craft/fortification/economics/divine_favor/espionage
+
+/**
+ * Award one-time resource + prestige rewards when researched tech count hits 4/8/12/all.
+ * The 12 and 'all' milestones also grant permanent rate bonuses via resources.js.
+ */
+function _checkTechMilestones() {
+  if (!state.techMilestones) state.techMilestones = {};
+  const techCount = Object.keys(state.techs).length;
+
+  for (const m of TECH_MILESTONE_DEFS) {
+    const key = m.threshold === 'all' ? 'all' : m.threshold;
+    if (state.techMilestones[key]) continue;  // already awarded
+    const needed = m.threshold === 'all' ? TOTAL_TECHS : m.threshold;
+    if (techCount < needed) continue;
+
+    state.techMilestones[key] = true;
+
+    const lootParts = [];
+    for (const [res, amt] of Object.entries(m.rewards)) {
+      const cap = state.caps[res] ?? 500;
+      state.resources[res] = Math.min(cap, (state.resources[res] ?? 0) + amt);
+      lootParts.push(`+${amt} ${res}`);
+    }
+
+    // Permanent bonuses require rate recalculation
+    if (m.permanent) recalcRates();
+
+    const lootStr = lootParts.length ? ` ${lootParts.join(', ')}.` : '';
+    const permStr = m.permanent ? ` 🌟 Permanent: ${m.permanent}!` : '';
+    const prestigeStr = m.prestige > 0 ? ` +${m.prestige} prestige.` : '';
+    if (m.prestige > 0) awardPrestige(m.prestige, `tech milestone: ${techCount} techs`);
+    addMessage(
+      `📚 Research Milestone: "${m.label}" — ${techCount} technologies mastered!${lootStr}${permStr}${prestigeStr}`,
+      'windfall',
+    );
+    emit(Events.RESOURCE_CHANGED, {});
+  }
+}
+
 /**
  * Keep state.stats.peakTerritory up to date after every map change.
  */
@@ -1030,6 +1092,7 @@ function _newGame(opts = {}) {
   initScholars();         // T134
   initBounty();           // T135
   initGreatPersons();     // T136
+  initAllianceMissions(); // T142
   recalcRates();
   startLoop();  // restart loop in case it was stopped by game-over
   _syncPauseUI();  // ensure pause overlay is hidden on new game

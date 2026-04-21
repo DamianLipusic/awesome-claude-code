@@ -31,6 +31,7 @@ import {
   requestMilitaryAid, canRequestAid, getAidCooldownSecs, getActiveAid,
   AID_COST, AID_BATTLES,
 } from '../systems/militaryAid.js';
+import { missionSecsLeft, missionNextSecs } from '../systems/allianceMissions.js'; // T142
 import { fmtNum } from '../utils/fmt.js';
 
 const PANEL_ID = 'panel-diplomacy';
@@ -55,6 +56,7 @@ export function initDiplomacyPanel() {
   on(Events.ESPIONAGE_EVENT,        () => _render(panel));
   on(Events.MILITARY_AID_CHANGED,   () => _render(panel));
   on(Events.ALLIANCE_FAVOR_CHANGED, () => _render(panel));  // T114
+  on(Events.ALLIANCE_MISSION,       () => _render(panel));  // T142
   // Refresh cooldown countdown every second; also refresh ceasefire/gift/skirmish/aid timers when active
   on(Events.TICK, _throttle(() => {
     const cd = document.getElementById('espionage-cooldown');
@@ -68,7 +70,9 @@ export function initDiplomacyPanel() {
     const hasSkirmish     = isSkirmishActive();
     // T102: refresh while aid is active or any aid cooldown is ticking
     const hasAidActivity  = !!getActiveAid() || Object.values(state.militaryAid?.cooldowns ?? {}).some(t => t > state.tick);
-    if (hasCeasefire || hasAllied || hasGiftCooldown || hasSkirmish || hasAidActivity) {
+    // T142: refresh while any alliance mission is active (timer countdown)
+    const hasMission = state.allianceMissions && Object.values(state.allianceMissions).some(m => m?.active);
+    if (hasCeasefire || hasAllied || hasGiftCooldown || hasSkirmish || hasAidActivity || hasMission) {
       _render(panel);
     }
   }, 4));
@@ -460,6 +464,7 @@ function _empireCard(emp) {
       ${_giftRow(emp)}
       ${_aidRow(emp)}
       ${_favorRow(emp)}
+      ${_missionRow(emp)}
       <div class="dipl-empire-card__actions">${btns.join('')}</div>
     </div>
   `;
@@ -528,6 +533,67 @@ function _aidRow(emp) {
     <button class="btn btn--xs btn--request-aid" data-action="request-aid" data-empire="${emp.id}"
       ${btnDisabled} title="${btnTitle}">Request Aid</button>
   </div>`;
+}
+
+// ── T142: Alliance mission row ────────────────────────────────────────────────
+
+function _missionRow(emp) {
+  if (emp.relations !== 'allied') return '';
+
+  const empMission = state.allianceMissions?.[emp.id];
+  if (!empMission) return '';
+
+  const mission = empMission.active;
+
+  if (!mission) {
+    const nextSecs = missionNextSecs(emp.id);
+    const mins  = Math.floor(nextSecs / 60);
+    const secs  = nextSecs % 60;
+    const timeStr = mins > 0 ? `${mins}m ${String(secs).padStart(2,'0')}s` : `${nextSecs}s`;
+    return `
+      <div class="dipl-mission-row dipl-mission-row--idle">
+        <span class="dipl-mission-idle">📜 Next mission in <strong>${timeStr}</strong></span>
+      </div>`;
+  }
+
+  const secsLeft = missionSecsLeft(emp.id);
+  const mins  = Math.floor(secsLeft / 60);
+  const secs  = secsLeft % 60;
+  const timeStr = mins > 0 ? `${mins}m ${String(secs).padStart(2,'0')}s` : `${secsLeft}s`;
+
+  let progressHtml = '';
+  if (mission.type === 'battle_wins') {
+    const pct = Math.min(100, Math.round(mission.progress / mission.target * 100));
+    progressHtml = `
+      <div class="dipl-mission-progress">
+        <span class="dipl-mission-progress__label">Battles: ${mission.progress}/${mission.target}</span>
+        <div class="dipl-mission-bar-wrap"><div class="dipl-mission-bar" style="width:${pct}%"></div></div>
+      </div>`;
+  } else if (mission.type === 'earn_gold') {
+    const earned  = Math.max(0, (state.resources?.gold ?? 0) - mission.baseline);
+    const needed  = mission.target - mission.baseline;
+    const pct     = Math.min(100, Math.round(earned / needed * 100));
+    progressHtml = `
+      <div class="dipl-mission-progress">
+        <span class="dipl-mission-progress__label">Gold earned: ${fmtNum(earned)}/${fmtNum(needed)}</span>
+        <div class="dipl-mission-bar-wrap"><div class="dipl-mission-bar" style="width:${pct}%"></div></div>
+      </div>`;
+  } else {
+    progressHtml = `<div class="dipl-mission-progress"><span class="dipl-mission-progress__label">Research any technology</span></div>`;
+  }
+
+  return `
+    <div class="dipl-mission-row">
+      <div class="dipl-mission-card">
+        <div class="dipl-mission-card__header">
+          <span class="dipl-mission-card__label">📜 ${mission.label}</span>
+          <span class="dipl-mission-card__timer">⏳ ${timeStr}</span>
+        </div>
+        <div class="dipl-mission-card__desc">${mission.desc}</div>
+        ${progressHtml}
+        <div class="dipl-mission-card__reward">Reward: +${mission.goldReward}💰 +30 prestige</div>
+      </div>
+    </div>`;
 }
 
 function _tradeIncomeStr(def, count) {

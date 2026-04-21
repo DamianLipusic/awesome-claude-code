@@ -6730,6 +6730,43 @@ kbd {
 .btn--favor:hover:not(:disabled) { background: rgba(167,139,250,0.22); }
 .btn--favor:disabled { opacity: 0.4; cursor: not-allowed; }
 
+/* ── T142: Alliance Mission row ──────────────────────────────────────────────── */
+.dipl-mission-row {
+  border-top: 1px solid rgba(255,255,255,0.06);
+  padding-top: 8px;
+  margin-top: 6px;
+}
+.dipl-mission-row--idle {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+.dipl-mission-idle strong { color: #fbd38d; }
+.dipl-mission-card {
+  background: rgba(251,211,141,0.07);
+  border: 1px solid rgba(251,211,141,0.28);
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+.dipl-mission-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+.dipl-mission-card__label { font-size: 12px; font-weight: 600; color: #fbd38d; }
+.dipl-mission-card__timer { font-size: 11px; color: #fc8181; }
+.dipl-mission-card__desc  { font-size: 11px; color: var(--text-dim); margin-bottom: 6px; }
+.dipl-mission-progress { margin-bottom: 5px; }
+.dipl-mission-progress__label { font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 3px; }
+.dipl-mission-bar-wrap {
+  height: 4px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden;
+}
+.dipl-mission-bar {
+  height: 100%; background: linear-gradient(90deg, #f6ad55, #ed8936);
+  border-radius: 2px; transition: width 0.4s ease;
+}
+.dipl-mission-card__reward { font-size: 10px; color: var(--text-dim); margin-top: 4px; }
+
 /* Military panel — aid troops row */
 .mil-aid-row {
   margin-top: 6px;

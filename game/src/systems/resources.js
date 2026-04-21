@@ -515,6 +515,12 @@ export function recalcRates() {
     }
   }
 
+  // T141: Tech milestone permanent bonuses
+  if (state.techMilestones?.[12])    rates.gold += 1.5;          // 12 techs: +1.5 gold/s
+  if (state.techMilestones?.['all']) {                           // all 16 techs: +10% all positive rates
+    for (const res of RESOURCE_KEYS) if (rates[res] > 0) rates[res] *= 1.10;
+  }
+
   Object.assign(state.rates, rates);
   Object.assign(state.caps, caps);
 }

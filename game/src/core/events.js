@@ -106,4 +106,5 @@ export const Events = Object.freeze({
   BOUNTY_CHANGED:           'bountyChanged',             // T135: bounty posted / claimed / expired
   GREAT_PERSON:             'greatPerson',               // T136: great person appeared / used / expired
   QUEUE_CHANGED:            'queueChanged',              // T137: building auto-queue updated
+  ALLIANCE_MISSION:         'allianceMission',           // T142: alliance mission assigned / completed / expired
 });

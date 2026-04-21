@@ -29,6 +29,7 @@ import { getCurrentTitle } from '../data/titles.js';
 import { rollRuinOutcome } from '../data/ruins.js';
 import { claimBounty } from './bounty.js';
 import { getGeneralBonus, consumeGeneralCharge } from './greatPersons.js'; // T136
+import { trackMissionBattleWin } from './allianceMissions.js'; // T142
 
 /** Returns true if both techs of a named synergy are researched. */
 function _synergy(id) {
@@ -679,6 +680,9 @@ function _victory(tile, x, y, attackPower, defense) {
       emit(Events.DIPLOMACY_CHANGED, { empireId: warEmp.id });
     }
   }
+
+  // T142: count this win towards any active alliance mission
+  trackMissionBattleWin();
 
   recalcRates();
   emit(Events.MAP_CHANGED, { x, y, outcome: 'win' });

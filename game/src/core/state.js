@@ -341,6 +341,15 @@ export const state = {
   // T137: Building auto-queue — list of buildingIds to auto-construct when affordable.
   // Max 3 items. Wonders are excluded. Processed on every RESOURCE_CHANGED event.
   buildQueue: [],
+
+  // T141: Research tech milestone flags — { [threshold]: true } when that tech count was reached.
+  // Thresholds: 4 / 8 / 12 / 'all' (16). The 12 and 'all' milestones grant permanent rate bonuses.
+  techMilestones: {},
+
+  // T142: Alliance mission state — populated by systems/allianceMissions.js
+  // { [empireId]: { active: { type, target, baseline, expiresAt, goldReward } | null,
+  //                 nextMissionTick: number, totalCompleted: number } }
+  allianceMissions: null,
 };
 
 /**
@@ -424,5 +433,7 @@ export function initState(empireName = 'My Empire') {
   state.bounty              = null; // T135: bounty resets per game
   state.greatPersons        = null; // T136: great persons reset per game
   state.buildQueue          = [];   // T137: queue cleared on new game
+  state.techMilestones      = {};   // T141: reset tech milestones per game
+  state.allianceMissions    = null; // T142: reset alliance missions per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

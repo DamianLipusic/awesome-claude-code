@@ -2,6 +2,29 @@
 
 ---
 
+## 2026-04-21 — Session N+37
+
+**Tasks completed:** T141, T142
+
+**Summary:**
+All prior tasks (T001–T140) were complete. Created T141+T142 task specs then implemented two Phase 54 features: Tech Milestone Rewards (T141) and Alliance Missions (T142).
+
+**T141 — Tech Milestone Rewards:**
+- `src/core/state.js`: Added `techMilestones: {}` field; `initState()` resets to `{}`.
+- `src/systems/resources.js`: Permanent bonus block — if `techMilestones[12]` is set: +1.5 gold/s; if `techMilestones['all']` (16 techs): +10% all positive rates.
+- `src/main.js`: `TECH_MILESTONE_DEFS` constant (4/8/12/all thresholds) + `_checkTechMilestones()` function. Registered on `TECH_CHANGED`. Awards: gold/mana loot, prestige (0/50/200/300), permanent bonuses at 12 and all. `techMilestones` saved/loaded. Labels: Curious Scholar / Learned Sage / Master Scholar / Omniscient.
+
+**T142 — Alliance Missions:**
+- `src/systems/allianceMissions.js`: New file. Exports `initAllianceMissions()` (idempotent init for ironHorde/mageCouncil/seaWolves), `allianceMissionTick()` (expire stale + spawn new for allied empires), `checkMissionProgress(eventType)` (checks map/resource/tech events), `trackMissionBattleWin()` (called from combat._victory()), `missionSecsLeft(empireId)`, `missionNextSecs(empireId)`, `MISSION_PRESTIGE=30`. Three mission types: battle_wins (2–4), earn_gold (current+300–800), research_tech. 5-min window, 8–12min spawn cooldown. Success awards 150–250 gold, 30 prestige, diplomatic history entry (type 'mission').
+- `src/core/events.js`: Added `ALLIANCE_MISSION: 'allianceMission'` event constant.
+- `src/core/state.js`: Added `allianceMissions: null` field; `initState()` resets to null.
+- `src/systems/combat.js`: Imports `trackMissionBattleWin`; calls it in `_victory()` before `recalcRates()`.
+- `src/main.js`: Import + `registerSystem(allianceMissionTick)` + `initAllianceMissions()` in boot and `_newGame()`; event hooks `MAP_CHANGED/RESOURCE_CHANGED/TECH_CHANGED → checkMissionProgress`. `allianceMissions` saved/loaded.
+- `src/ui/diplomacyPanel.js`: Import `missionSecsLeft`+`missionNextSecs`. `_missionRow(emp)` renders active mission card (label, timer, type-specific progress bar, reward) or idle countdown. Injected into `_empireCard()`. `ALLIANCE_MISSION` subscription. `hasMission` tick-refresh guard.
+- `styles/main.css`: `.dipl-mission-row`, `.dipl-mission-card`, `.dipl-mission-card__*`, `.dipl-mission-bar-wrap/.bar`, `.dipl-mission-progress`, `.dipl-mission-idle`.
+
+---
+
 ## 2026-04-21 — Session N+36
 
 **Tasks completed:** T135, T136
