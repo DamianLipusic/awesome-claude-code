@@ -293,3 +293,31 @@ export function clearBarbarianCamp(tile) {
     delete tile.barbDefenseBase;
   }
 }
+
+// ── T139: Barbarian bribe ─────────────────────────────────────────────────
+
+export const BRIBE_COST = 200;
+
+/**
+ * Pay gold to bribe the barbarian warlords and cancel an incoming Grand Siege.
+ * Resets the siege cooldown so the next siege won't trigger for a full interval.
+ * @returns {{ ok: boolean, reason?: string }}
+ */
+export function bribeBarbarians() {
+  if (!state.barbarians?.siegeWarning) {
+    return { ok: false, reason: 'No Grand Siege is currently threatening.' };
+  }
+  if ((state.resources?.gold ?? 0) < BRIBE_COST) {
+    return { ok: false, reason: `Need ${BRIBE_COST} gold to bribe the barbarians.` };
+  }
+  state.resources.gold = Math.max(0, (state.resources.gold ?? 0) - BRIBE_COST);
+  state.barbarians.siegeWarning  = null;
+  state.barbarians.nextSiegeTick = state.tick + SIEGE_INTERVAL;
+  emit(Events.RESOURCE_CHANGED, {});
+  emit(Events.BARBARIAN_SIEGE, { type: 'bribed' });
+  addMessage(
+    `💰 Barbarian warlords bribed — Grand Siege called off! -${BRIBE_COST} gold.`,
+    'info',
+  );
+  return { ok: true };
+}

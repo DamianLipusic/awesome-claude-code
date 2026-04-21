@@ -3326,6 +3326,17 @@ kbd {
   background: rgba(246,173,85,.1);
   border-color: rgba(246,173,85,.4);
 }
+/* T140: Happiness states override full-cap colouring */
+.population-badge--happy {
+  color: #68d391;
+  background: rgba(104,211,145,.15);
+  border-color: rgba(104,211,145,.5);
+}
+.population-badge--unrest {
+  color: #fc8181;
+  background: rgba(252,129,129,.1);
+  border-color: rgba(252,129,129,.45);
+}
 
 /* Score breakdown card in the summary panel */
 .sum-score-rows { display: flex; flex-direction: column; gap: 4px; }
@@ -5443,6 +5454,20 @@ kbd {
 @media (max-width: 600px) {
   .siege-badge { display: none !important; }
 }
+
+/* T139: Bribe button inside siege badge */
+.btn--siege-bribe {
+  background: rgba(214,158,46,.15);
+  border: 1px solid rgba(214,158,46,.7);
+  color: #ecc94b;
+  cursor: pointer;
+  font-size: 11px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  transition: background .15s;
+}
+.btn--siege-bribe:hover:not(:disabled) { background: rgba(214,158,46,.3); }
+.btn--siege-bribe:disabled { opacity: .45; cursor: not-allowed; }
 
 /* T080: Empire Prestige badge */
 .prestige-badge {

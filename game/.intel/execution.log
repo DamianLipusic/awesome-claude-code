@@ -2250,3 +2250,36 @@ All tasks found complete (T001–T136), so T137 and T138 were created from the r
 - Win% thresholds: ≥70% blue (confident), 40–69% amber (uncertain), <40% red (risky) — aligns with the existing combat preview modal's color coding.
 - No new state or events needed: odds mode is purely a display toggle, consistent with the resource overlay design.
 
+
+---
+
+## 2026-04-21 — Session N+37
+
+**T139 — Barbarian Bribe (cancel Grand Siege with gold):**
+
+**Files modified:**
+- `game/src/systems/barbarianCamps.js`: Added `BRIBE_COST = 200` const and `bribeBarbarians()` export. The function validates that a siege warning is active and the player has ≥200 gold, deducts the cost, sets `state.barbarians.siegeWarning = null` and resets `nextSiegeTick = tick + SIEGE_INTERVAL`, then emits `RESOURCE_CHANGED` and `BARBARIAN_SIEGE({ type: 'bribed' })` with an info message.
+- `game/src/main.js`: Updated barbarianCamps import to include `bribeBarbarians` and `BRIBE_COST`. `_updateSiegeBadge()` now uses `innerHTML` to embed a `#btn-siege-bribe` button (`.btn--siege-bribe`) showing the gold cost inside the badge; button is disabled when the player can't afford it. Added delegated click handler on `#siege-badge` in `_bindControls()` that calls `bribeBarbarians()` and refreshes the badge.
+- `game/styles/main.css`: `.btn--siege-bribe` (amber border/color, hover darken, disabled opacity).
+
+**Architecture decisions:**
+- Bribe resets the full `SIEGE_INTERVAL` cooldown (12 min) — the cost is steep enough that this isn't a no-brainer but buys meaningful breathing room.
+- The bribe button lives inside the existing siege badge `innerHTML` rather than as a separate DOM element to avoid layout changes.
+- `BRIBE_COST` is exported so the badge can reference it without a magic number.
+
+---
+
+**T140 — Population Happiness System:**
+
+**Files modified:**
+- `game/src/systems/population.js`: Added `HAPPY_HIGH = 75` and `HAPPY_LOW = 25` exports; imported `recalcRates` from `resources.js`; `initPopulation()` now sets `state.population.happiness = 50` and migrates older saves. Added `getHappiness()` getter. Added `happinessTick()` — derives target happiness from food ratio (≥60% → +20, <25% → −25), morale (≥70 → +15, <30 → −15), and active crises (−15), then drifts `state.population.happiness` at 0.2%/tick toward the target. Calls `recalcRates()`, emits `POPULATION_CHANGED`, and logs a message when happiness crosses the 75/25 thresholds.
+- `game/src/systems/resources.js`: In `recalcRates()`, after the T134 scholar block and before `Object.assign(state.rates, rates)`, reads `state.population?.happiness` directly (no import needed) and applies `×1.10` to all positive rates when ≥ 75 (Prosperous) or `×0.90` when ≤ 25 (Unrest).
+- `game/src/main.js`: Added `happinessTick` to the population.js import; `registerSystem(happinessTick)` added after `populationTick` in `boot()`.
+- `game/src/ui/hud.js`: Added `getHappiness, HAPPY_HIGH, HAPPY_LOW` to the population.js import. `_renderPopBadge()` now appends a mood emoji (😊 / 😐 / 😤), shows happiness % in the tooltip with the active effect label, and toggles `.population-badge--happy` (green) / `.population-badge--unrest` (red) CSS classes.
+- `game/styles/main.css`: `.population-badge--happy` (green accent) and `.population-badge--unrest` (red accent) modifier classes.
+
+**Architecture decisions:**
+- Happiness drift rate (0.2%/tick = 0.8%/s) means transitions take ~30-60 seconds — long enough to feel meaningful but fast enough to respond to player actions.
+- `recalcRates()` is imported directly into population.js; resources.js reads `state.population.happiness` from state (no import back), avoiding circular dependency.
+- The happiness modifier is applied last in `recalcRates()` so it acts as a global multiplier on the final calculated rates, stacking cleanly with all other modifiers.
+- Save/load: `state.population` is already serialized as a whole object in `_save()`, so `happiness` is automatically persisted. Older saves are migrated in `initPopulation()`.

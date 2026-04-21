@@ -19,9 +19,9 @@ import { initMarket, marketTick } from './systems/market.js';
 import { initAchievements } from './systems/achievements.js';
 import { initEnemyAI, enemyAITick } from './systems/enemyAI.js';
 import { initSpells, spellTick } from './systems/spells.js';
-import { initBarbarians, barbarianTick, getSiegeSecsLeft } from './systems/barbarianCamps.js';
+import { initBarbarians, barbarianTick, getSiegeSecsLeft, bribeBarbarians, BRIBE_COST } from './systems/barbarianCamps.js';
 import { initMorale, moraleTick } from './systems/morale.js';
-import { initPopulation, populationTick } from './systems/population.js';
+import { initPopulation, populationTick, happinessTick } from './systems/population.js';
 import { initEspionage } from './systems/espionage.js';
 import { initChallenges, challengeTick } from './systems/challenges.js';
 import { initCaravans, caravanTick } from './systems/caravans.js';
@@ -128,6 +128,7 @@ function boot() {
   registerSystem(barbarianTick);
   registerSystem(moraleTick);
   registerSystem(populationTick);
+  registerSystem(happinessTick);     // T140: population happiness
   registerSystem(challengeTick);
   registerSystem(caravanTick);
   registerSystem(politicalEventTick);
@@ -633,11 +634,12 @@ function _updateSiegeBadge() {
   const secsLeft = getSiegeSecsLeft();
   if (secsLeft <= 0) {
     el.style.display = 'none';
-    el.textContent = '';
+    el.innerHTML = '';
     return;
   }
-  el.textContent = `⚔️ SIEGE in ${secsLeft}s`;
-  el.title = 'Barbarian Grand Siege incoming! Muster your forces to repel the horde.';
+  const canBribe = (state.resources?.gold ?? 0) >= BRIBE_COST;
+  el.innerHTML = `⚔️ SIEGE in ${secsLeft}s&nbsp;<button class="btn btn--xs btn--siege-bribe${canBribe ? '' : ' btn--disabled'}" id="btn-siege-bribe"${canBribe ? '' : ' disabled'} title="Pay ${BRIBE_COST} gold to call off the siege">💰 ${BRIBE_COST}g</button>`;
+  el.title = 'Barbarian Grand Siege incoming! Muster your forces or bribe the warlords.';
   el.style.display = '';
 }
 
@@ -1085,6 +1087,15 @@ function _bindControls() {
       const result = resolveCrisis();
       if (!result.ok) addMessage(result.reason, 'info');
       _updateCrisisBanner();
+    }
+  });
+
+  // T139: Barbarian bribe button (delegated — badge content is dynamic)
+  document.getElementById('siege-badge')?.addEventListener('click', (e) => {
+    if (e.target.closest('#btn-siege-bribe')) {
+      const result = bribeBarbarians();
+      if (!result.ok) addMessage(result.reason, 'info');
+      _updateSiegeBadge();
     }
   });
 

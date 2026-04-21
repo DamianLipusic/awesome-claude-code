@@ -505,6 +505,16 @@ export function recalcRates() {
     if (rates.wood > 0) rates.wood *= 2.0;
   }
 
+  // T140: Population happiness modifier (±10% on all positive rates)
+  const _happiness = state.population?.happiness;
+  if (_happiness !== undefined) {
+    if (_happiness >= 75) {
+      for (const res of RESOURCE_KEYS) if (rates[res] > 0) rates[res] *= 1.10;
+    } else if (_happiness <= 25) {
+      for (const res of RESOURCE_KEYS) if (rates[res] > 0) rates[res] *= 0.90;
+    }
+  }
+
   Object.assign(state.rates, rates);
   Object.assign(state.caps, caps);
 }

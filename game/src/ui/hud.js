@@ -8,7 +8,7 @@ import { state } from '../core/state.js';
 import { on, Events } from '../core/events.js';
 import { fmtNum, fmtRate } from '../utils/fmt.js';
 import { getBreakdown } from '../systems/resources.js';
-import { getPopulation, getPopCap } from '../systems/population.js';
+import { getPopulation, getPopCap, getHappiness, HAPPY_HIGH, HAPPY_LOW } from '../systems/population.js';
 
 const RESOURCES = [
   { id: 'gold',  label: 'Gold',  icon: '💰' },
@@ -233,13 +233,21 @@ function renderHUD() {
 function _renderPopBadge() {
   const el = document.getElementById('population-badge');
   if (!el) return;
-  const count = getPopulation();
-  const cap   = getPopCap();
-  el.textContent = `👥 ${count.toLocaleString()}/${cap.toLocaleString()}`;
+  const count     = getPopulation();
+  const cap       = getPopCap();
+  const happiness = getHappiness();
+  const happyIcon = happiness >= HAPPY_HIGH ? '😊' : happiness <= HAPPY_LOW ? '😤' : '😐';
+  el.textContent = `👥 ${count.toLocaleString()}/${cap.toLocaleString()} ${happyIcon}`;
   const pct = cap > 0 ? count / cap : 0;
-  el.title = `Citizens: ${count.toLocaleString()} / ${cap.toLocaleString()} — ${Math.round(pct * 100)}% of cap. Build Houses to expand. Citizens generate gold and consume food.`;
-  // Visual warning when at 90%+ of cap
-  el.classList.toggle('population-badge--full', pct >= 0.9);
+  const happinessLabel = happiness >= HAPPY_HIGH
+    ? `Prosperous (+10% production)`
+    : happiness <= HAPPY_LOW
+      ? `Unrest (-10% production)`
+      : `Content`;
+  el.title = `Citizens: ${count.toLocaleString()} / ${cap.toLocaleString()} — ${Math.round(pct * 100)}% of cap. Happiness: ${Math.round(happiness)}% (${happinessLabel}). Food security and morale drive happiness.`;
+  el.classList.toggle('population-badge--full',   pct >= 0.9);
+  el.classList.toggle('population-badge--happy',  happiness >= HAPPY_HIGH);
+  el.classList.toggle('population-badge--unrest', happiness <= HAPPY_LOW);
 }
 
 function _flashEl(el, cls) {
