@@ -2,6 +2,35 @@
 
 ---
 
+## 2026-04-21 — Session N+36
+
+**Tasks completed:** T135, T136
+
+**Summary:**
+All prior tasks (T001–T134) were complete. Created T135+T136 task specs then implemented two Phase 51 features: Territory Bounty System (T135) and Great Person System (T136).
+
+**T135 — Territory Bounty System:**
+- `src/systems/bounty.js`: New file. `initBounty()` idempotent init. `bountyTick()` handles spawn (random interval 8–12 min, Bronze Age+ gate) and expiry (3 min). `getActiveBounty()`, `getBountySecsLeft()`. `claimBounty(x,y)` awards 200+floor(tick/100) gold (capped 600), 50 food, 60 prestige, clears bounty, emits `BOUNTY_CHANGED`. `_spawnBounty()` picks enemy/barbarian tiles adjacent to player territory.
+- `src/core/events.js`: Added `BOUNTY_CHANGED: 'bountyChanged'` event.
+- `src/core/state.js`: Added `bounty: null` field; `initState()` resets to null.
+- `src/systems/combat.js`: `claimBounty(x, y)` called in `_victory()` after `_tryExcavateRuin`.
+- `src/ui/questPanel.js`: `_bountySection()` renders waiting state (next-bounty countdown) or active bounty card (coords, countdown with urgent blink ≤45s, terrain, reward, hint). Added `BOUNTY_CHANGED` subscription and bounty check in TICK handler.
+- `src/ui/mapPanel.js`: Gold tint + 2px gold border + ⭐ emoji on bounty tile in `_drawTile()`. `BOUNTY_CHANGED` subscription. Bounty tooltip in `_showTileTip()`.
+- `src/main.js`: Import + `registerSystem(bountyTick)` + `initBounty()` in boot and `_newGame()`; `state.bounty` saved/loaded.
+- `styles/main.css`: `.bounty-section`, `.bounty-header`, `.bounty-waiting`, `.bounty-card` and subclasses, `.bounty-card__timer--urgent` blink animation.
+
+**T136 — Great Person System:**
+- `src/systems/greatPersons.js`: New file. `GREAT_PERSON_TYPES` (engineer/merchant/scholar/general). `initGreatPersons()` with migration guards. `greatPersonTick()` handles expiry and point accumulation (1 pt/10min, spawn at 3 pts). `useGreatPerson()` dispatches to `_applyEffect()`. `getGeneralBonus()` / `consumeGeneralCharge()` for combat integration. Effects: Engineer finds cheapest non-wonder affordable building and grants it free; Merchant +600 gold (cap-safe); Scholar sets `entry.remaining=0` or `scholarDiscount` flag; General sets `generalCharges=5`.
+- `src/core/events.js`: Added `GREAT_PERSON: 'greatPerson'` event.
+- `src/core/state.js`: Added `greatPersons: null` field; `initState()` resets to null.
+- `src/systems/combat.js`: Import `getGeneralBonus` + `consumeGeneralCharge`. General bonus (+50 flat) added in both `getAttackPreview()` and `attackTile()` after T131 proclamation. `consumeGeneralCharge()` called after `consumeAidBattle()`.
+- `src/systems/research.js`: Scholar discount block in `startResearch()` after T133 — `Math.floor(totalTicks * 0.50)`, clears `scholarDiscount` flag, logs message.
+- `src/ui/summaryPanel.js`: `_greatPersonCard()` renders progress pips + next-point countdown, general charges row, available person card (urgent timer <60s, Summon button). Click handler for `[data-use-gp]`. `GREAT_PERSON` event subscription.
+- `src/main.js`: Import + `registerSystem(greatPersonTick)` + `initGreatPersons()` in boot and `_newGame()`; saved/loaded (version bumped to 40).
+- `styles/main.css`: `.great-person-card` and `--available` variant (gp-glow animation), subclasses, `.gp-pip`/`--filled`, `.gp-points-pips`, `.btn--use-gp`.
+
+---
+
 ## 2026-04-20 — Session N+35
 
 **Tasks completed:** T131, T132

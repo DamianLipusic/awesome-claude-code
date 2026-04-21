@@ -326,6 +326,17 @@ export const state = {
   //   nextScholarTick: number, totalAccepted: number,
   //   activeEffect: { type, expiresAt, chargesLeft } | null }
   scholar: null,
+
+  // T135: Territory bounty system.
+  // { current: { x, y, terrain, reward, expiresAt } | null,
+  //   nextBountyTick: number, totalClaimed: number }
+  bounty: null,
+
+  // T136: Great person system — earn points every 10 min, at 3 points a person appears.
+  // { points: number, nextPointTick: number,
+  //   available: { id, type, icon, name, desc, expiresAt } | null,
+  //   generalChargesLeft: number, totalUsed: number }
+  greatPersons: null,
 };
 
 /**
@@ -406,5 +417,7 @@ export function initState(empireName = 'My Empire') {
   state.proclamation        = { activeId: null, ageWhenIssued: -1 }; // T131
   state.wonder              = null; // T133: wonder resets per game
   state.scholar             = null; // T134: scholar resets per game
+  state.bounty              = null; // T135: bounty resets per game
+  state.greatPersons        = null; // T136: great persons reset per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

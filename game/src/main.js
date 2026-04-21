@@ -76,6 +76,8 @@ import { loadLegacy, awardLegacyPoints, LEGACY_TRAITS } from './data/legacyTrait
 import { initAuction, auctionTick } from './systems/auction.js';                       // T126
 import { initWonders, wonderTick } from './systems/wonders.js'; // T133
 import { initScholars, scholarTick, acceptTeaching, dismissScholar } from './systems/scholars.js'; // T134
+import { initBounty, bountyTick } from './systems/bounty.js'; // T135
+import { initGreatPersons, greatPersonTick } from './systems/greatPersons.js'; // T136
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
@@ -144,6 +146,8 @@ function boot() {
   registerSystem(auctionTick);         // T126: resource auction house
   registerSystem(wonderTick);          // T133: wonder project build timer
   registerSystem(scholarTick);         // T134: wandering scholar events
+  registerSystem(bountyTick);          // T135: territory bounty system
+  registerSystem(greatPersonTick);     // T136: great person system
 
   // Init event-driven systems
   initRandomEvents();
@@ -180,6 +184,8 @@ function boot() {
   initAuction();          // T126: resource auction house
   initWonders();          // T133: wonder projects
   initScholars();         // T134: wandering scholar events
+  initBounty();           // T135: territory bounty system
+  initGreatPersons();     // T136: great person system
 
   // Init UI
   initHUD();
@@ -346,7 +352,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 39, // T133: wonder projects; T134: wandering scholar events
+      version: 40, // T135: territory bounty; T136: great persons
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -424,6 +430,8 @@ function _save() {
         proclamation:        state.proclamation        ?? null,  // T131
         wonder:              state.wonder              ?? null,  // T133
         scholar:             state.scholar             ?? null,  // T134
+        bounty:              state.bounty              ?? null,  // T135
+        greatPersons:        state.greatPersons        ?? null,  // T136
         tick:          state.tick,
       }
     }));
@@ -535,6 +543,8 @@ function _applySave(save) {
   state.proclamation         = s.proclamation         ?? { activeId: null, ageWhenIssued: -1 }; // T131
   state.wonder               = s.wonder               ?? null;  // T133
   state.scholar              = s.scholar              ?? null;  // T134
+  state.bounty               = s.bounty               ?? null;  // T135
+  state.greatPersons         = s.greatPersons         ?? null;  // T136
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
@@ -994,6 +1004,11 @@ function _newGame(opts = {}) {
   initNaturalDisasters(); // T111
   initInspiration();      // T116
   initCrises();           // T117
+  initAuction();          // T126
+  initWonders();          // T133
+  initScholars();         // T134
+  initBounty();           // T135
+  initGreatPersons();     // T136
   recalcRates();
   startLoop();  // restart loop in case it was stopped by game-over
   _syncPauseUI();  // ensure pause overlay is hidden on new game

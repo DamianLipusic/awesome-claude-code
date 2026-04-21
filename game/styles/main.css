@@ -8242,3 +8242,199 @@ kbd {
   background: rgba(252, 129, 129, 0.15);
   border-color: rgba(252, 129, 129, 0.4);
 }
+
+/* ── T135: Territory Bounty ─────────────────────────────────────── */
+
+.bounty-section {
+  background: var(--bg-card);
+  border: 1px solid rgba(255, 215, 0, 0.35);
+  border-left: 3px solid #ffd700;
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+}
+
+.bounty-header {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #ffd700;
+  margin-bottom: 6px;
+}
+
+.bounty-waiting {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
+.bounty-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bounty-card__top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bounty-card__icon {
+  font-size: 1.1rem;
+}
+
+.bounty-card__label {
+  flex: 1;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #ffd700;
+}
+
+.bounty-card__timer {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+
+.bounty-card__timer--urgent {
+  color: #fc8181;
+  animation: blink 0.8s step-end infinite;
+}
+
+.bounty-card__terrain {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+
+.bounty-card__reward {
+  font-size: 0.78rem;
+  color: #68d391;
+  font-weight: 600;
+}
+
+.bounty-card__hint {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+/* ── T136: Great Person System ───────────────────────────────────── */
+
+.great-person-card {
+  background: var(--bg-card);
+  border: 1px solid rgba(183, 148, 244, 0.35);
+  border-left: 3px solid #b794f4;
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 8px;
+}
+
+.great-person-card--available {
+  border-color: rgba(183, 148, 244, 0.6);
+  background: rgba(183, 148, 244, 0.07);
+  animation: gp-glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes gp-glow {
+  from { box-shadow: 0 0 4px rgba(183,148,244,0.2); }
+  to   { box-shadow: 0 0 10px rgba(183,148,244,0.5); }
+}
+
+.great-person-card__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.great-person-card__icon {
+  font-size: 1.4rem;
+}
+
+.great-person-card__body {
+  flex: 1;
+}
+
+.great-person-card__name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #b794f4;
+}
+
+.great-person-card__timer {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+
+.great-person-card__desc {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.btn--use-gp {
+  background: linear-gradient(135deg, #553c9a, #b794f4);
+  border: 1px solid #b794f4;
+  color: #fff;
+  font-weight: 600;
+  padding: 4px 14px;
+}
+
+.btn--use-gp:hover {
+  background: linear-gradient(135deg, #6b46c1, #d6bcfa);
+}
+
+.gp-points-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
+.gp-points-pips {
+  display: flex;
+  gap: 4px;
+}
+
+.gp-pip {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--bg-panel);
+  border: 1px solid rgba(183,148,244,0.4);
+}
+
+.gp-pip--filled {
+  background: #b794f4;
+  border-color: #b794f4;
+}
+
+.gp-points-label {
+  color: #b794f4;
+  font-weight: 600;
+}
+
+.gp-next-label {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+
+.sum-gp-section {
+  background: var(--bg-card);
+  border: 1px solid rgba(183,148,244,0.3);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.sum-gp-header {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #b794f4;
+  margin-bottom: 8px;
+}
+

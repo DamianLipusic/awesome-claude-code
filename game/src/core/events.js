@@ -103,4 +103,6 @@ export const Events = Object.freeze({
   PROCLAMATION_ISSUED:      'proclamationIssued',       // T131: proclamation issued or expired
   WONDER_CHANGED:           'wonderChanged',             // T133: wonder started or completed
   SCHOLAR_CHANGED:          'scholarChanged',            // T134: scholar arrived/dismissed/accepted
+  BOUNTY_CHANGED:           'bountyChanged',             // T135: bounty posted / claimed / expired
+  GREAT_PERSON:             'greatPerson',               // T136: great person appeared / used / expired
 });

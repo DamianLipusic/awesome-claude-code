@@ -23,6 +23,7 @@ import { EMPIRES } from '../data/empires.js';
 import { acceptCaravanOffer, getCaravanSecsLeft } from '../systems/caravans.js';
 import { LANDMARKS } from '../data/landmarks.js';
 import { collectResourceNode, getNodeAt, nodeSecsLeft, activeNodeCount } from '../systems/resourceNodes.js';
+import { getActiveBounty } from '../systems/bounty.js';
 
 const TILE_PX   = 24;     // pixels per tile side
 const GRID_SIZE = 20;     // tiles per axis
@@ -55,6 +56,7 @@ const BARBARIAN_TINT   = 'rgba(192,60,30,0.38)';   // T056
 const CARAVAN_TINT     = 'rgba(255,200,50,0.28)';  // T063
 const NODE_TINT        = 'rgba(255,170,0,0.35)';   // T104: resource node amber glow
 const RUIN_TINT        = 'rgba(40,160,140,0.30)';  // T106: ancient ruin dark teal glow
+const BOUNTY_TINT      = 'rgba(255,215,0,0.28)';   // T135: bounty target gold glow
 const HOVER_ATTACK     = 'rgba(240,180,41,0.38)';
 const HOVER_NEUTRAL    = 'rgba(255,255,255,0.08)';
 const PLAYER_BORDER    = '#58a6ff';
@@ -186,6 +188,9 @@ export function initMapPanel() {
 
   // T121: re-render when a city is founded
   on(Events.CITY_FOUNDED, _render);
+
+  // T135: re-render when bounty is posted / claimed / expired
+  on(Events.BOUNTY_CHANGED, _render);
 
   _render();
 }
@@ -378,6 +383,13 @@ function _showTileTip(tile, x, y, mouseX, mouseY) {
       })()
     : '';
 
+  // T135: bounty target label
+  const _activeBounty = getActiveBounty();
+  const bountyHtml = (_activeBounty && _activeBounty.x === x && _activeBounty.y === y)
+    ? `<div class="map-tt-row" style="color:#ffd700;font-weight:600">⭐ BOUNTY TARGET!</div>
+       <div class="map-tt-row" style="font-size:0.7rem;color:var(--text-dim)">Capture to claim reward!</div>`
+    : '';
+
   // T129: chokepoint label (shown on all revealed chokepoint tiles)
   const chokepointHtml = tile.isChokepoint && tile.revealed
     ? (tile.fortified
@@ -391,6 +403,7 @@ function _showTileTip(tile, x, y, mouseX, mouseY) {
     <div class="map-tt-title">${TERRAIN_NAME[tile.type] ?? tile.type}</div>
     <div class="map-tt-row">${ownerHtml}</div>
     ${capitalHtml}
+    ${bountyHtml}
     ${chokepointHtml}
     ${lmHtml}
     ${ruinHtml}
@@ -641,6 +654,22 @@ function _drawTile(tile, x, y, capital) {
       ctx.textBaseline = 'middle';
       ctx.fillText('🏛', px + TILE_PX / 2, py + TILE_PX / 2 + 1);
     }
+  }
+
+  // T135: draw gold ⭐ bounty indicator on the active bounty target tile
+  const _bounty = getActiveBounty();
+  if (_bounty && _bounty.x === x && _bounty.y === y && tile.revealed) {
+    ctx.fillStyle = BOUNTY_TINT;
+    ctx.fillRect(px, py, TILE_PX, TILE_PX);
+    // Gold border to make it stand out
+    ctx.strokeStyle = '#ffd700';
+    ctx.lineWidth   = 2;
+    ctx.strokeRect(px + 1, py + 1, TILE_PX - 2, TILE_PX - 2);
+    ctx.lineWidth   = 1;
+    ctx.font         = `${TILE_PX - 10}px sans-serif`;
+    ctx.textAlign    = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('⭐', px + TILE_PX / 2, py + TILE_PX / 2 + 1);
   }
 }
 

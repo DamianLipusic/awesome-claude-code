@@ -144,6 +144,13 @@ export function startResearch(techId) {
   // T133: Tower of Babel wonder — −20% research time
   if (state.wonder?.completedId === 'tower_of_babel') totalTicks = Math.ceil(totalTicks * 0.80);
 
+  // T136: Great Scholar discount — −50% research time (consumed on use)
+  if (state.greatPersons?.scholarDiscount) {
+    totalTicks = Math.floor(totalTicks * 0.50);
+    state.greatPersons.scholarDiscount = false;
+    addMessage('📖 Great Scholar: research time halved!', 'tech');
+  }
+
   state.researchQueue.push({ techId, remaining: totalTicks, totalTicks });
   addMessage(`Researching ${def.name}…`, 'research');
   emit(Events.TECH_CHANGED, {});

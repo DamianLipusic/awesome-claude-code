@@ -34,6 +34,11 @@ import { fmtNum, fmtRate } from '../utils/fmt.js';
 import { TICKS_PER_SECOND } from '../core/tick.js';
 import { calcScore, getScoreBreakdown } from '../utils/score.js';
 import { WIN_ECONOMIC_GOLD } from '../systems/victory.js';
+import {
+  getAvailableGreatPerson, getGreatPersonSecsLeft,
+  useGreatPerson,
+} from '../systems/greatPersons.js'; // T136
+const _GP_POINTS_TO_SPAWN = 3;
 
 const TOTAL_ACHIEVEMENTS = 25;
 
@@ -91,19 +96,33 @@ export function initSummaryPanel() {
   on(Events.POPULATION_CHANGED,    _render);      // T096: rerender when pop changes (slot count changes)
   on(Events.CITIZEN_ROLES_CHANGED, _render);      // T096: rerender when roles adjusted
   on(Events.CAPITAL_PLAN_CHOSEN,   _render);      // T100: rerender when capital plan chosen
+  on(Events.GREAT_PERSON,          _render);      // T136: great person spawned/used/expired
   on(Events.TICK, _tickCountdown());
 
-  // T096: Delegated click handler for citizen role +/- buttons
+  // Delegated click handler for citizen role +/- and great person use buttons
   if (panel) {
     panel.addEventListener('click', (e) => {
-      const btn = e.target.closest('[data-citizen-role]');
-      if (!btn) return;
-      const role  = btn.dataset.citizenRole;
-      const delta = parseInt(btn.dataset.citizenDelta, 10);
-      const result = adjustCitizenRole(role, delta);
-      if (!result.ok) {
-        btn.classList.add('btn--shake');
-        setTimeout(() => btn.classList.remove('btn--shake'), 400);
+      // T096: citizen role adjustments
+      const roleBtn = e.target.closest('[data-citizen-role]');
+      if (roleBtn) {
+        const role  = roleBtn.dataset.citizenRole;
+        const delta = parseInt(roleBtn.dataset.citizenDelta, 10);
+        const result = adjustCitizenRole(role, delta);
+        if (!result.ok) {
+          roleBtn.classList.add('btn--shake');
+          setTimeout(() => roleBtn.classList.remove('btn--shake'), 400);
+        }
+        return;
+      }
+      // T136: use great person
+      const gpBtn = e.target.closest('[data-use-gp]');
+      if (gpBtn) {
+        const result = useGreatPerson();
+        if (!result.ok) {
+          gpBtn.title = result.reason ?? 'Cannot use.';
+          gpBtn.classList.add('btn--shake');
+          setTimeout(() => gpBtn.classList.remove('btn--shake'), 400);
+        }
       }
     });
   }
@@ -127,6 +146,7 @@ function _render() {
     <div class="summary-grid">
       ${_advisorCard()}
       ${_scoreCard()}
+      ${_greatPersonCard()}
       ${_resourcesCard()}
       ${_militaryCard()}
       ${_territoryCard()}
@@ -465,6 +485,70 @@ function _scoreCard() {
     </div>`;
 
   return _card('⭐ Empire Score', `<div class="sum-score-rows">${rows}${totalRow}</div>`);
+}
+
+// ── Great Person card (T136) ───────────────────────────────────────────────
+
+function _greatPersonCard() {
+  const gp = state.greatPersons;
+
+  if (!gp) {
+    return _card('✨ Great Persons', '<div class="sum-stat-row"><span class="sum-stat-label" style="font-style:italic;color:var(--text-dim)">Initialising…</span></div>');
+  }
+
+  // Points progress pips
+  const pips = Array.from({ length: _GP_POINTS_TO_SPAWN }, (_, i) =>
+    `<span class="gp-pip ${i < gp.points ? 'gp-pip--filled' : ''}"></span>`,
+  ).join('');
+  const nextSecs = Math.max(0, Math.ceil(((gp.nextPointTick ?? 0) - (state.tick ?? 0)) / 4));
+  const nextMins = Math.floor(nextSecs / 60);
+  const nextS    = nextSecs % 60;
+  const nextStr  = nextMins > 0 ? `${nextMins}m ${String(nextS).padStart(2,'0')}s` : `${nextSecs}s`;
+
+  const progressSection = `
+    <div class="sum-gp-section">
+      <div class="sum-gp-header">Progress: <span class="gp-points-pips">${pips}</span> ${gp.points}/${_GP_POINTS_TO_SPAWN}</div>
+      <div style="font-size:11px;color:var(--text-dim);margin-top:3px">Next point in ${nextStr}</div>
+    </div>`;
+
+  // General charges
+  const generalRow = (gp.generalCharges ?? 0) > 0
+    ? `<div class="sum-stat-row" style="margin-top:6px">
+        <span class="sum-stat-label">⚔️ General charges</span>
+        <span class="sum-stat-value sum-stat-value--red">${gp.generalCharges} battle(s) left</span>
+       </div>`
+    : '';
+
+  const person = getAvailableGreatPerson();
+  if (!person) {
+    return _card('✨ Great Persons', `
+      ${progressSection}
+      ${generalRow}
+      <div style="font-size:11px;color:var(--text-dim);margin-top:6px">Reach ${_GP_POINTS_TO_SPAWN} points to summon a Great Person.</div>
+      <div style="font-size:11px;color:var(--text-dim);margin-top:4px">Total used: ${gp.totalUsed ?? 0}</div>
+    `);
+  }
+
+  const secsLeft = getGreatPersonSecsLeft();
+  const mins = Math.floor(secsLeft / 60);
+  const secs = secsLeft % 60;
+  const timeStr = mins > 0 ? `${mins}m ${String(secs).padStart(2,'0')}s` : `${secsLeft}s`;
+  const urgent  = secsLeft <= 60;
+
+  return _card('✨ Great Persons', `
+    ${progressSection}
+    ${generalRow}
+    <div class="great-person-card great-person-card--available" style="margin-top:8px">
+      <div class="great-person-card__header">
+        <span class="great-person-card__icon">${person.icon}</span>
+        <span class="great-person-card__name">${_escHtml(person.name)}</span>
+        <span class="great-person-card__timer${urgent ? ' great-person-card__timer--urgent' : ''}">${timeStr}</span>
+      </div>
+      <div class="great-person-card__desc">${_escHtml(person.desc)}</div>
+      <button class="btn btn--sm btn--use-gp" data-use-gp="1">Summon</button>
+    </div>
+    <div style="font-size:11px;color:var(--text-dim);margin-top:4px">Total used: ${gp.totalUsed ?? 0}</div>
+  `);
 }
 
 // ── Citizen Roles card (T096) ──────────────────────────────────────────────

@@ -8,6 +8,7 @@ import { on, Events } from '../core/events.js';
 import { QUESTS, setQuestPanelRenderer } from '../systems/quests.js';
 import { getChallengeSecsLeft } from '../systems/challenges.js';
 import { resolvePoliticalEvent, getPoliticalEventSecsLeft } from '../systems/politicalEvents.js';
+import { getActiveBounty, getBountySecsLeft } from '../systems/bounty.js';
 import { TICKS_PER_SECOND } from '../core/tick.js';
 
 export function initQuestPanel() {
@@ -19,17 +20,18 @@ export function initQuestPanel() {
     Events.BUILDING_CHANGED, Events.UNIT_CHANGED, Events.TECH_CHANGED,
     Events.AGE_CHANGED, Events.MAP_CHANGED, Events.QUEST_COMPLETED,
     Events.CHALLENGE_UPDATED, Events.POPULATION_CHANGED, Events.RESOURCE_CHANGED,
-    Events.POLITICAL_EVENT,
+    Events.POLITICAL_EVENT, Events.BOUNTY_CHANGED,
   ];
   for (const ev of events) on(ev, render);
 
-  // Refresh challenge + political-event countdown every second via TICK
+  // Refresh challenge + political-event + bounty countdown every second via TICK
   let _tickCount = 0;
   on(Events.TICK, () => {
     if (++_tickCount % TICKS_PER_SECOND === 0) {
       const ch = state.challenges?.active;
       const pe = state.politicalEvents?.pending;
-      if (ch || pe) render();
+      const bo = state.bounty?.current;
+      if (ch || pe || bo) render();
     }
   });
 
@@ -60,6 +62,7 @@ function render() {
   const pct       = total > 0 ? Math.round((doneCount / total) * 100) : 0;
 
   panel.innerHTML = `
+    ${_bountySection()}
     ${_politicalEventSection()}
     ${_challengeSection()}
     <div class="quest-header">
@@ -75,6 +78,54 @@ function render() {
       ${QUESTS.map(q => _questCard(q, completed[q.id])).join('')}
     </div>
   `;
+}
+
+// ── Bounty section (T135) ─────────────────────────────────────────────────
+
+function _bountySection() {
+  if (state.age < 1) return '';   // Bronze Age+ only
+
+  const bounty = getActiveBounty();
+
+  if (!bounty) {
+    const b = state.bounty;
+    if (!b) return '';
+    const ticksLeft = (b.nextBountyTick ?? 0) - state.tick;
+    if (ticksLeft <= 0) return '';
+    const secsLeft = Math.ceil(ticksLeft / TICKS_PER_SECOND);
+    const mins = Math.floor(secsLeft / 60);
+    const secs = secsLeft % 60;
+    const nextStr = mins > 0 ? `${mins}m ${String(secs).padStart(2,'0')}s` : `${secsLeft}s`;
+    return `
+      <div class="bounty-section">
+        <div class="bounty-header">⭐ Territory Bounty</div>
+        <div class="bounty-waiting">No active bounty. Next bounty in ~${nextStr}.</div>
+      </div>`;
+  }
+
+  const secsLeft = getBountySecsLeft();
+  const mins = Math.floor(secsLeft / 60);
+  const secs = secsLeft % 60;
+  const timeStr = mins > 0 ? `${mins}m ${String(secs).padStart(2,'0')}s` : `${secsLeft}s`;
+  const urgent  = secsLeft <= 45;
+  const rewardParts = Object.entries(bounty.reward).map(([r, a]) => `${a} ${r}`).join(' + ');
+
+  return `
+    <div class="bounty-section">
+      <div class="bounty-header">⭐ Territory Bounty</div>
+      <div class="bounty-card">
+        <div class="bounty-card__top">
+          <span class="bounty-card__icon">⭐</span>
+          <span class="bounty-card__label">Capture (${bounty.x}, ${bounty.y})</span>
+          <span class="bounty-card__timer${urgent ? ' bounty-card__timer--urgent' : ''}">
+            ${timeStr}
+          </span>
+        </div>
+        <div class="bounty-card__terrain">Terrain: ${bounty.terrain}</div>
+        <div class="bounty-card__reward">Reward: ${rewardParts} + 60 prestige</div>
+        <div class="bounty-card__hint">Combat-capture this tile to claim the bounty automatically!</div>
+      </div>
+    </div>`;
 }
 
 // ── Political event section ────────────────────────────────────────────────

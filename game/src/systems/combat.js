@@ -27,6 +27,8 @@ import { getActiveAid, consumeAidBattle } from './militaryAid.js';
 import { clearResourceNode } from './resourceNodes.js';
 import { getCurrentTitle } from '../data/titles.js';
 import { rollRuinOutcome } from '../data/ruins.js';
+import { claimBounty } from './bounty.js';
+import { getGeneralBonus, consumeGeneralCharge } from './greatPersons.js'; // T136
 
 /** Returns true if both techs of a named synergy are researched. */
 function _synergy(id) {
@@ -259,6 +261,10 @@ export function getAttackPreview(x, y) {
   // T131: War Economy proclamation — +25% attack power
   if (state.proclamation?.activeId === 'war_economy') attackPower *= 1.25;
 
+  // T136: Great General — flat attack bonus while charges remain
+  const _gpBonus = getGeneralBonus();
+  if (_gpBonus > 0) attackPower += _gpBonus;
+
   // T071: terrain combat modifiers
   const terrainMod = _terrainMod(tile.type);
   attackPower     *= terrainMod.attackMult;
@@ -441,6 +447,10 @@ export function attackTile(x, y) {
   // T131: War Economy proclamation — +25% attack power
   if (state.proclamation?.activeId === 'war_economy') attackPower *= 1.25;
 
+  // T136: Great General — flat attack bonus while charges remain
+  const _gpBonusAtk = getGeneralBonus();
+  if (_gpBonusAtk > 0) attackPower += _gpBonusAtk;
+
   // T071: terrain attack modifier (applied before siege/mana-bolt override)
   const _terrainM = _terrainMod(tile.type);
   attackPower *= _terrainM.attackMult;
@@ -531,6 +541,9 @@ export function attackTile(x, y) {
   // T102: each battle (win or loss) consumes one aid charge
   consumeAidBattle();
 
+  // T136: each battle consumes one Great General charge
+  consumeGeneralCharge();
+
   return result;
 }
 
@@ -610,6 +623,9 @@ function _victory(tile, x, y, attackPower, defense) {
 
   // T106: excavate ruin if this tile contains one
   _tryExcavateRuin(tile, x, y);
+
+  // T135: claim territory bounty if this tile was the active bounty target
+  claimBounty(x, y);
 
   // T122: Companion passive effects on victory
   if (state.hero?.recruited && state.hero.companion) {
