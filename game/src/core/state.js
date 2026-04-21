@@ -337,6 +337,10 @@ export const state = {
   //   available: { id, type, icon, name, desc, expiresAt } | null,
   //   generalChargesLeft: number, totalUsed: number }
   greatPersons: null,
+
+  // T137: Building auto-queue — list of buildingIds to auto-construct when affordable.
+  // Max 3 items. Wonders are excluded. Processed on every RESOURCE_CHANGED event.
+  buildQueue: [],
 };
 
 /**
@@ -419,5 +423,6 @@ export function initState(empireName = 'My Empire') {
   state.scholar             = null; // T134: scholar resets per game
   state.bounty              = null; // T135: bounty resets per game
   state.greatPersons        = null; // T136: great persons reset per game
+  state.buildQueue          = [];   // T137: queue cleared on new game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

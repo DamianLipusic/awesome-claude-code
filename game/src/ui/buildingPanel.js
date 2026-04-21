@@ -5,7 +5,7 @@
 
 import { state } from '../core/state.js';
 import { on, Events } from '../core/events.js';
-import { buildBuilding, demolishBuilding, specializeBuilding, chooseCapitalPlan, upgradeResourceCap, CAP_UPGRADE_MAX, CAP_UPGRADE_BONUS, CAP_UPGRADE_BASE, forgeItem } from '../core/actions.js';
+import { buildBuilding, demolishBuilding, specializeBuilding, chooseCapitalPlan, upgradeResourceCap, CAP_UPGRADE_MAX, CAP_UPGRADE_BONUS, CAP_UPGRADE_BASE, forgeItem, addToBuildQueue, removeFromBuildQueue, BUILD_QUEUE_MAX } from '../core/actions.js';
 import { BUILDINGS } from '../data/buildings.js';
 import { SPECIALIZATIONS, SPECIALS_BY_BUILDING, ELIGIBLE_BUILDINGS } from '../data/buildingSpecials.js';
 import { CAPITAL_PLANS, CAPITAL_PLAN_ORDER } from '../data/capitalPlans.js';
@@ -29,6 +29,7 @@ export function initBuildingPanel() {
   on(Events.CAPITAL_PLAN_CHOSEN,   renderBuildingPanel);
   on(Events.CAP_UPGRADED,          renderBuildingPanel);
   on(Events.FORGE_CHANGED,         renderBuildingPanel);
+  on(Events.QUEUE_CHANGED,         renderBuildingPanel);
   on(Events.RESOURCE_CHANGED,      _throttleRender());
 }
 
@@ -45,7 +46,7 @@ function renderBuildingPanel() {
   const panel = document.getElementById('panel-buildings');
   if (!panel) return;
 
-  let html = '';
+  let html = _queueSection();
   let wonderHeaderAdded = false;
 
   for (const [id, def] of Object.entries(BUILDINGS)) {
@@ -90,6 +91,19 @@ function renderBuildingPanel() {
     const costStr = Object.entries(cost).map(([r, a]) => `${_resIcon(r)}${fmtNum(a)}`).join(' ');
     const prodStr = Object.entries(def.production).map(([r, a]) => `+${a}/s ${_resIcon(r)}`).join(' ');
 
+    // T137: queue button for non-wonder buildings
+    const queue       = state.buildQueue ?? [];
+    const inQueue     = queue.includes(id);
+    const queueFull   = queue.length >= BUILD_QUEUE_MAX;
+    const queueBtnHtml = (!def.wonder && !def.unique)
+      ? (inQueue
+          ? `<button class="btn btn--queue btn--queue-in" disabled title="Already queued">⏳ Queued</button>`
+          : `<button class="btn btn--queue ${queueFull ? 'btn--disabled' : ''}"
+                     data-action="queue" data-id="${id}"
+                     ${queueFull ? 'disabled' : ''}
+                     title="${queueFull ? 'Queue full (max 3)' : 'Add to auto-build queue'}">+ Queue</button>`)
+      : '';
+
     html += `
       <div class="building-card ${def.wonder ? 'building-card--wonder' : ''} ${canBuy ? '' : 'building-card--cant-afford'}"
            data-building-id="${id}"
@@ -106,6 +120,7 @@ function renderBuildingPanel() {
                   data-action="build" data-id="${id}"
                   ${canBuy ? '' : 'disabled'}>${def.wonder ? 'Construct' : 'Build'}</button>
           ${!def.unique && count > 0 ? `<button class="btn btn--demolish" data-action="demolish" data-id="${id}">−</button>` : ''}
+          ${queueBtnHtml}
         </div>
       </div>`;
   }
@@ -124,6 +139,16 @@ function renderBuildingPanel() {
     const { action, id, specid, planid, res } = btn.dataset;
     if (action === 'build')           buildBuilding(id);
     if (action === 'demolish')        demolishBuilding(id);
+    if (action === 'queue') {
+      const result = addToBuildQueue(id);
+      if (!result.ok) {
+        btn.classList.add('btn--shake');
+        setTimeout(() => btn.classList.remove('btn--shake'), 400);
+      }
+    }
+    if (action === 'queue-remove') {
+      removeFromBuildQueue(parseInt(btn.dataset.idx, 10));
+    }
     if (action === 'specialize')      specializeBuilding(id, specid);
     if (action === 'choose-plan') {
       const result = chooseCapitalPlan(planid);
@@ -147,6 +172,38 @@ function renderBuildingPanel() {
       }
     }
   };
+}
+
+// ── Building Auto-Queue section (T137) ────────────────────────────────────
+
+function _queueSection() {
+  const queue = state.buildQueue ?? [];
+
+  const itemsHtml = queue.length === 0
+    ? `<div class="bq-empty">No buildings queued. Click <strong>+ Queue</strong> on any building below to auto-build it when affordable.</div>`
+    : queue.map((bid, idx) => {
+        const def = BUILDINGS[bid];
+        if (!def) return '';
+        const cost    = scaledCost(def.baseCost, state.buildings[bid] ?? 0);
+        const costStr = Object.entries(cost).map(([r, a]) => `${_resIcon(r)}${fmtNum(a)}`).join(' ');
+        return `
+          <div class="bq-item">
+            <span class="bq-pos">${idx + 1}</span>
+            <span class="bq-icon">${def.icon}</span>
+            <span class="bq-name">${def.name}</span>
+            <span class="bq-cost">${costStr}</span>
+            <button class="btn btn--sm bq-remove" data-action="queue-remove" data-idx="${idx}" title="Remove from queue">✕</button>
+          </div>`;
+      }).join('');
+
+  return `
+    <div class="build-queue-section">
+      <div class="bq-header">
+        <span class="bq-title">🔨 Build Queue</span>
+        <span class="bq-count">${queue.length}/${BUILD_QUEUE_MAX}</span>
+      </div>
+      <div class="bq-items">${itemsHtml}</div>
+    </div>`;
 }
 
 // ── Specializations section (T090) ──────────────────────────────────────────

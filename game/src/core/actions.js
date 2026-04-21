@@ -1130,4 +1130,45 @@ function deductCost(cost) {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Building Auto-Queue (T137)
+// ---------------------------------------------------------------------------
+
+export const BUILD_QUEUE_MAX = 3;
+
+/**
+ * Add a building to the auto-build queue (max 3).
+ * Wonders and already-queued buildings are rejected.
+ */
+export function addToBuildQueue(buildingId) {
+  const def = BUILDINGS[buildingId];
+  if (!def) return { ok: false, reason: 'Unknown building' };
+  if (def.wonder || def.unique) return { ok: false, reason: 'Wonders cannot be queued' };
+
+  const queue = state.buildQueue ?? [];
+  if (queue.length >= BUILD_QUEUE_MAX) {
+    return { ok: false, reason: `Queue is full (max ${BUILD_QUEUE_MAX})` };
+  }
+  if (queue.includes(buildingId)) {
+    return { ok: false, reason: `${def.name} is already in the queue` };
+  }
+
+  queue.push(buildingId);
+  state.buildQueue = queue;
+  emit(Events.QUEUE_CHANGED, { buildingId });
+  return { ok: true };
+}
+
+/**
+ * Remove the queue item at the given index.
+ */
+export function removeFromBuildQueue(idx) {
+  const queue = state.buildQueue ?? [];
+  if (idx < 0 || idx >= queue.length) return { ok: false, reason: 'Invalid index' };
+  queue.splice(idx, 1);
+  state.buildQueue = queue;
+  emit(Events.QUEUE_CHANGED, {});
+  return { ok: true };
+}
+
 log('actions module loaded');

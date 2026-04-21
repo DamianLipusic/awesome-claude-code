@@ -105,4 +105,5 @@ export const Events = Object.freeze({
   SCHOLAR_CHANGED:          'scholarChanged',            // T134: scholar arrived/dismissed/accepted
   BOUNTY_CHANGED:           'bountyChanged',             // T135: bounty posted / claimed / expired
   GREAT_PERSON:             'greatPerson',               // T136: great person appeared / used / expired
+  QUEUE_CHANGED:            'queueChanged',              // T137: building auto-queue updated
 });

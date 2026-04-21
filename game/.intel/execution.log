@@ -2214,3 +2214,39 @@ All prior tasks (T001–T132) were complete. Created two new Phase 50 features: 
 - Scholar activeEffect is a single slot (not an array) because only one teaching can be active at a time — accepting a new teaching while one is running would replace it, but the system prevents this since visits only spawn when no visit is active.
 - Engineering Plans discount is applied in scaledCost() (shared by all build paths) rather than in buildBuilding() directly, ensuring it also works with any future build paths that call scaledCost.
 - Scholar visits only spawn when state.scholar.active === null, preventing overlap with expiry mechanics.
+
+================================================================================
+SESSION N+38 — 2026-04-21
+Tasks: T137 (Building Auto-Queue), T138 (Combat Odds Overlay)
+================================================================================
+
+**T137 — Building Auto-Queue:**
+
+All tasks found complete (T001–T136), so T137 and T138 were created from the roadmap and implemented.
+
+**Files modified:**
+- `game/src/core/state.js`: Added `buildQueue: []` to static state object and `state.buildQueue = [];` to `initState()`.
+- `game/src/core/events.js`: Added `QUEUE_CHANGED: 'queueChanged'` to the Events freeze object.
+- `game/src/core/actions.js`: Added `BUILD_QUEUE_MAX = 3` const; `addToBuildQueue(buildingId)` validates non-wonder/non-unique, capacity, and duplicates, then pushes and emits QUEUE_CHANGED; `removeFromBuildQueue(idx)` splices by index and emits QUEUE_CHANGED.
+- `game/src/ui/buildingPanel.js`: Imports addToBuildQueue/removeFromBuildQueue/BUILD_QUEUE_MAX; `on(Events.QUEUE_CHANGED, renderBuildingPanel)` in initBuildingPanel(); `renderBuildingPanel()` prepends `_queueSection()`; each non-wonder card has queue vars + queueBtnHtml ('+ Queue' / '⏳ Queued' disabled / disabled-when-full); onclick handles action=queue (with shake animation on fail) and action=queue-remove; `_queueSection()` renders .build-queue-section with count badge, .bq-items list (position/icon/name/scaled-cost/remove), or .bq-empty hint.
+- `game/src/main.js`: `_processAutoQueue()` attempts `buildBuilding(queue[0])`, splices on success, emits QUEUE_CHANGED; `on(Events.RESOURCE_CHANGED, _processAutoQueue)` wired in boot(); state.buildQueue saved and loaded.
+- `game/styles/main.css`: `.build-queue-section` (amber left border), `.bq-header/.bq-title/.bq-count` (pill badge), `.bq-items/.bq-item` (flex rows), `.bq-pos/.bq-icon/.bq-name/.bq-cost/.bq-remove`, `.bq-empty`, `.btn--queue` (amber outline), `.btn--queue-in` (dimmed), `@keyframes btn-shake`.
+
+**Architecture decisions:**
+- Cascade auto-build works via the RESOURCE_CHANGED event loop: when `buildBuilding()` succeeds it emits RESOURCE_CHANGED, which re-triggers `_processAutoQueue` for the next item — naturally handling consecutive affordable builds without any explicit looping.
+- `scaledCost()` is a local function in buildingPanel.js (not imported from actions), so `_queueSection()` calls it directly without any import needed.
+- Queue max is 3 (BUILD_QUEUE_MAX) — enough for meaningful planning without dominating the panel.
+
+---
+
+**T138 — Combat Odds Overlay:**
+
+**Files modified:**
+- `game/src/ui/mapPanel.js`: Added `_oddsMode=false` and `_oddsCache={}` module-level vars. `_buildHTML()` adds '#map-odds-toggle' button (.btn--map-odds) alongside the existing resource toggle in `.map-controls`. `initMapPanel()` wires click handler: toggles `_oddsMode`, toggles `.btn--map-odds-active` class, calls `_render()`. `_render()`: when `_oddsMode` is true, iterates all tiles calling `getAttackPreview(ox, oy)` for each `_isAttackable(ox, oy)` tile, builds `_oddsCache['x,y'] = winChance`; clears cache when mode off. `_drawTile()`: after the bounty section, reads `_oddsCache[`${x},${y}`]`; when present, draws rgba tint overlay (blue ≥70%, amber 40–69%, red <40%) at 0.40 opacity and bold white 7px win% text centered on the tile.
+- `game/styles/main.css`: `.btn--map-odds` (same dim style as overlay toggle), `.btn--map-odds-active` (red accent — thematically appropriate for combat information).
+
+**Architecture decisions:**
+- Odds cache is rebuilt on every `_render()` call when mode is active — this keeps it always fresh without a separate subscription. Since `_render()` is already debounced by the event system, this is acceptable overhead.
+- Win% thresholds: ≥70% blue (confident), 40–69% amber (uncertain), <40% red (risky) — aligns with the existing combat preview modal's color coding.
+- No new state or events needed: odds mode is purely a display toggle, consistent with the resource overlay design.
+

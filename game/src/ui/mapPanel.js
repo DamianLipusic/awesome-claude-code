@@ -130,6 +130,8 @@ let _previewTarget  = null;   // T045: { x, y } of tile pending confirmation
 let _impPickerEl    = null;   // T051: improvement picker modal element
 let _caravanPickerEl = null;  // T063: caravan trade picker modal element
 let _caravanTickRef  = 0;     // T063: setInterval id for live countdown
+let _oddsMode       = false;  // T138: combat odds overlay toggle
+let _oddsCache      = {};     // T138: { "x,y": winChance } for all attackable tiles
 
 // ── Public API ─────────────────────────────────────────────────────────────
 
@@ -153,6 +155,14 @@ export function initMapPanel() {
     toggleBtn.textContent = _overlayMode ? '🗺️ Terrain' : '🌾 Resources';
     toggleBtn.classList.toggle('btn--map-overlay-active', _overlayMode);
     _updateLegend(panel);
+    _render();
+  });
+
+  // T138: wire combat odds toggle button
+  const oddsBtn = panel.querySelector('#map-odds-toggle');
+  oddsBtn.addEventListener('click', () => {
+    _oddsMode = !_oddsMode;
+    oddsBtn.classList.toggle('btn--map-odds-active', _oddsMode);
     _render();
   });
 
@@ -217,6 +227,8 @@ function _buildHTML() {
     <div class="map-controls">
       <button id="map-overlay-toggle" class="btn btn--sm btn--map-overlay"
         title="Toggle resource overlay — see which tiles produce which resources">🌾 Resources</button>
+      <button id="map-odds-toggle" class="btn btn--sm btn--map-odds"
+        title="Toggle combat odds overlay — shows win % for each attackable tile">🎯 Odds</button>
     </div>
     <div class="map-wrap">
       <canvas id="map-canvas"
@@ -478,6 +490,21 @@ function _render() {
 
   const { tiles, width, height, capital } = state.map;
 
+  // T138: pre-compute odds cache for all attackable tiles
+  if (_oddsMode) {
+    _oddsCache = {};
+    for (let oy = 0; oy < height; oy++) {
+      for (let ox = 0; ox < width; ox++) {
+        if (_isAttackable(ox, oy)) {
+          const p = getAttackPreview(ox, oy);
+          if (p.valid) _oddsCache[`${ox},${oy}`] = p.winChance;
+        }
+      }
+    }
+  } else {
+    _oddsCache = {};
+  }
+
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       _drawTile(tiles[y][x], x, y, capital);
@@ -670,6 +697,22 @@ function _drawTile(tile, x, y, capital) {
     ctx.textAlign    = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText('⭐', px + TILE_PX / 2, py + TILE_PX / 2 + 1);
+  }
+
+  // T138: combat odds overlay — tint + win% label on attackable tiles when odds mode active
+  const _winChance = _oddsCache[`${x},${y}`];
+  if (_winChance !== undefined) {
+    const pct = Math.round(_winChance * 100);
+    const rgb = pct >= 70 ? '88,166,255' : pct >= 40 ? '240,180,41' : '248,81,73';
+    ctx.fillStyle = `rgba(${rgb},0.40)`;
+    ctx.fillRect(px, py, TILE_PX, TILE_PX);
+    ctx.font         = 'bold 7px sans-serif';
+    ctx.textAlign    = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle    = '#ffffff';
+    ctx.fillText(`${pct}%`, px + TILE_PX / 2, py + TILE_PX / 2 + 1);
+    ctx.textAlign    = 'center';
+    ctx.textBaseline = 'middle';
   }
 }
 

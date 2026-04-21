@@ -233,6 +233,103 @@ body {
   border-color: var(--red);
 }
 .btn--demolish:hover { background: var(--red); color: #fff; }
+
+/* ── T137: Build Queue section ──────────────────────────────────────────── */
+
+.build-queue-section {
+  border-left: 3px solid rgba(240,180,41,0.5);
+  padding: 8px 10px;
+  margin-bottom: 10px;
+  background: rgba(240,180,41,0.05);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+
+.bq-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.bq-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+}
+
+.bq-count {
+  font-size: 0.7rem;
+  background: rgba(240,180,41,0.18);
+  border: 1px solid rgba(240,180,41,0.4);
+  border-radius: 10px;
+  padding: 1px 7px;
+  color: var(--accent);
+}
+
+.bq-items {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bq-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 3px 7px;
+}
+
+.bq-pos  { color: var(--text-dim); font-size: 0.7rem; min-width: 12px; }
+.bq-icon { font-size: 0.95rem; }
+.bq-name { flex: 1; font-weight: 600; color: var(--text); }
+.bq-cost { font-size: 0.7rem; color: var(--text-dim); }
+
+.bq-remove {
+  padding: 2px 6px;
+  font-size: 0.7rem;
+  border-color: var(--border);
+  color: var(--text-dim);
+  background: transparent;
+}
+.bq-remove:hover { border-color: var(--red); color: var(--red); }
+
+.bq-empty {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  font-style: italic;
+  padding: 2px 0;
+}
+
+.btn--queue {
+  background: transparent;
+  border-color: rgba(240,180,41,0.55);
+  color: var(--accent);
+  font-size: 11px;
+  padding: 3px 8px;
+}
+.btn--queue:hover:not(:disabled) {
+  background: rgba(240,180,41,0.15);
+  border-color: var(--accent);
+}
+.btn--queue-in {
+  border-color: var(--border);
+  color: var(--text-dim);
+  opacity: 0.7;
+}
+
+@keyframes btn-shake {
+  0%, 100% { transform: translateX(0); }
+  25%       { transform: translateX(-3px); }
+  75%       { transform: translateX(3px); }
+}
+.btn--shake { animation: btn-shake 0.35s ease; }
+
 .btn--research {
   background: var(--purple);
   color: #fff;
@@ -504,6 +601,24 @@ body {
   border-color: var(--green);
   color: var(--green);
   background: rgba(63, 185, 80, .1);
+}
+
+/* ── T138: Combat odds overlay toggle button ────────────────────────────── */
+
+.btn--map-odds {
+  background: var(--bg-card);
+  border-color: var(--border);
+  color: var(--text-dim);
+  transition: border-color .15s, color .15s, background .15s;
+}
+.btn--map-odds:hover {
+  border-color: var(--border-h);
+  color: var(--text);
+}
+.btn--map-odds-active {
+  border-color: #f85149;
+  color: #f85149;
+  background: rgba(248,81,73,.1);
 }
 
 /* ── Map tile hover tooltip (T038) ─────────────────────────────────────── */

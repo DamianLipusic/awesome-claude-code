@@ -78,6 +78,7 @@ import { initWonders, wonderTick } from './systems/wonders.js'; // T133
 import { initScholars, scholarTick, acceptTeaching, dismissScholar } from './systems/scholars.js'; // T134
 import { initBounty, bountyTick } from './systems/bounty.js'; // T135
 import { initGreatPersons, greatPersonTick } from './systems/greatPersons.js'; // T136
+import { addToBuildQueue, removeFromBuildQueue, BUILD_QUEUE_MAX, buildBuilding } from './core/actions.js'; // T137 (re-import build)
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
@@ -325,6 +326,9 @@ function boot() {
   let _seasonBadgeTick = 0;
   on(Events.TICK, () => { if (++_seasonBadgeTick % 4 === 0) _updateSeasonBadge(); });
 
+  // T137: auto-build queue — fire whenever resources change
+  on(Events.RESOURCE_CHANGED, _processAutoQueue);
+
   // Update score badge on any score-affecting state change
   _updateScoreBadge();
   on(Events.RESOURCE_CHANGED,  _updateScoreBadge);
@@ -432,6 +436,7 @@ function _save() {
         scholar:             state.scholar             ?? null,  // T134
         bounty:              state.bounty              ?? null,  // T135
         greatPersons:        state.greatPersons        ?? null,  // T136
+        buildQueue:          state.buildQueue          ?? [],    // T137
         tick:          state.tick,
       }
     }));
@@ -545,6 +550,7 @@ function _applySave(save) {
   state.scholar              = s.scholar              ?? null;  // T134
   state.bounty               = s.bounty               ?? null;  // T135
   state.greatPersons         = s.greatPersons         ?? null;  // T136
+  state.buildQueue           = s.buildQueue           ?? [];    // T137
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
@@ -557,6 +563,19 @@ function _applySave(save) {
   _pendingOffline = calcOfflineProgress(save.ts, state.rates, state.resources, state.caps);
 
   addMessage('Game loaded.', 'info');
+}
+
+// ── T137: Building auto-queue ─────────────────────────────────────────────
+
+function _processAutoQueue() {
+  const queue = state.buildQueue;
+  if (!queue || queue.length === 0) return;
+  const id = queue[0];
+  const result = buildBuilding(id);
+  if (result.ok) {
+    queue.splice(0, 1);
+    emit(Events.QUEUE_CHANGED, { autoBuilt: id });
+  }
 }
 
 // ── Age badge ─────────────────────────────────────────────────────────────
