@@ -22,10 +22,42 @@
     <span id="title-badge" class="title-badge" title="Empire Title">🏕️ Village Chief</span>
     <span id="score-badge" title="Empire Score — see breakdown in the Empire tab">⭐ 0</span>
     <span id="prestige-badge" class="prestige-badge" title="Empire Prestige">✨ 0</span>
+    <span id="age-challenge-badge" class="age-challenge-badge" style="display:none" title="Active age milestone challenge"></span>
     <div class="title-bar__controls">
+      <button class="btn btn--sm btn--emergency" id="btn-emergency" style="display:none" title="Call an Emergency Council (once per game)">⚡ Emergency</button>
       <button class="btn btn--sm" id="btn-pause" title="Pause / Resume (Space)">⏸ Pause</button>
       <button class="btn btn--sm" id="btn-save">💾 Save</button>
       <button class="btn btn--sm" id="btn-new-game">🆕 New Game</button>
+    </div>
+  </div>
+
+  <!-- T144: Emergency Council modal -->
+  <div id="emergency-modal" class="emergency-modal emergency-modal--hidden" role="dialog" aria-modal="true">
+    <div class="emergency-modal__backdrop"></div>
+    <div class="emergency-modal__box">
+      <h2 class="emergency-modal__title">⚡ Emergency Council</h2>
+      <p class="emergency-modal__desc">Your empire faces a crisis. Choose one emergency measure — you may only convene this council once per game.</p>
+      <div class="emergency-modal__options">
+        <button class="btn emergency-option" data-ec-option="levy">
+          <div class="emergency-option__icon">💰</div>
+          <div class="emergency-option__name">Emergency Levy</div>
+          <div class="emergency-option__effect">+400 gold — tax the citizenry</div>
+          <div class="emergency-option__cost">−10 morale</div>
+        </button>
+        <button class="btn emergency-option" data-ec-option="supply">
+          <div class="emergency-option__icon">🍞</div>
+          <div class="emergency-option__name">Supply Redistribution</div>
+          <div class="emergency-option__effect">+300 food, +150 wood, +150 stone</div>
+          <div class="emergency-option__cost">−50 prestige</div>
+        </button>
+        <button class="btn emergency-option" data-ec-option="rally">
+          <div class="emergency-option__icon">⚔️</div>
+          <div class="emergency-option__name">Rally the Troops</div>
+          <div class="emergency-option__effect">+20 morale, +100 prestige</div>
+          <div class="emergency-option__cost">−10 happiness</div>
+        </button>
+      </div>
+      <button class="btn btn--sm emergency-modal__cancel" id="btn-emergency-cancel">Cancel — handle it ourselves</button>
     </div>
   </div>
 

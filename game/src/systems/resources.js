@@ -521,6 +521,13 @@ export function recalcRates() {
     for (const res of RESOURCE_KEYS) if (rates[res] > 0) rates[res] *= 1.10;
   }
 
+  // T143: Age challenge permanent bonuses (state read directly — no circular import)
+  const _acr = state.ageChallenges?.results ?? {};
+  if (_acr[1] === 'won') rates.food += 2.0;                      // Bronze: +2 food/s
+  if (_acr[3] === 'won') {                                       // Medieval: +10% all positive rates
+    for (const res of RESOURCE_KEYS) if (rates[res] > 0) rates[res] *= 1.10;
+  }
+
   Object.assign(state.rates, rates);
   Object.assign(state.caps, caps);
 }

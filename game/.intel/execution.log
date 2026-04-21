@@ -2306,3 +2306,38 @@ All tasks found complete (T001–T136), so T137 and T138 were created from the r
 - `recalcRates()` is imported directly into population.js; resources.js reads `state.population.happiness` from state (no import back), avoiding circular dependency.
 - The happiness modifier is applied last in `recalcRates()` so it acts as a global multiplier on the final calculated rates, stacking cleanly with all other modifiers.
 - Save/load: `state.population` is already serialized as a whole object in `_save()`, so `happiness` is automatically persisted. Older saves are migrated in `initPopulation()`.
+
+================================================================================
+SESSION N+39 — 2026-04-21
+Tasks: T143 (Age Milestone Challenge System), T144 (Emergency Council Session)
+================================================================================
+
+All 142 prior tasks found complete. Created T143 and T144 from Phase 5+ roadmap extension.
+
+**T143 — Age Milestone Challenge System:**
+
+**Files created/modified:**
+- `game/src/systems/ageChallenges.js` (new): initAgeChallenges() idempotent init; startAgeChallenge(age) validates age 1–3, skips if already played, captures startValue via _metric(type), sets state.ageChallenges.active with expiresAt = tick+960 (4 min); ageChallengesTick() checks _metric vs target, calls _resolve('won'|'lost'); _resolve() writes results[age], clears active, calls recalcRates() on win, emits AGE_CHALLENGE_CHANGED; getActiveChallengeProgress() returns {icon,label,desc,bonusLabel,current,target,secsLeft} for badge. Three challenges: Age 1 Bronze = train 3 units → +2 food/s; Age 2 Iron = research 2 techs → −15% train cost; Age 3 Medieval = win 3 battles → +10% prod rates.
+- `game/src/core/state.js`: Added ageChallenges:null + emergencyCouncil:{used:false} to static object and initState() resets.
+- `game/src/core/events.js`: Added AGE_CHALLENGE_CHANGED event constant.
+- `game/src/systems/resources.js`: Added T143 block after T141 — reads state.ageChallenges.results directly (no circular import); results[1]==='won' adds +2.0 food/s; results[3]==='won' multiplies all positive rates ×1.10.
+- `game/src/core/actions.js`: trainUnit() checks state.ageChallenges.results[2]==='won' and multiplies effectiveCost by ×0.85 (applied after military_doctrine scholar check).
+- `game/src/main.js`: Imports initAgeChallenges/ageChallengesTick/startAgeChallenge/getActiveChallengeProgress; registerSystem(ageChallengesTick); initAgeChallenges() in boot+newGame; on(AGE_CHANGED) calls startAgeChallenge(d.age); _updateAgeChallengeBadge() renders countdown badge with icon/label/progress/timer, wired to AGE_CHALLENGE_CHANGED + TICK every 4; ageChallenges saved/loaded; changeMorale added to morale.js import; save version bumped to 41.
+- `game/index.html`: Added age-challenge-badge span in title-bar (after prestige-badge).
+- `game/styles/main.css`: .age-challenge-badge (amber gradient border, pulsing animation via @keyframes ac-pulse).
+
+**T144 — Emergency Council Session:**
+
+**Files modified:**
+- `game/src/core/state.js`: emergencyCouncil:{used:false} added (see T143 entry above — both added together).
+- `game/src/main.js`: _updateEmergencyBtn() checks crisis/siege/starvation conditions + emergencyCouncil.used, shows/hides #btn-emergency; _applyEmergencyOption(option) applies levy/supply/rally effects and marks emergencyCouncil.used=true, hides modal; _bindControls() wires btn-emergency (open modal), btn-emergency-cancel (close modal), emergency-modal click delegate; boot() wires _updateEmergencyBtn to CRISIS_SPAWNED/CRISIS_RESOLVED/BARBARIAN_SIEGE/RESOURCE_CHANGED; emergencyCouncil saved/loaded.
+- `game/index.html`: btn-emergency button (red gradient, hidden by default) in title-bar controls; full emergency-modal div with backdrop + box containing title, desc, 3 option buttons (levy/supply/rally), cancel button.
+- `game/styles/main.css`: .btn--emergency (red gradient + pulse animation), .emergency-modal/--hidden/backdrop/box/title/desc/options, .emergency-option/icon/name/effect/cost, .emergency-modal__cancel.
+
+**Architecture decisions:**
+- Age challenges use delta-based targets (capture startValue at challenge start, target = startValue + delta) so the challenge works correctly regardless of when the player advances ages.
+- resources.js reads state.ageChallenges.results directly rather than importing from ageChallenges.js — same pattern used for population happiness — avoids circular dependency since ageChallenges.js imports recalcRates from resources.js.
+- Emergency council is implemented entirely in main.js (no separate system file) since it's a pure UI event + one-time state flag with no tick logic needed.
+- Emergency button only shows when conditions are met (crisis/siege/starvation active) AND not yet used — hides permanently after use. This avoids cluttering the title bar during normal gameplay.
+- supply option deducts 50 prestige directly from state.prestige.score (no new prestige function needed) and emits PRESTIGE_CHANGED to keep the badge updated.
+- Medieval challenge tracks combat wins via combatHistory delta (same as challenges.js pattern).

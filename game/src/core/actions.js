@@ -117,6 +117,11 @@ export function trainUnit(id) {
     if (_md.chargesLeft <= 0) state.scholar.activeEffect = null;
   }
 
+  // T143: Iron Age challenge bonus — −15% training costs (permanent once won)
+  if (state.ageChallenges?.results?.[2] === 'won') {
+    effectiveCost = Object.fromEntries(Object.entries(effectiveCost).map(([r, v]) => [r, Math.floor(v * 0.85)]));
+  }
+
   if (!canAfford(effectiveCost)) {
     return { ok: false, reason: 'Insufficient resources' };
   }

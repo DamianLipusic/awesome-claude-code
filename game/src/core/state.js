@@ -350,6 +350,14 @@ export const state = {
   // { [empireId]: { active: { type, target, baseline, expiresAt, goldReward } | null,
   //                 nextMissionTick: number, totalCompleted: number } }
   allianceMissions: null,
+
+  // T143: Age milestone challenge state — populated by systems/ageChallenges.js
+  // { results: { [age]: 'won' | 'lost' }, active: { … } | null }
+  ageChallenges: null,
+
+  // T144: Emergency Council — one-time crisis power (used once per game)
+  // { used: boolean }
+  emergencyCouncil: null,
 };
 
 /**
@@ -435,5 +443,7 @@ export function initState(empireName = 'My Empire') {
   state.buildQueue          = [];   // T137: queue cleared on new game
   state.techMilestones      = {};   // T141: reset tech milestones per game
   state.allianceMissions    = null; // T142: reset alliance missions per game
+  state.ageChallenges       = null; // T143: reset age challenges per game
+  state.emergencyCouncil    = { used: false }; // T144: reset per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

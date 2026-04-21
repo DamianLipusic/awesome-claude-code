@@ -107,4 +107,5 @@ export const Events = Object.freeze({
   GREAT_PERSON:             'greatPerson',               // T136: great person appeared / used / expired
   QUEUE_CHANGED:            'queueChanged',              // T137: building auto-queue updated
   ALLIANCE_MISSION:         'allianceMission',           // T142: alliance mission assigned / completed / expired
+  AGE_CHALLENGE_CHANGED:    'ageChallengeChanged',       // T143: age challenge started / won / lost
 });

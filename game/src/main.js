@@ -20,7 +20,7 @@ import { initAchievements } from './systems/achievements.js';
 import { initEnemyAI, enemyAITick } from './systems/enemyAI.js';
 import { initSpells, spellTick } from './systems/spells.js';
 import { initBarbarians, barbarianTick, getSiegeSecsLeft, bribeBarbarians, BRIBE_COST } from './systems/barbarianCamps.js';
-import { initMorale, moraleTick } from './systems/morale.js';
+import { initMorale, moraleTick, changeMorale } from './systems/morale.js';
 import { initPopulation, populationTick, happinessTick } from './systems/population.js';
 import { initEspionage } from './systems/espionage.js';
 import { initChallenges, challengeTick } from './systems/challenges.js';
@@ -80,6 +80,7 @@ import { initBounty, bountyTick } from './systems/bounty.js'; // T135
 import { initGreatPersons, greatPersonTick } from './systems/greatPersons.js'; // T136
 import { addToBuildQueue, removeFromBuildQueue, BUILD_QUEUE_MAX, buildBuilding } from './core/actions.js'; // T137 (re-import build)
 import { initAllianceMissions, allianceMissionTick, checkMissionProgress } from './systems/allianceMissions.js'; // T142
+import { initAgeChallenges, ageChallengesTick, startAgeChallenge, getActiveChallengeProgress } from './systems/ageChallenges.js'; // T143
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
@@ -151,7 +152,8 @@ function boot() {
   registerSystem(scholarTick);         // T134: wandering scholar events
   registerSystem(bountyTick);          // T135: territory bounty system
   registerSystem(greatPersonTick);     // T136: great person system
-  registerSystem(allianceMissionTick); // T142: alliance missions
+  registerSystem(allianceMissionTick); // T142
+  registerSystem(ageChallengesTick);  // T143: age milestone challenges
 
   // Init event-driven systems
   initRandomEvents();
@@ -191,6 +193,7 @@ function boot() {
   initBounty();           // T135: territory bounty system
   initGreatPersons();     // T136: great person system
   initAllianceMissions(); // T142: alliance missions
+  initAgeChallenges();   // T143: age milestone challenges
 
   // Init UI
   initHUD();
@@ -237,6 +240,23 @@ function boot() {
   on(Events.MAP_CHANGED,      () => checkMissionProgress('map'));
   on(Events.RESOURCE_CHANGED, () => checkMissionProgress('resource'));
   on(Events.TECH_CHANGED,     () => checkMissionProgress('tech'));
+
+  // T143: start age challenge when age advances
+  on(Events.AGE_CHANGED, (d) => startAgeChallenge(d?.age ?? state.age));
+
+  // T143: age challenge badge — update on challenge events and periodic tick
+  _updateAgeChallengeBadge();
+  on(Events.AGE_CHALLENGE_CHANGED, _updateAgeChallengeBadge);
+  let _acBadgeTick = 0;
+  on(Events.TICK, () => { if (++_acBadgeTick % 4 === 0) _updateAgeChallengeBadge(); });
+
+  // T144: emergency council — wire show/hide and modal click
+  _updateEmergencyBtn();
+  on(Events.CRISIS_SPAWNED,  _updateEmergencyBtn);
+  on(Events.CRISIS_RESOLVED, _updateEmergencyBtn);
+  on(Events.BARBARIAN_SIEGE, _updateEmergencyBtn);
+  on(Events.RESOURCE_CHANGED, _updateEmergencyBtn);
+  on(Events.AGE_CHALLENGE_CHANGED, _updateEmergencyBtn);
 
   // Update weather badge when weather starts/ends; also refresh every 4 ticks for countdown
   _updateWeatherBadge();
@@ -368,7 +388,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 40, // T135: territory bounty; T136: great persons
+      version: 41, // T143: age challenges; T144: emergency council
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -451,6 +471,8 @@ function _save() {
         buildQueue:          state.buildQueue          ?? [],    // T137
         techMilestones:      state.techMilestones      ?? {},    // T141
         allianceMissions:    state.allianceMissions    ?? null,  // T142
+        ageChallenges:       state.ageChallenges       ?? null,  // T143
+        emergencyCouncil:    state.emergencyCouncil    ?? null,  // T144
         tick:          state.tick,
       }
     }));
@@ -567,6 +589,8 @@ function _applySave(save) {
   state.buildQueue           = s.buildQueue           ?? [];    // T137
   state.techMilestones       = s.techMilestones       ?? {};   // T141
   state.allianceMissions     = s.allianceMissions     ?? null; // T142
+  state.ageChallenges        = s.ageChallenges        ?? null; // T143
+  state.emergencyCouncil     = s.emergencyCouncil     ?? { used: false }; // T144
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
@@ -724,6 +748,71 @@ function _updateScholarBanner() {
       <button class="btn btn--sm btn--scholar-dismiss" id="btn-scholar-dismiss">Dismiss</button>
     </div>`;
   banner.style.display = 'flex';
+}
+
+// ── Age challenge badge (T143) ────────────────────────────────────────────
+
+function _updateAgeChallengeBadge() {
+  const el = document.getElementById('age-challenge-badge');
+  if (!el) return;
+  const prog = getActiveChallengeProgress();
+  if (!prog) {
+    el.style.display = 'none';
+    el.textContent   = '';
+    return;
+  }
+  const mins    = Math.floor(prog.secsLeft / 60);
+  const secs    = prog.secsLeft % 60;
+  const timeStr = mins > 0 ? `${mins}m${String(secs).padStart(2, '0')}s` : `${prog.secsLeft}s`;
+  el.textContent = `${prog.icon} ${prog.label} ${prog.current}/${prog.target} (${timeStr})`;
+  el.title       = `${prog.desc} — Complete to earn: ${prog.bonusLabel}`;
+  el.style.display = '';
+}
+
+// ── Emergency Council (T144) ──────────────────────────────────────────────
+
+function _updateEmergencyBtn() {
+  const btn = document.getElementById('btn-emergency');
+  if (!btn) return;
+  if (state.emergencyCouncil?.used) {
+    btn.style.display = 'none';
+    return;
+  }
+  const crisisActive   = !!state.crises?.active;
+  const siegeActive    = getSiegeSecsLeft() > 0;
+  const starvationRisk = (state.resources?.food ?? 0) <= 0 && (state.rates?.food ?? 0) < 0;
+  btn.style.display = (crisisActive || siegeActive || starvationRisk) ? '' : 'none';
+}
+
+function _applyEmergencyOption(option) {
+  if (state.emergencyCouncil?.used) return;
+
+  if (option === 'levy') {
+    state.resources.gold = Math.min(state.caps.gold ?? 500, (state.resources.gold ?? 0) + 400);
+    changeMorale(-10);
+    addMessage('💰 Emergency Levy: 400 gold collected. The citizenry grumbles, morale drops.', 'info');
+  } else if (option === 'supply') {
+    state.resources.food  = Math.min(state.caps.food  ?? 500, (state.resources.food  ?? 0) + 300);
+    state.resources.wood  = Math.min(state.caps.wood  ?? 500, (state.resources.wood  ?? 0) + 150);
+    state.resources.stone = Math.min(state.caps.stone ?? 500, (state.resources.stone ?? 0) + 150);
+    if (state.prestige) state.prestige.score = Math.max(0, (state.prestige.score ?? 0) - 50);
+    addMessage('🍞 Supply Redistribution: Royal stores opened. +300 food, +150 wood, +150 stone. Prestige falls.', 'info');
+    emit(Events.PRESTIGE_CHANGED, { score: state.prestige?.score ?? 0 });
+  } else if (option === 'rally') {
+    changeMorale(20);
+    awardPrestige(100, 'emergency council rally');
+    if (state.population) {
+      state.population.happiness = Math.max(0, (state.population.happiness ?? 50) - 10);
+      recalcRates();
+    }
+    addMessage('⚔️ Rally the Troops! Your stirring speech lifts morale. +20 morale, +100 prestige.', 'quest');
+  }
+
+  if (!state.emergencyCouncil) state.emergencyCouncil = {};
+  state.emergencyCouncil.used = true;
+  emit(Events.RESOURCE_CHANGED, {});
+  document.getElementById('emergency-modal')?.classList.add('emergency-modal--hidden');
+  _updateEmergencyBtn();
 }
 
 // ── Prestige badge (T080) ─────────────────────────────────────────────────
@@ -1093,6 +1182,7 @@ function _newGame(opts = {}) {
   initBounty();           // T135
   initGreatPersons();     // T136
   initAllianceMissions(); // T142
+  initAgeChallenges();   // T143
   recalcRates();
   startLoop();  // restart loop in case it was stopped by game-over
   _syncPauseUI();  // ensure pause overlay is hidden on new game
@@ -1171,6 +1261,18 @@ function _bindControls() {
       dismissScholar();
       _updateScholarBanner();
     }
+  });
+
+  // T144: Emergency Council — open/close modal and handle option choices
+  document.getElementById('btn-emergency')?.addEventListener('click', () => {
+    document.getElementById('emergency-modal')?.classList.remove('emergency-modal--hidden');
+  });
+  document.getElementById('btn-emergency-cancel')?.addEventListener('click', () => {
+    document.getElementById('emergency-modal')?.classList.add('emergency-modal--hidden');
+  });
+  document.getElementById('emergency-modal')?.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-ec-option]');
+    if (btn) _applyEmergencyOption(btn.dataset.ecOption);
   });
 
   _bindKeyboard();

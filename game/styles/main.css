@@ -8615,3 +8615,155 @@ kbd {
   margin-bottom: 8px;
 }
 
+/* ── Age Challenge badge (T143) ─────────────────────────────────────────── */
+
+.age-challenge-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background: linear-gradient(135deg, rgba(240,180,41,0.15) 0%, rgba(240,180,41,0.05) 100%);
+  border: 1px solid rgba(240,180,41,0.5);
+  border-radius: 12px;
+  color: var(--accent-h);
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: default;
+  animation: ac-pulse 2s ease-in-out infinite;
+}
+
+@keyframes ac-pulse {
+  0%, 100% { border-color: rgba(240,180,41,0.5); }
+  50%       { border-color: rgba(240,180,41,0.9); box-shadow: 0 0 6px rgba(240,180,41,0.4); }
+}
+
+/* ── Emergency Council button (T144) ────────────────────────────────────── */
+
+.btn--emergency {
+  background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%);
+  color: #fff;
+  border: 1px solid rgba(231,76,60,0.7);
+  font-weight: 700;
+  animation: emergency-pulse 1.5s ease-in-out infinite;
+}
+
+.btn--emergency:hover {
+  background: linear-gradient(135deg, #e74c3c 0%, #ff6b6b 100%);
+}
+
+@keyframes emergency-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(231,76,60,0); }
+  50%       { box-shadow: 0 0 0 4px rgba(231,76,60,0.35); }
+}
+
+/* ── Emergency Council modal (T144) ─────────────────────────────────────── */
+
+.emergency-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.emergency-modal--hidden {
+  display: none;
+}
+
+.emergency-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+}
+
+.emergency-modal__box {
+  position: relative;
+  background: var(--bg-panel);
+  border: 2px solid rgba(231,76,60,0.6);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  max-width: 600px;
+  width: 90%;
+  box-shadow: 0 0 32px rgba(231,76,60,0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.emergency-modal__title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #ff6b6b;
+  text-align: center;
+}
+
+.emergency-modal__desc {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  text-align: center;
+  line-height: 1.5;
+}
+
+.emergency-modal__options {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.emergency-option {
+  flex: 1;
+  min-width: 150px;
+  max-width: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 10px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.emergency-option:hover {
+  background: var(--bg-card-h);
+  border-color: rgba(231,76,60,0.6);
+}
+
+.emergency-option__icon {
+  font-size: 1.8rem;
+}
+
+.emergency-option__name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.emergency-option__effect {
+  font-size: 0.75rem;
+  color: var(--green);
+}
+
+.emergency-option__cost {
+  font-size: 0.73rem;
+  color: var(--red);
+}
+
+.emergency-modal__cancel {
+  align-self: center;
+  background: transparent;
+  border-color: var(--border);
+  color: var(--text-dim);
+  font-size: 0.75rem;
+}
+
+.emergency-modal__cancel:hover {
+  border-color: var(--text-dim);
+  color: var(--text);
+}
+
