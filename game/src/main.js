@@ -81,6 +81,8 @@ import { initGreatPersons, greatPersonTick } from './systems/greatPersons.js'; /
 import { addToBuildQueue, removeFromBuildQueue, BUILD_QUEUE_MAX, buildBuilding } from './core/actions.js'; // T137 (re-import build)
 import { initAllianceMissions, allianceMissionTick, checkMissionProgress } from './systems/allianceMissions.js'; // T142
 import { initAgeChallenges, ageChallengesTick, startAgeChallenge, getActiveChallengeProgress } from './systems/ageChallenges.js'; // T143
+import { initInfluence, influenceTick } from './systems/influence.js'; // T145
+import { initDiscoveries } from './systems/discoveries.js'; // T146
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
@@ -153,7 +155,8 @@ function boot() {
   registerSystem(bountyTick);          // T135: territory bounty system
   registerSystem(greatPersonTick);     // T136: great person system
   registerSystem(allianceMissionTick); // T142
-  registerSystem(ageChallengesTick);  // T143: age milestone challenges
+  registerSystem(ageChallengesTick);  // T143
+  registerSystem(influenceTick);      // T145: cultural influence expansion: age milestone challenges
 
   // Init event-driven systems
   initRandomEvents();
@@ -194,6 +197,8 @@ function boot() {
   initGreatPersons();     // T136: great person system
   initAllianceMissions(); // T142: alliance missions
   initAgeChallenges();   // T143: age milestone challenges
+  initInfluence();       // T145: cultural influence expansion
+  initDiscoveries();     // T146: map discoveries
 
   // Init UI
   initHUD();
@@ -473,6 +478,8 @@ function _save() {
         allianceMissions:    state.allianceMissions    ?? null,  // T142
         ageChallenges:       state.ageChallenges       ?? null,  // T143
         emergencyCouncil:    state.emergencyCouncil    ?? null,  // T144
+        influence:           state.influence           ?? null,  // T145
+        discoveries:         state.discoveries         ?? null,  // T146
         tick:          state.tick,
       }
     }));
@@ -591,6 +598,8 @@ function _applySave(save) {
   state.allianceMissions     = s.allianceMissions     ?? null; // T142
   state.ageChallenges        = s.ageChallenges        ?? null; // T143
   state.emergencyCouncil     = s.emergencyCouncil     ?? { used: false }; // T144
+  state.influence            = s.influence            ?? null; // T145
+  state.discoveries          = s.discoveries          ?? null; // T146
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
@@ -1183,6 +1192,8 @@ function _newGame(opts = {}) {
   initGreatPersons();     // T136
   initAllianceMissions(); // T142
   initAgeChallenges();   // T143
+  initInfluence();       // T145: reset influence state on new game
+  initDiscoveries();     // T146: reset discoveries state on new game
   recalcRates();
   startLoop();  // restart loop in case it was stopped by game-over
   _syncPauseUI();  // ensure pause overlay is hidden on new game

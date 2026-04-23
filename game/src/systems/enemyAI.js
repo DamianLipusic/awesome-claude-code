@@ -27,6 +27,7 @@ import { clearResourceNode } from './resourceNodes.js';
 import { changeMorale, MORALE_TILE_LOST } from './morale.js';
 import { BOONS } from '../data/ageBoons.js';
 import { SYNERGIES } from '../data/techs.js';
+import { clearInfluence } from './influence.js'; // T145
 
 // ── Timing constants ───────────────────────────────────────────────────────
 
@@ -98,6 +99,8 @@ function _expandEnemies() {
     if (tiles[ny][nx].owner === 'barbarian') clearBarbarianCamp(tiles[ny][nx]);
     // T104: clear any resource node on the tile being claimed
     clearResourceNode(nx, ny);
+    // T145: clear cultural influence when enemy expands into neutral tile
+    clearInfluence(nx, ny);
     tiles[ny][nx].owner   = 'enemy';
     tiles[ny][nx].faction = tiles[y][x].faction ?? null;  // T053: inherit parent faction
     emit(Events.MAP_CHANGED, {});

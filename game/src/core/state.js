@@ -358,6 +358,14 @@ export const state = {
   // T144: Emergency Council — one-time crisis power (used once per game)
   // { used: boolean }
   emergencyCouncil: null,
+
+  // T145: Cultural influence expansion — passive neutral tile absorption
+  // { tiles: {'x,y': count}, totalConverted: 0 }
+  influence: null,
+
+  // T146: Map discoveries — hidden encounters spawned on fog reveal
+  // { claimed: {'x,y': true} } — tile.discovery stores the type on the tile itself
+  discoveries: null,
 };
 
 /**
@@ -445,5 +453,7 @@ export function initState(empireName = 'My Empire') {
   state.allianceMissions    = null; // T142: reset alliance missions per game
   state.ageChallenges       = null; // T143: reset age challenges per game
   state.emergencyCouncil    = { used: false }; // T144: reset per game
+  state.influence           = null; // T145: reset influence on new game
+  state.discoveries         = null; // T146: reset discoveries on new game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

@@ -106,15 +106,23 @@ export function initMap() {
 
 /**
  * Reveal the 8 tiles surrounding (x, y) — call after capturing a tile.
+ * Returns an array of {x,y} for tiles that were newly revealed (were hidden before).
  */
 export function revealAround(x, y) {
-  if (!state.map) return;
+  if (!state.map) return [];
   const { tiles } = state.map;
+  const newlyRevealed = [];
   for (const [dx, dy] of [[-1,-1],[0,-1],[1,-1],[-1,0],[1,0],[-1,1],[0,1],[1,1]]) {
     const nx = x + dx;
     const ny = y + dy;
-    if (_inBounds(nx, ny, tiles)) tiles[ny][nx].revealed = true;
+    if (_inBounds(nx, ny, tiles)) {
+      if (!tiles[ny][nx].revealed) {
+        tiles[ny][nx].revealed = true;
+        newlyRevealed.push({ x: nx, y: ny });
+      }
+    }
   }
+  return newlyRevealed;
 }
 
 // ── Territory rate bonuses ─────────────────────────────────────────────────

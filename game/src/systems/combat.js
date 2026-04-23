@@ -30,6 +30,7 @@ import { rollRuinOutcome } from '../data/ruins.js';
 import { claimBounty } from './bounty.js';
 import { getGeneralBonus, consumeGeneralCharge } from './greatPersons.js'; // T136
 import { trackMissionBattleWin } from './allianceMissions.js'; // T142
+import { spawnDiscoveries } from './discoveries.js'; // T146
 
 /** Returns true if both techs of a named synergy are researched. */
 function _synergy(id) {
@@ -562,7 +563,8 @@ function _victory(tile, x, y, attackPower, defense) {
   if (wasBarbarian && tile.barbDefenseBase !== undefined) {
     delete tile.barbDefenseBase;
   }
-  revealAround(x, y);
+  const _newlyRevealed = revealAround(x, y);
+  spawnDiscoveries(_newlyRevealed); // T146: chance to spawn a discovery on each newly-lit tile
 
   // T070: War Profiteer skill — +30% loot multiplier
   const lootMult = (state.hero?.recruited && state.hero.skills?.length)

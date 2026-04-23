@@ -2341,3 +2341,40 @@ All 142 prior tasks found complete. Created T143 and T144 from Phase 5+ roadmap 
 - Emergency button only shows when conditions are met (crisis/siege/starvation active) AND not yet used — hides permanently after use. This avoids cluttering the title bar during normal gameplay.
 - supply option deducts 50 prestige directly from state.prestige.score (no new prestige function needed) and emits PRESTIGE_CHANGED to keep the badge updated.
 - Medieval challenge tracks combat wins via combatHistory delta (same as challenges.js pattern).
+
+---
+
+## 2026-04-23 — Session N+39
+
+**Tasks completed: T145, T146**
+
+**T145 — Cultural Influence Expansion:**
+
+**Files created:**
+- `game/src/systems/influence.js`: Full influence system. initInfluence() (idempotent, creates state.influence={tiles:{},totalConverted:0}). influenceTick() runs every 4 ticks (~1s): iterates all player tiles, adds +1 to each eligible revealed neutral neighbor, absorbs tiles that reach 100 (sets owner='player', calls revealAround, recalcRates, emits INFLUENCE_CHANGED + MAP_CHANGED). getInfluence(x,y) returns current count. clearInfluence(x,y) deletes the key.
+
+**Files modified:**
+- `game/src/core/events.js`: Added INFLUENCE_CHANGED and DISCOVERY_FOUND event constants.
+- `game/src/core/state.js`: Added influence:null and discoveries:null fields; initState() resets both to null.
+- `game/src/systems/enemyAI.js`: Added clearInfluence import; calls clearInfluence(nx,ny) before claiming a neutral tile in _expandEnemies().
+- `game/src/systems/map.js`: revealAround() now returns array of newly-revealed {x,y} tiles (needed by T146 spawnDiscoveries).
+- `game/src/ui/mapPanel.js`: _drawTile() renders purple glow (alpha 0.15–0.40, rgba(180,120,255)) + 1.5px border on neutral tiles with ≥50 influence. _showTileTip() adds influenceHtml row showing count/100. on(INFLUENCE_CHANGED) calls _render; on(DISCOVERY_FOUND) calls _render. Imports claimDiscovery/getDiscoveryDef/spawnDiscoveries from discoveries.js.
+- `game/src/main.js`: Imports initInfluence/influenceTick; registerSystem(influenceTick); initInfluence() in boot+_newGame; state.influence saved/loaded.
+
+**T146 — Map Discoveries:**
+
+**Files created:**
+- `game/src/systems/discoveries.js`: Full discoveries system. 5 discovery types: ancient_cache (+80–160 gold), lost_supplies (+60–100 food, +40–70 wood), runic_tablet (+30–50 mana + research boost), buried_hoard (+50–100 stone, +30–60 iron), wandering_sage (+15 morale). initDiscoveries() (idempotent). spawnDiscoveries(newlyRevealedTiles) — 15% chance per tile (+10% on mountain/ruin). claimDiscovery(x,y) — applies reward, clears tile.discovery, marks state.discoveries.claimed. getDiscoveryDef(type) — returns label/icon/description for UI modal.
+
+**Files modified:**
+- `game/src/systems/combat.js`: Added spawnDiscoveries import; _victory() captures return value of revealAround(x,y) and passes it to spawnDiscoveries().
+- `game/src/ui/mapPanel.js`: _discoveryEl modal variable; _createDiscoveryModal()/_showDiscoveryModal()/_hideDiscoveryModal() — overlay modal with icon/label/description/coords and Investigate/Ignore buttons. _onClick() checks tile.discovery first and shows modal. INFLUENCE_CHANGED listener also calls spawnDiscoveries on neighboring revealed tiles. _showTileTip() adds discoveryHtml row. Discovery ✨ icon + green tint rendered in _drawTile().
+- `game/styles/main.css`: .discovery-modal/--hidden/\_\_box/\_\_icon/\_\_label/\_\_desc/\_\_coords/\_\_btns — full overlay modal with teal border and glow.
+- `game/src/main.js`: Imports initDiscoveries; initDiscoveries() in boot+_newGame; state.discoveries saved/loaded.
+
+**Architecture decisions:**
+- Cultural influence uses a module-level _tickCount (resets on initInfluence) so rapid save/load cycles don't cause an immediate spread burst.
+- Discoveries are stored on tile.discovery (string type id) and in state.discoveries.claimed (prevents re-spawn after claim). This avoids a separate index structure.
+- spawnDiscoveries is called from combat._victory (via the new revealAround return value) and from mapPanel's INFLUENCE_CHANGED listener for influence-absorbed tiles — no polling needed.
+- Discovery modal has z-index 660 (above combat preview at ~600) so it renders on top when both could theoretically be open.
+- Mountain and ruin tiles get +10% discovery bonus chance for flavor (these terrain types suggest ancient activity).

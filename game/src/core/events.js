@@ -108,4 +108,6 @@ export const Events = Object.freeze({
   QUEUE_CHANGED:            'queueChanged',              // T137: building auto-queue updated
   ALLIANCE_MISSION:         'allianceMission',           // T142: alliance mission assigned / completed / expired
   AGE_CHALLENGE_CHANGED:    'ageChallengeChanged',       // T143: age challenge started / won / lost
+  INFLUENCE_CHANGED:        'influenceChanged',           // T145: cultural influence tile absorbed
+  DISCOVERY_FOUND:          'discoveryFound',             // T146: hidden map discovery revealed
 });

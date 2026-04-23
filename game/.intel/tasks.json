@@ -1288,5 +1288,23 @@
     "status": "done",
     "description": "A one-time emergency power that appears as a glowing red button in the title bar when a crisis/siege/starvation is active. Clicking opens a modal overlay with 3 emergency options: Emergency Levy (+400 gold, \u221210 morale), Supply Redistribution (+300 food +150 wood +150 stone, \u221250 prestige), Rally the Troops (+20 morale +100 prestige, \u221210 happiness). Only usable once per game. State: state.emergencyCouncil = { used: bool }.",
     "notes": "core/state.js: Added emergencyCouncil:{used:false} to static object; initState() resets to {used:false}. main.js: imports changeMorale from morale.js; _updateEmergencyBtn() shows/hides #btn-emergency based on crisis/siege/starvation conditions and emergencyCouncil.used; _applyEmergencyOption(option) applies effects (levy/supply/rally) and sets emergencyCouncil.used=true; _bindControls() wires btn-emergency click to show modal, btn-emergency-cancel to hide, emergency-modal click delegate to _applyEmergencyOption; T144 wired to CRISIS_SPAWNED/CRISIS_RESOLVED/BARBARIAN_SIEGE/RESOURCE_CHANGED events in boot(); save version bumped to 41; emergencyCouncil saved/loaded. index.html: btn-emergency button in title-bar controls; emergency-modal div with backdrop+box+3 option buttons+cancel. styles/main.css: .btn--emergency (red gradient+pulse), .emergency-modal/--hidden/backdrop/box/title/desc/options, .emergency-option/icon/name/effect/cost, .emergency-modal__cancel."
+  },
+  {
+    "id": "T145",
+    "title": "cultural influence expansion — passive peaceful territory absorption",
+    "priority": 145,
+    "status": "done",
+    "phase": 56,
+    "description": "Player-owned tiles passively spread cultural influence (+1/s per adjacent player tile) to revealed neutral tiles. When a tile reaches 100 influence it is peacefully absorbed as player territory (no combat required, no loot). Multiple adjacent player tiles each contribute +1/s. Enemy or barbarian capture clears influence. Map canvas: tiles with ≥50 influence show a soft purple shimmer border. Tile tooltip shows influence bar for neutral tiles. Absorbed tiles emit MAP_CHANGED {type:'influence'}. INFLUENCE_CHANGED event. state.influence saved/loaded. No save version bump (backwards-compatible null default).",
+    "notes": "Implemented influence.js system (initInfluence, influenceTick, getInfluence, clearInfluence). Added INFLUENCE_CHANGED event. Hooked clearInfluence into enemyAI._expandEnemies. Added purple glow + tooltip in mapPanel. Wired save/load and _newGame in main.js."
+  },
+  {
+    "id": "T146",
+    "title": "map discoveries — hidden interactive encounters on fog reveal",
+    "priority": 146,
+    "status": "done",
+    "phase": 56,
+    "description": "When new tiles are revealed (any fog-clearing event), each revealed tile has a 15% chance to spawn a hidden discovery. Five discovery types: ancient_cache, lost_supplies, runic_tablet, buried_hoard, wandering_sage. Discovery tiles show a ✨ sparkle icon on the map canvas. Clicking opens a discovery modal. Claiming removes the discovery from the tile. DISCOVERY_FOUND event. state.discoveries saved/loaded.",
+    "notes": "Implemented discoveries.js (initDiscoveries, spawnDiscoveries, claimDiscovery, getDiscoveryDef). Added DISCOVERY_FOUND event. Hooked spawnDiscoveries into combat._victory via revealAround return value. Added discovery modal + CSS in mapPanel + main.css. Wired save/load and _newGame in main.js."
   }
 ]

@@ -8767,3 +8767,60 @@ kbd {
   color: var(--text);
 }
 
+/* ── T146: Discovery claim modal ─────────────────────────────────────────── */
+.discovery-modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 660;
+  background: rgba(0,0,0,0.58);
+  backdrop-filter: blur(3px);
+}
+.discovery-modal--hidden { display: none; }
+
+.discovery-modal__box {
+  background: var(--bg-card);
+  border: 1px solid #00dc96;
+  border-radius: 10px;
+  padding: 1.6rem 2rem;
+  max-width: 340px;
+  width: 90%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  box-shadow: 0 0 28px rgba(0,220,150,0.18);
+}
+
+.discovery-modal__icon {
+  font-size: 2.4rem;
+  line-height: 1;
+}
+
+.discovery-modal__label {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #00dc96;
+}
+
+.discovery-modal__desc {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  line-height: 1.4;
+}
+
+.discovery-modal__coords {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  opacity: 0.7;
+}
+
+.discovery-modal__btns {
+  display: flex;
+  gap: 0.6rem;
+  justify-content: center;
+  margin-top: 0.4rem;
+}
+

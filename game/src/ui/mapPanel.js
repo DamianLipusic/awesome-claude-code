@@ -24,6 +24,7 @@ import { acceptCaravanOffer, getCaravanSecsLeft } from '../systems/caravans.js';
 import { LANDMARKS } from '../data/landmarks.js';
 import { collectResourceNode, getNodeAt, nodeSecsLeft, activeNodeCount } from '../systems/resourceNodes.js';
 import { getActiveBounty } from '../systems/bounty.js';
+import { claimDiscovery, getDiscoveryDef, spawnDiscoveries } from '../systems/discoveries.js'; // T146
 
 const TILE_PX   = 24;     // pixels per tile side
 const GRID_SIZE = 20;     // tiles per axis
@@ -132,6 +133,7 @@ let _caravanPickerEl = null;  // T063: caravan trade picker modal element
 let _caravanTickRef  = 0;     // T063: setInterval id for live countdown
 let _oddsMode       = false;  // T138: combat odds overlay toggle
 let _oddsCache      = {};     // T138: { "x,y": winChance } for all attackable tiles
+let _discoveryEl    = null;   // T146: discovery claim modal element
 
 // ── Public API ─────────────────────────────────────────────────────────────
 
@@ -177,6 +179,20 @@ export function initMapPanel() {
       _render();
     }
   });
+  // T146: spawn discoveries on newly revealed tiles (influence absorption)
+  on(Events.INFLUENCE_CHANGED, (data) => {
+    if (data?.x != null && data?.y != null && state.map) {
+      const revealed = [];
+      const { tiles, width, height } = state.map;
+      for (const [dx, dy] of [[-1,-1],[0,-1],[1,-1],[-1,0],[1,0],[-1,1],[0,1],[1,1]]) {
+        const nx = data.x + dx; const ny = data.y + dy;
+        if (nx >= 0 && ny >= 0 && nx < width && ny < height && tiles[ny][nx].revealed) {
+          revealed.push({ x: nx, y: ny });
+        }
+      }
+      spawnDiscoveries(revealed);
+    }
+  });
   on(Events.UNIT_CHANGED,    _render);
   on(Events.GARRISON_CHANGED, _render);
   on(Events.GAME_LOADED,     _render);
@@ -201,6 +217,12 @@ export function initMapPanel() {
 
   // T135: re-render when bounty is posted / claimed / expired
   on(Events.BOUNTY_CHANGED, _render);
+
+  // T145: re-render when influence triggers a tile absorption
+  on(Events.INFLUENCE_CHANGED, _render);
+
+  // T146: re-render when a discovery is revealed or claimed
+  on(Events.DISCOVERY_FOUND, _render);
 
   _render();
 }
@@ -411,12 +433,29 @@ function _showTileTip(tile, x, y, mouseX, mouseY) {
            <div class="map-tt-row" style="font-size:0.7rem;color:var(--text-dim)">Fortify for +40 def &amp; −35% enemy success</div>`)
     : '';
 
+  // T145: cultural influence bar for neutral tiles
+  const influenceCount = (tile.owner === null && tile.revealed)
+    ? (state.influence?.tiles?.[`${x},${y}`] ?? 0)
+    : 0;
+  const influenceHtml = influenceCount > 0
+    ? `<div class="map-tt-row" style="color:#b078ff;font-weight:600">🌟 Cultural Influence: ${influenceCount}/100</div>
+       <div class="map-tt-row" style="font-size:0.7rem;color:var(--text-dim)">Spreading from adjacent territory</div>`
+    : '';
+
+  // T146: discovery hint for tiles with pending discoveries
+  const discoveryHtml = tile.discovery && tile.revealed
+    ? `<div class="map-tt-row" style="color:#00dc96;font-weight:600">✨ Discovery: ${tile.discovery.replace(/_/g,' ')}</div>
+       <div class="map-tt-row" style="font-size:0.7rem;color:var(--text-dim)">Click this tile to investigate!</div>`
+    : '';
+
   _tileTipEl.innerHTML = `
     <div class="map-tt-title">${TERRAIN_NAME[tile.type] ?? tile.type}</div>
     <div class="map-tt-row">${ownerHtml}</div>
     ${capitalHtml}
     ${bountyHtml}
     ${chokepointHtml}
+    ${influenceHtml}
+    ${discoveryHtml}
     ${lmHtml}
     ${ruinHtml}
     ${cityHtml}
@@ -699,6 +738,30 @@ function _drawTile(tile, x, y, capital) {
     ctx.fillText('⭐', px + TILE_PX / 2, py + TILE_PX / 2 + 1);
   }
 
+  // T145: cultural influence glow on neutral tiles with ≥50 influence
+  if (tile.owner === null && tile.revealed) {
+    const _inf = state.influence?.tiles?.[`${x},${y}`] ?? 0;
+    if (_inf >= 50) {
+      const alpha = 0.15 + (_inf / 100) * 0.25;
+      ctx.fillStyle = `rgba(180,120,255,${alpha.toFixed(2)})`;
+      ctx.fillRect(px, py, TILE_PX, TILE_PX);
+      ctx.strokeStyle = '#b078ff';
+      ctx.lineWidth   = 1.5;
+      ctx.strokeRect(px + 1, py + 1, TILE_PX - 2, TILE_PX - 2);
+      ctx.lineWidth   = 1;
+    }
+  }
+
+  // T146: discovery icon on tiles with pending discoveries
+  if (tile.discovery && tile.revealed) {
+    ctx.fillStyle = 'rgba(0,220,150,0.22)';
+    ctx.fillRect(px, py, TILE_PX, TILE_PX);
+    ctx.font         = `${TILE_PX - 10}px sans-serif`;
+    ctx.textAlign    = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('✨', px + TILE_PX / 2, py + TILE_PX / 2 + 1);
+  }
+
   // T138: combat odds overlay — tint + win% label on attackable tiles when odds mode active
   const _winChance = _oddsCache[`${x},${y}`];
   if (_winChance !== undefined) {
@@ -816,6 +879,13 @@ function _onMouseleave() {
 function _onClick(e) {
   const { x, y } = _tileAt(e);
   if (x < 0 || x >= GRID_SIZE || y < 0 || y >= GRID_SIZE) return;
+
+  // T146: check for hidden discovery on this tile
+  const clickedTile = state.map?.tiles[y]?.[x];
+  if (clickedTile?.discovery && clickedTile.revealed) {
+    _showDiscoveryModal(x, y, clickedTile.discovery);
+    return;
+  }
 
   // T104: check for resource node before other actions
   const clickedNode = getNodeAt(x, y);
@@ -1413,4 +1483,61 @@ function _showCaravanPicker() {
 function _hideCaravanPicker() {
   clearInterval(_caravanTickRef);
   _caravanPickerEl?.classList.add('caravan-picker--hidden');
+}
+
+// ── T146: Discovery claim modal ────────────────────────────────────────────
+
+function _createDiscoveryModal() {
+  const existing = document.getElementById('discovery-modal');
+  if (existing) { _discoveryEl = existing; return; }
+
+  _discoveryEl = document.createElement('div');
+  _discoveryEl.id        = 'discovery-modal';
+  _discoveryEl.className = 'discovery-modal discovery-modal--hidden';
+  _discoveryEl.innerHTML = `
+    <div class="discovery-modal__box">
+      <div class="discovery-modal__icon" id="disc-icon"></div>
+      <div class="discovery-modal__label" id="disc-label"></div>
+      <div class="discovery-modal__desc"  id="disc-desc"></div>
+      <div class="discovery-modal__coords" id="disc-coords"></div>
+      <div class="discovery-modal__btns">
+        <button class="btn" id="disc-claim-btn">✨ Investigate</button>
+        <button class="btn btn--outline" id="disc-cancel-btn">Ignore</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(_discoveryEl);
+
+  _discoveryEl.addEventListener('click', (e) => {
+    if (e.target.id === 'disc-claim-btn') {
+      const { x, y } = _discoveryEl.dataset;
+      _hideDiscoveryModal();
+      claimDiscovery(Number(x), Number(y));
+    } else if (e.target.id === 'disc-cancel-btn' || e.target === _discoveryEl) {
+      _hideDiscoveryModal();
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (!_discoveryEl || _discoveryEl.classList.contains('discovery-modal--hidden')) return;
+    if (e.key === 'Escape') { e.stopPropagation(); _hideDiscoveryModal(); }
+  });
+}
+
+function _showDiscoveryModal(x, y, type) {
+  _createDiscoveryModal();
+  const def = getDiscoveryDef(type);
+  if (!def) return;
+
+  _discoveryEl.dataset.x = x;
+  _discoveryEl.dataset.y = y;
+  document.getElementById('disc-icon').textContent   = def.icon;
+  document.getElementById('disc-label').textContent  = def.label;
+  document.getElementById('disc-desc').textContent   = def.description;
+  document.getElementById('disc-coords').textContent = `Location: (${x}, ${y})`;
+  _discoveryEl.classList.remove('discovery-modal--hidden');
+}
+
+function _hideDiscoveryModal() {
+  _discoveryEl?.classList.add('discovery-modal--hidden');
 }
