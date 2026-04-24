@@ -38,6 +38,9 @@ const STARVE     = -0.025;   // food === 0
 // Milestone thresholds (ascending)
 const MILESTONES = [100, 250, 500, 1000, 2000, 5000];
 
+// T148: Sub-set of milestones that fire a player-choice event instead of just a toast
+const CHOICE_MILESTONES = new Set([500, 1000, 2000]);
+
 // T140: Happiness thresholds
 export const HAPPY_HIGH = 75;  // ≥ this → +10% production
 export const HAPPY_LOW  = 25;  // ≤ this → -10% production
@@ -100,7 +103,14 @@ export function populationTick() {
   if (delta > 0) {
     for (const m of MILESTONES) {
       if (prev < m && pop.count >= m) {
-        addMessage(`🏘️ Population milestone: ${m.toLocaleString()} citizens!`, 'info');
+        if (CHOICE_MILESTONES.has(m) && !state.populationMilestones?.[m]) {
+          // T148: emit choice event; main.js shows the choice modal
+          if (!state.populationMilestones) state.populationMilestones = {};
+          state.populationMilestones[m] = true;
+          emit(Events.POPULATION_MILESTONE, { threshold: m });
+        } else {
+          addMessage(`🏘️ Population milestone: ${m.toLocaleString()} citizens!`, 'info');
+        }
         emit(Events.POPULATION_CHANGED, { count: pop.count, cap: pop.cap });
         break;  // one milestone per tick is enough
       }

@@ -110,4 +110,6 @@ export const Events = Object.freeze({
   AGE_CHALLENGE_CHANGED:    'ageChallengeChanged',       // T143: age challenge started / won / lost
   INFLUENCE_CHANGED:        'influenceChanged',           // T145: cultural influence tile absorbed
   DISCOVERY_FOUND:          'discoveryFound',             // T146: hidden map discovery revealed
+  RELIC_COMBO_UNLOCKED:     'relicComboUnlocked',         // T147: relic combination synergy unlocked
+  POPULATION_MILESTONE:     'populationMilestone',        // T148: population choice milestone reached
 });

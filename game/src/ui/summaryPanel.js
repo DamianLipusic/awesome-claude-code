@@ -25,7 +25,7 @@ import { EMPIRES } from '../data/empires.js';
 import { QUESTS } from '../systems/quests.js';
 import { TECHS } from '../data/techs.js';
 import { ARCHETYPES } from '../data/archetypes.js';
-import { RELIC_ORDER } from '../data/relics.js';
+import { RELIC_ORDER, RELIC_COMBOS } from '../data/relics.js';
 import { LANDMARK_ORDER } from '../data/landmarks.js';
 import { RUIN_COUNT } from '../data/ruins.js';
 import { currentSeason, seasonTicksRemaining } from '../systems/seasons.js';
@@ -407,6 +407,16 @@ function _progressionCard() {
       <span class="sum-stat-label">🏺 Relics</span>
       <span class="sum-stat-value">${Object.keys(state.relics?.discovered ?? {}).length} / ${RELIC_ORDER.length}</span>
     </div>
+    ${(() => {
+      const disc = state.relics?.discovered ?? {};
+      const active = RELIC_COMBOS.filter(c => c.relics.every(id => !!disc[id]));
+      if (!active.length) return '';
+      return active.map(c => `
+        <div class="sum-stat-row sum-relic-combo" style="margin-top:3px;padding-left:12px">
+          <span class="sum-stat-label" style="color:var(--accent-h)">${c.icon} ${c.name}</span>
+          <span class="sum-stat-value" style="color:var(--accent-h);font-size:0.78em">Active</span>
+        </div>`).join('');
+    })()}
 
     <div class="sum-stat-row" style="margin-top:4px">
       <span class="sum-stat-label">🗺️ Landmarks</span>

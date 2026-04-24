@@ -366,6 +366,10 @@ export const state = {
   // T146: Map discoveries — hidden encounters spawned on fog reveal
   // { claimed: {'x,y': true} } — tile.discovery stores the type on the tile itself
   discoveries: null,
+
+  // T148: Population growth choice milestones — tracks which choice events have been offered
+  // { [threshold]: true }  e.g. { 500: true, 1000: true }
+  populationMilestones: {},
 };
 
 /**
@@ -455,5 +459,6 @@ export function initState(empireName = 'My Empire') {
   state.emergencyCouncil    = { used: false }; // T144: reset per game
   state.influence           = null; // T145: reset influence on new game
   state.discoveries         = null; // T146: reset discoveries on new game
+  state.populationMilestones = {};  // T148: reset pop choice milestones per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

@@ -331,6 +331,9 @@ function boot() {
   let _scholarBadgeTick = 0;
   on(Events.TICK, () => { if (++_scholarBadgeTick % 4 === 0) _updateScholarBanner(); });
 
+  // T148: Population growth choice events — show modal when milestone event fires
+  on(Events.POPULATION_MILESTONE, (d) => _showPopMilestoneModal(d?.threshold ?? 0));
+
   // Update age badge on changes; also show council boon modal on advancement
   _updateAgeBadge();
   on(Events.AGE_CHANGED, (data) => {
@@ -480,6 +483,7 @@ function _save() {
         emergencyCouncil:    state.emergencyCouncil    ?? null,  // T144
         influence:           state.influence           ?? null,  // T145
         discoveries:         state.discoveries         ?? null,  // T146
+        populationMilestones: state.populationMilestones ?? {},   // T148
         tick:          state.tick,
       }
     }));
@@ -600,6 +604,7 @@ function _applySave(save) {
   state.emergencyCouncil     = s.emergencyCouncil     ?? { used: false }; // T144
   state.influence            = s.influence            ?? null; // T145
   state.discoveries          = s.discoveries          ?? null; // T146
+  state.populationMilestones = s.populationMilestones ?? {};   // T148
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
@@ -822,6 +827,61 @@ function _applyEmergencyOption(option) {
   emit(Events.RESOURCE_CHANGED, {});
   document.getElementById('emergency-modal')?.classList.add('emergency-modal--hidden');
   _updateEmergencyBtn();
+}
+
+// ── Population Growth Choice (T148) ──────────────────────────────────────
+
+function _showPopMilestoneModal(threshold) {
+  const modal = document.getElementById('pop-milestone-modal');
+  const desc  = document.getElementById('pop-milestone-desc');
+  if (!modal) return;
+  if (desc) {
+    desc.textContent = `Your empire has reached ${threshold.toLocaleString()} citizens! Choose a benefit to celebrate this milestone.`;
+  }
+  modal.classList.remove('pop-milestone-modal--hidden');
+  addMessage(`🏘️ Population milestone: ${threshold.toLocaleString()} citizens! Choose your reward.`, 'quest');
+}
+
+function _applyPopMilestoneOption(option) {
+  const modal = document.getElementById('pop-milestone-modal');
+  modal?.classList.add('pop-milestone-modal--hidden');
+
+  if (option === 'boom') {
+    if (state.population) {
+      state.population.count = Math.min(
+        state.population.cap ?? 200,
+        (state.population.count ?? 0) + 100,
+      );
+      recalcRates();
+    }
+    addMessage('👶 Baby Boom! +100 citizens have joined your empire.', 'windfall');
+  } else if (option === 'artisans') {
+    // 5-minute +20% all-resource rate modifier via randomEvents modifier system
+    const expiresAt = state.tick + 5 * 60 * 4; // 5 min × 60 s × 4 ticks/s
+    if (!state.randomEvents) state.randomEvents = { nextEventTick: 0, activeModifiers: [] };
+    if (!state.randomEvents.activeModifiers) state.randomEvents.activeModifiers = [];
+    // Apply once per resource key as a 1.20× multiplier modifier
+    const RESOURCE_KEYS = ['gold', 'food', 'wood', 'stone', 'iron', 'mana'];
+    for (const res of RESOURCE_KEYS) {
+      state.randomEvents.activeModifiers.push({
+        id: `artisans_${res}`,
+        resource: res,
+        rateMult: 1.20,
+        expiresAt,
+      });
+    }
+    recalcRates();
+    addMessage('🛠️ Skilled Artisans! All resource production +20% for 5 minutes.', 'windfall');
+  } else if (option === 'volunteers') {
+    if (!state.units) state.units = {};
+    state.units.soldier = (state.units.soldier ?? 0) + 5;
+    state.units.archer  = (state.units.archer  ?? 0) + 5;
+    recalcRates();
+    emit(Events.UNIT_CHANGED, {});
+    addMessage('⚔️ Military Volunteers! +5 soldiers and +5 archers have joined your cause.', 'windfall');
+  }
+
+  emit(Events.RESOURCE_CHANGED, {});
 }
 
 // ── Prestige badge (T080) ─────────────────────────────────────────────────
@@ -1194,6 +1254,7 @@ function _newGame(opts = {}) {
   initAgeChallenges();   // T143
   initInfluence();       // T145: reset influence state on new game
   initDiscoveries();     // T146: reset discoveries state on new game
+  document.getElementById('pop-milestone-modal')?.classList.add('pop-milestone-modal--hidden'); // T148
   recalcRates();
   startLoop();  // restart loop in case it was stopped by game-over
   _syncPauseUI();  // ensure pause overlay is hidden on new game
@@ -1284,6 +1345,12 @@ function _bindControls() {
   document.getElementById('emergency-modal')?.addEventListener('click', (e) => {
     const btn = e.target.closest('[data-ec-option]');
     if (btn) _applyEmergencyOption(btn.dataset.ecOption);
+  });
+
+  // T148: Population growth choice modal
+  document.getElementById('pop-milestone-modal')?.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-pm-option]');
+    if (btn) _applyPopMilestoneOption(btn.dataset.pmOption);
   });
 
   _bindKeyboard();

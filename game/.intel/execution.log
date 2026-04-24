@@ -2378,3 +2378,36 @@ All 142 prior tasks found complete. Created T143 and T144 from Phase 5+ roadmap 
 - spawnDiscoveries is called from combat._victory (via the new revealAround return value) and from mapPanel's INFLUENCE_CHANGED listener for influence-absorbed tiles — no polling needed.
 - Discovery modal has z-index 660 (above combat preview at ~600) so it renders on top when both could theoretically be open.
 - Mountain and ruin tiles get +10% discovery bonus chance for flavor (these terrain types suggest ancient activity).
+
+---
+
+## 2026-04-24 — Session N+40
+
+**Tasks completed: T147, T148**
+
+**T147 — Relic Combination Bonuses:**
+
+**Files created:** none
+
+**Files modified:**
+- `game/src/data/relics.js`: Added `RELIC_COMBOS` array (exported). Four combos: `natures_harmony` (terra_idol+lumber_talisman → +0.8 food/s +wood/s), `stonemasons_craft` (mason_rune+iron_crown → +0.8 stone/s+iron/s), `arcane_navigator` (river_compass+arcane_shard → +1 gold/s+mana/s), `ancient_trove` (all 6 → +0.5/s all resources, +200 prestige one-time).
+- `game/src/systems/resources.js`: Imported `RELIC_COMBOS`; added T147 block after individual relic bonuses (line ~330): iterates RELIC_COMBOS, checks `combo.relics.every(id => !!disc[id])`, applies `combo.bonus.rates` and `combo.bonus.caps` additively.
+- `game/src/systems/combat.js`: Imported `RELIC_COMBOS` and `awardPrestige`; added `_checkRelicCombos()` function called at end of `_grantRelic()`. Detects newly-completed combos, sets `state.relics.combosUnlocked[comboId]`, toasts the message, calls `awardPrestige(combo.prestige, ...)` for combos with a prestige field, emits `RELIC_COMBO_UNLOCKED`.
+- `game/src/core/events.js`: Added `RELIC_COMBO_UNLOCKED: 'relicComboUnlocked'` and `POPULATION_MILESTONE: 'populationMilestone'`.
+- `game/src/ui/summaryPanel.js`: Imported `RELIC_COMBOS`; added inline IIFE after relic count row that maps active combos to `.sum-relic-combo` rows in accent-h colour.
+
+**T148 — Population Growth Choice Events:**
+
+**Files modified:**
+- `game/src/systems/population.js`: Added `CHOICE_MILESTONES = new Set([500, 1000, 2000])`. In `populationTick` milestone check: if threshold is in CHOICE_MILESTONES and not yet offered, marks `state.populationMilestones[m] = true` and emits `POPULATION_MILESTONE { threshold: m }` instead of the plain toast.
+- `game/src/core/state.js`: Added `populationMilestones: {}` field and reset in `initState()`.
+- `game/index.html`: Added `#pop-milestone-modal` div after emergency modal — full overlay with backdrop, box, title, desc (dynamic), 3 option buttons (`data-pm-option="boom|artisans|volunteers"`).
+- `game/styles/main.css`: Added `.pop-milestone-modal` block (green border, z-index 1010) and `.pop-milestone-option` card grid — mirrors emergency modal design.
+- `game/src/main.js`: Added `on(Events.POPULATION_MILESTONE, ...)` listener; `_showPopMilestoneModal(threshold)` updates desc text and removes hidden class; `_applyPopMilestoneOption(option)` handles three choices: boom (+100 citizens, caps at pop.cap), artisans (pushes 6 randomEvents activeModifiers @ rateMult:1.20 for 5 min via existing modifier system), volunteers (+5 soldier +5 archer). Click handler on `#pop-milestone-modal` dispatched in `_bindControls`. Modal hidden on `_newGame`. Save/load for `populationMilestones` wired.
+
+**Architecture decisions:**
+- Relic combo bonuses applied in recalcRates (same pattern as individual relic bonuses) — no separate tick needed. One-time prestige award triggered at relic-grant time in combat.js, not in recalcRates (prestige is event-based, not rate-based).
+- `state.relics.combosUnlocked` is part of `state.relics` object which is serialized whole — no extra save/load entry needed.
+- Population milestone choice replaces the toast for 500/1000/2000; all other milestones (100, 250, 5000) keep the original toast path.
+- Artisans buff uses existing randomEvents activeModifiers system (rateMult:1.20 per resource) — auto-expired by randomEventTick's filter pass. No new state field needed.
+- Pop milestone modal has no cancel button — player must choose. This matches the age council boon design philosophy: milestones are always positive choices.

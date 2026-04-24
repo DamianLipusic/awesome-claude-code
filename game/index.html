@@ -61,6 +61,35 @@
     </div>
   </div>
 
+  <!-- T148: Population Growth Choice modal — shown at 500/1000/2000 citizens -->
+  <div id="pop-milestone-modal" class="pop-milestone-modal pop-milestone-modal--hidden" role="dialog" aria-modal="true">
+    <div class="pop-milestone-modal__backdrop"></div>
+    <div class="pop-milestone-modal__box">
+      <h2 class="pop-milestone-modal__title">🏘️ Population Milestone!</h2>
+      <p class="pop-milestone-modal__desc" id="pop-milestone-desc">Your empire's population has grown. Choose a benefit for your citizens.</p>
+      <div class="pop-milestone-modal__options">
+        <button class="btn pop-milestone-option" data-pm-option="boom">
+          <div class="pop-milestone-option__icon">👶</div>
+          <div class="pop-milestone-option__name">Baby Boom</div>
+          <div class="pop-milestone-option__effect">+100 citizens immediately</div>
+          <div class="pop-milestone-option__cost">Empire grows rapidly</div>
+        </button>
+        <button class="btn pop-milestone-option" data-pm-option="artisans">
+          <div class="pop-milestone-option__icon">🛠️</div>
+          <div class="pop-milestone-option__name">Skilled Artisans</div>
+          <div class="pop-milestone-option__effect">+20% all resource rates for 5 min</div>
+          <div class="pop-milestone-option__cost">Temporary production surge</div>
+        </button>
+        <button class="btn pop-milestone-option" data-pm-option="volunteers">
+          <div class="pop-milestone-option__icon">⚔️</div>
+          <div class="pop-milestone-option__name">Military Volunteers</div>
+          <div class="pop-milestone-option__effect">+5 soldiers, +5 archers</div>
+          <div class="pop-milestone-option__cost">Citizen militia joins the army</div>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Pause overlay (shown when game is paused) -->
   <div id="pause-overlay" class="pause-overlay pause-overlay--hidden" aria-hidden="true">
     <div class="pause-box">⏸ PAUSED<span class="pause-hint">Press Space or P to resume</span></div>

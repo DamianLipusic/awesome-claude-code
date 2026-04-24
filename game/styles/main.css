@@ -8767,6 +8767,103 @@ kbd {
   color: var(--text);
 }
 
+/* ── T148: Population Growth Choice modal ───────────────────────────────── */
+.pop-milestone-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1010;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pop-milestone-modal--hidden {
+  display: none;
+}
+
+.pop-milestone-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.70);
+}
+
+.pop-milestone-modal__box {
+  position: relative;
+  background: var(--bg-panel);
+  border: 2px solid rgba(63, 185, 80, 0.55);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  max-width: 580px;
+  width: 90%;
+  box-shadow: 0 0 32px rgba(63, 185, 80, 0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pop-milestone-modal__title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--green);
+  text-align: center;
+}
+
+.pop-milestone-modal__desc {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  text-align: center;
+  line-height: 1.5;
+}
+
+.pop-milestone-modal__options {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.pop-milestone-option {
+  flex: 1;
+  min-width: 150px;
+  max-width: 175px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 10px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.pop-milestone-option:hover {
+  background: var(--bg-card-h);
+  border-color: rgba(63, 185, 80, 0.55);
+}
+
+.pop-milestone-option__icon {
+  font-size: 1.8rem;
+}
+
+.pop-milestone-option__name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.pop-milestone-option__effect {
+  font-size: 0.75rem;
+  color: var(--green);
+}
+
+.pop-milestone-option__cost {
+  font-size: 0.73rem;
+  color: var(--text-dim);
+}
+
 /* ── T146: Discovery claim modal ─────────────────────────────────────────── */
 .discovery-modal {
   position: fixed;

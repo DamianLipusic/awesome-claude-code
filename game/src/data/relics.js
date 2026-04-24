@@ -76,3 +76,45 @@ export const ARCANE_SHARD_DROP_CHANCE = 0.04;   // 4% for the universal arcane s
 export const RELIC_ORDER = [
   'terra_idol', 'lumber_talisman', 'mason_rune', 'river_compass', 'iron_crown', 'arcane_shard',
 ];
+
+/**
+ * T147: Relic combination bonuses.
+ * When ALL listed relics in a combo are discovered, the combo's bonus is applied
+ * permanently in resources.js (on top of individual relic bonuses).
+ * combos with a prestige field award that prestige once on unlock (tracked in combat.js).
+ */
+export const RELIC_COMBOS = [
+  {
+    id:     'natures_harmony',
+    icon:   '🌱',
+    name:   "Nature's Harmony",
+    relics: ['terra_idol', 'lumber_talisman'],
+    desc:   'Terra Idol + Lumber Talisman — +0.8 food/s and +0.8 wood/s.',
+    bonus:  { rates: { food: 0.8, wood: 0.8 } },
+  },
+  {
+    id:     'stonemasons_craft',
+    icon:   '⚒️',
+    name:   "Stonemason's Craft",
+    relics: ['mason_rune', 'iron_crown'],
+    desc:   "Mason's Rune + Iron Crown — +0.8 stone/s and +0.8 iron/s.",
+    bonus:  { rates: { stone: 0.8, iron: 0.8 } },
+  },
+  {
+    id:     'arcane_navigator',
+    icon:   '🔮',
+    name:   'Arcane Navigator',
+    relics: ['river_compass', 'arcane_shard'],
+    desc:   'River Compass + Arcane Shard — +1 gold/s and +1 mana/s.',
+    bonus:  { rates: { gold: 1, mana: 1 } },
+  },
+  {
+    id:       'ancient_trove',
+    icon:     '🏛️',
+    name:     'Ancient Trove',
+    relics:   ['terra_idol', 'lumber_talisman', 'mason_rune', 'river_compass', 'iron_crown', 'arcane_shard'],
+    desc:     'All 6 relics — +0.5/s to all resources and +200 prestige (one-time).',
+    bonus:    { rates: { gold: 0.5, food: 0.5, wood: 0.5, stone: 0.5, iron: 0.5, mana: 0.5 } },
+    prestige: 200,
+  },
+];

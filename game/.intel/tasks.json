@@ -1291,20 +1291,36 @@
   },
   {
     "id": "T145",
-    "title": "cultural influence expansion — passive peaceful territory absorption",
+    "title": "cultural influence expansion \u2014 passive peaceful territory absorption",
     "priority": 145,
     "status": "done",
     "phase": 56,
-    "description": "Player-owned tiles passively spread cultural influence (+1/s per adjacent player tile) to revealed neutral tiles. When a tile reaches 100 influence it is peacefully absorbed as player territory (no combat required, no loot). Multiple adjacent player tiles each contribute +1/s. Enemy or barbarian capture clears influence. Map canvas: tiles with ≥50 influence show a soft purple shimmer border. Tile tooltip shows influence bar for neutral tiles. Absorbed tiles emit MAP_CHANGED {type:'influence'}. INFLUENCE_CHANGED event. state.influence saved/loaded. No save version bump (backwards-compatible null default).",
+    "description": "Player-owned tiles passively spread cultural influence (+1/s per adjacent player tile) to revealed neutral tiles. When a tile reaches 100 influence it is peacefully absorbed as player territory (no combat required, no loot). Multiple adjacent player tiles each contribute +1/s. Enemy or barbarian capture clears influence. Map canvas: tiles with \u226550 influence show a soft purple shimmer border. Tile tooltip shows influence bar for neutral tiles. Absorbed tiles emit MAP_CHANGED {type:'influence'}. INFLUENCE_CHANGED event. state.influence saved/loaded. No save version bump (backwards-compatible null default).",
     "notes": "Implemented influence.js system (initInfluence, influenceTick, getInfluence, clearInfluence). Added INFLUENCE_CHANGED event. Hooked clearInfluence into enemyAI._expandEnemies. Added purple glow + tooltip in mapPanel. Wired save/load and _newGame in main.js."
   },
   {
     "id": "T146",
-    "title": "map discoveries — hidden interactive encounters on fog reveal",
+    "title": "map discoveries \u2014 hidden interactive encounters on fog reveal",
     "priority": 146,
     "status": "done",
     "phase": 56,
-    "description": "When new tiles are revealed (any fog-clearing event), each revealed tile has a 15% chance to spawn a hidden discovery. Five discovery types: ancient_cache, lost_supplies, runic_tablet, buried_hoard, wandering_sage. Discovery tiles show a ✨ sparkle icon on the map canvas. Clicking opens a discovery modal. Claiming removes the discovery from the tile. DISCOVERY_FOUND event. state.discoveries saved/loaded.",
+    "description": "When new tiles are revealed (any fog-clearing event), each revealed tile has a 15% chance to spawn a hidden discovery. Five discovery types: ancient_cache, lost_supplies, runic_tablet, buried_hoard, wandering_sage. Discovery tiles show a \u2728 sparkle icon on the map canvas. Clicking opens a discovery modal. Claiming removes the discovery from the tile. DISCOVERY_FOUND event. state.discoveries saved/loaded.",
     "notes": "Implemented discoveries.js (initDiscoveries, spawnDiscoveries, claimDiscovery, getDiscoveryDef). Added DISCOVERY_FOUND event. Hooked spawnDiscoveries into combat._victory via revealAround return value. Added discovery modal + CSS in mapPanel + main.css. Wired save/load and _newGame in main.js."
+  },
+  {
+    "id": "T147",
+    "title": "relic combination bonuses \u2014 pair/full-set synergy rate bonuses",
+    "priority": "medium",
+    "status": "done",
+    "spec": "When specific pairs of relics are all discovered, grant additional passive rate bonuses (stacked on individual relic bonuses). Three pairs: (terra_idol+lumber_talisman \u2192 +0.8 food/s+wood/s), (mason_rune+iron_crown \u2192 +0.8 stone/s+iron/s), (river_compass+arcane_shard \u2192 +1 gold/s+mana/s). Full set (all 6) \u2192 +0.5 all resources + 200 prestige one-time. Track in state.relics.combosUnlocked. Emit RELIC_COMBO_UNLOCKED event. Show active combos in summaryPanel.",
+    "notes": "Implemented RELIC_COMBOS in relics.js (3 pair combos + full-set). recalcRates applies combos after individual relic bonuses. combat._grantRelic calls _checkRelicCombos which detects new combos, toasts them, awards one-time prestige for ancient_trove (all 6). summaryPanel shows active combo names under the relic count. RELIC_COMBO_UNLOCKED event added to events.js."
+  },
+  {
+    "id": "T148",
+    "title": "population growth choice events \u2014 milestone modal with 3 options at 500/1000/2000 citizens",
+    "priority": "medium",
+    "status": "done",
+    "spec": "At 500, 1000, and 2000 citizen milestones emit POPULATION_MILESTONE event. Show a modal with 3 choices: Baby Boom (+100 citizens), Skilled Artisans (+20% all rates for 5 min via randomEvent modifier), Military Volunteers (+3 free basic units). Track offered milestones in state.populationMilestones. Modal styled like ageChallenges pattern in main.js.",
+    "notes": "POPULATION_MILESTONE event added. CHOICE_MILESTONES = {500,1000,2000} in population.js emits event instead of plain toast, guarded by state.populationMilestones[m] flag. pop-milestone-modal HTML + CSS (green border). main.js: _showPopMilestoneModal, _applyPopMilestoneOption with 3 choices: boom (+100 pop), artisans (6 randomEvent modifiers @1.20x for 5 min), volunteers (+5 soldier+archer). Save/load wired. Modal hidden on _newGame."
   }
 ]

@@ -17,7 +17,7 @@ import { SEASONS, SEASON_BUILDING_BONUSES } from '../data/seasons.js';
 import { HERO_DEF, heroSkillBonus } from '../data/hero.js';
 import { TICKS_PER_SECOND } from '../core/tick.js';
 import { territoryRateBonus, getTerrainControl } from './map.js';
-import { RELICS } from '../data/relics.js';
+import { RELICS, RELIC_COMBOS } from '../data/relics.js';
 import { LANDMARKS } from '../data/landmarks.js';
 import { SPECIALIZATIONS } from '../data/buildingSpecials.js';
 import { POLICIES } from '../data/policies.js';
@@ -321,6 +321,24 @@ export function recalcRates() {
       }
       if (def.bonus.caps) {
         for (const [res, val] of Object.entries(def.bonus.caps)) {
+          if (caps[res] !== undefined) caps[res] += val;
+        }
+      }
+    }
+  }
+
+  // T147: Relic combination bonuses — applied after individual relic bonuses
+  if (state.relics?.discovered) {
+    const disc = state.relics.discovered;
+    for (const combo of RELIC_COMBOS) {
+      if (!combo.relics.every(id => !!disc[id])) continue;
+      if (combo.bonus.rates) {
+        for (const [res, val] of Object.entries(combo.bonus.rates)) {
+          if (rates[res] !== undefined) rates[res] += val;
+        }
+      }
+      if (combo.bonus.caps) {
+        for (const [res, val] of Object.entries(combo.bonus.caps)) {
           if (caps[res] !== undefined) caps[res] += val;
         }
       }

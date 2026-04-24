@@ -17,7 +17,7 @@ import { addMessage } from '../core/actions.js';
 import { revealAround } from './map.js';
 import { recalcRates } from './resources.js';
 import { getMoraleEffect, changeMorale, MORALE_COMBAT_WIN, MORALE_COMBAT_LOSS } from './morale.js';
-import { RELICS, TERRAIN_RELIC, RELIC_DROP_CHANCE, ARCANE_SHARD_DROP_CHANCE } from '../data/relics.js';
+import { RELICS, RELIC_COMBOS, TERRAIN_RELIC, RELIC_DROP_CHANCE, ARCANE_SHARD_DROP_CHANCE } from '../data/relics.js';
 import { LANDMARKS } from '../data/landmarks.js';
 import { BOONS } from '../data/ageBoons.js';
 import { SYNERGIES } from '../data/techs.js';
@@ -31,6 +31,7 @@ import { claimBounty } from './bounty.js';
 import { getGeneralBonus, consumeGeneralCharge } from './greatPersons.js'; // T136
 import { trackMissionBattleWin } from './allianceMissions.js'; // T142
 import { spawnDiscoveries } from './discoveries.js'; // T146
+import { awardPrestige } from './prestige.js';        // T147: relic combo prestige
 
 /** Returns true if both techs of a named synergy are researched. */
 function _synergy(id) {
@@ -891,6 +892,28 @@ function _grantRelic(relicId, x, y) {
   recalcRates();
   emit(Events.RELIC_DISCOVERED, { relicId });
   emit(Events.RESOURCE_CHANGED, {});
+
+  // T147: check if this relic completed any combo synergies
+  _checkRelicCombos();
+}
+
+// T147: Check if any relic combination synergy was newly completed; award prestige once.
+function _checkRelicCombos() {
+  if (!state.relics?.discovered) return;
+  if (!state.relics.combosUnlocked) state.relics.combosUnlocked = {};
+  const disc = state.relics.discovered;
+  for (const combo of RELIC_COMBOS) {
+    if (state.relics.combosUnlocked[combo.id]) continue;
+    if (!combo.relics.every(id => !!disc[id])) continue;
+    // Newly completed combo
+    state.relics.combosUnlocked[combo.id] = state.tick;
+    addMessage(`${combo.icon} Relic Synergy unlocked: ${combo.name}! ${combo.desc}`, 'windfall');
+    if (combo.prestige) {
+      awardPrestige(combo.prestige, `${combo.name} relic synergy`);
+    }
+    emit(Events.RELIC_COMBO_UNLOCKED, { comboId: combo.id });
+    emit(Events.RESOURCE_CHANGED, {});
+  }
 }
 
 // ── T089: Landmark capture ─────────────────────────────────────────────────
