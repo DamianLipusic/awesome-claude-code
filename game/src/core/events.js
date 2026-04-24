@@ -113,4 +113,8 @@ export const Events = Object.freeze({
   RELIC_COMBO_UNLOCKED:     'relicComboUnlocked',         // T147: relic combination synergy unlocked
   POPULATION_MILESTONE:     'populationMilestone',        // T148: population choice milestone reached
   GRAND_THEORY_CHOSEN:      'grandTheoryChosen',          // T150: player selected a grand theory specialization
+  REBEL_UPRISING:           'rebelUprising',              // T151: rebels seize player tiles
+  REBELS_SUPPRESSED:        'rebelsSuppressed',           // T151: rebel tile reclaimed
+  SUCCESSION_EVENT:         'successionEvent',            // T152: succession window opened
+  HEIR_CHOSEN:              'heirChosen',                 // T152: heir selected (player or auto)
 });

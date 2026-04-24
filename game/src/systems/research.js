@@ -19,7 +19,10 @@ export function researchTick() {
 
   const entry = state.researchQueue[0];
   // T131: Great Works proclamation — research progresses 30% faster
-  entry.remaining -= (state.proclamation?.activeId === 'great_works') ? 1.3 : 1;
+  // T152: Scholar heir — research progresses 10% faster (stacks with Great Works)
+  let researchRate = (state.proclamation?.activeId === 'great_works') ? 1.3 : 1;
+  if (state.dynasty?.currentHeir === 'scholar') researchRate *= 1.10;
+  entry.remaining -= researchRate;
 
   if (entry.remaining <= 0) {
     state.researchQueue.shift();

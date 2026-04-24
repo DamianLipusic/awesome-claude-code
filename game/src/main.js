@@ -83,6 +83,8 @@ import { initAllianceMissions, allianceMissionTick, checkMissionProgress } from 
 import { initAgeChallenges, ageChallengesTick, startAgeChallenge, getActiveChallengeProgress } from './systems/ageChallenges.js'; // T143
 import { initInfluence, influenceTick } from './systems/influence.js'; // T145
 import { initDiscoveries } from './systems/discoveries.js'; // T146
+import { initRebels, rebelTick } from './systems/rebels.js'; // T151
+import { initDynasty, dynastyTick, chooseHeir, HEIR_DEFS, getSuccessionSecsLeft } from './systems/dynasty.js'; // T152
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
@@ -157,6 +159,8 @@ function boot() {
   registerSystem(allianceMissionTick); // T142
   registerSystem(ageChallengesTick);  // T143
   registerSystem(influenceTick);      // T145: cultural influence expansion: age milestone challenges
+  registerSystem(rebelTick);          // T151: rebel uprising system
+  registerSystem(dynastyTick);        // T152: dynastic succession system
 
   // Init event-driven systems
   initRandomEvents();
@@ -199,6 +203,8 @@ function boot() {
   initAgeChallenges();   // T143: age milestone challenges
   initInfluence();       // T145: cultural influence expansion
   initDiscoveries();     // T146: map discoveries
+  initRebels();          // T151: rebel uprising system
+  initDynasty();         // T152: dynastic succession system
 
   // Init UI
   initHUD();
@@ -334,6 +340,21 @@ function boot() {
   // T148: Population growth choice events — show modal when milestone event fires
   on(Events.POPULATION_MILESTONE, (d) => _showPopMilestoneModal(d?.threshold ?? 0));
 
+  // T151: Rebel uprising — re-render map/quest when rebels spawn or are suppressed
+  on(Events.REBEL_UPRISING,    () => {});  // toast already emitted by rebels.js
+  on(Events.REBELS_SUPPRESSED, () => {});  // toast already emitted by rebels.js
+
+  // T152: Dynastic succession — show modal when succession event fires
+  on(Events.SUCCESSION_EVENT, _showSuccessionModal);
+
+  // T152: Update succession countdown every tick while pending
+  let _successionTickCount = 0;
+  on(Events.TICK, () => {
+    if (state.dynasty?.pendingSuccession && ++_successionTickCount % TICKS_PER_SECOND === 0) {
+      _updateSuccessionCountdown();
+    }
+  });
+
   // Update age badge on changes; also show council boon modal on advancement
   _updateAgeBadge();
   on(Events.AGE_CHANGED, (data) => {
@@ -397,7 +418,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 42, // T150: grand theory
+      version: 44, // T152: dynasty succession
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -486,6 +507,8 @@ function _save() {
         discoveries:         state.discoveries         ?? null,  // T146
         populationMilestones: state.populationMilestones ?? {},   // T148
         grandTheory:         state.grandTheory         ?? null,  // T150
+        rebels:              state.rebels              ?? null,  // T151
+        dynasty:             state.dynasty             ?? null,  // T152
         tick:          state.tick,
       }
     }));
@@ -608,6 +631,8 @@ function _applySave(save) {
   state.discoveries          = s.discoveries          ?? null; // T146
   state.populationMilestones = s.populationMilestones ?? {};   // T148
   state.grandTheory          = s.grandTheory          ?? null; // T150
+  state.rebels               = s.rebels               ?? null; // T151
+  state.dynasty              = s.dynasty              ?? null; // T152
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
@@ -885,6 +910,32 @@ function _applyPopMilestoneOption(option) {
   }
 
   emit(Events.RESOURCE_CHANGED, {});
+}
+
+// ── Dynastic Succession modal (T152) ─────────────────────────────────────
+
+function _showSuccessionModal() {
+  const modal = document.getElementById('succession-modal');
+  const desc  = document.getElementById('succession-desc');
+  if (!modal) return;
+  const gen = state.dynasty?.generation ?? 1;
+  if (desc) {
+    desc.textContent = `Generation ${gen + 1} begins. Name your heir to lead the empire into the future.`;
+  }
+  _updateSuccessionCountdown();
+  modal.classList.remove('succession-modal--hidden');
+  addMessage(`👑 Imperial Succession! Name your heir within 30 seconds or face a regency crisis.`, 'achievement');
+}
+
+function _updateSuccessionCountdown() {
+  const el = document.getElementById('succession-countdown');
+  if (el) el.textContent = String(getSuccessionSecsLeft());
+}
+
+function _applySuccessionChoice(heirType) {
+  const modal = document.getElementById('succession-modal');
+  modal?.classList.add('succession-modal--hidden');
+  chooseHeir(heirType);
 }
 
 // ── Prestige badge (T080) ─────────────────────────────────────────────────
@@ -1258,6 +1309,9 @@ function _newGame(opts = {}) {
   initInfluence();       // T145: reset influence state on new game
   initDiscoveries();     // T146: reset discoveries state on new game
   document.getElementById('pop-milestone-modal')?.classList.add('pop-milestone-modal--hidden'); // T148
+  initRebels();          // T151: reset rebel state on new game
+  initDynasty();         // T152: reset dynasty state on new game
+  document.getElementById('succession-modal')?.classList.add('succession-modal--hidden'); // T152
   recalcRates();
   startLoop();  // restart loop in case it was stopped by game-over
   _syncPauseUI();  // ensure pause overlay is hidden on new game
@@ -1354,6 +1408,12 @@ function _bindControls() {
   document.getElementById('pop-milestone-modal')?.addEventListener('click', (e) => {
     const btn = e.target.closest('[data-pm-option]');
     if (btn) _applyPopMilestoneOption(btn.dataset.pmOption);
+  });
+
+  // T152: Dynastic succession modal — heir choice buttons
+  document.getElementById('succession-modal')?.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-heir]');
+    if (btn) _applySuccessionChoice(btn.dataset.heir);
   });
 
   _bindKeyboard();

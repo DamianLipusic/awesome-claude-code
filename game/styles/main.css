@@ -9067,3 +9067,147 @@ kbd {
   margin-top: auto;
 }
 
+
+/* ── T151: Rebel Uprising ──────────────────────────────────────────────── */
+
+.rebel-section {
+  margin: 8px 0 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  border-left: 3px solid;
+}
+
+.rebel-section--warning {
+  border-color: var(--accent);
+  background: rgba(240,180,41,0.06);
+}
+
+.rebel-section--active {
+  border-color: var(--red);
+  background: rgba(248,81,73,0.08);
+  animation: rebel-pulse 2s ease-in-out infinite;
+}
+
+@keyframes rebel-pulse {
+  0%, 100% { background: rgba(248,81,73,0.08); }
+  50%       { background: rgba(248,81,73,0.16); }
+}
+
+.rebel-section__header {
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-bottom: 4px;
+}
+
+.rebel-section--warning .rebel-section__header { color: var(--accent); }
+.rebel-section--active  .rebel-section__header { color: var(--red); }
+
+.rebel-section__desc {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+}
+
+.rebel-section__hint {
+  font-size: 0.73rem;
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+/* map-tt rebel owner label */
+.map-tt-owner--rebel {
+  color: var(--red);
+  font-weight: 600;
+}
+
+/* ── T152: Dynastic Succession ─────────────────────────────────────────── */
+
+.succession-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.succession-modal--hidden { display: none; }
+
+.succession-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.72);
+}
+
+.succession-modal__box {
+  position: relative;
+  background: var(--bg-panel);
+  border: 1px solid #8b6914;
+  border-radius: var(--radius-lg);
+  padding: 24px 28px;
+  max-width: 540px;
+  width: 95%;
+  box-shadow: 0 0 40px rgba(240,180,41,0.18);
+}
+
+.succession-modal__title {
+  font-size: 1.2rem;
+  color: var(--gold);
+  margin-bottom: 8px;
+}
+
+.succession-modal__desc {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+
+.succession-modal__timer {
+  font-size: 0.78rem;
+  color: var(--accent);
+  margin-bottom: 16px;
+}
+
+.succession-modal__options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.succession-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  text-align: center;
+}
+
+.succession-option:hover {
+  border-color: var(--gold);
+  background: var(--bg-card-h);
+}
+
+.succession-option__icon { font-size: 1.5rem; }
+
+.succession-option__name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.succession-option__effect {
+  font-size: 0.74rem;
+  color: var(--green);
+}
+
+.succession-option__flavor {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  font-style: italic;
+}

@@ -59,6 +59,8 @@ const CARAVAN_TINT     = 'rgba(255,200,50,0.28)';  // T063
 const NODE_TINT        = 'rgba(255,170,0,0.35)';   // T104: resource node amber glow
 const RUIN_TINT        = 'rgba(40,160,140,0.30)';  // T106: ancient ruin dark teal glow
 const BOUNTY_TINT      = 'rgba(255,215,0,0.28)';   // T135: bounty target gold glow
+const REBEL_TINT       = 'rgba(220,40,40,0.42)';   // T151: rebel-held tile red glow
+const REBEL_BORDER     = '#e03030';                  // T151: rebel tile border
 const HOVER_ATTACK     = 'rgba(240,180,41,0.38)';
 const HOVER_NEUTRAL    = 'rgba(255,255,255,0.08)';
 const PLAYER_BORDER    = '#58a6ff';
@@ -325,6 +327,7 @@ function _showTileTip(tile, x, y, mouseX, mouseY) {
   const capitalLabel = tile.isFactionCapital ? `👑 ${factionLabel} Capital` : factionLabel;
   const ownerHtml =
     tile.owner === 'player'    ? `<span class="map-tt-owner map-tt-owner--player">Your territory</span>`
+    : tile.owner === 'rebel'   ? `<span class="map-tt-owner map-tt-owner--rebel">🔥 Rebel-held — Attack to reclaim!</span>` // T151
     : tile.owner === 'enemy'   ? `<span class="map-tt-owner map-tt-owner--enemy">${capitalLabel}</span>`
     : tile.owner === 'barbarian' ? `<span class="map-tt-owner map-tt-owner--enemy">💀 Barbarian Camp</span>`
     : `<span class="map-tt-owner">Neutral</span>`;
@@ -582,6 +585,10 @@ function _drawTile(tile, x, y, capital) {
   } else if (tile.owner === 'barbarian') {
     ctx.fillStyle = BARBARIAN_TINT;
     ctx.fillRect(px, py, TILE_PX, TILE_PX);
+  } else if (tile.owner === 'rebel') {
+    // T151: rebel-held tile — red tint over terrain
+    ctx.fillStyle = REBEL_TINT;
+    ctx.fillRect(px, py, TILE_PX, TILE_PX);
   }
 
   // T063: caravan gold tint on the caravan's tile
@@ -604,10 +611,11 @@ function _drawTile(tile, x, y, capital) {
     ctx.fillRect(px, py, TILE_PX, TILE_PX);
   }
 
-  // Border — T053: faction colors for enemy, T056: maroon for barbarian
+  // Border — T053: faction colors for enemy, T056: maroon for barbarian, T151: rebel red
   const borderColor = tile.owner === 'player'    ? PLAYER_BORDER
                     : tile.owner === 'enemy'      ? ((tile.faction && FACTION_BORDER[tile.faction]) ?? ENEMY_BORDER)
                     : tile.owner === 'barbarian'  ? BARBARIAN_BORDER
+                    : tile.owner === 'rebel'      ? REBEL_BORDER       // T151
                     : NEUTRAL_BORDER;
   ctx.strokeStyle = borderColor;
   ctx.lineWidth   = tile.owner ? 1.5 : 0.5;
@@ -631,6 +639,8 @@ function _drawTile(tile, x, y, capital) {
     _drawIcon(px, py, '🏰');
   } else if (tile.owner === 'barbarian' && tile.revealed) {
     _drawIcon(px, py, '💀');   // T056: barbarian camp skull
+  } else if (tile.owner === 'rebel' && tile.revealed) {
+    _drawIcon(px, py, '🔥');   // T151: rebel uprising tile
   } else if (tile.owner === 'enemy' && tile.revealed) {
     _drawIcon(px, py, tile.isFactionCapital ? '👑' : '⚔️');  // T093: crown for faction capitals
   } else if (tile.owner === 'player' && tile.hasCity) {
@@ -835,6 +845,8 @@ function _isAttackable(x, y) {
   const { tiles, width, height } = state.map;
   const tile = tiles[y]?.[x];
   if (!tile || !tile.revealed || tile.owner === 'player') return false;
+  // T151: rebel tiles are always attackable (formerly player territory)
+  if (tile.owner === 'rebel') return true;
   return [[-1,0],[1,0],[0,-1],[0,1]].some(([dx, dy]) => {
     const nx = x + dx;
     const ny = y + dy;

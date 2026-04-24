@@ -90,6 +90,36 @@
     </div>
   </div>
 
+  <!-- T152: Dynastic Succession modal — shown every ~10 min for heir choice -->
+  <div id="succession-modal" class="succession-modal succession-modal--hidden" role="dialog" aria-modal="true">
+    <div class="succession-modal__backdrop"></div>
+    <div class="succession-modal__box">
+      <h2 class="succession-modal__title">👑 Imperial Succession</h2>
+      <p class="succession-modal__desc" id="succession-desc">The time has come to name your heir. Choose wisely — your choice will shape the empire's destiny.</p>
+      <p class="succession-modal__timer">Choose within <span id="succession-countdown">30</span>s or the council will decide for you (regency penalty).</p>
+      <div class="succession-modal__options">
+        <button class="btn succession-option" data-heir="warrior">
+          <div class="succession-option__icon">⚔️</div>
+          <div class="succession-option__name">Warrior Heir</div>
+          <div class="succession-option__effect">+15% combat attack power</div>
+          <div class="succession-option__flavor">A militant ruler who inspires the army</div>
+        </button>
+        <button class="btn succession-option" data-heir="diplomat">
+          <div class="succession-option__icon">🤝</div>
+          <div class="succession-option__name">Diplomat Heir</div>
+          <div class="succession-option__effect">+0.5 gold/s</div>
+          <div class="succession-option__flavor">A wise ruler who fosters trade</div>
+        </button>
+        <button class="btn succession-option" data-heir="scholar">
+          <div class="succession-option__icon">📚</div>
+          <div class="succession-option__name">Scholar Heir</div>
+          <div class="succession-option__effect">+10% research speed, +0.5 mana/s</div>
+          <div class="succession-option__flavor">An intellectual ruler who advances knowledge</div>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Pause overlay (shown when game is paused) -->
   <div id="pause-overlay" class="pause-overlay pause-overlay--hidden" aria-hidden="true">
     <div class="pause-box">⏸ PAUSED<span class="pause-hint">Press Space or P to resume</span></div>

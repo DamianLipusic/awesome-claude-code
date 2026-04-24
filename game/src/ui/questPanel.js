@@ -9,6 +9,7 @@ import { QUESTS, setQuestPanelRenderer } from '../systems/quests.js';
 import { getChallengeSecsLeft } from '../systems/challenges.js';
 import { resolvePoliticalEvent, getPoliticalEventSecsLeft } from '../systems/politicalEvents.js';
 import { getActiveBounty, getBountySecsLeft } from '../systems/bounty.js';
+import { getActiveRebels } from '../systems/rebels.js'; // T151
 import { TICKS_PER_SECOND } from '../core/tick.js';
 
 export function initQuestPanel() {
@@ -21,6 +22,7 @@ export function initQuestPanel() {
     Events.AGE_CHANGED, Events.MAP_CHANGED, Events.QUEST_COMPLETED,
     Events.CHALLENGE_UPDATED, Events.POPULATION_CHANGED, Events.RESOURCE_CHANGED,
     Events.POLITICAL_EVENT, Events.BOUNTY_CHANGED,
+    Events.REBEL_UPRISING, Events.REBELS_SUPPRESSED,  // T151
   ];
   for (const ev of events) on(ev, render);
 
@@ -62,6 +64,7 @@ function render() {
   const pct       = total > 0 ? Math.round((doneCount / total) * 100) : 0;
 
   panel.innerHTML = `
+    ${_rebelSection()}
     ${_bountySection()}
     ${_politicalEventSection()}
     ${_challengeSection()}
@@ -78,6 +81,30 @@ function render() {
       ${QUESTS.map(q => _questCard(q, completed[q.id])).join('')}
     </div>
   `;
+}
+
+// ── Rebel section (T151) ─────────────────────────────────────────────────
+
+function _rebelSection() {
+  const rebels = getActiveRebels();
+  if (rebels.length === 0) {
+    // Show low-morale warning when morale is dangerously close to threshold
+    const m = state.morale ?? 50;
+    if (m >= 25 || state.age < 1) return '';
+    return `
+      <div class="rebel-section rebel-section--warning">
+        <div class="rebel-section__header">⚠️ Unrest Warning</div>
+        <div class="rebel-section__desc">Morale is critically low (${Math.round(m)}). If it stays below 25 a rebel uprising may occur!</div>
+      </div>`;
+  }
+
+  const tileList = rebels.map(r => `(${r.x},${r.y})`).join(', ');
+  return `
+    <div class="rebel-section rebel-section--active">
+      <div class="rebel-section__header">🔥 Rebel Uprising!</div>
+      <div class="rebel-section__desc">${rebels.length} tile${rebels.length > 1 ? 's are' : ' is'} under rebel control: ${tileList}</div>
+      <div class="rebel-section__hint">Open the Map tab and attack rebel tiles 🔥 to restore order. Each suppression grants +10 morale and +50 prestige.</div>
+    </div>`;
 }
 
 // ── Bounty section (T135) ─────────────────────────────────────────────────

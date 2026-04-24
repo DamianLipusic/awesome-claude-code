@@ -1334,11 +1334,29 @@
   },
   {
     "id": "T150",
-    "title": "Grand Theory specialization — one-time empire-wide strategic bonus at Iron Age",
+    "title": "Grand Theory specialization \u2014 one-time empire-wide strategic bonus at Iron Age",
     "description": "At Iron Age with 8+ techs researched, player chooses one Grand Theory (one per game): Military Supremacy (+40% all combat attack), Economic Mastery (+3 gold/s + market sell x1.5 + trade income x1.5), Arcane Omniscience (-50% spell mana costs + +2 mana/s + -25% research time). Requires arcane tech for Arcane Omniscience. Create data/grandTheory.js. Add state.grandTheory (reset per game). GRAND_THEORY_CHOSEN event. chooseGrandTheory() action. Effects wired into combat.js, resources.js, spells.js, research.js. UI section in Research panel. Save/load compatible (backwards-compatible null default).",
     "priority": 150,
     "status": "done",
     "phase": 57,
     "notes": "Created data/grandTheory.js with 3 theories. state.grandTheory added to state.js + initState(). GRAND_THEORY_CHOSEN event added to events.js. chooseGrandTheory() action in actions.js validates age>=2, 8+ techs, tech prerequisites. Effects wired: military_supremacy +40% in both combat.js getAttackPreview+attackTile; economic_mastery +3 gold/s + x1.5 trade + x1.5 market sell in resources.js+market.js; arcane_omniscience +2 mana/s + -25% research in resources.js+research.js + -50% spell cost in spells.js. UI _grandTheorySection() in researchPanel.js with card grid. CSS in main.css. Save/load at version 42."
+  },
+  {
+    "id": "T151",
+    "title": "rebel uprising system \u2014 low-morale tile seizure and suppression",
+    "description": "When morale stays below 25 for 30s at Bronze Age+, rebel factions seize 1-2 player tiles. Rebels shown with red tint and fire icon on map. Rebels spread to adjacent player tiles after 3 min if not suppressed. Attacking rebel tiles suppresses them: +10 morale, +50 prestige, tile returns to player. Rebel alert section in quest panel. Warning shown when morale is near threshold.",
+    "priority": 151,
+    "status": "done",
+    "phase": 58,
+    "notes": "Created src/systems/rebels.js (initRebels, rebelTick, suppressRebel, getActiveRebels). Added REBEL_UPRISING + REBELS_SUPPRESSED events to events.js. Added state.rebels to state.js + initState(). combat.js: import suppressRebel, rebel tile adjacency bypass in getAttackPreview+attackTile, reduced defense (50%), winChance cap 0.95, suppressRebel called after _victory on rebel tiles. mapPanel.js: REBEL_TINT/REBEL_BORDER constants, rebel tint+border+fire icon in _drawTile, _isAttackable rebel bypass, rebel tooltip label. questPanel.js: import getActiveRebels, _rebelSection() with active alert + morale warning. main.js: imports, registerSystem(rebelTick), initRebels in boot+_newGame, save/load (version 44), REBEL_UPRISING/REBELS_SUPPRESSED listeners. main.css: .rebel-section with pulse animation."
+  },
+  {
+    "id": "T152",
+    "title": "dynastic succession system \u2014 heir choice every 10 min with bonuses",
+    "description": "Every 2400 ticks (10 min), an imperial succession event fires. Player chooses heir archetype within 30s: Warrior (+15% attack), Diplomat (+0.5 gold/s), Scholar (+10% research speed + 0.5 mana/s). If no choice, regency penalty applies (-20% all rates for 2 min) and random heir auto-selected. Succession modal with countdown timer. Warrior bonus wired into combat.js. Scholar bonus in research.js. Diplomat+mana in resources.js. Regency penalty in resources.js.",
+    "priority": 152,
+    "status": "done",
+    "phase": 58,
+    "notes": "Created src/systems/dynasty.js (HEIR_DEFS, initDynasty, dynastyTick, chooseHeir, getSuccessionSecsLeft, getRegencySecsLeft). Added SUCCESSION_EVENT + HEIR_CHOSEN events to events.js. Added state.dynasty to state.js + initState(). resources.js: diplomat +0.5 gold/s, scholar +0.5 mana/s, regency -20% all positive rates. research.js: scholar heir 1.10x research rate multiplier. combat.js: warrior heir +15% attack in both getAttackPreview+attackTile. index.html: succession modal with 3 heir buttons + countdown. main.js: imports, registerSystem(dynastyTick), initDynasty in boot+_newGame, save/load (version 44), SUCCESSION_EVENT listener, _showSuccessionModal/_updateSuccessionCountdown/_applySuccessionChoice, modal button delegation. main.css: .succession-modal + .succession-option grid."
   }
 ]

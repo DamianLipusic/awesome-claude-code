@@ -374,6 +374,15 @@ export const state = {
   // T150: Grand Theory — one-time empire-wide specialization chosen at Iron Age + 8 techs.
   // Stores the chosen theory id string, or null if not yet chosen.
   grandTheory: null,
+
+  // T151: Rebel uprising state — populated by systems/rebels.js initRebels()
+  // { active: [{x, y, spawnedAt}], lowMoraleStart: tick|null, cooldownUntil: tick, totalSuppressed }
+  rebels: null,
+
+  // T152: Dynastic succession state — populated by systems/dynasty.js initDynasty()
+  // { generation, currentHeir: 'warrior'|'diplomat'|'scholar'|null, nextSuccessionTick,
+  //   pendingSuccession, successionDeadline, regencyUntil, totalSuccessions }
+  dynasty: null,
 };
 
 /**
@@ -465,5 +474,7 @@ export function initState(empireName = 'My Empire') {
   state.discoveries         = null; // T146: reset discoveries on new game
   state.populationMilestones = {};  // T148: reset pop choice milestones per game
   state.grandTheory          = null; // T150: reset grand theory per game
+  state.rebels               = null; // T151: reset rebel state per game
+  state.dynasty              = null; // T152: reset dynasty state per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

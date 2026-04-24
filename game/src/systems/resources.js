@@ -552,6 +552,15 @@ export function recalcRates() {
   if (state.grandTheory === 'economic_mastery')  rates.gold += 3;
   if (state.grandTheory === 'arcane_omniscience') rates.mana += 2;
 
+  // T152: Dynasty heir passive bonuses
+  const _heir = state.dynasty?.currentHeir;
+  if (_heir === 'diplomat') rates.gold += 0.5;
+  if (_heir === 'scholar')  rates.mana += 0.5;
+  // T152: Regency penalty — −20% all positive rates
+  if (state.dynasty?.regencyUntil && state.tick < state.dynasty.regencyUntil) {
+    for (const res of RESOURCE_KEYS) if (rates[res] > 0) rates[res] *= 0.80;
+  }
+
   Object.assign(state.rates, rates);
   Object.assign(state.caps, caps);
 }

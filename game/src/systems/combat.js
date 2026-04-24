@@ -33,6 +33,7 @@ import { trackMissionBattleWin } from './allianceMissions.js'; // T142
 import { spawnDiscoveries } from './discoveries.js'; // T146
 import { awardPrestige } from './prestige.js';        // T147: relic combo prestige
 import { getCurrentWeather } from './weather.js';     // T149: weather combat modifiers
+import { suppressRebel } from './rebels.js';           // T151: rebel tile suppression
 
 /** Returns true if both techs of a named synergy are researched. */
 function _synergy(id) {
@@ -170,13 +171,17 @@ export function getAttackPreview(x, y) {
   if (!tile.revealed)           return { valid: false, reason: 'Tile is hidden in fog of war.' };
   if (tile.owner === 'player')  return { valid: false, reason: 'You already control this tile.' };
 
-  const adjacent = NEIGHBORS.some(([dx, dy]) => {
-    const nx = x + dx;
-    const ny = y + dy;
-    return nx >= 0 && nx < width && ny >= 0 && ny < height
-        && tiles[ny][nx].owner === 'player';
-  });
-  if (!adjacent) return { valid: false, reason: 'Target must be adjacent to your territory.' };
+  // T151: rebel tiles skip normal adjacency — they were formerly your territory
+  const isRebelTile = tile.owner === 'rebel';
+  if (!isRebelTile) {
+    const adjacent = NEIGHBORS.some(([dx, dy]) => {
+      const nx = x + dx;
+      const ny = y + dy;
+      return nx >= 0 && nx < width && ny >= 0 && ny < height
+          && tiles[ny][nx].owner === 'player';
+    });
+    if (!adjacent) return { valid: false, reason: 'Target must be adjacent to your territory.' };
+  }
 
   // ── Mirror attackTile power calculation (no side effects) ─────────────────
   let attackPower = 0;
@@ -277,6 +282,9 @@ export function getAttackPreview(x, y) {
   // T150: Grand Theory Military Supremacy — +40% all attack power
   if (state.grandTheory === 'military_supremacy') attackPower *= 1.40;
 
+  // T152: Warrior heir — +15% attack power
+  if (state.dynasty?.currentHeir === 'warrior') attackPower *= 1.15;
+
   // T071: terrain combat modifiers
   const terrainMod = _terrainMod(tile.type);
   attackPower     *= terrainMod.attackMult;
@@ -285,13 +293,16 @@ export function getAttackPreview(x, y) {
   // T132: Siege Engine — halves effective defense of fortified tiles
   if ((state.units?.siege_engine ?? 0) > 0 && tile.fortified) effectiveDefense *= 0.50;
 
+  // T151: rebel tiles — citizens defending, not trained armies: halve defense
+  if (isRebelTile) effectiveDefense = Math.max(3, Math.round(effectiveDefense * 0.50));
+
   const heroReady      = state.hero?.recruited && !_heroInjured() && !_heroOnExpedition();
   const siegeActive    = !!(heroReady && state.hero.activeEffects?.siege);
   const manaBoltActive = !!(state.spells?.activeEffects?.manaBolt);
   const heroInjured    = !!(state.hero?.recruited && state.hero.injured);
   let winChance        = (siegeActive || manaBoltActive)
     ? 1.0
-    : Math.min(0.9, Math.max(0.1, attackPower / (attackPower + effectiveDefense)));
+    : Math.min(0.95, Math.max(0.1, attackPower / (attackPower + effectiveDefense)));
 
   // T088: skirmish bonus — target empire distracted by border fighting
   const skirmishBonus  = !siegeActive && !manaBoltActive && isEmpireInSkirmish(tile.owner);
@@ -340,6 +351,7 @@ export function getAttackPreview(x, y) {
     aidBattlesLeft: _aid?.battlesLeft ?? 0,
     siegeEngineActive: (state.units?.siege_engine ?? 0) > 0 && tile.fortified, // T132
     paradeChargesLeft: _paradeActive ? (state.festivals.active.chargesLeft ?? 0) : 0,
+    isRebelTile,                                                                // T151
   };
 }
 
@@ -357,14 +369,17 @@ export function attackTile(x, y) {
   if (!tile.revealed)     return { ok: false, reason: 'Tile is hidden in fog of war.' };
   if (tile.owner === 'player') return { ok: false, reason: 'You already control this tile.' };
 
-  // Must be adjacent to at least one player-owned tile
-  const adjacent = NEIGHBORS.some(([dx, dy]) => {
-    const nx = x + dx;
-    const ny = y + dy;
-    return nx >= 0 && nx < width && ny >= 0 && ny < height
-        && tiles[ny][nx].owner === 'player';
-  });
-  if (!adjacent) return { ok: false, reason: 'Target must be adjacent to your territory.' };
+  // T151: rebel tiles skip adjacency check — they were formerly your territory
+  const isRebelTile = tile.owner === 'rebel';
+  if (!isRebelTile) {
+    const adjacent = NEIGHBORS.some(([dx, dy]) => {
+      const nx = x + dx;
+      const ny = y + dy;
+      return nx >= 0 && nx < width && ny >= 0 && ny < height
+          && tiles[ny][nx].owner === 'player';
+    });
+    if (!adjacent) return { ok: false, reason: 'Target must be adjacent to your territory.' };
+  }
 
   // ── Calculate player attack power ────────────────────────────────────────
   let attackPower = 0;
@@ -475,6 +490,9 @@ export function attackTile(x, y) {
   // T150: Grand Theory Military Supremacy — +40% all attack power
   if (state.grandTheory === 'military_supremacy') attackPower *= 1.40;
 
+  // T152: Warrior heir — +15% attack power
+  if (state.dynasty?.currentHeir === 'warrior') attackPower *= 1.15;
+
   // T071: terrain attack modifier (applied before siege/mana-bolt override)
   const _terrainM = _terrainMod(tile.type);
   attackPower *= _terrainM.attackMult;
@@ -510,9 +528,12 @@ export function attackTile(x, y) {
     addMessage('🏰 Siege Engine: fortification defenses halved!', 'info');
   }
 
+  // T151: rebel tiles — citizens defending, halve effective defense
+  if (isRebelTile) effectiveDefense = Math.max(3, Math.round(effectiveDefense * 0.50));
+
   let winChance = siegeActive
     ? 1.0
-    : Math.min(0.9, Math.max(0.1, attackPower / (attackPower + effectiveDefense)));
+    : Math.min(0.95, Math.max(0.1, attackPower / (attackPower + effectiveDefense)));
 
   // T088: skirmish bonus — target empire distracted by border fighting
   if (!siegeActive && isEmpireInSkirmish(tile.owner)) {
@@ -561,6 +582,9 @@ export function attackTile(x, y) {
   const result = roll < winChance
     ? _victory(tile, x, y, attackPower, effectiveDefense)
     : _defeat(tile, x, y, attackPower, effectiveDefense);
+
+  // T151: clean up rebel state after a victorious assault on a rebel tile
+  if (isRebelTile && result.outcome === 'win') suppressRebel(x, y);
 
   // T102: each battle (win or loss) consumes one aid charge
   consumeAidBattle();

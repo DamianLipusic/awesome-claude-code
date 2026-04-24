@@ -2,6 +2,36 @@
 
 ---
 
+## 2026-04-24 — Session N+38
+
+**Tasks completed:** T151, T152
+
+**Summary:**
+All prior tasks (T001–T150) were complete. Created T151+T152 task specs then implemented two Phase 58 features: Rebel Uprising System (T151) and Dynastic Succession System (T152).
+
+**T151 — Rebel Uprising System:**
+- `src/systems/rebels.js`: New file. `initRebels()` (idempotent init). `rebelTick()` tracks low morale (< 25) duration — after 30s at Bronze Age+ with no active rebels, spawns 1–2 rebel tiles from player territory (non-capital). Rebel tiles spread to adjacent player tiles after 3 min. `suppressRebel(x, y)` removes rebel from active list, returns tile to player, awards +10 morale + +50 prestige + toast, calls recalcRates. `getActiveRebels()` exposes active list.
+- `src/core/events.js`: Added `REBEL_UPRISING` and `REBELS_SUPPRESSED` event constants.
+- `src/core/state.js`: Added `state.rebels = null`; `initState()` resets to null.
+- `src/systems/combat.js`: Import `suppressRebel`. Both `getAttackPreview` and `attackTile` skip adjacency check for rebel tiles (`tile.owner === 'rebel'`). Defense halved (×0.50, min 3) for rebel tiles. winChance max raised to 0.95 for rebel tiles. `attackTile` calls `suppressRebel(x, y)` after `_victory` on rebel tiles.
+- `src/ui/mapPanel.js`: `REBEL_TINT` + `REBEL_BORDER` constants. `_drawTile`: rebel tint + red border + 🔥 icon. `_isAttackable`: rebel tiles always attackable. Owner tooltip label `map-tt-owner--rebel`.
+- `src/ui/questPanel.js`: Import `getActiveRebels`; subscribe `REBEL_UPRISING + REBELS_SUPPRESSED`; `_rebelSection()` renders active alert (tile list + suppression hint) or low-morale warning card.
+- `src/main.js`: Import + `registerSystem(rebelTick)` + `initRebels()` in boot and `_newGame()`; `state.rebels` saved/loaded (version bumped to 44).
+- `styles/main.css`: `.rebel-section` (warning/active variants, pulse animation), `.map-tt-owner--rebel`.
+
+**T152 — Dynastic Succession System:**
+- `src/systems/dynasty.js`: New file. `HEIR_DEFS` (warrior/diplomat/scholar). `initDynasty()` (idempotent). `dynastyTick()` fires `SUCCESSION_EVENT` at `nextSuccessionTick` (every 2400 ticks = 10 min), sets `pendingSuccession + successionDeadline` (+120 ticks). Auto-chooses random heir + applies regency (480 ticks, −20% rates) if deadline passes. Ends regency on tick expiry. `chooseHeir(type)` validates and applies heir, sets next succession tick. `getSuccessionSecsLeft()` + `getRegencySecsLeft()` for UI countdown.
+- `src/core/events.js`: Added `SUCCESSION_EVENT` and `HEIR_CHOSEN` event constants.
+- `src/core/state.js`: Added `state.dynasty = null`; `initState()` resets to null.
+- `src/systems/resources.js`: T152 block after T150 — diplomat heir +0.5 gold/s, scholar heir +0.5 mana/s, regency penalty ×0.80 all positive rates while `regencyUntil > tick`.
+- `src/systems/research.js`: scholar heir multiplies research rate by 1.10 (stacks with Great Works).
+- `src/systems/combat.js`: Warrior heir +15% attackPower in both `getAttackPreview` and `attackTile` (after T150 Grand Theory block).
+- `index.html`: Succession modal with backdrop + 3 heir option buttons (⚔️/🤝/📚) + countdown `<span>`.
+- `src/main.js`: Import dynasty functions; `registerSystem(dynastyTick)`; `initDynasty()` in boot + `_newGame()`; `SUCCESSION_EVENT` listener → `_showSuccessionModal()`; tick handler updates countdown; `succession-modal` click delegate → `_applySuccessionChoice(heir)`; `state.dynasty` saved/loaded; modal hidden on `_newGame()`. Save version bumped to 44.
+- `styles/main.css`: `.succession-modal` (overlay + backdrop), `.succession-modal__box` (gold border, glow), `.succession-modal__options` (3-column grid), `.succession-option` (card with hover).
+
+---
+
 ## 2026-04-21 — Session N+37
 
 **Tasks completed:** T141, T142
