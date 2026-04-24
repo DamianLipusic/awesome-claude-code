@@ -123,4 +123,5 @@ export const Events = Object.freeze({
   CAMPAIGN_STARTED:         'campaignStarted',            // T154: conquest campaign launched
   CAMPAIGN_WON:             'campaignWon',                // T154: campaign battle milestone reached
   CAMPAIGN_ENDED:           'campaignEnded',              // T154: campaign concluded (won or expired)
+  BATTLEFIELD_CAPTURED:     'battlefieldCaptured',        // T156: player captured an ancient battlefield
 });

@@ -106,6 +106,7 @@ function _render(panel) {
       </div>
     </div>
     ${_skirmishBanner()}
+    ${_tradeNetworkBanner()}
     <div class="dipl-empire-list">${cards}</div>
     ${_espionageSection()}
     ${_campaignSection()}
@@ -158,6 +159,25 @@ function _skirmishBanner() {
         Both empires are <strong>distracted</strong> — your attacks on them have +${Math.round(0.20*100)}% win chance.
       </div>
       <div class="skirmish-banner__actions">${mediateBtn}</div>
+    </div>`;
+}
+
+// ── T155: Global Trade Network banner ──────────────────────────────────────
+
+function _tradeNetworkBanner() {
+  if (!state.diplomacy) return '';
+  const allActive = ['ironHorde', 'mageCouncil', 'seaWolves'].every(id => {
+    const e = state.diplomacy.empires.find(emp => emp.id === id);
+    return e && e.relations === 'allied' && e.tradeRoutes > 0;
+  });
+  if (!allActive) return '';
+  return `
+    <div class="trade-network-banner">
+      <span class="trade-network-banner__icon">🌐</span>
+      <span class="trade-network-banner__text">
+        <strong>Global Trade Network Active!</strong>
+        All empires allied with open trade routes — <strong>+3 gold/s</strong> and <strong>+25% sell prices</strong>.
+      </span>
     </div>`;
 }
 

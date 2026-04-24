@@ -2,6 +2,34 @@
 
 ---
 
+## 2026-04-24 — Session N+39
+
+**Tasks completed:** T155, T156
+
+**Summary:**
+All prior tasks (T001–T154) were complete. Created T155+T156 task specs then implemented two Phase 60 features: Global Trade Network (T155) and Ancient Battlefields (T156).
+
+**T155 — Global Trade Network:**
+- `src/systems/resources.js`: Added `allTradeActive` check inside `if (state.diplomacy)` block after faction alliance bonuses. When all 3 empires (ironHorde, mageCouncil, seaWolves) are allied and have tradeRoutes > 0, `rates.gold += 3.0`.
+- `src/systems/market.js`: Added `_allTradeActive` check in `sellResources()` after trade_secrets block. When network is active, `earned = Math.floor(earned * 1.25)`.
+- `src/ui/diplomacyPanel.js`: Added `_tradeNetworkBanner()` helper that renders a sky-blue info banner when all 3 empires are allied with trade routes. Called from `_render()` after `_skirmishBanner()`.
+- `styles/main.css`: `.trade-network-banner` with sky-blue left border + subtle background.
+
+**T156 — Ancient Battlefields:**
+- `src/core/events.js`: Added `BATTLEFIELD_CAPTURED: 'battlefieldCaptured'`.
+- `src/core/state.js`: Added `battlefields: null` static field + `state.battlefields = null` in `initState()`.
+- `src/systems/map.js`: Added `_placeAncientBattlefields(tiles)` placing 3 neutral tiles at dist 4–12, avoiding landmarks/ruins/chokepoints. Sets `tile.ancientBattlefield=true` and `tile.defense+=15`. Called from `initMap()` after `_placeChokepoints`. Also added `state.battlefields = { captured: {} }` init.
+- `src/systems/combat.js`: Added `_tryCaptureAncientBattlefield(tile, x, y)` — guards by checking `state.battlefields.captured[key]`, grants +100 gold, +1 XP to all trained unit types, emits `BATTLEFIELD_CAPTURED` + `RESOURCE_CHANGED`. Called from `_victory()` after `claimBounty`.
+- `src/ui/mapPanel.js`: `BATTLEFIELD_TINT + BATTLEFIELD_BORDER` constants. Purple tint + purple border + ⚔️ icon in `_drawTile()` for revealed uncaptured sites. `battlefieldHtml` tooltip section in `_showTileTip()`. `on(Events.BATTLEFIELD_CAPTURED, _render)` subscription in `initMapPanel()`.
+- `src/main.js`: `on(Events.BATTLEFIELD_CAPTURED, () => awardPrestige(30, ...))`. Save: `battlefields: state.battlefields ?? null`. Load: `state.battlefields = s.battlefields ?? null`. Save version bumped to 46.
+
+**Architecture decisions:**
+- T155 uses no new state or events — the `allTradeActive` condition is computed inline wherever needed (resources.js + market.js), matching the pattern of similar inline checks in the codebase.
+- T156 battlefield XP grant uses the same `state.unitXP[id] = (state.unitXP[id] ?? 0) + 1` pattern as `_grantCombatXP()` in combat.js but does NOT promote ranks (no rank check), keeping the reward simple.
+- Save version bumped to 46 because `state.battlefields` is a new field; older saves default to null via `?? null` in `_applySave()`.
+
+---
+
 ## 2026-04-24 — Session N+38
 
 **Tasks completed:** T151, T152

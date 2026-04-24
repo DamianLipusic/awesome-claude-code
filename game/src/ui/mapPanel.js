@@ -59,8 +59,10 @@ const CARAVAN_TINT     = 'rgba(255,200,50,0.28)';  // T063
 const NODE_TINT        = 'rgba(255,170,0,0.35)';   // T104: resource node amber glow
 const RUIN_TINT        = 'rgba(40,160,140,0.30)';  // T106: ancient ruin dark teal glow
 const BOUNTY_TINT      = 'rgba(255,215,0,0.28)';   // T135: bounty target gold glow
-const REBEL_TINT       = 'rgba(220,40,40,0.42)';   // T151: rebel-held tile red glow
-const REBEL_BORDER     = '#e03030';                  // T151: rebel tile border
+const REBEL_TINT          = 'rgba(220,40,40,0.42)';   // T151: rebel-held tile red glow
+const REBEL_BORDER        = '#e03030';                 // T151: rebel tile border
+const BATTLEFIELD_TINT    = 'rgba(180,100,220,0.32)';  // T156: ancient battlefield purple glow
+const BATTLEFIELD_BORDER  = '#b064dc';                  // T156: ancient battlefield border
 const HOVER_ATTACK     = 'rgba(240,180,41,0.38)';
 const HOVER_NEUTRAL    = 'rgba(255,255,255,0.08)';
 const PLAYER_BORDER    = '#58a6ff';
@@ -220,6 +222,9 @@ export function initMapPanel() {
 
   // T135: re-render when bounty is posted / claimed / expired
   on(Events.BOUNTY_CHANGED, _render);
+
+  // T156: re-render when an ancient battlefield is captured (purple tint clears)
+  on(Events.BATTLEFIELD_CAPTURED, _render);
 
   // T145: re-render when influence triggers a tile absorption
   on(Events.INFLUENCE_CHANGED, _render);
@@ -421,6 +426,17 @@ function _showTileTip(tile, x, y, mouseX, mouseY) {
       })()
     : '';
 
+  // T156: ancient battlefield hint
+  const battlefieldHtml = tile.ancientBattlefield && tile.revealed
+    ? (() => {
+        const captured = !!state.battlefields?.captured?.[`${x},${y}`];
+        return captured
+          ? `<div class="map-tt-row map-tt-bonus">⚔️ Ancient Battlefield (captured)</div>`
+          : `<div class="map-tt-row" style="color:#b064dc;font-weight:600">⚔️ Ancient Battlefield</div>
+             <div class="map-tt-row" style="font-size:0.7rem;color:var(--text-dim)">Capture for +100 gold &amp; +1 XP to all units!</div>`;
+      })()
+    : '';
+
   // T135: bounty target label
   const _activeBounty = getActiveBounty();
   const bountyHtml = (_activeBounty && _activeBounty.x === x && _activeBounty.y === y)
@@ -462,6 +478,7 @@ function _showTileTip(tile, x, y, mouseX, mouseY) {
     ${discoveryHtml}
     ${lmHtml}
     ${ruinHtml}
+    ${battlefieldHtml}
     ${cityHtml}
     ${bonusHtml}
     ${terrainCombatHtml}
@@ -747,6 +764,24 @@ function _drawTile(tile, x, y, capital) {
     ctx.textAlign    = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText('⭐', px + TILE_PX / 2, py + TILE_PX / 2 + 1);
+  }
+
+  // T156: draw ⚔️ ancient battlefield indicator on revealed uncaptured tiles
+  if (tile.ancientBattlefield && tile.revealed) {
+    const _bfKey = `${x},${y}`;
+    const alreadyCaptured = !!state.battlefields?.captured?.[_bfKey];
+    if (!alreadyCaptured) {
+      ctx.fillStyle = BATTLEFIELD_TINT;
+      ctx.fillRect(px, py, TILE_PX, TILE_PX);
+      ctx.strokeStyle = BATTLEFIELD_BORDER;
+      ctx.lineWidth   = 1.5;
+      ctx.strokeRect(px + 1, py + 1, TILE_PX - 2, TILE_PX - 2);
+      ctx.lineWidth   = 1;
+      ctx.font         = `${TILE_PX - 10}px sans-serif`;
+      ctx.textAlign    = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('⚔️', px + TILE_PX / 2, py + TILE_PX / 2 + 1);
+    }
   }
 
   // T145: cultural influence glow on neutral tiles with ≥50 influence

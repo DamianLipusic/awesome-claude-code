@@ -391,6 +391,10 @@ export const state = {
   // T154: Conquest campaign state — populated by systems/campaigns.js initCampaigns()
   // { active: {empireId, empireLabel, startTick, endsAt, wins}|null, cooldownUntil, totalWon }
   campaigns: null,
+
+  // T156: Ancient battlefield sites — { captured: { [key: 'x,y']: tick } }
+  // null until first map; positions stored as tile.ancientBattlefield = true
+  battlefields: null,
 };
 
 /**
@@ -486,5 +490,6 @@ export function initState(empireName = 'My Empire') {
   state.dynasty              = null; // T152: reset dynasty state per game
   state.celestial            = null; // T153: reset celestial events per game
   state.campaigns            = null; // T154: reset campaigns per game
+  state.battlefields         = null; // T156: reset battlefields per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

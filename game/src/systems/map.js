@@ -94,6 +94,10 @@ export function initMap() {
   // T129: Designate strategic chokepoints
   _placeChokepoints(tiles);
 
+  // T156: Place ancient battlefield sites
+  _placeAncientBattlefields(tiles);
+  state.battlefields = { captured: {} };
+
   state.map = {
     width:   MAP_W,
     height:  MAP_H,
@@ -329,6 +333,40 @@ function _placeChokepoints(tiles) {
   for (const { x, y } of candidates) {
     if (placed >= CHOKEPOINT_COUNT) break;
     tiles[y][x].isChokepoint = true;
+    placed++;
+  }
+}
+
+/**
+ * T156: Place 3 ancient battlefield sites at distance 4–12 from capital
+ * on neutral non-special tiles. Battlefields grant +100 gold and +1 XP to all
+ * units when captured, and award 30 prestige. Each adds +15 defense.
+ */
+const BATTLEFIELD_COUNT = 3;
+
+function _placeAncientBattlefields(tiles) {
+  const candidates = [];
+  for (let y = 0; y < MAP_H; y++) {
+    for (let x = 0; x < MAP_W; x++) {
+      const tile = tiles[y][x];
+      const dist = Math.hypot(x - CAPITAL.x, y - CAPITAL.y);
+      if (
+        dist >= 4 && dist <= 12 &&
+        tile.owner === null &&
+        !tile.landmark &&
+        !tile.hasRuin &&
+        !tile.isChokepoint
+      ) {
+        candidates.push({ x, y });
+      }
+    }
+  }
+  candidates.sort(() => Math.random() - 0.5);
+  let placed = 0;
+  for (const { x, y } of candidates) {
+    if (placed >= BATTLEFIELD_COUNT) break;
+    tiles[y][x].ancientBattlefield = true;
+    tiles[y][x].defense += 15;
     placed++;
   }
 }

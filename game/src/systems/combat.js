@@ -691,6 +691,9 @@ function _victory(tile, x, y, attackPower, defense) {
   // T135: claim territory bounty if this tile was the active bounty target
   claimBounty(x, y);
 
+  // T156: check if this tile is an ancient battlefield
+  _tryCaptureAncientBattlefield(tile, x, y);
+
   // T122: Companion passive effects on victory
   if (state.hero?.recruited && state.hero.companion) {
     const companionType = state.hero.companion.type;
@@ -1110,6 +1113,33 @@ function _tileName(tile) {
     river: 'River', mountain: 'Mountain', capital: 'Capital',
   };
   return names[tile.type] ?? tile.type;
+}
+
+// ── T156: Ancient Battlefield capture ─────────────────────────────────────
+
+function _tryCaptureAncientBattlefield(tile, x, y) {
+  if (!tile.ancientBattlefield) return;
+  if (!state.battlefields) state.battlefields = { captured: {} };
+  const key = `${x},${y}`;
+  if (state.battlefields.captured[key]) return;
+
+  state.battlefields.captured[key] = state.tick;
+
+  // Grant +100 gold (capped)
+  const goldCap = state.caps.gold ?? 500;
+  state.resources.gold = Math.min(goldCap, (state.resources.gold ?? 0) + 100);
+
+  // Grant +1 XP to all trained unit types
+  if (!state.unitXP)   state.unitXP   = {};
+  if (!state.unitRanks) state.unitRanks = {};
+  for (const [id, count] of Object.entries(state.units)) {
+    if (count <= 0) continue;
+    state.unitXP[id] = (state.unitXP[id] ?? 0) + 1;
+  }
+
+  addMessage(`⚔️ Ancient Battlefield secured at (${x},${y})! +100 gold, +1 XP to all units.`, 'windfall');
+  emit(Events.BATTLEFIELD_CAPTURED, { x, y });
+  emit(Events.RESOURCE_CHANGED, {});
 }
 
 // ── T127: Resource Raid ────────────────────────────────────────────────────

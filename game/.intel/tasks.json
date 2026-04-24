@@ -1376,5 +1376,23 @@
     "status": "done",
     "phase": 59,
     "notes": "Created systems/campaigns.js (initCampaigns, campaignTick, startCampaign, getCampaignLootMult, recordCampaignWin, getActiveCampaign, getCampaignSecsLeft, getCampaignCooldownSecs). state.js: campaigns state + initState() reset. events.js: CAMPAIGN_STARTED/WON/ENDED events. combat.js: saves prevFaction before tile.faction=null; getCampaignLootMult(prevFaction) applied in loot loop; recordCampaignWin(prevFaction) called after trackMissionBattleWin. diplomacyPanel.js: import campaigns API, CAMPAIGN_STARTED/WON/ENDED event listeners, _campaignSection() function with active progress bar + launch buttons, 'launch-campaign' click handler in _onClick. main.css: .dipl-campaign section + .btn--campaign + campaign progress bar styles. main.js: imports, registerSystem(campaignTick), initCampaigns in boot+_newGame, save/load version 45."
+  },
+  {
+    "id": "T155",
+    "title": "Global Trade Network — alliance-wide trade bonus when all three empires are allied",
+    "description": "When all three AI empires (Iron Horde, Mage Council, Sea Wolves) are simultaneously allied and each has at least one open trade route, the Global Trade Network activates: +3 gold/s passive income (resources.js), +25% sell prices at the market (market.js), and a 'Global Trade Network Active' banner in the Diplomacy panel (diplomacyPanel.js).",
+    "priority": 155,
+    "status": "done",
+    "phase": 60,
+    "notes": "resources.js: added allTradeActive check after faction alliance bonuses in the if(state.diplomacy) block; if all 3 empires are allied with tradeRoutes>0, rates.gold+=3.0. market.js: added _allTradeActive check in sellResources() after trade_secrets block; earned=Math.floor(earned*1.25). diplomacyPanel.js: added _tradeNetworkBanner() helper and ${_tradeNetworkBanner()} call in _render(). main.css: .trade-network-banner with sky-blue left border + background. No new state fields or events needed."
+  },
+  {
+    "id": "T156",
+    "title": "Ancient Battlefields on map — special tile sites with capture rewards",
+    "description": "Place 3 ancient battlefield sites on the map at distance 4-12 from capital (tile.ancientBattlefield=true, +15 defense). On capture: +100 gold, +1 XP to all units, +30 prestige, emit BATTLEFIELD_CAPTURED event. Shown with purple tint + sword icon. Tooltip shows capture hints. Sites tracked in state.battlefields.captured.",
+    "priority": 156,
+    "status": "done",
+    "phase": 60,
+    "notes": "events.js: BATTLEFIELD_CAPTURED event added. state.js: battlefields: null static + initState() reset. map.js: _placeAncientBattlefields() places 3 neutral tiles at dist 4-12 avoiding landmarks/ruins/chokepoints, sets tile.ancientBattlefield=true + defense+=15; called from initMap(); state.battlefields={captured:{}} init. combat.js: _tryCaptureAncientBattlefield(tile,x,y) guards with state.battlefields.captured[key], grants +100 gold, +1 XP all trained units, emits BATTLEFIELD_CAPTURED+RESOURCE_CHANGED; called from _victory() after claimBounty. mapPanel.js: BATTLEFIELD_TINT + BATTLEFIELD_BORDER constants; purple tint+border+sword icon in _drawTile() for uncaptured revealed sites; battlefieldHtml tooltip section; BATTLEFIELD_CAPTURED subscription in initMapPanel(). main.js: prestige award on(Events.BATTLEFIELD_CAPTURED), save/load battlefields, save version bumped to 46."
   }
 ]

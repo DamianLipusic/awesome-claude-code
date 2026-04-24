@@ -324,7 +324,8 @@ function boot() {
   });
   on(Events.LANDMARK_CAPTURED, (d) => awardPrestige(150, `landmark captured: ${d?.landmarkId ?? ''}`));
   on(Events.FACTION_CAPITAL_CAPTURED, (d) => awardPrestige(150, `faction capital captured: ${d?.factionId ?? ''}`));
-  on(Events.RUIN_EXCAVATED, () => awardPrestige(80, 'ancient ruin excavated'));
+  on(Events.RUIN_EXCAVATED,        () => awardPrestige(80, 'ancient ruin excavated'));
+  on(Events.BATTLEFIELD_CAPTURED,  () => awardPrestige(30, 'ancient battlefield captured')); // T156
   on(Events.HERO_QUEST_CHANGED, (d) => {
     if (d?.phase === 3) awardPrestige(200, 'legendary quest completed');  // T112: Supreme Commander unlocked
   });
@@ -432,7 +433,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 45, // T154: conquest campaigns
+      version: 46, // T156: ancient battlefields
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -525,6 +526,7 @@ function _save() {
         dynasty:             state.dynasty             ?? null,  // T152
         celestial:           state.celestial           ?? null,  // T153
         campaigns:           state.campaigns           ?? null,  // T154
+        battlefields:        state.battlefields        ?? null,  // T156
         tick:          state.tick,
       }
     }));
@@ -651,6 +653,7 @@ function _applySave(save) {
   state.dynasty              = s.dynasty              ?? null; // T152
   state.celestial            = s.celestial            ?? null; // T153
   state.campaigns            = s.campaigns            ?? null; // T154
+  state.battlefields         = s.battlefields         ?? null; // T156
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };

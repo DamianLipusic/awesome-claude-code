@@ -154,6 +154,13 @@ export function recalcRates() {
       if (bonus.manaRate) rates.mana += bonus.manaRate;
       if (bonus.goldRate) rates.gold += bonus.goldRate;
     }
+
+    // T155: Global Trade Network — +3 gold/s when all 3 empires are allied with open trade routes
+    const allTradeActive = ['ironHorde', 'mageCouncil', 'seaWolves'].every(id => {
+      const e = state.diplomacy.empires.find(emp => emp.id === id);
+      return e && e.relations === 'allied' && e.tradeRoutes > 0;
+    });
+    if (allTradeActive) rates.gold += 3.0;
   }
 
   // Season multipliers — applied to positive rates only (production, not upkeep)

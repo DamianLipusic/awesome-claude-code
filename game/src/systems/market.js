@@ -150,6 +150,13 @@ export function sellResources(resource, amount) {
     _ts.chargesLeft--;
     if (_ts.chargesLeft <= 0) state.scholar.activeEffect = null;
   }
+  // T155: Global Trade Network — +25% sell gold when all 3 empires are allied with trade routes
+  const _allTradeActive = state.diplomacy &&
+    ['ironHorde', 'mageCouncil', 'seaWolves'].every(id => {
+      const e = state.diplomacy.empires?.find(emp => emp.id === id);
+      return e && e.relations === 'allied' && e.tradeRoutes > 0;
+    });
+  if (_allTradeActive) earned = Math.floor(earned * 1.25);
   state.resources[resource]  = available - actual;
   state.resources.gold = Math.min(state.caps.gold, (state.resources.gold ?? 0) + earned);
   state.market.totalTrades++;

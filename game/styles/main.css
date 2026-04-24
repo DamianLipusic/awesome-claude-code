@@ -6124,6 +6124,27 @@ kbd {
   font-style: italic;
 }
 
+/* T155: Global Trade Network banner */
+.trade-network-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid rgba(80, 200, 255, 0.35);
+  border-left: 3px solid #38bdf8;
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin-bottom: 14px;
+  background: rgba(56, 189, 248, 0.07);
+}
+
+.trade-network-banner__icon { font-size: 16px; }
+
+.trade-network-banner__text {
+  font-size: 12px;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
 .dipl-badge--skirmish {
   background: rgba(252, 129, 74, 0.15);
   border: 1px solid rgba(252, 129, 74, 0.4);
