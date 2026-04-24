@@ -20,8 +20,10 @@ export function researchTick() {
   const entry = state.researchQueue[0];
   // T131: Great Works proclamation — research progresses 30% faster
   // T152: Scholar heir — research progresses 10% faster (stacks with Great Works)
+  // T153: Great Comet celestial event — research progresses ×2 faster
   let researchRate = (state.proclamation?.activeId === 'great_works') ? 1.3 : 1;
   if (state.dynasty?.currentHeir === 'scholar') researchRate *= 1.10;
+  if (state.celestial?.active?.type === 'comet') researchRate *= 2.0;
   entry.remaining -= researchRate;
 
   if (entry.remaining <= 0) {

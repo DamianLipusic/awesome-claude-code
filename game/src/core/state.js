@@ -383,6 +383,14 @@ export const state = {
   // { generation, currentHeir: 'warrior'|'diplomat'|'scholar'|null, nextSuccessionTick,
   //   pendingSuccession, successionDeadline, regencyUntil, totalSuccessions }
   dynasty: null,
+
+  // T153: Celestial event state — populated by systems/celestialEvents.js initCelestial()
+  // { nextEventTick, pending: {type, fireAt}|null, active: {type, expiresAt}|null, history: [] }
+  celestial: null,
+
+  // T154: Conquest campaign state — populated by systems/campaigns.js initCampaigns()
+  // { active: {empireId, empireLabel, startTick, endsAt, wins}|null, cooldownUntil, totalWon }
+  campaigns: null,
 };
 
 /**
@@ -476,5 +484,7 @@ export function initState(empireName = 'My Empire') {
   state.grandTheory          = null; // T150: reset grand theory per game
   state.rebels               = null; // T151: reset rebel state per game
   state.dynasty              = null; // T152: reset dynasty state per game
+  state.celestial            = null; // T153: reset celestial events per game
+  state.campaigns            = null; // T154: reset campaigns per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

@@ -32,6 +32,10 @@ import {
   AID_COST, AID_BATTLES,
 } from '../systems/militaryAid.js';
 import { missionSecsLeft, missionNextSecs } from '../systems/allianceMissions.js'; // T142
+import {
+  startCampaign, getActiveCampaign, getCampaignSecsLeft, getCampaignCooldownSecs,
+  CAMPAIGN_COST, CAMPAIGN_WIN_GOAL,
+} from '../systems/campaigns.js'; // T154
 import { fmtNum } from '../utils/fmt.js';
 
 const PANEL_ID = 'panel-diplomacy';
@@ -57,6 +61,9 @@ export function initDiplomacyPanel() {
   on(Events.MILITARY_AID_CHANGED,   () => _render(panel));
   on(Events.ALLIANCE_FAVOR_CHANGED, () => _render(panel));  // T114
   on(Events.ALLIANCE_MISSION,       () => _render(panel));  // T142
+  on(Events.CAMPAIGN_STARTED,       () => _render(panel));  // T154
+  on(Events.CAMPAIGN_WON,           () => _render(panel));  // T154
+  on(Events.CAMPAIGN_ENDED,         () => _render(panel));  // T154
   // Refresh cooldown countdown every second; also refresh ceasefire/gift/skirmish/aid timers when active
   on(Events.TICK, _throttle(() => {
     const cd = document.getElementById('espionage-cooldown');
@@ -72,7 +79,9 @@ export function initDiplomacyPanel() {
     const hasAidActivity  = !!getActiveAid() || Object.values(state.militaryAid?.cooldowns ?? {}).some(t => t > state.tick);
     // T142: refresh while any alliance mission is active (timer countdown)
     const hasMission = state.allianceMissions && Object.values(state.allianceMissions).some(m => m?.active);
-    if (hasCeasefire || hasAllied || hasGiftCooldown || hasSkirmish || hasAidActivity || hasMission) {
+    // T154: refresh while campaign is active (win counter + timer)
+    const hasCampaign = !!getActiveCampaign();
+    if (hasCeasefire || hasAllied || hasGiftCooldown || hasSkirmish || hasAidActivity || hasMission || hasCampaign) {
       _render(panel);
     }
   }, 4));
@@ -99,6 +108,7 @@ function _render(panel) {
     ${_skirmishBanner()}
     <div class="dipl-empire-list">${cards}</div>
     ${_espionageSection()}
+    ${_campaignSection()}
     ${_historySection()}
   `;
 }
@@ -269,6 +279,68 @@ const HIST_ICON = {
   ai:       '📜',
   gift:     '🎁',
 };
+
+// ── T154: Conquest Campaign section ─────────────────────────────────────────
+
+function _campaignSection() {
+  const active       = getActiveCampaign();
+  const secsLeft     = getCampaignSecsLeft();
+  const cdSecs       = getCampaignCooldownSecs();
+  const canAfford    = (state.resources?.gold ?? 0) >= CAMPAIGN_COST.gold
+                    && (state.resources?.food ?? 0) >= CAMPAIGN_COST.food;
+
+  const costLabel    = `${CAMPAIGN_COST.gold}💰 ${CAMPAIGN_COST.food}🍞`;
+
+  let activeHtml = '';
+  if (active) {
+    const mins  = Math.floor(secsLeft / 60);
+    const secs  = secsLeft % 60;
+    const tStr  = mins > 0 ? `${mins}m${String(secs).padStart(2,'0')}s` : `${secsLeft}s`;
+    const pct   = Math.round((active.wins / CAMPAIGN_WIN_GOAL) * 100);
+    activeHtml = `
+      <div class="campaign-active">
+        <div class="campaign-active__header">
+          <span class="campaign-active__label">⚔️ Campaign vs ${active.empireLabel}</span>
+          <span class="campaign-active__timer">Expires in ${tStr}</span>
+        </div>
+        <div class="campaign-active__progress">
+          <div class="campaign-active__bar-bg">
+            <div class="campaign-active__bar-fill" style="width:${pct}%"></div>
+          </div>
+          <span class="campaign-active__count">${active.wins}/${CAMPAIGN_WIN_GOAL} victories (+25% loot)</span>
+        </div>
+      </div>`;
+  }
+
+  const cdHtml = cdSecs > 0 && !active
+    ? `<div class="campaign-cooldown">⏳ Campaign cooldown: ${cdSecs}s</div>`
+    : '';
+
+  // Launch buttons — one per non-allied empire
+  const launchBtns = (state.diplomacy?.empires ?? []).map(emp => {
+    if (emp.relations === 'allied') return '';
+    const def      = EMPIRES[emp.id];
+    const canLaunch = !active && cdSecs === 0 && canAfford;
+    const relLabel  = { neutral: 'Neutral', war: 'At War' }[emp.relations] ?? emp.relations;
+    return `<button
+      class="btn btn--sm btn--campaign ${canLaunch ? '' : 'btn--disabled'}"
+      data-action="launch-campaign"
+      data-empire="${emp.id}"
+      ${canLaunch ? '' : 'disabled'}
+      title="Launch a 5-minute conquest campaign. Cost: ${costLabel}. Win ${CAMPAIGN_WIN_GOAL} battles for +200 prestige.">
+      ${def.icon} ${def.name} (${relLabel})
+    </button>`;
+  }).join('');
+
+  return `
+    <div class="dipl-campaign">
+      <div class="dipl-campaign__header">⚔️ Conquest Campaigns</div>
+      <div class="dipl-campaign__sub">Launch a focused campaign for +25% loot and glory. Win ${CAMPAIGN_WIN_GOAL} battles in 5 min for victory. Cost: ${costLabel}.</div>
+      ${activeHtml}
+      ${cdHtml}
+      ${!active ? `<div class="campaign-launch-row">${launchBtns || '<span class="campaign-no-targets">Ally with all empires to unlock new campaigns.</span>'}</div>` : ''}
+    </div>`;
+}
 
 function _historySection() {
   const hist = state.diplomacy?.history;
@@ -754,6 +826,11 @@ function _onClick(e) {
     case 'alliance-favor': {  // T114
       const reqType = btn.dataset.reqType;
       result = requestAllianceFavor(empire, reqType);
+      if (!result.ok) addMessageFallback(result.reason);
+      break;
+    }
+    case 'launch-campaign': {  // T154
+      result = startCampaign(empire);
       if (!result.ok) addMessageFallback(result.reason);
       break;
     }

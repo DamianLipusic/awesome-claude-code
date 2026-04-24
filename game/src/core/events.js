@@ -117,4 +117,10 @@ export const Events = Object.freeze({
   REBELS_SUPPRESSED:        'rebelsSuppressed',           // T151: rebel tile reclaimed
   SUCCESSION_EVENT:         'successionEvent',            // T152: succession window opened
   HEIR_CHOSEN:              'heirChosen',                 // T152: heir selected (player or auto)
+  CELESTIAL_WARNING:        'celestialWarning',           // T153: celestial event approaching (30s)
+  CELESTIAL_ACTIVE:         'celestialActive',            // T153: celestial event has started
+  CELESTIAL_CLEARED:        'celestialCleared',           // T153: celestial event has ended
+  CAMPAIGN_STARTED:         'campaignStarted',            // T154: conquest campaign launched
+  CAMPAIGN_WON:             'campaignWon',                // T154: campaign battle milestone reached
+  CAMPAIGN_ENDED:           'campaignEnded',              // T154: campaign concluded (won or expired)
 });

@@ -85,6 +85,8 @@ import { initInfluence, influenceTick } from './systems/influence.js'; // T145
 import { initDiscoveries } from './systems/discoveries.js'; // T146
 import { initRebels, rebelTick } from './systems/rebels.js'; // T151
 import { initDynasty, dynastyTick, chooseHeir, HEIR_DEFS, getSuccessionSecsLeft } from './systems/dynasty.js'; // T152
+import { initCelestial, celestialTick, getActiveCelestial, getCelestialSecsLeft, getPendingCelestial } from './systems/celestialEvents.js'; // T153
+import { initCampaigns, campaignTick } from './systems/campaigns.js'; // T154
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
@@ -161,6 +163,8 @@ function boot() {
   registerSystem(influenceTick);      // T145: cultural influence expansion: age milestone challenges
   registerSystem(rebelTick);          // T151: rebel uprising system
   registerSystem(dynastyTick);        // T152: dynastic succession system
+  registerSystem(celestialTick);      // T153: celestial events system
+  registerSystem(campaignTick);       // T154: conquest campaign system
 
   // Init event-driven systems
   initRandomEvents();
@@ -205,6 +209,8 @@ function boot() {
   initDiscoveries();     // T146: map discoveries
   initRebels();          // T151: rebel uprising system
   initDynasty();         // T152: dynastic succession system
+  initCelestial();       // T153: celestial events system
+  initCampaigns();       // T154: conquest campaign system
 
   // Init UI
   initHUD();
@@ -347,6 +353,14 @@ function boot() {
   // T152: Dynastic succession — show modal when succession event fires
   on(Events.SUCCESSION_EVENT, _showSuccessionModal);
 
+  // T153: Celestial events — update banner on warning/active/cleared + tick countdown
+  _updateCelestialBanner();
+  on(Events.CELESTIAL_WARNING, _updateCelestialBanner);
+  on(Events.CELESTIAL_ACTIVE,  _updateCelestialBanner);
+  on(Events.CELESTIAL_CLEARED, _updateCelestialBanner);
+  let _celestialBadgeTick = 0;
+  on(Events.TICK, () => { if (++_celestialBadgeTick % 4 === 0) _updateCelestialBanner(); });
+
   // T152: Update succession countdown every tick while pending
   let _successionTickCount = 0;
   on(Events.TICK, () => {
@@ -418,7 +432,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 44, // T152: dynasty succession
+      version: 45, // T154: conquest campaigns
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -509,6 +523,8 @@ function _save() {
         grandTheory:         state.grandTheory         ?? null,  // T150
         rebels:              state.rebels              ?? null,  // T151
         dynasty:             state.dynasty             ?? null,  // T152
+        celestial:           state.celestial           ?? null,  // T153
+        campaigns:           state.campaigns           ?? null,  // T154
         tick:          state.tick,
       }
     }));
@@ -633,6 +649,8 @@ function _applySave(save) {
   state.grandTheory          = s.grandTheory          ?? null; // T150
   state.rebels               = s.rebels               ?? null; // T151
   state.dynasty              = s.dynasty              ?? null; // T152
+  state.celestial            = s.celestial            ?? null; // T153
+  state.campaigns            = s.campaigns            ?? null; // T154
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
@@ -790,6 +808,50 @@ function _updateScholarBanner() {
       <button class="btn btn--sm btn--scholar-dismiss" id="btn-scholar-dismiss">Dismiss</button>
     </div>`;
   banner.style.display = 'flex';
+}
+
+// ── Celestial Events banner (T153) ───────────────────────────────────────
+
+function _updateCelestialBanner() {
+  const banner = document.getElementById('celestial-banner');
+  if (!banner) return;
+
+  const active  = getActiveCelestial();
+  const pending = getPendingCelestial();
+
+  if (active) {
+    const secsLeft = getCelestialSecsLeft();
+    const mins = Math.floor(secsLeft / 60);
+    const secs = secsLeft % 60;
+    const timeStr = mins > 0 ? `${mins}m${String(secs).padStart(2,'0')}s` : `${secsLeft}s`;
+    banner.className = 'celestial-banner';
+    banner.innerHTML = `
+      <div class="celestial-banner__icon">${active.icon}</div>
+      <div class="celestial-banner__body">
+        <div class="celestial-banner__title">${active.icon} ${active.name}</div>
+        <div class="celestial-banner__desc">${active.desc}</div>
+      </div>
+      <div class="celestial-banner__timer">Ends in ${timeStr}</div>`;
+    banner.style.display = 'flex';
+    return;
+  }
+
+  if (pending) {
+    const def = pending.def;
+    banner.className = 'celestial-banner celestial-banner--warning';
+    banner.innerHTML = `
+      <div class="celestial-banner__icon">${def.icon}</div>
+      <div class="celestial-banner__body">
+        <div class="celestial-banner__title">Approaching: ${def.name}</div>
+        <div class="celestial-banner__desc">${def.desc}</div>
+      </div>
+      <div class="celestial-banner__timer">In ${pending.secsLeft}s</div>`;
+    banner.style.display = 'flex';
+    return;
+  }
+
+  banner.style.display = 'none';
+  banner.innerHTML = '';
 }
 
 // ── Age challenge badge (T143) ────────────────────────────────────────────
@@ -1312,6 +1374,9 @@ function _newGame(opts = {}) {
   initRebels();          // T151: reset rebel state on new game
   initDynasty();         // T152: reset dynasty state on new game
   document.getElementById('succession-modal')?.classList.add('succession-modal--hidden'); // T152
+  initCelestial();       // T153: reset celestial events on new game
+  initCampaigns();       // T154: reset campaigns on new game
+  _updateCelestialBanner(); // T153: hide banner on new game
   recalcRates();
   startLoop();  // restart loop in case it was stopped by game-over
   _syncPauseUI();  // ensure pause overlay is hidden on new game

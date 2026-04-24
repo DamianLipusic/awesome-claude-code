@@ -121,7 +121,9 @@ export function castSpell(spellId) {
   }
   // T150: Grand Theory Arcane Omniscience — -50% all spell mana costs
   if (state.grandTheory === 'arcane_omniscience') manaCost = Math.floor(manaCost * 0.50);
-  manaCost = Math.max(1, manaCost);
+  // T153: Blue Moon celestial event — free spell casting
+  if (state.celestial?.active?.type === 'blue_moon') manaCost = 0;
+  if (manaCost > 0) manaCost = Math.max(1, manaCost);
 
   if ((state.resources.mana ?? 0) < manaCost) {
     return { ok: false, reason: `Not enough mana. Need ${manaCost} ✨ mana.` };

@@ -561,6 +561,14 @@ export function recalcRates() {
     for (const res of RESOURCE_KEYS) if (rates[res] > 0) rates[res] *= 0.80;
   }
 
+  // T153: Celestial event passive rate bonuses
+  const _celestialType = state.celestial?.active?.type;
+  if (_celestialType === 'solar_eclipse') {
+    rates.mana *= 2.0;
+  } else if (_celestialType === 'blue_moon') {
+    for (const res of RESOURCE_KEYS) rates[res] += 1.0;
+  }
+
   Object.assign(state.rates, rates);
   Object.assign(state.caps, caps);
 }

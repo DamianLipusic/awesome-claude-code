@@ -34,6 +34,7 @@ import { spawnDiscoveries } from './discoveries.js'; // T146
 import { awardPrestige } from './prestige.js';        // T147: relic combo prestige
 import { getCurrentWeather } from './weather.js';     // T149: weather combat modifiers
 import { suppressRebel } from './rebels.js';           // T151: rebel tile suppression
+import { getCampaignLootMult, recordCampaignWin } from './campaigns.js'; // T154
 
 /** Returns true if both techs of a named synergy are researched. */
 function _synergy(id) {
@@ -285,6 +286,11 @@ export function getAttackPreview(x, y) {
   // T152: Warrior heir — +15% attack power
   if (state.dynasty?.currentHeir === 'warrior') attackPower *= 1.15;
 
+  // T153: Celestial event combat modifier (preview)
+  const _celestialPreview = state.celestial?.active?.type;
+  if (_celestialPreview === 'solar_eclipse')   attackPower *= 0.85;
+  else if (_celestialPreview === 'meteor_shower') attackPower *= 1.10;
+
   // T071: terrain combat modifiers
   const terrainMod = _terrainMod(tile.type);
   attackPower     *= terrainMod.attackMult;
@@ -493,6 +499,11 @@ export function attackTile(x, y) {
   // T152: Warrior heir — +15% attack power
   if (state.dynasty?.currentHeir === 'warrior') attackPower *= 1.15;
 
+  // T153: Celestial event combat modifier
+  const _celestialAtk = state.celestial?.active?.type;
+  if (_celestialAtk === 'solar_eclipse')    attackPower *= 0.85;
+  else if (_celestialAtk === 'meteor_shower') attackPower *= 1.10;
+
   // T071: terrain attack modifier (applied before siege/mana-bolt override)
   const _terrainM = _terrainMod(tile.type);
   attackPower *= _terrainM.attackMult;
@@ -600,6 +611,7 @@ export function attackTile(x, y) {
 function _victory(tile, x, y, attackPower, defense) {
   const wasBarbarian      = tile.owner === 'barbarian';            // T056: check before changing owner
   const wasFactionCapital = tile.isFactionCapital ?? null;         // T093: check before changing owner
+  const prevFaction       = tile.faction ?? null;                  // T154: save before clearing for campaign
 
   tile.owner            = 'player';
   tile.faction          = null;    // T053: clear faction on player capture
@@ -620,11 +632,14 @@ function _victory(tile, x, y, attackPower, defense) {
   // T101: Unstoppable streak tier — doubled loot
   const streakLoot = _streakLootMult();
 
+  // T154: Conquest campaign loot bonus (+25% if tile belongs to campaign target)
+  const campaignLoot = getCampaignLootMult(prevFaction);
+
   // Grant loot (cap at current storage cap)
   const lootParts = [];
   const lootGained = {};
   for (const [res, amt] of Object.entries(tile.loot ?? {})) {
-    const bonusAmt = Math.round(amt * lootMult * streakLoot);
+    const bonusAmt = Math.round(amt * lootMult * streakLoot * campaignLoot);
     const cap  = state.caps[res] ?? 500;
     const prev = state.resources[res] ?? 0;
     state.resources[res] = Math.min(cap, prev + bonusAmt);
@@ -731,6 +746,9 @@ function _victory(tile, x, y, attackPower, defense) {
 
   // T142: count this win towards any active alliance mission
   trackMissionBattleWin();
+
+  // T154: record campaign battle win if this tile belonged to the campaign target
+  if (prevFaction) recordCampaignWin(prevFaction);
 
   recalcRates();
   emit(Events.MAP_CHANGED, { x, y, outcome: 'win' });

@@ -9211,3 +9211,188 @@ kbd {
   color: var(--text-dim);
   font-style: italic;
 }
+
+/* ── T153: Celestial Events banner ───────────────────────────────────────── */
+
+.celestial-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(139, 92, 246, 0.12);
+  border-left: 4px solid #8b5cf6;
+  border-bottom: 1px solid rgba(139, 92, 246, 0.3);
+  padding: 10px 16px;
+  animation: celestial-pulse 4s ease-in-out infinite;
+}
+
+@keyframes celestial-pulse {
+  0%, 100% { background: rgba(139, 92, 246, 0.12); }
+  50%       { background: rgba(139, 92, 246, 0.22); }
+}
+
+.celestial-banner--warning {
+  background: rgba(234, 179, 8, 0.12);
+  border-left-color: #eab308;
+  border-bottom-color: rgba(234, 179, 8, 0.3);
+  animation: celestial-warn 2s ease-in-out infinite;
+}
+
+@keyframes celestial-warn {
+  0%, 100% { background: rgba(234, 179, 8, 0.10); }
+  50%       { background: rgba(234, 179, 8, 0.22); }
+}
+
+.celestial-banner__icon {
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.celestial-banner__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.celestial-banner__title {
+  font-weight: 700;
+  font-size: 14px;
+  color: #c4b5fd;
+  margin-bottom: 2px;
+}
+
+.celestial-banner--warning .celestial-banner__title {
+  color: #fde68a;
+}
+
+.celestial-banner__desc {
+  font-size: 12px;
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.celestial-banner__timer {
+  font-size: 12px;
+  color: #c4b5fd;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.celestial-banner--warning .celestial-banner__timer {
+  color: #fde68a;
+}
+
+/* ── T154: Conquest Campaign section in Diplomacy panel ─────────────────── */
+
+.dipl-campaign {
+  margin: 16px 0;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.dipl-campaign__header {
+  background: rgba(239, 68, 68, 0.10);
+  border-bottom: 1px solid rgba(239, 68, 68, 0.20);
+  padding: 10px 14px;
+  font-weight: 700;
+  font-size: 14px;
+  color: #fca5a5;
+}
+
+.dipl-campaign__sub {
+  padding: 8px 14px;
+  font-size: 12px;
+  color: var(--text-dim);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.campaign-active {
+  padding: 10px 14px;
+  background: rgba(239, 68, 68, 0.08);
+  border-bottom: 1px solid rgba(239, 68, 68, 0.20);
+}
+
+.campaign-active__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.campaign-active__label {
+  font-weight: 600;
+  font-size: 13px;
+  color: #fca5a5;
+}
+
+.campaign-active__timer {
+  font-size: 12px;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.campaign-active__progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.campaign-active__bar-bg {
+  flex: 1;
+  height: 8px;
+  background: rgba(255,255,255,0.10);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.campaign-active__bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ef4444, #f97316);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.campaign-active__count {
+  font-size: 12px;
+  color: #fca5a5;
+  white-space: nowrap;
+}
+
+.campaign-cooldown {
+  padding: 8px 14px;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.campaign-launch-row {
+  padding: 10px 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.btn--campaign {
+  background: linear-gradient(135deg, rgba(239,68,68,0.15), rgba(239,68,68,0.08));
+  border: 1px solid rgba(239, 68, 68, 0.40);
+  color: #fca5a5;
+  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+
+.btn--campaign:hover:not(.btn--disabled) {
+  background: linear-gradient(135deg, rgba(239,68,68,0.30), rgba(239,68,68,0.18));
+}
+
+.campaign-no-targets {
+  font-size: 12px;
+  color: var(--text-dim);
+  font-style: italic;
+}

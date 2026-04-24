@@ -1358,5 +1358,23 @@
     "status": "done",
     "phase": 58,
     "notes": "Created src/systems/dynasty.js (HEIR_DEFS, initDynasty, dynastyTick, chooseHeir, getSuccessionSecsLeft, getRegencySecsLeft). Added SUCCESSION_EVENT + HEIR_CHOSEN events to events.js. Added state.dynasty to state.js + initState(). resources.js: diplomat +0.5 gold/s, scholar +0.5 mana/s, regency -20% all positive rates. research.js: scholar heir 1.10x research rate multiplier. combat.js: warrior heir +15% attack in both getAttackPreview+attackTile. index.html: succession modal with 3 heir buttons + countdown. main.js: imports, registerSystem(dynastyTick), initDynasty in boot+_newGame, save/load (version 44), SUCCESSION_EVENT listener, _showSuccessionModal/_updateSuccessionCountdown/_applySuccessionChoice, modal button delegation. main.css: .succession-modal + .succession-option grid."
+  },
+  {
+    "id": "T153",
+    "title": "celestial events \u2014 periodic astronomical events with gameplay effects",
+    "description": "Four astronomical events (Solar Eclipse, Meteor Shower, Great Comet, Blue Moon) fire every ~15 minutes with a 30-second warning. Solar Eclipse: mana \u00d72, combat \u221215%. Meteor Shower: +150 gold +100 iron instantly, combat +10% for 90s. Great Comet: research speed \u00d72 + +15 morale for 3 min. Blue Moon: +1/s all resources + free spell casting for 2 min. Banner shown during warnings and active events.",
+    "priority": 153,
+    "status": "done",
+    "phase": 59,
+    "notes": "Created data/celestialEvents.js (4 event defs: solar_eclipse, meteor_shower, comet, blue_moon). Created systems/celestialEvents.js (initCelestial, celestialTick, getActiveCelestial, getCelestialSecsLeft, getPendingCelestial). state.js: celestial state field + initState() reset. events.js: CELESTIAL_WARNING/ACTIVE/CLEARED events. resources.js: solar_eclipse rates.mana*=2.0, blue_moon +1/s all resources (no circular import \u2014 reads state.celestial directly). research.js: comet researchRate*=2.0. spells.js: blue_moon sets manaCost=0 (free casts). combat.js: solar_eclipse *0.85 and meteor_shower *1.10 in both getAttackPreview+attackTile. index.html: #celestial-banner div. main.css: .celestial-banner + .celestial-banner--warning with purple/yellow themes. main.js: imports, registerSystem, initCelestial in boot+_newGame, save/load (version 45), CELESTIAL_* listeners, _updateCelestialBanner()."
+  },
+  {
+    "id": "T154",
+    "title": "conquest campaigns \u2014 focused military campaign against an empire for bonus loot",
+    "description": "Player launches a focused conquest campaign against a non-allied empire (cost: 200 gold + 30 food, duration: 5 min). During campaign: all attacks on that empire's tiles get +25% loot. Win 5 battles in 5 minutes for Campaign Victory: +200 prestige, +15 morale, 10-min cooldown. Campaign section in Diplomacy panel with progress bar and launch buttons per empire.",
+    "priority": 154,
+    "status": "done",
+    "phase": 59,
+    "notes": "Created systems/campaigns.js (initCampaigns, campaignTick, startCampaign, getCampaignLootMult, recordCampaignWin, getActiveCampaign, getCampaignSecsLeft, getCampaignCooldownSecs). state.js: campaigns state + initState() reset. events.js: CAMPAIGN_STARTED/WON/ENDED events. combat.js: saves prevFaction before tile.faction=null; getCampaignLootMult(prevFaction) applied in loot loop; recordCampaignWin(prevFaction) called after trackMissionBattleWin. diplomacyPanel.js: import campaigns API, CAMPAIGN_STARTED/WON/ENDED event listeners, _campaignSection() function with active progress bar + launch buttons, 'launch-campaign' click handler in _onClick. main.css: .dipl-campaign section + .btn--campaign + campaign progress bar styles. main.js: imports, registerSystem(campaignTick), initCampaigns in boot+_newGame, save/load version 45."
   }
 ]

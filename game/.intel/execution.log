@@ -2480,3 +2480,45 @@ All 142 prior tasks found complete. Created T143 and T144 from Phase 5+ roadmap 
 - Effects applied inline at each system call site (combat, resources, research, spells, market) — consistent with how other persistent bonuses (masteries, archetypes, capital plans) work. No new tick system needed.
 - arcane_omniscience requires `arcane` tech because Arcane Omniscience is thematically tied to magical research, and it's the most powerful research/mana theory.
 - UI section appended after ruins section in Research panel — chronologically the last unlock available at Iron Age, appropriate to place last.
+
+
+---
+
+## 2026-04-24 — Session N+42
+
+**Tasks completed: T153, T154**
+
+**T153 — Celestial Events:**
+
+**Files created:**
+- `game/src/data/celestialEvents.js`: 4 event definitions: `solar_eclipse` (2 min, mana×2, combat−15%), `meteor_shower` (90s, +150 gold+100 iron, combat+10%), `comet` (3 min, research×2, +15 morale), `blue_moon` (2 min, +1/s all resources, free spells). Each with icon, name, desc, duration, effects, warning/active/end messages.
+- `game/src/systems/celestialEvents.js`: `initCelestial()`, `celestialTick()` (warning→activate→clear flow, 15 min interval, 30s warning lead), `getActiveCelestial()`, `getCelestialSecsLeft()`, `getPendingCelestial()`. No circular imports — effects checked via `state.celestial.active.type` directly in each system.
+
+**Files modified:**
+- `game/src/core/state.js`: Added `celestial: null` field and `initState()` reset.
+- `game/src/core/events.js`: Added `CELESTIAL_WARNING`, `CELESTIAL_ACTIVE`, `CELESTIAL_CLEARED` events.
+- `game/src/systems/resources.js`: Added celestial rate bonuses in `recalcRates()` after dynasty block: solar_eclipse `rates.mana *= 2.0`, blue_moon `+1.0` to all resource rates.
+- `game/src/systems/research.js`: Added `if (state.celestial?.active?.type === 'comet') researchRate *= 2.0` in `researchTick()`.
+- `game/src/systems/spells.js`: Added `if (state.celestial?.active?.type === 'blue_moon') manaCost = 0` in `castSpell()`.
+- `game/src/systems/combat.js`: Added celestial combat mult in both `getAttackPreview()` and `attackTile()`: solar_eclipse ×0.85, meteor_shower ×1.10.
+- `game/index.html`: Added `#celestial-banner` div after scholar banner.
+- `game/styles/main.css`: Added `.celestial-banner` (purple theme) and `.celestial-banner--warning` (yellow theme) with pulse animations.
+- `game/src/main.js`: Imports, `registerSystem(celestialTick)`, `initCelestial()` in boot+`_newGame`, save/load at version 45, CELESTIAL_* event listeners, `_updateCelestialBanner()` function.
+
+**T154 — Conquest Campaigns:**
+
+**Files created:**
+- `game/src/systems/campaigns.js`: `initCampaigns()`, `campaignTick()` (auto-expiry), `startCampaign(empireId)` (validates relations/cost/cooldown, deducts resources), `getCampaignLootMult(tileEmpireId)` (returns 1.25 for target, 1.0 otherwise), `recordCampaignWin(tileEmpireId)` (increments wins, triggers victory at ≥5), `_endCampaign(won)` (+200 prestige +15 morale on victory), `getActiveCampaign()`, `getCampaignSecsLeft()`, `getCampaignCooldownSecs()`. Constants: 200 gold + 30 food cost, 1200-tick duration, 2400-tick cooldown.
+
+**Files modified:**
+- `game/src/core/state.js`: Added `campaigns: null` field and reset.
+- `game/src/core/events.js`: Added `CAMPAIGN_STARTED`, `CAMPAIGN_WON`, `CAMPAIGN_ENDED`.
+- `game/src/systems/combat.js`: Imports `getCampaignLootMult`, `recordCampaignWin`. `_victory()`: saves `prevFaction = tile.faction` before `tile.faction = null`. Applies `getCampaignLootMult(prevFaction)` in loot loop. Calls `recordCampaignWin(prevFaction)` after `trackMissionBattleWin()`.
+- `game/src/ui/diplomacyPanel.js`: Imports campaign API + constants. Added CAMPAIGN_* event listeners. `_render()` includes `_campaignSection()`. `_campaignSection()` renders active progress bar (win count + timer) or launch buttons per non-allied empire. Added `'launch-campaign'` case in `_onClick`. Tick-based refresh when campaign is active.
+- `game/styles/main.css`: `.dipl-campaign` section, `.campaign-active` progress bar, `.btn--campaign` launch buttons, `.campaign-cooldown`, `.campaign-launch-row`.
+- `game/src/main.js`: Imports, `registerSystem(campaignTick)`, `initCampaigns()` in boot+`_newGame`, save/load (version 45).
+
+**Architecture decisions:**
+- Celestial effects applied via `state.celestial.active.type` checks directly in each system (resources, research, combat, spells) — avoids circular imports since celestialEvents.js needs to call recalcRates() from resources.js.
+- Campaign loot mult applied at the same point as hero lootMult and streakLoot in `_victory()`. Campaign wins only counted on non-barbarian, non-rebel tile captures matching the target empire.
+- Save version bumped to 45 for both T153+T154. Both systems use `?? null` defaults in _applySave for backwards compatibility.
