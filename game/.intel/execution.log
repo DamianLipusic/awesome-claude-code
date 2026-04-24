@@ -2411,3 +2411,42 @@ All 142 prior tasks found complete. Created T143 and T144 from Phase 5+ roadmap 
 - Population milestone choice replaces the toast for 500/1000/2000; all other milestones (100, 250, 5000) keep the original toast path.
 - Artisans buff uses existing randomEvents activeModifiers system (rateMult:1.20 per resource) — auto-expired by randomEventTick's filter pass. No new state field needed.
 - Pop milestone modal has no cancel button — player must choose. This matches the age council boon design philosophy: milestones are always positive choices.
+
+
+---
+
+## 2026-04-24 — Session N+41
+
+**Tasks completed: T149, T150**
+
+**T149 — Weather Combat Modifiers:**
+
+**Files modified:**
+- `game/src/data/weather.js`: Added `combatMult` field to all 5 weather types: clear_skies:1.05, heavy_rain:0.90, scorching_heat:0.95, windstorm:1.10, snowstorm:0.85.
+- `game/src/systems/combat.js`: Imported `getCurrentWeather`. Applied `_weather?.combatMult ?? 1.0` multiplier in both `getAttackPreview()` and `attackTile()` after Great General bonus. Preview returns `weatherMult`, `weatherIcon`, `weatherName`.
+- `game/src/ui/mapPanel.js`: Added weather notice row in `_showCombatPreview()` — shows `${icon} ${name}: ±N% ATK` in green/red.
+- `game/styles/main.css`: Added `.cp-weather-notice` class (blue-tinted background, border, padding).
+
+**T150 — Grand Theory Specialization:**
+
+**Files created:**
+- `game/src/data/grandTheory.js`: `GRAND_THEORIES` freeze with 3 theories: `military_supremacy` (combatMult:1.40), `economic_mastery` (goldRate:3, marketSellMult:1.5, tradeIncomeMult:1.5), `arcane_omniscience` (manaRate:2, spellCostMult:0.50, researchMult:0.75, requires arcane tech). Also exports `GRAND_THEORY_ORDER` and `GRAND_THEORY_MIN_TECHS=8`.
+
+**Files modified:**
+- `game/src/core/state.js`: Added `grandTheory: null` to state object and `initState()` reset.
+- `game/src/core/events.js`: Added `GRAND_THEORY_CHOSEN: 'grandTheoryChosen'`.
+- `game/src/core/actions.js`: Added `chooseGrandTheory(theoryId)` — validates unknown theory, already chosen, age<2, tech count<8, missing prereq techs; sets state.grandTheory, calls recalcRates(), emits GRAND_THEORY_CHOSEN, addMessage.
+- `game/src/systems/resources.js`: Added `grandTheoryTradeMult` (x1.5 for economic_mastery) multiplied into trade route loop. Added flat bonuses block before Object.assign: economic_mastery +3 gold/s, arcane_omniscience +2 mana/s.
+- `game/src/systems/combat.js`: Added `if (state.grandTheory === 'military_supremacy') attackPower *= 1.40` after T149 weather block in both `getAttackPreview()` and `attackTile()`.
+- `game/src/systems/research.js`: Added `if (state.grandTheory === 'arcane_omniscience') totalTicks = Math.ceil(totalTicks * 0.75)` in `startResearch()`.
+- `game/src/systems/spells.js`: Added `if (state.grandTheory === 'arcane_omniscience') manaCost = Math.floor(manaCost * 0.50)` in `castSpell()` after trait reduction.
+- `game/src/systems/market.js`: Added `if (state.grandTheory === 'economic_mastery') earned = Math.floor(earned * 1.5)` in `sellResources()` after Grand Bazaar bonus.
+- `game/src/ui/researchPanel.js`: Imported `GRAND_THEORIES, GRAND_THEORY_ORDER, GRAND_THEORY_MIN_TECHS` and `chooseGrandTheory`. Added `on(Events.GRAND_THEORY_CHOSEN, renderResearchPanel)`. Added `_grandTheorySection()` at end of panel HTML. Added `[data-grand-theory]` click handler. Added `_grandTheorySection()` helper with locked/active notices + card grid.
+- `game/styles/main.css`: Added Grand Theory section CSS (`.gt-section`, `.gt-header`, `.gt-grid`, `.gt-card`, `.gt-active-banner`, etc.).
+- `game/src/main.js`: Added `grandTheory` to `_save()` payload and `_applySave()` restore (null default). Added `on(Events.GRAND_THEORY_CHOSEN, _updateScoreBadge)`. Bumped save version to 42.
+
+**Architecture decisions:**
+- Grand Theory is a one-time permanent choice (no changing after selection). `chooseGrandTheory` validates in actions.js and sets state.grandTheory string.
+- Effects applied inline at each system call site (combat, resources, research, spells, market) — consistent with how other persistent bonuses (masteries, archetypes, capital plans) work. No new tick system needed.
+- arcane_omniscience requires `arcane` tech because Arcane Omniscience is thematically tied to magical research, and it's the most powerful research/mana theory.
+- UI section appended after ruins section in Research panel — chronologically the last unlock available at Iron Age, appropriate to place last.

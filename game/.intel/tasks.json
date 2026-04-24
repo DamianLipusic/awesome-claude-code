@@ -1322,5 +1322,23 @@
     "status": "done",
     "spec": "At 500, 1000, and 2000 citizen milestones emit POPULATION_MILESTONE event. Show a modal with 3 choices: Baby Boom (+100 citizens), Skilled Artisans (+20% all rates for 5 min via randomEvent modifier), Military Volunteers (+3 free basic units). Track offered milestones in state.populationMilestones. Modal styled like ageChallenges pattern in main.js.",
     "notes": "POPULATION_MILESTONE event added. CHOICE_MILESTONES = {500,1000,2000} in population.js emits event instead of plain toast, guarded by state.populationMilestones[m] flag. pop-milestone-modal HTML + CSS (green border). main.js: _showPopMilestoneModal, _applyPopMilestoneOption with 3 choices: boom (+100 pop), artisans (6 randomEvent modifiers @1.20x for 5 min), volunteers (+5 soldier+archer). Save/load wired. Modal hidden on _newGame."
+  },
+  {
+    "id": "T149",
+    "title": "weather combat modifiers",
+    "description": "Weather events now modify attack power in combat. Clear Skies +5%, Windstorm +10%, Scorching Heat -5%, Heavy Rain -10%, Snowstorm -15%. Add combatMult field to each weather type in data/weather.js. Apply in both getAttackPreview() and attackTile() in combat.js. Return weatherMult/weatherName in preview. Show weather notice in combat preview modal (mapPanel.js). CSS .cp-weather-notice class.",
+    "priority": 149,
+    "status": "done",
+    "phase": 57,
+    "notes": "Added combatMult to all 5 weather types in data/weather.js. Applied in getAttackPreview() and attackTile() in combat.js after Great General bonus. Combat preview shows weather notice with color-coded ATK% in mapPanel.js. Added .cp-weather-notice CSS class."
+  },
+  {
+    "id": "T150",
+    "title": "Grand Theory specialization — one-time empire-wide strategic bonus at Iron Age",
+    "description": "At Iron Age with 8+ techs researched, player chooses one Grand Theory (one per game): Military Supremacy (+40% all combat attack), Economic Mastery (+3 gold/s + market sell x1.5 + trade income x1.5), Arcane Omniscience (-50% spell mana costs + +2 mana/s + -25% research time). Requires arcane tech for Arcane Omniscience. Create data/grandTheory.js. Add state.grandTheory (reset per game). GRAND_THEORY_CHOSEN event. chooseGrandTheory() action. Effects wired into combat.js, resources.js, spells.js, research.js. UI section in Research panel. Save/load compatible (backwards-compatible null default).",
+    "priority": 150,
+    "status": "done",
+    "phase": 57,
+    "notes": "Created data/grandTheory.js with 3 theories. state.grandTheory added to state.js + initState(). GRAND_THEORY_CHOSEN event added to events.js. chooseGrandTheory() action in actions.js validates age>=2, 8+ techs, tech prerequisites. Effects wired: military_supremacy +40% in both combat.js getAttackPreview+attackTile; economic_mastery +3 gold/s + x1.5 trade + x1.5 market sell in resources.js+market.js; arcane_omniscience +2 mana/s + -25% research in resources.js+research.js + -50% spell cost in spells.js. UI _grandTheorySection() in researchPanel.js with card grid. CSS in main.css. Save/load at version 42."
   }
 ]

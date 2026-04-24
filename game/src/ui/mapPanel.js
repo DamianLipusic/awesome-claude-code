@@ -25,6 +25,7 @@ import { LANDMARKS } from '../data/landmarks.js';
 import { collectResourceNode, getNodeAt, nodeSecsLeft, activeNodeCount } from '../systems/resourceNodes.js';
 import { getActiveBounty } from '../systems/bounty.js';
 import { claimDiscovery, getDiscoveryDef, spawnDiscoveries } from '../systems/discoveries.js'; // T146
+import { getCurrentWeather } from '../systems/weather.js'; // T149
 
 const TILE_PX   = 24;     // pixels per tile side
 const GRID_SIZE = 20;     // tiles per axis
@@ -1035,6 +1036,16 @@ function _showCombatPreview(x, y) {
     ? `<div class="cp-siege-notice" style="color:#68d391">🛡️ Allied Aid: ${p.aidBattlesLeft} battle${p.aidBattlesLeft !== 1 ? 's' : ''} remaining</div>`
     : '';
 
+  // T149: Weather combat notice (only shown when weather has a non-neutral combat modifier)
+  const weatherHtml = (p.weatherMult && p.weatherMult !== 1.0 && p.weatherIcon)
+    ? (() => {
+        const pct  = Math.round((p.weatherMult - 1) * 100);
+        const sign = pct > 0 ? '+' : '';
+        const col  = pct > 0 ? 'var(--green)' : 'var(--red)';
+        return `<div class="cp-weather-notice">${p.weatherIcon} ${p.weatherName}: <span style="color:${col}">${sign}${pct}% ATK</span></div>`;
+      })()
+    : '';
+
   // T132: Siege Engine notice
   const siegeEngineHtml = p.siegeEngineActive
     ? `<div class="cp-siege-notice" style="color:#fbd38d">🏰 Siege Engine: fortification defenses halved!</div>`
@@ -1088,7 +1099,7 @@ function _showCombatPreview(x, y) {
           <span class="cp-stat__value" style="color:${winColor}">${winPct}%</span>
         </div>
       </div>
-      ${terrainNoticeHtml}${siegeHtml}${manaBoltHtml}${battleCryHtml}${formationHtml}${streakHtmlPreview}${aidHtmlPreview}${siegeEngineHtml}
+      ${terrainNoticeHtml}${weatherHtml}${siegeHtml}${manaBoltHtml}${battleCryHtml}${formationHtml}${streakHtmlPreview}${aidHtmlPreview}${siegeEngineHtml}
       <div class="cp-loot-row">
         <span class="cp-loot-label">Loot on victory:</span>
         <span class="cp-loot-items">${lootHtml}</span>

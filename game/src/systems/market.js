@@ -141,6 +141,8 @@ export function sellResources(resource, amount) {
   let earned = sellPrice(resource, actual);
   // T133: Grand Bazaar wonder — market trades yield 50% more gold
   if (state.wonder?.completedId === 'grand_bazaar') earned = Math.floor(earned * 1.5);
+  // T150: Grand Theory Economic Mastery — ×1.5 market sell prices
+  if (state.grandTheory === 'economic_mastery') earned = Math.floor(earned * 1.5);
   // T134: Scholar Trade Secrets — +50% sell gold for next 3 sells
   const _ts = state.scholar?.activeEffect;
   if (_ts?.type === 'trade_secrets' && (_ts.chargesLeft ?? 0) > 0) {

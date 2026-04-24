@@ -119,6 +119,8 @@ export function castSpell(spellId) {
   if (state.hero?.trait === 'arcane_mind' && !state.hero.pendingTrait) {
     manaCost = Math.floor(manaCost * 0.70);
   }
+  // T150: Grand Theory Arcane Omniscience — -50% all spell mana costs
+  if (state.grandTheory === 'arcane_omniscience') manaCost = Math.floor(manaCost * 0.50);
   manaCost = Math.max(1, manaCost);
 
   if ((state.resources.mana ?? 0) < manaCost) {

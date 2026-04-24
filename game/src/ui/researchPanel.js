@@ -6,7 +6,8 @@
 import { state } from '../core/state.js';
 import { on, Events } from '../core/events.js';
 import { startResearch, cancelResearch, MAX_RESEARCH_QUEUE } from '../systems/research.js';
-import { advanceAge, setPolicy } from '../core/actions.js';
+import { advanceAge, setPolicy, chooseGrandTheory } from '../core/actions.js';
+import { GRAND_THEORIES, GRAND_THEORY_ORDER, GRAND_THEORY_MIN_TECHS } from '../data/grandTheory.js';
 import { TECHS, MASTERY_GROUPS, SYNERGIES, SYNERGY_ORDER } from '../data/techs.js';
 import { AGES } from '../data/ages.js';
 import { fmtNum, fmtTime } from '../utils/fmt.js';
@@ -41,6 +42,7 @@ export function initResearchPanel() {
   on(Events.RUIN_EXCAVATED,         renderResearchPanel);
   on(Events.RESEARCH_INSPIRATION,   renderResearchPanel);
   on(Events.WONDER_CHANGED,         renderResearchPanel);  // T133
+  on(Events.GRAND_THEORY_CHOSEN,    renderResearchPanel);  // T150
   // Refresh countdown text every second while a festival, inspiration, or wonder is active
   on(Events.TICK, _throttle(() => {
     const hasActivity = getActiveFestival() || getFestivalCooldownSecs() > 0
@@ -92,7 +94,7 @@ function renderResearchPanel() {
     </div>`;
   }).join('');
 
-  panel.innerHTML = _ageSection() + progressHtml + _inspirationCard() + `<div class="tech-grid">${techCards}</div>` + _masteriesSection() + _synergiesSection() + _policySection() + _festivalsSection() + _wondersSection() + _relicsSection() + _landmarksSection() + _ruinsSection();
+  panel.innerHTML = _ageSection() + progressHtml + _inspirationCard() + `<div class="tech-grid">${techCards}</div>` + _masteriesSection() + _synergiesSection() + _policySection() + _festivalsSection() + _wondersSection() + _relicsSection() + _landmarksSection() + _ruinsSection() + _grandTheorySection();
 
   panel.onclick = (e) => {
     // T116: Research inspiration accept/dismiss
@@ -135,6 +137,12 @@ function renderResearchPanel() {
     if (wonderBtn) {
       const result = startWonder(wonderBtn.dataset.wonder);
       if (!result.ok) wonderBtn.title = result.reason;
+      return;
+    }
+    // T150: Grand Theory selection
+    const gtBtn = e.target.closest('[data-grand-theory]');
+    if (gtBtn) {
+      chooseGrandTheory(gtBtn.dataset.grandTheory);
       return;
     }
     const btn = e.target.closest('[data-tech]');
@@ -741,6 +749,72 @@ function _festivalsSection() {
       <div class="festival-intro">Declare a festival for a temporary empire-wide boost. One at a time, 8-minute cooldown after each.</div>
       ${statusHtml}
       <div class="festival-grid">${cards}</div>
+    </div>`;
+}
+
+// ── T150: Grand Theory section ─────────────────────────────────────────────
+
+function _grandTheorySection() {
+  const active = state.grandTheory;
+  const techCount = Object.values(state.techs).filter(Boolean).length;
+  const isIronAge = (state.age ?? 0) >= 2;
+  const unlocked  = isIronAge && techCount >= GRAND_THEORY_MIN_TECHS;
+
+  let statusHtml = '';
+  if (active) {
+    const def = GRAND_THEORIES[active];
+    statusHtml = `<div class="gt-active-banner">
+      <span class="gt-active-icon">${def.icon}</span>
+      <div class="gt-active-body">
+        <strong>${def.name}</strong>
+        <div class="gt-active-bonuses">${def.bonusLines.join(' · ')}</div>
+      </div>
+      <span class="gt-active-badge">Active</span>
+    </div>`;
+  } else if (!unlocked) {
+    const missingAge  = !isIronAge  ? ' · Reach Iron Age' : '';
+    const missingTech = techCount < GRAND_THEORY_MIN_TECHS
+      ? ` · Research ${GRAND_THEORY_MIN_TECHS - techCount} more tech${GRAND_THEORY_MIN_TECHS - techCount !== 1 ? 's' : ''}`
+      : '';
+    statusHtml = `<div class="gt-locked-notice">🔒 Locked${missingAge}${missingTech}</div>`;
+  }
+
+  const cards = GRAND_THEORY_ORDER.map(id => {
+    const def = GRAND_THEORIES[id];
+    const isChosen = active === id;
+    const reqOk    = (def.requires ?? []).every(t => !!state.techs[t]);
+    const disabled = !!active || !unlocked || !reqOk;
+    const reqLabel = !reqOk
+      ? `<div class="gt-req">Requires: ${def.requires.map(t => t).join(', ')}</div>`
+      : '';
+    const btnLabel = isChosen ? 'Chosen' : 'Choose';
+
+    return `<div class="gt-card ${isChosen ? 'gt-card--chosen' : ''} ${!unlocked || !reqOk ? 'gt-card--locked' : ''}">
+      <div class="gt-card__header">
+        <span class="gt-card__icon">${def.icon}</span>
+        <strong class="gt-card__name">${def.name}</strong>
+        ${isChosen ? '<span class="gt-chosen-badge">✓ Active</span>' : ''}
+      </div>
+      <div class="gt-card__desc">${def.desc}</div>
+      <ul class="gt-card__bonuses">${def.bonusLines.map(l => `<li>${l}</li>`).join('')}</ul>
+      ${reqLabel}
+      <button class="btn btn--sm btn--gt"
+              data-grand-theory="${id}"
+              ${disabled ? 'disabled' : ''}>
+        ${btnLabel}
+      </button>
+    </div>`;
+  }).join('');
+
+  return `
+    <div class="gt-section">
+      <div class="gt-header">
+        <span>🌟 Grand Theory</span>
+        <span class="gt-count-label">${active ? 'Chosen' : `${techCount}/${GRAND_THEORY_MIN_TECHS} techs`}</span>
+      </div>
+      <div class="gt-intro">At Iron Age with ${GRAND_THEORY_MIN_TECHS}+ technologies researched, choose one permanent Grand Theory for your empire. This choice is final.</div>
+      ${statusHtml}
+      <div class="gt-grid">${cards}</div>
     </div>`;
 }
 

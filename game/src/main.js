@@ -381,6 +381,7 @@ function boot() {
   on(Events.MASTERY_UNLOCKED,     _updateScoreBadge);
   on(Events.PRESTIGE_CHANGED,     _updateScoreBadge);
   on(Events.CAPITAL_PLAN_CHOSEN,  _updateScoreBadge);
+  on(Events.GRAND_THEORY_CHOSEN,  _updateScoreBadge);  // T150
 
   // Start auto-save every 60 seconds
   setInterval(_save, 60_000);
@@ -396,7 +397,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 41, // T143: age challenges; T144: emergency council
+      version: 42, // T150: grand theory
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -484,6 +485,7 @@ function _save() {
         influence:           state.influence           ?? null,  // T145
         discoveries:         state.discoveries         ?? null,  // T146
         populationMilestones: state.populationMilestones ?? {},   // T148
+        grandTheory:         state.grandTheory         ?? null,  // T150
         tick:          state.tick,
       }
     }));
@@ -605,6 +607,7 @@ function _applySave(save) {
   state.influence            = s.influence            ?? null; // T145
   state.discoveries          = s.discoveries          ?? null; // T146
   state.populationMilestones = s.populationMilestones ?? {};   // T148
+  state.grandTheory          = s.grandTheory          ?? null; // T150
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };

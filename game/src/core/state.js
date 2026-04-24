@@ -370,6 +370,10 @@ export const state = {
   // T148: Population growth choice milestones — tracks which choice events have been offered
   // { [threshold]: true }  e.g. { 500: true, 1000: true }
   populationMilestones: {},
+
+  // T150: Grand Theory — one-time empire-wide specialization chosen at Iron Age + 8 techs.
+  // Stores the chosen theory id string, or null if not yet chosen.
+  grandTheory: null,
 };
 
 /**
@@ -460,5 +464,6 @@ export function initState(empireName = 'My Empire') {
   state.influence           = null; // T145: reset influence on new game
   state.discoveries         = null; // T146: reset discoveries on new game
   state.populationMilestones = {};  // T148: reset pop choice milestones per game
+  state.grandTheory          = null; // T150: reset grand theory per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

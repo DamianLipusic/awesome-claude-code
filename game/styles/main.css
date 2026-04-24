@@ -3242,6 +3242,16 @@ kbd {
   background: rgba(120,200,255,.06);
   border-color: rgba(120,200,255,.2);
 }
+/* T149: weather combat modifier notice */
+.cp-weather-notice {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 500;
+  background: rgba(100,180,220,.07);
+  border: 1px solid rgba(100,180,220,.25);
+  border-radius: var(--radius);
+  padding: 5px 8px;
+}
 
 .cp-loot-row {
   display: flex;
@@ -8919,5 +8929,141 @@ kbd {
   gap: 0.6rem;
   justify-content: center;
   margin-top: 0.4rem;
+}
+
+/* ── T150: Grand Theory section ─────────────────────────────────────────── */
+.gt-section {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.gt-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.gt-count-label {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
+.gt-intro {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin-bottom: 10px;
+}
+
+.gt-locked-notice {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  background: rgba(100,100,100,.08);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 6px 10px;
+  margin-bottom: 10px;
+}
+
+.gt-active-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(100,180,100,.10);
+  border: 1px solid rgba(100,180,100,.30);
+  border-radius: var(--radius);
+  padding: 8px 12px;
+  margin-bottom: 10px;
+}
+
+.gt-active-icon { font-size: 1.4rem; }
+
+.gt-active-body {
+  flex: 1;
+  font-size: 0.82rem;
+}
+
+.gt-active-bonuses {
+  font-size: 0.73rem;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+.gt-active-badge {
+  font-size: 0.7rem;
+  background: var(--green);
+  color: #fff;
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+
+.gt-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 8px;
+}
+
+.gt-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.gt-card--chosen {
+  border-color: rgba(100,200,100,.5);
+  background: rgba(100,200,100,.06);
+}
+
+.gt-card--locked { opacity: 0.6; }
+
+.gt-card__header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.gt-card__icon { font-size: 1.2rem; }
+
+.gt-card__name {
+  font-size: 0.85rem;
+  flex: 1;
+}
+
+.gt-chosen-badge {
+  font-size: 0.68rem;
+  background: var(--green);
+  color: #fff;
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+
+.gt-card__desc {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
+.gt-card__bonuses {
+  margin: 0;
+  padding-left: 16px;
+  font-size: 0.75rem;
+  color: var(--green);
+}
+
+.gt-req {
+  font-size: 0.72rem;
+  color: var(--yellow);
+}
+
+.btn--gt {
+  align-self: flex-start;
+  margin-top: auto;
 }
 

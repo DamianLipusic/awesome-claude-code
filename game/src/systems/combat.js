@@ -32,6 +32,7 @@ import { getGeneralBonus, consumeGeneralCharge } from './greatPersons.js'; // T1
 import { trackMissionBattleWin } from './allianceMissions.js'; // T142
 import { spawnDiscoveries } from './discoveries.js'; // T146
 import { awardPrestige } from './prestige.js';        // T147: relic combo prestige
+import { getCurrentWeather } from './weather.js';     // T149: weather combat modifiers
 
 /** Returns true if both techs of a named synergy are researched. */
 function _synergy(id) {
@@ -268,6 +269,14 @@ export function getAttackPreview(x, y) {
   const _gpBonus = getGeneralBonus();
   if (_gpBonus > 0) attackPower += _gpBonus;
 
+  // T149: weather combat modifier
+  const _weather = getCurrentWeather();
+  const weatherMult = _weather?.combatMult ?? 1.0;
+  if (weatherMult !== 1.0) attackPower *= weatherMult;
+
+  // T150: Grand Theory Military Supremacy — +40% all attack power
+  if (state.grandTheory === 'military_supremacy') attackPower *= 1.40;
+
   // T071: terrain combat modifiers
   const terrainMod = _terrainMod(tile.type);
   attackPower     *= terrainMod.attackMult;
@@ -309,6 +318,9 @@ export function getAttackPreview(x, y) {
     effectiveDefense: Math.round(effectiveDefense),
     terrainMod,
     winChance,
+    weatherMult,
+    weatherIcon:  _weather?.icon  ?? null,
+    weatherName:  _weather?.name  ?? null,
     loot:         tile.loot ?? {},
     terrain:      tile.type,
     owner:        tile.owner,
@@ -453,6 +465,15 @@ export function attackTile(x, y) {
   // T136: Great General — flat attack bonus while charges remain
   const _gpBonusAtk = getGeneralBonus();
   if (_gpBonusAtk > 0) attackPower += _gpBonusAtk;
+
+  // T149: weather combat modifier
+  const _weatherAtk = getCurrentWeather();
+  if (_weatherAtk?.combatMult && _weatherAtk.combatMult !== 1.0) {
+    attackPower *= _weatherAtk.combatMult;
+  }
+
+  // T150: Grand Theory Military Supremacy — +40% all attack power
+  if (state.grandTheory === 'military_supremacy') attackPower *= 1.40;
 
   // T071: terrain attack modifier (applied before siege/mana-bolt override)
   const _terrainM = _terrainMod(tile.type);

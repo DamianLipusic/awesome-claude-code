@@ -133,6 +133,11 @@ export function startResearch(techId) {
     addMessage('⚗️ Workshop Discount applied! (−20% research time)', 'tech');
   }
 
+  // T150: Grand Theory Arcane Omniscience — −25% research time
+  if (state.grandTheory === 'arcane_omniscience') {
+    totalTicks = Math.ceil(totalTicks * 0.75);
+  }
+
   // T119: war_scholar commander trait — −20% research time
   if (state.hero?.recruited && state.hero.trait === 'war_scholar' && !state.hero.pendingTrait) {
     totalTicks = Math.ceil(totalTicks * 0.80);

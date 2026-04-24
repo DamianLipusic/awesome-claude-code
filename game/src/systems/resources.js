@@ -131,6 +131,8 @@ export function recalcRates() {
     const economicMastery  = state.masteries?.economic     ? 1.3 : 1.0;
     // T077: Trade Empire synergy (navigation + economics) → +0.8 gold/s per open trade route
     const tradeEmpireActive = _synergy('trade_empire');
+    // T150: Grand Theory Economic Mastery — ×1.5 trade route income
+    const grandTheoryTradeMult = state.grandTheory === 'economic_mastery' ? 1.5 : 1.0;
     for (const emp of state.diplomacy.empires) {
       if (emp.relations !== 'allied' || emp.tradeRoutes <= 0) continue;
       const gift = EMPIRES[emp.id]?.tradeGift ?? {};
@@ -138,7 +140,7 @@ export function recalcRates() {
       const allyTradeMult = EMPIRES[emp.id]?.allianceBonus?.tradeIncomeMult ?? 1.0;
       for (const [res, rate] of Object.entries(gift)) {
         if (rates[res] !== undefined) {
-          rates[res] += rate * emp.tradeRoutes * navMult * merchantMult * economicMastery * allyTradeMult;
+          rates[res] += rate * emp.tradeRoutes * navMult * merchantMult * economicMastery * allyTradeMult * grandTheoryTradeMult;
         }
       }
       // Trade Empire: flat +0.8 gold/s per open trade route (stacks per route)
@@ -545,6 +547,10 @@ export function recalcRates() {
   if (_acr[3] === 'won') {                                       // Medieval: +10% all positive rates
     for (const res of RESOURCE_KEYS) if (rates[res] > 0) rates[res] *= 1.10;
   }
+
+  // T150: Grand Theory permanent flat rate bonuses
+  if (state.grandTheory === 'economic_mastery')  rates.gold += 3;
+  if (state.grandTheory === 'arcane_omniscience') rates.mana += 2;
 
   Object.assign(state.rates, rates);
   Object.assign(state.caps, caps);

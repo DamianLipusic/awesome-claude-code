@@ -18,6 +18,7 @@ import { CAPITAL_PLANS } from '../data/capitalPlans.js';
 import { FORGE_ITEMS } from '../data/forgeItems.js';
 import { SEASON_UNIT_DISCOUNT } from '../data/seasons.js';
 import { PROCLAMATIONS } from '../data/proclamations.js';
+import { GRAND_THEORIES, GRAND_THEORY_MIN_TECHS } from '../data/grandTheory.js';
 import { recalcRates } from '../systems/resources.js';
 import { log } from '../utils/logger.js';
 
@@ -1173,6 +1174,37 @@ export function removeFromBuildQueue(idx) {
   queue.splice(idx, 1);
   state.buildQueue = queue;
   emit(Events.QUEUE_CHANGED, {});
+  return { ok: true };
+}
+
+// ---------------------------------------------------------------------------
+// Grand Theory (T150)
+// ---------------------------------------------------------------------------
+
+/**
+ * Choose a Grand Theory specialization.
+ * Requirements: Iron Age (age >= 2), 8+ techs researched, theory not already chosen,
+ * and any theory-specific tech prerequisites met.
+ */
+export function chooseGrandTheory(theoryId) {
+  const def = GRAND_THEORIES[theoryId];
+  if (!def) return { ok: false, reason: 'Unknown theory.' };
+  if (state.grandTheory) return { ok: false, reason: 'A Grand Theory is already active.' };
+  if ((state.age ?? 0) < 2) return { ok: false, reason: 'Requires Iron Age.' };
+  const techCount = Object.keys(state.techs ?? {}).length;
+  if (techCount < GRAND_THEORY_MIN_TECHS) {
+    return { ok: false, reason: `Requires ${GRAND_THEORY_MIN_TECHS} technologies researched (you have ${techCount}).` };
+  }
+  for (const req of (def.requires ?? [])) {
+    if (!state.techs[req]) {
+      return { ok: false, reason: `Requires ${req} technology.` };
+    }
+  }
+
+  state.grandTheory = theoryId;
+  recalcRates();
+  emit(Events.GRAND_THEORY_CHOSEN, { theoryId });
+  addMessage(`${def.icon} Grand Theory: ${def.name} — ${def.bonusLines.join(', ')}`, 'achievement');
   return { ok: true };
 }
 

@@ -112,4 +112,5 @@ export const Events = Object.freeze({
   DISCOVERY_FOUND:          'discoveryFound',             // T146: hidden map discovery revealed
   RELIC_COMBO_UNLOCKED:     'relicComboUnlocked',         // T147: relic combination synergy unlocked
   POPULATION_MILESTONE:     'populationMilestone',        // T148: population choice milestone reached
+  GRAND_THEORY_CHOSEN:      'grandTheoryChosen',          // T150: player selected a grand theory specialization
 });
