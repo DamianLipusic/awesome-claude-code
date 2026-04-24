@@ -10,7 +10,7 @@
 
 import { state } from '../core/state.js';
 import { on, Events } from '../core/events.js';
-import { trainUnit, recruitHero, useHeroAbility, setFormation, chooseHeroSkill, rallyTroops, upgradeUnit, UNIT_UPGRADE_MAX, UNIT_UPGRADE_COST_BASE, addMessage, chooseHeroTrait, chooseCompanion, issueProclamation } from '../core/actions.js';
+import { trainUnit, recruitHero, useHeroAbility, setFormation, chooseHeroSkill, rallyTroops, upgradeUnit, UNIT_UPGRADE_MAX, UNIT_UPGRADE_COST_BASE, addMessage, chooseHeroTrait, chooseCompanion, issueProclamation, activateSurgeProvisions } from '../core/actions.js';
 import { acceptDuel, declineDuel, getDuelSecsLeft } from '../systems/duels.js';
 import { sendPioneerExpedition, getPioneerProgress, getPioneerSecsLeft, PIONEER_COST, PIONEER_MAX } from '../systems/pioneerExpeditions.js';
 import { sendOnExpedition, recallExpedition, isOnExpedition, expeditionSecsLeft, expeditionProgress, canEnshrineHero, enshrineHero, ENSHRINE_MAX } from '../systems/heroSystem.js';
@@ -77,6 +77,7 @@ export function initMilitaryPanel() {
   on(Events.HERO_TRAIT_CHOSEN,    () => _render(panel)); // T119: trait chosen → switch from chooser to active view
   on(Events.COMPANION_RECRUITED,   () => _render(panel)); // T122: companion chosen
   on(Events.PROCLAMATION_ISSUED,   () => _render(panel)); // T131: proclamation issued/cleared
+  on(Events.SUPPLY_CHANGED,        () => _render(panel)); // T157: surge activated/expired
   on(Events.RESOURCE_CHANGED,  () => _renderCosts(panel));
   on(Events.GAME_LOADED,       () => _render(panel));
 
@@ -106,7 +107,11 @@ export function initMilitaryPanel() {
     const hasRallyCooldown = !!(state.rallyState && state.tick < state.rallyState.cooldownUntil);
     const hasDuelPending   = !!state.duels?.pending;          // T109: duel countdown
     const hasPioneerActive = !!state.pioneers?.active;         // T110: expedition countdown
-    if (hasHeroActivity || hasSpellActivity || hasMercOffer || hasDecreeCooldown || hasRallyCooldown || hasDuelPending || hasPioneerActive) _render(panel);
+    const hasSurgeActivity = !!(state.supplyDepot && (  // T157: surge active or cooling
+      state.supplyDepot.surgeExpiresAt > state.tick ||
+      state.supplyDepot.surgeCooldownUntil > state.tick
+    ));
+    if (hasHeroActivity || hasSpellActivity || hasMercOffer || hasDecreeCooldown || hasRallyCooldown || hasDuelPending || hasPioneerActive || hasSurgeActivity) _render(panel);
   });
 }
 
@@ -116,6 +121,7 @@ function _render(panel) {
   panel.innerHTML = `
     ${_duelSection()}
     ${_mercenarySection()}
+    ${_supplyDepotSection()}
     ${_formationSection()}
     ${_moraleSection()}
     ${_rallySection()}
@@ -135,6 +141,54 @@ function _render(panel) {
   `;
 
   panel.addEventListener('click', _handleClick);
+}
+
+// ── T157: Supply Depot — Surge Provisions section ─────────────────────────
+
+function _supplyDepotSection() {
+  if ((state.buildings?.supplyDepot ?? 0) < 1) return '';
+
+  const sd       = state.supplyDepot;
+  const surgeOn  = (sd?.surgeExpiresAt ?? 0) > state.tick;
+  const onCD     = !surgeOn && (sd?.surgeCooldownUntil ?? 0) > state.tick;
+  const ready    = !surgeOn && !onCD;
+  const canAffordSurge = (state.resources.food ?? 0) >= 80;
+
+  let statusHtml;
+  if (surgeOn) {
+    const secsLeft = Math.max(0, Math.ceil((sd.surgeExpiresAt - state.tick) / 4));
+    statusHtml = `<span class="surge-status surge-status--active">⚡ Active — ${secsLeft}s remaining (+15 attack)</span>`;
+  } else if (onCD) {
+    const secsLeft = Math.max(0, Math.ceil((sd.surgeCooldownUntil - state.tick) / 4));
+    statusHtml = `<span class="surge-status surge-status--cd">⏳ Cooldown — ${secsLeft}s</span>`;
+  } else {
+    statusHtml = `<span class="surge-status surge-status--ready">✅ Ready</span>`;
+  }
+
+  const btnDisabled = !ready || !canAffordSurge;
+  const btnTitle = !ready
+    ? (surgeOn ? 'Surge already active' : 'On cooldown')
+    : !canAffordSurge
+      ? 'Need 80 🍞 food'
+      : 'Activate Surge Provisions (80 food → +15 attack for 30s)';
+
+  return `<div class="supply-depot-section">
+    <div class="supply-depot-header">
+      <span class="supply-depot-icon">🏗️</span>
+      <span class="supply-depot-title">Supply Depot</span>
+      ${statusHtml}
+    </div>
+    <div class="supply-depot-desc">
+      All unit upkeep reduced by 15%.
+      <em>Surge Provisions</em> costs <strong>🍞 80 food</strong> and grants <strong>+15 attack</strong> for 30s.
+    </div>
+    <button
+      class="btn btn--sm ${btnDisabled ? 'btn--disabled' : ''}"
+      data-action="surge-activate"
+      ${btnDisabled ? 'disabled' : ''}
+      title="${btnTitle}"
+    >⚡ Surge Provisions</button>
+  </div>`;
 }
 
 // ── T109: Warlord Duel Challenge section ──────────────────────────────────
@@ -1250,6 +1304,14 @@ function _handleClick(e) {
   } else if (actionBtn.dataset.action === 'upgrade-unit') {
     // T107: purchase a unit arsenal upgrade
     const result = upgradeUnit(actionBtn.dataset.unitId);
+    if (!result.ok) {
+      actionBtn.classList.add('btn--shake');
+      setTimeout(() => actionBtn.classList.remove('btn--shake'), 600);
+      addMessage(result.reason, 'info');
+    }
+  } else if (actionBtn.dataset.action === 'surge-activate') {
+    // T157: activate supply depot surge provisions
+    const result = activateSurgeProvisions();
     if (!result.ok) {
       actionBtn.classList.add('btn--shake');
       setTimeout(() => actionBtn.classList.remove('btn--shake'), 600);

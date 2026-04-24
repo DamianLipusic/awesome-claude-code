@@ -395,6 +395,14 @@ export const state = {
   // T156: Ancient battlefield sites — { captured: { [key: 'x,y']: tick } }
   // null until first map; positions stored as tile.ancientBattlefield = true
   battlefields: null,
+
+  // T157: Supply Depot logistics building state
+  // { surgeExpiresAt: tick, surgeCooldownUntil: tick, totalSurges: number }
+  supplyDepot: null,
+
+  // T158: Weather memory — tracks occurrence counts and adaptations per weather type
+  // { counts: { [typeId]: number }, adaptations: { [typeId]: true } }
+  weatherMemory: null,
 };
 
 /**
@@ -491,5 +499,7 @@ export function initState(empireName = 'My Empire') {
   state.celestial            = null; // T153: reset celestial events per game
   state.campaigns            = null; // T154: reset campaigns per game
   state.battlefields         = null; // T156: reset battlefields per game
+  state.supplyDepot          = null; // T157: reset surge state per game
+  state.weatherMemory        = null; // T158: reset weather memory per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

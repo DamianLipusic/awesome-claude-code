@@ -1208,4 +1208,46 @@ export function chooseGrandTheory(theoryId) {
   return { ok: true };
 }
 
+// ---------------------------------------------------------------------------
+// Supply Depot — Surge Provisions (T157)
+// ---------------------------------------------------------------------------
+
+const SURGE_FOOD_COST   = 80;
+const SURGE_DURATION    = 120;  // 30s at 4 ticks/s
+const SURGE_COOLDOWN    = 720;  // 3 min at 4 ticks/s
+
+/**
+ * Activate Surge Provisions from the Supply Depot.
+ * Costs 80 food; grants +15 flat attack for 30 seconds.
+ * 3-minute cooldown between uses.
+ */
+export function activateSurgeProvisions() {
+  if ((state.buildings?.supplyDepot ?? 0) < 1) {
+    return { ok: false, reason: 'Requires a Supply Depot.' };
+  }
+  if (!state.supplyDepot) {
+    state.supplyDepot = { surgeExpiresAt: 0, surgeCooldownUntil: 0, totalSurges: 0 };
+  }
+  if (state.tick < state.supplyDepot.surgeCooldownUntil) {
+    const secsLeft = Math.ceil((state.supplyDepot.surgeCooldownUntil - state.tick) / 4);
+    return { ok: false, reason: `Surge on cooldown (${secsLeft}s remaining).` };
+  }
+  if ((state.supplyDepot.surgeExpiresAt ?? 0) > state.tick) {
+    return { ok: false, reason: 'Surge Provisions already active.' };
+  }
+  if ((state.resources.food ?? 0) < SURGE_FOOD_COST) {
+    return { ok: false, reason: `Insufficient food (need ${SURGE_FOOD_COST}).` };
+  }
+
+  state.resources.food -= SURGE_FOOD_COST;
+  state.supplyDepot.surgeExpiresAt    = state.tick + SURGE_DURATION;
+  state.supplyDepot.surgeCooldownUntil = state.tick + SURGE_COOLDOWN;
+  state.supplyDepot.totalSurges        = (state.supplyDepot.totalSurges ?? 0) + 1;
+
+  emit(Events.SUPPLY_CHANGED, { active: true });
+  emit(Events.RESOURCE_CHANGED, {});
+  addMessage('🏗️ Surge Provisions activated! +15 attack power for 30 seconds.', 'build');
+  return { ok: true };
+}
+
 log('actions module loaded');

@@ -124,4 +124,6 @@ export const Events = Object.freeze({
   CAMPAIGN_WON:             'campaignWon',                // T154: campaign battle milestone reached
   CAMPAIGN_ENDED:           'campaignEnded',              // T154: campaign concluded (won or expired)
   BATTLEFIELD_CAPTURED:     'battlefieldCaptured',        // T156: player captured an ancient battlefield
+  SUPPLY_CHANGED:           'supplyChanged',              // T157: surge provisions activated or expired
+  WEATHER_ADAPTED:          'weatherAdapted',             // T158: empire adapted to a weather type
 });

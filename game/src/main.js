@@ -527,6 +527,8 @@ function _save() {
         celestial:           state.celestial           ?? null,  // T153
         campaigns:           state.campaigns           ?? null,  // T154
         battlefields:        state.battlefields        ?? null,  // T156
+        supplyDepot:         state.supplyDepot         ?? null,  // T157
+        weatherMemory:       state.weatherMemory       ?? null,  // T158
         tick:          state.tick,
       }
     }));
@@ -654,6 +656,8 @@ function _applySave(save) {
   state.celestial            = s.celestial            ?? null; // T153
   state.campaigns            = s.campaigns            ?? null; // T154
   state.battlefields         = s.battlefields         ?? null; // T156
+  state.supplyDepot          = s.supplyDepot          ?? null; // T157
+  state.weatherMemory        = s.weatherMemory        ?? null; // T158
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };

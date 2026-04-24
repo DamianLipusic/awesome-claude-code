@@ -1394,5 +1394,23 @@
     "status": "done",
     "phase": 60,
     "notes": "events.js: BATTLEFIELD_CAPTURED event added. state.js: battlefields: null static + initState() reset. map.js: _placeAncientBattlefields() places 3 neutral tiles at dist 4-12 avoiding landmarks/ruins/chokepoints, sets tile.ancientBattlefield=true + defense+=15; called from initMap(); state.battlefields={captured:{}} init. combat.js: _tryCaptureAncientBattlefield(tile,x,y) guards with state.battlefields.captured[key], grants +100 gold, +1 XP all trained units, emits BATTLEFIELD_CAPTURED+RESOURCE_CHANGED; called from _victory() after claimBounty. mapPanel.js: BATTLEFIELD_TINT + BATTLEFIELD_BORDER constants; purple tint+border+sword icon in _drawTile() for uncaptured revealed sites; battlefieldHtml tooltip section; BATTLEFIELD_CAPTURED subscription in initMapPanel(). main.js: prestige award on(Events.BATTLEFIELD_CAPTURED), save/load battlefields, save version bumped to 46."
+  },
+  {
+    "id": "T157",
+    "title": "Supply Depot building — logistics hub with Surge Provisions ability",
+    "description": "New unique building (Iron Age, barracks×2 + ironFoundry). Cost: 300g+200s+100i+50f. Reduces all unit upkeep by 15%. Unlocks Surge Provisions action in Military panel: costs 80 food, grants +15 flat attack power for 30s (120 ticks). 3-minute cooldown. Supply Depot section in Military panel with active timer and cooldown countdown. SUPPLY_CHANGED event. state.supplyDepot saved/loaded. No save version bump.",
+    "priority": 157,
+    "status": "done",
+    "phase": 61,
+    "notes": "buildings.js: supplyDepot unique building added (Iron Age + barracks×2 + ironFoundry req, unique:true, food consumption 1/s). events.js: SUPPLY_CHANGED event added. state.js: supplyDepot:null static field + initState() reset. actions.js: activateSurgeProvisions() export with 80 food cost, 120-tick duration, 720-tick cooldown, SUPPLY_CHANGED emit. resources.js: upkeepMult now multiplied by 0.85 when supplyDepot built (applies to both army + garrison upkeep). combat.js: +15 flat attackPower in both getAttackPreview() (with surgeActive return field) and attackTile() when surgeExpiresAt>state.tick. militaryPanel.js: import activateSurgeProvisions, SUPPLY_CHANGED listener, hasSurgeActivity tick check, _supplyDepotSection() with active/cooldown/ready status and Surge button, data-action=surge-activate handler. main.js: supplyDepot saved/loaded. main.css: .supply-depot-section + .surge-status--{ready,active,cd} classes."
+  },
+  {
+    "id": "T158",
+    "title": "Weather Memory — climate adaptation reduces repeated weather penalties",
+    "description": "Track how many times each weather type fires in state.weatherMemory.counts. At 3+ occurrences of a type, mark it as adapted (state.weatherMemory.adaptations). Adapted weather halves its negative rate multipliers in recalcRates(). WEATHER_ADAPTED event logged as windfall toast. Adapted types shown in Settings panel 'Climate Adaptations' section. state.weatherMemory saved/loaded. No save version bump.",
+    "priority": 158,
+    "status": "done",
+    "phase": 61,
+    "notes": "events.js: WEATHER_ADAPTED event added. state.js: weatherMemory:null static field + initState() reset. weather.js: _spawnWeather() tracks state.weatherMemory.counts[chosen.id]++, sets adaptations[id]=true at count>=3, emits WEATHER_ADAPTED + windfall toast. resources.js: weather modifier block checks state.weatherMemory.adaptations[type]; if adapted and mult<1.0, uses 1-(1-mult)*0.5 to halve the penalty (applied to allRates and per-resource mults). settingsPanel.js: import WEATHER_TYPES + on(WEATHER_ADAPTED), _weatherAdaptationsSection() renders per-type occurrence count + adapted badge, injected after alerts section. main.js: weatherMemory saved/loaded. main.css: .weather-adapt-* classes with green highlight for adapted rows."
   }
 ]

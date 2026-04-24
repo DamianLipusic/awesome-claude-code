@@ -12,8 +12,9 @@ import { setTickSpeed, getTickSpeed } from '../core/tick.js';
 import { exportSave, importSave } from './saveModal.js';
 import { ACHIEVEMENTS, loadAchievements, setAchievementRenderer } from '../systems/achievements.js';
 import { state } from '../core/state.js';
-import { emit, Events } from '../core/events.js';
+import { on, emit, Events } from '../core/events.js';
 import { loadLegacy, buyLegacyTrait, LEGACY_TRAITS, LEGACY_TRAIT_ORDER } from '../data/legacyTraits.js'; // T124
+import { WEATHER_TYPES } from '../data/weather.js'; // T158
 
 const PANEL_ID   = 'panel-settings';
 const LB_KEY     = 'empireos-leaderboard';
@@ -31,6 +32,8 @@ export function initSettingsPanel() {
   if (!panel) return;
   // Let the achievements system trigger a re-render when an achievement unlocks
   setAchievementRenderer(() => _render(panel));
+  // T158: re-render when a new weather adaptation is unlocked
+  on(Events.WEATHER_ADAPTED, () => _render(panel));
   _render(panel);
 }
 
@@ -70,6 +73,8 @@ function _render(panel) {
     ${_shortcutsSection()}
 
     ${_alertsSection()}
+
+    ${_weatherAdaptationsSection()}
 
     <div class="settings-section">
       <div class="settings-section__title">💾 Save Portability</div>
@@ -433,6 +438,44 @@ function _legacySection() {
       </div>
     </div>
     <div class="legacy-grid">${cards}</div>
+  </div>`;
+}
+
+// ---------------------------------------------------------------------------
+// T158: Weather Adaptations section
+// ---------------------------------------------------------------------------
+
+function _weatherAdaptationsSection() {
+  const mem = state.weatherMemory;
+  if (!mem?.counts || Object.keys(mem.counts).length === 0) return '';
+
+  const rows = WEATHER_TYPES.map(w => {
+    const count   = mem.counts?.[w.id] ?? 0;
+    if (count === 0) return '';
+    const adapted = !!(mem.adaptations?.[w.id]);
+    const pct     = Math.min(100, Math.round((count / 3) * 100));
+    const label   = adapted
+      ? `<span class="weather-adapt-badge">🛡️ Adapted (penalties −50%)</span>`
+      : `<span class="weather-adapt-progress">${count}/3 occurrences</span>`;
+
+    return `<div class="weather-adapt-row ${adapted ? 'weather-adapt-row--adapted' : ''}">
+      <span class="weather-adapt-icon">${w.icon}</span>
+      <span class="weather-adapt-name">${_escHtml(w.name)}</span>
+      ${label}
+    </div>`;
+  }).filter(Boolean).join('');
+
+  if (!rows) return '';
+
+  const adaptedCount = Object.keys(mem.adaptations ?? {}).length;
+  return `<div class="settings-section">
+    <div class="settings-section__title">🌦️ Climate Adaptations</div>
+    <div class="settings-section__desc">
+      Your empire learns from repeated exposure to weather. After surviving a weather
+      type 3 times, your people adapt — halving all negative rate penalties from that
+      weather in future occurrences. ${adaptedCount > 0 ? `<strong>${adaptedCount} adaptation${adaptedCount !== 1 ? 's' : ''} unlocked.</strong>` : ''}
+    </div>
+    <div class="weather-adapt-list">${rows}</div>
   </div>`;
 }
 

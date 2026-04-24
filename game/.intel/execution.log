@@ -2550,3 +2550,38 @@ All 142 prior tasks found complete. Created T143 and T144 from Phase 5+ roadmap 
 - Celestial effects applied via `state.celestial.active.type` checks directly in each system (resources, research, combat, spells) — avoids circular imports since celestialEvents.js needs to call recalcRates() from resources.js.
 - Campaign loot mult applied at the same point as hero lootMult and streakLoot in `_victory()`. Campaign wins only counted on non-barbarian, non-rebel tile captures matching the target empire.
 - Save version bumped to 45 for both T153+T154. Both systems use `?? null` defaults in _applySave for backwards compatibility.
+
+---
+
+## 2026-04-24 — Session N+41
+
+**Tasks completed:** T157, T158
+
+**T157 — Supply Depot (logistics hub + Surge Provisions):**
+
+**Files modified:**
+- `game/src/data/buildings.js`: Added `supplyDepot` unique building: 300g+200s+100i+50f cost, `food: 1` consumption, `unique: true`, requires Iron Age + barracks×2 + ironFoundry. Placed between watchtower and wonders section.
+- `game/src/core/events.js`: Added `SUPPLY_CHANGED: 'supplyChanged'` event constant.
+- `game/src/core/state.js`: Added `supplyDepot: null` static field + reset in `initState()`.
+- `game/src/core/actions.js`: Added `activateSurgeProvisions()` export. Validates depot built, no active surge, no cooldown, 80 food available. Sets `surgeExpiresAt = tick+120`, `surgeCooldownUntil = tick+720`, increments `totalSurges`. Emits SUPPLY_CHANGED + RESOURCE_CHANGED.
+- `game/src/systems/resources.js`: `upkeepMult` now accounts for depot: `(military_mastery ? 0.80 : 1.0) * (depotBuilt ? 0.85 : 1.0)`. Applies to both unit army and garrison upkeep blocks.
+- `game/src/systems/combat.js`: +15 flat `attackPower` in both `getAttackPreview()` (also sets `surgeActive` in preview return) and `attackTile()` when `state.supplyDepot?.surgeExpiresAt > state.tick`.
+- `game/src/ui/militaryPanel.js`: Imports `activateSurgeProvisions`. Added `SUPPLY_CHANGED` listener. `hasSurgeActivity` added to TICK throttle check. `_supplyDepotSection()` renders depot UI with status badge (active/cooldown/ready), description, and Surge button. Injected after mercenary section in `_render()`. `data-action="surge-activate"` handler calls `activateSurgeProvisions()`.
+- `game/src/main.js`: `supplyDepot` included in `_save()` and `_applySave()`.
+- `game/styles/main.css`: `.supply-depot-section` (yellow tint border), `.supply-depot-header/icon/title/desc`, `.surge-status--{ready,active,cd}` badges.
+
+**T158 — Weather Memory (climate adaptation):**
+
+**Files modified:**
+- `game/src/core/events.js`: Added `WEATHER_ADAPTED: 'weatherAdapted'` event constant.
+- `game/src/core/state.js`: Added `weatherMemory: null` static field + reset in `initState()`.
+- `game/src/systems/weather.js`: `_spawnWeather()` initialises `state.weatherMemory` if null, increments `counts[chosen.id]`, and at count ≥ 3 sets `adaptations[chosen.id]=true`, emits `WEATHER_ADAPTED`, logs windfall toast. Threshold constant `WEATHER_ADAPT_THRESHOLD = 3`.
+- `game/src/systems/resources.js`: In the weather modifiers block, reads `adapted = state.weatherMemory?.adaptations?.[type]`. For `allRates` and per-resource mults with value < 1.0, applies `1 - (1-mult)*0.5` instead of raw mult when adapted (halves the negative penalty).
+- `game/src/ui/settingsPanel.js`: Imports `WEATHER_TYPES` and `on`. Added `on(Events.WEATHER_ADAPTED, ...)` re-render in `initSettingsPanel()`. Added `_weatherAdaptationsSection()` function showing per-weather occurrence count + adapted badge; injected after resource alerts section. Renders only when `state.weatherMemory.counts` has entries.
+- `game/src/main.js`: `weatherMemory` included in `_save()` and `_applySave()`.
+- `game/styles/main.css`: `.weather-adapt-list/row/row--adapted/icon/name/badge/progress` classes.
+
+**Architecture decisions:**
+- No save version bump: both new state fields use `?? null` defaults in `_applySave()` so older saves load cleanly.
+- Weather adaptation halving uses `1-(1-mult)*0.5` to cut the penalty in half rather than eliminating it entirely, preserving game challenge while rewarding persistence.
+- Surge Provisions expiry is tracked purely via tick comparison (`surgeExpiresAt > state.tick`) — no new tick system needed; the military panel TICK handler already re-renders every 16 ticks when `hasSurgeActivity` is true.

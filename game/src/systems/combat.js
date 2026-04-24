@@ -291,6 +291,10 @@ export function getAttackPreview(x, y) {
   if (_celestialPreview === 'solar_eclipse')   attackPower *= 0.85;
   else if (_celestialPreview === 'meteor_shower') attackPower *= 1.10;
 
+  // T157: Supply Depot Surge Provisions — +15 flat attack while surge is active (preview)
+  const surgeActive = (state.supplyDepot?.surgeExpiresAt ?? 0) > state.tick;
+  if (surgeActive) attackPower += 15;
+
   // T071: terrain combat modifiers
   const terrainMod = _terrainMod(tile.type);
   attackPower     *= terrainMod.attackMult;
@@ -358,6 +362,7 @@ export function getAttackPreview(x, y) {
     siegeEngineActive: (state.units?.siege_engine ?? 0) > 0 && tile.fortified, // T132
     paradeChargesLeft: _paradeActive ? (state.festivals.active.chargesLeft ?? 0) : 0,
     isRebelTile,                                                                // T151
+    surgeActive,                                                                // T157
   };
 }
 
@@ -503,6 +508,9 @@ export function attackTile(x, y) {
   const _celestialAtk = state.celestial?.active?.type;
   if (_celestialAtk === 'solar_eclipse')    attackPower *= 0.85;
   else if (_celestialAtk === 'meteor_shower') attackPower *= 1.10;
+
+  // T157: Supply Depot Surge Provisions — +15 flat attack while surge is active
+  if ((state.supplyDepot?.surgeExpiresAt ?? 0) > state.tick) attackPower += 15;
 
   // T071: terrain attack modifier (applied before siege/mana-bolt override)
   const _terrainM = _terrainMod(tile.type);

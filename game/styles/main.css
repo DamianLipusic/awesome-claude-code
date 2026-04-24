@@ -9417,3 +9417,96 @@ kbd {
   color: var(--text-dim);
   font-style: italic;
 }
+
+/* ── T157: Supply Depot — Surge Provisions ───────────────────────────────── */
+
+.supply-depot-section {
+  background: linear-gradient(135deg, rgba(234,179,8,0.08), rgba(234,179,8,0.03));
+  border: 1px solid rgba(234,179,8,0.25);
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin-bottom: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.supply-depot-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.supply-depot-icon {
+  font-size: 18px;
+}
+
+.supply-depot-title {
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--text-bright, #f0f0f0);
+}
+
+.supply-depot-desc {
+  font-size: 12px;
+  color: var(--text-dim);
+  line-height: 1.4;
+}
+
+.surge-status {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.surge-status--ready  { background: rgba(72,187,120,0.15); color: var(--green, #48bb78); }
+.surge-status--active { background: rgba(234,179,8,0.20);  color: #facc15; }
+.surge-status--cd     { background: rgba(0,0,0,0.2);        color: #888; }
+
+/* ── T158: Climate Adaptations section ───────────────────────────────────── */
+
+.weather-adapt-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.weather-adapt-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.03);
+}
+
+.weather-adapt-row--adapted {
+  background: rgba(72,187,120,0.08);
+  border: 1px solid rgba(72,187,120,0.20);
+}
+
+.weather-adapt-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.weather-adapt-name {
+  flex: 1;
+  color: var(--text-bright, #f0f0f0);
+  font-weight: 500;
+}
+
+.weather-adapt-badge {
+  font-size: 11px;
+  color: var(--green, #48bb78);
+  font-weight: 600;
+}
+
+.weather-adapt-progress {
+  font-size: 11px;
+  color: var(--text-dim);
+}

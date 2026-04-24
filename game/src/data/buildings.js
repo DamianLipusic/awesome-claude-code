@@ -174,6 +174,22 @@ export const BUILDINGS = Object.freeze({
     ],
   },
 
+  supplyDepot: {
+    name: 'Supply Depot',
+    icon: '🏗️',
+    description: 'Logistics hub. Reduces all unit upkeep by 15%. Enables the Surge Provisions ability in the Military tab.',
+    baseCost: { gold: 300, stone: 200, iron: 100, food: 50 },
+    production: {},
+    consumption: { food: 1 },
+    capBonus: {},
+    requires: [
+      { type: 'age',      minAge: 2 },
+      { type: 'building', id: 'barracks',    count: 2 },
+      { type: 'building', id: 'ironFoundry', count: 1 },
+    ],
+    unique: true,
+  },
+
   // ── Wonders ───────────────────────────────────────────────────────────────
   // Unique (max 1 per game). Provide powerful late-game bonuses.
 

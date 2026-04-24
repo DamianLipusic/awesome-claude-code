@@ -79,6 +79,8 @@ export function weatherTick() {
   }
 }
 
+const WEATHER_ADAPT_THRESHOLD = 3;  // occurrences before adaptation kicks in
+
 function _spawnWeather() {
   const chosen = _pickWeather();
 
@@ -91,6 +93,20 @@ function _spawnWeather() {
     expiresAt: state.tick + chosen.duration,
   };
   state.weather.nextWeatherTick = _nextSpawnTick();
+
+  // T158: track occurrence count and check for adaptation
+  if (!state.weatherMemory) {
+    state.weatherMemory = { counts: {}, adaptations: {} };
+  }
+  state.weatherMemory.counts[chosen.id] = (state.weatherMemory.counts[chosen.id] ?? 0) + 1;
+  if (
+    !state.weatherMemory.adaptations[chosen.id] &&
+    state.weatherMemory.counts[chosen.id] >= WEATHER_ADAPT_THRESHOLD
+  ) {
+    state.weatherMemory.adaptations[chosen.id] = true;
+    emit(Events.WEATHER_ADAPTED, { type: chosen.id, icon: chosen.icon, name: chosen.name });
+    addMessage(`🛡️ Climate Adaptation: your empire has adapted to ${chosen.name}! Penalties halved.`, 'windfall');
+  }
 
   if (chosen.moraleDelta) changeMorale(chosen.moraleDelta);
 

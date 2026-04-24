@@ -174,24 +174,31 @@ export function recalcRates() {
   }
 
   // T078: Weather modifiers — applied to positive rates only (production, not upkeep)
+  // T158: Adapted weather types have their negative multipliers halved
   const weatherMods = state.weather?.active?.modifiers;
   if (weatherMods) {
+    const adapted = !!(state.weatherMemory?.adaptations?.[state.weather.active.type]);
     // allRates modifier applies to all positive rates (e.g. Clear Skies +10%, Snowstorm -20%)
     if (weatherMods.allRates !== undefined) {
+      const m = (adapted && weatherMods.allRates < 1.0)
+        ? 1 - (1 - weatherMods.allRates) * 0.5
+        : weatherMods.allRates;
       for (const res of RESOURCE_KEYS) {
-        if (rates[res] > 0) rates[res] *= weatherMods.allRates;
+        if (rates[res] > 0) rates[res] *= m;
       }
     }
     // Per-resource modifiers (stacks on top of allRates if both present)
     for (const [res, mult] of Object.entries(weatherMods)) {
       if (res !== 'allRates' && rates[res] !== undefined && rates[res] > 0) {
-        rates[res] *= mult;
+        const m = (adapted && mult < 1.0) ? 1 - (1 - mult) * 0.5 : mult;
+        rates[res] *= m;
       }
     }
   }
 
-  // Unit upkeep (T071 Military Mastery: -20% upkeep)
-  const upkeepMult = state.masteries?.military ? 0.80 : 1.0;
+  // Unit upkeep (T071 Military Mastery: -20% upkeep; T157 Supply Depot: -15% upkeep)
+  const _depotBuilt = (state.buildings?.supplyDepot ?? 0) >= 1;
+  const upkeepMult  = (state.masteries?.military ? 0.80 : 1.0) * (_depotBuilt ? 0.85 : 1.0);
   for (const [id, count] of Object.entries(state.units)) {
     if (count <= 0) continue;
     const def = UNITS[id];
@@ -244,6 +251,7 @@ export function recalcRates() {
 
   // T068: Garrison upkeep (units removed from army but still consume resources)
   // T071 Military Mastery: same -20% upkeep reduction applies to garrisoned units
+  // T157: Supply Depot -15% upkeep applies to garrisons too
   if (state.garrisons) {
     for (const { unitId, count } of Object.values(state.garrisons)) {
       if (count <= 0) continue;
