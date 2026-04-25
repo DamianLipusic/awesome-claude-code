@@ -12,6 +12,7 @@ import { state } from '../core/state.js';
 import { on, Events } from '../core/events.js';
 import { trainUnit, recruitHero, useHeroAbility, setFormation, chooseHeroSkill, rallyTroops, upgradeUnit, UNIT_UPGRADE_MAX, UNIT_UPGRADE_COST_BASE, addMessage, chooseHeroTrait, chooseCompanion, issueProclamation, activateSurgeProvisions } from '../core/actions.js';
 import { acceptDuel, declineDuel, getDuelSecsLeft } from '../systems/duels.js';
+import { getActiveWarlord, getWarlordSecsLeft } from '../systems/rovingWarlord.js'; // T165
 import { sendPioneerExpedition, getPioneerProgress, getPioneerSecsLeft, PIONEER_COST, PIONEER_MAX } from '../systems/pioneerExpeditions.js';
 import { sendOnExpedition, recallExpedition, isOnExpedition, expeditionSecsLeft, expeditionProgress, canEnshrineHero, enshrineHero, ENSHRINE_MAX } from '../systems/heroSystem.js';
 import { castSpell, SPELLS, SPELL_ORDER } from '../systems/spells.js';
@@ -78,6 +79,9 @@ export function initMilitaryPanel() {
   on(Events.COMPANION_RECRUITED,   () => _render(panel)); // T122: companion chosen
   on(Events.PROCLAMATION_ISSUED,   () => _render(panel)); // T131: proclamation issued/cleared
   on(Events.SUPPLY_CHANGED,        () => _render(panel)); // T157: surge activated/expired
+  on(Events.WARLORD_APPEARED,      () => _render(panel)); // T165: warlord spawned
+  on(Events.WARLORD_DEFEATED,      () => _render(panel)); // T165: warlord defeated
+  on(Events.WARLORD_STRUCK,        () => _render(panel)); // T165: warlord struck and departed
   on(Events.RESOURCE_CHANGED,  () => _renderCosts(panel));
   on(Events.GAME_LOADED,       () => _render(panel));
 
@@ -111,7 +115,8 @@ export function initMilitaryPanel() {
       state.supplyDepot.surgeExpiresAt > state.tick ||
       state.supplyDepot.surgeCooldownUntil > state.tick
     ));
-    if (hasHeroActivity || hasSpellActivity || hasMercOffer || hasDecreeCooldown || hasRallyCooldown || hasDuelPending || hasPioneerActive || hasSurgeActivity) _render(panel);
+    const hasWarlord = !!state.warlord?.active;          // T165: warlord countdown
+    if (hasHeroActivity || hasSpellActivity || hasMercOffer || hasDecreeCooldown || hasRallyCooldown || hasDuelPending || hasPioneerActive || hasSurgeActivity || hasWarlord) _render(panel);
   });
 }
 
@@ -119,6 +124,7 @@ export function initMilitaryPanel() {
 
 function _render(panel) {
   panel.innerHTML = `
+    ${_warlordSection()}
     ${_duelSection()}
     ${_mercenarySection()}
     ${_supplyDepotSection()}
@@ -141,6 +147,37 @@ function _render(panel) {
   `;
 
   panel.addEventListener('click', _handleClick);
+}
+
+// ── T165: Roving Warlord alert section ────────────────────────────────────
+
+function _warlordSection() {
+  const w = getActiveWarlord();
+  if (!w) return '';
+
+  const secsLeft   = getWarlordSecsLeft();
+  const urgent     = secsLeft <= 30;
+  const urgentCls  = urgent ? ' warlord-alert--urgent' : '';
+  const mins       = Math.floor(secsLeft / 60);
+  const secs       = secsLeft % 60;
+  const timeStr    = mins > 0
+    ? `${mins}m ${String(secs).padStart(2, '0')}s`
+    : `${secsLeft}s`;
+
+  return `
+    <div class="warlord-alert${urgentCls}">
+      <div class="warlord-alert-header">
+        <span class="warlord-alert-icon">⚔️</span>
+        <span class="warlord-alert-name">${w.name}</span>
+        <span class="warlord-alert-timer">${timeStr}</span>
+      </div>
+      <div class="warlord-alert-body">
+        Spotted at (${w.x},${w.y}) — open the Map tab to intercept before time runs out!
+      </div>
+      <div class="warlord-alert-reward">
+        Defeat reward: +150–300💰 +40 prestige +10 morale
+      </div>
+    </div>`;
 }
 
 // ── T157: Supply Depot — Surge Provisions section ─────────────────────────

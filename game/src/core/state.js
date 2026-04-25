@@ -417,6 +417,14 @@ export const state = {
   // T164: Resource conversion workshop state
   // { cooldownUntil: tick, totalConverted: number }
   conversions: null,
+
+  // T165: Roving Warlord state — populated by systems/rovingWarlord.js initWarlord()
+  // { active: { name, x, y, originalDefense, strikesAt } | null, nextSpawnTick, totalDefeated }
+  warlord: null,
+
+  // T166: Tribute Demand state — populated by systems/tributes.js initTributes()
+  // { capturedCapitals: { [empireId]: tick }, demanded: { [empireId]: { nextPaymentTick, paymentsLeft, totalPaid } } }
+  tributes: null,
 };
 
 /**
@@ -518,5 +526,7 @@ export function initState(empireName = 'My Empire') {
   state.plague               = null; // T161: reset plague state per game
   state.pilgrimages          = null; // T162: reset pilgrimages per game
   state.conversions          = null; // T164: reset conversion state per game
+  state.warlord              = null; // T165: reset warlord state per game
+  state.tributes             = null; // T166: reset tributes per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

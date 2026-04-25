@@ -1466,5 +1466,23 @@
     "status": "done",
     "phase": 62,
     "notes": "data/buildings.js: Added 'workshop' building (unique:true, icon:\u2699\ufe0f, baseCost:{gold:120,wood:80,stone:60}, requires farm\u00d72+lumberMill\u00d71). core/events.js: Added CONVERSION_CHANGED event. core/state.js: Added state.conversions=null to static object + initState() reset. core/actions.js: Added CONVERSION_CHAIN=['food','wood','stone','iron','mana'], CONVERSION_INPUT=100, CONVERSION_OUTPUT=60, CONVERSION_COOLDOWN_TICKS=120 constants; convertResource(fromRes) validates workshop built, valid resource, cooldown, affordability; deducts input, adds output (capped at cap), sets cooldownUntil, increments totalConverted, emits CONVERSION_CHANGED+RESOURCE_CHANGED, logs build message. ui/buildingPanel.js: Added convertResource+CONVERSION_CHAIN+CONVERSION_INPUT+CONVERSION_OUTPUT+CONVERSION_COOLDOWN_TICKS to imports; added on(Events.CONVERSION_CHANGED, renderBuildingPanel); added _conversionSection() call in renderBuildingPanel(); added convert action handler (btn--shake on error); _conversionSection() renders panel only when workshop built \u2014 shows cooldown notice, 5 .conv-row entries (each with from/arrow/to resource labels and a Convert button), total conversions count. main.js: conversions added to _save() payload and _applySave() restore; save version bumped 48\u219249. styles/main.css: .conv-section (border-top), .conv-section__header/intro, .conv-cooldown (amber), .conv-rows/.conv-row (flex card), .conv-from/.conv-arrow/.conv-to/.conv-total, .btn--convert (blue gradient), @media \u2264480px flex-col."
+  },
+  {
+    "id": "T165",
+    "title": "roving warlord \u2014 timed map threat with high-reward intercept",
+    "phase": 63,
+    "priority": 165,
+    "status": "done",
+    "description": "At Iron Age+, a powerful independent warlord spawns on a revealed map tile every 12-18 min. The player has 2 minutes to attack and defeat them on the map, or the warlord raids the treasury for 80-120 gold. Defeating a warlord awards 150-300 gold + 40 prestige + 10 morale. state.warlord = { active: { name, x, y, strikesAt, originalDefense } | null, nextSpawnTick, totalDefeated }. Warlord tile gets +5/+8 defense bonus (Iron/Medieval). Military panel shows WARLORD ALERT section with countdown + tile coords. Events: WARLORD_APPEARED, WARLORD_DEFEATED, WARLORD_STRUCK.",
+    "notes": "Implemented: systems/rovingWarlord.js (initWarlord, warlordTick, defeatWarlord, getActiveWarlord, getWarlordSecsLeft). Iron Age+ warlord spawns on revealed non-player tile every 12-18 min (first at 20 min). 2-min intercept window. Defeat: +150-300 gold, +40 prestige, +10 morale. Strike: -80-120 gold. 8 warlord names, defense scaled by age (+5 Iron, +8 Medieval). Tile gets .warlord property. combat.js wasWarlord check calls defeatWarlord() in _victory(). militaryPanel.js: _warlordSection() urgent alert with countdown + coords. events.js: WARLORD_APPEARED/DEFEATED/STRUCK. CSS: .warlord-alert, .warlord-alert--urgent (pulse animation). state.warlord saved/loaded at version 50."
+  },
+  {
+    "id": "T166",
+    "title": "tribute demand \u2014 demand gold tribute after capturing a faction capital",
+    "phase": 63,
+    "priority": 166,
+    "status": "done",
+    "description": "When the player captures an AI empire faction capital, they unlock a \"Demand Tribute\" option in the diplomacy panel. Demanding costs 20 prestige; the empire pays 40 gold every 90 seconds for 6 payments (240 gold total over ~9 min). One-time per empire per game. Tribute shown as countdown in the empire card. state.tributes = { capturedCapitals: { [empireId]: tick }, demanded: { [empireId]: { nextPaymentTick, paymentsLeft, totalPaid } } }. Events: TRIBUTE_CHANGED. Wired in combat.js via recordCapturedCapital(). Save/load at version 50.",
+    "notes": "Implemented: systems/tributes.js (initTributes, tributeTick, recordCapturedCapital, demandTribute, getTributeStatus, hasCapturedCapital). Combat.js recordCapturedCapital() called in _victory() when wasFactionCapital. Demand costs 20 prestige; 40 gold every 90s x6 payments = 240g total. Allied empires drop to neutral on demand. diplomacyPanel.js: _tributeRow(emp) shows Demand button / active countdown / fulfilled badge; injected after _embargoRow. _demandTribute aliased to avoid conflict with old diplomacy.js demandTribute. events.js TRIBUTE_CHANGED. CSS: .dipl-tribute-row, .btn--tribute. state.tributes saved/loaded at version 50."
   }
 ]

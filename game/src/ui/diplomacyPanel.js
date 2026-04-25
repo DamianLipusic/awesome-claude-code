@@ -34,6 +34,7 @@ import {
   AID_COST, AID_BATTLES,
 } from '../systems/militaryAid.js';
 import { missionSecsLeft, missionNextSecs } from '../systems/allianceMissions.js'; // T142
+import { demandTribute as _demandTribute, getTributeStatus, hasCapturedCapital, TRIBUTE_PRESTIGE, TRIBUTE_GOLD, TRIBUTE_PAYMENTS } from '../systems/tributes.js'; // T166
 import {
   startCampaign, getActiveCampaign, getCampaignSecsLeft, getCampaignCooldownSecs,
   CAMPAIGN_COST, CAMPAIGN_WIN_GOAL,
@@ -67,6 +68,7 @@ export function initDiplomacyPanel() {
   on(Events.CAMPAIGN_WON,           () => _render(panel));  // T154
   on(Events.CAMPAIGN_ENDED,         () => _render(panel));  // T154
   on(Events.EMBARGO_CHANGED,        () => _render(panel));  // T159
+  on(Events.TRIBUTE_CHANGED,        () => _render(panel));  // T166
   // Refresh cooldown countdown every second; also refresh ceasefire/gift/skirmish/aid timers when active
   on(Events.TICK, _throttle(() => {
     const cd = document.getElementById('espionage-cooldown');
@@ -86,7 +88,9 @@ export function initDiplomacyPanel() {
     const hasCampaign = !!getActiveCampaign();
     // T159: refresh while any embargo is active (countdown ticks)
     const hasEmbargo  = state.diplomacy?.empires.some(e => (e.embargoUntil ?? 0) > state.tick);
-    if (hasCeasefire || hasAllied || hasGiftCooldown || hasSkirmish || hasAidActivity || hasMission || hasCampaign || hasEmbargo) {
+    // T166: refresh while any tribute is being paid (countdown to next payment)
+    const hasTribute  = state.tributes && Object.values(state.tributes.demanded ?? {}).some(t => t.paymentsLeft > 0);
+    if (hasCeasefire || hasAllied || hasGiftCooldown || hasSkirmish || hasAidActivity || hasMission || hasCampaign || hasEmbargo || hasTribute) {
       _render(panel);
     }
   }, 4));
@@ -563,6 +567,7 @@ function _empireCard(emp) {
       ${_favorRow(emp)}
       ${_missionRow(emp)}
       ${_embargoRow(emp)}
+      ${_tributeRow(emp)}
       <div class="dipl-empire-card__actions">${btns.join('')}</div>
     </div>
   `;
@@ -822,6 +827,59 @@ function _embargoRow(emp) {
     </div>`;
 }
 
+// ── T166: Tribute Demand row ──────────────────────────────────────────────────
+
+function _tributeRow(emp) {
+  const capitalCaptured = hasCapturedCapital(emp.id);
+  if (!capitalCaptured) return '';
+
+  const tribute = getTributeStatus(emp.id);
+
+  // Tribute currently active — show countdown to next payment
+  if (tribute && tribute.paymentsLeft > 0) {
+    const secsLeft = Math.max(0, Math.ceil((tribute.nextPaymentTick - state.tick) / 4));
+    const mins     = Math.floor(secsLeft / 60);
+    const secs     = secsLeft % 60;
+    const timeStr  = mins > 0 ? `${mins}m ${String(secs).padStart(2, '0')}s` : `${secsLeft}s`;
+    const paidSoFar = tribute.totalPaid;
+    const totalDue  = TRIBUTE_GOLD * TRIBUTE_PAYMENTS;
+    return `
+      <div class="dipl-tribute-row dipl-tribute-active">
+        <span class="dipl-tribute-icon">💰</span>
+        <span class="dipl-tribute-label">Tribute: ${tribute.paymentsLeft} payments left</span>
+        <span class="dipl-tribute-timer">next in ${timeStr}</span>
+      </div>
+      <div class="dipl-tribute-progress">
+        Collected ${paidSoFar}/${totalDue}g
+      </div>`;
+  }
+
+  // Already paid in full
+  if (tribute && tribute.totalPaid > 0) {
+    return `
+      <div class="dipl-tribute-row dipl-tribute-done">
+        <span class="dipl-tribute-icon">📜</span>
+        <span class="dipl-tribute-label">Tribute fulfilled (${tribute.totalPaid}g collected)</span>
+      </div>`;
+  }
+
+  // Eligible to demand — show button
+  const prestige   = state.prestige?.score ?? 0;
+  const canDemand  = prestige >= TRIBUTE_PRESTIGE;
+  return `
+    <div class="dipl-tribute-row">
+      <span class="dipl-tribute-icon">📜</span>
+      <span class="dipl-tribute-label">Capital captured:</span>
+      <button
+        class="btn btn--sm btn--tribute ${canDemand ? '' : 'btn--disabled'}"
+        data-action="demand-tribute" data-empire="${emp.id}"
+        ${canDemand ? '' : 'disabled'}
+        title="Demand tribute — costs ${TRIBUTE_PRESTIGE} prestige. Pays ${TRIBUTE_GOLD}g every 90s × ${TRIBUTE_PAYMENTS} times (${TRIBUTE_GOLD * TRIBUTE_PAYMENTS}g total).">
+        Demand Tribute (${TRIBUTE_PRESTIGE}✨)
+      </button>
+    </div>`;
+}
+
 // ── Click delegation ─────────────────────────────────────────────────────────
 
 function _onClick(e) {
@@ -915,6 +973,11 @@ function _onClick(e) {
     }
     case 'lift-embargo': {  // T159
       result = liftEmbargo(empire);
+      if (!result.ok) addMessageFallback(result.reason);
+      break;
+    }
+    case 'demand-tribute': {  // T166
+      result = _demandTribute(empire);
       if (!result.ok) addMessageFallback(result.reason);
       break;
     }

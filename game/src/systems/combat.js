@@ -36,6 +36,8 @@ import { getCurrentWeather } from './weather.js';     // T149: weather combat mo
 import { suppressRebel } from './rebels.js';           // T151: rebel tile suppression
 import { getCampaignLootMult, recordCampaignWin } from './campaigns.js'; // T154
 import { SEASON_UNIT_COMBAT_BUFF, SEASON_COMBAT_BUFF_MULT } from '../data/seasons.js'; // T163
+import { defeatWarlord } from './rovingWarlord.js';                                   // T165
+import { recordCapturedCapital } from './tributes.js';                                 // T166
 
 /** Returns true if both techs of a named synergy are researched. */
 function _synergy(id) {
@@ -625,6 +627,7 @@ function _victory(tile, x, y, attackPower, defense) {
   const wasBarbarian      = tile.owner === 'barbarian';            // T056: check before changing owner
   const wasFactionCapital = tile.isFactionCapital ?? null;         // T093: check before changing owner
   const prevFaction       = tile.faction ?? null;                  // T154: save before clearing for campaign
+  const wasWarlord        = !!(tile.warlord);                      // T165: roving warlord
 
   tile.owner            = 'player';
   tile.faction          = null;    // T053: clear faction on player capture
@@ -765,6 +768,12 @@ function _victory(tile, x, y, attackPower, defense) {
 
   // T154: record campaign battle win if this tile belonged to the campaign target
   if (prevFaction) recordCampaignWin(prevFaction);
+
+  // T165: roving warlord defeated — award bonus and clean up tile
+  if (wasWarlord) defeatWarlord(x, y);
+
+  // T166: record captured faction capital for tribute eligibility
+  if (wasFactionCapital) recordCapturedCapital(wasFactionCapital);
 
   recalcRates();
   emit(Events.MAP_CHANGED, { x, y, outcome: 'win' });

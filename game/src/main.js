@@ -90,6 +90,8 @@ import { initCampaigns, campaignTick } from './systems/campaigns.js'; // T154
 import { updateRecords } from './data/lifetimeRecords.js'; // T160
 import { initPlague, plagueTick } from './systems/plague.js'; // T161
 import { initPilgrimages, pilgrimageTick } from './systems/pilgrimages.js'; // T162
+import { initWarlord, warlordTick } from './systems/rovingWarlord.js'; // T165
+import { initTributes, tributeTick } from './systems/tributes.js';     // T166
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
@@ -170,6 +172,8 @@ function boot() {
   registerSystem(campaignTick);       // T154: conquest campaign system
   registerSystem(plagueTick);         // T161: plague outbreak system
   registerSystem(pilgrimageTick);     // T162: pilgrimage system
+  registerSystem(warlordTick);        // T165: roving warlord
+  registerSystem(tributeTick);        // T166: tribute demand
 
   // Init event-driven systems
   initRandomEvents();
@@ -218,6 +222,8 @@ function boot() {
   initCampaigns();       // T154: conquest campaign system
   initPlague();          // T161: plague outbreak system
   initPilgrimages();     // T162: pilgrimage system
+  initWarlord();         // T165: roving warlord
+  initTributes();        // T166: tribute demand
 
   // Init UI
   initHUD();
@@ -443,7 +449,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 49, // T164: resource conversion workshop
+      version: 50, // T165+T166: roving warlord + tribute demand
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -542,6 +548,8 @@ function _save() {
         plague:              state.plague              ?? null,  // T161
         pilgrimages:         state.pilgrimages         ?? null,  // T162
         conversions:         state.conversions         ?? null,  // T164
+        warlord:             state.warlord             ?? null,  // T165
+        tributes:            state.tributes            ?? null,  // T166
         tick:          state.tick,
       }
     }));
@@ -674,6 +682,8 @@ function _applySave(save) {
   state.plague               = s.plague               ?? null; // T161
   state.pilgrimages          = s.pilgrimages          ?? null; // T162
   state.conversions          = s.conversions          ?? null; // T164
+  state.warlord              = s.warlord              ?? null; // T165
+  state.tributes             = s.tributes             ?? null; // T166
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
@@ -1403,6 +1413,8 @@ function _newGame(opts = {}) {
   initCampaigns();       // T154: reset campaigns on new game
   initPlague();          // T161: reset plague state on new game
   initPilgrimages();     // T162: reset pilgrimages on new game
+  initWarlord();         // T165: reset warlord state on new game
+  initTributes();        // T166: reset tributes on new game
   _updateCelestialBanner(); // T153: hide banner on new game
   recalcRates();
   startLoop();  // restart loop in case it was stopped by game-over

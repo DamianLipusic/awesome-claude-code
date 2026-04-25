@@ -2678,3 +2678,41 @@ All 142 prior tasks found complete. Created T143 and T144 from Phase 5+ roadmap 
 - Records are stored in their own separate localStorage key (`'empireos-records'`) to survive both manual save deletion and new-game resets.
 - `updateRecords()` is called both on GAME_OVER (natural win/loss) and in `_newGame()` (player starts new game without the game over screen) to ensure no session is missed.
 - No save version bump needed: records live in a separate localStorage key and have no migration concern.
+
+---
+
+## 2026-04-25 — Session N+43
+
+**Tasks completed:** T165, T166
+
+**T165 — Roving Warlord:**
+
+**Files created:**
+- `game/src/systems/rovingWarlord.js`: `initWarlord()`, `warlordTick()` (spawn + strike timer), `defeatWarlord(x,y)` (called from combat._victory()), `getActiveWarlord()`, `getWarlordSecsLeft()`. Constants: SPAWN_MIN/MAX 12-18 min, FIRST_SPAWN_DELAY 20 min, STRIKE_TICKS 120s window, DEFENSE_BONUS +5 (Iron) / +8 (Medieval), STEAL_MIN/MAX 80-120 gold, REWARD 150-300 gold + 40 prestige + 10 morale. 8 warlord names. Spawn prefers tiles adjacent to player territory. Tile gets `tile.warlord = { name, power }` and boosted defense. On strike: restores tile.defense, deletes tile.warlord, deducts gold, schedules next spawn.
+
+**Files modified:**
+- `game/src/core/state.js`: Added `warlord: null` static field + `state.warlord = null` reset in `initState()`.
+- `game/src/core/events.js`: Added `WARLORD_APPEARED`, `WARLORD_DEFEATED`, `WARLORD_STRUCK`.
+- `game/src/systems/combat.js`: Imports `defeatWarlord`. Saves `wasWarlord = !!(tile.warlord)` at top of `_victory()`. Calls `defeatWarlord(x, y)` after campaign recording, before `recalcRates()`.
+- `game/src/ui/militaryPanel.js`: Imports `getActiveWarlord`, `getWarlordSecsLeft`. Added WARLORD_APPEARED/DEFEATED/STRUCK listeners. `hasWarlord` flag in TICK throttle check. `_warlordSection()` renders urgent alert with name, countdown (m:ss), tile coords, and reward hint; prepended before `_duelSection()` in `_render()`. Alert becomes `.warlord-alert--urgent` (pulse) when ≤30s remain.
+- `game/src/main.js`: Imports `initWarlord`/`warlordTick`. `registerSystem(warlordTick)`. `initWarlord()` in boot + `_newGame`. `warlord` in `_save()` and `_applySave()`. Version bumped to 50.
+- `game/styles/main.css`: `.warlord-alert`, `.warlord-alert--urgent` (pulse animation), `.warlord-alert-header/icon/name/timer/body/reward` styles.
+
+**T166 — Tribute Demand System:**
+
+**Files created:**
+- `game/src/systems/tributes.js`: `initTributes()`, `tributeTick()` (processes scheduled 40g payments every 90s), `recordCapturedCapital(empireId)` (called by combat.js), `demandTribute(empireId)` (costs 20 prestige, validates capital captured + not already demanded), `getTributeStatus(empireId)`, `hasCapturedCapital(empireId)`. Constants: TRIBUTE_GOLD=40, TRIBUTE_INTERVAL=360 ticks, TRIBUTE_PAYMENTS=6 (240g total). Final payment restores neutral relations. Allied empire drops to neutral on demand.
+
+**Files modified:**
+- `game/src/core/state.js`: Added `tributes: null` static field + reset in `initState()`.
+- `game/src/core/events.js`: Added `TRIBUTE_CHANGED`.
+- `game/src/systems/combat.js`: Imports `recordCapturedCapital`. Calls `recordCapturedCapital(wasFactionCapital)` after `recordCampaignWin()` when faction capital was captured.
+- `game/src/ui/diplomacyPanel.js`: Imports `demandTribute as _demandTribute`, `getTributeStatus`, `hasCapturedCapital`, `TRIBUTE_PRESTIGE/GOLD/PAYMENTS` from tributes.js. Added `TRIBUTE_CHANGED` listener. `hasTribute` flag in TICK throttle. `_tributeRow(emp)` renders: Demand button (if capital captured, not yet demanded, has prestige), active countdown (paymentsLeft + next payment timer), or fulfilled badge. Injected after `_embargoRow`. `'demand-tribute'` case in `_onClick` calls `_demandTribute`. Alias needed to avoid clash with old `demandTribute` from diplomacy.js.
+- `game/src/main.js`: Imports `initTributes`/`tributeTick`. `registerSystem(tributeTick)`. `initTributes()` in boot + `_newGame`. `tributes` in `_save()` and `_applySave()`. Version 50.
+- `game/styles/main.css`: `.dipl-tribute-row`, `.dipl-tribute-active`, `.dipl-tribute-done`, `.dipl-tribute-icon/label/timer/progress`, `.btn--tribute` styles.
+
+**Architecture decisions:**
+- Warlord tile property `tile.warlord` is set directly on the map tile (like `tile.barbDefenseBase`) — checked in `_victory()` via `wasWarlord` saved before tile mutation.
+- `defeatWarlord()` does NOT emit RESOURCE_CHANGED (combat.js `_victory()` already does).
+- T166 uses a separate `tributes.js` system rather than extending diplomacy.js to avoid circular imports and keep the diplomacy system focused. The `capturedCapitals` dict in state.tributes makes tribute eligibility self-contained.
+- Save version bumped to 50 for both T165+T166. Both systems use `?? null` defaults in `_applySave()` for backwards compatibility.

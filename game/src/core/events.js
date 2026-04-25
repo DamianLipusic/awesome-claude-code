@@ -132,4 +132,8 @@ export const Events = Object.freeze({
   PILGRIMAGE_ARRIVED:       'pilgrimageArrived',          // T162: pilgrims arrive
   PILGRIMAGE_HOSTED:        'pilgrimageHosted',           // T162: player hosted pilgrims
   CONVERSION_CHANGED:       'conversionChanged',          // T164: resource conversion performed
+  WARLORD_APPEARED:         'warlordAppeared',             // T165: roving warlord spawned
+  WARLORD_DEFEATED:         'warlordDefeated',             // T165: warlord tile captured by player
+  WARLORD_STRUCK:           'warlordStruck',               // T165: warlord timer expired, treasury raided
+  TRIBUTE_CHANGED:          'tributeChanged',              // T166: tribute demanded / payment made / fulfilled
 });

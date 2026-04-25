@@ -9801,3 +9801,105 @@ kbd {
 .btn--pilgrimage:hover:not(.btn--disabled) {
   background: linear-gradient(135deg, #8b5cf6, #7c3aed);
 }
+
+/* ── T165: Roving Warlord Alert ──────────────────────────────────────────── */
+
+.warlord-alert {
+  background: rgba(200, 50, 50, 0.12);
+  border: 1px solid #c03030;
+  border-left: 3px solid #e05050;
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  margin-bottom: 12px;
+}
+
+.warlord-alert--urgent {
+  background: rgba(220, 0, 0, 0.20);
+  border-color: #ff3030;
+  border-left-color: #ff5050;
+  animation: warlord-pulse 0.8s ease-in-out infinite;
+}
+
+@keyframes warlord-pulse {
+  0%, 100% { background: rgba(220, 0, 0, 0.20); }
+  50%       { background: rgba(220, 0, 0, 0.35); }
+}
+
+.warlord-alert-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+
+.warlord-alert-icon { font-size: 1.1em; }
+
+.warlord-alert-name {
+  flex: 1;
+  font-weight: 700;
+  color: #ff7070;
+  font-size: 0.9rem;
+}
+
+.warlord-alert-timer {
+  font-family: monospace;
+  font-size: 1.0rem;
+  font-weight: 700;
+  color: #ff9090;
+}
+
+.warlord-alert--urgent .warlord-alert-timer { color: #ffb0b0; }
+
+.warlord-alert-body {
+  font-size: 0.80rem;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+}
+
+.warlord-alert-reward {
+  font-size: 0.78rem;
+  color: #a0c080;
+}
+
+/* ── T166: Tribute Demand Diplomacy Row ──────────────────────────────────── */
+
+.dipl-tribute-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 0;
+  font-size: 0.83rem;
+}
+
+.dipl-tribute-icon { font-size: 1.0em; }
+
+.dipl-tribute-label {
+  flex: 1;
+  color: var(--text-dim);
+}
+
+.dipl-tribute-active .dipl-tribute-label { color: #fbbf24; }
+.dipl-tribute-done   .dipl-tribute-label { color: #68d391; }
+
+.dipl-tribute-timer {
+  font-family: monospace;
+  font-size: 0.82rem;
+  color: #fbbf24;
+}
+
+.dipl-tribute-progress {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  padding: 0 0 4px 24px;
+}
+
+.btn--tribute {
+  background: linear-gradient(135deg, #b45309, #92400e);
+  color: #fef3c7;
+  border: 1px solid #d97706;
+  font-size: 0.78rem;
+  padding: 3px 10px;
+}
+.btn--tribute:hover:not(.btn--disabled) {
+  background: linear-gradient(135deg, #d97706, #b45309);
+}
