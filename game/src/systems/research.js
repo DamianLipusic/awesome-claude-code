@@ -24,6 +24,9 @@ export function researchTick() {
   let researchRate = (state.proclamation?.activeId === 'great_works') ? 1.3 : 1;
   if (state.dynasty?.currentHeir === 'scholar') researchRate *= 1.10;
   if (state.celestial?.active?.type === 'comet') researchRate *= 2.0;
+  // T162: Scholar pilgrimage bonus — +15% research speed for duration
+  const _pb = state.pilgrimages?.activeBonus;
+  if (_pb?.type === 'scholars' && state.tick < (_pb.expiresAt ?? 0)) researchRate *= 1.15;
   entry.remaining -= researchRate;
 
   if (entry.remaining <= 0) {

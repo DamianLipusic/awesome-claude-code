@@ -1379,7 +1379,7 @@
   },
   {
     "id": "T155",
-    "title": "Global Trade Network — alliance-wide trade bonus when all three empires are allied",
+    "title": "Global Trade Network \u2014 alliance-wide trade bonus when all three empires are allied",
     "description": "When all three AI empires (Iron Horde, Mage Council, Sea Wolves) are simultaneously allied and each has at least one open trade route, the Global Trade Network activates: +3 gold/s passive income (resources.js), +25% sell prices at the market (market.js), and a 'Global Trade Network Active' banner in the Diplomacy panel (diplomacyPanel.js).",
     "priority": 155,
     "status": "done",
@@ -1388,7 +1388,7 @@
   },
   {
     "id": "T156",
-    "title": "Ancient Battlefields on map — special tile sites with capture rewards",
+    "title": "Ancient Battlefields on map \u2014 special tile sites with capture rewards",
     "description": "Place 3 ancient battlefield sites on the map at distance 4-12 from capital (tile.ancientBattlefield=true, +15 defense). On capture: +100 gold, +1 XP to all units, +30 prestige, emit BATTLEFIELD_CAPTURED event. Shown with purple tint + sword icon. Tooltip shows capture hints. Sites tracked in state.battlefields.captured.",
     "priority": 156,
     "status": "done",
@@ -1397,16 +1397,16 @@
   },
   {
     "id": "T157",
-    "title": "Supply Depot building — logistics hub with Surge Provisions ability",
-    "description": "New unique building (Iron Age, barracks×2 + ironFoundry). Cost: 300g+200s+100i+50f. Reduces all unit upkeep by 15%. Unlocks Surge Provisions action in Military panel: costs 80 food, grants +15 flat attack power for 30s (120 ticks). 3-minute cooldown. Supply Depot section in Military panel with active timer and cooldown countdown. SUPPLY_CHANGED event. state.supplyDepot saved/loaded. No save version bump.",
+    "title": "Supply Depot building \u2014 logistics hub with Surge Provisions ability",
+    "description": "New unique building (Iron Age, barracks\u00d72 + ironFoundry). Cost: 300g+200s+100i+50f. Reduces all unit upkeep by 15%. Unlocks Surge Provisions action in Military panel: costs 80 food, grants +15 flat attack power for 30s (120 ticks). 3-minute cooldown. Supply Depot section in Military panel with active timer and cooldown countdown. SUPPLY_CHANGED event. state.supplyDepot saved/loaded. No save version bump.",
     "priority": 157,
     "status": "done",
     "phase": 61,
-    "notes": "buildings.js: supplyDepot unique building added (Iron Age + barracks×2 + ironFoundry req, unique:true, food consumption 1/s). events.js: SUPPLY_CHANGED event added. state.js: supplyDepot:null static field + initState() reset. actions.js: activateSurgeProvisions() export with 80 food cost, 120-tick duration, 720-tick cooldown, SUPPLY_CHANGED emit. resources.js: upkeepMult now multiplied by 0.85 when supplyDepot built (applies to both army + garrison upkeep). combat.js: +15 flat attackPower in both getAttackPreview() (with surgeActive return field) and attackTile() when surgeExpiresAt>state.tick. militaryPanel.js: import activateSurgeProvisions, SUPPLY_CHANGED listener, hasSurgeActivity tick check, _supplyDepotSection() with active/cooldown/ready status and Surge button, data-action=surge-activate handler. main.js: supplyDepot saved/loaded. main.css: .supply-depot-section + .surge-status--{ready,active,cd} classes."
+    "notes": "buildings.js: supplyDepot unique building added (Iron Age + barracks\u00d72 + ironFoundry req, unique:true, food consumption 1/s). events.js: SUPPLY_CHANGED event added. state.js: supplyDepot:null static field + initState() reset. actions.js: activateSurgeProvisions() export with 80 food cost, 120-tick duration, 720-tick cooldown, SUPPLY_CHANGED emit. resources.js: upkeepMult now multiplied by 0.85 when supplyDepot built (applies to both army + garrison upkeep). combat.js: +15 flat attackPower in both getAttackPreview() (with surgeActive return field) and attackTile() when surgeExpiresAt>state.tick. militaryPanel.js: import activateSurgeProvisions, SUPPLY_CHANGED listener, hasSurgeActivity tick check, _supplyDepotSection() with active/cooldown/ready status and Surge button, data-action=surge-activate handler. main.js: supplyDepot saved/loaded. main.css: .supply-depot-section + .surge-status--{ready,active,cd} classes."
   },
   {
     "id": "T158",
-    "title": "Weather Memory — climate adaptation reduces repeated weather penalties",
+    "title": "Weather Memory \u2014 climate adaptation reduces repeated weather penalties",
     "description": "Track how many times each weather type fires in state.weatherMemory.counts. At 3+ occurrences of a type, mark it as adapted (state.weatherMemory.adaptations). Adapted weather halves its negative rate multipliers in recalcRates(). WEATHER_ADAPTED event logged as windfall toast. Adapted types shown in Settings panel 'Climate Adaptations' section. state.weatherMemory saved/loaded. No save version bump.",
     "priority": 158,
     "status": "done",
@@ -1430,5 +1430,23 @@
     "status": "done",
     "completedNotes": "Created src/data/lifetimeRecords.js with RECORD_DEFS (8 tracked stats: longestGame, mostGoldEarned, mostPopulation, mostBuildings, mostTechResearched, mostTerritory, mostTradeRoutes, mostPrestige), getRecords() and updateRecords() functions. main.js: import updateRecords, call on GAME_OVER event and before state wipe in _newGame(). settingsPanel.js: import getRecords/RECORD_DEFS, add GAME_OVER listener to re-render, add _recordsSection() function, inject ${_recordsSection()} into panel HTML. main.css: .records-grid, .records-row, .records-icon, .records-label, .records-val, .records-empty, .records-empty-msg styles.",
     "phase": 62
+  },
+  {
+    "id": "T161",
+    "title": "plague outbreak system \u2014 epidemic crisis with quarantine action",
+    "description": "When population exceeds 600 at Bronze Age+, periodic plague outbreaks (chance every ~10 min) reduce food production by 35% for 3 min and slowly reduce population. Player can spend 100 gold + 50 food to quarantine early. 15-min immunity after recovery. Quest panel red alert section with countdown and quarantine button.",
+    "priority": 161,
+    "status": "done",
+    "phase": 61,
+    "notes": "src/systems/plague.js: initPlague(), plagueTick(), quarantinePlague(), getActivePlague(), getPlagueSecsLeft(). Triggers at Bronze Age+ when population>600, 40% chance per 8-12 min check, 3 min duration (720 ticks). 35% food production penalty via resources.js T161 block. Population -1 every 30s during outbreak. Player quarantine action costs 100 gold+50 food to end early. 15-min immunity after recovery. events.js: PLAGUE_STARTED + PLAGUE_ENDED added. state.js: state.plague=null + initState() reset. questPanel.js: _plagueSection() renders red pulsing alert with countdown and quarantine button; subscribes to PLAGUE_STARTED/PLAGUE_ENDED; tick refresh. main.js: import+register+init (boot+newGame)+save/load. main.css: .plague-section, .plague-section--active (pulse animation), .btn--quarantine. Save version bumped to 48."
+  },
+  {
+    "id": "T162",
+    "title": "pilgrimage system \u2014 visiting pilgrims seeking prestige buildings",
+    "description": "Every ~10 min (Bronze Age+), pilgrims arrive seeking one of three prestige buildings (colosseum/greatLibrary/grandCathedral). Hosting costs 30 food + 20 gold and awards prestige + morale + a 3-min rate bonus. Pilgrims expire after 3 min if ignored. Three pilgrim types matched to buildings.",
+    "priority": 162,
+    "status": "done",
+    "phase": 61,
+    "notes": "src/systems/pilgrimages.js: initPilgrimages(), pilgrimageTick(), hostPilgrimage(). 3 pilgrim types: artists(colosseum)+30 prestige+5 morale+0.5 gold/s 3 min; scholars(greatLibrary)+40 prestige+15% research speed 4 min; pilgrims(grandCathedral)+20 prestige+8 morale+0.3 mana/s 3 min. Only spawns if matching building exists. Spawn 8-12 min, 3 min expiry. Host costs 20 gold+30 food. events.js: PILGRIMAGE_ARRIVED+PILGRIMAGE_HOSTED added. state.js: state.pilgrimages=null + initState() reset. resources.js: T162 block applies activeBonus rate bonuses (artists: +0.5 gold/s; pilgrims: +0.3 mana/s). research.js: scholars bonus adds *1.15 researchRate. questPanel.js: _pilgrimageSection() shows pending pilgrim card (building check, afford check, host button) or active bonus card with countdown. main.js: import+register+init+save/load. main.css: .pilgrimage-section--pending (purple glow animation) + --bonus (green), .btn--pilgrimage."
   }
 ]

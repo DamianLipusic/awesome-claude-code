@@ -10,6 +10,8 @@ import { getChallengeSecsLeft } from '../systems/challenges.js';
 import { resolvePoliticalEvent, getPoliticalEventSecsLeft } from '../systems/politicalEvents.js';
 import { getActiveBounty, getBountySecsLeft } from '../systems/bounty.js';
 import { getActiveRebels } from '../systems/rebels.js'; // T151
+import { getActivePlague, getPlagueSecsLeft, quarantinePlague, QUARANTINE_GOLD_COST, QUARANTINE_FOOD_COST } from '../systems/plague.js'; // T161
+import { hostPilgrimage } from '../systems/pilgrimages.js'; // T162
 import { TICKS_PER_SECOND } from '../core/tick.js';
 
 export function initQuestPanel() {
@@ -23,30 +25,54 @@ export function initQuestPanel() {
     Events.CHALLENGE_UPDATED, Events.POPULATION_CHANGED, Events.RESOURCE_CHANGED,
     Events.POLITICAL_EVENT, Events.BOUNTY_CHANGED,
     Events.REBEL_UPRISING, Events.REBELS_SUPPRESSED,  // T151
+    Events.PLAGUE_STARTED, Events.PLAGUE_ENDED,        // T161
+    Events.PILGRIMAGE_ARRIVED, Events.PILGRIMAGE_HOSTED, // T162
   ];
   for (const ev of events) on(ev, render);
 
-  // Refresh challenge + political-event + bounty countdown every second via TICK
+  // Refresh countdowns every second via TICK
   let _tickCount = 0;
   on(Events.TICK, () => {
     if (++_tickCount % TICKS_PER_SECOND === 0) {
       const ch = state.challenges?.active;
       const pe = state.politicalEvents?.pending;
       const bo = state.bounty?.current;
-      if (ch || pe || bo) render();
+      const pl = state.plague?.active;
+      const pi = state.pilgrimages?.pending;
+      if (ch || pe || bo || pl || pi) render();
     }
   });
 
-  // Delegate click events for political event choice buttons
+  // Delegate click events
   panel.addEventListener('click', (e) => {
-    const btn = e.target.closest('[data-pol-choice]');
-    if (!btn) return;
-    const choice = btn.dataset.polChoice;
-    const result = resolvePoliticalEvent(choice);
-    if (!result.ok) {
-      btn.title = result.reason ?? 'Cannot choose that option.';
-      btn.classList.add('btn--shake');
-      setTimeout(() => btn.classList.remove('btn--shake'), 500);
+    // Political event choices
+    const polBtn = e.target.closest('[data-pol-choice]');
+    if (polBtn) {
+      const choice = polBtn.dataset.polChoice;
+      const result = resolvePoliticalEvent(choice);
+      if (!result.ok) {
+        polBtn.title = result.reason ?? 'Cannot choose that option.';
+        polBtn.classList.add('btn--shake');
+        setTimeout(() => polBtn.classList.remove('btn--shake'), 500);
+      }
+      return;
+    }
+    // Quarantine button (T161)
+    if (e.target.closest('[data-action="quarantine-plague"]')) {
+      const r = quarantinePlague();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="quarantine-plague"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+      return;
+    }
+    // Host pilgrimage button (T162)
+    if (e.target.closest('[data-action="host-pilgrimage"]')) {
+      const r = hostPilgrimage();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="host-pilgrimage"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
     }
   });
 
@@ -64,6 +90,8 @@ function render() {
   const pct       = total > 0 ? Math.round((doneCount / total) * 100) : 0;
 
   panel.innerHTML = `
+    ${_plagueSection()}
+    ${_pilgrimageSection()}
     ${_rebelSection()}
     ${_bountySection()}
     ${_politicalEventSection()}
@@ -81,6 +109,78 @@ function render() {
       ${QUESTS.map(q => _questCard(q, completed[q.id])).join('')}
     </div>
   `;
+}
+
+// ── Plague section (T161) ────────────────────────────────────────────────
+
+function _plagueSection() {
+  if ((state.age ?? 0) < 1) return '';  // Bronze Age+ only
+
+  const plague = getActivePlague();
+  if (!plague) return '';
+
+  const secsLeft = getPlagueSecsLeft();
+  const canAfford = (state.resources?.gold ?? 0) >= QUARANTINE_GOLD_COST &&
+                    (state.resources?.food ?? 0) >= QUARANTINE_FOOD_COST;
+  const btnClass = canAfford ? 'btn btn--sm btn--quarantine' : 'btn btn--sm btn--quarantine btn--disabled';
+
+  return `
+    <div class="plague-section plague-section--active">
+      <div class="plague-section__header">🦠 Plague Outbreak!</div>
+      <div class="plague-section__desc">
+        Food production −35%. Population slowly declining. Ends in <strong>${secsLeft}s</strong>.
+      </div>
+      <div class="plague-section__actions">
+        <button class="${btnClass}" data-action="quarantine-plague"
+          title="${canAfford ? `Quarantine the plague (${QUARANTINE_GOLD_COST}💰 ${QUARANTINE_FOOD_COST}🍞)` : `Need ${QUARANTINE_GOLD_COST}💰 + ${QUARANTINE_FOOD_COST}🍞`}">
+          🏥 Quarantine (${QUARANTINE_GOLD_COST}💰 ${QUARANTINE_FOOD_COST}🍞)
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── Pilgrimage section (T162) ─────────────────────────────────────────────
+
+function _pilgrimageSection() {
+  if ((state.age ?? 0) < 1) return '';  // Bronze Age+ only
+  const pg = state.pilgrimages;
+  if (!pg) return '';
+
+  // Active bonus display
+  const bonus = pg.activeBonus;
+  if (bonus && state.tick < bonus.expiresAt) {
+    const secsLeft = Math.max(0, Math.ceil((bonus.expiresAt - state.tick) / TICKS_PER_SECOND));
+    const label = bonus.type === 'artists'  ? '+0.5 gold/s' :
+                  bonus.type === 'scholars' ? '+15% research speed' : '+0.3 mana/s';
+    return `
+      <div class="pilgrimage-section pilgrimage-section--bonus">
+        <div class="pilgrimage-section__header">${bonus.icon} Pilgrimage Blessing Active</div>
+        <div class="pilgrimage-section__desc">${label} — expires in <strong>${secsLeft}s</strong></div>
+      </div>`;
+  }
+
+  // Pending pilgrim visit
+  const pending = pg.pending;
+  if (!pending) return '';
+
+  const secsLeft = Math.max(0, Math.ceil((pending.expiresAt - state.tick) / TICKS_PER_SECOND));
+  const canAfford = (state.resources?.gold ?? 0) >= 20 && (state.resources?.food ?? 0) >= 30;
+  const hasBuilding = (state.buildings?.[pending.buildingId] ?? 0) > 0;
+  const canHost = canAfford && hasBuilding;
+  const btnClass = `btn btn--sm btn--pilgrimage${canHost ? '' : ' btn--disabled'}`;
+  const reason = !hasBuilding ? `Requires ${pending.buildingId}` :
+                 !canAfford  ? 'Need 20💰 + 30🍞' : 'Host pilgrims';
+
+  return `
+    <div class="pilgrimage-section pilgrimage-section--pending">
+      <div class="pilgrimage-section__header">${pending.icon} ${pending.name} Arrive!</div>
+      <div class="pilgrimage-section__desc">${pending.desc} Expires in <strong>${secsLeft}s</strong>.</div>
+      <div class="pilgrimage-section__actions">
+        <button class="${btnClass}" data-action="host-pilgrimage" title="${reason}">
+          🏛️ Host (20💰 30🍞)
+        </button>
+      </div>
+    </div>`;
 }
 
 // ── Rebel section (T151) ─────────────────────────────────────────────────

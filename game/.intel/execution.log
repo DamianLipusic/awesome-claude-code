@@ -2,6 +2,40 @@
 
 ---
 
+## 2026-04-25 — Session N+40
+
+**Tasks completed:** T161, T162
+
+**Summary:**
+All prior tasks (T001–T160) were complete. Created T161+T162 task specs then implemented two Phase 61 features: Plague Outbreak System (T161) and Pilgrimage System (T162).
+
+**T161 — Plague Outbreak System:**
+- `src/systems/plague.js`: New file. `initPlague()` (idempotent init). `plagueTick()` checks trigger conditions (Bronze Age+, population > 600, not immune, 40% chance per 8-12 min window) and manages active plague timer. Active plague damages population (−1 citizen every 30s). `quarantinePlague()` costs 100 gold + 50 food to end plague early. `getPlagueSecsLeft()` countdown. 15-min immunity after each outbreak. Bugfix: used `_randomCheckOffset()` helper so `nextCheckTick` computation doesn't double-add `state.tick`.
+- `src/core/events.js`: Added `PLAGUE_STARTED` and `PLAGUE_ENDED` event constants.
+- `src/core/state.js`: Added `state.plague = null` static field + `initState()` reset.
+- `src/systems/resources.js`: T161 block before `Object.assign` — if `state.plague?.active && rates.food > 0`, multiplies food rates by 0.65 (−35% penalty).
+- `src/ui/questPanel.js`: Static import of `quarantinePlague`, `getActivePlague`, `getPlagueSecsLeft`, `QUARANTINE_GOLD_COST/FOOD_COST` from plague.js. `_plagueSection()` renders red pulsing alert with countdown and quarantine button (disabled if can't afford). Subscribed `PLAGUE_STARTED + PLAGUE_ENDED` events for re-render. Tick refresh guard includes `state.plague?.active`. Click handler delegates `[data-action="quarantine-plague"]`.
+- `src/main.js`: Import + `registerSystem(plagueTick)` + `initPlague()` in boot and `_newGame()`; `plague` saved/loaded. Save version bumped to 48.
+- `styles/main.css`: `.plague-section`, `.plague-section--active` (red pulsing animation), `.plague-section__header/desc/actions`, `.btn--quarantine` (red gradient).
+
+**T162 — Pilgrimage System:**
+- `src/systems/pilgrimages.js`: New file. 3 pilgrim types: artists (colosseum) +30 prestige +5 morale +0.5 gold/s 3 min; scholars (greatLibrary) +40 prestige +15% research speed 4 min; pilgrims (grandCathedral) +20 prestige +8 morale +0.3 mana/s 3 min. `initPilgrimages()` idempotent init. `pilgrimageTick()` handles bonus expiry, pending expiry, and new spawn (only if matching building exists; 8-12 min interval). `hostPilgrimage()` validates building + costs (20 gold + 30 food), awards prestige/morale, sets activeBonus, calls recalcRates(). Pilgrims expire after 3 min if not hosted.
+- `src/core/events.js`: Added `PILGRIMAGE_ARRIVED` and `PILGRIMAGE_HOSTED` constants.
+- `src/core/state.js`: Added `state.pilgrimages = null` static field + `initState()` reset.
+- `src/systems/resources.js`: T162 block after T161 — if `state.pilgrimages?.activeBonus` active: artists +0.5 gold, pilgrims +0.3 mana.
+- `src/systems/research.js`: T162 scholar bonus — if `activeBonus.type === 'scholars'` and still active, `researchRate *= 1.15`.
+- `src/ui/questPanel.js`: Static import `hostPilgrimage` from pilgrimages.js. `_pilgrimageSection()` renders active bonus card (green, countdown) or pending pilgrim card (purple pulsing, host button with building + cost checks). Subscribed `PILGRIMAGE_ARRIVED + PILGRIMAGE_HOSTED`. Tick refresh includes `state.pilgrimages?.pending`.
+- `src/main.js`: Import + `registerSystem(pilgrimageTick)` + `initPilgrimages()` in boot and `_newGame()`; `pilgrimages` saved/loaded.
+- `styles/main.css`: `.pilgrimage-section--pending` (purple glow), `.pilgrimage-section--bonus` (green), `.pilgrimage-section__header/desc/actions`, `.btn--pilgrimage` (purple gradient).
+
+**Architecture decisions:**
+- Plague uses `_randomCheckOffset()` (a pure offset, not an absolute tick) to avoid double-counting `state.tick` when computing nextCheckTick inside `_startPlague()` and `_endPlague()`.
+- Pilgrimage only spawns eligible types whose building the player has built, so the system self-gates — no need for a separate unlock condition beyond Bronze Age.
+- Both systems are purely additive: plague is a temporary penalty to food, pilgrimages are optional temporary bonuses. Neither permanently modifies game state beyond prestige/morale awards.
+- Save version bumped to 48 for both new state fields.
+
+---
+
 ## 2026-04-24 — Session N+39
 
 **Tasks completed:** T155, T156

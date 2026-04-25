@@ -584,6 +584,17 @@ export function recalcRates() {
     for (const res of RESOURCE_KEYS) rates[res] += 1.0;
   }
 
+  // T161: Plague outbreak — 35% food production penalty while active
+  if (state.plague?.active && rates.food > 0) rates.food *= 0.65;
+
+  // T162: Pilgrimage active bonus — applied per bonus type
+  const _pilgBonus = state.pilgrimages?.activeBonus;
+  if (_pilgBonus && state.tick < _pilgBonus.expiresAt) {
+    if (_pilgBonus.type === 'artists')   { rates.gold += 0.5; }
+    if (_pilgBonus.type === 'scholars')  { /* research speed handled in research.js */ }
+    if (_pilgBonus.type === 'pilgrims')  { rates.mana += 0.3; }
+  }
+
   Object.assign(state.rates, rates);
   Object.assign(state.caps, caps);
 }

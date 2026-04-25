@@ -88,6 +88,8 @@ import { initDynasty, dynastyTick, chooseHeir, HEIR_DEFS, getSuccessionSecsLeft 
 import { initCelestial, celestialTick, getActiveCelestial, getCelestialSecsLeft, getPendingCelestial } from './systems/celestialEvents.js'; // T153
 import { initCampaigns, campaignTick } from './systems/campaigns.js'; // T154
 import { updateRecords } from './data/lifetimeRecords.js'; // T160
+import { initPlague, plagueTick } from './systems/plague.js'; // T161
+import { initPilgrimages, pilgrimageTick } from './systems/pilgrimages.js'; // T162
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
@@ -166,6 +168,8 @@ function boot() {
   registerSystem(dynastyTick);        // T152: dynastic succession system
   registerSystem(celestialTick);      // T153: celestial events system
   registerSystem(campaignTick);       // T154: conquest campaign system
+  registerSystem(plagueTick);         // T161: plague outbreak system
+  registerSystem(pilgrimageTick);     // T162: pilgrimage system
 
   // Init event-driven systems
   initRandomEvents();
@@ -212,6 +216,8 @@ function boot() {
   initDynasty();         // T152: dynastic succession system
   initCelestial();       // T153: celestial events system
   initCampaigns();       // T154: conquest campaign system
+  initPlague();          // T161: plague outbreak system
+  initPilgrimages();     // T162: pilgrimage system
 
   // Init UI
   initHUD();
@@ -437,7 +443,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 47, // T159: trade embargo per-empire fields
+      version: 48, // T161: plague + T162: pilgrimages
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -533,6 +539,8 @@ function _save() {
         battlefields:        state.battlefields        ?? null,  // T156
         supplyDepot:         state.supplyDepot         ?? null,  // T157
         weatherMemory:       state.weatherMemory       ?? null,  // T158
+        plague:              state.plague              ?? null,  // T161
+        pilgrimages:         state.pilgrimages         ?? null,  // T162
         tick:          state.tick,
       }
     }));
@@ -662,6 +670,8 @@ function _applySave(save) {
   state.battlefields         = s.battlefields         ?? null; // T156
   state.supplyDepot          = s.supplyDepot          ?? null; // T157
   state.weatherMemory        = s.weatherMemory        ?? null; // T158
+  state.plague               = s.plague               ?? null; // T161
+  state.pilgrimages          = s.pilgrimages          ?? null; // T162
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
@@ -1388,6 +1398,8 @@ function _newGame(opts = {}) {
   document.getElementById('succession-modal')?.classList.add('succession-modal--hidden'); // T152
   initCelestial();       // T153: reset celestial events on new game
   initCampaigns();       // T154: reset campaigns on new game
+  initPlague();          // T161: reset plague state on new game
+  initPilgrimages();     // T162: reset pilgrimages on new game
   _updateCelestialBanner(); // T153: hide banner on new game
   recalcRates();
   startLoop();  // restart loop in case it was stopped by game-over

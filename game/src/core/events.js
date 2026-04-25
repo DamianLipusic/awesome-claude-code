@@ -127,4 +127,8 @@ export const Events = Object.freeze({
   SUPPLY_CHANGED:           'supplyChanged',              // T157: surge provisions activated or expired
   WEATHER_ADAPTED:          'weatherAdapted',             // T158: empire adapted to a weather type
   EMBARGO_CHANGED:          'embargoChanged',             // T159: trade embargo declared / lifted / expired
+  PLAGUE_STARTED:           'plagueStarted',              // T161: plague outbreak began
+  PLAGUE_ENDED:             'plagueEnded',                // T161: plague ended (natural or quarantine)
+  PILGRIMAGE_ARRIVED:       'pilgrimageArrived',          // T162: pilgrims arrive
+  PILGRIMAGE_HOSTED:        'pilgrimageHosted',           // T162: player hosted pilgrims
 });

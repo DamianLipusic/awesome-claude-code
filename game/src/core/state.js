@@ -403,6 +403,16 @@ export const state = {
   // T158: Weather memory — tracks occurrence counts and adaptations per weather type
   // { counts: { [typeId]: number }, adaptations: { [typeId]: true } }
   weatherMemory: null,
+
+  // T161: Plague outbreak state — populated by systems/plague.js initPlague()
+  // { active: { expiresAt: tick } | null, immuneUntil: tick, nextCheckTick: tick, totalPlagued: number }
+  plague: null,
+
+  // T162: Pilgrimage system — populated by systems/pilgrimages.js initPilgrimages()
+  // { pending: { type, buildingId, icon, name, expiresAt, bonus } | null,
+  //   nextPilgrimageTick: tick, totalHosted: number,
+  //   activeBonus: { type, expiresAt } | null }
+  pilgrimages: null,
 };
 
 /**
@@ -501,5 +511,7 @@ export function initState(empireName = 'My Empire') {
   state.battlefields         = null; // T156: reset battlefields per game
   state.supplyDepot          = null; // T157: reset surge state per game
   state.weatherMemory        = null; // T158: reset weather memory per game
+  state.plague               = null; // T161: reset plague state per game
+  state.pilgrimages          = null; // T162: reset pilgrimages per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

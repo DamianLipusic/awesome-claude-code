@@ -9628,3 +9628,95 @@ kbd {
   text-align: center;
   padding: 10px 0;
 }
+
+
+/* ── T161: Plague Outbreak ─────────────────────────────────────────────── */
+
+.plague-section {
+  margin: 8px 0 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  border-left: 3px solid var(--red);
+  background: rgba(180,0,30,0.10);
+  animation: plague-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes plague-pulse {
+  0%, 100% { background: rgba(180,0,30,0.10); }
+  50%       { background: rgba(180,0,30,0.20); }
+}
+
+.plague-section__header {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #ff6b6b;
+  margin-bottom: 4px;
+}
+
+.plague-section__desc {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+
+.plague-section__actions { display: flex; gap: 8px; }
+
+.btn--quarantine {
+  background: linear-gradient(135deg, #c0392b, #922b21);
+  color: #fff;
+  border: none;
+}
+.btn--quarantine:hover:not(.btn--disabled) {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+}
+
+/* ── T162: Pilgrimage System ───────────────────────────────────────────── */
+
+.pilgrimage-section {
+  margin: 8px 0 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  border-left: 3px solid;
+}
+
+.pilgrimage-section--pending {
+  border-color: #a78bfa;
+  background: rgba(167,139,250,0.08);
+  animation: pilgrimage-glow 2s ease-in-out infinite;
+}
+
+.pilgrimage-section--bonus {
+  border-color: #68d391;
+  background: rgba(104,211,145,0.08);
+}
+
+@keyframes pilgrimage-glow {
+  0%, 100% { background: rgba(167,139,250,0.08); }
+  50%       { background: rgba(167,139,250,0.16); }
+}
+
+.pilgrimage-section__header {
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-bottom: 4px;
+}
+
+.pilgrimage-section--pending .pilgrimage-section__header { color: #c4b5fd; }
+.pilgrimage-section--bonus   .pilgrimage-section__header { color: #68d391; }
+
+.pilgrimage-section__desc {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+
+.pilgrimage-section__actions { display: flex; gap: 8px; }
+
+.btn--pilgrimage {
+  background: linear-gradient(135deg, #7c3aed, #5b21b6);
+  color: #fff;
+  border: none;
+}
+.btn--pilgrimage:hover:not(.btn--disabled) {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+}
