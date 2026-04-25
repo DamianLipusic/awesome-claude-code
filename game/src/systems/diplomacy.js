@@ -74,6 +74,11 @@ export const FAVOR_REQUESTS = {
   war_party:      { label: '⚔️ War Party',        cost: 45, desc: 'Ally sends a war party — +10 morale, +80 prestige.' },
 };
 
+// T159: Trade Embargo constants
+export const EMBARGO_COST              = 100;                          // gold to declare
+const EMBARGO_DURATION_TICKS           = 5  * 60 * TICKS_PER_SECOND;  // 5 min active
+const EMBARGO_COOLDOWN_TICKS           = 8  * 60 * TICKS_PER_SECOND;  // 8 min cooldown after expiry
+
 // T088: Border Skirmish constants
 const SKIRMISH_INTERVAL_MIN  = 15 * 60 * TICKS_PER_SECOND;  // 15 min between skirmishes
 const SKIRMISH_INTERVAL_MAX  = 20 * 60 * TICKS_PER_SECOND;  // 20 min between skirmishes
@@ -135,6 +140,11 @@ export function initDiplomacy() {
     if (emp.favor         === undefined) emp.favor         = 0;
     if (emp.nextFavorTick === undefined) emp.nextFavorTick = state.tick + FAVOR_ACCRUAL_TICKS;
   }
+  // T159: migrate saves that predate trade embargo fields
+  for (const emp of state.diplomacy.empires) {
+    if (emp.embargoUntil          === undefined) emp.embargoUntil          = 0;
+    if (emp.embargoCooldownUntil  === undefined) emp.embargoCooldownUntil  = 0;
+  }
 }
 
 /**
@@ -161,6 +171,15 @@ export function diplomacyTick() {
       emp.favor = Math.min(FAVOR_MAX, (emp.favor ?? 0) + 1);
       emp.nextFavorTick = state.tick + FAVOR_ACCRUAL_TICKS;
       emit(Events.ALLIANCE_FAVOR_CHANGED, { empireId: emp.id, favor: emp.favor });
+    }
+
+    // T159: Expire trade embargo when duration elapsed
+    if ((emp.embargoUntil ?? 0) > 0 && state.tick >= emp.embargoUntil) {
+      emp.embargoUntil         = 0;
+      emp.embargoCooldownUntil = state.tick + EMBARGO_COOLDOWN_TICKS;
+      const def = EMPIRES[emp.id];
+      addMessage(`📜 Trade embargo against ${def.icon} ${def.name} has expired.`, 'info');
+      emit(Events.EMBARGO_CHANGED, { empireId: emp.id, active: false });
     }
 
     // AI diplomatic stance change
@@ -523,6 +542,84 @@ export function mediateSkirmish() {
   return { ok: true };
 }
 
+// ── T159: Trade Embargo public API ────────────────────────────────────────────
+
+/**
+ * Declare a trade embargo against a non-allied empire.
+ * Cost: EMBARGO_COST gold. Lasts EMBARGO_DURATION_TICKS.
+ * Effect: that empire's war raids deal 30% less loot; player market sell prices +15%.
+ */
+export function declareEmbargo(empireId) {
+  const emp = _findEmpire(empireId);
+  if (!emp) return { ok: false, reason: 'Unknown empire.' };
+  if (emp.relations === 'allied')
+    return { ok: false, reason: 'Cannot embargo an allied empire.' };
+  if ((emp.embargoUntil ?? 0) > state.tick)
+    return { ok: false, reason: 'Embargo already active against this empire.' };
+  const cdUntil = emp.embargoCooldownUntil ?? 0;
+  if (cdUntil > state.tick) {
+    const secsLeft = Math.ceil((cdUntil - state.tick) / TICKS_PER_SECOND);
+    return { ok: false, reason: `Embargo on cooldown — ${secsLeft}s remaining.` };
+  }
+  if ((state.resources.gold ?? 0) < EMBARGO_COST)
+    return { ok: false, reason: `Need ${EMBARGO_COST} gold.` };
+
+  state.resources.gold -= EMBARGO_COST;
+  emp.embargoUntil = state.tick + EMBARGO_DURATION_TICKS;
+  const def = EMPIRES[empireId];
+  emit(Events.EMBARGO_CHANGED, { empireId, active: true });
+  emit(Events.RESOURCE_CHANGED, {});
+  _logDiplomacy(empireId, 'embargo', `Trade embargo declared against ${def.name}`);
+  addMessage(
+    `🚫 Trade embargo declared against ${def.icon} ${def.name}! Their raids deal 30% less loot. Market sell prices +15% for 5 minutes.`,
+    'diplomacy',
+  );
+  return { ok: true };
+}
+
+/**
+ * Lift a trade embargo early (free). Starts the cooldown immediately.
+ */
+export function liftEmbargo(empireId) {
+  const emp = _findEmpire(empireId);
+  if (!emp) return { ok: false, reason: 'Unknown empire.' };
+  if ((emp.embargoUntil ?? 0) <= state.tick)
+    return { ok: false, reason: 'No active embargo against this empire.' };
+
+  emp.embargoUntil         = 0;
+  emp.embargoCooldownUntil = state.tick + EMBARGO_COOLDOWN_TICKS;
+  const def = EMPIRES[empireId];
+  emit(Events.EMBARGO_CHANGED, { empireId, active: false });
+  _logDiplomacy(empireId, 'embargo', `Trade embargo lifted against ${def.name}`);
+  addMessage(`📜 Trade embargo against ${def.icon} ${def.name} lifted early.`, 'info');
+  return { ok: true };
+}
+
+/** Whether the specified empire is currently under a trade embargo. */
+export function isEmbargoed(empireId) {
+  const emp = _findEmpire(empireId);
+  return emp ? (emp.embargoUntil ?? 0) > state.tick : false;
+}
+
+/** Seconds remaining on the active embargo (0 if none). */
+export function embargoSecsLeft(empireId) {
+  const emp = _findEmpire(empireId);
+  if (!emp || (emp.embargoUntil ?? 0) <= state.tick) return 0;
+  return Math.ceil((emp.embargoUntil - state.tick) / TICKS_PER_SECOND);
+}
+
+/** Seconds remaining on the per-empire embargo cooldown (0 if ready). */
+export function embargoCooldownSecsLeft(empireId) {
+  const emp = _findEmpire(empireId);
+  if (!emp || (emp.embargoCooldownUntil ?? 0) <= state.tick) return 0;
+  return Math.ceil((emp.embargoCooldownUntil - state.tick) / TICKS_PER_SECOND);
+}
+
+/** Whether any empire is currently under a trade embargo (for market sell bonus). */
+export function anyEmbargoActive() {
+  return state.diplomacy?.empires.some(e => (e.embargoUntil ?? 0) > state.tick) ?? false;
+}
+
 /**
  * Whether the target empire is currently in a border skirmish
  * (used by combat.js to apply bonus win chance).
@@ -672,9 +769,11 @@ function _warRaid(emp) {
   // T067: suppress raid during ceasefire
   if (emp.ceasefireTick > state.tick) return;
   if (Math.random() >= 0.5) return;  // 50% chance each check
-  const def  = EMPIRES[emp.id];
-  const gold = Math.floor(Math.max(15, (state.resources.gold ?? 0) * 0.08));
-  const food = Math.floor(Math.max(5,  (state.resources.food ?? 0) * 0.05));
+  const def     = EMPIRES[emp.id];
+  // T159: trade embargo reduces raid loot by 30%
+  const raidMult = (emp.embargoUntil ?? 0) > state.tick ? 0.70 : 1.0;
+  const gold = Math.floor(Math.max(5,  (state.resources.gold ?? 0) * 0.08 * raidMult));
+  const food = Math.floor(Math.max(2,  (state.resources.food ?? 0) * 0.05 * raidMult));
   state.resources.gold = Math.max(0, (state.resources.gold ?? 0) - gold);
   state.resources.food = Math.max(0, (state.resources.food ?? 0) - food);
   _logDiplomacy(emp.id, 'raid', `${def.name} war raid — lost ${gold} gold, ${food} food`);

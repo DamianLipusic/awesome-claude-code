@@ -9418,6 +9418,71 @@ kbd {
   font-style: italic;
 }
 
+/* ── T159: Trade Embargo row ─────────────────────────────────────────────── */
+
+.dipl-embargo-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 0;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  flex-wrap: wrap;
+}
+
+.dipl-embargo-active {
+  background: rgba(239,68,68,0.06);
+  border-radius: 4px;
+  padding: 5px 8px;
+}
+
+.dipl-embargo-label {
+  font-size: 11px;
+  color: var(--text-dim);
+  flex: 1;
+  min-width: 0;
+}
+
+.dipl-embargo-active .dipl-embargo-label {
+  color: #fc8181;
+  font-weight: 600;
+}
+
+.dipl-embargo-cd {
+  font-size: 11px;
+  color: var(--accent-h);
+  font-weight: 600;
+}
+
+.btn--embargo {
+  font-size: 11px;
+  padding: 3px 8px;
+  background: rgba(239,68,68,0.15);
+  border: 1px solid rgba(239,68,68,0.35);
+  color: #fc8181;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn--embargo:hover:not(:disabled) {
+  background: rgba(239,68,68,0.28);
+}
+
+.btn--embargo-lift {
+  font-size: 11px;
+  padding: 3px 8px;
+  background: rgba(161,161,170,0.12);
+  border: 1px solid rgba(161,161,170,0.30);
+  color: var(--text-dim);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn--embargo-lift:hover:not(:disabled) {
+  background: rgba(161,161,170,0.22);
+}
+
 /* ── T157: Supply Depot — Surge Provisions ───────────────────────────────── */
 
 .supply-depot-section {
@@ -9509,4 +9574,57 @@ kbd {
 .weather-adapt-progress {
   font-size: 11px;
   color: var(--text-dim);
+}
+
+/* ── T160: Lifetime Empire Records section ───────────────────────────────── */
+
+.records-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.records-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.records-icon {
+  font-size: 14px;
+  width: 20px;
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.records-label {
+  font-size: 12px;
+  color: var(--text-dim);
+  flex: 1;
+}
+
+.records-val {
+  font-size: 12px;
+  font-weight: 600;
+  color: #fbd38d;
+  text-align: right;
+}
+
+.records-empty {
+  font-size: 12px;
+  color: var(--text-muted, rgba(255,255,255,0.3));
+  text-align: right;
+}
+
+.records-empty-msg {
+  font-size: 12px;
+  color: var(--text-dim);
+  font-style: italic;
+  text-align: center;
+  padding: 10px 0;
 }

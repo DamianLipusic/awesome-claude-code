@@ -2585,3 +2585,31 @@ All 142 prior tasks found complete. Created T143 and T144 from Phase 5+ roadmap 
 - No save version bump: both new state fields use `?? null` defaults in `_applySave()` so older saves load cleanly.
 - Weather adaptation halving uses `1-(1-mult)*0.5` to cut the penalty in half rather than eliminating it entirely, preserving game challenge while rewarding persistence.
 - Surge Provisions expiry is tracked purely via tick comparison (`surgeExpiresAt > state.tick`) — no new tick system needed; the military panel TICK handler already re-renders every 16 ticks when `hasSurgeActivity` is true.
+
+---
+
+## 2026-04-25 — Session N+42
+
+**Tasks completed:** T159, T160
+
+**T159 — Trade Embargo System:**
+
+**Files modified:**
+- `game/src/core/events.js`: Added `EMBARGO_CHANGED: 'embargoChanged'` event constant.
+- `game/src/systems/diplomacy.js`: Added `EMBARGO_COST=100`, `EMBARGO_DURATION_TICKS` (5 min), `EMBARGO_COOLDOWN_TICKS` (8 min) constants. Migration guards in `initDiplomacy()` add `embargoUntil=0` and `embargoCooldownUntil=0` to each empire entry. `diplomacyTick()` expires active embargos and starts cooldown. `_warRaid()` applies `raidMult = 0.70` when target empire is embargoed. Exported: `declareEmbargo()`, `liftEmbargo()`, `isEmbargoed()`, `embargoSecsLeft()`, `embargoCooldownSecsLeft()`, `anyEmbargoActive()`.
+- `game/src/systems/market.js`: Imports `anyEmbargoActive`. `sellResources()` applies `×1.15` multiplier while any embargo is active.
+- `game/src/ui/diplomacyPanel.js`: Imports `declareEmbargo`, `liftEmbargo`, `isEmbargoed`, `embargoSecsLeft`, `embargoCooldownSecsLeft`, `EMBARGO_COST`. Added `EMBARGO_CHANGED` listener in `initDiplomacyPanel()`. `hasEmbargo` flag added to TICK throttle condition. `_embargoRow(emp)` helper renders active embargo with countdown + Lift button, cooldown state, or Declare button. Injected in `_empireCard()` after `_missionRow`. `declare-embargo` and `lift-embargo` cases added to `_onClick()`.
+- `game/styles/main.css`: `.dipl-embargo-row`, `.dipl-embargo-active`, `.dipl-embargo-label`, `.dipl-embargo-cd`, `.btn--embargo`, `.btn--embargo-lift` styles.
+
+**T160 — Lifetime Empire Records:**
+
+**Files modified:**
+- `game/src/data/lifetimeRecords.js` (new file): `RECORD_DEFS` array (8 records: longestGame, mostGoldEarned, mostPopulation, mostBuildings, mostTechResearched, mostTerritory, mostTradeRoutes, mostPrestige). `getRecords()` reads from `'empireos-records'` localStorage key. `updateRecords()` snapshots current game state, updates any beaten highs, and persists.
+- `game/src/main.js`: Imports `updateRecords`. `on(Events.GAME_OVER, () => updateRecords())` listener added. `updateRecords()` also called at the top of `_newGame()` before state wipe.
+- `game/src/ui/settingsPanel.js`: Imports `getRecords`, `RECORD_DEFS`. `on(Events.GAME_OVER, ...)` re-render listener added. `_recordsSection()` renders a `settings-section` with a grid of 8 record rows (icon + label + personal best value). Injected in `_render()` after `_weatherAdaptationsSection()`.
+- `game/styles/main.css`: `.records-grid`, `.records-row`, `.records-icon`, `.records-label`, `.records-val`, `.records-empty`, `.records-empty-msg` styles.
+
+**Architecture decisions:**
+- Records are stored in their own separate localStorage key (`'empireos-records'`) to survive both manual save deletion and new-game resets.
+- `updateRecords()` is called both on GAME_OVER (natural win/loss) and in `_newGame()` (player starts new game without the game over screen) to ensure no session is missed.
+- No save version bump needed: records live in a separate localStorage key and have no migration concern.

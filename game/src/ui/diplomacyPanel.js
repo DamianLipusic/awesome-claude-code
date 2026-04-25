@@ -14,6 +14,7 @@ import {
   declareWar, proposePeace, demandSurrender,
   payTribute, demandTribute, sendGift,
   requestAllianceFavor,
+  declareEmbargo, liftEmbargo, isEmbargoed, embargoSecsLeft, embargoCooldownSecsLeft, // T159
   ALLIANCE_COST, TRADE_ROUTE_COST, PEACE_COST, MAX_TRADE_ROUTES,
   SURRENDER_COST, WAR_SCORE_THRESHOLD,
   TRIBUTE_COST, TRIBUTE_DEMAND, DEMAND_WARSCORE_MIN,
@@ -21,6 +22,7 @@ import {
   isSkirmishActive, getSkirmish, skirmishSecsLeft, mediateSkirmish,
   MEDIATE_MIN_ALLIANCES, MEDIATE_GOLD_REWARD, MEDIATE_PRESTIGE,
   FAVOR_MAX, FAVOR_REQUESTS,
+  EMBARGO_COST, // T159
 } from '../systems/diplomacy.js';
 import {
   launchMission, canLaunchMission, espionageCooldownSecs,
@@ -64,6 +66,7 @@ export function initDiplomacyPanel() {
   on(Events.CAMPAIGN_STARTED,       () => _render(panel));  // T154
   on(Events.CAMPAIGN_WON,           () => _render(panel));  // T154
   on(Events.CAMPAIGN_ENDED,         () => _render(panel));  // T154
+  on(Events.EMBARGO_CHANGED,        () => _render(panel));  // T159
   // Refresh cooldown countdown every second; also refresh ceasefire/gift/skirmish/aid timers when active
   on(Events.TICK, _throttle(() => {
     const cd = document.getElementById('espionage-cooldown');
@@ -81,7 +84,9 @@ export function initDiplomacyPanel() {
     const hasMission = state.allianceMissions && Object.values(state.allianceMissions).some(m => m?.active);
     // T154: refresh while campaign is active (win counter + timer)
     const hasCampaign = !!getActiveCampaign();
-    if (hasCeasefire || hasAllied || hasGiftCooldown || hasSkirmish || hasAidActivity || hasMission || hasCampaign) {
+    // T159: refresh while any embargo is active (countdown ticks)
+    const hasEmbargo  = state.diplomacy?.empires.some(e => (e.embargoUntil ?? 0) > state.tick);
+    if (hasCeasefire || hasAllied || hasGiftCooldown || hasSkirmish || hasAidActivity || hasMission || hasCampaign || hasEmbargo) {
       _render(panel);
     }
   }, 4));
@@ -557,6 +562,7 @@ function _empireCard(emp) {
       ${_aidRow(emp)}
       ${_favorRow(emp)}
       ${_missionRow(emp)}
+      ${_embargoRow(emp)}
       <div class="dipl-empire-card__actions">${btns.join('')}</div>
     </div>
   `;
@@ -768,6 +774,54 @@ function _giftRow(emp) {
     </div>`;
 }
 
+// ── T159: Trade Embargo row ──────────────────────────────────────────────────
+
+function _embargoRow(emp) {
+  if (emp.relations === 'allied') return '';
+
+  const active   = isEmbargoed(emp.id);
+  const secsLeft = embargoSecsLeft(emp.id);
+  const cdSecs   = embargoCooldownSecsLeft(emp.id);
+  const gold     = state.resources?.gold ?? 0;
+
+  if (active) {
+    const mins    = Math.floor(secsLeft / 60);
+    const secs    = secsLeft % 60;
+    const timeStr = mins > 0 ? `${mins}m ${String(secs).padStart(2,'0')}s` : `${secsLeft}s`;
+    return `
+      <div class="dipl-embargo-row dipl-embargo-active">
+        <span class="dipl-embargo-label">🚫 Embargo active — ${timeStr} left</span>
+        <button
+          class="btn btn--sm btn--embargo-lift"
+          data-action="lift-embargo" data-empire="${emp.id}"
+          title="Lift the embargo early (starts cooldown)">
+          Lift
+        </button>
+      </div>`;
+  }
+
+  if (cdSecs > 0) {
+    return `
+      <div class="dipl-embargo-row">
+        <span class="dipl-embargo-label">🚫 Embargo cooldown:</span>
+        <span class="dipl-embargo-cd">⏳ ${cdSecs}s</span>
+      </div>`;
+  }
+
+  const canDeclare = gold >= EMBARGO_COST;
+  return `
+    <div class="dipl-embargo-row">
+      <span class="dipl-embargo-label">🚫 Trade Embargo:</span>
+      <button
+        class="btn btn--sm btn--embargo ${canDeclare ? '' : 'btn--disabled'}"
+        data-action="declare-embargo" data-empire="${emp.id}"
+        ${canDeclare ? '' : 'disabled'}
+        title="Declare a trade embargo — costs ${EMBARGO_COST}g. Lasts 5 min. Reduces their war raids by 30% and gives +15% market sell prices.">
+        Declare (${EMBARGO_COST}💰)
+      </button>
+    </div>`;
+}
+
 // ── Click delegation ─────────────────────────────────────────────────────────
 
 function _onClick(e) {
@@ -851,6 +905,16 @@ function _onClick(e) {
     }
     case 'launch-campaign': {  // T154
       result = startCampaign(empire);
+      if (!result.ok) addMessageFallback(result.reason);
+      break;
+    }
+    case 'declare-embargo': {  // T159
+      result = declareEmbargo(empire);
+      if (!result.ok) addMessageFallback(result.reason);
+      break;
+    }
+    case 'lift-embargo': {  // T159
+      result = liftEmbargo(empire);
       if (!result.ok) addMessageFallback(result.reason);
       break;
     }

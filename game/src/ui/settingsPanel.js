@@ -15,6 +15,7 @@ import { state } from '../core/state.js';
 import { on, emit, Events } from '../core/events.js';
 import { loadLegacy, buyLegacyTrait, LEGACY_TRAITS, LEGACY_TRAIT_ORDER } from '../data/legacyTraits.js'; // T124
 import { WEATHER_TYPES } from '../data/weather.js'; // T158
+import { getRecords, RECORD_DEFS } from '../data/lifetimeRecords.js'; // T160
 
 const PANEL_ID   = 'panel-settings';
 const LB_KEY     = 'empireos-leaderboard';
@@ -34,6 +35,8 @@ export function initSettingsPanel() {
   setAchievementRenderer(() => _render(panel));
   // T158: re-render when a new weather adaptation is unlocked
   on(Events.WEATHER_ADAPTED, () => _render(panel));
+  // T160: re-render after game over so records are reflected immediately
+  on(Events.GAME_OVER, () => _render(panel));
   _render(panel);
 }
 
@@ -75,6 +78,8 @@ function _render(panel) {
     ${_alertsSection()}
 
     ${_weatherAdaptationsSection()}
+
+    ${_recordsSection()}
 
     <div class="settings-section">
       <div class="settings-section__title">💾 Save Portability</div>
@@ -477,6 +482,38 @@ function _weatherAdaptationsSection() {
     </div>
     <div class="weather-adapt-list">${rows}</div>
   </div>`;
+}
+
+// ── T160: Lifetime Empire Records ────────────────────────────────────────────
+
+function _recordsSection() {
+  const records = getRecords();
+  const hasAny  = RECORD_DEFS.some(d => (records[d.key] ?? 0) > 0);
+
+  const rows = RECORD_DEFS.map(def => {
+    const val  = records[def.key] ?? 0;
+    const display = val > 0
+      ? `<span class="records-val">${val.toLocaleString()}${def.unit ? ' ' + def.unit : ''}</span>`
+      : `<span class="records-empty">—</span>`;
+    return `
+      <div class="records-row">
+        <span class="records-icon">${def.icon}</span>
+        <span class="records-label">${def.label}</span>
+        ${display}
+      </div>`;
+  }).join('');
+
+  return `
+    <div class="settings-section">
+      <div class="settings-section__title">🏆 Lifetime Records</div>
+      <div class="settings-section__desc">
+        All-time personal bests across every session. Records are never wiped — they
+        grow with your empire over many playthroughs.
+      </div>
+      <div class="records-grid">
+        ${hasAny ? rows : '<div class="records-empty-msg">No records yet — finish a game to set your first!</div>'}
+      </div>
+    </div>`;
 }
 
 // ---------------------------------------------------------------------------

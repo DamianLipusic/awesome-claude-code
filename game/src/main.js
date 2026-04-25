@@ -87,6 +87,7 @@ import { initRebels, rebelTick } from './systems/rebels.js'; // T151
 import { initDynasty, dynastyTick, chooseHeir, HEIR_DEFS, getSuccessionSecsLeft } from './systems/dynasty.js'; // T152
 import { initCelestial, celestialTick, getActiveCelestial, getCelestialSecsLeft, getPendingCelestial } from './systems/celestialEvents.js'; // T153
 import { initCampaigns, campaignTick } from './systems/campaigns.js'; // T154
+import { updateRecords } from './data/lifetimeRecords.js'; // T160
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
@@ -419,6 +420,9 @@ function boot() {
   on(Events.CAPITAL_PLAN_CHOSEN,  _updateScoreBadge);
   on(Events.GRAND_THEORY_CHOSEN,  _updateScoreBadge);  // T150
 
+  // T160: Update lifetime records whenever the game ends naturally
+  on(Events.GAME_OVER, () => updateRecords());
+
   // Start auto-save every 60 seconds
   setInterval(_save, 60_000);
 
@@ -433,7 +437,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 46, // T156: ancient battlefields
+      version: 47, // T159: trade embargo per-empire fields
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -1330,6 +1334,7 @@ function _applyLegacyBonuses() {
  * @param {string} [opts.archetype]   'none'|'conqueror'|'merchant'|'arcane'; persists in state.
  */
 function _newGame(opts = {}) {
+  updateRecords(); // T160: snapshot records before state wipe
   _saveToLeaderboard();
   localStorage.removeItem('empireos-save');
   // Apply difficulty + archetype before initState (both persist across new games)

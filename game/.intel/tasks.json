@@ -1412,5 +1412,23 @@
     "status": "done",
     "phase": 61,
     "notes": "events.js: WEATHER_ADAPTED event added. state.js: weatherMemory:null static field + initState() reset. weather.js: _spawnWeather() tracks state.weatherMemory.counts[chosen.id]++, sets adaptations[id]=true at count>=3, emits WEATHER_ADAPTED + windfall toast. resources.js: weather modifier block checks state.weatherMemory.adaptations[type]; if adapted and mult<1.0, uses 1-(1-mult)*0.5 to halve the penalty (applied to allRates and per-resource mults). settingsPanel.js: import WEATHER_TYPES + on(WEATHER_ADAPTED), _weatherAdaptationsSection() renders per-type occurrence count + adapted badge, injected after alerts section. main.js: weatherMemory saved/loaded. main.css: .weather-adapt-* classes with green highlight for adapted rows."
+  },
+  {
+    "id": "T159",
+    "title": "trade embargo system",
+    "description": "Declare a trade embargo against any non-allied empire (costs 100 gold, lasts 5 min, 8 min cooldown). During embargo: that empire's war raids deal 30% less loot, and the player gains +15% market sell prices while any embargo is active. Lift embargo early for free. Embargo section shown in each neutral/war empire card with countdown. EMBARGO_CHANGED event. state.diplomacy migration (embargoUntil/embargoCooldownUntil per empire). No save version bump.",
+    "priority": 159,
+    "status": "done",
+    "completedNotes": "Added EMBARGO_CHANGED to events.js. diplomacy.js: EMBARGO_COST/EMBARGO_DURATION_TICKS/EMBARGO_COOLDOWN_TICKS constants, migration guards (embargoUntil/embargoCooldownUntil per empire), expiry logic in diplomacyTick, 5 public API exports (declareEmbargo/liftEmbargo/isEmbargoed/embargoSecsLeft/embargoCooldownSecsLeft/anyEmbargoActive), and 30% raid loot debuff in _warRaid. market.js: import anyEmbargoActive, +15% sellResources bonus. diplomacyPanel.js: imports, EMBARGO_CHANGED listener, hasEmbargo tick throttle check, _embargoRow() helper, declare-embargo/lift-embargo click handlers. main.css: .dipl-embargo-row, .dipl-embargo-active, .btn--embargo, .btn--embargo-lift styles.",
+    "phase": 62
+  },
+  {
+    "id": "T160",
+    "title": "lifetime empire records",
+    "description": "Track cumulative cross-game statistics in localStorage ('empireos-records'). Records: totalGames, totalWins, totalLosses, bestScore, bestTerritory, bestAge, totalGoldEarned, totalBattlesWon, totalBattlesLost, totalTechsResearched, totalQuestsCompleted. Updated on GAME_OVER. New 'Empire Records' section in Settings panel showing all totals with clear button. New src/data/lifetimeRecords.js module. No save version bump.",
+    "priority": 160,
+    "status": "done",
+    "completedNotes": "Created src/data/lifetimeRecords.js with RECORD_DEFS (8 tracked stats: longestGame, mostGoldEarned, mostPopulation, mostBuildings, mostTechResearched, mostTerritory, mostTradeRoutes, mostPrestige), getRecords() and updateRecords() functions. main.js: import updateRecords, call on GAME_OVER event and before state wipe in _newGame(). settingsPanel.js: import getRecords/RECORD_DEFS, add GAME_OVER listener to re-render, add _recordsSection() function, inject ${_recordsSection()} into panel HTML. main.css: .records-grid, .records-row, .records-icon, .records-label, .records-val, .records-empty, .records-empty-msg styles.",
+    "phase": 62
   }
 ]

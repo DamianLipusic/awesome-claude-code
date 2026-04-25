@@ -10,6 +10,7 @@ import { state } from '../core/state.js';
 import { emit, Events } from '../core/events.js';
 import { addMessage } from '../core/actions.js';
 import { TICKS_PER_SECOND } from '../core/tick.js';
+import { anyEmbargoActive } from './diplomacy.js'; // T159
 
 // Base gold value per 1 unit of each resource
 const BASE_PRICES = Object.freeze({
@@ -157,6 +158,8 @@ export function sellResources(resource, amount) {
       return e && e.relations === 'allied' && e.tradeRoutes > 0;
     });
   if (_allTradeActive) earned = Math.floor(earned * 1.25);
+  // T159: Trade Embargo — +15% sell prices while any empire is embargoed
+  if (anyEmbargoActive()) earned = Math.floor(earned * 1.15);
   state.resources[resource]  = available - actual;
   state.resources.gold = Math.min(state.caps.gold, (state.resources.gold ?? 0) + earned);
   state.market.totalTrades++;
