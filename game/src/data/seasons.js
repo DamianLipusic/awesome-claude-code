@@ -70,3 +70,22 @@ export const SEASON_UNIT_LABELS = [
   '🗡️ Knights 20% cheaper',
   '🔮 Mages 20% cheaper',
 ];
+
+/**
+ * T163: Unit type that receives a +20% combat attack buff each season.
+ * Index matches SEASONS (0=Spring, 1=Summer, 2=Autumn, 3=Winter).
+ * Soldiers surge in Spring, archers hunt in Summer, knights charge in Autumn,
+ * mages channel Winter's power.
+ */
+export const SEASON_UNIT_COMBAT_BUFF = ['soldier', 'archer', 'knight', 'mage'];
+
+/** Multiplier applied to the buffed unit type's attack contribution. */
+export const SEASON_COMBAT_BUFF_MULT = 1.20;
+
+/** Human-readable combat buff labels per season (for the season badge tooltip). */
+export const SEASON_COMBAT_BUFF_LABELS = [
+  '⚔️ Soldiers +20% attack',
+  '🏹 Archers +20% attack',
+  '🗡️ Knights +20% attack',
+  '🔮 Mages +20% attack',
+];

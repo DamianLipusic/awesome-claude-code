@@ -131,4 +131,5 @@ export const Events = Object.freeze({
   PLAGUE_ENDED:             'plagueEnded',                // T161: plague ended (natural or quarantine)
   PILGRIMAGE_ARRIVED:       'pilgrimageArrived',          // T162: pilgrims arrive
   PILGRIMAGE_HOSTED:        'pilgrimageHosted',           // T162: player hosted pilgrims
+  CONVERSION_CHANGED:       'conversionChanged',          // T164: resource conversion performed
 });

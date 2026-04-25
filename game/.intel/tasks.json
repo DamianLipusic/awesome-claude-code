@@ -1448,5 +1448,23 @@
     "status": "done",
     "phase": 61,
     "notes": "src/systems/pilgrimages.js: initPilgrimages(), pilgrimageTick(), hostPilgrimage(). 3 pilgrim types: artists(colosseum)+30 prestige+5 morale+0.5 gold/s 3 min; scholars(greatLibrary)+40 prestige+15% research speed 4 min; pilgrims(grandCathedral)+20 prestige+8 morale+0.3 mana/s 3 min. Only spawns if matching building exists. Spawn 8-12 min, 3 min expiry. Host costs 20 gold+30 food. events.js: PILGRIMAGE_ARRIVED+PILGRIMAGE_HOSTED added. state.js: state.pilgrimages=null + initState() reset. resources.js: T162 block applies activeBonus rate bonuses (artists: +0.5 gold/s; pilgrims: +0.3 mana/s). research.js: scholars bonus adds *1.15 researchRate. questPanel.js: _pilgrimageSection() shows pending pilgrim card (building check, afford check, host button) or active bonus card with countdown. main.js: import+register+init+save/load. main.css: .pilgrimage-section--pending (purple glow animation) + --bonus (green), .btn--pilgrimage."
+  },
+  {
+    "id": "T163",
+    "title": "seasonal unit combat buffs",
+    "description": "Each season gives one unit type +20% combat attack power: Spring=soldier, Summer=archer, Autumn=knight, Winter=mage. Applied per-unit inside the unit attack loop in both getAttackPreview() and attackTile() in combat.js. Military panel shows an amber \u26a1 +20% ATK badge on the buffed unit card. Season badge tooltip gains a Combat buff line.",
+    "priority": 163,
+    "status": "done",
+    "phase": 62,
+    "notes": "data/seasons.js: Added SEASON_UNIT_COMBAT_BUFF (array of 4 unit IDs mirroring SEASON_UNIT_DISCOUNT), SEASON_COMBAT_BUFF_MULT=1.20, SEASON_COMBAT_BUFF_LABELS (human-readable per-season descriptions). systems/combat.js: Added SEASON_UNIT_COMBAT_BUFF+SEASON_COMBAT_BUFF_MULT import from data/seasons.js; inside both unit loops (getAttackPreview + attackTile) added seasonBuff local var that applies SEASON_COMBAT_BUFF_MULT when SEASON_UNIT_COMBAT_BUFF[season.index]===id, else 1.0; multiplied into per-unit attack contribution alongside upgradeMult. ui/militaryPanel.js: Added SEASON_UNIT_COMBAT_BUFF to seasons import; _unitCard() computes seasonCombatBuff boolean; renders .unit-card__combat-buff badge (\u26a1 +20% ATK) when non-locked unit matches current season. main.js: Added SEASON_COMBAT_BUFF_LABELS to seasons import; _updateSeasonBadge() tooltip appended \u26a1 Combat buff: ${combatBuffLabel} line. styles/main.css: .unit-card__combat-buff (amber #f6ad55 tint badge, mirrors .unit-card__discount pattern)."
+  },
+  {
+    "id": "T164",
+    "title": "resource conversion workshop building",
+    "description": "New unique Workshop building (requires farm\u00d72 + lumberMill\u00d71, cost 120g+80w+60s). Enables manual resource conversion: spend 100 of any resource to gain 60 of the next in the circular chain (food\u2192wood\u2192stone\u2192iron\u2192mana\u2192food). 30-second cooldown between conversions. Conversion section shown at the bottom of the Building panel. CONVERSION_CHANGED event. state.conversions saved/loaded. Save version bumped to 49.",
+    "priority": 164,
+    "status": "done",
+    "phase": 62,
+    "notes": "data/buildings.js: Added 'workshop' building (unique:true, icon:\u2699\ufe0f, baseCost:{gold:120,wood:80,stone:60}, requires farm\u00d72+lumberMill\u00d71). core/events.js: Added CONVERSION_CHANGED event. core/state.js: Added state.conversions=null to static object + initState() reset. core/actions.js: Added CONVERSION_CHAIN=['food','wood','stone','iron','mana'], CONVERSION_INPUT=100, CONVERSION_OUTPUT=60, CONVERSION_COOLDOWN_TICKS=120 constants; convertResource(fromRes) validates workshop built, valid resource, cooldown, affordability; deducts input, adds output (capped at cap), sets cooldownUntil, increments totalConverted, emits CONVERSION_CHANGED+RESOURCE_CHANGED, logs build message. ui/buildingPanel.js: Added convertResource+CONVERSION_CHAIN+CONVERSION_INPUT+CONVERSION_OUTPUT+CONVERSION_COOLDOWN_TICKS to imports; added on(Events.CONVERSION_CHANGED, renderBuildingPanel); added _conversionSection() call in renderBuildingPanel(); added convert action handler (btn--shake on error); _conversionSection() renders panel only when workshop built \u2014 shows cooldown notice, 5 .conv-row entries (each with from/arrow/to resource labels and a Convert button), total conversions count. main.js: conversions added to _save() payload and _applySave() restore; save version bumped 48\u219249. styles/main.css: .conv-section (border-top), .conv-section__header/intro, .conv-cooldown (amber), .conv-rows/.conv-row (flex card), .conv-from/.conv-arrow/.conv-to/.conv-total, .btn--convert (blue gradient), @media \u2264480px flex-col."
   }
 ]

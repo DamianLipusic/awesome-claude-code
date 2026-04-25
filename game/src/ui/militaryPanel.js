@@ -27,7 +27,7 @@ import { TECHS } from '../data/techs.js';
 import { AGES } from '../data/ages.js';
 import { HERO_DEF, HERO_SKILLS, HERO_SKILL_WIN_INTERVAL, HERO_MAX_SKILLS, HERO_TRAITS, COMPANIONS, COMPANION_ORDER } from '../data/hero.js';
 import { fmtNum } from '../utils/fmt.js';
-import { SEASON_UNIT_DISCOUNT } from '../data/seasons.js';
+import { SEASON_UNIT_DISCOUNT, SEASON_UNIT_COMBAT_BUFF } from '../data/seasons.js';
 
 const UNIT_ORDER = ['soldier', 'archer', 'knight', 'mage', 'siege_engine'];
 
@@ -1164,6 +1164,12 @@ function _unitCard(id) {
     ? `<span class="unit-card__discount">🟢 20% Off</span>`
     : '';
 
+  // T163: seasonal unit combat buff badge
+  const seasonCombatBuff = SEASON_UNIT_COMBAT_BUFF[state.season?.index ?? 0] === id;
+  const combatBuffBadge  = seasonCombatBuff && !locked
+    ? `<span class="unit-card__combat-buff">⚡ +20% ATK</span>`
+    : '';
+
   // T132: siege engine cap badge
   const siegeCapped = id === 'siege_engine' &&
     ((state.units.siege_engine ?? 0) > 0 || state.trainingQueue.some(e => e.unitId === 'siege_engine'));
@@ -1177,7 +1183,7 @@ function _unitCard(id) {
     <div class="unit-card__header">
       <span class="unit-card__icon">${def.icon}</span>
       <span class="unit-card__name">${def.name}</span>
-      ${discountBadge}${capBadge}
+      ${discountBadge}${combatBuffBadge}${capBadge}
       <span class="unit-card__count">${state.units[id] ?? 0}</span>
     </div>
     <div class="unit-card__desc">${def.description}</div>

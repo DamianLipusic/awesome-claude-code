@@ -1250,4 +1250,53 @@ export function activateSurgeProvisions() {
   return { ok: true };
 }
 
+// ── T164: Resource conversion workshop ────────────────────────────────────
+
+/** Circular conversion chain: food → wood → stone → iron → mana → food */
+export const CONVERSION_CHAIN = ['food', 'wood', 'stone', 'iron', 'mana'];
+/** Amount of the source resource consumed per conversion batch. */
+export const CONVERSION_INPUT  = 100;
+/** Amount of the target resource produced per conversion batch. */
+export const CONVERSION_OUTPUT = 60;
+/** Cooldown in ticks between conversions (30 seconds at 4 ticks/s). */
+export const CONVERSION_COOLDOWN_TICKS = 120;
+
+/**
+ * Convert 100 units of `fromRes` into 60 units of the next resource in the chain.
+ * Requires a Workshop building. Enforces a 30-second cooldown.
+ */
+export function convertResource(fromRes) {
+  if ((state.buildings?.workshop ?? 0) < 1) {
+    return { ok: false, reason: 'Requires a Workshop.' };
+  }
+  if (!CONVERSION_CHAIN.includes(fromRes)) {
+    return { ok: false, reason: 'Invalid resource.' };
+  }
+
+  if (!state.conversions) {
+    state.conversions = { cooldownUntil: 0, totalConverted: 0 };
+  }
+  if (state.tick < state.conversions.cooldownUntil) {
+    const secsLeft = Math.ceil((state.conversions.cooldownUntil - state.tick) / 4);
+    return { ok: false, reason: `Workshop on cooldown (${secsLeft}s remaining).` };
+  }
+  if ((state.resources[fromRes] ?? 0) < CONVERSION_INPUT) {
+    return { ok: false, reason: `Need ${CONVERSION_INPUT} ${fromRes} to convert.` };
+  }
+
+  const toIdx  = (CONVERSION_CHAIN.indexOf(fromRes) + 1) % CONVERSION_CHAIN.length;
+  const toRes  = CONVERSION_CHAIN[toIdx];
+  const gained = Math.min(CONVERSION_OUTPUT, state.caps[toRes] - state.resources[toRes]);
+
+  state.resources[fromRes] -= CONVERSION_INPUT;
+  state.resources[toRes]   = Math.min(state.caps[toRes], state.resources[toRes] + CONVERSION_OUTPUT);
+  state.conversions.cooldownUntil  = state.tick + CONVERSION_COOLDOWN_TICKS;
+  state.conversions.totalConverted = (state.conversions.totalConverted ?? 0) + 1;
+
+  emit(Events.CONVERSION_CHANGED, { from: fromRes, to: toRes, amount: gained });
+  emit(Events.RESOURCE_CHANGED, {});
+  addMessage(`⚙️ Workshop: converted ${CONVERSION_INPUT} ${fromRes} → ${CONVERSION_OUTPUT} ${toRes}.`, 'build');
+  return { ok: true, from: fromRes, to: toRes };
+}
+
 log('actions module loaded');

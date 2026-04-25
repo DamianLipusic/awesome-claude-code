@@ -2,6 +2,37 @@
 
 ---
 
+## 2026-04-25 — Session N+41
+
+**Tasks completed:** T163, T164
+
+**Summary:**
+All prior tasks (T001–T162) were complete. Created T163+T164 task specs then implemented two Phase 62 features: Seasonal Unit Combat Buffs (T163) and Resource Conversion Workshop (T164).
+
+**T163 — Seasonal Unit Combat Buffs:**
+- `src/data/seasons.js`: Added `SEASON_UNIT_COMBAT_BUFF` (array of 4 unit IDs: soldier/archer/knight/mage), `SEASON_COMBAT_BUFF_MULT = 1.20`, and `SEASON_COMBAT_BUFF_LABELS` (human-readable per-season descriptions). Each season's featured unit type gets +20% combat attack contribution.
+- `src/systems/combat.js`: Added import for `SEASON_UNIT_COMBAT_BUFF` and `SEASON_COMBAT_BUFF_MULT` from data/seasons.js. Inside both unit attack loops (`getAttackPreview` and `attackTile`), added a `seasonBuff` multiplier per unit type — applies `SEASON_COMBAT_BUFF_MULT` when the unit matches the current season's buff unit, else 1.0. Applied alongside `upgradeMult` in the per-unit calculation.
+- `src/ui/militaryPanel.js`: Added `SEASON_UNIT_COMBAT_BUFF` to the seasons import. `_unitCard()` computes `seasonCombatBuff` boolean and renders an amber `.unit-card__combat-buff` badge (`⚡ +20% ATK`) on the matching unlocked unit card.
+- `src/main.js`: Added `SEASON_COMBAT_BUFF_LABELS` to the seasons import. `_updateSeasonBadge()` tooltip now includes a `⚡ Combat buff: …` line.
+- `styles/main.css`: Added `.unit-card__combat-buff` (amber #f6ad55 tint pill badge, mirrors `.unit-card__discount` pattern).
+
+**T164 — Resource Conversion Workshop:**
+- `src/data/buildings.js`: Added `workshop` building (unique:true, icon:⚙️, baseCost:{gold:120,wood:80,stone:60}, no production, requires farm×2 + lumberMill×1).
+- `src/core/events.js`: Added `CONVERSION_CHANGED:'conversionChanged'` event constant.
+- `src/core/state.js`: Added `state.conversions = null` to static object and `initState()` reset.
+- `src/core/actions.js`: Added `CONVERSION_CHAIN`, `CONVERSION_INPUT=100`, `CONVERSION_OUTPUT=60`, `CONVERSION_COOLDOWN_TICKS=120` constants, and `convertResource(fromRes)` export — validates workshop presence, valid resource, cooldown, and affordability; deducts 100 of source, grants 60 of next in chain (capped), sets cooldown, increments `totalConverted`, emits `CONVERSION_CHANGED + RESOURCE_CHANGED`, logs message.
+- `src/ui/buildingPanel.js`: Extended imports to include conversion exports; added `on(Events.CONVERSION_CHANGED, renderBuildingPanel)`; added `_conversionSection()` call and `convert` action handler in `renderBuildingPanel`; `_conversionSection()` renders a panel (only when workshop built) showing a 5-row conversion table with affordability state, cooldown notice, and total-conversion counter.
+- `src/main.js`: Added `conversions` to `_save()` payload and `_applySave()` restore; save version bumped 48 → 49.
+- `styles/main.css`: `.conv-section`, `.conv-section__header/intro`, `.conv-cooldown` (amber), `.conv-rows/.conv-row` (flex card per conversion), `.conv-from/.conv-arrow/.conv-to`, `.btn--convert` (blue gradient), `.conv-total`, plus `@media ≤480px` column layout.
+
+**Architecture decisions:**
+- T163 applies the buff at the per-unit level inside the attack summation loop, so it only amplifies that unit type's contribution — other multipliers (techs, formation, morale, etc.) still apply globally on top.
+- T164 uses a circular chain so every resource has exactly one conversion target, keeping the UI simple. The 30s cooldown (120 ticks) prevents spam-converting and makes the Workshop a deliberate tactical choice rather than an automation tool.
+- Workshop is unique (max 1) to maintain scarcity. No tick system needed — conversion is purely player-triggered with a cooldown enforced by `state.conversions.cooldownUntil`.
+- Save version bumped to 49 for the new `conversions` state field.
+
+---
+
 ## 2026-04-25 — Session N+40
 
 **Tasks completed:** T161, T162

@@ -35,6 +35,7 @@ import { awardPrestige } from './prestige.js';        // T147: relic combo prest
 import { getCurrentWeather } from './weather.js';     // T149: weather combat modifiers
 import { suppressRebel } from './rebels.js';           // T151: rebel tile suppression
 import { getCampaignLootMult, recordCampaignWin } from './campaigns.js'; // T154
+import { SEASON_UNIT_COMBAT_BUFF, SEASON_COMBAT_BUFF_MULT } from '../data/seasons.js'; // T163
 
 /** Returns true if both techs of a named synergy are researched. */
 function _synergy(id) {
@@ -192,7 +193,9 @@ export function getAttackPreview(x, y) {
     if (def) {
       // T107: each arsenal upgrade level adds +10% attack for that unit type
       const upgradeMult = 1 + (state.unitUpgrades?.[id] ?? 0) * 0.10;
-      attackPower += def.attack * count * _rankMult(id) * upgradeMult;
+      // T163: seasonal unit combat buff (+20% for the season's featured unit type)
+      const seasonBuff = SEASON_UNIT_COMBAT_BUFF[state.season?.index ?? 0] === id ? SEASON_COMBAT_BUFF_MULT : 1.0;
+      attackPower += def.attack * count * _rankMult(id) * upgradeMult * seasonBuff;
     }
   }
 
@@ -400,7 +403,9 @@ export function attackTile(x, y) {
     if (def) {
       // T107: each arsenal upgrade level adds +10% attack for that unit type
       const upgradeMult = 1 + (state.unitUpgrades?.[id] ?? 0) * 0.10;
-      attackPower += def.attack * count * _rankMult(id) * upgradeMult;
+      // T163: seasonal unit combat buff (+20% for the season's featured unit type)
+      const seasonBuff = SEASON_UNIT_COMBAT_BUFF[state.season?.index ?? 0] === id ? SEASON_COMBAT_BUFF_MULT : 1.0;
+      attackPower += def.attack * count * _rankMult(id) * upgradeMult * seasonBuff;
     }
   }
 

@@ -42,7 +42,7 @@ import { initNaturalDisasters, naturalDisasterTick } from './systems/naturalDisa
 import { initInspiration, inspirationTick } from './systems/researchInspiration.js';       // T116
 import { initCrises, crisisTick, getActiveCrisis, resolveCrisis } from './systems/crises.js'; // T117
 import { ENSHRINE_PRESTIGE } from './systems/heroSystem.js';                                  // T118
-import { SEASONS, SEASON_BUILDING_LABELS, SEASON_UNIT_LABELS } from './data/seasons.js';
+import { SEASONS, SEASON_BUILDING_LABELS, SEASON_UNIT_LABELS, SEASON_COMBAT_BUFF_LABELS } from './data/seasons.js';
 import { AGES } from './data/ages.js';
 import { BUILDINGS } from './data/buildings.js';
 import { TICKS_PER_SECOND } from './core/tick.js';
@@ -443,7 +443,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 48, // T161: plague + T162: pilgrimages
+      version: 49, // T164: resource conversion workshop
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -541,6 +541,7 @@ function _save() {
         weatherMemory:       state.weatherMemory       ?? null,  // T158
         plague:              state.plague              ?? null,  // T161
         pilgrimages:         state.pilgrimages         ?? null,  // T162
+        conversions:         state.conversions         ?? null,  // T164
         tick:          state.tick,
       }
     }));
@@ -672,6 +673,7 @@ function _applySave(save) {
   state.weatherMemory        = s.weatherMemory        ?? null; // T158
   state.plague               = s.plague               ?? null; // T161
   state.pilgrimages          = s.pilgrimages          ?? null; // T162
+  state.conversions          = s.conversions          ?? null; // T164
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
@@ -719,10 +721,11 @@ function _updateSeasonBadge() {
   const mins = Math.floor(secsLeft / 60);
   const secs = secsLeft % 60;
   const timeStr = mins > 0 ? `${mins}m${String(secs).padStart(2,'0')}s` : `${secs}s`;
-  const buildingLabel = SEASON_BUILDING_LABELS[state.season?.index ?? 0] ?? '';
-  const unitLabel     = SEASON_UNIT_LABELS[state.season?.index ?? 0] ?? '';
+  const buildingLabel   = SEASON_BUILDING_LABELS[state.season?.index ?? 0] ?? '';
+  const unitLabel       = SEASON_UNIT_LABELS[state.season?.index ?? 0] ?? '';
+  const combatBuffLabel = SEASON_COMBAT_BUFF_LABELS[state.season?.index ?? 0] ?? '';
   el.textContent = `${s.icon} ${s.name}`;
-  el.title = `${s.name}: ${s.desc} — Changes in ${timeStr}\n🏗️ Building bonus: ${buildingLabel}\n⚔️ Unit discount: ${unitLabel}`;
+  el.title = `${s.name}: ${s.desc} — Changes in ${timeStr}\n🏗️ Building bonus: ${buildingLabel}\n⚔️ Unit discount: ${unitLabel}\n⚡ Combat buff: ${combatBuffLabel}`;
 }
 
 // ── Weather badge ─────────────────────────────────────────────────────────

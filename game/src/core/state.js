@@ -413,6 +413,10 @@ export const state = {
   //   nextPilgrimageTick: tick, totalHosted: number,
   //   activeBonus: { type, expiresAt } | null }
   pilgrimages: null,
+
+  // T164: Resource conversion workshop state
+  // { cooldownUntil: tick, totalConverted: number }
+  conversions: null,
 };
 
 /**
@@ -513,5 +517,6 @@ export function initState(empireName = 'My Empire') {
   state.weatherMemory        = null; // T158: reset weather memory per game
   state.plague               = null; // T161: reset plague state per game
   state.pilgrimages          = null; // T162: reset pilgrimages per game
+  state.conversions          = null; // T164: reset conversion state per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

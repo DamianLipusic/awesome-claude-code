@@ -825,7 +825,8 @@ body {
 .unit-card__icon  { font-size: 20px; }
 .unit-card__name  { font-weight: 600; flex: 1; }
 .unit-card__count { color: var(--accent); font-weight: 700; }
-.unit-card__discount { font-size: 10px; color: #48bb78; font-weight: 600; background: rgba(72,187,120,0.15); border: 1px solid rgba(72,187,120,0.4); border-radius: 3px; padding: 1px 4px; }
+.unit-card__discount    { font-size: 10px; color: #48bb78; font-weight: 600; background: rgba(72,187,120,0.15); border: 1px solid rgba(72,187,120,0.4); border-radius: 3px; padding: 1px 4px; }
+.unit-card__combat-buff { font-size: 10px; color: #f6ad55; font-weight: 600; background: rgba(246,173,85,0.15); border: 1px solid rgba(246,173,85,0.45); border-radius: 3px; padding: 1px 4px; }
 
 .unit-card__desc   { font-size: 11px; color: var(--text-dim); }
 .unit-card__stats  { font-size: 12px; color: var(--text); }
@@ -8199,6 +8200,86 @@ kbd {
 .btn--forge:disabled { opacity: 0.35; cursor: default; }
 @media (max-width: 480px) {
   .forge-grid { grid-template-columns: 1fr; }
+}
+
+/* ── T164: Workshop Resource Conversion ─────────────────────────────────── */
+.conv-section {
+  border-top: 1px solid var(--border);
+  margin-top: 14px;
+  padding-top: 10px;
+}
+.conv-section__header {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-h);
+  margin-bottom: 4px;
+}
+.conv-section__intro {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+.conv-cooldown {
+  font-size: 11px;
+  color: #f6ad55;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+.conv-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.conv-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 6px 10px;
+  flex-wrap: wrap;
+}
+.conv-from {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-h);
+  min-width: 110px;
+}
+.conv-arrow {
+  font-size: 14px;
+  color: var(--text-dim);
+}
+.conv-to {
+  font-size: 12px;
+  font-weight: 600;
+  color: #68d391;
+  flex: 1;
+}
+.btn--convert {
+  font-size: 11px;
+  padding: 4px 10px;
+  background: linear-gradient(135deg, #2b6cb0, #3182ce);
+  border: none;
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.15s;
+  margin-left: auto;
+}
+.btn--convert:hover { opacity: 0.85; }
+.btn--convert:disabled { opacity: 0.35; cursor: default; }
+.conv-total {
+  font-size: 10px;
+  color: var(--text-dim);
+  margin-top: 6px;
+  text-align: right;
+}
+@media (max-width: 480px) {
+  .conv-row { flex-direction: column; align-items: flex-start; }
+  .btn--convert { margin-left: 0; }
 }
 
 /* ── T126: Auction House ─────────────────────────────────────────────────── */

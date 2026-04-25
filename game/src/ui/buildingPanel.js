@@ -5,7 +5,7 @@
 
 import { state } from '../core/state.js';
 import { on, Events } from '../core/events.js';
-import { buildBuilding, demolishBuilding, specializeBuilding, chooseCapitalPlan, upgradeResourceCap, CAP_UPGRADE_MAX, CAP_UPGRADE_BONUS, CAP_UPGRADE_BASE, forgeItem, addToBuildQueue, removeFromBuildQueue, BUILD_QUEUE_MAX } from '../core/actions.js';
+import { buildBuilding, demolishBuilding, specializeBuilding, chooseCapitalPlan, upgradeResourceCap, CAP_UPGRADE_MAX, CAP_UPGRADE_BONUS, CAP_UPGRADE_BASE, forgeItem, addToBuildQueue, removeFromBuildQueue, BUILD_QUEUE_MAX, convertResource, CONVERSION_CHAIN, CONVERSION_INPUT, CONVERSION_OUTPUT, CONVERSION_COOLDOWN_TICKS } from '../core/actions.js';
 import { BUILDINGS } from '../data/buildings.js';
 import { SPECIALIZATIONS, SPECIALS_BY_BUILDING, ELIGIBLE_BUILDINGS } from '../data/buildingSpecials.js';
 import { CAPITAL_PLANS, CAPITAL_PLAN_ORDER } from '../data/capitalPlans.js';
@@ -30,6 +30,7 @@ export function initBuildingPanel() {
   on(Events.CAP_UPGRADED,          renderBuildingPanel);
   on(Events.FORGE_CHANGED,         renderBuildingPanel);
   on(Events.QUEUE_CHANGED,         renderBuildingPanel);
+  on(Events.CONVERSION_CHANGED,    renderBuildingPanel);
   on(Events.RESOURCE_CHANGED,      _throttleRender());
 }
 
@@ -129,6 +130,7 @@ function renderBuildingPanel() {
   html += _capitalPlansSection();
   html += _treasurySection();
   html += _forgeSection();
+  html += _conversionSection();
 
   panel.innerHTML = html;
 
@@ -166,6 +168,13 @@ function renderBuildingPanel() {
     }
     if (action === 'forge-item') {
       const result = forgeItem(id);
+      if (!result.ok) {
+        btn.classList.add('btn--shake');
+        setTimeout(() => btn.classList.remove('btn--shake'), 400);
+      }
+    }
+    if (action === 'convert') {
+      const result = convertResource(btn.dataset.res);
       if (!result.ok) {
         btn.classList.add('btn--shake');
         setTimeout(() => btn.classList.remove('btn--shake'), 400);
@@ -425,6 +434,55 @@ function _forgeSection() {
       <div class="forge-section__intro">Craft permanent items that grant powerful bonuses. Each item can only be forged once.</div>
       <div class="forge-grid">${cards}</div>
     </div>`;
+}
+
+// ── Workshop conversion section (T164) ────────────────────────────────────
+
+const _RES_ICONS = { food: '🌾', wood: '🪵', stone: '🪨', iron: '⚙️', mana: '✨', gold: '💰' };
+const _RES_NAMES = { food: 'Food', wood: 'Wood', stone: 'Stone', iron: 'Iron', mana: 'Mana' };
+
+function _conversionSection() {
+  if ((state.buildings?.workshop ?? 0) < 1) return '';
+
+  const cooldownUntil  = state.conversions?.cooldownUntil ?? 0;
+  const onCooldown     = state.tick < cooldownUntil;
+  const secsLeft       = onCooldown ? Math.ceil((cooldownUntil - state.tick) / 4) : 0;
+  const totalConverted = state.conversions?.totalConverted ?? 0;
+
+  const rows = CONVERSION_CHAIN.map(fromRes => {
+    const toIdx   = (CONVERSION_CHAIN.indexOf(fromRes) + 1) % CONVERSION_CHAIN.length;
+    const toRes   = CONVERSION_CHAIN[toIdx];
+    const hasEnough = (state.resources[fromRes] ?? 0) >= CONVERSION_INPUT;
+    const disabled  = onCooldown || !hasEnough;
+
+    return `<div class="conv-row">
+      <span class="conv-from">${_RES_ICONS[fromRes]} ${_RES_NAMES[fromRes]} ×${CONVERSION_INPUT}</span>
+      <span class="conv-arrow">→</span>
+      <span class="conv-to">${_RES_ICONS[toRes]} ${_RES_NAMES[toRes]} ×${CONVERSION_OUTPUT}</span>
+      <button class="btn btn--convert ${disabled ? 'btn--disabled' : ''} ${!hasEnough ? 'conv-row__btn--short' : ''}"
+              data-action="convert" data-res="${fromRes}"
+              ${disabled ? 'disabled' : ''}>Convert</button>
+    </div>`;
+  }).join('');
+
+  const cooldownHtml = onCooldown
+    ? `<div class="conv-cooldown">⏳ Workshop busy — ready in ${secsLeft}s</div>`
+    : '';
+
+  const totalHtml = totalConverted > 0
+    ? `<div class="conv-total">Total conversions this game: ${totalConverted}</div>`
+    : '';
+
+  return `<div class="conv-section">
+    <div class="conv-section__header">⚙️ Workshop — Resource Conversion</div>
+    <div class="conv-section__intro">
+      Convert ${CONVERSION_INPUT} of any resource into ${CONVERSION_OUTPUT} of the next in the chain.
+      Chain: 🌾 Food → 🪵 Wood → 🪨 Stone → ⚙️ Iron → ✨ Mana → 🌾 Food
+    </div>
+    ${cooldownHtml}
+    <div class="conv-rows">${rows}</div>
+    ${totalHtml}
+  </div>`;
 }
 
 // ── helpers ──────────────────────────────────────────────────────────────────

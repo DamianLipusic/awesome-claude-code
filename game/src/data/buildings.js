@@ -174,6 +174,21 @@ export const BUILDINGS = Object.freeze({
     ],
   },
 
+  workshop: {
+    name: 'Workshop',
+    icon: '⚙️',
+    description: 'Skilled craftsmen convert surplus resources. Enables resource conversion in the Building tab.',
+    baseCost: { gold: 120, wood: 80, stone: 60 },
+    production: {},
+    consumption: {},
+    capBonus: {},
+    requires: [
+      { type: 'building', id: 'farm',      count: 2 },
+      { type: 'building', id: 'lumberMill', count: 1 },
+    ],
+    unique: true,
+  },
+
   supplyDepot: {
     name: 'Supply Depot',
     icon: '🏗️',
