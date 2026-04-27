@@ -669,6 +669,90 @@ export function isEmpireInSkirmish(empireId) {
   return sk ? (sk.empire1Id === empireId || sk.empire2Id === empireId) : false;
 }
 
+// ── T174: Diplomatic Summit ───────────────────────────────────────────────────
+
+export const SUMMIT_PRESTIGE_COST = 200;
+export const SUMMIT_GOLD_COST     = 100;
+// Resources allied empires can gift during a summit
+const SUMMIT_GIFT_RESOURCES = ['gold', 'food', 'wood', 'stone', 'iron'];
+const SUMMIT_GIFT_MIN = 60;
+const SUMMIT_GIFT_MAX = 120;
+
+/**
+ * Call a Diplomatic Summit — once per age at Medieval Age.
+ * Costs SUMMIT_PRESTIGE_COST prestige + SUMMIT_GOLD_COST gold.
+ * Effects:
+ *   - Each allied empire sends a random resource gift (60–120 units).
+ *   - Each neutral empire gains +20 relations (may become allied).
+ *   - Each war empire becomes angrier (−10 relations shown in log).
+ */
+export function callDiplomaticSummit() {
+  if (!state.diplomacy) return { ok: false, reason: 'Diplomacy not yet initialised.' };
+  if ((state.age ?? 0) < 3) return { ok: false, reason: 'Diplomatic summits require the Medieval Age.' };
+
+  if (!state.summit) state.summit = { usedAtAge: null, totalSummits: 0 };
+  if (state.summit.usedAtAge === state.age) {
+    return { ok: false, reason: 'A summit has already been called this age.' };
+  }
+
+  const prestige = state.prestige?.score ?? 0;
+  if (prestige < SUMMIT_PRESTIGE_COST) {
+    return { ok: false, reason: `Need ${SUMMIT_PRESTIGE_COST} prestige to call a summit.` };
+  }
+  if ((state.resources.gold ?? 0) < SUMMIT_GOLD_COST) {
+    return { ok: false, reason: `Need ${SUMMIT_GOLD_COST} gold to call a summit.` };
+  }
+
+  // Deduct costs
+  if (state.prestige) state.prestige.score = Math.max(0, state.prestige.score - SUMMIT_PRESTIGE_COST);
+  state.resources.gold -= SUMMIT_GOLD_COST;
+
+  const giftLog = [];
+
+  state.diplomacy.empires.forEach(emp => {
+    const def = EMPIRES[emp.id];
+    if (emp.relations === 'allied') {
+      // Allied empires send a generous gift
+      const res = SUMMIT_GIFT_RESOURCES[Math.floor(Math.random() * SUMMIT_GIFT_RESOURCES.length)];
+      const amt = SUMMIT_GIFT_MIN + Math.floor(Math.random() * (SUMMIT_GIFT_MAX - SUMMIT_GIFT_MIN + 1));
+      state.resources[res] = Math.min(state.caps[res] ?? 500, (state.resources[res] ?? 0) + amt);
+      giftLog.push(`${def.icon} ${def.name} gifted ${amt} ${res}`);
+      _logDiplomacy(emp.id, 'gift', `Summit gift: ${amt} ${res}`);
+    } else if (emp.relations === 'neutral') {
+      // Neutral empires are impressed — relations improve (20% chance of alliance)
+      if (Math.random() < 0.2) {
+        emp.relations = 'allied';
+        recalcRates();
+        emit(Events.DIPLOMACY_CHANGED, { empireId: emp.id, relations: 'allied' });
+        _logDiplomacy(emp.id, 'alliance', `${def.name} joined your coalition at the summit!`);
+        giftLog.push(`${def.icon} ${def.name} joined your coalition!`);
+      } else {
+        _logDiplomacy(emp.id, 'gift', `${def.name} attended the summit — goodwill improved`);
+      }
+    } else if (emp.relations === 'war') {
+      // War empires are infuriated — noted in log only
+      _logDiplomacy(emp.id, 'ai', `${def.name} condemned the summit`);
+    }
+  });
+
+  state.summit.usedAtAge    = state.age;
+  state.summit.totalSummits = (state.summit.totalSummits ?? 0) + 1;
+
+  emit(Events.SUMMIT_CALLED, { age: state.age, gifts: giftLog });
+  emit(Events.DIPLOMACY_CHANGED, { type: 'summit' });
+  emit(Events.RESOURCE_CHANGED, {});
+
+  const giftDesc = giftLog.length > 0 ? ` ${giftLog.join('; ')}.` : '';
+  addMessage(`🌐 Diplomatic Summit called! Allied empires sent gifts.${giftDesc}`, 'diplomacy');
+  return { ok: true };
+}
+
+export function getSummitCooldownMsg() {
+  if (!state.summit) return null;
+  if (state.summit.usedAtAge === state.age) return 'Summit used this age.';
+  return null;
+}
+
 // ── Internal helpers ──────────────────────────────────────────────────────────
 
 function _findEmpire(id) {

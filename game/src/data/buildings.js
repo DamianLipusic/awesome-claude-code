@@ -205,6 +205,21 @@ export const BUILDINGS = Object.freeze({
     unique: true,
   },
 
+  imperialVault: {
+    name: 'Imperial Vault',
+    icon: '🏦',
+    description: 'Secure treasury vault. Deposit 200 gold for 5 minutes and receive 260 back (+30% interest). Locked gold is safe from raids and disasters.',
+    baseCost: { gold: 200, stone: 150, iron: 100 },
+    production: {},
+    consumption: {},
+    capBonus: {},
+    requires: [
+      { type: 'age',      minAge: 2 },
+      { type: 'building', id: 'market', count: 1 },
+    ],
+    unique: true,
+  },
+
   supplyDepot: {
     name: 'Supply Depot',
     icon: '🏗️',

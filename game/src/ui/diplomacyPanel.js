@@ -16,6 +16,7 @@ import {
   requestAllianceFavor,
   declareEmbargo, liftEmbargo, isEmbargoed, embargoSecsLeft, embargoCooldownSecsLeft, // T159
   proposeDynasticMarriage, MARRIAGE_COST, // T172
+  callDiplomaticSummit, SUMMIT_PRESTIGE_COST, SUMMIT_GOLD_COST, // T174
   ALLIANCE_COST, TRADE_ROUTE_COST, PEACE_COST, MAX_TRADE_ROUTES,
   SURRENDER_COST, WAR_SCORE_THRESHOLD,
   TRIBUTE_COST, TRIBUTE_DEMAND, DEMAND_WARSCORE_MIN,
@@ -71,6 +72,7 @@ export function initDiplomacyPanel() {
   on(Events.EMBARGO_CHANGED,        () => _render(panel));  // T159
   on(Events.TRIBUTE_CHANGED,        () => _render(panel));  // T166
   on(Events.MARRIAGE_PROPOSED,      () => _render(panel));  // T172
+  on(Events.SUMMIT_CALLED,          () => _render(panel));  // T174
   // Refresh cooldown countdown every second; also refresh ceasefire/gift/skirmish/aid timers when active
   on(Events.TICK, _throttle(() => {
     const cd = document.getElementById('espionage-cooldown');
@@ -118,6 +120,7 @@ function _render(panel) {
     </div>
     ${_skirmishBanner()}
     ${_tradeNetworkBanner()}
+    ${_summitSection()}
     <div class="dipl-empire-list">${cards}</div>
     ${_espionageSection()}
     ${_campaignSection()}
@@ -189,6 +192,52 @@ function _tradeNetworkBanner() {
         <strong>Global Trade Network Active!</strong>
         All empires allied with open trade routes — <strong>+3 gold/s</strong> and <strong>+25% sell prices</strong>.
       </span>
+    </div>`;
+}
+
+// ── T174: Diplomatic Summit section ──────────────────────────────────────────
+
+function _summitSection() {
+  if ((state.age ?? 0) < 3) return '';  // Medieval Age required
+
+  const usedThisAge = state.summit?.usedAtAge === state.age;
+  const prestige    = state.prestige?.score ?? 0;
+  const gold        = state.resources.gold ?? 0;
+  const canAfford   = prestige >= SUMMIT_PRESTIGE_COST && gold >= SUMMIT_GOLD_COST;
+  const disabled    = usedThisAge || !canAfford;
+
+  const alliedCount  = state.diplomacy?.empires.filter(e => e.relations === 'allied').length ?? 0;
+  const neutralCount = state.diplomacy?.empires.filter(e => e.relations === 'neutral').length ?? 0;
+
+  let statusMsg = '';
+  if (usedThisAge) {
+    statusMsg = `<div class="summit-status summit-status--used">✅ Summit called this age. Available again next age.</div>`;
+  } else if (!canAfford) {
+    const needs = [];
+    if (prestige < SUMMIT_PRESTIGE_COST) needs.push(`${SUMMIT_PRESTIGE_COST} prestige (have ${prestige})`);
+    if (gold < SUMMIT_GOLD_COST)         needs.push(`${SUMMIT_GOLD_COST} gold`);
+    statusMsg = `<div class="summit-status summit-status--locked">🔒 Requires: ${needs.join(', ')}</div>`;
+  }
+
+  const effectsHtml = [
+    alliedCount > 0 ? `🎁 ${alliedCount} allied empire${alliedCount > 1 ? 's' : ''} each send 60–120 of a random resource` : '',
+    neutralCount > 0 ? `🤝 ${neutralCount} neutral empire${neutralCount > 1 ? 's' : ''} may join your coalition (20% chance each)` : '',
+    `⚔️ Hostile empires condemn the summit (relations unchanged)`,
+  ].filter(Boolean).map(e => `<li>${e}</li>`).join('');
+
+  return `
+    <div class="summit-section">
+      <div class="summit-section__header">🌐 Diplomatic Summit</div>
+      <div class="summit-section__intro">
+        Call a grand diplomatic gathering once per age. Costs ${SUMMIT_PRESTIGE_COST} prestige + ${SUMMIT_GOLD_COST} gold.
+      </div>
+      <ul class="summit-effects">${effectsHtml}</ul>
+      ${statusMsg}
+      <button class="btn btn--summit ${disabled ? 'btn--disabled' : ''}"
+              data-action="call-summit"
+              ${disabled ? 'disabled' : ''}>
+        🌐 Call Diplomatic Summit
+      </button>
     </div>`;
 }
 
@@ -1000,6 +1049,11 @@ function _onClick(e) {
     }
     case 'propose-marriage': {  // T172
       result = proposeDynasticMarriage(empire);
+      if (!result.ok) addMessageFallback(result.reason);
+      break;
+    }
+    case 'call-summit': {  // T174
+      result = callDiplomaticSummit();
       if (!result.ok) addMessageFallback(result.reason);
       break;
     }

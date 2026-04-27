@@ -10227,3 +10227,128 @@ kbd {
 .btn--noble-refuse:hover {
   background: rgba(120, 40, 40, 0.7);
 }
+
+/* ── T173: Imperial Vault ────────────────────────────────────────────────── */
+
+.vault-section {
+  border-top: 1px solid rgba(200, 170, 100, 0.25);
+  margin-top: 20px;
+  padding-top: 14px;
+}
+
+.vault-section__header {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #fcd34d;
+  margin-bottom: 6px;
+}
+
+.vault-section__intro {
+  font-size: 0.80rem;
+  color: rgba(255, 255, 255, 0.65);
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+.vault-status {
+  font-size: 0.82rem;
+  border-radius: 6px;
+  padding: 6px 10px;
+  margin-bottom: 10px;
+}
+
+.vault-status--ready {
+  background: rgba(16, 100, 60, 0.35);
+  border: 1px solid rgba(52, 211, 153, 0.4);
+  color: #6ee7b7;
+}
+
+.vault-status--locked {
+  background: rgba(100, 80, 20, 0.35);
+  border: 1px solid rgba(251, 191, 36, 0.4);
+  color: #fcd34d;
+}
+
+.vault-status--cooldown {
+  background: rgba(60, 60, 80, 0.35);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  color: rgba(200, 210, 220, 0.75);
+}
+
+.vault-total {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.45);
+  margin-top: 8px;
+}
+
+.btn--vault {
+  background: linear-gradient(135deg, #78350f, #451a03);
+  color: #fef3c7;
+  border: 1px solid #d97706;
+  font-size: 0.82rem;
+  padding: 6px 16px;
+}
+.btn--vault:hover:not(.btn--disabled) {
+  background: linear-gradient(135deg, #b45309, #78350f);
+}
+
+/* ── T174: Diplomatic Summit ─────────────────────────────────────────────── */
+
+.summit-section {
+  background: rgba(15, 30, 60, 0.5);
+  border: 1px solid rgba(100, 150, 230, 0.3);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+}
+
+.summit-section__header {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #93c5fd;
+  margin-bottom: 6px;
+}
+
+.summit-section__intro {
+  font-size: 0.80rem;
+  color: rgba(200, 220, 255, 0.7);
+  margin-bottom: 8px;
+}
+
+.summit-effects {
+  font-size: 0.80rem;
+  color: rgba(200, 220, 255, 0.75);
+  margin: 0 0 10px 16px;
+  padding: 0;
+  line-height: 1.6;
+}
+
+.summit-status {
+  font-size: 0.82rem;
+  border-radius: 6px;
+  padding: 5px 10px;
+  margin-bottom: 10px;
+}
+
+.summit-status--used {
+  background: rgba(16, 60, 16, 0.35);
+  border: 1px solid rgba(74, 222, 128, 0.3);
+  color: #86efac;
+}
+
+.summit-status--locked {
+  background: rgba(60, 40, 10, 0.35);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  color: #fcd34d;
+}
+
+.btn--summit {
+  background: linear-gradient(135deg, #1d4ed8, #1e3a8a);
+  color: #dbeafe;
+  border: 1px solid #3b82f6;
+  font-size: 0.82rem;
+  padding: 6px 16px;
+}
+.btn--summit:hover:not(.btn--disabled) {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+}

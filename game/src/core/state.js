@@ -450,6 +450,14 @@ export const state = {
   // T172: Dynastic Marriage — permanent alliance bond with one allied empire (Medieval+)
   // { partnerId: string } | null
   dynasticMarriage: null,
+
+  // T173: Imperial Vault — secure gold investment banking
+  // { locked: { amount: number, unlocksAt: tick } | null, cooldownUntil: tick, totalDeposits: number } | null
+  vault: null,
+
+  // T174: Diplomatic Summit — once-per-age grand diplomatic ceremony (Medieval+)
+  // { usedAtAge: number | null, totalSummits: number } | null
+  summit: null,
 };
 
 /**
@@ -559,5 +567,7 @@ export function initState(empireName = 'My Empire') {
   state.seasonalObjectives   = null; // T170: reset seasonal objectives per game
   state.census               = null; // T171: reset census state per game
   state.dynasticMarriage     = null; // T172: reset marriage per game
+  state.vault                = null; // T173: reset vault state per game
+  state.summit               = null; // T174: reset summit state per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

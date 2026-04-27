@@ -142,4 +142,6 @@ export const Events = Object.freeze({
   SEASONAL_OBJECTIVE:       'seasonalObjective',           // T170: seasonal map objective spawned / captured / expired
   CENSUS_COMPLETED:         'censusCompleted',             // T171: imperial census fired and gold awarded
   MARRIAGE_PROPOSED:        'marriageProposed',            // T172: dynastic marriage finalized with an allied empire
+  VAULT_CHANGED:            'vaultChanged',                // T173: imperial vault deposit made / matured
+  SUMMIT_CALLED:            'summitCalled',                // T174: diplomatic summit called by player
 });

@@ -6,6 +6,7 @@
 import { state } from '../core/state.js';
 import { on, Events } from '../core/events.js';
 import { buildBuilding, demolishBuilding, specializeBuilding, chooseCapitalPlan, upgradeResourceCap, CAP_UPGRADE_MAX, CAP_UPGRADE_BONUS, CAP_UPGRADE_BASE, forgeItem, addToBuildQueue, removeFromBuildQueue, BUILD_QUEUE_MAX, convertResource, CONVERSION_CHAIN, CONVERSION_INPUT, CONVERSION_OUTPUT, CONVERSION_COOLDOWN_TICKS } from '../core/actions.js';
+import { depositToVault, VAULT_DEPOSIT_AMOUNT, VAULT_RETURN_AMOUNT, VAULT_LOCK_TICKS } from '../systems/imperialVault.js';
 import { BUILDINGS } from '../data/buildings.js';
 import { SPECIALIZATIONS, SPECIALS_BY_BUILDING, ELIGIBLE_BUILDINGS } from '../data/buildingSpecials.js';
 import { CAPITAL_PLANS, CAPITAL_PLAN_ORDER } from '../data/capitalPlans.js';
@@ -31,6 +32,7 @@ export function initBuildingPanel() {
   on(Events.FORGE_CHANGED,         renderBuildingPanel);
   on(Events.QUEUE_CHANGED,         renderBuildingPanel);
   on(Events.CONVERSION_CHANGED,    renderBuildingPanel);
+  on(Events.VAULT_CHANGED,         renderBuildingPanel);
   on(Events.RESOURCE_CHANGED,      _throttleRender());
 }
 
@@ -131,6 +133,7 @@ function renderBuildingPanel() {
   html += _treasurySection();
   html += _forgeSection();
   html += _conversionSection();
+  html += _vaultSection();
 
   panel.innerHTML = html;
 
@@ -175,6 +178,13 @@ function renderBuildingPanel() {
     }
     if (action === 'convert') {
       const result = convertResource(btn.dataset.res);
+      if (!result.ok) {
+        btn.classList.add('btn--shake');
+        setTimeout(() => btn.classList.remove('btn--shake'), 400);
+      }
+    }
+    if (action === 'vault-deposit') {
+      const result = depositToVault();
       if (!result.ok) {
         btn.classList.add('btn--shake');
         setTimeout(() => btn.classList.remove('btn--shake'), 400);
@@ -481,6 +491,54 @@ function _conversionSection() {
     </div>
     ${cooldownHtml}
     <div class="conv-rows">${rows}</div>
+    ${totalHtml}
+  </div>`;
+}
+
+// ── T173: Imperial Vault section ─────────────────────────────────────────────
+
+function _vaultSection() {
+  if ((state.buildings?.imperialVault ?? 0) < 1) return '';
+
+  const v             = state.vault;
+  const locked        = v?.locked ?? null;
+  const cooldownUntil = v?.cooldownUntil ?? 0;
+  const onCooldown    = !locked && state.tick < cooldownUntil;
+  const totalDeposits = v?.totalDeposits ?? 0;
+
+  let statusHtml = '';
+  let btnDisabled = false;
+
+  if (locked) {
+    const secsLeft = Math.max(0, Math.ceil((locked.unlocksAt - state.tick) / 4));
+    const mins  = Math.floor(secsLeft / 60);
+    const secs  = secsLeft % 60;
+    const timeStr = mins > 0 ? `${mins}m ${String(secs).padStart(2, '0')}s` : `${secsLeft}s`;
+    statusHtml = `<div class="vault-status vault-status--locked">🔒 ${locked.amount} gold locked — matures in ${timeStr}</div>`;
+    btnDisabled = true;
+  } else if (onCooldown) {
+    const secsLeft = Math.ceil((cooldownUntil - state.tick) / 4);
+    statusHtml = `<div class="vault-status vault-status--cooldown">⏳ Vault accepting new deposits in ${secsLeft}s</div>`;
+    btnDisabled = true;
+  } else {
+    statusHtml = `<div class="vault-status vault-status--ready">✅ Vault ready — deposit ${VAULT_DEPOSIT_AMOUNT} gold, collect ${VAULT_RETURN_AMOUNT} in 5 min</div>`;
+  }
+
+  const canAfford  = (state.resources.gold ?? 0) >= VAULT_DEPOSIT_AMOUNT;
+  const disabled   = btnDisabled || !canAfford;
+  const totalHtml  = totalDeposits > 0 ? `<div class="vault-total">Total deposits this game: ${totalDeposits}</div>` : '';
+
+  return `<div class="vault-section">
+    <div class="vault-section__header">🏦 Imperial Vault</div>
+    <div class="vault-section__intro">
+      Deposit ${VAULT_DEPOSIT_AMOUNT} gold and collect ${VAULT_RETURN_AMOUNT} after 5 minutes (+30% interest). Locked gold is safe from raids and disasters.
+    </div>
+    ${statusHtml}
+    <button class="btn btn--vault ${disabled ? 'btn--disabled' : ''}"
+            data-action="vault-deposit"
+            ${disabled ? 'disabled' : ''}>
+      💰 Deposit ${VAULT_DEPOSIT_AMOUNT} Gold
+    </button>
     ${totalHtml}
   </div>`;
 }

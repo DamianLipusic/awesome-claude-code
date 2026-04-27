@@ -2,6 +2,39 @@
 
 ---
 
+## 2026-04-27 — Session N+42
+
+**Tasks completed:** T173, T174
+
+**Summary:**
+All prior tasks (T001–T172) were complete. Created T173+T174 task specs then implemented two Phase 66 features: Imperial Vault (T173) and Diplomatic Summit (T174).
+
+**T173 — Imperial Vault:**
+- `src/data/buildings.js`: Added `imperialVault` unique building (minAge:2, requires market×1, cost 200g+150s+100i, icon 🏦). Placed between militaryAcademy and supplyDepot in the definition list.
+- `src/core/events.js`: Added `VAULT_CHANGED: 'vaultChanged'` event constant.
+- `src/core/state.js`: Added `vault: null` static field + `state.vault = null` in `initState()` reset.
+- `src/systems/imperialVault.js`: New file. `initVault()` idempotent init. `vaultTick()` auto-collects when `state.vault.locked.unlocksAt <= state.tick` — adds VAULT_RETURN_AMOUNT (260) gold to treasury (capped), sets cooldownUntil, increments totalDeposits, emits VAULT_CHANGED + RESOURCE_CHANGED. `depositToVault()` validates building exists, no active lock, cooldown clear, afford check; deducts 200 gold, sets locked object with unlocksAt = tick + VAULT_LOCK_TICKS.
+- `src/ui/buildingPanel.js`: Added `depositToVault + VAULT_DEPOSIT_AMOUNT + VAULT_RETURN_AMOUNT + VAULT_LOCK_TICKS` imports from imperialVault.js; `on(Events.VAULT_CHANGED, renderBuildingPanel)`; `html += _vaultSection()`; `vault-deposit` click handler; `_vaultSection()` renders section only when imperialVault built — shows .vault-status--{ready/locked/cooldown} badge with countdown, deposit button (disabled when locked/cooldown/can't afford), total deposits counter.
+- `src/main.js`: import + `registerSystem(vaultTick)` + `initVault()` in boot and `_newGame()`; vault saved/loaded; save version bumped 52→53.
+- `styles/main.css`: `.vault-section`, `.vault-section__header/intro`, `.vault-status--{ready/locked/cooldown}`, `.vault-total`, `.btn--vault` (amber gradient).
+
+**T174 — Diplomatic Summit:**
+- `src/core/events.js`: Added `SUMMIT_CALLED: 'summitCalled'` event constant.
+- `src/core/state.js`: Added `summit: null` static field + `state.summit = null` in `initState()` reset.
+- `src/systems/diplomacy.js`: Added exported `SUMMIT_PRESTIGE_COST=200` and `SUMMIT_GOLD_COST=100` constants. `callDiplomaticSummit()`: validates Medieval Age + once-per-age + prestige/gold cost; deducts from prestige.score and resources.gold; loops empires — allied get random resource gift (60–120), neutral get 20% coalition join chance, war empires get a condemnation log entry; records `state.summit.usedAtAge = state.age`; emits SUMMIT_CALLED + DIPLOMACY_CHANGED + RESOURCE_CHANGED.
+- `src/ui/diplomacyPanel.js`: Added `callDiplomaticSummit + SUMMIT_PRESTIGE_COST + SUMMIT_GOLD_COST` to diplomacy.js imports; `on(Events.SUMMIT_CALLED, render)`; `${_summitSection()}` added to `_render()` output between `_tradeNetworkBanner()` and empire cards; `_summitSection()` returns empty string if age<3, else renders summit card with effects list (ally gifts / neutral chance / war condemnation), status badge (used/locked/ready), and call-summit button; `call-summit` case added to `_onClick()`.
+- `src/main.js`: `on(Events.SUMMIT_CALLED, () => awardPrestige(100, 'diplomatic summit called'))`; summit saved/loaded.
+- `styles/main.css`: `.summit-section`, `.summit-section__header/intro`, `.summit-effects` (bullet list), `.summit-status--{used/locked}`, `.btn--summit` (blue gradient).
+
+**Architecture decisions:**
+- T173 vault is tick-driven for auto-collection (vaultTick() registered in the main loop), matching the pattern of warlordTick, plagueTick, etc. No "collect" button needed — gold returns automatically when the 5-minute window expires.
+- T173 vault state is in state.vault (not actions.js) to keep the action function self-contained in imperialVault.js; only depositToVault is an action. The UI imports from the system file directly.
+- T174 prestige deduction happens inside callDiplomaticSummit() by directly mutating state.prestige.score — matching the same pattern used in espionage.js and tributes.js (prestige.score is not read-only). The prestige award for using the summit (+100) goes through the main.js event listener pattern for consistency.
+- T174 summit does not need a tick function (no timed effects); it's purely an instantaneous action with a once-per-age gate via state.summit.usedAtAge === state.age.
+- Save version bumped to 53 for both new state fields; older saves default to null via ?? null in _applySave().
+
+---
+
 ## 2026-04-25 — Session N+41
 
 **Tasks completed:** T163, T164

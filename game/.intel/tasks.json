@@ -1534,5 +1534,23 @@
     "status": "done",
     "priority": "medium",
     "notes": "Added proposeDynasticMarriage(empireId) to diplomacy.js (Medieval Age required, 300 gold, only one partner). MARRIAGE_COST=300 constant exported. _aiAction modified: partner empire never breaks alliance when married. _allianceGift modified: partner gifts arrive twice as often (halved interval). resources.js: marriageMult=1.5 applied to trade route income loop for the partner. diplomacyPanel.js: imports proposeDynasticMarriage + MARRIAGE_COST; \ud83d\udc8d Marry button in allied card (Medieval Age only, disabled if already married elsewhere); dipl-marriage-badge shown when married; MARRIAGE_PROPOSED listener re-renders panel; propose-marriage case in _onClick. main.js: MARRIAGE_PROPOSED prestige award (+150); save/load dynasticMarriage field. State: dynasticMarriage + census fields added + initState resets. Events: MARRIAGE_PROPOSED added to events.js."
+  },
+  {
+    "id": "T173",
+    "title": "Imperial Vault \u2014 secure gold investment banking",
+    "description": "At Iron Age+, build a unique Imperial Vault (requires market \u00d7 1, cost 200g + 150s + 100i). Enables Deposit action: spend 200 gold, receive 260 gold (+30% interest) after 5 minutes. Locked gold is immune to raids and disasters. Auto-collects via vaultTick(). 2-minute cooldown between deposits. UI section in Building panel with status badge (ready/locked/cooldown), countdown timer, and deposit button. State: vault = { locked: { amount, unlocksAt } | null, cooldownUntil, totalDeposits }. Event: VAULT_CHANGED. Save/load version 53.",
+    "priority": 173,
+    "status": "done",
+    "phase": 66,
+    "notes": "data/buildings.js: Added imperialVault unique building (minAge 2, requires market\u00d71, cost 200g+150s+100i). core/events.js: VAULT_CHANGED added. core/state.js: vault field added + initState reset. systems/imperialVault.js: New file \u2014 initVault(), vaultTick() (auto-collect on maturity), depositToVault() (validate building/cooldown/afford, deduct 200 gold, set locked). ui/buildingPanel.js: import depositToVault+constants from imperialVault.js; on(VAULT_CHANGED, renderBuildingPanel); html += _vaultSection(); vault-deposit click handler; _vaultSection() renders status badge (ready/locked/cooldown), countdown timer, deposit button, total deposits. main.js: import initVault+vaultTick; registerSystem(vaultTick); initVault() in boot+_newGame; save/load vault field; version bumped 52\u219253."
+  },
+  {
+    "id": "T174",
+    "title": "Diplomatic Summit \u2014 once-per-age Medieval Age grand ceremony",
+    "description": "At Medieval Age (age 3), call a Diplomatic Summit once per age. Costs 200 prestige + 100 gold. Effects: allied empires each send 60\u2013120 of a random resource; neutral empires have 20% chance to join coalition; war empires condemned in log. Grants +100 prestige on use. One use per age \u2014 resets when age advances. UI: summit-section rendered in diplomacy panel above empire cards. State: summit = { usedAtAge, totalSummits }. Event: SUMMIT_CALLED. Save/load version 53.",
+    "priority": 174,
+    "status": "done",
+    "phase": 66,
+    "notes": "systems/diplomacy.js: Added SUMMIT_PRESTIGE_COST=200 + SUMMIT_GOLD_COST=100 exported constants; callDiplomaticSummit() validates Medieval Age, once-per-age, cost check, deducts prestige+gold, loops empires (allied\u2192gift 60-120 of random resource; neutral\u219220% coalition join; war\u2192log condemnation), records usedAtAge, emits SUMMIT_CALLED+DIPLOMACY_CHANGED+RESOURCE_CHANGED. ui/diplomacyPanel.js: import callDiplomaticSummit+SUMMIT_PRESTIGE_COST+SUMMIT_GOLD_COST from diplomacy.js; on(SUMMIT_CALLED, render); _summitSection() renders locked msg if age<3, description, effects list, used/locked status badge, call-summit button; call-summit case in _onClick. main.js: on(SUMMIT_CALLED, awardPrestige(100)); save/load summit field. State: summit field added + initState reset. Events: SUMMIT_CALLED added to events.js. CSS: .summit-section, .summit-section__header/intro, .summit-effects, .summit-status--used/locked, .btn--summit (blue gradient)."
   }
 ]
