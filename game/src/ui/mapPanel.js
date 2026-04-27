@@ -24,6 +24,7 @@ import { acceptCaravanOffer, getCaravanSecsLeft } from '../systems/caravans.js';
 import { LANDMARKS } from '../data/landmarks.js';
 import { collectResourceNode, getNodeAt, nodeSecsLeft, activeNodeCount } from '../systems/resourceNodes.js';
 import { getActiveBounty } from '../systems/bounty.js';
+import { getActiveSeasonalObjective } from '../systems/seasonalObjectives.js'; // T170
 import { claimDiscovery, getDiscoveryDef, spawnDiscoveries } from '../systems/discoveries.js'; // T146
 import { getCurrentWeather } from '../systems/weather.js'; // T149
 
@@ -63,6 +64,8 @@ const REBEL_TINT          = 'rgba(220,40,40,0.42)';   // T151: rebel-held tile r
 const REBEL_BORDER        = '#e03030';                 // T151: rebel tile border
 const BATTLEFIELD_TINT    = 'rgba(180,100,220,0.32)';  // T156: ancient battlefield purple glow
 const BATTLEFIELD_BORDER  = '#b064dc';                  // T156: ancient battlefield border
+const SEASONAL_OBJ_TINT   = 'rgba(100,220,200,0.30)';  // T170: seasonal objective teal shimmer
+const SEASONAL_OBJ_BORDER = '#44d4c0';                  // T170: seasonal objective border
 const HOVER_ATTACK     = 'rgba(240,180,41,0.38)';
 const HOVER_NEUTRAL    = 'rgba(255,255,255,0.08)';
 const PLAYER_BORDER    = '#58a6ff';
@@ -231,6 +234,9 @@ export function initMapPanel() {
 
   // T146: re-render when a discovery is revealed or claimed
   on(Events.DISCOVERY_FOUND, _render);
+
+  // T170: re-render when seasonal objective spawns, is captured, or expires
+  on(Events.SEASONAL_OBJECTIVE, _render);
 
   _render();
 }
@@ -444,6 +450,14 @@ function _showTileTip(tile, x, y, mouseX, mouseY) {
        <div class="map-tt-row" style="font-size:0.7rem;color:var(--text-dim)">Capture to claim reward!</div>`
     : '';
 
+  // T170: seasonal objective label
+  const _seasonalObj = getActiveSeasonalObjective();
+  const seasonalObjHtml = (_seasonalObj && _seasonalObj.x === x && _seasonalObj.y === y)
+    ? `<div class="map-tt-row" style="color:#44d4c0;font-weight:600">${_seasonalObj.icon} ${_seasonalObj.name}</div>
+       <div class="map-tt-row" style="font-size:0.7rem;color:var(--text-dim)">${_seasonalObj.desc}</div>
+       <div class="map-tt-row" style="font-size:0.7rem;color:#44d4c0">Capture for ${_seasonalObj.rewardDesc}!</div>`
+    : '';
+
   // T129: chokepoint label (shown on all revealed chokepoint tiles)
   const chokepointHtml = tile.isChokepoint && tile.revealed
     ? (tile.fortified
@@ -473,6 +487,7 @@ function _showTileTip(tile, x, y, mouseX, mouseY) {
     <div class="map-tt-row">${ownerHtml}</div>
     ${capitalHtml}
     ${bountyHtml}
+    ${seasonalObjHtml}
     ${chokepointHtml}
     ${influenceHtml}
     ${discoveryHtml}
@@ -782,6 +797,21 @@ function _drawTile(tile, x, y, capital) {
       ctx.textBaseline = 'middle';
       ctx.fillText('⚔️', px + TILE_PX / 2, py + TILE_PX / 2 + 1);
     }
+  }
+
+  // T170: seasonal map objective — teal shimmer + seasonal icon
+  if (tile.seasonalObjective !== undefined && tile.revealed && tile.owner !== 'player') {
+    const SEASON_ICONS = ['🌸', '☀️', '🍂', '❄️'];
+    ctx.fillStyle = SEASONAL_OBJ_TINT;
+    ctx.fillRect(px, py, TILE_PX, TILE_PX);
+    ctx.strokeStyle = SEASONAL_OBJ_BORDER;
+    ctx.lineWidth   = 2;
+    ctx.strokeRect(px + 1, py + 1, TILE_PX - 2, TILE_PX - 2);
+    ctx.lineWidth   = 1;
+    ctx.font         = `${TILE_PX - 10}px sans-serif`;
+    ctx.textAlign    = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(SEASON_ICONS[tile.seasonalObjective] ?? '⭐', px + TILE_PX / 2, py + TILE_PX / 2 + 1);
   }
 
   // T145: cultural influence glow on neutral tiles with ≥50 influence

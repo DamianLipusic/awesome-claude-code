@@ -94,6 +94,7 @@ import { initWarlord, warlordTick } from './systems/rovingWarlord.js'; // T165
 import { initTributes, tributeTick } from './systems/tributes.js';     // T166
 import { initBlackMarket, blackMarketTick } from './systems/blackMarket.js'; // T167
 import { initNobleDemands, nobleDemandsTick, satisfyDemand, refuseDemand, getDemandSecsLeft, canSatisfyDemand } from './systems/nobleDemands.js'; // T168
+import { onSeasonChanged, getActiveSeasonalObjective } from './systems/seasonalObjectives.js'; // T170
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
@@ -424,6 +425,8 @@ function boot() {
   // Update season badge on changes (also on TICK for countdown display)
   _updateSeasonBadge();
   on(Events.SEASON_CHANGED, _updateSeasonBadge);
+  // T170: spawn seasonal map objective on season change
+  on(Events.SEASON_CHANGED, d => onSeasonChanged(d?.index ?? state.season?.index ?? 0));
   // Refresh season badge every 4 ticks (~1 s) for countdown accuracy
   let _seasonBadgeTick = 0;
   on(Events.TICK, () => { if (++_seasonBadgeTick % 4 === 0) _updateSeasonBadge(); });
@@ -565,6 +568,8 @@ function _save() {
         tributes:            state.tributes            ?? null,  // T166
         blackMarket:         state.blackMarket         ?? null,  // T167
         nobleDemands:        state.nobleDemands        ?? null,  // T168
+        academy:             state.academy             ?? null,  // T169
+        seasonalObjectives:  state.seasonalObjectives  ?? null,  // T170
         tick:          state.tick,
       }
     }));
@@ -701,6 +706,8 @@ function _applySave(save) {
   state.tributes             = s.tributes             ?? null; // T166
   state.blackMarket          = s.blackMarket          ?? null; // T167
   state.nobleDemands         = s.nobleDemands         ?? null; // T168
+  state.academy              = s.academy              ?? null; // T169
+  state.seasonalObjectives   = s.seasonalObjectives   ?? null; // T170
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };

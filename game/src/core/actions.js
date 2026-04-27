@@ -148,6 +148,8 @@ export function trainUnit(id) {
   }
   // T125: War Drums forge item — -20% training time
   if (state.forge?.crafted?.war_drums) totalTicks = Math.ceil(totalTicks * 0.80);
+  // T169: Military Academy building — -10% training time
+  if ((state.buildings.militaryAcademy ?? 0) >= 1) totalTicks = Math.ceil(totalTicks * 0.90);
 
   state.trainingQueue.push({ unitId: id, remaining: totalTicks, totalTicks });
 
@@ -841,6 +843,65 @@ export function rallyTroops() {
   emit(Events.MORALE_CHANGED, {});
   emit(Events.RESOURCE_CHANGED, {});
   addMessage(`📣 Rally! Troops reinvigorated. +1 XP to all units, +${rallyMorale} morale.`, 'hero');
+  return { ok: true };
+}
+
+// ---------------------------------------------------------------------------
+// Military Academy — Battle Drills (T169)
+// ---------------------------------------------------------------------------
+
+const DRILL_COST           = { gold: 60 };
+const DRILL_COOLDOWN_TICKS = 1440;  // 6 min at 4 ticks/s
+const DRILL_VETERAN_XP     = 3;
+const DRILL_ELITE_XP       = 6;
+
+/**
+ * Conduct Battle Drills: +1 XP to every trained unit type (may trigger rank
+ * promotions). Costs 60 gold. 6-minute cooldown. Requires Military Academy.
+ */
+export function conductBattleDrills() {
+  if ((state.buildings.militaryAcademy ?? 0) < 1) {
+    return { ok: false, reason: 'Requires Military Academy.' };
+  }
+  const hasUnits = Object.values(state.units).some(c => c > 0);
+  if (!hasUnits) return { ok: false, reason: 'No units to drill.' };
+
+  if (!state.academy) state.academy = { drillCooldownUntil: 0, totalDrills: 0 };
+  if (state.tick < state.academy.drillCooldownUntil) {
+    const secsLeft = Math.ceil((state.academy.drillCooldownUntil - state.tick) / 4);
+    return { ok: false, reason: `Battle Drills on cooldown (${secsLeft}s remaining).` };
+  }
+  if (!canAfford(DRILL_COST)) {
+    return { ok: false, reason: 'Need 60 gold to conduct Battle Drills.' };
+  }
+  deductCost(DRILL_COST);
+
+  if (!state.unitXP)    state.unitXP    = {};
+  if (!state.unitRanks) state.unitRanks = {};
+
+  for (const [unitId, count] of Object.entries(state.units)) {
+    if ((count ?? 0) <= 0) continue;
+    state.unitXP[unitId] = (state.unitXP[unitId] ?? 0) + 1;
+    const xp       = state.unitXP[unitId];
+    const prevRank = state.unitRanks[unitId] ?? 'normal';
+    let   newRank  = prevRank;
+    if      (xp >= DRILL_ELITE_XP)   newRank = 'elite';
+    else if (xp >= DRILL_VETERAN_XP) newRank = 'veteran';
+    if (newRank !== prevRank) {
+      state.unitRanks[unitId] = newRank;
+      const def   = UNITS[unitId];
+      const label = newRank === 'elite' ? '★★ Elite (×2.0 atk)' : '★ Veteran (×1.5 atk)';
+      addMessage(`${def?.icon ?? '⚔️'} ${def?.name ?? unitId} promoted to ${label}!`, 'combat-win');
+    }
+  }
+
+  state.academy.drillCooldownUntil = state.tick + DRILL_COOLDOWN_TICKS;
+  state.academy.totalDrills = (state.academy.totalDrills ?? 0) + 1;
+
+  emit(Events.UNIT_CHANGED, {});
+  emit(Events.RESOURCE_CHANGED, {});
+  emit(Events.ACADEMY_CHANGED, {});
+  addMessage('🎓 Battle Drills conducted. All units gain +1 XP!', 'hero');
   return { ok: true };
 }
 

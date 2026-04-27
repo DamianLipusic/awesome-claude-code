@@ -6432,6 +6432,67 @@ kbd {
   border-color: #b07ec9;
 }
 
+/* ── Military Academy — Battle Drills (T169) ────────────────────────────── */
+
+.academy-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-left: 3px solid #68d391;
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+
+.academy-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.academy-title {
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.academy-costs {
+  display: flex;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.academy-desc {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+
+.academy-status {
+  font-size: 11px;
+  display: block;
+  margin-bottom: 6px;
+}
+.academy-status--ready  { color: var(--green); }
+.academy-status--cd     { color: var(--accent); }
+.academy-status--locked { color: var(--text-dim); }
+
+.btn--academy {
+  background: linear-gradient(135deg, #1a4731, #38a169);
+  border: 1px solid #38a169;
+  color: #fff;
+  font-weight: 600;
+  padding: 5px 16px;
+  font-size: 13px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.btn--academy:hover:not(:disabled) {
+  background: linear-gradient(135deg, #276749, #48bb78);
+  border-color: #48bb78;
+}
+
 /* ── Arsenal Upgrades (T107) ─────────────────────────────────────────────── */
 
 .upgrade-section {
@@ -8533,6 +8594,73 @@ kbd {
 }
 
 /* ── T135: Territory Bounty ─────────────────────────────────────── */
+
+/* ── T170: Seasonal Map Objectives ───────────────────────────────── */
+
+.seasonal-obj-section {
+  background: var(--bg-card);
+  border: 1px solid rgba(68, 212, 192, 0.35);
+  border-left: 3px solid #44d4c0;
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+}
+
+.seasonal-obj-header {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #44d4c0;
+  margin-bottom: 6px;
+}
+
+.seasonal-obj-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.seasonal-obj-card__top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.seasonal-obj-card__icon {
+  font-size: 1.1rem;
+}
+
+.seasonal-obj-card__label {
+  flex: 1;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #44d4c0;
+}
+
+.seasonal-obj-card__coords {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+
+.seasonal-obj-card__desc {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+.seasonal-obj-card__reward {
+  font-size: 0.78rem;
+  color: #68d391;
+  font-weight: 600;
+}
+
+.seasonal-obj-card__hint {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  font-style: italic;
+}
 
 .bounty-section {
   background: var(--bg-card);

@@ -1502,5 +1502,23 @@
     "phase": 64,
     "description": "At Bronze Age+, the noble council periodically demands concessions every 10-15 min. A banner appears with a 3-minute deadline. Demand types: tribute (pay gold/food), construct (have specific building built), glory (win battle(s) before deadline). Satisfy: +50 prestige + +10 morale. Fail/refuse: -25 morale + -15% gold/s for 3 min. State: nobleDemands = { active, nextDemandTick, totalSatisfied, totalRefused, debuffUntil }. Event: NOBLE_DEMAND. Banner: noble-banner in index.html. Save/load version 51.",
     "notes": "Implemented: systems/nobleDemands.js (initNobleDemands, nobleDemandsTick, satisfyDemand, refuseDemand, getDemandSecsLeft, getDebuffSecsLeft, canSatisfyDemand). 3 demand types: tribute (GOLD/FOOD_BY_AGE), construct (CONSTRUCT_POOL of 6 buildings), glory (combatHistory filter since startTick). resources.js: T168 noble debuff -15% gold when debuffUntil > tick. index.html: noble-banner div added below celestial-banner. main.js: registerSystem(nobleDemandsTick), initNobleDemands() in boot+_newGame, _updateNobleBanner() with NOBLE_DEMAND/RESOURCE_CHANGED/TICK listeners, noble-banner click handler for satisfy/refuse. events.js: NOBLE_DEMAND. state.js: nobleDemands field + initState reset. Save/load at version 51. CSS: .noble-banner, .noble-banner--urgent, @keyframes noble-pulse, .btn--noble-satisfy, .btn--noble-refuse."
+  },
+  {
+    "id": "T169",
+    "title": "military academy \u2014 unique building for battle drills and training bonuses",
+    "status": "done",
+    "priority": 169,
+    "phase": 65,
+    "description": "Add a Military Academy unique building (requires age 1, 2 barracks, metalworking tech). Reduces unit training time by 10%. Enables the Battle Drills command: pay 60 gold, +1 XP to all unit types, 6-minute cooldown. Promoted to veteran/elite via existing rank thresholds. State: academy = { lastDrillTick }. Event: ACADEMY_CHANGED. Save/load via state.academy.",
+    "notes": "Implemented: buildings.js: militaryAcademy unique building (baseCost 200g/100s/80i, requires age1+2barracks+metalworking). actions.js: conductBattleDrills() with DRILL_COST={gold:60}, DRILL_COOLDOWN_TICKS=1440; -10% training time in trainUnit() when academy>=1; grants +1 XP to all units, may promote to veteran/elite. militaryPanel.js: _academySection() card with cooldown countdown, conduct drills button; ACADEMY_CHANGED event subscription; battle-drills click handler. events.js: ACADEMY_CHANGED. state.js: academy field + initState reset. main.js: save/load academy field. CSS: .academy-section, .academy-header, .academy-title, .academy-costs, .academy-status variants (--ready/--cd/--locked), .btn--academy."
+  },
+  {
+    "id": "T170",
+    "title": "seasonal map objectives \u2014 per-season special tiles with resource rewards",
+    "status": "done",
+    "priority": 170,
+    "phase": 65,
+    "description": "Each season spawns a special objective tile on a revealed non-player tile at Manhattan distance 4-10 from capital. Capturing it awards season-specific resources + prestige. Spring: Sacred Grove (+80 food +8 morale +20 prestige, forest/grass pref). Summer: Sunstone Quarry (+120 gold +25 prestige, hills/mountain). Autumn: Harvest Temple (+100 food +50 wood +8 morale +20 prestige, grass/river). Winter: Frozen Oracle (+80 mana +30 prestige, any terrain). State: seasonalObjectives = { current, captured[] }. Events: SEASONAL_OBJECTIVE.",
+    "notes": "Implemented: systems/seasonalObjectives.js (onSeasonChanged, tryClaimSeasonalObjective, getActiveSeasonalObjective). Tile gets seasonalObjective=seasonIdx marker; cleared on season change or capture. combat.js: tryClaimSeasonalObjective(x,y) called in _victory(). main.js: SEASON_CHANGED listener calls onSeasonChanged; save/load seasonalObjectives field. mapPanel.js: import getActiveSeasonalObjective; SEASONAL_OBJ_TINT/BORDER constants; draws teal shimmer + season icon on objective tile; tooltip shows name/desc/reward; SEASONAL_OBJECTIVE event re-renders. questPanel.js: import getActiveSeasonalObjective; _seasonalObjectiveSection() card with coords, desc, reward, capture hint; SEASONAL_OBJECTIVE event in re-render list. events.js: SEASONAL_OBJECTIVE. state.js: seasonalObjectives field + initState reset. CSS: .seasonal-obj-section, .seasonal-obj-header, .seasonal-obj-card and sub-elements."
   }
 ]

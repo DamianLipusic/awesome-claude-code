@@ -12,6 +12,7 @@ import { getActiveBounty, getBountySecsLeft } from '../systems/bounty.js';
 import { getActiveRebels } from '../systems/rebels.js'; // T151
 import { getActivePlague, getPlagueSecsLeft, quarantinePlague, QUARANTINE_GOLD_COST, QUARANTINE_FOOD_COST } from '../systems/plague.js'; // T161
 import { hostPilgrimage } from '../systems/pilgrimages.js'; // T162
+import { getActiveSeasonalObjective } from '../systems/seasonalObjectives.js'; // T170
 import { TICKS_PER_SECOND } from '../core/tick.js';
 
 export function initQuestPanel() {
@@ -27,6 +28,7 @@ export function initQuestPanel() {
     Events.REBEL_UPRISING, Events.REBELS_SUPPRESSED,  // T151
     Events.PLAGUE_STARTED, Events.PLAGUE_ENDED,        // T161
     Events.PILGRIMAGE_ARRIVED, Events.PILGRIMAGE_HOSTED, // T162
+    Events.SEASONAL_OBJECTIVE,                          // T170
   ];
   for (const ev of events) on(ev, render);
 
@@ -93,6 +95,7 @@ function render() {
     ${_plagueSection()}
     ${_pilgrimageSection()}
     ${_rebelSection()}
+    ${_seasonalObjectiveSection()}
     ${_bountySection()}
     ${_politicalEventSection()}
     ${_challengeSection()}
@@ -208,6 +211,31 @@ function _rebelSection() {
 }
 
 // ── Bounty section (T135) ─────────────────────────────────────────────────
+
+// ── Seasonal Objective section (T170) ────────────────────────────────────────
+
+function _seasonalObjectiveSection() {
+  const obj = getActiveSeasonalObjective();
+  if (!obj) return '';
+
+  const SEASON_NAMES = ['Spring', 'Summer', 'Autumn', 'Winter'];
+  const seasonName   = SEASON_NAMES[obj.seasonIdx] ?? 'Season';
+
+  return `
+    <div class="seasonal-obj-section">
+      <div class="seasonal-obj-header">${obj.icon} Seasonal Objective — ${seasonName}</div>
+      <div class="seasonal-obj-card">
+        <div class="seasonal-obj-card__top">
+          <span class="seasonal-obj-card__icon">${obj.icon}</span>
+          <span class="seasonal-obj-card__label">${obj.name}</span>
+          <span class="seasonal-obj-card__coords">(${obj.x}, ${obj.y})</span>
+        </div>
+        <div class="seasonal-obj-card__desc">${obj.desc}</div>
+        <div class="seasonal-obj-card__reward">Reward: ${obj.rewardDesc}</div>
+        <div class="seasonal-obj-card__hint">Combat-capture this tile before the season ends!</div>
+      </div>
+    </div>`;
+}
 
 function _bountySection() {
   if (state.age < 1) return '';   // Bronze Age+ only

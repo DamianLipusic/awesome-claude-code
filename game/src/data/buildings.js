@@ -189,6 +189,22 @@ export const BUILDINGS = Object.freeze({
     unique: true,
   },
 
+  militaryAcademy: {
+    name: 'Military Academy',
+    icon: '🎓',
+    description: 'Elite officer training. Reduces training time by 10%. Enables Battle Drills command.',
+    baseCost: { gold: 200, stone: 100, iron: 80 },
+    production: {},
+    consumption: {},
+    capBonus: {},
+    requires: [
+      { type: 'age',      minAge: 1 },
+      { type: 'building', id: 'barracks', count: 2 },
+      { type: 'tech',     id: 'metalworking' },
+    ],
+    unique: true,
+  },
+
   supplyDepot: {
     name: 'Supply Depot',
     icon: '🏗️',

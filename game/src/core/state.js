@@ -434,6 +434,14 @@ export const state = {
   // { active: {type, icon, title, desc, req, deadline, startTick}|null,
   //   nextDemandTick, totalSatisfied, totalRefused, debuffUntil }
   nobleDemands: null,
+
+  // T169: Military Academy — battle drills command state
+  // { drillCooldownUntil: tick, totalDrills: number }
+  academy: null,
+
+  // T170: Seasonal Map Objectives — one per season, spawned on SEASON_CHANGED
+  // { current: { x, y, seasonIdx, icon, name, reward } | null, captured: [seasonIdx,...] }
+  seasonalObjectives: null,
 };
 
 /**
@@ -539,5 +547,7 @@ export function initState(empireName = 'My Empire') {
   state.tributes             = null; // T166: reset tributes per game
   state.blackMarket          = null; // T167: reset black market per game
   state.nobleDemands         = null; // T168: reset noble demands per game
+  state.academy              = null; // T169: reset academy state per game
+  state.seasonalObjectives   = null; // T170: reset seasonal objectives per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

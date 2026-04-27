@@ -38,6 +38,7 @@ import { getCampaignLootMult, recordCampaignWin } from './campaigns.js'; // T154
 import { SEASON_UNIT_COMBAT_BUFF, SEASON_COMBAT_BUFF_MULT } from '../data/seasons.js'; // T163
 import { defeatWarlord } from './rovingWarlord.js';                                   // T165
 import { recordCapturedCapital } from './tributes.js';                                 // T166
+import { tryClaimSeasonalObjective } from './seasonalObjectives.js';                   // T170
 
 /** Returns true if both techs of a named synergy are researched. */
 function _synergy(id) {
@@ -706,6 +707,9 @@ function _victory(tile, x, y, attackPower, defense) {
 
   // T135: claim territory bounty if this tile was the active bounty target
   claimBounty(x, y);
+
+  // T170: claim seasonal map objective if this tile is the active objective
+  tryClaimSeasonalObjective(x, y);
 
   // T156: check if this tile is an ancient battlefield
   _tryCaptureAncientBattlefield(tile, x, y);

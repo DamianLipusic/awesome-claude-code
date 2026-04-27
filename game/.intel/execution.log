@@ -2754,3 +2754,38 @@ All 142 prior tasks found complete. Created T143 and T144 from Phase 5+ roadmap 
 - Noble demand glory check uses `combatHistory.filter(h => h.tick >= demand.startTick)` — no extra state counter needed; combatHistory already records win/loss + tick.
 - Noble debuff applies to `rates.gold > 0` only (pure production multiplier), same pattern as regency, plague, and other temporary debuffs.
 - Both systems saved to version 51. `?? null` defaults in `_applySave()` ensure backwards compatibility with version 50 saves.
+
+---
+
+## Session 2026-04-27 — T169 + T170
+
+**T169 — Military Academy (unique building with battle drills):**
+
+**Files modified:**
+- `game/src/data/buildings.js`: Added `militaryAcademy` unique building (200g/100s/80i, requires age1 + 2 barracks + metalworking). `unique: true`.
+- `game/src/core/events.js`: Added `ACADEMY_CHANGED: 'academyChanged'`.
+- `game/src/core/state.js`: Added `academy: null` field + `initState()` reset.
+- `game/src/core/actions.js`: `conductBattleDrills()` — costs 60g, 6-min cooldown (1440 ticks), grants +1 XP to all unit stacks, handles veteran/elite promotion via existing rank thresholds, emits UNIT_CHANGED + RESOURCE_CHANGED + ACADEMY_CHANGED. `trainUnit()`: -10% training ticks when militaryAcademy >= 1.
+- `game/src/ui/militaryPanel.js`: `_academySection()` renders card with cooldown countdown, gold cost, Conduct Drills button. ACADEMY_CHANGED event subscription. `battle-drills` click handler with btn--shake feedback.
+- `game/src/main.js`: Save/load `academy` field.
+- `game/styles/main.css`: `.academy-section`, `.academy-header`, `.academy-title`, `.academy-costs`, `.academy-status` variants (--ready/--cd/--locked), `.btn--academy`.
+
+**T170 — Seasonal Map Objectives:**
+
+**Files created:**
+- `game/src/systems/seasonalObjectives.js`: `onSeasonChanged(seasonIdx)` — expires old objective, spawns new one on random revealed non-player tile at dist 4-10 from capital (terrain-preferred). `tryClaimSeasonalObjective(x,y)` — called from combat on tile capture, applies resource/morale/prestige rewards. `getActiveSeasonalObjective()` — returns current objective. 4 season defs: Spring🌸 Sacred Grove, Summer☀️ Sunstone Quarry, Autumn🍂 Harvest Temple, Winter❄️ Frozen Oracle.
+
+**Files modified:**
+- `game/src/core/events.js`: Added `SEASONAL_OBJECTIVE: 'seasonalObjective'`.
+- `game/src/core/state.js`: Added `seasonalObjectives: null` field + `initState()` reset.
+- `game/src/systems/combat.js`: `_victory()`: calls `tryClaimSeasonalObjective(x, y)` after `claimBounty`.
+- `game/src/ui/mapPanel.js`: Import `getActiveSeasonalObjective`. `SEASONAL_OBJ_TINT/BORDER` constants. `_drawTile()`: teal shimmer + season icon on objective tile. `_showTileTip()`: objective name/desc/reward rows. `initMapPanel()`: SEASONAL_OBJECTIVE event subscription.
+- `game/src/ui/questPanel.js`: Import `getActiveSeasonalObjective`. `_seasonalObjectiveSection()` card with icon, name, coords, desc, reward, hint. Added to render template above bounty. SEASONAL_OBJECTIVE in events array.
+- `game/src/main.js`: SEASON_CHANGED listener → `onSeasonChanged()`. Save/load `seasonalObjectives` field.
+- `game/styles/main.css`: `.seasonal-obj-section`, `.seasonal-obj-header`, `.seasonal-obj-card` and sub-elements.
+
+**Architecture decisions:**
+- Seasonal objectives use `tile.seasonalObjective = seasonIdx` as a lightweight tile marker; cleaned up on season change and on capture to avoid stale state.
+- Manhattan distance `_dist()` used for proximity check (same as map system uses for capital distance).
+- Terrain preference uses preferred/others pools with randomization biased toward preferred tiles but not exclusively.
+- No new save version bump needed — `seasonalObjectives ?? null` and `academy ?? null` in `_applySave()` are fully backwards compatible with version 51 saves.

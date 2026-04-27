@@ -10,7 +10,7 @@
 
 import { state } from '../core/state.js';
 import { on, Events } from '../core/events.js';
-import { trainUnit, recruitHero, useHeroAbility, setFormation, chooseHeroSkill, rallyTroops, upgradeUnit, UNIT_UPGRADE_MAX, UNIT_UPGRADE_COST_BASE, addMessage, chooseHeroTrait, chooseCompanion, issueProclamation, activateSurgeProvisions } from '../core/actions.js';
+import { trainUnit, recruitHero, useHeroAbility, setFormation, chooseHeroSkill, rallyTroops, upgradeUnit, UNIT_UPGRADE_MAX, UNIT_UPGRADE_COST_BASE, addMessage, chooseHeroTrait, chooseCompanion, issueProclamation, activateSurgeProvisions, conductBattleDrills } from '../core/actions.js';
 import { acceptDuel, declineDuel, getDuelSecsLeft } from '../systems/duels.js';
 import { getActiveWarlord, getWarlordSecsLeft } from '../systems/rovingWarlord.js'; // T165
 import { sendPioneerExpedition, getPioneerProgress, getPioneerSecsLeft, PIONEER_COST, PIONEER_MAX } from '../systems/pioneerExpeditions.js';
@@ -82,6 +82,7 @@ export function initMilitaryPanel() {
   on(Events.WARLORD_APPEARED,      () => _render(panel)); // T165: warlord spawned
   on(Events.WARLORD_DEFEATED,      () => _render(panel)); // T165: warlord defeated
   on(Events.WARLORD_STRUCK,        () => _render(panel)); // T165: warlord struck and departed
+  on(Events.ACADEMY_CHANGED,       () => _render(panel)); // T169: battle drills activated
   on(Events.RESOURCE_CHANGED,  () => _renderCosts(panel));
   on(Events.GAME_LOADED,       () => _render(panel));
 
@@ -108,15 +109,16 @@ export function initMilitaryPanel() {
     const hasMercOffer = !!state.mercenaries?.current;
     const hasDecreeCooldown = state.decrees &&
       Object.values(state.decrees.cooldowns ?? {}).some(exp => exp > state.tick);
-    const hasRallyCooldown = !!(state.rallyState && state.tick < state.rallyState.cooldownUntil);
-    const hasDuelPending   = !!state.duels?.pending;          // T109: duel countdown
+    const hasRallyCooldown  = !!(state.rallyState && state.tick < state.rallyState.cooldownUntil);
+    const hasAcademyDrill   = !!(state.academy && state.tick < state.academy.drillCooldownUntil); // T169
+    const hasDuelPending    = !!state.duels?.pending;          // T109: duel countdown
     const hasPioneerActive = !!state.pioneers?.active;         // T110: expedition countdown
     const hasSurgeActivity = !!(state.supplyDepot && (  // T157: surge active or cooling
       state.supplyDepot.surgeExpiresAt > state.tick ||
       state.supplyDepot.surgeCooldownUntil > state.tick
     ));
     const hasWarlord = !!state.warlord?.active;          // T165: warlord countdown
-    if (hasHeroActivity || hasSpellActivity || hasMercOffer || hasDecreeCooldown || hasRallyCooldown || hasDuelPending || hasPioneerActive || hasSurgeActivity || hasWarlord) _render(panel);
+    if (hasHeroActivity || hasSpellActivity || hasMercOffer || hasDecreeCooldown || hasRallyCooldown || hasAcademyDrill || hasDuelPending || hasPioneerActive || hasSurgeActivity || hasWarlord) _render(panel);
   });
 }
 
@@ -131,6 +133,7 @@ function _render(panel) {
     ${_formationSection()}
     ${_moraleSection()}
     ${_rallySection()}
+    ${_academySection()}
     ${_upgradeSection()}
     ${_spellsSection()}
     ${_decreesSection()}
@@ -394,6 +397,54 @@ function _rallySection() {
       <button class="btn btn--rally ${disabled ? 'btn--disabled' : ''}"
         data-action="rally" ${disabled ? 'disabled' : ''}>
         📣 Rally
+      </button>
+    </div>`;
+}
+
+// ── Military Academy — Battle Drills section (T169) ──────────────────────
+
+function _academySection() {
+  if ((state.buildings.militaryAcademy ?? 0) < 1) return '';
+
+  const hasUnits   = Object.values(state.units ?? {}).some(c => c > 0);
+  const now        = state.tick;
+  if (!state.academy) state.academy = { drillCooldownUntil: 0, totalDrills: 0 };
+  const cdUntil    = state.academy.drillCooldownUntil ?? 0;
+  const onCd       = now < cdUntil;
+  const secsLeft   = onCd ? Math.ceil((cdUntil - now) / 4) : 0;
+  const goldOk     = (state.resources.gold ?? 0) >= 60;
+  const affordable = goldOk;
+  const disabled   = onCd || !affordable || !hasUnits;
+
+  let statusHtml = '';
+  if (!hasUnits) {
+    statusHtml = `<span class="academy-status academy-status--locked">No units to drill</span>`;
+  } else if (onCd) {
+    const mins  = Math.floor(secsLeft / 60);
+    const secs  = secsLeft % 60;
+    const cdStr = mins > 0 ? `${mins}m ${String(secs).padStart(2, '0')}s` : `${secsLeft}s`;
+    statusHtml = `<span class="academy-status academy-status--cd">⏱ Ready in ${cdStr}</span>`;
+  } else if (!affordable) {
+    statusHtml = `<span class="academy-status academy-status--locked">Insufficient gold</span>`;
+  } else {
+    statusHtml = `<span class="academy-status academy-status--ready">✅ Ready</span>`;
+  }
+
+  const totalDrills = state.academy.totalDrills ?? 0;
+
+  return `
+    <div class="academy-section">
+      <div class="academy-header">
+        <span class="academy-title">🎓 Battle Drills</span>
+        <div class="academy-costs">
+          <span style="color:${goldOk ? 'var(--green)' : 'var(--red)'}">💰 60</span>
+        </div>
+      </div>
+      <div class="academy-desc">+1 XP to all trained units (may promote ranks) · 6-min cooldown · Conducted: ${totalDrills}×</div>
+      ${statusHtml}
+      <button class="btn btn--academy ${disabled ? 'btn--disabled' : ''}"
+        data-action="battle-drills" ${disabled ? 'disabled' : ''}>
+        🎓 Conduct Drills
       </button>
     </div>`;
 }
@@ -1324,6 +1375,14 @@ function _handleClick(e) {
     if (!result.ok) addMessage(result.reason, 'info');
   } else if (actionBtn.dataset.action === 'rally') {
     const result = rallyTroops();
+    if (!result.ok) {
+      actionBtn.classList.add('btn--shake');
+      setTimeout(() => actionBtn.classList.remove('btn--shake'), 600);
+      addMessage(result.reason, 'info');
+    }
+  } else if (actionBtn.dataset.action === 'battle-drills') {
+    // T169: Military Academy battle drills
+    const result = conductBattleDrills();
     if (!result.ok) {
       actionBtn.classList.add('btn--shake');
       setTimeout(() => actionBtn.classList.remove('btn--shake'), 600);
