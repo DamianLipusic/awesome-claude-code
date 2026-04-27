@@ -595,6 +595,11 @@ export function recalcRates() {
     if (_pilgBonus.type === 'pilgrims')  { rates.mana += 0.3; }
   }
 
+  // T168: Noble demand failure debuff — −15% gold/s for 3 min when nobles are displeased
+  if ((state.nobleDemands?.debuffUntil ?? 0) > state.tick && rates.gold > 0) {
+    rates.gold *= 0.85;
+  }
+
   Object.assign(state.rates, rates);
   Object.assign(state.caps, caps);
 }

@@ -1484,5 +1484,23 @@
     "status": "done",
     "description": "When the player captures an AI empire faction capital, they unlock a \"Demand Tribute\" option in the diplomacy panel. Demanding costs 20 prestige; the empire pays 40 gold every 90 seconds for 6 payments (240 gold total over ~9 min). One-time per empire per game. Tribute shown as countdown in the empire card. state.tributes = { capturedCapitals: { [empireId]: tick }, demanded: { [empireId]: { nextPaymentTick, paymentsLeft, totalPaid } } }. Events: TRIBUTE_CHANGED. Wired in combat.js via recordCapturedCapital(). Save/load at version 50.",
     "notes": "Implemented: systems/tributes.js (initTributes, tributeTick, recordCapturedCapital, demandTribute, getTributeStatus, hasCapturedCapital). Combat.js recordCapturedCapital() called in _victory() when wasFactionCapital. Demand costs 20 prestige; 40 gold every 90s x6 payments = 240g total. Allied empires drop to neutral on demand. diplomacyPanel.js: _tributeRow(emp) shows Demand button / active countdown / fulfilled badge; injected after _embargoRow. _demandTribute aliased to avoid conflict with old diplomacy.js demandTribute. events.js TRIBUTE_CHANGED. CSS: .dipl-tribute-row, .btn--tribute. state.tributes saved/loaded at version 50."
+  },
+  {
+    "id": "T167",
+    "title": "black market \u2014 underground trading at iron age with seizure risk",
+    "status": "done",
+    "priority": 167,
+    "phase": 64,
+    "description": "At Iron Age+, the Market panel shows a new Black Market section offering 3 underground deals that refresh every 5 minutes. Deal types: buy (pay gold to get resource at flat rate, bypasses market price volatility), sell (trade resource for 1.8\u00d7 base-value gold), swap (resource for resource at 1.2\u00d7 fair ratio). Each trade has a 10% seizure risk \u2014 lose 50% of fromAmt + 30 prestige. On success, toRes can go up to 20% over normal cap. State: blackMarket = { deals, nextRefreshTick, totalTrades, seizedCount }. Event: BLACK_MARKET_CHANGED. Save/load version 51.",
+    "notes": "Implemented: systems/blackMarket.js (initBlackMarket, blackMarketTick, executeDeal, getBlackMarketRefreshSecs). Deal generation: buy/sell/swap types with BASE_VALS pricing. marketPanel.js: _blackMarketSection() renders locked-msg at age<2, deal cards with type badges and risk warning at Iron Age+; bm-deal click handler calls executeDeal(idx). events.js: BLACK_MARKET_CHANGED. state.js: blackMarket field + initState reset. main.js: registerSystem(blackMarketTick), initBlackMarket() in boot+_newGame, save/load at version 51. CSS: .bm-section, .bm-deal, .bm-deal--{buy,sell,swap}, .btn--bm-deal."
+  },
+  {
+    "id": "T168",
+    "title": "noble council demands \u2014 periodic political pressure at bronze age",
+    "status": "done",
+    "priority": 168,
+    "phase": 64,
+    "description": "At Bronze Age+, the noble council periodically demands concessions every 10-15 min. A banner appears with a 3-minute deadline. Demand types: tribute (pay gold/food), construct (have specific building built), glory (win battle(s) before deadline). Satisfy: +50 prestige + +10 morale. Fail/refuse: -25 morale + -15% gold/s for 3 min. State: nobleDemands = { active, nextDemandTick, totalSatisfied, totalRefused, debuffUntil }. Event: NOBLE_DEMAND. Banner: noble-banner in index.html. Save/load version 51.",
+    "notes": "Implemented: systems/nobleDemands.js (initNobleDemands, nobleDemandsTick, satisfyDemand, refuseDemand, getDemandSecsLeft, getDebuffSecsLeft, canSatisfyDemand). 3 demand types: tribute (GOLD/FOOD_BY_AGE), construct (CONSTRUCT_POOL of 6 buildings), glory (combatHistory filter since startTick). resources.js: T168 noble debuff -15% gold when debuffUntil > tick. index.html: noble-banner div added below celestial-banner. main.js: registerSystem(nobleDemandsTick), initNobleDemands() in boot+_newGame, _updateNobleBanner() with NOBLE_DEMAND/RESOURCE_CHANGED/TICK listeners, noble-banner click handler for satisfy/refuse. events.js: NOBLE_DEMAND. state.js: nobleDemands field + initState reset. Save/load at version 51. CSS: .noble-banner, .noble-banner--urgent, @keyframes noble-pulse, .btn--noble-satisfy, .btn--noble-refuse."
   }
 ]

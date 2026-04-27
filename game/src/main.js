@@ -92,6 +92,8 @@ import { initPlague, plagueTick } from './systems/plague.js'; // T161
 import { initPilgrimages, pilgrimageTick } from './systems/pilgrimages.js'; // T162
 import { initWarlord, warlordTick } from './systems/rovingWarlord.js'; // T165
 import { initTributes, tributeTick } from './systems/tributes.js';     // T166
+import { initBlackMarket, blackMarketTick } from './systems/blackMarket.js'; // T167
+import { initNobleDemands, nobleDemandsTick, satisfyDemand, refuseDemand, getDemandSecsLeft, canSatisfyDemand } from './systems/nobleDemands.js'; // T168
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
@@ -174,6 +176,8 @@ function boot() {
   registerSystem(pilgrimageTick);     // T162: pilgrimage system
   registerSystem(warlordTick);        // T165: roving warlord
   registerSystem(tributeTick);        // T166: tribute demand
+  registerSystem(blackMarketTick);   // T167: black market
+  registerSystem(nobleDemandsTick);  // T168: noble council demands
 
   // Init event-driven systems
   initRandomEvents();
@@ -224,6 +228,8 @@ function boot() {
   initPilgrimages();     // T162: pilgrimage system
   initWarlord();         // T165: roving warlord
   initTributes();        // T166: tribute demand
+  initBlackMarket();    // T167: black market
+  initNobleDemands();   // T168: noble council demands
 
   // Init UI
   initHUD();
@@ -375,6 +381,13 @@ function boot() {
   let _celestialBadgeTick = 0;
   on(Events.TICK, () => { if (++_celestialBadgeTick % 4 === 0) _updateCelestialBanner(); });
 
+  // T168: Noble demand banner — update on demand events and countdown tick
+  _updateNobleBanner();
+  on(Events.NOBLE_DEMAND,      _updateNobleBanner);
+  on(Events.RESOURCE_CHANGED,  _updateNobleBanner);
+  let _nobleBannerTick = 0;
+  on(Events.TICK, () => { if (++_nobleBannerTick % 4 === 0) _updateNobleBanner(); });
+
   // T152: Update succession countdown every tick while pending
   let _successionTickCount = 0;
   on(Events.TICK, () => {
@@ -449,7 +462,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 50, // T165+T166: roving warlord + tribute demand
+      version: 51, // T167+T168: black market + noble council demands
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -550,6 +563,8 @@ function _save() {
         conversions:         state.conversions         ?? null,  // T164
         warlord:             state.warlord             ?? null,  // T165
         tributes:            state.tributes            ?? null,  // T166
+        blackMarket:         state.blackMarket         ?? null,  // T167
+        nobleDemands:        state.nobleDemands        ?? null,  // T168
         tick:          state.tick,
       }
     }));
@@ -684,6 +699,8 @@ function _applySave(save) {
   state.conversions          = s.conversions          ?? null; // T164
   state.warlord              = s.warlord              ?? null; // T165
   state.tributes             = s.tributes             ?? null; // T166
+  state.blackMarket          = s.blackMarket          ?? null; // T167
+  state.nobleDemands         = s.nobleDemands         ?? null; // T168
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
@@ -840,6 +857,46 @@ function _updateScholarBanner() {
       <div class="scholar-banner__timer">Departs in ${secsLeft}s</div>
       <button class="btn btn--sm btn--scholar-accept" id="btn-scholar-accept">Accept</button>
       <button class="btn btn--sm btn--scholar-dismiss" id="btn-scholar-dismiss">Dismiss</button>
+    </div>`;
+  banner.style.display = 'flex';
+}
+
+// ── Noble Council Demand banner (T168) ───────────────────────────────────
+
+function _updateNobleBanner() {
+  const banner = document.getElementById('noble-banner');
+  if (!banner) return;
+
+  const demand = state.nobleDemands?.active;
+  if (!demand) {
+    banner.style.display = 'none';
+    banner.innerHTML = '';
+    return;
+  }
+
+  const secsLeft = getDemandSecsLeft();
+  const mins     = Math.floor(secsLeft / 60);
+  const secs     = secsLeft % 60;
+  const timeStr  = secsLeft >= 60 ? `${mins}m ${String(secs).padStart(2, '0')}s` : `${secsLeft}s`;
+  const canSat   = canSatisfyDemand();
+  const urgent   = secsLeft <= 30;
+
+  banner.className = `noble-banner${urgent ? ' noble-banner--urgent' : ''}`;
+  banner.innerHTML = `
+    <div class="noble-banner__icon">${demand.icon}</div>
+    <div class="noble-banner__body">
+      <div class="noble-banner__title">👑 ${demand.title}</div>
+      <div class="noble-banner__desc">${demand.desc}</div>
+    </div>
+    <div class="noble-banner__actions">
+      <div class="noble-banner__timer">Expires in ${timeStr}</div>
+      <button class="btn btn--sm btn--noble-satisfy ${canSat ? '' : 'btn--disabled'}"
+        id="btn-noble-satisfy"
+        ${canSat ? '' : 'disabled'}
+        title="${canSat ? 'Satisfy this demand' : 'Requirements not met'}">
+        Satisfy
+      </button>
+      <button class="btn btn--sm btn--noble-refuse" id="btn-noble-refuse">Refuse</button>
     </div>`;
   banner.style.display = 'flex';
 }
@@ -1415,6 +1472,8 @@ function _newGame(opts = {}) {
   initPilgrimages();     // T162: reset pilgrimages on new game
   initWarlord();         // T165: reset warlord state on new game
   initTributes();        // T166: reset tributes on new game
+  initBlackMarket();    // T167: reset black market on new game
+  initNobleDemands();   // T168: reset noble demands on new game
   _updateCelestialBanner(); // T153: hide banner on new game
   recalcRates();
   startLoop();  // restart loop in case it was stopped by game-over
@@ -1518,6 +1577,18 @@ function _bindControls() {
   document.getElementById('succession-modal')?.addEventListener('click', (e) => {
     const btn = e.target.closest('[data-heir]');
     if (btn) _applySuccessionChoice(btn.dataset.heir);
+  });
+
+  // T168: Noble demand banner — satisfy / refuse buttons
+  document.getElementById('noble-banner')?.addEventListener('click', (e) => {
+    if (e.target.closest('#btn-noble-satisfy')) {
+      const result = satisfyDemand();
+      if (!result.ok && result.reason) addMessage(`👑 ${result.reason}`, 'info');
+      _updateNobleBanner();
+    } else if (e.target.closest('#btn-noble-refuse')) {
+      refuseDemand();
+      _updateNobleBanner();
+    }
   });
 
   _bindKeyboard();

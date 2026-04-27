@@ -11,6 +11,7 @@ import { buyPrice, sellPrice, buyResources, sellResources, MARKET_RESOURCES, get
 import { acceptContract, cancelContract, contractProgress, contractSecsLeft, contractsRefreshSecs } from '../systems/contracts.js';
 import { buyMerchantItem, merchantSecsLeft, merchantNextVisitSecs, canAffordItem } from '../systems/merchant.js';
 import { bidOnAuction, passAuction } from '../systems/auction.js';
+import { executeDeal, getBlackMarketRefreshSecs } from '../systems/blackMarket.js';
 import { fmtNum } from '../utils/fmt.js';
 
 const RESOURCE_ICONS = {
@@ -30,13 +31,14 @@ export function initMarketPanel() {
   _panel = document.getElementById('panel-market');
   if (!_panel) return;
 
-  on(Events.MARKET_CHANGED,    _render);
-  on(Events.BUILDING_CHANGED,  _render);
-  on(Events.RESOURCE_CHANGED,  _render);
-  on(Events.CONTRACTS_CHANGED, _render);
-  on(Events.MERCHANT_CHANGED,  _render);
-  on(Events.SEASON_CHANGED,    _render);  // T115: reprice seasonal commodities on season change
-  on(Events.AUCTION_CHANGED,   _render);  // T126: auction updates
+  on(Events.MARKET_CHANGED,       _render);
+  on(Events.BUILDING_CHANGED,     _render);
+  on(Events.RESOURCE_CHANGED,     _render);
+  on(Events.CONTRACTS_CHANGED,    _render);
+  on(Events.MERCHANT_CHANGED,     _render);
+  on(Events.SEASON_CHANGED,       _render);  // T115: reprice seasonal commodities on season change
+  on(Events.AUCTION_CHANGED,      _render);  // T126: auction updates
+  on(Events.BLACK_MARKET_CHANGED, _render);  // T167: black market deals refreshed
 
   // Refresh contract/merchant/auction countdowns every ~4 ticks (~1 s)
   let _contractTickCount = 0;
@@ -100,7 +102,8 @@ function _render() {
     </div>
     ${_merchantSection()}
     ${_contractsSection()}
-    ${_auctionSection()}`;
+    ${_auctionSection()}
+    ${_blackMarketSection()}`;
 }
 
 function _row(res, seasonal = []) {
@@ -369,6 +372,8 @@ function _handleClick(e) {
     result = bidOnAuction(parseInt(btn.dataset.amt, 10));
   } else if (action === 'auction-pass') {
     result = passAuction();
+  } else if (action === 'bm-deal') {
+    result = executeDeal(parseInt(btn.dataset.idx, 10));
   }
 
   if (result && !result.ok) {
@@ -376,4 +381,73 @@ function _handleClick(e) {
     btn.classList.add('btn--shake');
     btn.addEventListener('animationend', () => btn.classList.remove('btn--shake'), { once: true });
   }
+}
+
+// ---------------------------------------------------------------------------
+// T167: Black Market section
+// ---------------------------------------------------------------------------
+
+const RES_ICONS_BM = { gold: '💰', food: '🌾', wood: '🪵', stone: '🪨', iron: '⚙️', mana: '✨' };
+
+function _blackMarketSection() {
+  const bm = state.blackMarket;
+  if (!bm) return '';
+
+  const age = state.age ?? 0;
+  if (age < 2) {
+    return `
+      <div class="bm-section bm-section--locked">
+        <div class="bm-header">🕵️ Black Market</div>
+        <div class="bm-locked-msg">Unlocks at <strong>Iron Age</strong> — underground traders will approach you then.</div>
+      </div>`;
+  }
+
+  const deals       = bm.deals ?? [];
+  const refreshSecs = getBlackMarketRefreshSecs();
+  const mins        = Math.floor(refreshSecs / 60);
+  const secs        = refreshSecs % 60;
+  const timeStr     = refreshSecs >= 60 ? `${mins}m ${String(secs).padStart(2, '0')}s` : `${refreshSecs}s`;
+
+  const dealCards = deals.map((deal, idx) => {
+    const fromIcon = RES_ICONS_BM[deal.fromRes] ?? deal.fromRes;
+    const toIcon   = RES_ICONS_BM[deal.toRes]   ?? deal.toRes;
+    const canAfford = (state.resources[deal.fromRes] ?? 0) >= deal.fromAmt;
+    const typeLabel = deal.type === 'buy' ? 'Buy' : deal.type === 'sell' ? 'Sell' : 'Swap';
+    const typeCls   = `bm-deal--${deal.type}`;
+
+    return `
+      <div class="bm-deal ${typeCls}">
+        <div class="bm-deal__header">
+          <span class="bm-deal__type">${typeLabel}</span>
+          <span class="bm-deal__risk">⚠️ 10% seizure risk</span>
+        </div>
+        <div class="bm-deal__trade">
+          <span class="bm-deal__from">${fromIcon} ${deal.fromAmt} ${deal.fromRes}</span>
+          <span class="bm-deal__arrow">→</span>
+          <span class="bm-deal__to">${toIcon} ${deal.toAmt} ${deal.toRes}</span>
+        </div>
+        <button class="btn btn--sm btn--bm-deal ${canAfford ? '' : 'btn--disabled'}"
+          data-action="bm-deal" data-idx="${idx}"
+          ${canAfford ? '' : 'disabled'}
+          title="${canAfford ? 'Execute this trade (10% seizure risk)' : 'Not enough ' + deal.fromRes}">
+          ${canAfford ? 'Trade' : 'Cannot Afford'}
+        </button>
+      </div>`;
+  }).join('');
+
+  const statsStr = bm.totalTrades > 0
+    ? `${bm.totalTrades} trades · ${bm.seizedCount} seized`
+    : 'No trades yet';
+
+  return `
+    <div class="bm-section">
+      <div class="bm-header">
+        <span class="bm-title">🕵️ Black Market</span>
+        <span class="bm-meta">${statsStr}</span>
+      </div>
+      <div class="bm-note">Underground deals — better rates, but risk of seizure. Refreshes in <strong>${timeStr}</strong>.</div>
+      ${deals.length > 0
+        ? `<div class="bm-deals">${dealCards}</div>`
+        : `<div class="bm-empty">⏳ All deals taken. New deals in ${timeStr}.</div>`}
+    </div>`;
 }

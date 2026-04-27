@@ -136,4 +136,6 @@ export const Events = Object.freeze({
   WARLORD_DEFEATED:         'warlordDefeated',             // T165: warlord tile captured by player
   WARLORD_STRUCK:           'warlordStruck',               // T165: warlord timer expired, treasury raided
   TRIBUTE_CHANGED:          'tributeChanged',              // T166: tribute demanded / payment made / fulfilled
+  BLACK_MARKET_CHANGED:     'blackMarketChanged',          // T167: black market deals refreshed / deal executed / seized
+  NOBLE_DEMAND:             'nobleDemand',                 // T168: noble demand spawned / satisfied / failed
 });

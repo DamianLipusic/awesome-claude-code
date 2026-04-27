@@ -2716,3 +2716,41 @@ All 142 prior tasks found complete. Created T143 and T144 from Phase 5+ roadmap 
 - `defeatWarlord()` does NOT emit RESOURCE_CHANGED (combat.js `_victory()` already does).
 - T166 uses a separate `tributes.js` system rather than extending diplomacy.js to avoid circular imports and keep the diplomacy system focused. The `capturedCapitals` dict in state.tributes makes tribute eligibility self-contained.
 - Save version bumped to 50 for both T165+T166. Both systems use `?? null` defaults in `_applySave()` for backwards compatibility.
+
+---
+
+## 2026-04-27 — Session N+44
+
+**Tasks completed:** T167, T168
+
+**T167 — Black Market (underground trading at Iron Age):**
+
+**Files created:**
+- `game/src/systems/blackMarket.js`: `initBlackMarket()`, `blackMarketTick()`, `executeDeal(idx)`, `getBlackMarketRefreshSecs()`. 3 deal types: buy (pay gold → get resource at 1.5× base value), sell (give resource → get 1.8× gold), swap (resource for resource at 1.2× ratio). Deals refresh every 5 min or immediately when all consumed. 10% seizure risk: lose 50% of fromAmt + 30 prestige, deal slot removed. On success, toRes can exceed cap by 20%. `BASE_VALS` dict drives all pricing.
+
+**Files modified:**
+- `game/src/core/events.js`: Added `BLACK_MARKET_CHANGED: 'blackMarketChanged'`.
+- `game/src/core/state.js`: Added `blackMarket: null` field + `initState()` reset.
+- `game/src/ui/marketPanel.js`: Imports `executeDeal`, `getBlackMarketRefreshSecs`. Added `BLACK_MARKET_CHANGED` listener. `_blackMarketSection()` renders locked message at age<2, deal cards with type badge (buy/sell/swap) and 10% risk warning at Iron Age+. Click handler `bm-deal` dispatches `executeDeal(idx)`.
+- `game/src/main.js`: Imports `initBlackMarket`/`blackMarketTick`. `registerSystem(blackMarketTick)`. `initBlackMarket()` in boot + `_newGame`. `blackMarket` in `_save()` and `_applySave()`. Version bumped to 51.
+- `game/styles/main.css`: `.bm-section`, `.bm-section--locked`, `.bm-header`, `.bm-title`, `.bm-meta`, `.bm-note`, `.bm-deal`, `.bm-deal--{buy,sell,swap}` (colored left borders), `.bm-deal__*`, `.btn--bm-deal`.
+
+**T168 — Noble Council Demands (political pressure at Bronze Age):**
+
+**Files created:**
+- `game/src/systems/nobleDemands.js`: `initNobleDemands()`, `nobleDemandsTick()`, `satisfyDemand()`, `refuseDemand()`, `getDemandSecsLeft()`, `getDebuffSecsLeft()`, `canSatisfyDemand()`. 3 demand types: tribute (GOLD/FOOD_BY_AGE scaled), construct (6-building CONSTRUCT_POOL), glory (win 1 battle, Medieval 2). Satisfy: `awardPrestige(50)` + `changeMorale(10)`. Fail/expire/refuse: `changeMorale(-25)` + 3-min gold debuff. Deadline: 3 min (DEADLINE_TICKS).
+
+**Files modified:**
+- `game/src/core/events.js`: Added `NOBLE_DEMAND: 'nobleDemand'`.
+- `game/src/core/state.js`: Added `nobleDemands: null` field + `initState()` reset.
+- `game/src/systems/resources.js`: T168 debuff block: `if nobleDemands.debuffUntil > tick && rates.gold > 0 → rates.gold *= 0.85`.
+- `game/index.html`: Added `<div id="noble-banner" ...>` below celestial-banner.
+- `game/src/main.js`: Imports `initNobleDemands`/`nobleDemandsTick`/`satisfyDemand`/`refuseDemand`/`getDemandSecsLeft`/`canSatisfyDemand`. `registerSystem(nobleDemandsTick)`. `initNobleDemands()` in boot + `_newGame`. `_updateNobleBanner()` renders demand with countdown, Satisfy (disabled when req unmet) and Refuse buttons. NOBLE_DEMAND + RESOURCE_CHANGED + TICK listeners. noble-banner click handler for satisfy/refuse. `nobleDemands` in `_save()` and `_applySave()`. Version 51.
+- `game/styles/main.css`: `.noble-banner`, `.noble-banner--urgent` (pulse animation), `@keyframes noble-pulse`, `.noble-banner__icon/body/title/desc/actions/timer`, `.btn--noble-satisfy`, `.btn--noble-refuse`.
+
+**Architecture decisions:**
+- Black Market deals generate on first Iron Age tick with `nextRefreshTick === 0` guard, so no explicit "first unlock" message flow is needed — deals just appear.
+- `executeDeal` splices the deal from the array immediately (consumed on use), then `blackMarketTick` auto-regenerates when `deals.length === 0`, keeping the section populated.
+- Noble demand glory check uses `combatHistory.filter(h => h.tick >= demand.startTick)` — no extra state counter needed; combatHistory already records win/loss + tick.
+- Noble debuff applies to `rates.gold > 0` only (pure production multiplier), same pattern as regency, plague, and other temporary debuffs.
+- Both systems saved to version 51. `?? null` defaults in `_applySave()` ensure backwards compatibility with version 50 saves.

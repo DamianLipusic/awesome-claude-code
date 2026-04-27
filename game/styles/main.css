@@ -9903,3 +9903,199 @@ kbd {
 .btn--tribute:hover:not(.btn--disabled) {
   background: linear-gradient(135deg, #d97706, #b45309);
 }
+
+/* ── T167: Black Market ──────────────────────────────────────────────────── */
+
+.bm-section {
+  margin-top: 16px;
+  background: rgba(15, 15, 20, 0.6);
+  border: 1px solid #4a3a6a;
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+
+.bm-section--locked {
+  opacity: 0.7;
+  border-style: dashed;
+}
+
+.bm-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.bm-title {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #c084fc;
+}
+
+.bm-meta {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+
+.bm-note {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  margin-bottom: 10px;
+}
+
+.bm-locked-msg {
+  font-size: 0.83rem;
+  color: var(--text-dim);
+}
+
+.bm-deals {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bm-deal {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(30, 20, 50, 0.5);
+  border: 1px solid #5b3a8a;
+  border-radius: 6px;
+  padding: 8px 12px;
+}
+
+.bm-deal--buy   { border-left: 3px solid #34d399; }
+.bm-deal--sell  { border-left: 3px solid #fbbf24; }
+.bm-deal--swap  { border-left: 3px solid #60a5fa; }
+
+.bm-deal__header {
+  display: flex;
+  flex-direction: column;
+  min-width: 60px;
+}
+
+.bm-deal__type {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #c084fc;
+}
+
+.bm-deal__risk {
+  font-size: 0.72rem;
+  color: #f87171;
+}
+
+.bm-deal__trade {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  font-size: 0.87rem;
+}
+
+.bm-deal__from { color: #f87171; }
+.bm-deal__arrow { color: var(--text-dim); }
+.bm-deal__to   { color: #34d399; }
+
+.btn--bm-deal {
+  background: linear-gradient(135deg, #6b21a8, #4c1d95);
+  color: #e9d5ff;
+  border: 1px solid #7c3aed;
+  font-size: 0.78rem;
+  padding: 4px 12px;
+  white-space: nowrap;
+}
+.btn--bm-deal:hover:not(.btn--disabled) {
+  background: linear-gradient(135deg, #7c3aed, #6b21a8);
+}
+
+.bm-empty {
+  font-size: 0.83rem;
+  color: var(--text-dim);
+  text-align: center;
+  padding: 8px 0;
+}
+
+/* ── T168: Noble Council Demand Banner ───────────────────────────────────── */
+
+.noble-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, rgba(30, 20, 10, 0.95), rgba(50, 35, 10, 0.95));
+  border-bottom: 2px solid #b45309;
+  font-size: 0.88rem;
+  color: #fef3c7;
+}
+
+.noble-banner--urgent {
+  animation: noble-pulse 1s ease-in-out infinite;
+  border-bottom-color: #ef4444;
+}
+
+@keyframes noble-pulse {
+  0%, 100% { background-color: rgba(30, 20, 10, 0.95); }
+  50%       { background-color: rgba(80, 40, 10, 0.95); }
+}
+
+.noble-banner__icon {
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+
+.noble-banner__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.noble-banner__title {
+  font-weight: 700;
+  font-size: 0.90rem;
+  color: #fcd34d;
+  margin-bottom: 2px;
+}
+
+.noble-banner__desc {
+  font-size: 0.80rem;
+  color: #fde68a;
+  opacity: 0.9;
+}
+
+.noble-banner__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.noble-banner__timer {
+  font-size: 0.80rem;
+  font-family: monospace;
+  color: #fcd34d;
+  white-space: nowrap;
+}
+
+.btn--noble-satisfy {
+  background: linear-gradient(135deg, #b45309, #78350f);
+  color: #fef3c7;
+  border: 1px solid #d97706;
+  font-size: 0.80rem;
+  padding: 4px 12px;
+}
+.btn--noble-satisfy:hover:not(.btn--disabled) {
+  background: linear-gradient(135deg, #d97706, #b45309);
+}
+
+.btn--noble-refuse {
+  background: rgba(80, 30, 30, 0.6);
+  color: #fca5a5;
+  border: 1px solid #7f1d1d;
+  font-size: 0.80rem;
+  padding: 4px 10px;
+}
+.btn--noble-refuse:hover {
+  background: rgba(120, 40, 40, 0.7);
+}

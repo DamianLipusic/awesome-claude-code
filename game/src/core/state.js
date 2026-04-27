@@ -425,6 +425,15 @@ export const state = {
   // T166: Tribute Demand state — populated by systems/tributes.js initTributes()
   // { capturedCapitals: { [empireId]: tick }, demanded: { [empireId]: { nextPaymentTick, paymentsLeft, totalPaid } } }
   tributes: null,
+
+  // T167: Black Market state — populated by systems/blackMarket.js initBlackMarket()
+  // { deals: [{id, type, fromRes, fromAmt, toRes, toAmt}], nextRefreshTick, totalTrades, seizedCount }
+  blackMarket: null,
+
+  // T168: Noble Council Demands — populated by systems/nobleDemands.js initNobleDemands()
+  // { active: {type, icon, title, desc, req, deadline, startTick}|null,
+  //   nextDemandTick, totalSatisfied, totalRefused, debuffUntil }
+  nobleDemands: null,
 };
 
 /**
@@ -528,5 +537,7 @@ export function initState(empireName = 'My Empire') {
   state.conversions          = null; // T164: reset conversion state per game
   state.warlord              = null; // T165: reset warlord state per game
   state.tributes             = null; // T166: reset tributes per game
+  state.blackMarket          = null; // T167: reset black market per game
+  state.nobleDemands         = null; // T168: reset noble demands per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }
