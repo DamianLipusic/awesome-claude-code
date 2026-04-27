@@ -1520,5 +1520,19 @@
     "phase": 65,
     "description": "Each season spawns a special objective tile on a revealed non-player tile at Manhattan distance 4-10 from capital. Capturing it awards season-specific resources + prestige. Spring: Sacred Grove (+80 food +8 morale +20 prestige, forest/grass pref). Summer: Sunstone Quarry (+120 gold +25 prestige, hills/mountain). Autumn: Harvest Temple (+100 food +50 wood +8 morale +20 prestige, grass/river). Winter: Frozen Oracle (+80 mana +30 prestige, any terrain). State: seasonalObjectives = { current, captured[] }. Events: SEASONAL_OBJECTIVE.",
     "notes": "Implemented: systems/seasonalObjectives.js (onSeasonChanged, tryClaimSeasonalObjective, getActiveSeasonalObjective). Tile gets seasonalObjective=seasonIdx marker; cleared on season change or capture. combat.js: tryClaimSeasonalObjective(x,y) called in _victory(). main.js: SEASON_CHANGED listener calls onSeasonChanged; save/load seasonalObjectives field. mapPanel.js: import getActiveSeasonalObjective; SEASONAL_OBJ_TINT/BORDER constants; draws teal shimmer + season icon on objective tile; tooltip shows name/desc/reward; SEASONAL_OBJECTIVE event re-renders. questPanel.js: import getActiveSeasonalObjective; _seasonalObjectiveSection() card with coords, desc, reward, capture hint; SEASONAL_OBJECTIVE event in re-render list. events.js: SEASONAL_OBJECTIVE. state.js: seasonalObjectives field + initState reset. CSS: .seasonal-obj-section, .seasonal-obj-header, .seasonal-obj-card and sub-elements."
+  },
+  {
+    "id": "T171",
+    "title": "Imperial Census System",
+    "status": "done",
+    "priority": "medium",
+    "notes": "Created systems/imperialCensus.js with initCensus() + censusTick(). Census fires 5 min after game start, then every 15 min. Awards gold = tiles\u00d72 + buildings\u00d73 + techs\u00d75 plus a growth bonus vs previous snapshot. Adds prestige via dynamic import to prestige.js. Events: CENSUS_COMPLETED added to events.js. State: census field added (nextCensusTick, lastSnapshot, totalSnapshot) + initState reset. main.js: import + registerSystem(censusTick) + initCensus() + save/load (version 52)."
+  },
+  {
+    "id": "T172",
+    "title": "Dynastic Marriage",
+    "status": "done",
+    "priority": "medium",
+    "notes": "Added proposeDynasticMarriage(empireId) to diplomacy.js (Medieval Age required, 300 gold, only one partner). MARRIAGE_COST=300 constant exported. _aiAction modified: partner empire never breaks alliance when married. _allianceGift modified: partner gifts arrive twice as often (halved interval). resources.js: marriageMult=1.5 applied to trade route income loop for the partner. diplomacyPanel.js: imports proposeDynasticMarriage + MARRIAGE_COST; \ud83d\udc8d Marry button in allied card (Medieval Age only, disabled if already married elsewhere); dipl-marriage-badge shown when married; MARRIAGE_PROPOSED listener re-renders panel; propose-marriage case in _onClick. main.js: MARRIAGE_PROPOSED prestige award (+150); save/load dynasticMarriage field. State: dynasticMarriage + census fields added + initState resets. Events: MARRIAGE_PROPOSED added to events.js."
   }
 ]

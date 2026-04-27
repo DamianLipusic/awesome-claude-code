@@ -442,6 +442,14 @@ export const state = {
   // T170: Seasonal Map Objectives — one per season, spawned on SEASON_CHANGED
   // { current: { x, y, seasonIdx, icon, name, reward } | null, captured: [seasonIdx,...] }
   seasonalObjectives: null,
+
+  // T171: Imperial Census — periodic empire-wide census every 15 min that awards gold
+  // { nextCensusTick: number, lastSnapshot: { tiles, buildings, techs, goldEarned }|null, totalCompleted: number }
+  census: null,
+
+  // T172: Dynastic Marriage — permanent alliance bond with one allied empire (Medieval+)
+  // { partnerId: string } | null
+  dynasticMarriage: null,
 };
 
 /**
@@ -549,5 +557,7 @@ export function initState(empireName = 'My Empire') {
   state.nobleDemands         = null; // T168: reset noble demands per game
   state.academy              = null; // T169: reset academy state per game
   state.seasonalObjectives   = null; // T170: reset seasonal objectives per game
+  state.census               = null; // T171: reset census state per game
+  state.dynasticMarriage     = null; // T172: reset marriage per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

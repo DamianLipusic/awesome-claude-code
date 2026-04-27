@@ -15,6 +15,7 @@ import {
   payTribute, demandTribute, sendGift,
   requestAllianceFavor,
   declareEmbargo, liftEmbargo, isEmbargoed, embargoSecsLeft, embargoCooldownSecsLeft, // T159
+  proposeDynasticMarriage, MARRIAGE_COST, // T172
   ALLIANCE_COST, TRADE_ROUTE_COST, PEACE_COST, MAX_TRADE_ROUTES,
   SURRENDER_COST, WAR_SCORE_THRESHOLD,
   TRIBUTE_COST, TRIBUTE_DEMAND, DEMAND_WARSCORE_MIN,
@@ -69,6 +70,7 @@ export function initDiplomacyPanel() {
   on(Events.CAMPAIGN_ENDED,         () => _render(panel));  // T154
   on(Events.EMBARGO_CHANGED,        () => _render(panel));  // T159
   on(Events.TRIBUTE_CHANGED,        () => _render(panel));  // T166
+  on(Events.MARRIAGE_PROPOSED,      () => _render(panel));  // T172
   // Refresh cooldown countdown every second; also refresh ceasefire/gift/skirmish/aid timers when active
   on(Events.TICK, _throttle(() => {
     const cd = document.getElementById('espionage-cooldown');
@@ -466,6 +468,21 @@ function _empireCard(emp) {
         data-action="closeTrade" data-empire="${emp.id}"
         title="Close one trade route">
         ❌ Close Route
+      </button>`);
+    }
+    // T172: Dynastic Marriage — available at Medieval Age, one partner only
+    const isMarried       = state.dynasticMarriage?.partnerId === emp.id;
+    const hasOtherMarriage = !!state.dynasticMarriage?.partnerId && !isMarried;
+    if (isMarried) {
+      btns.push(`<div class="dipl-marriage-badge">💍 Dynastic Marriage</div>`);
+    } else if (!hasOtherMarriage && (state.age ?? 0) >= 3) {
+      const canMarry = gold >= MARRIAGE_COST;
+      btns.push(`<button
+        class="btn btn--marriage ${canMarry ? '' : 'btn--disabled'}"
+        data-action="propose-marriage" data-empire="${emp.id}"
+        ${canMarry ? '' : 'disabled'}
+        title="Forge a dynastic marriage — permanent bond, ×1.5 trade income, ally never breaks, gifts twice as often. Costs ${MARRIAGE_COST} gold. Requires Medieval Age.">
+        💍 Marry (${fmtNum(MARRIAGE_COST)}💰)
       </button>`);
     }
     btns.push(`<button
@@ -978,6 +995,11 @@ function _onClick(e) {
     }
     case 'demand-tribute': {  // T166
       result = _demandTribute(empire);
+      if (!result.ok) addMessageFallback(result.reason);
+      break;
+    }
+    case 'propose-marriage': {  // T172
+      result = proposeDynasticMarriage(empire);
       if (!result.ok) addMessageFallback(result.reason);
       break;
     }

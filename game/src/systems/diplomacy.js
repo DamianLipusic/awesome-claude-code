@@ -48,6 +48,7 @@ const EMPIRE_GIFTS = {
 export const ALLIANCE_COST       = 200;
 export const TRADE_ROUTE_COST    = 100;
 export const PEACE_COST          = 300;
+export const MARRIAGE_COST       = 300;   // T172: dynastic marriage gold cost
 export const MAX_TRADE_ROUTES    = 3;
 export const SURRENDER_COST      = 200;   // T058
 export const WAR_SCORE_THRESHOLD = 20;    // T058
@@ -494,6 +495,45 @@ export function requestAllianceFavor(empireId, requestType) {
   return { ok: true };
 }
 
+// ── T172: Dynastic Marriage public API ───────────────────────────────────────
+
+/**
+ * Propose a dynastic marriage with an allied empire.
+ * Requires Medieval Age (age >= 3), alliance, no existing marriage, and 300 gold.
+ * Locks the AI alliance (partner won't break it), halves gift intervals, and
+ * grants ×1.5 trade income from the partner (applied in resources.js).
+ */
+export function proposeDynasticMarriage(empireId) {
+  const emp = _findEmpire(empireId);
+  if (!emp) return { ok: false, reason: 'Unknown empire.' };
+  if (emp.relations !== 'allied')
+    return { ok: false, reason: 'Must be allied to propose a dynastic marriage.' };
+  if ((state.age ?? 0) < 3)
+    return { ok: false, reason: 'Dynastic marriages require the Medieval Age.' };
+  if (state.dynasticMarriage?.partnerId)
+    return { ok: false, reason: 'You already have a dynastic marriage partner.' };
+  if ((state.resources.gold ?? 0) < MARRIAGE_COST)
+    return { ok: false, reason: `Need ${MARRIAGE_COST} gold.` };
+
+  state.resources.gold -= MARRIAGE_COST;
+  state.dynasticMarriage = { partnerId: empireId };
+
+  // Halve next gift tick so the first post-marriage gift arrives sooner
+  emp.nextGiftTick = state.tick + Math.floor(_giftInterval() / 2);
+
+  const def = EMPIRES[empireId];
+  recalcRates();
+  emit(Events.DIPLOMACY_CHANGED, { empireId, marriageFormed: true });
+  emit(Events.RESOURCE_CHANGED, {});
+  emit(Events.MARRIAGE_PROPOSED, { empireId });
+  _logDiplomacy(empireId, 'alliance', `Dynastic marriage with ${def.name}`);
+  addMessage(
+    `💍 Dynastic marriage forged with ${def.icon} ${def.name}! The alliance is now unbreakable and trade income is increased.`,
+    'diplomacy',
+  );
+  return { ok: true };
+}
+
 // ── T088: Border Skirmish public API ──────────────────────────────────────────
 
 /**
@@ -762,7 +802,9 @@ function _allianceGift(emp) {
   addMessage(`🎁 ${def.icon} ${def.name} sends gifts! ${summary}`, 'windfall');
   emit(Events.RESOURCE_CHANGED, {});
   emit(Events.ALLIANCE_GIFT, { empireId: emp.id, gifts });
-  emp.nextGiftTick = state.tick + _giftInterval();
+  // T172: marriage partner sends gifts twice as often
+  const isMarried = state.dynasticMarriage?.partnerId === emp.id;
+  emp.nextGiftTick = state.tick + (isMarried ? Math.floor(_giftInterval() / 2) : _giftInterval());
 }
 
 function _warRaid(emp) {
@@ -807,7 +849,9 @@ function _aiAction(emp) {
       );
     }
   } else if (emp.relations === 'allied') {
-    if (r < def.breakAllyChance) {
+    // T172: dynastic marriage partner can never break the alliance
+    const isMarried = state.dynasticMarriage?.partnerId === emp.id;
+    if (!isMarried && r < def.breakAllyChance) {
       // AI breaks the alliance
       emp.relations   = 'neutral';
       emp.tradeRoutes = 0;

@@ -140,4 +140,6 @@ export const Events = Object.freeze({
   NOBLE_DEMAND:             'nobleDemand',                 // T168: noble demand spawned / satisfied / failed
   ACADEMY_CHANGED:          'academyChanged',              // T169: battle drills activated / cooldown
   SEASONAL_OBJECTIVE:       'seasonalObjective',           // T170: seasonal map objective spawned / captured / expired
+  CENSUS_COMPLETED:         'censusCompleted',             // T171: imperial census fired and gold awarded
+  MARRIAGE_PROPOSED:        'marriageProposed',            // T172: dynastic marriage finalized with an allied empire
 });

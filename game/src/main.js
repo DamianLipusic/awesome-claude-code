@@ -95,6 +95,7 @@ import { initTributes, tributeTick } from './systems/tributes.js';     // T166
 import { initBlackMarket, blackMarketTick } from './systems/blackMarket.js'; // T167
 import { initNobleDemands, nobleDemandsTick, satisfyDemand, refuseDemand, getDemandSecsLeft, canSatisfyDemand } from './systems/nobleDemands.js'; // T168
 import { onSeasonChanged, getActiveSeasonalObjective } from './systems/seasonalObjectives.js'; // T170
+import { initCensus, censusTick } from './systems/imperialCensus.js';                          // T171
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
@@ -179,6 +180,7 @@ function boot() {
   registerSystem(tributeTick);        // T166: tribute demand
   registerSystem(blackMarketTick);   // T167: black market
   registerSystem(nobleDemandsTick);  // T168: noble council demands
+  registerSystem(censusTick);        // T171: imperial census
 
   // Init event-driven systems
   initRandomEvents();
@@ -231,6 +233,7 @@ function boot() {
   initTributes();        // T166: tribute demand
   initBlackMarket();    // T167: black market
   initNobleDemands();   // T168: noble council demands
+  initCensus();         // T171: imperial census
 
   // Init UI
   initHUD();
@@ -339,6 +342,7 @@ function boot() {
   on(Events.DIPLOMACY_CHANGED, (d) => {
     if (d?.relations === 'allied') awardPrestige(50, 'new alliance formed');
   });
+  on(Events.MARRIAGE_PROPOSED, () => awardPrestige(150, 'dynastic marriage forged')); // T172
   on(Events.BORDER_SKIRMISH, (d) => {
     if (d?.type === 'mediated') awardPrestige(MEDIATE_PRESTIGE, 'skirmish mediation');
   });
@@ -465,7 +469,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 51, // T167+T168: black market + noble council demands
+      version: 52, // T171+T172: imperial census + dynastic marriage
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -570,6 +574,8 @@ function _save() {
         nobleDemands:        state.nobleDemands        ?? null,  // T168
         academy:             state.academy             ?? null,  // T169
         seasonalObjectives:  state.seasonalObjectives  ?? null,  // T170
+        census:              state.census              ?? null,  // T171
+        dynasticMarriage:    state.dynasticMarriage    ?? null,  // T172
         tick:          state.tick,
       }
     }));
@@ -708,6 +714,8 @@ function _applySave(save) {
   state.nobleDemands         = s.nobleDemands         ?? null; // T168
   state.academy              = s.academy              ?? null; // T169
   state.seasonalObjectives   = s.seasonalObjectives   ?? null; // T170
+  state.census               = s.census               ?? null; // T171
+  state.dynasticMarriage     = s.dynasticMarriage     ?? null; // T172
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };

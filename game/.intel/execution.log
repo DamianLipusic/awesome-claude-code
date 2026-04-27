@@ -2789,3 +2789,34 @@ All 142 prior tasks found complete. Created T143 and T144 from Phase 5+ roadmap 
 - Manhattan distance `_dist()` used for proximity check (same as map system uses for capital distance).
 - Terrain preference uses preferred/others pools with randomization biased toward preferred tiles but not exclusively.
 - No new save version bump needed — `seasonalObjectives ?? null` and `academy ?? null` in `_applySave()` are fully backwards compatible with version 51 saves.
+
+---
+
+## Session: 2026-04-27 — T171 + T172
+
+**T171 — Imperial Census System:**
+
+**Files created:**
+- `game/src/systems/imperialCensus.js`: `initCensus()` initialises `state.census` (nextCensusTick at +5 min, lastSnapshot null, totalCompleted 0). `censusTick()` fires when `state.tick >= nextCensusTick`, calls `_runCensus()`, reschedules at +15 min. `_runCensus()` snapshots (tiles, buildings, techs, goldEarned), computes baseGold = tiles×2 + buildings×3 + techs×5, growthBonus vs prev snapshot (tileDiff×4 + buildDiff×6 + techDiff×10 + goldDiff×0.02), applies totalGold to treasury, emits CENSUS_COMPLETED, awards prestige (25 + tiles) via dynamic import.
+
+**Files modified:**
+- `game/src/core/events.js`: Added `CENSUS_COMPLETED: 'censusCompleted'`.
+- `game/src/core/state.js`: Added `census: null` field + `initState()` reset.
+- `game/src/main.js`: Import `initCensus, censusTick`. `registerSystem(censusTick)`. `initCensus()` in init block. Save/load `census` field (version bumped to 52). MARRIAGE_PROPOSED prestige listener (+150).
+
+**T172 — Dynastic Marriage:**
+
+**Files created:** none
+
+**Files modified:**
+- `game/src/systems/diplomacy.js`: `MARRIAGE_COST = 300` exported. `proposeDynasticMarriage(empireId)`: validates age>=3, allied, no existing marriage, 300 gold; sets `state.dynasticMarriage = { partnerId }`, halves nextGiftTick, emits MARRIAGE_PROPOSED + DIPLOMACY_CHANGED. `_aiAction`: partner empire blocked from breaking alliance when `state.dynasticMarriage?.partnerId === emp.id`. `_allianceGift`: nextGiftTick halved for marriage partner.
+- `game/src/systems/resources.js`: `marriageMult = state.dynasticMarriage?.partnerId === emp.id ? 1.5 : 1.0` applied in the trade route income loop (stacks with all other multipliers).
+- `game/src/ui/diplomacyPanel.js`: Import `proposeDynasticMarriage, MARRIAGE_COST`. Added `on(Events.MARRIAGE_PROPOSED, ...)` listener. 💍 Marry button in allied card (only at age>=3, disabled if any marriage already exists for this empire); `dipl-marriage-badge` shown when married. `propose-marriage` case in `_onClick` dispatches `proposeDynasticMarriage`.
+- `game/src/core/events.js`: Added `MARRIAGE_PROPOSED: 'marriageProposed'`.
+- `game/src/core/state.js`: Added `dynasticMarriage: null` field + `initState()` reset.
+- `game/src/main.js`: Save/load `dynasticMarriage` field. MARRIAGE_PROPOSED prestige listener (+150, 'dynastic marriage forged').
+
+**Architecture decisions:**
+- Marriage is intentionally one-per-game and Medieval-locked to serve as a meaningful late-game diplomatic capstone — it requires significant investment (alliance + 300 gold + age 3) but permanently secures an ally and doubles their gift frequency.
+- The ×1.5 trade multiplier stacks with all existing multipliers (navigation, economic mastery, synergy, grand theory) so a fully-invested trade empire sees compounding benefit.
+- No CSS additions needed — `btn--marriage` inherits default button styling; `dipl-marriage-badge` reuses badge pattern.
