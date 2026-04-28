@@ -97,6 +97,8 @@ import { initNobleDemands, nobleDemandsTick, satisfyDemand, refuseDemand, getDem
 import { onSeasonChanged, getActiveSeasonalObjective } from './systems/seasonalObjectives.js'; // T170
 import { initCensus, censusTick } from './systems/imperialCensus.js';                          // T171
 import { initVault, vaultTick } from './systems/imperialVault.js';                             // T173
+import { initWarExhaustion, warExhaustionTick, getExhaustionLevel, getExhaustionTier, EXHAUSTION_LABELS } from './systems/warExhaustion.js'; // T175
+import { initMonument, monumentTick, onMonumentBuilt } from './systems/ancientMonument.js';    // T176
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
@@ -183,6 +185,8 @@ function boot() {
   registerSystem(nobleDemandsTick);  // T168: noble council demands
   registerSystem(censusTick);        // T171: imperial census
   registerSystem(vaultTick);         // T173: imperial vault
+  registerSystem(warExhaustionTick); // T175: war exhaustion decay
+  registerSystem(monumentTick);      // T176: ancient monument dedication
 
   // Init event-driven systems
   initRandomEvents();
@@ -237,6 +241,8 @@ function boot() {
   initNobleDemands();   // T168: noble council demands
   initCensus();         // T171: imperial census
   initVault();          // T173: imperial vault
+  initWarExhaustion();  // T175: war exhaustion
+  // T176: monument init deferred — only activates when building is constructed
 
   // Init UI
   initHUD();
@@ -321,6 +327,10 @@ function boot() {
   _updateStreakBadge();
   on(Events.STREAK_CHANGED, _updateStreakBadge);
 
+  // T175: Update exhaustion badge on exhaustion changes
+  _updateExhaustionBadge();
+  on(Events.WAR_EXHAUSTION_CHANGED, _updateExhaustionBadge);
+
   // T105: Title system — check on territory and age changes
   _lastTitleLevel = getCurrentTitle(state).level;
   _updateTitleBadge();
@@ -340,6 +350,13 @@ function boot() {
   on(Events.BUILDING_CHANGED, (d) => {
     if (d?.id && BUILDINGS[d.id]?.wonder && (state.buildings[d.id] ?? 0) === 1) {
       awardPrestige(200, `${BUILDINGS[d.id].name} wonder constructed`);
+    }
+    // T176: Ancient Monument — award morale boost on first construction
+    if (d?.id === 'ancientMonument' && (state.buildings.ancientMonument ?? 0) === 1) {
+      onMonumentBuilt();
+      changeMorale(5);
+      addMessage('🏛️ Ancient Monument completed! +5 morale. Citizens are inspired by this great edifice.', 'windfall');
+      awardPrestige(50, 'ancient monument completed');
     }
   });
   on(Events.DIPLOMACY_CHANGED, (d) => {
@@ -473,7 +490,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 53, // T173+T174: imperial vault + diplomatic summit
+      version: 55, // T175+T176: war exhaustion + ancient monument
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -582,6 +599,8 @@ function _save() {
         dynasticMarriage:    state.dynasticMarriage    ?? null,  // T172
         vault:               state.vault               ?? null,  // T173
         summit:              state.summit              ?? null,  // T174
+        warExhaustion:       state.warExhaustion       ?? null,  // T175
+        monument:            state.monument            ?? null,  // T176
         tick:          state.tick,
       }
     }));
@@ -724,6 +743,8 @@ function _applySave(save) {
   state.dynasticMarriage     = s.dynasticMarriage     ?? null; // T172
   state.vault                = s.vault                ?? null; // T173
   state.summit               = s.summit               ?? null; // T174
+  state.warExhaustion        = s.warExhaustion        ?? null; // T175
+  state.monument             = s.monument             ?? null; // T176
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
@@ -796,6 +817,30 @@ function _updateWeatherBadge() {
   const timeStr = mins > 0 ? `${mins}m${String(secs).padStart(2,'0')}s` : `${secsLeft}s`;
   el.textContent = `${w.icon} ${w.name}`;
   el.title = `${w.name}: ${w.desc} — Clears in ${timeStr}`;
+  el.style.display = '';
+}
+
+// ── War Exhaustion badge (T175) ───────────────────────────────────────────
+
+function _updateExhaustionBadge() {
+  const el = document.getElementById('exhaustion-badge');
+  if (!el) return;
+  const level = getExhaustionLevel();
+  if (level <= 0) {
+    el.style.display = 'none';
+    el.textContent = '';
+    el.className = 'exhaustion-badge';
+    return;
+  }
+  const tier  = getExhaustionTier(level);
+  const label = EXHAUSTION_LABELS[tier] || '';
+  el.textContent = `😩 ${label} ${level}%`;
+  el.className = `exhaustion-badge${tier >= 3 ? ' exhaustion-badge--severe' : ''}`;
+  const penaltyDesc = tier >= 3
+    ? '−1.5 gold/s, −1.0 food/s, −0.5 iron/s'
+    : tier === 2 ? '−0.8 gold/s, −0.6 food/s'
+    : '−0.3 gold/s';
+  el.title = `War Exhaustion ${level}/100 (${label}): ${penaltyDesc}. Recovers with peace.`;
   el.style.display = '';
 }
 
@@ -1498,6 +1543,7 @@ function _newGame(opts = {}) {
   initBlackMarket();    // T167: reset black market on new game
   initNobleDemands();   // T168: reset noble demands on new game
   initVault();          // T173: reset vault state on new game
+  initWarExhaustion();  // T175: reset war exhaustion on new game
   _updateCelestialBanner(); // T153: hide banner on new game
   recalcRates();
   startLoop();  // restart loop in case it was stopped by game-over

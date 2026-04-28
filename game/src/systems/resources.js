@@ -602,6 +602,19 @@ export function recalcRates() {
     rates.gold *= 0.85;
   }
 
+  // T175: War exhaustion rate penalties
+  const _wexLevel = state.warExhaustion?.level ?? 0;
+  if (_wexLevel >= 75) {
+    rates.gold -= 1.5;
+    rates.food -= 1.0;
+    rates.iron -= 0.5;
+  } else if (_wexLevel >= 50) {
+    rates.gold -= 0.8;
+    rates.food -= 0.6;
+  } else if (_wexLevel >= 25) {
+    rates.gold -= 0.3;
+  }
+
   Object.assign(state.rates, rates);
   Object.assign(state.caps, caps);
 }

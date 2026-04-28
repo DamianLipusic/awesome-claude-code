@@ -144,4 +144,6 @@ export const Events = Object.freeze({
   MARRIAGE_PROPOSED:        'marriageProposed',            // T172: dynastic marriage finalized with an allied empire
   VAULT_CHANGED:            'vaultChanged',                // T173: imperial vault deposit made / matured
   SUMMIT_CALLED:            'summitCalled',                // T174: diplomatic summit called by player
+  WAR_EXHAUSTION_CHANGED:   'warExhaustionChanged',        // T175: war exhaustion level changed
+  MONUMENT_DEDICATION:      'monumentDedication',          // T176: ancient monument dedication ceremony fired
 });

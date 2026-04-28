@@ -458,6 +458,14 @@ export const state = {
   // T174: Diplomatic Summit — once-per-age grand diplomatic ceremony (Medieval+)
   // { usedAtAge: number | null, totalSummits: number } | null
   summit: null,
+
+  // T175: War Exhaustion — tracks combat intensity; penalises overextended empires
+  // { level: 0-100, totalBattles: number } | null
+  warExhaustion: null,
+
+  // T176: Ancient Monument — periodic dedication ceremony when unique building is built
+  // { nextDedicationTick: number, totalDedications: number } | null
+  monument: null,
 };
 
 /**
@@ -569,5 +577,7 @@ export function initState(empireName = 'My Empire') {
   state.dynasticMarriage     = null; // T172: reset marriage per game
   state.vault                = null; // T173: reset vault state per game
   state.summit               = null; // T174: reset summit state per game
+  state.warExhaustion        = null; // T175: reset war exhaustion per game
+  state.monument             = null; // T176: reset monument state per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

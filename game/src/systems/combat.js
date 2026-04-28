@@ -39,6 +39,7 @@ import { SEASON_UNIT_COMBAT_BUFF, SEASON_COMBAT_BUFF_MULT } from '../data/season
 import { defeatWarlord } from './rovingWarlord.js';                                   // T165
 import { recordCapturedCapital } from './tributes.js';                                 // T166
 import { tryClaimSeasonalObjective } from './seasonalObjectives.js';                   // T170
+import { addWarExhaustion } from './warExhaustion.js';                                 // T175
 
 /** Returns true if both techs of a named synergy are researched. */
 function _synergy(id) {
@@ -618,6 +619,9 @@ export function attackTile(x, y) {
 
   // T136: each battle consumes one Great General charge
   consumeGeneralCharge();
+
+  // T175: every battle (win or loss) adds war exhaustion
+  addWarExhaustion();
 
   return result;
 }

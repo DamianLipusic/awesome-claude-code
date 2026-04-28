@@ -1552,5 +1552,23 @@
     "status": "done",
     "phase": 66,
     "notes": "systems/diplomacy.js: Added SUMMIT_PRESTIGE_COST=200 + SUMMIT_GOLD_COST=100 exported constants; callDiplomaticSummit() validates Medieval Age, once-per-age, cost check, deducts prestige+gold, loops empires (allied\u2192gift 60-120 of random resource; neutral\u219220% coalition join; war\u2192log condemnation), records usedAtAge, emits SUMMIT_CALLED+DIPLOMACY_CHANGED+RESOURCE_CHANGED. ui/diplomacyPanel.js: import callDiplomaticSummit+SUMMIT_PRESTIGE_COST+SUMMIT_GOLD_COST from diplomacy.js; on(SUMMIT_CALLED, render); _summitSection() renders locked msg if age<3, description, effects list, used/locked status badge, call-summit button; call-summit case in _onClick. main.js: on(SUMMIT_CALLED, awardPrestige(100)); save/load summit field. State: summit field added + initState reset. Events: SUMMIT_CALLED added to events.js. CSS: .summit-section, .summit-section__header/intro, .summit-effects, .summit-status--used/locked, .btn--summit (blue gradient)."
+  },
+  {
+    "id": "T175",
+    "title": "War Exhaustion System \u2014 combat fatigue penalises overextended empires",
+    "description": "Each battle (win or loss) raises a war exhaustion counter (0-100). Exhaustion decays passively at 1 pt/5 s. Penalty tiers: 25+ = -0.3 gold/s; 50+ = -0.8 gold/s, -0.6 food/s; 75+ = -1.5 gold/s, -1.0 food/s, -0.5 iron/s. Title-bar badge shows tier label and level when > 0.",
+    "priority": 175,
+    "status": "done",
+    "phase": 67,
+    "notes": "systems/warExhaustion.js: New file \u2014 initWarExhaustion(), addWarExhaustion() (+15/battle, capped at 100, recalcRates+emit), warExhaustionTick() (decay 1pt per 20 ticks, recalc+emit every 80 ticks or on clear), getExhaustionLevel(), getExhaustionTier(), EXHAUSTION_LABELS[]. core/events.js: WAR_EXHAUSTION_CHANGED added. core/state.js: warExhaustion field + initState reset. systems/combat.js: import addWarExhaustion; call addWarExhaustion() after every attackTile (before return result). systems/resources.js: T175 war exhaustion penalty block near end of recalcRates (before Object.assign). index.html: exhaustion-badge span after siege-badge. styles/main.css: .exhaustion-badge + .exhaustion-badge--severe + animation. main.js: import warExhaustion functions; registerSystem(warExhaustionTick); initWarExhaustion() in boot+_newGame; _updateExhaustionBadge() + on(WAR_EXHAUSTION_CHANGED); save/load warExhaustion; version 53\u219255."
+  },
+  {
+    "id": "T176",
+    "title": "Ancient Monument \u2014 unique Medieval Age landmark with periodic dedication ceremonies",
+    "description": "Unique building (Medieval Age + library, costs 300g+200s+100i). Produces +0.4/s all resources. Every 8 minutes fires a Dedication Ceremony: +100 gold, +50 mana, +25 prestige. On construction: +5 morale, +50 prestige.",
+    "priority": 176,
+    "status": "done",
+    "phase": 67,
+    "notes": "data/buildings.js: Added ancientMonument unique building (minAge 3, requires library\u00d71, cost 300g+200s+100i, production +0.4/s all resources). systems/ancientMonument.js: New file \u2014 initMonument(), monumentTick() (fires ceremony every 8 min when building exists: +100g +50mana +25prestige + message), onMonumentBuilt() (called on first construction). core/events.js: MONUMENT_DEDICATION added. core/state.js: monument field + initState reset. main.js: import ancientMonument functions; registerSystem(monumentTick); BUILDING_CHANGED listener calls onMonumentBuilt()+changeMorale(5)+addMessage+awardPrestige(50) on first ancientMonument construction; save/load monument field; version 55."
   }
 ]

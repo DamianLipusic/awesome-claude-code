@@ -288,4 +288,20 @@ export const BUILDINGS = Object.freeze({
     unique: true,
     wonder: true,
   },
+
+  // T176: Ancient Monument — unique Medieval Age landmark with periodic ceremonies
+  ancientMonument: {
+    name: 'Ancient Monument',
+    icon: '🏛️',
+    description: 'A grand monument to your empire\'s glory. +0.4/s all resources, +5 morale. Every 8 min triggers a Dedication Ceremony: +100 gold, +50 mana, +25 prestige.',
+    baseCost: { gold: 300, stone: 200, iron: 100 },
+    production: { gold: 0.4, food: 0.4, wood: 0.4, stone: 0.4, iron: 0.4, mana: 0.4 },
+    consumption: {},
+    capBonus: {},
+    requires: [
+      { type: 'age',      minAge: 3 },
+      { type: 'building', id: 'library', count: 1 },
+    ],
+    unique: true,
+  },
 });

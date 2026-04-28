@@ -5466,6 +5466,31 @@ kbd {
   .siege-badge { display: none !important; }
 }
 
+/* T175: War Exhaustion badge */
+.exhaustion-badge {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+  border: 1px solid rgba(214, 158, 46, .7);
+  background: rgba(214, 158, 46, .15);
+  color: #ecc94b;
+  cursor: help;
+  white-space: nowrap;
+}
+
+.exhaustion-badge--severe {
+  border-color: rgba(229, 62, 62, .7);
+  background: rgba(229, 62, 62, .15);
+  color: #fc8181;
+  animation: siege-pulse 1.5s ease-in-out infinite;
+}
+
+@media (max-width: 600px) {
+  .exhaustion-badge { display: none !important; }
+}
+
 /* T139: Bribe button inside siege badge */
 .btn--siege-bribe {
   background: rgba(214,158,46,.15);
