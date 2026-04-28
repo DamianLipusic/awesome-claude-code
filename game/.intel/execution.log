@@ -3084,3 +3084,54 @@ Modified files:
   ~ game/styles/main.css
       .cp-surge-section, .cp-surge-header, .cp-surge-info
       .cp-surge-desc, .btn--cp-surge (blue gradient button)
+
+================================================================================
+## 2026-04-28 — T185 + T186
+
+T185: Trade Route Specializations
+----------------------------------------------------------------------
+Each allied empire's trade routes can now be assigned a specialization that
+doubles income from one resource type. Three specs available: Grain Route
+(×2 food), Luxury Route (×2 gold), Iron Route (×2 iron, requires metalworking
+tech). Selecting an active spec toggles it off. Spec persists in emp.tradeSpec
+(null by default). Migration guard added for older saves.
+
+Modified files:
+  ~ game/src/systems/diplomacy.js
+      TRADE_SPEC_TYPES: frozen object with food_route/gold_route/iron_route defs
+      TRADE_SPEC_ORDER: ['food_route','gold_route','iron_route'] export
+      setTradeSpec(empireId, type): toggle spec, validate tech req, recalcRates
+      initDiplomacy(): T185 migration guard — emp.tradeSpec=null if undefined
+  ~ game/src/systems/resources.js
+      recalcRates() trade loop: specMult 2.0 for matching spec resource, else 1.0
+      getBreakdown(): same specMult + ' ×2 spec' suffix on matching resource line
+  ~ game/src/ui/diplomacyPanel.js
+      Import setTradeSpec, TRADE_SPEC_TYPES, TRADE_SPEC_ORDER
+      _tradeSpecRow(emp): renders spec header + 3 toggle buttons (active/locked)
+      _empireCard(): ${_tradeSpecRow(emp)} after allianceBonusHtml
+      _onClick(): 'set-trade-spec' case calls setTradeSpec(empire, specType)
+  ~ game/styles/main.css
+      .dipl-trade-spec, .dipl-trade-spec__header, .dipl-trade-spec__btns
+      .btn--trade-spec, .btn--trade-spec--active
+
+T186: Combat Statistics Dashboard
+----------------------------------------------------------------------
+A Battle Statistics section now appears at the bottom of the Military panel
+(above combat history) whenever battles have been fought. Shows a 4-box stat
+grid (total battles, victories, defeats, win streak), a colour-coded win-rate
+progress bar (green ≥60%, yellow ≥40%, red <40%), total loot from victories
+including best single-battle gold haul, and dominant terrain for wins. All
+computed live from state.combatHistory and state.combatStreak — no new state.
+
+Modified files:
+  ~ game/src/ui/militaryPanel.js
+      _combatStatsSection(): computes wins/losses/winRate, loot totals,
+        best gold haul, terrain win map, current streak; renders stat grid +
+        win-rate bar + loot line + terrain line; hidden when history empty
+      _render(): ${_combatStatsSection()} inserted before _combatHistorySection
+  ~ game/styles/main.css
+      .mil-combat-stats, .mil-stats-grid
+      .mil-stat-box (base / --win / --loss), .mil-stat-value, .mil-stat-label
+      .mil-stats-winrate, .mil-stats-winrate__label
+      .mil-stats-winrate__bar-bg, .mil-stats-winrate__bar-fill
+      .mil-stats-loot, .mil-stats-terrain

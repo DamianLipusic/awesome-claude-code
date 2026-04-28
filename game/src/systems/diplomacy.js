@@ -90,6 +90,14 @@ export const MEDIATE_MIN_ALLIANCES  = 2;     // alliances needed to mediate
 export const MEDIATE_GOLD_REWARD    = 150;
 export const MEDIATE_PRESTIGE       = 50;
 
+// T185: Trade Route Specializations — doubles income from one resource per empire
+export const TRADE_SPEC_TYPES = Object.freeze({
+  food_route: { icon: '🌾', name: 'Grain Route',  desc: 'Doubles food income from this trade route.', resource: 'food' },
+  gold_route: { icon: '💰', name: 'Luxury Route', desc: 'Doubles gold income from this trade route.', resource: 'gold' },
+  iron_route: { icon: '⚒️', name: 'Iron Route',   desc: 'Doubles iron income from this trade route. Requires metalworking tech.', resource: 'iron', requires: 'metalworking' },
+});
+export const TRADE_SPEC_ORDER = ['food_route', 'gold_route', 'iron_route'];
+
 // ── Public API ─────────────────────────────────────────────────────────────────
 
 /**
@@ -145,6 +153,10 @@ export function initDiplomacy() {
   for (const emp of state.diplomacy.empires) {
     if (emp.embargoUntil          === undefined) emp.embargoUntil          = 0;
     if (emp.embargoCooldownUntil  === undefined) emp.embargoCooldownUntil  = 0;
+  }
+  // T185: migrate saves that predate tradeSpec field
+  for (const emp of state.diplomacy.empires) {
+    if (emp.tradeSpec === undefined) emp.tradeSpec = null;
   }
 }
 
@@ -254,6 +266,24 @@ export function closeTradeRoute(empireId) {
   _logDiplomacy(empireId, 'trade', `Trade route closed with ${def.name}`);
   addMessage(`❌ Trade route closed with ${def.icon} ${def.name}.`, 'info');
   return { ok: true };
+}
+
+/** T185: Set (or toggle off) a trade route specialization for an allied empire. */
+export function setTradeSpec(empireId, type) {
+  const emp = _findEmpire(empireId);
+  if (!emp || emp.relations !== 'allied' || emp.tradeRoutes <= 0) return;
+  if (type && TRADE_SPEC_TYPES[type]?.requires && !state.techs[TRADE_SPEC_TYPES[type].requires]) {
+    addMessage(`⚠️ Requires ${TRADE_SPEC_TYPES[type].requires} tech for this route specialization.`, 'info');
+    return;
+  }
+  emp.tradeSpec = (emp.tradeSpec === type) ? null : type;
+  recalcRates();
+  const label = emp.tradeSpec
+    ? `${TRADE_SPEC_TYPES[emp.tradeSpec].icon} ${TRADE_SPEC_TYPES[emp.tradeSpec].name}`
+    : 'unspecialized';
+  const def = EMPIRES[empireId];
+  addMessage(`🛤️ ${def.icon} ${def.name} trade route: ${label}.`, 'info');
+  emit(Events.DIPLOMACY_CHANGED, { empireId, tradeSpec: emp.tradeSpec });
 }
 
 /** Declare war on any empire (free; closes all trade routes). */

@@ -1642,5 +1642,23 @@
     "status": "done",
     "phase": 71,
     "notes": "src/systems/combat.js: _veteranArmyCohesion() function returning {mult, tier, label} — tier 0=Raw Recruits(×1.0), 1=Hardened(×1.10, ≥50% veteran+), 2=Battle-Tested(×1.20, all veteran+), 3=Elite Legion(×1.35, all elite); applied in getAttackPreview() after veteran_legion synergy check (stores as `cohesion`); applied in attackTile() with addMessage for tier≥2; cohesionTier+cohesionLabel added to preview return object. src/ui/militaryPanel.js: _cohesionInfo() mirrors combat.js logic; _armySection() shows .mil-cohesion div with tier-specific class and bonus label. styles/main.css: .mil-cohesion (base), .cohesion--tier1 (blue), .cohesion--tier2 (green), .cohesion--tier3 (gold), .cohesion-bonus."
+  },
+  {
+    "id": "T185",
+    "title": "trade route specializations — per-empire route bonus doubling one resource",
+    "description": "Each empire's open trade routes can be assigned one specialization: Grain Route (×2 food income), Luxury Route (×2 gold income), Iron Route (×2 iron income, requires metalworking). Selecting the same spec toggles it off. Applied in recalcRates() trade route loop. Migration guard adds emp.tradeSpec=null to older saves. Spec selector shown in each allied empire card in Diplomacy panel when tradeRoutes>0. HUD tooltip getBreakdown() updated to reflect the spec multiplier. DIPLOMACY_CHANGED event re-used. No save version bump needed — tradeSpec lives inside state.diplomacy which is already persisted.",
+    "priority": 185,
+    "status": "done",
+    "phase": 72,
+    "notes": "src/systems/diplomacy.js: Added TRADE_SPEC_TYPES (food_route/gold_route/iron_route) and TRADE_SPEC_ORDER exports after SKIRMISH constants. Added setTradeSpec(empireId, type) function that validates allied+tradeRoutes>0, checks tech requirement for iron_route, toggles emp.tradeSpec, calls recalcRates(), emits DIPLOMACY_CHANGED. Migration guard for emp.tradeSpec=null in initDiplomacy() after T159 block. src/systems/resources.js: Trade route loop now computes specMult (2.0 when matching spec, else 1.0) and multiplies into rates[res]. getBreakdown() mirrored with same specMult logic and adds ' ×2 spec' label suffix. src/ui/diplomacyPanel.js: Imported setTradeSpec+TRADE_SPEC_TYPES+TRADE_SPEC_ORDER from diplomacy.js. Added _tradeSpecRow(emp) (hidden unless allied+tradeRoutes>0) rendering spec header + toggle buttons with active/locked states. Called in _empireCard() after allianceBonusHtml. Added 'set-trade-spec' case in _onClick(). styles/main.css: .dipl-trade-spec, .dipl-trade-spec__header, .dipl-trade-spec__btns, .btn--trade-spec, .btn--trade-spec--active styles added."
+  },
+  {
+    "id": "T186",
+    "title": "combat statistics dashboard — analytics section in Military panel",
+    "description": "New Battle Statistics section at the bottom of the Military panel (below combat history). Shows: total battles fought, victories, defeats, win rate %, current streak (from state.combatStreak), best streak computed from combatHistory, total resources looted from victories, total units lost in defeat. All computed dynamically from state.combatHistory and state.combatStreak — no new state fields or events needed. Section only renders when combatHistory has entries.",
+    "priority": 186,
+    "status": "done",
+    "phase": 72,
+    "notes": "src/ui/militaryPanel.js: Added _combatStatsSection() that computes wins/losses/winRate from combatHistory, loot totals, best single-battle gold haul, terrain win breakdown (top terrain), and current streak from state.combatStreak. Renders a 4-box stat grid (Battles/Victories/Defeats/Streak), a win-rate progress bar (green≥60%/yellow≥40%/red<40%), loot summary line, and best terrain line. Only renders when combatHistory is non-empty. Inserted in _render() before _combatHistorySection(). styles/main.css: .mil-combat-stats, .mil-stats-grid, .mil-stat-box (base/--win/--loss), .mil-stat-value, .mil-stat-label, .mil-stats-winrate, .mil-stats-winrate__label, .mil-stats-winrate__bar-bg, .mil-stats-winrate__bar-fill, .mil-stats-loot, .mil-stats-terrain."
   }
 ]

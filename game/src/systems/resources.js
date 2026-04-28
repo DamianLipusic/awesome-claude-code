@@ -142,7 +142,11 @@ export function recalcRates() {
       const marriageMult = state.dynasticMarriage?.partnerId === emp.id ? 1.5 : 1.0;
       for (const [res, rate] of Object.entries(gift)) {
         if (rates[res] !== undefined) {
-          rates[res] += rate * emp.tradeRoutes * navMult * merchantMult * economicMastery * allyTradeMult * grandTheoryTradeMult * marriageMult;
+          // T185: trade route specialization doubles income for the chosen resource
+          const specMult = (emp.tradeSpec === 'food_route' && res === 'food') ? 2.0 :
+                           (emp.tradeSpec === 'gold_route' && res === 'gold') ? 2.0 :
+                           (emp.tradeSpec === 'iron_route' && res === 'iron') ? 2.0 : 1.0;
+          rates[res] += rate * emp.tradeRoutes * navMult * merchantMult * economicMastery * allyTradeMult * grandTheoryTradeMult * marriageMult * specMult;
         }
       }
       // Trade Empire: flat +0.8 gold/s per open trade route (stacks per route)
@@ -755,7 +759,12 @@ export function getBreakdown(resId) {
       const empDef = EMPIRES[emp.id];
       const gift   = empDef?.tradeGift ?? {};
       if (gift[resId]) {
-        lines.push({ label: `🤝 ${empDef.name} trade`, value: gift[resId] * emp.tradeRoutes * navMult });
+        // T185: trade route specialization doubles income for the chosen resource
+        const specMult = (emp.tradeSpec === 'food_route' && resId === 'food') ? 2.0 :
+                         (emp.tradeSpec === 'gold_route' && resId === 'gold') ? 2.0 :
+                         (emp.tradeSpec === 'iron_route' && resId === 'iron') ? 2.0 : 1.0;
+        const specLabel = specMult > 1 ? ' ×2 spec' : '';
+        lines.push({ label: `🤝 ${empDef.name} trade${specLabel}`, value: gift[resId] * emp.tradeRoutes * navMult * specMult });
       }
     }
   }

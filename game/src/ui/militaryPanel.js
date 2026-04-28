@@ -163,6 +163,7 @@ function _render(panel) {
       ${UNIT_ORDER.map(id => _unitCard(id)).join('')}
     </div>
     ${_pioneerSection()}
+    ${_combatStatsSection()}
     ${_combatHistorySection()}
   `;
 
@@ -1581,6 +1582,83 @@ const TERRAIN_NAMES = {
   grass: 'Grassland', forest: 'Forest', hills: 'Hills',
   river: 'River', mountain: 'Mountain', capital: 'Capital',
 };
+
+// ── T186: Combat Statistics Dashboard ─────────────────────────────────────
+
+function _combatStatsSection() {
+  const history = state.combatHistory ?? [];
+  if (history.length === 0) return '';
+
+  const wins   = history.filter(e => e.outcome === 'win').length;
+  const losses = history.length - wins;
+  const winRate = Math.round((wins / history.length) * 100);
+
+  // Loot totals across all victories
+  const totalLoot = {};
+  let bestLootGold = 0;
+  for (const entry of history) {
+    if (entry.outcome !== 'win' || !entry.loot) continue;
+    for (const [res, amt] of Object.entries(entry.loot)) {
+      totalLoot[res] = (totalLoot[res] ?? 0) + amt;
+    }
+    if ((entry.loot.gold ?? 0) > bestLootGold) bestLootGold = entry.loot.gold ?? 0;
+  }
+
+  const lootParts = Object.entries(totalLoot)
+    .filter(([, v]) => v > 0)
+    .map(([r, v]) => `${v} ${r}`)
+    .join(', ');
+
+  // Terrain breakdown for wins
+  const terrainWins = {};
+  for (const entry of history) {
+    if (entry.outcome === 'win') {
+      terrainWins[entry.terrain] = (terrainWins[entry.terrain] ?? 0) + 1;
+    }
+  }
+  const topTerrain = Object.entries(terrainWins).sort((a, b) => b[1] - a[1])[0];
+  const topTerrainLabel = topTerrain
+    ? `${TERRAIN_NAMES[topTerrain[0]] ?? topTerrain[0]} (${topTerrain[1]} wins)`
+    : '—';
+
+  // Win streak
+  const streak = state.combatStreak?.count ?? 0;
+
+  // Win-rate bar
+  const barPct = Math.min(100, winRate);
+  const barColor = winRate >= 60 ? '#4ade80' : winRate >= 40 ? '#facc15' : '#f87171';
+
+  return `
+    <div class="mil-combat-stats">
+      <span class="mil-section-title">📊 Combat Statistics</span>
+      <div class="mil-stats-grid">
+        <div class="mil-stat-box">
+          <div class="mil-stat-value">${history.length}</div>
+          <div class="mil-stat-label">Battles</div>
+        </div>
+        <div class="mil-stat-box mil-stat-box--win">
+          <div class="mil-stat-value">${wins}</div>
+          <div class="mil-stat-label">Victories</div>
+        </div>
+        <div class="mil-stat-box mil-stat-box--loss">
+          <div class="mil-stat-value">${losses}</div>
+          <div class="mil-stat-label">Defeats</div>
+        </div>
+        <div class="mil-stat-box">
+          <div class="mil-stat-value">${streak > 0 ? `🔥${streak}` : '—'}</div>
+          <div class="mil-stat-label">Streak</div>
+        </div>
+      </div>
+      <div class="mil-stats-winrate">
+        <span class="mil-stats-winrate__label">Win rate: <strong>${winRate}%</strong></span>
+        <div class="mil-stats-winrate__bar-bg">
+          <div class="mil-stats-winrate__bar-fill" style="width:${barPct}%;background:${barColor}"></div>
+        </div>
+      </div>
+      ${lootParts ? `<div class="mil-stats-loot">⚔️ Total loot: ${lootParts}${bestLootGold > 0 ? ` · Best haul: ${bestLootGold} gold` : ''}</div>` : ''}
+      <div class="mil-stats-terrain">🗺️ Best terrain: ${topTerrainLabel}</div>
+    </div>`;
+}
 
 function _combatHistorySection() {
   const history = state.combatHistory ?? [];

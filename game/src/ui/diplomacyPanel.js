@@ -17,6 +17,7 @@ import {
   declareEmbargo, liftEmbargo, isEmbargoed, embargoSecsLeft, embargoCooldownSecsLeft, // T159
   proposeDynasticMarriage, MARRIAGE_COST, // T172
   callDiplomaticSummit, SUMMIT_PRESTIGE_COST, SUMMIT_GOLD_COST, // T174
+  setTradeSpec, TRADE_SPEC_TYPES, TRADE_SPEC_ORDER, // T185
   ALLIANCE_COST, TRADE_ROUTE_COST, PEACE_COST, MAX_TRADE_ROUTES,
   SURRENDER_COST, WAR_SCORE_THRESHOLD,
   TRIBUTE_COST, TRIBUTE_DEMAND, DEMAND_WARSCORE_MIN,
@@ -459,6 +460,36 @@ function _relativeTime(tick) {
   return `${Math.round(mins / 60)}h ago`;
 }
 
+// ── T185: Trade Route Specialization row ────────────────────────────────────
+
+function _tradeSpecRow(emp) {
+  if (emp.relations !== 'allied' || emp.tradeRoutes <= 0) return '';
+
+  const current = emp.tradeSpec ?? null;
+  const specLabel = current
+    ? `${TRADE_SPEC_TYPES[current].icon} <strong>${TRADE_SPEC_TYPES[current].name}</strong> (×2 ${TRADE_SPEC_TYPES[current].resource})`
+    : '<em>No specialization</em>';
+
+  const btns = TRADE_SPEC_ORDER.map(type => {
+    const spec   = TRADE_SPEC_TYPES[type];
+    const locked = spec.requires && !state.techs?.[spec.requires];
+    const active = current === type;
+    return `<button
+      class="btn btn--xs btn--trade-spec${active ? ' btn--trade-spec--active' : ''}${locked ? ' btn--disabled' : ''}"
+      data-action="set-trade-spec" data-empire="${emp.id}" data-spec-type="${type}"
+      ${locked ? 'disabled' : ''}
+      title="${spec.desc}${locked ? ' (requires ' + spec.requires + ' tech)' : ''}">
+      ${spec.icon} ${spec.name}${active ? ' ✓' : ''}
+    </button>`;
+  }).join('');
+
+  return `
+    <div class="dipl-trade-spec">
+      <div class="dipl-trade-spec__header">🛤️ Route Specialization: ${specLabel}</div>
+      <div class="dipl-trade-spec__btns">${btns}</div>
+    </div>`;
+}
+
 function _empireCard(emp) {
   const def      = EMPIRES[emp.id];
   const rel      = emp.relations;
@@ -627,6 +658,7 @@ function _empireCard(emp) {
       </div>
       ${tradeHtml}
       ${allianceBonusHtml}
+      ${_tradeSpecRow(emp)}
       ${warScoreHtml}
       ${_giftRow(emp)}
       ${_aidRow(emp)}
@@ -1055,6 +1087,10 @@ function _onClick(e) {
     case 'call-summit': {  // T174
       result = callDiplomaticSummit();
       if (!result.ok) addMessageFallback(result.reason);
+      break;
+    }
+    case 'set-trade-spec': {  // T185
+      setTradeSpec(empire, btn.dataset.specType);
       break;
     }
   }
