@@ -2883,3 +2883,66 @@ All 142 prior tasks found complete. Created T143 and T144 from Phase 5+ roadmap 
 - Marriage is intentionally one-per-game and Medieval-locked to serve as a meaningful late-game diplomatic capstone — it requires significant investment (alliance + 300 gold + age 3) but permanently secures an ally and doubles their gift frequency.
 - The ×1.5 trade multiplier stacks with all existing multipliers (navigation, economic mastery, synergy, grand theory) so a fully-invested trade empire sees compounding benefit.
 - No CSS additions needed — `btn--marriage` inherits default button styling; `dipl-marriage-badge` reuses badge pattern.
+
+================================================================================
+SESSION: 2026-04-28  Tasks: T177, T178  Phase: 68
+================================================================================
+
+## T177 — In-game Almanac Panel
+
+Created src/ui/almanac.js — a searchable in-game encyclopedia covering all
+game content. Features:
+- Category filter buttons: All / Buildings / Units / Techs / Wonders / Mechanics
+- Real-time text search across name + description fields
+- Entry count display
+- Building cards: icon, name, unique badge, own count, cost/production/consumption/requires
+- Unit cards: icon, name, active count, train cost, train time, attack, defense, upkeep, requires
+- Tech cards: icon, name, researched badge, cost, time, effectDesc, prereqs
+- Wonder cards: icon, name, built badge, cost, build time, bonusLabel, flavorText
+- Mechanic cards: 12 entries covering resources, ages, seasons, territory, morale,
+  prestige, research, diplomacy, hero, war exhaustion, population, save/load
+
+Files modified:
+  + game/src/ui/almanac.js          (new — 270 lines)
+  ~ game/index.html                 (added tab button + panel div)
+  ~ game/src/main.js                (import initAlmanac; call in boot; = in _TAB_KEYS)
+  ~ game/styles/main.css            (added .alm-* CSS: toolbar, search, cats, grid, cards)
+  ~ game/src/ui/settingsPanel.js    (added = shortcut entry to keyboard shortcuts section)
+
+## T178 — Web Audio Synthesized Sound Effects
+
+Created src/utils/audio.js — procedural sound effects via the Web Audio API.
+No audio files needed; all sounds are synthesized from OscillatorNode + GainNode.
+
+Sound effects implemented (9 distinct sounds):
+  buildComplete    — ascending major arpeggio (triangle wave)
+  researchComplete — mystical chime (sine wave)
+  battleWon        — triumphant fanfare (sawtooth wave)
+  battleLost       — descending minor dirge (sawtooth wave)
+  achievementUnlocked — sparkle ascending scale (triangle wave)
+  ageAdvanced      — grand chord swell (layered tones)
+  notification     — gentle double ping (sine wave)
+  resourceAlert    — urgent warning pulse ×3 (square wave)
+  questComplete    — triumphant two-tone rise (triangle wave)
+  gameOver         — slow falling minor descent
+
+Game events wired:
+  BUILDING_CHANGED (action=built) → buildComplete
+  TECH_CHANGED (done) → researchComplete
+  COMBAT (win/loss) → battleWon / battleLost
+  ACHIEVEMENT_UNLOCKED → achievementUnlocked
+  AGE_CHANGED → ageAdvanced
+  QUEST_COMPLETED → questComplete
+  GAME_OVER → gameOver
+  MESSAGE (raid/disaster types) → resourceAlert
+  MESSAGE (windfall/festival types) → notification
+
+Preference persisted under 'empireos-sound' in localStorage.
+Settings panel sound toggle is now fully functional (removed 'disabled' attr
+and 'Coming soon' badge; added onChange binding; checkbox reflects saved pref).
+
+Files modified:
+  + game/src/utils/audio.js         (new — 140 lines)
+  ~ game/src/main.js                (import initAudio; call in boot)
+  ~ game/src/ui/settingsPanel.js    (import isSoundEnabled+setSoundEnabled; wire checkbox)
+

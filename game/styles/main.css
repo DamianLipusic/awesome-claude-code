@@ -10377,3 +10377,146 @@ kbd {
 .btn--summit:hover:not(.btn--disabled) {
   background: linear-gradient(135deg, #2563eb, #1d4ed8);
 }
+
+/* ── Almanac Panel (T177) ────────────────────────────────────────────────── */
+
+.alm-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  padding: 10px 14px 6px;
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.alm-search {
+  flex: 1 1 220px;
+  min-width: 160px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  padding: 5px 10px;
+  font-size: 13px;
+  outline: none;
+}
+.alm-search:focus { border-color: var(--border-h); }
+
+.alm-cats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.alm-cat {
+  border-color: var(--border);
+  color: var(--text-dim);
+}
+.alm-cat--active {
+  border-color: var(--border-h);
+  color: var(--text);
+  background: var(--bg-card-h);
+}
+.alm-cat:hover { color: var(--text); }
+
+.alm-count {
+  padding: 4px 14px;
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.alm-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 10px;
+  padding: 10px 14px 16px;
+}
+
+.alm-empty {
+  grid-column: 1 / -1;
+  color: var(--text-dim);
+  font-size: 13px;
+  padding: 20px 0;
+  text-align: center;
+}
+
+.alm-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: border-color 0.15s;
+}
+.alm-card:hover { border-color: var(--border-h); }
+.alm-card--done { border-color: var(--green); opacity: 0.82; }
+
+.alm-card__hd {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.alm-card__ico {
+  font-size: 22px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.alm-card__ti {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.alm-card__name {
+  font-weight: 600;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.alm-badge {
+  display: inline-block;
+  font-size: 10px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  line-height: 1.4;
+  background: rgba(88, 166, 255, 0.15);
+  color: var(--blue);
+  border: 1px solid rgba(88, 166, 255, 0.25);
+}
+.alm-badge--done {
+  background: rgba(63, 185, 80, 0.15);
+  color: var(--green);
+  border-color: rgba(63, 185, 80, 0.25);
+}
+.alm-badge--own {
+  background: rgba(240, 180, 41, 0.15);
+  color: var(--accent);
+  border-color: rgba(240, 180, 41, 0.25);
+}
+
+.alm-card__desc {
+  font-size: 12px;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+.alm-dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px 8px;
+  font-size: 11px;
+  margin-top: 2px;
+}
+.alm-dl dt {
+  color: var(--text-dim);
+  white-space: nowrap;
+  padding-top: 1px;
+}
+.alm-dl dd { color: var(--text); }

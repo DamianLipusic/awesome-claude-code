@@ -99,6 +99,8 @@ import { initCensus, censusTick } from './systems/imperialCensus.js';           
 import { initVault, vaultTick } from './systems/imperialVault.js';                             // T173
 import { initWarExhaustion, warExhaustionTick, getExhaustionLevel, getExhaustionTier, EXHAUSTION_LABELS } from './systems/warExhaustion.js'; // T175
 import { initMonument, monumentTick, onMonumentBuilt } from './systems/ancientMonument.js';    // T176
+import { initAlmanac } from './ui/almanac.js';                                                 // T177
+import { initAudio }   from './utils/audio.js';                                                // T178
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
@@ -263,6 +265,8 @@ function boot() {
   initSummaryPanel();
   initMinimap();
   initNotificationCenter(); // T123: notification center
+  initAlmanac();            // T177: in-game almanac
+  initAudio();              // T178: procedural sound effects
 
   // Show offline progress modal if the player was away when they last saved
   if (_pendingOffline) {
@@ -1717,6 +1721,7 @@ const _TAB_KEYS = {
   '9': 'story',
   '0': 'settings',
   '-': 'log',
+  '=': 'almanac',
 };
 
 function _bindKeyboard() {

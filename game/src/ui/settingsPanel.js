@@ -16,6 +16,7 @@ import { on, emit, Events } from '../core/events.js';
 import { loadLegacy, buyLegacyTrait, LEGACY_TRAITS, LEGACY_TRAIT_ORDER } from '../data/legacyTraits.js'; // T124
 import { WEATHER_TYPES } from '../data/weather.js'; // T158
 import { getRecords, RECORD_DEFS } from '../data/lifetimeRecords.js'; // T160
+import { isSoundEnabled, setSoundEnabled } from '../utils/audio.js';   // T178
 
 const PANEL_ID   = 'panel-settings';
 const LB_KEY     = 'empireos-leaderboard';
@@ -96,12 +97,12 @@ function _render(panel) {
     <div class="settings-section">
       <div class="settings-section__title">🔊 Sound Effects</div>
       <div class="settings-section__desc">
-        Audio feedback for combat, construction, and events.
+        Synthesized audio feedback for combat, construction, research, and events.
+        Uses the Web Audio API — no downloads required.
       </div>
       <label class="settings-toggle">
-        <input type="checkbox" id="chk-sound" disabled>
+        <input type="checkbox" id="chk-sound" ${isSoundEnabled() ? 'checked' : ''}>
         <span class="settings-toggle__label">Enable Sound Effects</span>
-        <span class="settings-badge">Coming soon</span>
       </label>
     </div>
 
@@ -157,6 +158,11 @@ function _render(panel) {
         state.alerts[res] = Math.floor(v);
       }
     });
+  });
+
+  // T178: Bind sound toggle
+  panel.querySelector('#chk-sound')?.addEventListener('change', e => {
+    setSoundEnabled(e.target.checked);
   });
 
   // T124: Bind legacy trait buy buttons
@@ -370,6 +376,7 @@ function _shortcutsSection() {
   const rows = [
     { keys: ['1', '–', '0'],   desc: 'Switch tabs (Empire → Settings)' },
     { keys: ['-'],              desc: 'Open Log tab' },
+    { keys: ['='],              desc: 'Open Almanac (encyclopedia)' },
     { keys: ['Space', 'P'],    desc: 'Pause / Resume game' },
     { keys: ['S'],             desc: 'Quick save' },
     { keys: ['Esc'],           desc: 'Close save/export modal' },
