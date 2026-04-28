@@ -104,6 +104,7 @@ import { initAudio }   from './utils/audio.js';                                 
 import { initCartographer, cartographerTick } from './systems/cartographersGuild.js';          // T179
 import { initRelicShrine, relicShrineTick } from './systems/relicShrine.js';                   // T180
 import { initSeasonChronicle } from './systems/seasonChronicle.js';                            // T181
+import { initFortificationNetwork } from './systems/fortificationNetwork.js';                  // T183
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
@@ -251,7 +252,8 @@ function boot() {
   initWarExhaustion();  // T175: war exhaustion
   initCartographer();    // T179: cartographer's guild
   initRelicShrine();     // T180: relic shrine
-  initSeasonChronicle(); // T181: season chronicle
+  initSeasonChronicle();       // T181: season chronicle
+  initFortificationNetwork();  // T183: fortification network defense bonus
   // T176: monument init deferred — only activates when building is constructed
 
   // Init UI
@@ -1566,7 +1568,8 @@ function _newGame(opts = {}) {
   initWarExhaustion();  // T175: reset war exhaustion on new game
   initCartographer();    // T179: reset cartographer state on new game
   initRelicShrine();     // T180: reset relic shrine state on new game
-  initSeasonChronicle(); // T181: reset season chronicle on new game
+  initSeasonChronicle();       // T181: reset season chronicle on new game
+  initFortificationNetwork();  // T183: recompute network on new game map
   _updateCelestialBanner(); // T153: hide banner on new game
   recalcRates();
   startLoop();  // restart loop in case it was stopped by game-over

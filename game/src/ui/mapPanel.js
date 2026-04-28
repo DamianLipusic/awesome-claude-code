@@ -28,6 +28,7 @@ import { getActiveSeasonalObjective } from '../systems/seasonalObjectives.js'; /
 import { claimDiscovery, getDiscoveryDef, spawnDiscoveries } from '../systems/discoveries.js'; // T146
 import { getCurrentWeather } from '../systems/weather.js'; // T149
 import { getCartographerSurvey, getCartographerSurveySecs } from '../systems/cartographersGuild.js'; // T179
+import { isInFortificationNetwork } from '../systems/fortificationNetwork.js'; // T183
 
 const TILE_PX   = 24;     // pixels per tile side
 const GRID_SIZE = 20;     // tiles per axis
@@ -721,6 +722,16 @@ function _drawTile(tile, x, y, capital) {
     ctx.fillStyle     = '#aad4ff';
     ctx.fillText('▲', px + TILE_PX - 2, py + 2);
     ctx.textAlign = 'center';
+  }
+
+  // T183: draw dashed azure inner border on tiles that are part of a fortification network
+  if (tile.owner === 'player' && isInFortificationNetwork(x, y)) {
+    ctx.save();
+    ctx.setLineDash([2, 2]);
+    ctx.strokeStyle = '#40a0ff';
+    ctx.lineWidth   = 1.5;
+    ctx.strokeRect(px + 1.5, py + 1.5, TILE_PX - 3, TILE_PX - 3);
+    ctx.restore();
   }
 
   // T068: draw garrison shield indicator in bottom-left corner

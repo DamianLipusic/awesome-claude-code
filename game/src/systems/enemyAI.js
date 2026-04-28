@@ -28,6 +28,7 @@ import { changeMorale, MORALE_TILE_LOST } from './morale.js';
 import { BOONS } from '../data/ageBoons.js';
 import { SYNERGIES } from '../data/techs.js';
 import { clearInfluence } from './influence.js'; // T145
+import { getFortificationNetworkBonus } from './fortificationNetwork.js'; // T183
 
 // ── Timing constants ───────────────────────────────────────────────────────
 
@@ -155,6 +156,8 @@ function _counterattack() {
     const gDef = UNITS[tileGarrison.unitId];
     if (gDef) playerDefense += gDef.defense * tileGarrison.count;
   }
+  // T183: fortification network — connected fortified player tiles are harder to capture
+  playerDefense += getFortificationNetworkBonus(target.x, target.y);
 
   let winChance = Math.min(0.5, enemyPower / (enemyPower + playerDefense));
   // Fortification tech: -40% enemy success chance against player tiles

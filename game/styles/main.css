@@ -10760,3 +10760,42 @@ kbd {
 .btn--commune:hover:not(.btn--disabled) {
   background: linear-gradient(135deg, #6d28d9, #4c1d95);
 }
+
+/* ── T183: Fortification Network ─────────────────────────────────────────── */
+/* Dashed azure inner border is drawn directly on the canvas — no extra CSS  */
+
+/* ── T184: Veteran Army Cohesion ─────────────────────────────────────────── */
+
+.mil-cohesion {
+  margin-top: 6px;
+  padding: 4px 8px;
+  background: rgba(100, 100, 120, 0.12);
+  border: 1px solid rgba(150, 160, 180, 0.25);
+  border-radius: 4px;
+  font-size: 11px;
+  color: rgba(200, 210, 230, 0.75);
+}
+
+.mil-cohesion.cohesion--tier1 {
+  background: rgba(80, 160, 255, 0.08);
+  border-color: rgba(80, 160, 255, 0.30);
+  color: #90c8ff;
+}
+
+.mil-cohesion.cohesion--tier2 {
+  background: rgba(80, 220, 140, 0.10);
+  border-color: rgba(80, 220, 140, 0.35);
+  color: #68d391;
+}
+
+.mil-cohesion.cohesion--tier3 {
+  background: rgba(255, 200, 50, 0.10);
+  border-color: rgba(255, 200, 50, 0.40);
+  color: #fcd34d;
+}
+
+.cohesion-bonus {
+  font-size: 10px;
+  opacity: 0.85;
+  margin-left: 3px;
+}

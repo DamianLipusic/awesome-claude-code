@@ -1624,5 +1624,23 @@
     "status": "done",
     "phase": 70,
     "notes": "src/core/events.js: SURGE_USED: 'surgeUsed' added. src/core/state.js: surge field + initState reset. src/systems/combat.js: SURGE_COST_FOOD=30, SURGE_COST_MORALE=10, SURGE_BONUS_MAX=30, SURGE_COOLDOWN_TICKS=720 constants; module-level _surgeActive+_surgeBonus flags; getSurgeInfo() export ({canSurge, cooldownSecs, surgeBonus, reason, costFood, costMorale}); attackTileWithSurge(x,y) export (validate+deduct costs+set flags → attackTile → set cooldown+emit SURGE_USED); T157 block in attackTile: +_surgeBonus flat if _surgeActive; getAttackPreview return: surgeInfo: getSurgeInfo(). src/ui/mapPanel.js: import attackTileWithSurge; cp-surge-btn click handler calls attackTileWithSurge; surgeHtml section shows bonus+cost; surge button shown only when canSurge. src/main.js: surge saved/loaded (version 58). styles/main.css: .cp-surge-section, .cp-surge-header, .cp-surge-info, .cp-surge-desc, .btn--cp-surge."
+  },
+  {
+    "id": "T183",
+    "title": "Fortification Network — connected fortified tiles grant defensive chain bonus",
+    "description": "When 3+ adjacent player-owned fortified tiles are connected, they form a Fortification Network that grants +10 defense to each member tile (cumulative with tile.defense; does not modify tile data). Groups of 5+ tiles grant +20 defense. Network membership computed via BFS on MAP_CHANGED and cached. Canvas: dashed azure inner border drawn on network tiles. Defense bonus applied in combat.js getAttackPreview/attackTile and enemyAI.js counterattack. Network status (group count + member tiles) shown in military panel tooltip. FORTIFICATION_NETWORK event on network size change. No new state needed — computed dynamically.",
+    "priority": 183,
+    "status": "done",
+    "phase": 71,
+    "notes": "src/systems/fortificationNetwork.js: New file — initFortificationNetwork() subscribes to MAP_CHANGED and runs initial BFS; getFortificationNetworkBonus(x,y) returns 0/10/20 based on group size; isInFortificationNetwork(x,y) for canvas draw; _recomputeNetworks() builds _networkSizes cache from BFS over all fortified tiles (any owner, same-owner adjacency); _bfsGroup() flood-fills same-owner fortified tiles. src/systems/combat.js: import getFortificationNetworkBonus; in getAttackPreview() add effectiveDefense += fortNetBonus after rebel halving; in attackTile() same; fortNetBonus returned in preview object. src/systems/enemyAI.js: import getFortificationNetworkBonus; playerDefense += getFortificationNetworkBonus(target.x, target.y) in _counterattack(). src/ui/mapPanel.js: import isInFortificationNetwork; dashed azure inner border (setLineDash [2,2], #40a0ff, lineWidth 1.5) drawn after fortification indicator on player network tiles. src/main.js: import initFortificationNetwork; initFortificationNetwork() in boot and _newGame(). styles/main.css: Comment block noting canvas drawing only."
+  },
+  {
+    "id": "T184",
+    "title": "Veteran Army Cohesion — army-wide attack bonus based on majority unit rank",
+    "description": "When more than 50% of deployed army units are veteran or elite rank, grant a cohesion multiplier to total attack power: Veteran Majority → ×1.10 (+10%), Elite Majority → ×1.20 (+20%). Computed dynamically in combat.js from state.unitRanks. Applied in both getAttackPreview() and attackTile() after individual rank multipliers. Military panel _armySection() shows a 'Veteran Army' or 'Elite Legion' cohesion badge with percentage. Combat preview shows cohesion bonus line. No new state needed.",
+    "priority": 184,
+    "status": "done",
+    "phase": 71,
+    "notes": "src/systems/combat.js: _veteranArmyCohesion() function returning {mult, tier, label} — tier 0=Raw Recruits(×1.0), 1=Hardened(×1.10, ≥50% veteran+), 2=Battle-Tested(×1.20, all veteran+), 3=Elite Legion(×1.35, all elite); applied in getAttackPreview() after veteran_legion synergy check (stores as `cohesion`); applied in attackTile() with addMessage for tier≥2; cohesionTier+cohesionLabel added to preview return object. src/ui/militaryPanel.js: _cohesionInfo() mirrors combat.js logic; _armySection() shows .mil-cohesion div with tier-specific class and bonus label. styles/main.css: .mil-cohesion (base), .cohesion--tier1 (blue), .cohesion--tier2 (green), .cohesion--tier3 (gold), .cohesion-bonus."
   }
 ]

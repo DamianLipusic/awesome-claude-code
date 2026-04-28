@@ -2,6 +2,33 @@
 
 ---
 
+## 2026-04-28 — Session N+45
+
+**Tasks completed:** T183, T184
+
+**Summary:**
+All prior tasks (T001–T182) were complete. Created T183+T184 task specs then implemented two Phase 71 features: Fortification Network (T183) and Veteran Army Cohesion (T184). No new state fields required — both systems are computed dynamically.
+
+**T183 — Fortification Network:**
+- `src/systems/fortificationNetwork.js`: New file. `initFortificationNetwork()` subscribes to MAP_CHANGED and runs initial BFS. Module-level `_networkSizes` dict maps 'x,y' → group_size for all tiles in qualifying groups. `getFortificationNetworkBonus(x,y)` returns 0/10/20. `isInFortificationNetwork(x,y)` for canvas draw. `_recomputeNetworks()` iterates all tiles and BFS-groups same-owner adjacent fortified tiles; groups of 3+ are recorded; 5+ upgrade to +20 bonus. Works for any owner (player or enemy) so the mechanic is symmetric.
+- `src/systems/combat.js`: Import `getFortificationNetworkBonus`; `effectiveDefense += fortNetBonus` added after rebel halving in both `getAttackPreview()` and `attackTile()`; `fortNetBonus` returned in preview object.
+- `src/systems/enemyAI.js`: Import `getFortificationNetworkBonus`; `playerDefense += getFortificationNetworkBonus(target.x, target.y)` added after garrison check in `_counterattack()`.
+- `src/ui/mapPanel.js`: Import `isInFortificationNetwork`; after fortification `▲` indicator draw a dashed azure (setLineDash [2,2], #40a0ff, lineWidth 1.5) inner border rect on player network tiles.
+- `src/main.js`: Import `initFortificationNetwork`; `initFortificationNetwork()` called in boot and `_newGame()`.
+- `styles/main.css`: Comment block noting canvas-only rendering.
+
+**T184 — Veteran Army Cohesion:**
+- `src/systems/combat.js`: `_veteranArmyCohesion()` helper counts veteran+ and elite units across active unit types. Returns {mult, tier, label}: tier 0=Raw Recruits(×1.0), tier 1=Hardened(×1.10, ≥50% veteran+), tier 2=Battle-Tested(×1.20, all veteran+), tier 3=Elite Legion(×1.35, all elite). Applied in `getAttackPreview()` and `attackTile()` after veteran_legion synergy. Tier≥2 triggers combat message. `cohesionTier` + `cohesionLabel` returned in preview object.
+- `src/ui/militaryPanel.js`: `_cohesionInfo()` mirrors combat.js logic. `_armySection()` appends `.mil-cohesion` div with tier CSS class and bonus label below the aid row.
+- `styles/main.css`: `.mil-cohesion`, `.cohesion--tier1` (blue), `.cohesion--tier2` (green), `.cohesion--tier3` (gold), `.cohesion-bonus`.
+
+**Architecture decisions:**
+- Fortification Network BFS covers all fortified tiles of any owner (symmetric) — makes enemy fortification lines also harder to break, encouraging strategic offense.
+- Veterans cohesion message only fires at tier 2+ to avoid spam for players barely above the 50% threshold.
+- No FORTIFICATION_NETWORK event added — the cache is invalidated on MAP_CHANGED, which is already emitted by all tile-ownership and fortification changes.
+
+---
+
 ## 2026-04-28 — Session N+44
 
 **Tasks completed:** T179, T180

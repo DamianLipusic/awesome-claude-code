@@ -50,6 +50,23 @@ function _rankBadge(id) {
   return '';
 }
 
+// T184: mirrors _veteranArmyCohesion() in combat.js
+function _cohesionInfo() {
+  const active = UNIT_ORDER.filter(id => (state.units[id] ?? 0) > 0);
+  const n = active.length;
+  if (n === 0) return { tier: 0, label: 'Raw Recruits', mult: 1.0 };
+  let vp = 0, elite = 0;
+  for (const id of active) {
+    const r = state.unitRanks?.[id];
+    if (r === 'elite')   { vp++; elite++; }
+    else if (r === 'veteran') vp++;
+  }
+  if (elite === n)     return { tier: 3, label: 'Elite Legion',   mult: 1.35 };
+  if (vp    === n)     return { tier: 2, label: 'Battle-Tested',  mult: 1.20 };
+  if (vp >= n / 2)     return { tier: 1, label: 'Hardened',       mult: 1.10 };
+  return                      { tier: 0, label: 'Raw Recruits',   mult: 1.0  };
+}
+
 // ── Public API ─────────────────────────────────────────────────────────────
 
 export function initMilitaryPanel() {
@@ -1156,10 +1173,20 @@ function _armySection() {
     </div>`;
   }
 
+  // T184: Veteran Army Cohesion badge
+  const cohesion = _cohesionInfo();
+  const cohesionColors = ['', 'cohesion--tier1', 'cohesion--tier2', 'cohesion--tier3'];
+  const cohesionBonuses = ['', '+10% atk', '+20% atk', '+35% atk'];
+  const cohesionHtml = entries.length > 0
+    ? `<div class="mil-cohesion ${cohesionColors[cohesion.tier] ?? ''}">
+        ⚔️ Cohesion: <strong>${cohesion.label}</strong>${cohesion.tier > 0 ? ` <span class="cohesion-bonus">(${cohesionBonuses[cohesion.tier]})</span>` : ''}
+      </div>` : '';
+
   return `<div class="mil-army">
     <span class="mil-section-title">⚔️ Army <span class="mil-total-power">Combat power: ${Math.round(totalPower)}</span></span>
     <div class="mil-badges">${heroEntry}${items}</div>
     ${aidHtml}
+    ${cohesionHtml}
   </div>`;
 }
 

@@ -40,6 +40,7 @@ import { defeatWarlord } from './rovingWarlord.js';                             
 import { recordCapturedCapital } from './tributes.js';                                 // T166
 import { tryClaimSeasonalObjective } from './seasonalObjectives.js';                   // T170
 import { addWarExhaustion } from './warExhaustion.js';                                 // T175
+import { getFortificationNetworkBonus } from './fortificationNetwork.js';              // T183
 
 /** Returns true if both techs of a named synergy are researched. */
 function _synergy(id) {
@@ -172,6 +173,35 @@ function _rankMult(unitId) {
 }
 
 /**
+ * T184: Veteran Army Cohesion — army-wide attack multiplier based on ranks.
+ * Returns { mult, tier, label } where tier 0–3 maps to ×1.0 / ×1.10 / ×1.20 / ×1.35.
+ *
+ * Tiers:
+ *   0 — Raw Recruits   (fewer than half active unit types are veteran+)
+ *   1 — Hardened       (≥50% are veteran+)        → ×1.10
+ *   2 — Battle-Tested  (all are veteran+)          → ×1.20
+ *   3 — Elite Legion   (all are elite)             → ×1.35
+ */
+function _veteranArmyCohesion() {
+  const active = Object.entries(state.units).filter(([, c]) => c > 0);
+  const n = active.length;
+  if (n === 0) return { mult: 1.0, tier: 0, label: 'Raw Recruits' };
+
+  let veteranPlus = 0;
+  let eliteCount  = 0;
+  for (const [id] of active) {
+    const rank = state.unitRanks?.[id];
+    if (rank === 'elite')   { veteranPlus++; eliteCount++; }
+    else if (rank === 'veteran') { veteranPlus++; }
+  }
+
+  if (eliteCount === n)        return { mult: 1.35, tier: 3, label: 'Elite Legion' };
+  if (veteranPlus === n)       return { mult: 1.20, tier: 2, label: 'Battle-Tested' };
+  if (veteranPlus >= n / 2)    return { mult: 1.10, tier: 1, label: 'Hardened' };
+  return { mult: 1.0, tier: 0, label: 'Raw Recruits' };
+}
+
+/**
  * Preview an attack without mutating state.
  * Returns preview data used by the combat-preview modal in mapPanel.js.
  * { valid, reason?, attackPower, defense, winChance, loot, terrain, owner, siegeActive }
@@ -233,6 +263,10 @@ export function getAttackPreview(x, y) {
 
   // T077: Veteran Legion synergy (warcraft + tactics) → +20% attack power
   if (_synergy('veteran_legion')) attackPower *= 1.20;
+
+  // T184: Veteran Army Cohesion — army-wide multiplier based on rank distribution
+  const cohesion = _veteranArmyCohesion();
+  if (cohesion.mult > 1.0) attackPower *= cohesion.mult;
 
   // T072b: age council boon combat attack bonus
   attackPower *= _councilBoonCombatMult();
@@ -322,6 +356,10 @@ export function getAttackPreview(x, y) {
   // T151: rebel tiles — citizens defending, not trained armies: halve defense
   if (isRebelTile) effectiveDefense = Math.max(3, Math.round(effectiveDefense * 0.50));
 
+  // T183: fortification network bonus — networked fortified tiles are harder to capture
+  const fortNetBonus = getFortificationNetworkBonus(x, y);
+  effectiveDefense += fortNetBonus;
+
   const heroReady      = state.hero?.recruited && !_heroInjured() && !_heroOnExpedition();
   const siegeActive    = !!(heroReady && state.hero.activeEffects?.siege);
   const manaBoltActive = !!(state.spells?.activeEffects?.manaBolt);
@@ -380,6 +418,9 @@ export function getAttackPreview(x, y) {
     isRebelTile,                                                                // T151
     surgeActive,                                                                // T157
     surgeInfo: getSurgeInfo(),                                                  // T182
+    fortNetBonus,                                                               // T183
+    cohesionTier:  cohesion.tier,                                               // T184
+    cohesionLabel: cohesion.label,                                              // T184
   };
 }
 
@@ -447,6 +488,13 @@ export function attackTile(x, y) {
 
   // T077: Veteran Legion synergy (warcraft + tactics) → +20% attack power
   if (_synergy('veteran_legion')) attackPower *= 1.20;
+
+  // T184: Veteran Army Cohesion — army-wide multiplier based on rank distribution
+  const _cohesion = _veteranArmyCohesion();
+  if (_cohesion.mult > 1.0) {
+    attackPower *= _cohesion.mult;
+    if (_cohesion.tier >= 2) addMessage(`⚔️ ${_cohesion.label}: army cohesion bonus ×${_cohesion.mult.toFixed(2)}!`, 'info');
+  }
 
   // T072b: age council boon combat attack bonus
   attackPower *= _councilBoonCombatMult();
@@ -574,6 +622,9 @@ export function attackTile(x, y) {
 
   // T151: rebel tiles — citizens defending, halve effective defense
   if (isRebelTile) effectiveDefense = Math.max(3, Math.round(effectiveDefense * 0.50));
+
+  // T183: fortification network — networked fortified tiles are harder to capture
+  effectiveDefense += getFortificationNetworkBonus(x, y);
 
   let winChance = siegeActive
     ? 1.0
