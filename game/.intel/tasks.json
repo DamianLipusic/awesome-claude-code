@@ -1606,5 +1606,23 @@
     "status": "done",
     "phase": 69,
     "notes": "src/data/buildings.js: Added relicShrine unique building (minAge:3, requires manaWell×1, cost 150g+100s+80m, production mana:0.3, description explains passive prestige + commune). src/systems/relicShrine.js: New file — initRelicShrine(), relicShrineTick() (PRESTIGE_INTERVAL=240 ticks/60s: award count×12 prestige), communeWithRelics() (validates cooldown, awards tier bonus based on relic count, sets cooldown, emits RELIC_SHRINE_COMMUNE), getRelicCount(), getCommuneSecsLeft(), _revealFogTiles(n). src/core/events.js: RELIC_SHRINE_COMMUNE added. src/core/state.js: relicShrine field + initState reset. src/ui/buildingPanel.js: import communeWithRelics+getCommuneSecsLeft+getRelicCount from relicShrine.js; on(RELIC_SHRINE_COMMUNE, renderBuildingPanel); _relicShrineSection() renders shrine status (relic count, prestige rate, commune button with cooldown); html += _relicShrineSection() at end; shrine-commune action handler in onclick. src/main.js: import initRelicShrine+relicShrineTick; registerSystem(relicShrineTick); initRelicShrine() in boot + _newGame(); relicShrine saved/loaded; version 56→57. styles/main.css: .shrine-section, .shrine-section__header, .shrine-section__intro, .shrine-relics, .shrine-commune-status, .shrine-total, .btn--commune."
+  },
+  {
+    "id": "T181",
+    "title": "Season Chronicle — per-season statistics recap cards in Story panel",
+    "description": "Track per-season statistics (battles won/lost, buildings built, techs researched, quests completed, tiles gained). At each SEASON_CHANGED event, generate a recap card and prepend it to a chronicle history capped at 8 entries. Display recap cards in the Story panel above the story timeline. State: seasonChronicle = { completed: [], currentSeason: { index, battles, battlesLost, built, techs, quests, tilesGained, startTick } }.",
+    "priority": 181,
+    "status": "done",
+    "phase": 70,
+    "notes": "src/systems/seasonChronicle.js: New file — initSeasonChronicle() (init state + event listeners), _onMapChanged (count win/loss + tilesGained), _onBuildingChanged (count id+count builds), _onTechChanged (count techId completions), _onQuestCompleted (count id completions), _onSeasonChanged (finalise old counters → push to completed[max 8], start fresh), getSeasonChronicle(), getCurrentSeasonStats(), _freshCounters(). src/core/events.js: SURGE_USED added (needed for T182 but file touched here). src/core/state.js: seasonChronicle field + initState reset. src/ui/storyPanel.js: import getSeasonChronicle+getCurrentSeasonStats; SEASON_CHANGED added to UPDATE_EVENTS; _chronicleSection() renders up to 1 active + 4 past season recap cards above timeline; _recapCardHtml() with win-rate badge; render() includes chronicle section. src/main.js: import initSeasonChronicle; initSeasonChronicle() in boot + _newGame(); seasonChronicle saved/loaded; version 57→58. styles/main.css: .chron-section, .chron-section__title, .chron-cards, .chron-card, .chron-card--active, .chron-card__head, .chron-card__icon, .chron-card__name, .chron-card__label, .chron-card__stats, .chron-stat-row, .chron-stat-key, .chron-stat-val, .chron-stat--win, .chron-stat--loss."
+  },
+  {
+    "id": "T182",
+    "title": "Combat Surge — one-time attack boost ability with resource cost and cooldown",
+    "description": "Add a Surge button to the combat preview modal. Costs 30 food + 10 morale. Adds flat attack bonus of min(30, floor(morale/2)). 3-minute cooldown (720 ticks). Export attackTileWithSurge(x,y) from combat.js. Add SURGE_USED event. State: surge = { cooldownUntil: 0, totalSurges: 0 }. Wire save/load. Add CSS for surge button.",
+    "priority": 182,
+    "status": "done",
+    "phase": 70,
+    "notes": "src/core/events.js: SURGE_USED: 'surgeUsed' added. src/core/state.js: surge field + initState reset. src/systems/combat.js: SURGE_COST_FOOD=30, SURGE_COST_MORALE=10, SURGE_BONUS_MAX=30, SURGE_COOLDOWN_TICKS=720 constants; module-level _surgeActive+_surgeBonus flags; getSurgeInfo() export ({canSurge, cooldownSecs, surgeBonus, reason, costFood, costMorale}); attackTileWithSurge(x,y) export (validate+deduct costs+set flags → attackTile → set cooldown+emit SURGE_USED); T157 block in attackTile: +_surgeBonus flat if _surgeActive; getAttackPreview return: surgeInfo: getSurgeInfo(). src/ui/mapPanel.js: import attackTileWithSurge; cp-surge-btn click handler calls attackTileWithSurge; surgeHtml section shows bonus+cost; surge button shown only when canSurge. src/main.js: surge saved/loaded (version 58). styles/main.css: .cp-surge-section, .cp-surge-header, .cp-surge-info, .cp-surge-desc, .btn--cp-surge."
   }
 ]

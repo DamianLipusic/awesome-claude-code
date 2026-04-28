@@ -474,6 +474,15 @@ export const state = {
   // T180: Relic Shrine — passive prestige from relics + commune ability
   // { nextPrestigeTick, communeCooldownUntil, totalCommunions, totalPrestigeAwarded } | null
   relicShrine: null,
+
+  // T181: Season Chronicle — rolling history of per-season statistics
+  // { completed: [recap...], current: { seasonIndex, seasonName, seasonIcon,
+  //   battlesWon, battlesLost, built, techs, quests, tilesGained, startTick, endTick } } | null
+  seasonChronicle: null,
+
+  // T182: Combat Surge — one-shot attack boost with resource cost and cooldown
+  // { cooldownUntil: tick, totalSurges: number } | null
+  surge: null,
 };
 
 /**
@@ -589,5 +598,7 @@ export function initState(empireName = 'My Empire') {
   state.monument             = null; // T176: reset monument state per game
   state.cartographer         = null; // T179: reset cartographer state per game
   state.relicShrine          = null; // T180: reset relic shrine state per game
+  state.seasonChronicle      = null; // T181: reset season chronicle per game
+  state.surge                = null; // T182: reset surge state per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

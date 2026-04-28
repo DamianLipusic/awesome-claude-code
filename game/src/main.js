@@ -103,6 +103,7 @@ import { initAlmanac } from './ui/almanac.js';                                  
 import { initAudio }   from './utils/audio.js';                                                // T178
 import { initCartographer, cartographerTick } from './systems/cartographersGuild.js';          // T179
 import { initRelicShrine, relicShrineTick } from './systems/relicShrine.js';                   // T180
+import { initSeasonChronicle } from './systems/seasonChronicle.js';                            // T181
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
@@ -248,8 +249,9 @@ function boot() {
   initCensus();         // T171: imperial census
   initVault();          // T173: imperial vault
   initWarExhaustion();  // T175: war exhaustion
-  initCartographer();   // T179: cartographer's guild
-  initRelicShrine();    // T180: relic shrine
+  initCartographer();    // T179: cartographer's guild
+  initRelicShrine();     // T180: relic shrine
+  initSeasonChronicle(); // T181: season chronicle
   // T176: monument init deferred — only activates when building is constructed
 
   // Init UI
@@ -500,7 +502,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 57, // T179+T180: cartographer's guild + relic shrine
+      version: 58, // T181+T182: season chronicle + combat surge
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -613,6 +615,8 @@ function _save() {
         monument:            state.monument            ?? null,  // T176
         cartographer:        state.cartographer        ?? null,  // T179
         relicShrine:         state.relicShrine         ?? null,  // T180
+        seasonChronicle:     state.seasonChronicle     ?? null,  // T181
+        surge:               state.surge               ?? null,  // T182
         tick:          state.tick,
       }
     }));
@@ -759,6 +763,8 @@ function _applySave(save) {
   state.monument             = s.monument             ?? null; // T176
   state.cartographer         = s.cartographer         ?? null; // T179
   state.relicShrine          = s.relicShrine          ?? null; // T180
+  state.seasonChronicle      = s.seasonChronicle      ?? null; // T181
+  state.surge                = s.surge                ?? null; // T182
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
@@ -1558,8 +1564,9 @@ function _newGame(opts = {}) {
   initNobleDemands();   // T168: reset noble demands on new game
   initVault();          // T173: reset vault state on new game
   initWarExhaustion();  // T175: reset war exhaustion on new game
-  initCartographer();   // T179: reset cartographer state on new game
-  initRelicShrine();    // T180: reset relic shrine state on new game
+  initCartographer();    // T179: reset cartographer state on new game
+  initRelicShrine();     // T180: reset relic shrine state on new game
+  initSeasonChronicle(); // T181: reset season chronicle on new game
   _updateCelestialBanner(); // T153: hide banner on new game
   recalcRates();
   startLoop();  // restart loop in case it was stopped by game-over

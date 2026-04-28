@@ -50,6 +50,15 @@ function _synergy(id) {
 const NEIGHBORS   = [[-1, 0], [1, 0], [0, -1], [0, 1]];
 const MAX_HISTORY = 20;
 
+// ── T182: Combat Surge ────────────────────────────────────────────────────
+const SURGE_COST_FOOD     = 30;
+const SURGE_COST_MORALE   = 10;
+const SURGE_BONUS_MAX     = 30;
+const SURGE_COOLDOWN_TICKS = 720;  // 3 minutes at 4 ticks/s
+
+let _surgeActive = false;
+let _surgeBonus  = 0;
+
 // XP thresholds for rank promotion
 const VETERAN_XP = 3;
 const ELITE_XP   = 6;
@@ -370,6 +379,7 @@ export function getAttackPreview(x, y) {
     paradeChargesLeft: _paradeActive ? (state.festivals.active.chargesLeft ?? 0) : 0,
     isRebelTile,                                                                // T151
     surgeActive,                                                                // T157
+    surgeInfo: getSurgeInfo(),                                                  // T182
   };
 }
 
@@ -520,6 +530,12 @@ export function attackTile(x, y) {
 
   // T157: Supply Depot Surge Provisions — +15 flat attack while surge is active
   if ((state.supplyDepot?.surgeExpiresAt ?? 0) > state.tick) attackPower += 15;
+
+  // T182: Combat Surge ability — flat bonus injected by attackTileWithSurge()
+  if (_surgeActive && _surgeBonus > 0) {
+    attackPower += _surgeBonus;
+    addMessage(`⚡ Combat Surge! +${_surgeBonus} flat attack power this strike!`, 'info');
+  }
 
   // T071: terrain attack modifier (applied before siege/mana-bolt override)
   const _terrainM = _terrainMod(tile.type);
@@ -1290,4 +1306,63 @@ export function raidTile(x, y) {
   }
 
   return { ok: true };
+}
+
+// ── T182: Combat Surge API ────────────────────────────────────────────────
+
+/**
+ * Returns info about whether the player can use the Combat Surge ability.
+ * { canSurge, cooldownSecs, surgeBonus, reason, costFood, costMorale }
+ */
+export function getSurgeInfo() {
+  const cooldownUntil = state.surge?.cooldownUntil ?? 0;
+  const onCooldown    = state.tick < cooldownUntil;
+  const cooldownSecs  = onCooldown ? Math.ceil((cooldownUntil - state.tick) / TICKS_PER_SECOND) : 0;
+  const morale        = Math.round(state.morale ?? 50);
+  const surgeBonus    = Math.min(SURGE_BONUS_MAX, Math.floor(morale / 2));
+  const hasFood       = (state.resources?.food ?? 0) >= SURGE_COST_FOOD;
+  const hasMorale     = morale >= SURGE_COST_MORALE;
+  const canSurge      = !onCooldown && hasFood && hasMorale;
+
+  let reason = '';
+  if (onCooldown)   reason = `Cooldown: ${cooldownSecs}s remaining`;
+  else if (!hasFood)    reason = `Need ${SURGE_COST_FOOD} food`;
+  else if (!hasMorale)  reason = `Need ${SURGE_COST_MORALE} morale`;
+
+  return { canSurge, cooldownSecs, surgeBonus, reason, costFood: SURGE_COST_FOOD, costMorale: SURGE_COST_MORALE };
+}
+
+/**
+ * Attack a tile with the Combat Surge ability active.
+ * Deducts 30 food + 10 morale, adds flat attack bonus for this strike,
+ * then starts a 3-minute cooldown.
+ * Returns { ok, reason?, outcome? } — same shape as attackTile().
+ */
+export function attackTileWithSurge(x, y) {
+  const info = getSurgeInfo();
+  if (!info.canSurge) return { ok: false, reason: info.reason || 'Surge not ready.' };
+
+  state.resources.food = Math.max(0, (state.resources.food ?? 0) - SURGE_COST_FOOD);
+  changeMorale(-SURGE_COST_MORALE);
+
+  _surgeActive = true;
+  _surgeBonus  = info.surgeBonus;
+
+  let result;
+  try {
+    result = attackTile(x, y);
+  } finally {
+    _surgeActive = false;
+    _surgeBonus  = 0;
+  }
+
+  if (result?.ok) {
+    if (!state.surge) state.surge = { cooldownUntil: 0, totalSurges: 0 };
+    state.surge.cooldownUntil = state.tick + SURGE_COOLDOWN_TICKS;
+    state.surge.totalSurges   = (state.surge.totalSurges ?? 0) + 1;
+    emit(Events.SURGE_USED, { x, y, bonus: info.surgeBonus, outcome: result.outcome });
+    emit(Events.RESOURCE_CHANGED, {});
+  }
+
+  return result;
 }

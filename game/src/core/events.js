@@ -148,4 +148,5 @@ export const Events = Object.freeze({
   MONUMENT_DEDICATION:      'monumentDedication',          // T176: ancient monument dedication ceremony fired
   CARTOGRAPHER_SURVEYED:    'cartographerSurveyed',        // T179: cartographer survey report generated
   RELIC_SHRINE_COMMUNE:     'relicShrineCommuned',         // T180: relic shrine communion performed
+  SURGE_USED:               'surgeUsed',                   // T182: combat surge activated
 });

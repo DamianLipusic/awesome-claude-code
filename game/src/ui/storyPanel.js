@@ -7,6 +7,7 @@
 
 import { state } from '../core/state.js';
 import { on, Events } from '../core/events.js';
+import { getSeasonChronicle, getCurrentSeasonStats } from '../systems/seasonChronicle.js';
 
 const PANEL_ID = 'panel-story';
 
@@ -19,6 +20,7 @@ const UPDATE_EVENTS = [
   Events.AGE_CHANGED,
   Events.MAP_CHANGED,
   Events.QUEST_COMPLETED,
+  Events.SEASON_CHANGED,
 ];
 
 export function initStoryPanel() {
@@ -37,9 +39,12 @@ function render() {
   const panel = document.getElementById(PANEL_ID);
   if (!panel) return;
 
-  const entries = state.story ?? [];
+  const entries  = state.story ?? [];
+  const recaps   = getSeasonChronicle();
+  const current  = getCurrentSeasonStats();
+  const hasData  = entries.length > 0 || recaps.length > 0 || current;
 
-  if (entries.length === 0) {
+  if (!hasData) {
     panel.innerHTML = `
       <div class="story-header">
         <div class="story-header__title">Empire Chronicle</div>
@@ -55,8 +60,80 @@ function render() {
       <div class="story-header__title">Empire Chronicle</div>
       <div class="story-header__sub">${entries.length} milestone${entries.length !== 1 ? 's' : ''} recorded</div>
     </div>
+    ${_chronicleSection(recaps, current)}
     <div class="story-timeline">
       ${entries.map(_entryHtml).join('')}
+    </div>
+  `;
+}
+
+// ---------------------------------------------------------------------------
+// Season Chronicle section
+// ---------------------------------------------------------------------------
+
+function _chronicleSection(recaps, current) {
+  if (!current && recaps.length === 0) return '';
+
+  const cards = [];
+
+  if (current) {
+    cards.push(_recapCardHtml(current, true));
+  }
+
+  for (const r of recaps.slice(0, 4)) {
+    cards.push(_recapCardHtml(r, false));
+  }
+
+  return `
+    <div class="chron-section">
+      <div class="chron-section__title">Season Chronicle</div>
+      <div class="chron-cards">
+        ${cards.join('')}
+      </div>
+    </div>
+  `;
+}
+
+function _recapCardHtml(r, isCurrent) {
+  const winRate = (r.battlesWon + r.battlesLost) > 0
+    ? Math.round(100 * r.battlesWon / (r.battlesWon + r.battlesLost))
+    : null;
+
+  const winBadge = winRate !== null
+    ? `<span class="chron-stat chron-stat--${winRate >= 50 ? 'win' : 'loss'}">${winRate}% wins</span>`
+    : '';
+
+  const label = isCurrent ? 'Current Season' : 'Past Season';
+
+  return `
+    <div class="chron-card${isCurrent ? ' chron-card--active' : ''}">
+      <div class="chron-card__head">
+        <span class="chron-card__icon">${r.seasonIcon}</span>
+        <span class="chron-card__name">${r.seasonName}</span>
+        <span class="chron-card__label">${label}</span>
+      </div>
+      <div class="chron-card__stats">
+        <div class="chron-stat-row">
+          <span class="chron-stat-key">⚔️ Battles</span>
+          <span class="chron-stat-val">${r.battlesWon}W / ${r.battlesLost}L ${winBadge}</span>
+        </div>
+        <div class="chron-stat-row">
+          <span class="chron-stat-key">🏛️ Built</span>
+          <span class="chron-stat-val">${r.built}</span>
+        </div>
+        <div class="chron-stat-row">
+          <span class="chron-stat-key">🔬 Techs</span>
+          <span class="chron-stat-val">${r.techs}</span>
+        </div>
+        <div class="chron-stat-row">
+          <span class="chron-stat-key">📜 Quests</span>
+          <span class="chron-stat-val">${r.quests}</span>
+        </div>
+        <div class="chron-stat-row">
+          <span class="chron-stat-key">🗺️ Tiles</span>
+          <span class="chron-stat-val">${r.tilesGained}</span>
+        </div>
+      </div>
     </div>
   `;
 }

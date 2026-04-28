@@ -15,7 +15,7 @@
 
 import { state } from '../core/state.js';
 import { on, Events } from '../core/events.js';
-import { attackTile, getAttackPreview, raidTile, getRaidPreview } from '../systems/combat.js';
+import { attackTile, getAttackPreview, raidTile, getRaidPreview, attackTileWithSurge } from '../systems/combat.js';
 import { buildTileImprovement, upgradeTileImprovement, fortifyTile, garrisonUnit, withdrawGarrison, getTotalGarrisoned, GARRISON_MAX_TOTAL, addMessage, foundCity } from '../core/actions.js';
 import { UNITS } from '../data/units.js';
 import { IMPROVEMENTS } from '../data/improvements.js';
@@ -1062,6 +1062,10 @@ function _createCombatPreview() {
       const t = _previewTarget;
       _hideCombatPreview();
       if (t) attackTile(t.x, t.y);
+    } else if (e.target.id === 'cp-surge-btn') {
+      const t = _previewTarget;
+      _hideCombatPreview();
+      if (t) attackTileWithSurge(t.x, t.y);
     } else if (e.target.id === 'cp-raid-btn') {
       const t = _previewTarget;
       _hideCombatPreview();
@@ -1167,6 +1171,25 @@ function _showCombatPreview(x, y) {
     ? `${p.effectiveDefense} <span style="font-size:0.75em;opacity:0.6">(base ${p.defense})</span>`
     : `${p.defense}`;
 
+  // T182: Combat Surge info
+  const surge = p.surgeInfo;
+  const surgeHtml = surge
+    ? (() => {
+        const cdNote = surge.cooldownSecs > 0
+          ? `<span style="color:var(--red);font-size:10px"> (cooldown: ${surge.cooldownSecs}s)</span>` : '';
+        return `
+          <div class="cp-surge-section">
+            <div class="cp-surge-header">⚡ Combat Surge${cdNote}</div>
+            <div class="cp-surge-info">
+              <span>Bonus: <b style="color:var(--blue)">+${surge.surgeBonus} ATK</b></span>
+              <span>·</span>
+              <span>Cost: <b>${surge.costFood} 🍞 + ${surge.costMorale} morale</b></span>
+            </div>
+            <div class="cp-surge-desc">One-time attack boost drawn from morale (3 min cooldown).</div>
+          </div>`;
+      })()
+    : '';
+
   // T127: Raid preview info
   const raidP = getRaidPreview(x, y);
   const raidHtml = raidP.valid
@@ -1215,10 +1238,12 @@ function _showCombatPreview(x, y) {
         <span class="cp-loot-label">Loot on victory:</span>
         <span class="cp-loot-items">${lootHtml}</span>
       </div>
+      ${surgeHtml}
       ${raidHtml}
       <div class="cp-actions">
         <button id="cp-attack-btn" class="btn btn--sm btn--cp-attack">⚔️ Attack</button>
-        ${raidP.valid ? `<button id="cp-raid-btn" class="btn btn--sm btn--cp-raid" ${raidP.onCooldown ? 'disabled' : ''}>⚡ Raid</button>` : ''}
+        ${surge?.canSurge ? `<button id="cp-surge-btn" class="btn btn--sm btn--cp-surge">⚡ Surge!</button>` : ''}
+        ${raidP.valid ? `<button id="cp-raid-btn" class="btn btn--sm btn--cp-raid" ${raidP.onCooldown ? 'disabled' : ''}>⚔️ Raid</button>` : ''}
         <button id="cp-cancel-btn" class="btn btn--sm btn--ghost">✕ Cancel</button>
       </div>
       <div class="cp-hint">Enter to confirm · Escape to cancel</div>

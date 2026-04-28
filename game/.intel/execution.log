@@ -2978,3 +2978,82 @@ Files modified:
   ~ game/src/main.js                (import initAudio; call in boot)
   ~ game/src/ui/settingsPanel.js    (import isSoundEnabled+setSoundEnabled; wire checkbox)
 
+
+================================================================================
+SESSION: 2026-04-28 | TASKS: T181, T182
+================================================================================
+
+T181: Season Chronicle System
+----------------------------------------------------------------------
+Added a per-season statistics tracking system that records battles won/lost,
+buildings built, techs researched, quests completed, and tiles gained during
+each season. At every SEASON_CHANGED event the current season's counters are
+finalised into a recap card and prepended to a rolling history (max 8 entries).
+The Story panel now shows a "Season Chronicle" section with the current season's
+live stats and up to 4 past season recaps above the story timeline.
+
+New files:
+  + game/src/systems/seasonChronicle.js
+      initSeasonChronicle() — init state + subscribe to 5 events
+      _onMapChanged()       — track wins/losses + tilesGained
+      _onBuildingChanged()  — track deliberate construction (id+count events)
+      _onTechChanged()      — track tech completions (techId events)
+      _onQuestCompleted()   — track quest completions
+      _onSeasonChanged()    — finalise recap → push to completed[], start fresh
+      getSeasonChronicle()  — returns completed[] array
+      getCurrentSeasonStats() — returns current in-progress counters
+      _freshCounters()      — helper to create zeroed counter object
+
+Modified files:
+  ~ game/src/core/state.js
+      Added seasonChronicle: null field + initState reset
+  ~ game/src/core/events.js
+      Added SURGE_USED: 'surgeUsed' (T182 prep)
+  ~ game/src/ui/storyPanel.js
+      Import getSeasonChronicle + getCurrentSeasonStats
+      SEASON_CHANGED added to UPDATE_EVENTS
+      _chronicleSection() — renders up to 1 active + 4 past recap cards
+      _recapCardHtml()    — card HTML with win-rate badge
+      render() updated to include chronicle section above timeline
+  ~ game/src/main.js
+      import initSeasonChronicle
+      initSeasonChronicle() called in boot() + _newGame()
+      seasonChronicle saved/loaded; save version 57 → 58
+  ~ game/styles/main.css
+      .chron-section, .chron-section__title, .chron-cards
+      .chron-card, .chron-card--active, .chron-card__head
+      .chron-card__icon, .chron-card__name, .chron-card__label
+      .chron-card__stats, .chron-stat-row, .chron-stat-key
+      .chron-stat-val, .chron-stat--win, .chron-stat--loss
+
+T182: Combat Surge Ability
+----------------------------------------------------------------------
+Added a one-shot per-attack bonus ability to the combat preview modal.
+Clicking "⚡ Surge!" deducts 30 food + 10 morale and adds a flat attack bonus
+of min(30, floor(morale/2)) to the next strike, then starts a 3-minute cooldown.
+The surge button is shown in the action row only when the ability is available
+(not on cooldown and costs can be met).
+
+Modified files:
+  ~ game/src/core/events.js
+      SURGE_USED: 'surgeUsed' added
+  ~ game/src/core/state.js
+      surge: null field + initState reset
+  ~ game/src/systems/combat.js
+      Constants: SURGE_COST_FOOD=30, SURGE_COST_MORALE=10,
+                 SURGE_BONUS_MAX=30, SURGE_COOLDOWN_TICKS=720
+      Module vars: _surgeActive, _surgeBonus
+      getSurgeInfo() export — canSurge, cooldownSecs, surgeBonus, reason
+      attackTileWithSurge(x,y) export — validate + deduct + call attackTile
+      attackTile(): T182 block adds _surgeBonus flat when _surgeActive
+      getAttackPreview(): surgeInfo: getSurgeInfo() added to return value
+  ~ game/src/ui/mapPanel.js
+      import attackTileWithSurge
+      cp-surge-btn click handler → attackTileWithSurge(t.x, t.y)
+      surgeHtml section: shows bonus, cost, cooldown info
+      Surge button shown in cp-actions only when canSurge
+  ~ game/src/main.js
+      surge saved/loaded (save version 58)
+  ~ game/styles/main.css
+      .cp-surge-section, .cp-surge-header, .cp-surge-info
+      .cp-surge-desc, .btn--cp-surge (blue gradient button)

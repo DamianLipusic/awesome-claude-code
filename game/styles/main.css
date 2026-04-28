@@ -1167,6 +1167,106 @@ body {
 .story-entry--territory { border-left: 3px solid var(--blue); }
 .story-entry--quest     { border-left: 3px solid #ffd700; }
 
+/* ── Season Chronicle (T181) ─────────────────────────────────────────────── */
+
+.chron-section {
+  margin: 10px 0 4px;
+}
+
+.chron-section__title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: 8px;
+}
+
+.chron-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.chron-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 10px;
+}
+
+.chron-card--active {
+  border-color: var(--accent);
+}
+
+.chron-card__head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.chron-card__icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.chron-card__name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  flex: 1;
+}
+
+.chron-card__label {
+  font-size: 11px;
+  color: var(--text-dim);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 1px 5px;
+}
+
+.chron-card__stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3px 10px;
+}
+
+.chron-stat-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+}
+
+.chron-stat-key {
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+.chron-stat-val {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.chron-stat--win {
+  font-size: 11px;
+  color: var(--green);
+  background: rgba(63,185,80,.1);
+  border-radius: 3px;
+  padding: 0 4px;
+}
+
+.chron-stat--loss {
+  font-size: 11px;
+  color: var(--red);
+  background: rgba(248,81,73,.1);
+  border-radius: 3px;
+  padding: 0 4px;
+}
+
 /* ── Settings panel ──────────────────────────────────────────────────────── */
 
 #panel-settings {
@@ -8492,6 +8592,45 @@ kbd {
 }
 .btn--cp-raid:hover { opacity: 0.85; }
 .btn--cp-raid:disabled { opacity: 0.35; cursor: default; }
+
+/* ── T182: Combat Surge ─────────────────────────────────────────────────── */
+.cp-surge-section {
+  margin: 8px 0 4px;
+  padding: 8px 10px;
+  background: rgba(88, 166, 255, 0.06);
+  border: 1px solid rgba(88, 166, 255, 0.25);
+  border-radius: 6px;
+}
+.cp-surge-header {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--blue);
+  margin-bottom: 4px;
+}
+.cp-surge-info {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 11px;
+  flex-wrap: wrap;
+}
+.cp-surge-desc {
+  font-size: 10px;
+  color: var(--text-dim);
+  margin-top: 3px;
+}
+.btn--cp-surge {
+  padding: 6px 14px;
+  font-size: 12px;
+  background: linear-gradient(135deg, #1a4a6e, var(--blue));
+  border: none;
+  color: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  font-weight: 700;
+}
+.btn--cp-surge:hover { filter: brightness(1.15); }
 
 /* ── T131: Empire Proclamations ─────────────────────────────────────────── */
 .proclamations-section {
