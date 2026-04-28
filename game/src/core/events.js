@@ -146,4 +146,6 @@ export const Events = Object.freeze({
   SUMMIT_CALLED:            'summitCalled',                // T174: diplomatic summit called by player
   WAR_EXHAUSTION_CHANGED:   'warExhaustionChanged',        // T175: war exhaustion level changed
   MONUMENT_DEDICATION:      'monumentDedication',          // T176: ancient monument dedication ceremony fired
+  CARTOGRAPHER_SURVEYED:    'cartographerSurveyed',        // T179: cartographer survey report generated
+  RELIC_SHRINE_COMMUNE:     'relicShrineCommuned',         // T180: relic shrine communion performed
 });

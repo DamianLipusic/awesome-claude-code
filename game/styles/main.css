@@ -10520,3 +10520,104 @@ kbd {
   padding-top: 1px;
 }
 .alm-dl dd { color: var(--text); }
+
+/* ── T179: Cartographer's Guild Survey Report ────────────────────────────── */
+
+.carto-survey {
+  margin-top: 10px;
+  padding: 0 2px;
+}
+
+.carto-survey__header {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #93c5fd;
+  margin-bottom: 4px;
+}
+
+.carto-survey__countdown {
+  font-weight: 400;
+  font-size: 0.78rem;
+  color: rgba(147, 197, 253, 0.65);
+}
+
+.carto-survey__lines {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.carto-survey__line {
+  font-size: 0.80rem;
+  color: rgba(220, 235, 255, 0.80);
+  padding: 2px 0;
+}
+
+.carto-survey__line--none {
+  color: rgba(180, 190, 210, 0.55);
+  font-style: italic;
+}
+
+/* ── T180: Relic Shrine Section ──────────────────────────────────────────── */
+
+.shrine-section {
+  border-top: 1px solid rgba(160, 100, 200, 0.30);
+  margin-top: 20px;
+  padding-top: 14px;
+}
+
+.shrine-section__header {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #c084fc;
+  margin-bottom: 6px;
+}
+
+.shrine-section__intro {
+  font-size: 0.80rem;
+  color: rgba(255, 255, 255, 0.65);
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.shrine-relics {
+  font-size: 0.82rem;
+  color: #e9d5ff;
+  margin-bottom: 8px;
+}
+
+.shrine-commune-status {
+  font-size: 0.82rem;
+  border-radius: 6px;
+  padding: 6px 10px;
+  margin-bottom: 10px;
+}
+
+.shrine-commune-status--ready {
+  background: rgba(80, 20, 120, 0.40);
+  border: 1px solid rgba(192, 132, 252, 0.45);
+  color: #e9d5ff;
+}
+
+.shrine-commune-status--cooldown {
+  background: rgba(50, 50, 70, 0.35);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  color: rgba(200, 210, 220, 0.75);
+}
+
+.shrine-total {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.45);
+  margin-top: 8px;
+}
+
+.btn--commune {
+  background: linear-gradient(135deg, #4c1d95, #2e1065);
+  color: #f3e8ff;
+  border: 1px solid #7c3aed;
+  font-size: 0.82rem;
+  padding: 6px 16px;
+}
+.btn--commune:hover:not(.btn--disabled) {
+  background: linear-gradient(135deg, #6d28d9, #4c1d95);
+}

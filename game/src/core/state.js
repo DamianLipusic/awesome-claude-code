@@ -466,6 +466,14 @@ export const state = {
   // T176: Ancient Monument — periodic dedication ceremony when unique building is built
   // { nextDedicationTick: number, totalDedications: number } | null
   monument: null,
+
+  // T179: Cartographer's Guild — passive fog reveal + periodic terrain survey system
+  // { nextRevealTick, nextSurveyTick, totalRevealed, lastSurvey: {lines, generatedAt}|null } | null
+  cartographer: null,
+
+  // T180: Relic Shrine — passive prestige from relics + commune ability
+  // { nextPrestigeTick, communeCooldownUntil, totalCommunions, totalPrestigeAwarded } | null
+  relicShrine: null,
 };
 
 /**
@@ -579,5 +587,7 @@ export function initState(empireName = 'My Empire') {
   state.summit               = null; // T174: reset summit state per game
   state.warExhaustion        = null; // T175: reset war exhaustion per game
   state.monument             = null; // T176: reset monument state per game
+  state.cartographer         = null; // T179: reset cartographer state per game
+  state.relicShrine          = null; // T180: reset relic shrine state per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

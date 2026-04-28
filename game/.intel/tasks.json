@@ -1588,5 +1588,23 @@
     "status": "done",
     "phase": 68,
     "notes": "src/utils/audio.js: New file — initAudio(), isSoundEnabled(), setSoundEnabled(), _tone() (OscillatorNode + GainNode with ADSR envelope), _seq() (multi-note sequences). Sfx object with 9 named sound effects: buildComplete (ascending major arpeggio), researchComplete (mystical chime), battleWon (triumphant fanfare), battleLost (descending dirge), achievementUnlocked (sparkle scale), ageAdvanced (grand chord swell), notification (double ping), resourceAlert (warning pulse ×3), questComplete/gameOver. Event wiring: BUILDING_CHANGED(built), TECH_CHANGED(done), COMBAT(win/loss), ACHIEVEMENT_UNLOCKED, AGE_CHANGED, QUEST_COMPLETED, GAME_OVER, MESSAGE(raid/disaster/barbarian/crisis types). main.js: import initAudio; call initAudio() in boot. ui/settingsPanel.js: import isSoundEnabled+setSoundEnabled; checkbox now functional; removed disabled attr and Coming soon badge; added onChange binding."
+  },
+  {
+    "id": "T179",
+    "title": "Cartographer's Guild — passive fog-reveal building with terrain Survey Reports",
+    "description": "New unique Iron Age building (requires market×1, costs 100g+80w+60s). When built: passively reveals 1 fog tile adjacent to player territory every 10 seconds. Every 8 minutes generates a Survey Report listing up to 3 unexplored terrain types bordering current territory (with resource icons and tile counts). Survey report shown in map panel below stats bar.",
+    "priority": 179,
+    "status": "done",
+    "phase": 69,
+    "notes": "src/data/buildings.js: Added cartographersGuild unique building (minAge:2, requires market×1, cost 100g+80w+60s, no production, description explains passive fog reveal + survey). src/systems/cartographersGuild.js: New file — initCartographer(), cartographerTick() (REVEAL_INTERVAL=40 ticks/10s: reveal 1 border fog tile; SURVEY_INTERVAL=1920 ticks/8min: build survey), getCartographerSurvey(), getCartographerSurveySecs(), _getBorderFogTiles() (fog tiles adjacent to player tiles, deduplicated), _buildSurvey() (counts fog tiles by terrain within 1-step of player, top 3, returns {lines, generatedAt}). src/core/events.js: CARTOGRAPHER_SURVEYED added. src/core/state.js: cartographer field + initState reset. src/ui/mapPanel.js: import getCartographerSurvey+getCartographerSurveySecs; _updateSurveyReport() renders #carto-survey div; called from _updateStats() and wired to CARTOGRAPHER_SURVEYED + BUILDING_CHANGED events; _buildHTML() adds <div id='carto-survey'> after map-stats. src/main.js: import initCartographer+cartographerTick; registerSystem(cartographerTick); initCartographer() in boot + _newGame(); cartographer saved/loaded; version 55→56. styles/main.css: .carto-survey, .carto-survey__header, .carto-survey__lines, .carto-survey__line, .carto-survey__countdown."
+  },
+  {
+    "id": "T180",
+    "title": "Relic Shrine — unique Medieval building with passive prestige and Commune ability",
+    "description": "New unique Medieval Age building (requires manaWell×1, costs 150g+100s+80m, +0.3 mana/s). Passive: every 60 seconds awards prestige equal to (relic count × 12). Active: 'Commune with Relics' every 5 minutes — bonus scales with relic count: 0=+20p, 1=+30p, 2-3=+50p+50g, 4-5=+80p+80g+5 morale, 6=+150p+150g+10 morale+5 fog tiles revealed. Shrine section shown in building panel.",
+    "priority": 180,
+    "status": "done",
+    "phase": 69,
+    "notes": "src/data/buildings.js: Added relicShrine unique building (minAge:3, requires manaWell×1, cost 150g+100s+80m, production mana:0.3, description explains passive prestige + commune). src/systems/relicShrine.js: New file — initRelicShrine(), relicShrineTick() (PRESTIGE_INTERVAL=240 ticks/60s: award count×12 prestige), communeWithRelics() (validates cooldown, awards tier bonus based on relic count, sets cooldown, emits RELIC_SHRINE_COMMUNE), getRelicCount(), getCommuneSecsLeft(), _revealFogTiles(n). src/core/events.js: RELIC_SHRINE_COMMUNE added. src/core/state.js: relicShrine field + initState reset. src/ui/buildingPanel.js: import communeWithRelics+getCommuneSecsLeft+getRelicCount from relicShrine.js; on(RELIC_SHRINE_COMMUNE, renderBuildingPanel); _relicShrineSection() renders shrine status (relic count, prestige rate, commune button with cooldown); html += _relicShrineSection() at end; shrine-commune action handler in onclick. src/main.js: import initRelicShrine+relicShrineTick; registerSystem(relicShrineTick); initRelicShrine() in boot + _newGame(); relicShrine saved/loaded; version 56→57. styles/main.css: .shrine-section, .shrine-section__header, .shrine-section__intro, .shrine-relics, .shrine-commune-status, .shrine-total, .btn--commune."
   }
 ]

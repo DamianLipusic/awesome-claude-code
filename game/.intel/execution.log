@@ -2,6 +2,38 @@
 
 ---
 
+## 2026-04-28 — Session N+44
+
+**Tasks completed:** T179, T180
+
+**Summary:**
+All prior tasks (T001–T178) were complete. Created T179+T180 task specs then implemented two Phase 69 features: Cartographer's Guild (T179) and Relic Shrine (T180).
+
+**T179 — Cartographer's Guild:**
+- `src/data/buildings.js`: Added `cartographersGuild` unique building (minAge:2, requires market×1, cost 100g+80w+60s, no production, unique=true). Placed before Wonders section.
+- `src/systems/cartographersGuild.js`: New file. `initCartographer()` lazy-creates `state.cartographer = { nextRevealTick, nextSurveyTick, totalRevealed, lastSurvey }`. `cartographerTick()` has two timers: REVEAL_INTERVAL (40 ticks = 10s) selects a random border fog tile and reveals it then emits MAP_CHANGED; SURVEY_INTERVAL (1920 ticks = 8min) calls `_buildSurvey()` which scans 8-neighbours of player territory counting unexplored terrain types, returns top-3 as emoji strings, stores in `c.lastSurvey`, emits CARTOGRAPHER_SURVEYED. `_getBorderFogTiles()` returns deduplicated unrevealed tiles adjacent (4-dir) to player tiles. `getCartographerSurvey()` + `getCartographerSurveySecs()` exported for UI.
+- `src/core/events.js`: Added `CARTOGRAPHER_SURVEYED: 'cartographerSurveyed'`.
+- `src/core/state.js`: Added `cartographer: null` field + `initState()` reset.
+- `src/ui/mapPanel.js`: Import `getCartographerSurvey + getCartographerSurveySecs`; `_updateSurveyReport()` renders `#carto-survey` div showing header with countdown + survey lines (or "no survey yet"); `_buildHTML()` adds `<div id="carto-survey">` after `map-stats`; `on(BUILDING_CHANGED)` + `on(CARTOGRAPHER_SURVEYED)` both call `_updateSurveyReport()`; also called once after `_render()` in `initMapPanel()`.
+- `src/main.js`: Import cartographer functions; `registerSystem(cartographerTick)`; `initCartographer()` in boot + `_newGame()`; cartographer saved/loaded; version 55→56 (combined with T180: 55→57).
+- `styles/main.css`: `.carto-survey`, `.carto-survey__header`, `.carto-survey__countdown`, `.carto-survey__lines`, `.carto-survey__line`, `.carto-survey__line--none`.
+
+**T180 — Relic Shrine:**
+- `src/data/buildings.js`: Added `relicShrine` unique building (minAge:3, requires manaWell×1, cost 150g+100s+80m, production mana:0.3, unique=true). Placed before ancientMonument.
+- `src/systems/relicShrine.js`: New file. `initRelicShrine()` lazy-creates `state.relicShrine = { nextPrestigeTick, communeCooldownUntil, totalCommunions, totalPrestigeAwarded }`. `relicShrineTick()` fires PRESTIGE_INTERVAL (240 ticks = 60s): awards `relicCount × 12` prestige via `awardPrestige()`. `communeWithRelics()` validates building + cooldown, awards tier bonus (0=+20p, 1=+30p, 2-3=+50p+50g, 4-5=+80p+80g+5morale, 6=+150p+150g+10morale+5fog), sets cooldown, emits RELIC_SHRINE_COMMUNE + RESOURCE_CHANGED. `_revealFogTiles(n)` helper for the 6-relic tier. `getRelicCount()` + `getCommuneSecsLeft()` exported.
+- `src/core/events.js`: Added `RELIC_SHRINE_COMMUNE: 'relicShrineCommuned'`.
+- `src/core/state.js`: Added `relicShrine: null` field + `initState()` reset.
+- `src/ui/buildingPanel.js`: Import `communeWithRelics + getCommuneSecsLeft + getRelicCount`; `on(RELIC_SHRINE_COMMUNE)` + `on(RELIC_DISCOVERED)` trigger `renderBuildingPanel`; `_relicShrineSection()` renders section (passive rate, commune status badge, commune button, stats); `html += _relicShrineSection()` at end of render; `shrine-commune` action handler in onclick.
+- `src/main.js`: Import relicShrine functions; `registerSystem(relicShrineTick)`; `initRelicShrine()` in boot + `_newGame()`; relicShrine saved/loaded; version 57.
+- `styles/main.css`: `.shrine-section`, `.shrine-section__header`, `.shrine-section__intro`, `.shrine-relics`, `.shrine-commune-status` (ready/cooldown variants), `.shrine-total`, `.btn--commune` (purple gradient).
+
+**Architecture decisions:**
+- Cartographer reveal uses 4-directional adjacency (not 8) to stay conservative — only tiles the player could realistically explore next. Survey uses 8-directional to cast a wider analysis net.
+- Relic Shrine prestige interval is 60 real-seconds regardless of game speed to keep the reward rate meaningful without being exploitable.
+- Both systems use the same idempotent init pattern as existing systems (lazy state creation on first tick if building is built before state init).
+
+---
+
 ## 2026-04-28 — Session N+43
 
 **Tasks completed:** T175, T176

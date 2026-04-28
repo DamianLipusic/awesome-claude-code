@@ -236,6 +236,22 @@ export const BUILDINGS = Object.freeze({
     unique: true,
   },
 
+  // T179: Cartographer's Guild — passive fog reveal + survey reports
+  cartographersGuild: {
+    name: "Cartographer's Guild",
+    icon: '🗺️',
+    description: "Systematic exploration hub. Passively reveals 1 fog tile every 10 seconds along your borders. Every 8 minutes generates a Survey Report identifying the richest unexplored terrain nearby.",
+    baseCost: { gold: 100, wood: 80, stone: 60 },
+    production: {},
+    consumption: {},
+    capBonus: {},
+    requires: [
+      { type: 'age',      minAge: 2 },
+      { type: 'building', id: 'market', count: 1 },
+    ],
+    unique: true,
+  },
+
   // ── Wonders ───────────────────────────────────────────────────────────────
   // Unique (max 1 per game). Provide powerful late-game bonuses.
 
@@ -287,6 +303,22 @@ export const BUILDINGS = Object.freeze({
     ],
     unique: true,
     wonder: true,
+  },
+
+  // T180: Relic Shrine — unique Medieval Age shrine powering up discovered relics
+  relicShrine: {
+    name: 'Relic Shrine',
+    icon: '⛩️',
+    description: "Sacred shrine for ancient relics. +0.3 mana/s. Passively awards prestige equal to 12 × relic count per minute. Every 5 minutes, Commune with Relics for a bonus that scales with your relic collection.",
+    baseCost: { gold: 150, stone: 100, mana: 80 },
+    production: { mana: 0.3 },
+    consumption: {},
+    capBonus: {},
+    requires: [
+      { type: 'age',      minAge: 3 },
+      { type: 'building', id: 'manaWell', count: 1 },
+    ],
+    unique: true,
   },
 
   // T176: Ancient Monument — unique Medieval Age landmark with periodic ceremonies

@@ -101,6 +101,8 @@ import { initWarExhaustion, warExhaustionTick, getExhaustionLevel, getExhaustion
 import { initMonument, monumentTick, onMonumentBuilt } from './systems/ancientMonument.js';    // T176
 import { initAlmanac } from './ui/almanac.js';                                                 // T177
 import { initAudio }   from './utils/audio.js';                                                // T178
+import { initCartographer, cartographerTick } from './systems/cartographersGuild.js';          // T179
+import { initRelicShrine, relicShrineTick } from './systems/relicShrine.js';                   // T180
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
@@ -187,8 +189,10 @@ function boot() {
   registerSystem(nobleDemandsTick);  // T168: noble council demands
   registerSystem(censusTick);        // T171: imperial census
   registerSystem(vaultTick);         // T173: imperial vault
-  registerSystem(warExhaustionTick); // T175: war exhaustion decay
-  registerSystem(monumentTick);      // T176: ancient monument dedication
+  registerSystem(warExhaustionTick);  // T175: war exhaustion decay
+  registerSystem(monumentTick);       // T176: ancient monument dedication
+  registerSystem(cartographerTick);   // T179: cartographer's guild passive reveal
+  registerSystem(relicShrineTick);    // T180: relic shrine passive prestige
 
   // Init event-driven systems
   initRandomEvents();
@@ -244,6 +248,8 @@ function boot() {
   initCensus();         // T171: imperial census
   initVault();          // T173: imperial vault
   initWarExhaustion();  // T175: war exhaustion
+  initCartographer();   // T179: cartographer's guild
+  initRelicShrine();    // T180: relic shrine
   // T176: monument init deferred — only activates when building is constructed
 
   // Init UI
@@ -494,7 +500,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 55, // T175+T176: war exhaustion + ancient monument
+      version: 57, // T179+T180: cartographer's guild + relic shrine
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -605,6 +611,8 @@ function _save() {
         summit:              state.summit              ?? null,  // T174
         warExhaustion:       state.warExhaustion       ?? null,  // T175
         monument:            state.monument            ?? null,  // T176
+        cartographer:        state.cartographer        ?? null,  // T179
+        relicShrine:         state.relicShrine         ?? null,  // T180
         tick:          state.tick,
       }
     }));
@@ -749,6 +757,8 @@ function _applySave(save) {
   state.summit               = s.summit               ?? null; // T174
   state.warExhaustion        = s.warExhaustion        ?? null; // T175
   state.monument             = s.monument             ?? null; // T176
+  state.cartographer         = s.cartographer         ?? null; // T179
+  state.relicShrine          = s.relicShrine          ?? null; // T180
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
@@ -1548,6 +1558,8 @@ function _newGame(opts = {}) {
   initNobleDemands();   // T168: reset noble demands on new game
   initVault();          // T173: reset vault state on new game
   initWarExhaustion();  // T175: reset war exhaustion on new game
+  initCartographer();   // T179: reset cartographer state on new game
+  initRelicShrine();    // T180: reset relic shrine state on new game
   _updateCelestialBanner(); // T153: hide banner on new game
   recalcRates();
   startLoop();  // restart loop in case it was stopped by game-over

@@ -7,6 +7,7 @@ import { state } from '../core/state.js';
 import { on, Events } from '../core/events.js';
 import { buildBuilding, demolishBuilding, specializeBuilding, chooseCapitalPlan, upgradeResourceCap, CAP_UPGRADE_MAX, CAP_UPGRADE_BONUS, CAP_UPGRADE_BASE, forgeItem, addToBuildQueue, removeFromBuildQueue, BUILD_QUEUE_MAX, convertResource, CONVERSION_CHAIN, CONVERSION_INPUT, CONVERSION_OUTPUT, CONVERSION_COOLDOWN_TICKS } from '../core/actions.js';
 import { depositToVault, VAULT_DEPOSIT_AMOUNT, VAULT_RETURN_AMOUNT, VAULT_LOCK_TICKS } from '../systems/imperialVault.js';
+import { communeWithRelics, getCommuneSecsLeft, getRelicCount } from '../systems/relicShrine.js'; // T180
 import { BUILDINGS } from '../data/buildings.js';
 import { SPECIALIZATIONS, SPECIALS_BY_BUILDING, ELIGIBLE_BUILDINGS } from '../data/buildingSpecials.js';
 import { CAPITAL_PLANS, CAPITAL_PLAN_ORDER } from '../data/capitalPlans.js';
@@ -33,6 +34,8 @@ export function initBuildingPanel() {
   on(Events.QUEUE_CHANGED,         renderBuildingPanel);
   on(Events.CONVERSION_CHANGED,    renderBuildingPanel);
   on(Events.VAULT_CHANGED,         renderBuildingPanel);
+  on(Events.RELIC_SHRINE_COMMUNE,  renderBuildingPanel); // T180
+  on(Events.RELIC_DISCOVERED,      renderBuildingPanel); // T180: relic count update
   on(Events.RESOURCE_CHANGED,      _throttleRender());
 }
 
@@ -134,6 +137,7 @@ function renderBuildingPanel() {
   html += _forgeSection();
   html += _conversionSection();
   html += _vaultSection();
+  html += _relicShrineSection(); // T180
 
   panel.innerHTML = html;
 
@@ -185,6 +189,13 @@ function renderBuildingPanel() {
     }
     if (action === 'vault-deposit') {
       const result = depositToVault();
+      if (!result.ok) {
+        btn.classList.add('btn--shake');
+        setTimeout(() => btn.classList.remove('btn--shake'), 400);
+      }
+    }
+    if (action === 'shrine-commune') { // T180
+      const result = communeWithRelics();
       if (!result.ok) {
         btn.classList.add('btn--shake');
         setTimeout(() => btn.classList.remove('btn--shake'), 400);
@@ -540,6 +551,57 @@ function _vaultSection() {
       💰 Deposit ${VAULT_DEPOSIT_AMOUNT} Gold
     </button>
     ${totalHtml}
+  </div>`;
+}
+
+// ── T180: Relic Shrine section ────────────────────────────────────────────────
+
+function _relicShrineSection() {
+  if ((state.buildings?.relicShrine ?? 0) < 1) return '';
+
+  const relicCount  = getRelicCount();
+  const secsLeft    = getCommuneSecsLeft();
+  const onCooldown  = secsLeft > 0;
+  const totalComms  = state.relicShrine?.totalCommunions ?? 0;
+  const totalPres   = state.relicShrine?.totalPrestigeAwarded ?? 0;
+
+  const mins = Math.floor(secsLeft / 60);
+  const secs = secsLeft % 60;
+  const cdStr = mins > 0 ? `${mins}m ${String(secs).padStart(2, '0')}s` : `${secsLeft}s`;
+
+  // Describe the commune bonus tier
+  let tierDesc;
+  if (relicCount >= 6)      tierDesc = '+150 prestige, +150 gold, +10 morale, reveal 5 tiles';
+  else if (relicCount >= 4) tierDesc = '+80 prestige, +80 gold, +5 morale';
+  else if (relicCount >= 2) tierDesc = '+50 prestige, +50 gold';
+  else if (relicCount === 1) tierDesc = '+30 prestige';
+  else                      tierDesc = '+20 prestige';
+
+  const communeStatusHtml = onCooldown
+    ? `<div class="shrine-commune-status shrine-commune-status--cooldown">⏳ Next communion available in ${cdStr}</div>`
+    : `<div class="shrine-commune-status shrine-commune-status--ready">✨ Communion ready (${relicCount} relic${relicCount !== 1 ? 's' : ''}: ${tierDesc})</div>`;
+
+  const passiveRate = relicCount > 0
+    ? `<div class="shrine-relics">⛩️ Passive: +${relicCount * 12} prestige/min from ${relicCount} relic${relicCount !== 1 ? 's' : ''}</div>`
+    : `<div class="shrine-relics">⛩️ Discover relics to unlock passive prestige income.</div>`;
+
+  const statsHtml = totalComms > 0
+    ? `<div class="shrine-total">Communions: ${totalComms}  ·  Prestige awarded: ${totalPres}</div>`
+    : '';
+
+  return `<div class="shrine-section">
+    <div class="shrine-section__header">⛩️ Relic Shrine</div>
+    <div class="shrine-section__intro">
+      Amplifies the power of your ancient relics. Passive prestige scales with relic count. Commune every 5 minutes for scaled rewards.
+    </div>
+    ${passiveRate}
+    ${communeStatusHtml}
+    <button class="btn btn--commune ${onCooldown ? 'btn--disabled' : ''}"
+            data-action="shrine-commune"
+            ${onCooldown ? 'disabled' : ''}>
+      ⛩️ Commune with Relics
+    </button>
+    ${statsHtml}
   </div>`;
 }
 

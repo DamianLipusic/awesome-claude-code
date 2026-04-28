@@ -27,6 +27,7 @@ import { getActiveBounty } from '../systems/bounty.js';
 import { getActiveSeasonalObjective } from '../systems/seasonalObjectives.js'; // T170
 import { claimDiscovery, getDiscoveryDef, spawnDiscoveries } from '../systems/discoveries.js'; // T146
 import { getCurrentWeather } from '../systems/weather.js'; // T149
+import { getCartographerSurvey, getCartographerSurveySecs } from '../systems/cartographersGuild.js'; // T179
 
 const TILE_PX   = 24;     // pixels per tile side
 const GRID_SIZE = 20;     // tiles per axis
@@ -238,7 +239,12 @@ export function initMapPanel() {
   // T170: re-render when seasonal objective spawns, is captured, or expires
   on(Events.SEASONAL_OBJECTIVE, _render);
 
+  // T179: update survey report when guild is built or survey fires
+  on(Events.BUILDING_CHANGED,      _updateSurveyReport);
+  on(Events.CARTOGRAPHER_SURVEYED, _updateSurveyReport);
+
   _render();
+  _updateSurveyReport();
 }
 
 // ── HTML scaffold ──────────────────────────────────────────────────────────
@@ -280,6 +286,7 @@ function _buildHTML() {
       </span>
     </div>
     <div id="map-stats" class="map-stats"></div>
+    <div id="carto-survey" class="carto-survey"></div>
   `;
 }
 
@@ -891,6 +898,33 @@ function _updateStats() {
   const nodeStr    = nodeCount > 0 ? `  ·  ✦ Nodes: ${nodeCount}` : '';
   el.textContent =
     `Territory: ${playerTiles} tiles  ·  Enemy: ${enemyTiles} tiles${barbStr}  ·  Explored: ${revealedTiles}/${total}${caravanStr}${nodeStr}`;
+}
+
+// ── T179: Cartographer's Guild survey report ──────────────────────────────
+
+function _updateSurveyReport() {
+  const el = document.getElementById('carto-survey');
+  if (!el) return;
+  if (!(state.buildings?.cartographersGuild >= 1)) {
+    el.innerHTML = '';
+    return;
+  }
+  const survey = getCartographerSurvey();
+  const secsLeft = getCartographerSurveySecs();
+  const mins = secsLeft !== null ? Math.floor(secsLeft / 60) : null;
+  const secs = secsLeft !== null ? secsLeft % 60 : null;
+  const countdownStr = secsLeft !== null
+    ? (mins > 0 ? `${mins}m ${String(secs).padStart(2, '0')}s` : `${secsLeft}s`)
+    : '';
+
+  const linesHtml = survey
+    ? survey.lines.map(l => `<div class="carto-survey__line">${l}</div>`).join('')
+    : '<div class="carto-survey__line carto-survey__line--none">No survey yet — first report in 8 minutes.</div>';
+
+  el.innerHTML = `
+    <div class="carto-survey__header">🗺️ Cartographer's Survey ${countdownStr ? `<span class="carto-survey__countdown">(next in ${countdownStr})</span>` : ''}</div>
+    <div class="carto-survey__lines">${linesHtml}</div>
+  `;
 }
 
 // ── Event handlers ─────────────────────────────────────────────────────────
