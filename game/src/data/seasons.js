@@ -89,3 +89,29 @@ export const SEASON_COMBAT_BUFF_LABELS = [
   '🗡️ Knights +20% attack',
   '🔮 Mages +20% attack',
 ];
+
+/**
+ * T188: Seasonal research affinity — tech IDs that receive −15% cost and −15% research
+ * time during their matching season.  Index matches SEASONS (0=Spring … 3=Winter).
+ */
+export const SEASON_RESEARCH_AFFINITY = [
+  // Spring — growth & faith techs
+  new Set(['agriculture', 'sacred_harvest', 'divine_favor']),
+  // Summer — military & tactics techs
+  new Set(['warcraft', 'tactics', 'steel', 'siege_craft', 'fortification', 'veteran_legion', 'fortress_doctrine']),
+  // Autumn — trade & espionage techs
+  new Set(['tradeRoutes', 'economics', 'trade_empire', 'navigation', 'espionage']),
+  // Winter — craft & arcane techs
+  new Set(['arcane', 'alchemy', 'runic_forging', 'naval_engineering', 'masonry', 'engineering', 'metalworking']),
+];
+
+/** Discount multiplier applied to cost and research time for affinity techs. */
+export const SEASON_AFFINITY_DISCOUNT = 0.85;
+
+/** Human-readable affinity labels per season (for research panel badges). */
+export const SEASON_AFFINITY_LABELS = [
+  '🌸 Spring Affinity',
+  '☀️ Summer Affinity',
+  '🍂 Autumn Affinity',
+  '❄️ Winter Affinity',
+];

@@ -17,12 +17,12 @@ import { stopLoop }     from '../core/tick.js';
 import { addMessage }   from '../core/actions.js';
 
 // ── Conquest win thresholds ───────────────────────────────────────────────────
-const WIN_AGE       = 3;   // Medieval Age
-const WIN_TILES     = 80;
-const WIN_QUESTS    = 10;
+export const WIN_AGE       = 3;   // Medieval Age
+export const WIN_TILES     = 80;
+export const WIN_QUESTS    = 10;
 
 // ── Diplomatic win threshold ──────────────────────────────────────────────────
-const WIN_DIPLOMATIC_ALLIANCES = 3;   // all AI empires allied simultaneously
+export const WIN_DIPLOMATIC_ALLIANCES = 3;   // all AI empires allied simultaneously
 
 // ── Economic win thresholds ───────────────────────────────────────────────────
 export const WIN_ECONOMIC_GOLD = 50_000;   // lifetime gold earned (exported for summaryPanel)

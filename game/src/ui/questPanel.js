@@ -14,6 +14,7 @@ import { getActivePlague, getPlagueSecsLeft, quarantinePlague, QUARANTINE_GOLD_C
 import { hostPilgrimage } from '../systems/pilgrimages.js'; // T162
 import { getActiveSeasonalObjective } from '../systems/seasonalObjectives.js'; // T170
 import { TICKS_PER_SECOND } from '../core/tick.js';
+import { WIN_AGE, WIN_TILES, WIN_QUESTS, WIN_DIPLOMATIC_ALLIANCES, WIN_ECONOMIC_GOLD } from '../systems/victory.js'; // T187
 
 export function initQuestPanel() {
   const panel = document.getElementById('panel-quests');
@@ -29,6 +30,7 @@ export function initQuestPanel() {
     Events.PLAGUE_STARTED, Events.PLAGUE_ENDED,        // T161
     Events.PILGRIMAGE_ARRIVED, Events.PILGRIMAGE_HOSTED, // T162
     Events.SEASONAL_OBJECTIVE,                          // T170
+    Events.DIPLOMACY_CHANGED,                           // T187: victory progress alliance count
   ];
   for (const ev of events) on(ev, render);
 
@@ -110,6 +112,87 @@ function render() {
     </div>
     <div class="quest-list">
       ${QUESTS.map(q => _questCard(q, completed[q.id])).join('')}
+    </div>
+    ${_victoryProgressSection()}
+  `;
+}
+
+// ── Victory Progress section (T187) ──────────────────────────────────────
+
+function _victoryProgressSection() {
+  if (!state.quests) return '';
+
+  // ── Conquest progress ──────────────────────────────────────────────────
+  let playerTiles = 0;
+  if (state.map) {
+    for (const row of state.map.tiles) for (const t of row) if (t.owner === 'player') playerTiles++;
+  }
+  const currentAge   = state.age ?? 0;
+  const questsDone   = Object.keys(state.quests?.completed ?? {}).length;
+  const tilePct      = Math.min(100, Math.round((playerTiles / WIN_TILES) * 100));
+  const agePct       = Math.min(100, Math.round((currentAge  / WIN_AGE)   * 100));
+  const questPct     = Math.min(100, Math.round((questsDone  / WIN_QUESTS) * 100));
+  const conquestPct  = Math.round((tilePct + agePct + questPct) / 3);
+
+  // ── Diplomatic progress ────────────────────────────────────────────────
+  const alliedCount  = state.diplomacy?.empires?.filter(e => e.relations === 'allied').length ?? 0;
+  const diplomPct    = Math.min(100, Math.round((alliedCount / WIN_DIPLOMATIC_ALLIANCES) * 100));
+
+  // ── Economic progress ──────────────────────────────────────────────────
+  const goldEarned   = state.stats?.goldEarned ?? 0;
+  const hasTech      = !!state.techs?.economics;
+  const goldPct      = Math.min(100, Math.round((goldEarned / WIN_ECONOMIC_GOLD) * 100));
+  const econPct      = hasTech ? Math.round((goldPct + 100) / 2) : Math.round(goldPct / 2);
+
+  function bar(pct, cls) {
+    return `<div class="vp-bar-bg"><div class="vp-bar-fill ${cls}" style="width:${pct}%"></div></div>`;
+  }
+
+  return `
+    <div class="victory-progress-section">
+      <div class="victory-progress-header">🏆 Victory Paths</div>
+
+      <div class="vp-card vp-card--conquest">
+        <div class="vp-card__title">⚔️ Conquest <span class="vp-pct">${conquestPct}%</span></div>
+        <div class="vp-row">
+          <span class="vp-label">Territory</span>
+          ${bar(tilePct, 'vp-bar-fill--conquest')}
+          <span class="vp-val">${playerTiles}/${WIN_TILES}</span>
+        </div>
+        <div class="vp-row">
+          <span class="vp-label">Age</span>
+          ${bar(agePct, 'vp-bar-fill--conquest')}
+          <span class="vp-val">${currentAge}/${WIN_AGE}</span>
+        </div>
+        <div class="vp-row">
+          <span class="vp-label">Quests</span>
+          ${bar(questPct, 'vp-bar-fill--conquest')}
+          <span class="vp-val">${questsDone}/${WIN_QUESTS}</span>
+        </div>
+      </div>
+
+      <div class="vp-card vp-card--diplomatic">
+        <div class="vp-card__title">🤝 Diplomatic <span class="vp-pct">${diplomPct}%</span></div>
+        <div class="vp-row">
+          <span class="vp-label">Alliances</span>
+          ${bar(diplomPct, 'vp-bar-fill--diplomatic')}
+          <span class="vp-val">${alliedCount}/${WIN_DIPLOMATIC_ALLIANCES}</span>
+        </div>
+        <div class="vp-card__sub">Ally all ${WIN_DIPLOMATIC_ALLIANCES} rival empires simultaneously.</div>
+      </div>
+
+      <div class="vp-card vp-card--economic">
+        <div class="vp-card__title">💰 Economic <span class="vp-pct">${econPct}%</span></div>
+        <div class="vp-row">
+          <span class="vp-label">Gold Earned</span>
+          ${bar(goldPct, 'vp-bar-fill--economic')}
+          <span class="vp-val">${Math.floor(goldEarned).toLocaleString()}/${WIN_ECONOMIC_GOLD.toLocaleString()}</span>
+        </div>
+        <div class="vp-row">
+          <span class="vp-label">Economics Tech</span>
+          <span class="vp-tech-status ${hasTech ? 'vp-tech-status--done' : ''}">${hasTech ? '✅ Researched' : '🔒 Not yet researched'}</span>
+        </div>
+      </div>
     </div>
   `;
 }

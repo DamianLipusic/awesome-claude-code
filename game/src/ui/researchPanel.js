@@ -21,6 +21,7 @@ import { useFestival, getActiveFestival, getFestivalSecsLeft, getFestivalCooldow
 import { acceptInspiration, dismissInspiration, getInspirationSecsLeft, INSPIRATION_TYPES } from '../systems/researchInspiration.js';
 import { WONDERS, WONDER_ORDER } from '../data/wonders.js';
 import { startWonder, getWonderProgress, getCompletedWonder, isWonderBuilding } from '../systems/wonders.js';
+import { SEASON_RESEARCH_AFFINITY, SEASON_AFFINITY_LABELS, SEASON_AFFINITY_DISCOUNT } from '../data/seasons.js'; // T188
 
 export function initResearchPanel() {
   const panel = document.getElementById('panel-research');
@@ -43,6 +44,7 @@ export function initResearchPanel() {
   on(Events.RESEARCH_INSPIRATION,   renderResearchPanel);
   on(Events.WONDER_CHANGED,         renderResearchPanel);  // T133
   on(Events.GRAND_THEORY_CHOSEN,    renderResearchPanel);  // T150
+  on(Events.SEASON_CHANGED,         renderResearchPanel);  // T188: re-render when season flips so affinity badges update
   // Refresh countdown text every second while a festival, inspiration, or wonder is active
   on(Events.TICK, _throttle(() => {
     const hasActivity = getActiveFestival() || getFestivalCooldownSecs() > 0
@@ -58,16 +60,29 @@ function renderResearchPanel() {
   // Research queue section (active + pending items)
   const progressHtml = _queueSection();
 
+  // T188: seasonal affinity context
+  const _seasonIdx    = state.season?.index ?? -1;
+  const _affinitySet  = _seasonIdx >= 0 ? (SEASON_RESEARCH_AFFINITY[_seasonIdx] ?? null) : null;
+  const _affinityLabel = _seasonIdx >= 0 ? SEASON_AFFINITY_LABELS[_seasonIdx] : '';
+
   const techCards = Object.entries(TECHS).map(([id, def]) => {
     const done     = !!state.techs[id];
     const inQueue  = state.researchQueue.some(e => e.techId === id);
     const prereqOk = (def.requires ?? []).every(r => state.techs[r]);
-    const canAfford = Object.entries(def.cost).every(
+
+    // T188: compute affinity-adjusted cost for display
+    const isAffinity  = !done && prereqOk && !inQueue && !!_affinitySet?.has(id);
+    const displayCost = isAffinity
+      ? Object.fromEntries(Object.entries(def.cost).map(([r, a]) => [r, Math.floor(a * SEASON_AFFINITY_DISCOUNT)]))
+      : def.cost;
+    const displayTicks = isAffinity ? Math.ceil(def.researchTicks * SEASON_AFFINITY_DISCOUNT) : def.researchTicks;
+
+    const canAfford = Object.entries(displayCost).every(
       ([r, a]) => (state.resources[r] ?? 0) >= a
     );
-    const costStr = Object.entries(def.cost)
+    const costStr = Object.entries(displayCost)
       .map(([r, a]) => `${_resIcon(r)}${fmtNum(a)}`).join(' ');
-    const timeStr = fmtTime(def.researchTicks / TICKS_PER_SECOND);
+    const timeStr = fmtTime(displayTicks / TICKS_PER_SECOND);
 
     if (done) {
       return `<div class="tech-card tech-card--done" title="${def.effectDesc}">
@@ -85,9 +100,13 @@ function renderResearchPanel() {
       </div>`;
     }
 
-    return `<div class="tech-card ${canAfford ? '' : 'tech-card--cant-afford'}"
+    const affinityBadge = isAffinity
+      ? `<span class="tech-affinity-badge" title="${_affinityLabel} — −15% cost &amp; time">${_affinityLabel}</span>`
+      : '';
+
+    return `<div class="tech-card ${canAfford ? '' : 'tech-card--cant-afford'} ${isAffinity ? 'tech-card--affinity' : ''}"
                  title="${def.description} — ${def.effectDesc}">
-      <div class="tech-card__header">${def.icon} <strong>${def.name}</strong></div>
+      <div class="tech-card__header">${def.icon} <strong>${def.name}</strong>${affinityBadge}</div>
       <div class="tech-card__cost">${costStr} · ⏱${timeStr}</div>
       <button class="btn btn--research ${canAfford ? '' : 'btn--disabled'}"
               data-tech="${id}" ${canAfford ? '' : 'disabled'}>Research</button>

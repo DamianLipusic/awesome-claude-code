@@ -10,6 +10,7 @@ import { heroSkillBonus } from '../data/hero.js';
 import { recalcRates } from './resources.js';
 import { addMessage } from '../core/actions.js';
 import { log } from '../utils/logger.js';
+import { SEASON_RESEARCH_AFFINITY, SEASON_AFFINITY_DISCOUNT, SEASON_AFFINITY_LABELS } from '../data/seasons.js'; // T188
 
 /** Maximum number of techs that can sit in the research queue at once. */
 export const MAX_RESEARCH_QUEUE = 3;
@@ -95,21 +96,35 @@ export function startResearch(techId) {
     }
   }
 
-  // Check resources
-  for (const [res, amt] of Object.entries(def.cost)) {
+  // T188: Seasonal research affinity — −15% cost and −15% time for in-season techs
+  const seasonIdx     = state.season?.index ?? -1;
+  const isAffinityTech = seasonIdx >= 0 && SEASON_RESEARCH_AFFINITY[seasonIdx]?.has(techId);
+  const affinityCost  = isAffinityTech
+    ? Object.fromEntries(Object.entries(def.cost).map(([r, a]) => [r, Math.floor(a * SEASON_AFFINITY_DISCOUNT)]))
+    : def.cost;
+
+  // Check resources (using affinity-adjusted cost)
+  for (const [res, amt] of Object.entries(affinityCost)) {
     if ((state.resources[res] ?? 0) < amt) {
       return { ok: false, reason: 'Insufficient resources' };
     }
   }
 
-  // Deduct cost
-  for (const [res, amt] of Object.entries(def.cost)) {
+  // Deduct cost (using affinity-adjusted cost)
+  for (const [res, amt] of Object.entries(affinityCost)) {
     state.resources[res] -= amt;
+  }
+
+  if (isAffinityTech) {
+    addMessage(`${SEASON_AFFINITY_LABELS[seasonIdx]}: ${def.name} costs −15%!`, 'tech');
   }
 
   // Great Library wonder: -25% research time
   const libraryBuilt = (state.buildings?.greatLibrary ?? 0) >= 1;
   let totalTicks = libraryBuilt ? Math.ceil(def.researchTicks * 0.75) : def.researchTicks;
+
+  // T188: Seasonal affinity — −15% research time
+  if (isAffinityTech) totalTicks = Math.ceil(totalTicks * SEASON_AFFINITY_DISCOUNT);
 
   // T070: Hero veteran_knowledge skill: -20% research time
   if (state.hero?.recruited && state.hero.skills?.length) {

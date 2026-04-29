@@ -2,6 +2,30 @@
 
 ---
 
+## 2026-04-29 — Session N+46
+
+**Tasks completed:** T187, T188
+
+**Summary:**
+All prior tasks (T001–T186) were complete. Created T187+T188 task specs then implemented two Phase 73 features: Victory Progress Tracker (T187) and Seasonal Research Affinity (T188).
+
+**T187 — Victory Progress Tracker:**
+- `src/systems/victory.js`: Changed `WIN_AGE`, `WIN_TILES`, `WIN_QUESTS`, and `WIN_DIPLOMATIC_ALLIANCES` from module-private `const` to `export const` so the quest panel can read the canonical thresholds.
+- `src/ui/questPanel.js`: Imported the 4 new exports plus `WIN_ECONOMIC_GOLD`. Added `_victoryProgressSection()` function that renders a `.victory-progress-section` block with 3 coloured victory-path cards (Conquest/Diplomatic/Economic). Conquest card shows territory (X/80), age (X/3), and quests (X/10) progress bars plus averaged % in the card title. Diplomatic card shows allied-empire count (X/3). Economic card shows lifetime-gold bar (X/50000) and an Economics-tech checkmark. Appended to `render()` after the quest list. Also added `Events.DIPLOMACY_CHANGED` to the panel's event subscription list so alliance changes update the display.
+- `styles/main.css`: `.victory-progress-section`, `.victory-progress-header`, `.vp-card` (base + `--conquest`/`--diplomatic`/`--economic` tint variants), `.vp-card__title`, `.vp-pct`, `.vp-row` (3-column grid: label / bar / value), `.vp-label`, `.vp-val`, `.vp-bar-bg`, `.vp-bar-fill` (base + per-path colour gradients), `.vp-card__sub`, `.vp-tech-status` (+`--done` green).
+
+**T188 — Seasonal Research Affinity:**
+- `src/data/seasons.js`: Added `SEASON_RESEARCH_AFFINITY` (array of 4 `Set`s indexed by season: Spring=agriculture/sacred_harvest/divine_favor, Summer=warcraft/tactics/steel/siege_craft/fortification/veteran_legion/fortress_doctrine, Autumn=tradeRoutes/economics/trade_empire/navigation/espionage, Winter=arcane/alchemy/runic_forging/naval_engineering/masonry/engineering/metalworking), `SEASON_AFFINITY_DISCOUNT = 0.85`, and `SEASON_AFFINITY_LABELS[4]` (human-readable season-named badge text).
+- `src/systems/research.js`: Imported the 3 new exports. In `startResearch()`: computed `isAffinityTech` from `state.season?.index` + the affinity set; built `affinityCost` using `floor(a * 0.85)` for each resource; validates and deducts the adjusted cost; emits a flavour message on queue; applied `totalTicks *= 0.85` immediately after the Great Library check.
+- `src/ui/researchPanel.js`: Imported the 3 season exports. In `renderResearchPanel()`: computed `_seasonIdx/_affinitySet/_affinityLabel` once; for each available (non-done, non-locked, non-queued) tech, `isAffinity` flag selects discounted `displayCost` and `displayTicks` for card display; adds `.tech-affinity-badge` inline span and `.tech-card--affinity` CSS class on matching cards. Subscribed to `Events.SEASON_CHANGED` so affinity badges flip at season boundary.
+- `styles/main.css`: `.tech-card--affinity` (yellow border/bg tint), `.tech-affinity-badge` (gold inline pill label).
+
+**Architecture decisions:**
+- T187 is purely read-only — it consumes existing state fields and exported constants without adding new state. The three progress cards are always rendered after the quest list (no minimum-progress gate) so players see the win conditions from game start.
+- T188 applies the affinity discount at queue time (not at research-completion time), so the cost reduction is immediately visible in the resource bar. The displayed cost on the card also reflects the discount, ensuring players never see a "Insufficient resources" surprise. Refunds on cancel return the discounted amount (existing cancel logic loops over the queued entry's original cost deduction, which is already the discounted value).
+
+---
+
 ## 2026-04-28 — Session N+45
 
 **Tasks completed:** T183, T184
