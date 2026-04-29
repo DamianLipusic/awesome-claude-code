@@ -10,7 +10,7 @@
 
 import { state } from '../core/state.js';
 import { on, Events } from '../core/events.js';
-import { trainUnit, recruitHero, useHeroAbility, setFormation, chooseHeroSkill, rallyTroops, upgradeUnit, UNIT_UPGRADE_MAX, UNIT_UPGRADE_COST_BASE, addMessage, chooseHeroTrait, chooseCompanion, issueProclamation, activateSurgeProvisions, conductBattleDrills } from '../core/actions.js';
+import { trainUnit, recruitHero, useHeroAbility, setFormation, chooseHeroSkill, rallyTroops, upgradeUnit, UNIT_UPGRADE_MAX, UNIT_UPGRADE_COST_BASE, addMessage, chooseHeroTrait, chooseCompanion, issueProclamation, activateSurgeProvisions, conductBattleDrills, immortalizeUnit, LEGENDARY_COST, LEGENDARY_MAX, LEGENDARY_BONUS } from '../core/actions.js';
 import { acceptDuel, declineDuel, getDuelSecsLeft } from '../systems/duels.js';
 import { getActiveWarlord, getWarlordSecsLeft } from '../systems/rovingWarlord.js'; // T165
 import { sendPioneerExpedition, getPioneerProgress, getPioneerSecsLeft, PIONEER_COST, PIONEER_MAX } from '../systems/pioneerExpeditions.js';
@@ -100,6 +100,7 @@ export function initMilitaryPanel() {
   on(Events.WARLORD_DEFEATED,      () => _render(panel)); // T165: warlord defeated
   on(Events.WARLORD_STRUCK,        () => _render(panel)); // T165: warlord struck and departed
   on(Events.ACADEMY_CHANGED,       () => _render(panel)); // T169: battle drills activated
+  on(Events.UNIT_IMMORTALIZED,     () => _render(panel)); // T189: legendary unit immortalized
   on(Events.RESOURCE_CHANGED,  () => _renderCosts(panel));
   on(Events.GAME_LOADED,       () => _render(panel));
 
@@ -1188,6 +1189,34 @@ function _armySection() {
     <div class="mil-badges">${heroEntry}${items}</div>
     ${aidHtml}
     ${cohesionHtml}
+    ${_legendarySection()}
+  </div>`;
+}
+
+// ── T189: Legendary Units section ──────────────────────────────────────────
+
+function _legendarySection() {
+  const legends = Object.entries(state.legendaryUnits ?? {});
+  const legendCount = legends.length;
+  const atMax = legendCount >= LEGENDARY_MAX;
+
+  const legendCards = legends.map(([unitId, leg]) => {
+    const def = UNITS[unitId];
+    return `<div class="legendary-card">
+      <span class="legendary-icon">${def?.icon ?? '⚔️'}</span>
+      <span class="legendary-name">${leg.name}</span>
+      <span class="legendary-type">${def?.name ?? unitId}</span>
+      <span class="legendary-bonus">+${Math.round((leg.bonus ?? 0.08) * 100)}% atk</span>
+    </div>`;
+  }).join('');
+
+  const headerNote = atMax
+    ? `<span class="legendary-limit">Limit reached (${LEGENDARY_MAX}/${LEGENDARY_MAX})</span>`
+    : `<span class="legendary-slots">${legendCount}/${LEGENDARY_MAX} immortalized</span>`;
+
+  return `<div class="legendary-section">
+    <div class="legendary-header">🏅 Legendary Units ${headerNote}</div>
+    ${legendCards || `<span class="legendary-empty">Immortalize an Elite unit for +${Math.round(LEGENDARY_BONUS * 100)}% army attack (${LEGENDARY_COST} 💰)</span>`}
   </div>`;
 }
 
@@ -1245,10 +1274,24 @@ function _unitCard(id) {
   const rank    = state.unitRanks?.[id];
   const xp      = state.unitXP?.[id] ?? 0;
   const rankBdg = _rankBadge(id);
+  const isLegendary = !!(state.legendaryUnits?.[id]);
   let xpLine = '';
   if ((state.units[id] ?? 0) > 0) {
     if (rank === 'elite') {
-      xpLine = `<div class="unit-card__xp">${rankBdg} Max rank — ×2.0 attack</div>`;
+      // T189: show Immortalize button or legendary badge for elite units
+      const legendaryBadge = isLegendary
+        ? `<span class="legendary-badge">🏅 ${state.legendaryUnits[id].name}</span>`
+        : '';
+      const atMax    = Object.keys(state.legendaryUnits ?? {}).length >= LEGENDARY_MAX;
+      const canAffordImmortal = (state.resources.gold ?? 0) >= LEGENDARY_COST;
+      const immortalBtn = !isLegendary
+        ? `<button class="btn btn--immortalize ${atMax || !canAffordImmortal ? 'btn--disabled' : ''}"
+            data-action="immortalize-unit" data-unit-id="${id}"
+            ${atMax || !canAffordImmortal ? 'disabled' : ''}
+            title="${atMax ? `Limit (${LEGENDARY_MAX}) reached` : !canAffordImmortal ? `Need ${LEGENDARY_COST} gold` : `+${Math.round(LEGENDARY_BONUS*100)}% army attack permanently`}">
+            🏅 Immortalize (${LEGENDARY_COST}💰)</button>`
+        : '';
+      xpLine = `<div class="unit-card__xp">${rankBdg} Max rank — ×2.0 attack ${legendaryBadge}${immortalBtn}</div>`;
     } else {
       const nextThreshold = rank === 'veteran' ? ELITE_XP : VETERAN_XP;
       const nextLabel     = rank === 'veteran' ? 'Elite' : 'Veteran';
@@ -1455,6 +1498,14 @@ function _handleClick(e) {
     // T122: choose a hero companion
     const result = chooseCompanion(actionBtn.dataset.companion);
     if (!result.ok) addMessage(result.reason, 'info');
+  } else if (actionBtn.dataset.action === 'immortalize-unit') {
+    // T189: immortalize an elite unit type
+    const result = immortalizeUnit(actionBtn.dataset.unitId);
+    if (!result.ok) {
+      actionBtn.classList.add('btn--shake');
+      setTimeout(() => actionBtn.classList.remove('btn--shake'), 600);
+      addMessage(result.reason, 'info');
+    }
   }
 }
 

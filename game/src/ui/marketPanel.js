@@ -12,6 +12,8 @@ import { acceptContract, cancelContract, contractProgress, contractSecsLeft, con
 import { buyMerchantItem, merchantSecsLeft, merchantNextVisitSecs, canAffordItem } from '../systems/merchant.js';
 import { bidOnAuction, passAuction } from '../systems/auction.js';
 import { executeDeal, getBlackMarketRefreshSecs } from '../systems/blackMarket.js';
+import { isGuildActive, GUILD_ROUTE_BONUS, BOOST_COST, BOOST_MULT, getBoostSecs, boostTradeRoute } from '../systems/tradeGuildHall.js'; // T190
+import { EMPIRES } from '../data/empires.js'; // T190
 import { fmtNum } from '../utils/fmt.js';
 
 const RESOURCE_ICONS = {
@@ -39,6 +41,7 @@ export function initMarketPanel() {
   on(Events.SEASON_CHANGED,       _render);  // T115: reprice seasonal commodities on season change
   on(Events.AUCTION_CHANGED,      _render);  // T126: auction updates
   on(Events.BLACK_MARKET_CHANGED, _render);  // T167: black market deals refreshed
+  on(Events.TRADE_GUILD_BOOSTED,  _render);  // T190: guild boost activated/expired
 
   // Refresh contract/merchant/auction countdowns every ~4 ticks (~1 s)
   let _contractTickCount = 0;
@@ -103,7 +106,8 @@ function _render() {
     ${_merchantSection()}
     ${_contractsSection()}
     ${_auctionSection()}
-    ${_blackMarketSection()}`;
+    ${_blackMarketSection()}
+    ${_tradeGuildSection()}`;
 }
 
 function _row(res, seasonal = []) {
@@ -374,6 +378,9 @@ function _handleClick(e) {
     result = passAuction();
   } else if (action === 'bm-deal') {
     result = executeDeal(parseInt(btn.dataset.idx, 10));
+  } else if (action === 'guild-boost') {
+    // T190: boost a specific trade route
+    result = boostTradeRoute(btn.dataset.empireId);
   }
 
   if (result && !result.ok) {
@@ -449,5 +456,66 @@ function _blackMarketSection() {
       ${deals.length > 0
         ? `<div class="bm-deals">${dealCards}</div>`
         : `<div class="bm-empty">⏳ All deals taken. New deals in ${timeStr}.</div>`}
+    </div>`;
+}
+
+// ---------------------------------------------------------------------------
+// T190: Trade Guild Hall section
+// ---------------------------------------------------------------------------
+
+function _tradeGuildSection() {
+  if (!isGuildActive()) return '';
+
+  const alliedWithRoutes = (state.diplomacy?.empires ?? []).filter(
+    e => e.relations === 'allied' && (e.tradeRoutes ?? 0) > 0
+  );
+
+  if (alliedWithRoutes.length === 0) {
+    return `
+      <div class="guild-section">
+        <div class="guild-header">
+          <span class="guild-title">🏦 Trade Guild Hall</span>
+          <span class="guild-note">+${GUILD_ROUTE_BONUS}/s gold per open trade route</span>
+        </div>
+        <div class="guild-empty">Open trade routes with allied empires to activate guild bonuses.</div>
+      </div>`;
+  }
+
+  const routeCards = alliedWithRoutes.map(emp => {
+    const empDef   = EMPIRES[emp.id];
+    const boostSec = getBoostSecs(emp.id);
+    const boosted  = boostSec > 0;
+    const canAfford = (state.resources.gold ?? 0) >= BOOST_COST;
+    const routeIncome = (GUILD_ROUTE_BONUS * emp.tradeRoutes).toFixed(1);
+    const boostNote   = boosted
+      ? `<span class="guild-boost-active">⚡ Boosted ×${BOOST_MULT} · ${boostSec}s left</span>`
+      : '';
+    return `
+      <div class="guild-route-card">
+        <div class="guild-route-info">
+          <span class="guild-route-empire">${empDef?.name ?? emp.id}</span>
+          <span class="guild-route-count">${emp.tradeRoutes} route${emp.tradeRoutes !== 1 ? 's' : ''}</span>
+          <span class="guild-route-income">+${routeIncome} 💰/s</span>
+          ${boostNote}
+        </div>
+        <button class="btn btn--guild-boost ${boosted || !canAfford ? 'btn--disabled' : ''}"
+          data-action="guild-boost" data-empire-id="${emp.id}"
+          ${boosted || !canAfford ? 'disabled' : ''}
+          title="${boosted ? `Boosted — ${boostSec}s remaining` : !canAfford ? `Need ${BOOST_COST} gold` : `×${BOOST_MULT} income for 5 min (${BOOST_COST} gold)`}">
+          ${boosted ? `⚡ ${boostSec}s` : `⚡ Boost (${BOOST_COST}💰)`}
+        </button>
+      </div>`;
+  }).join('');
+
+  const totalBonus = alliedWithRoutes.reduce((s, e) => s + GUILD_ROUTE_BONUS * e.tradeRoutes, 0);
+
+  return `
+    <div class="guild-section">
+      <div class="guild-header">
+        <span class="guild-title">🏦 Trade Guild Hall</span>
+        <span class="guild-bonus">+${totalBonus.toFixed(1)} 💰/s from routes</span>
+      </div>
+      <div class="guild-note">Boost a route for ×${BOOST_MULT} income for 5 min (${BOOST_COST} gold each).</div>
+      <div class="guild-routes">${routeCards}</div>
     </div>`;
 }

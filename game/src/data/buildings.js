@@ -321,6 +321,23 @@ export const BUILDINGS = Object.freeze({
     unique: true,
   },
 
+  // T190: Trade Guild Hall — unique Iron Age building boosting trade route income
+  tradeGuildHall: {
+    name: 'Trade Guild Hall',
+    icon: '🏦',
+    description: 'Headquarters of the merchant guilds. +0.4 gold/s. Each open trade route yields +0.3 extra gold/s. Guild masters can boost individual routes (×1.5 income for 5 min, 50 gold each).',
+    baseCost: { gold: 120, wood: 80, stone: 60 },
+    production: { gold: 0.4 },
+    consumption: {},
+    capBonus: {},
+    requires: [
+      { type: 'age',      minAge: 2 },
+      { type: 'building', id: 'market', count: 1 },
+      { type: 'tech',     id: 'tradeRoutes' },
+    ],
+    unique: true,
+  },
+
   // T176: Ancient Monument — unique Medieval Age landmark with periodic ceremonies
   ancientMonument: {
     name: 'Ancient Monument',

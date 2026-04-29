@@ -105,6 +105,7 @@ import { initCartographer, cartographerTick } from './systems/cartographersGuild
 import { initRelicShrine, relicShrineTick } from './systems/relicShrine.js';                   // T180
 import { initSeasonChronicle } from './systems/seasonChronicle.js';                            // T181
 import { initFortificationNetwork } from './systems/fortificationNetwork.js';                  // T183
+import { initTradeGuildHall, tradeGuildTick } from './systems/tradeGuildHall.js';              // T190
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
@@ -195,6 +196,7 @@ function boot() {
   registerSystem(monumentTick);       // T176: ancient monument dedication
   registerSystem(cartographerTick);   // T179: cartographer's guild passive reveal
   registerSystem(relicShrineTick);    // T180: relic shrine passive prestige
+  registerSystem(tradeGuildTick);     // T190: trade guild boost expiry
 
   // Init event-driven systems
   initRandomEvents();
@@ -254,6 +256,7 @@ function boot() {
   initRelicShrine();     // T180: relic shrine
   initSeasonChronicle();       // T181: season chronicle
   initFortificationNetwork();  // T183: fortification network defense bonus
+  initTradeGuildHall();        // T190: trade guild hall boost state
   // T176: monument init deferred — only activates when building is constructed
 
   // Init UI
@@ -504,7 +507,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 58, // T181+T182: season chronicle + combat surge
+      version: 60, // T189: legendary unit system; T190: trade guild hall
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -619,6 +622,8 @@ function _save() {
         relicShrine:         state.relicShrine         ?? null,  // T180
         seasonChronicle:     state.seasonChronicle     ?? null,  // T181
         surge:               state.surge               ?? null,  // T182
+        legendaryUnits:      state.legendaryUnits      ?? {},    // T189
+        tradeGuild:          state.tradeGuild          ?? null,  // T190
         tick:          state.tick,
       }
     }));
@@ -767,6 +772,8 @@ function _applySave(save) {
   state.relicShrine          = s.relicShrine          ?? null; // T180
   state.seasonChronicle      = s.seasonChronicle      ?? null; // T181
   state.surge                = s.surge                ?? null; // T182
+  state.legendaryUnits       = s.legendaryUnits       ?? {};   // T189
+  state.tradeGuild           = s.tradeGuild           ?? null; // T190
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
@@ -1570,6 +1577,7 @@ function _newGame(opts = {}) {
   initRelicShrine();     // T180: reset relic shrine state on new game
   initSeasonChronicle();       // T181: reset season chronicle on new game
   initFortificationNetwork();  // T183: recompute network on new game map
+  initTradeGuildHall();        // T190: reset trade guild boost state on new game
   _updateCelestialBanner(); // T153: hide banner on new game
   recalcRates();
   startLoop();  // restart loop in case it was stopped by game-over

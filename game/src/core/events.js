@@ -149,4 +149,6 @@ export const Events = Object.freeze({
   CARTOGRAPHER_SURVEYED:    'cartographerSurveyed',        // T179: cartographer survey report generated
   RELIC_SHRINE_COMMUNE:     'relicShrineCommuned',         // T180: relic shrine communion performed
   SURGE_USED:               'surgeUsed',                   // T182: combat surge activated
+  UNIT_IMMORTALIZED:        'unitImmortalized',            // T189: elite unit type immortalized
+  TRADE_GUILD_BOOSTED:      'tradeGuildBoosted',           // T190: trade route boost activated/expired
 });

@@ -114,6 +114,14 @@ export const state = {
   // Promoted units deal 1.5× (veteran) or 2.0× (elite) attack damage
   unitRanks: {},
 
+  // T189: Legendary Units — { [unitId]: { name, immortalizedAt, bonus } }
+  // Elite units can be immortalized once per game for a +8% army-wide attack mult.
+  legendaryUnits: {},
+
+  // T190: Trade Guild Hall — { boosts: { [empireId]: expiresAtTick } }
+  // null until Trade Guild Hall is built.
+  tradeGuild: null,
+
   // Difficulty setting — persisted across new games (not reset by initState)
   // 'easy' | 'normal' | 'hard'
   difficulty: 'normal',
@@ -516,6 +524,7 @@ export function initState(empireName = 'My Empire') {
   state.enemyAI        = null;
   state.unitXP         = {};
   state.unitRanks      = {};
+  state.legendaryUnits = {};                  // T189: reset legendary units each game
   state.combatHistory  = [];
   state.spells         = null;
   state.barbarians     = null;

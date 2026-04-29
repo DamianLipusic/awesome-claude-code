@@ -3159,3 +3159,90 @@ Modified files:
       .mil-stats-winrate, .mil-stats-winrate__label
       .mil-stats-winrate__bar-bg, .mil-stats-winrate__bar-fill
       .mil-stats-loot, .mil-stats-terrain
+
+================================================================================
+## 2026-04-29 — T189 + T190
+
+T189: Legendary Unit System
+----------------------------------------------------------------------
+Elite unit types can now be Immortalized in the Military panel. Each immortalized
+unit gets a heroic name chosen from a pool of 10 and grants a permanent +8% army-
+wide attack bonus (stacks multiplicatively for each legendary type deployed). Max
+2 legendary units per game. Costs 200 gold. Immortalize button appears on the
+xpLine of Elite unit cards (greyed out if at max or can't afford). A "Legendary
+Units" section at the bottom of the army block lists all current legends.
+
+Modified files:
+  ~ game/src/core/state.js
+      legendaryUnits: {} field added
+      state.legendaryUnits = {} reset in initState (T189)
+  ~ game/src/core/events.js
+      UNIT_IMMORTALIZED: 'unitImmortalized' added
+  ~ game/src/core/actions.js
+      LEGENDARY_COST=200, LEGENDARY_BONUS=0.08, LEGENDARY_MAX=2 exports
+      LEGENDARY_NAMES pool (10 names)
+      immortalizeUnit(unitId) — validates elite rank, gold, limit; picks unused
+        name; sets legendaryUnits[unitId]; emits UNIT_IMMORTALIZED
+  ~ game/src/systems/combat.js
+      T189 block in getAttackPreview: loop legendaryUnits, multiply attackPower
+        by (1 + legend.bonus) for each present legendary unit type
+      Same block in attackTile
+      legendaryCount added to getAttackPreview() return object
+  ~ game/src/ui/militaryPanel.js
+      Import immortalizeUnit, LEGENDARY_COST, LEGENDARY_MAX, LEGENDARY_BONUS
+      on(UNIT_IMMORTALIZED) → _render
+      _legendarySection(): renders legendary unit cards with icon/name/bonus
+      _unitCard(): elite xpLine shows .legendary-badge if already immortalized
+        else shows .btn--immortalize button (disabled when at max or no gold)
+      immortalize-unit click handler added to _handleClick
+  ~ game/src/main.js
+      legendaryUnits saved/loaded; save version 58→59
+  ~ game/styles/main.css
+      .legendary-section, .legendary-header, .legendary-limit, .legendary-slots
+      .legendary-card, .legendary-icon, .legendary-name, .legendary-type
+      .legendary-bonus, .legendary-empty, .legendary-badge, .btn--immortalize
+
+T190: Trade Guild Hall
+----------------------------------------------------------------------
+New unique Iron Age building (requires market×1 + tradeRoutes tech, costs 120g +
+80w + 60s, produces +0.4 gold/s). When built, each open trade route with an allied
+empire generates +0.3 extra gold/s passively. Guild masters can also boost individual
+empire trade routes for 50 gold, granting ×1.5 income for 5 minutes. One active
+boost per empire. Boost expiry handled by tradeGuildTick(). Market panel shows a
+"Trade Guild Hall" section with per-empire route income and Boost buttons.
+
+Modified files:
+  ~ game/src/data/buildings.js
+      tradeGuildHall unique building (minAge:2, market×1 + tradeRoutes, 120g+80w+60s)
+  + game/src/systems/tradeGuildHall.js (new file)
+      GUILD_ROUTE_BONUS=0.3, BOOST_COST=50, BOOST_MULT=1.5, BOOST_DURATION=1200t
+      initTradeGuildHall(), isGuildActive(), getBoostExpiry(), getBoostSecs()
+      isBoostActive(), getTradeBoostMult() — returns 1.5 when boosted
+      boostTradeRoute(empireId) — validate+deduct+set boost+recalcRates+emit
+      tradeGuildTick() — expire stale boosts, recalcRates on expiry
+  ~ game/src/core/events.js
+      TRADE_GUILD_BOOSTED: 'tradeGuildBoosted' added
+  ~ game/src/core/state.js
+      tradeGuild: null field added (no initState reset — persists via init guard)
+  ~ game/src/systems/resources.js
+      Import isGuildActive, GUILD_ROUTE_BONUS, getTradeBoostMult from tradeGuildHall.js
+      Trade route loop: guildBoostMult = getTradeBoostMult(emp.id) applied to each
+        resource; rates.gold += GUILD_ROUTE_BONUS * emp.tradeRoutes when guild active
+      getBreakdown(): guild bonus line for gold HUD tooltip
+  ~ game/src/ui/marketPanel.js
+      Import boostTradeRoute, isGuildActive, GUILD_ROUTE_BONUS, BOOST_COST,
+        BOOST_MULT, getBoostSecs, EMPIRES
+      on(TRADE_GUILD_BOOSTED) → _render
+      _tradeGuildSection(): renders guild section (hidden if guild not built)
+        showing per-empire route cards with income, boost button, active timer
+      guild-boost action in _handleClick
+  ~ game/src/main.js
+      Import initTradeGuildHall, tradeGuildTick
+      registerSystem(tradeGuildTick)
+      initTradeGuildHall() in boot() and _newGame()
+      tradeGuild saved/loaded; save version 59→60
+  ~ game/styles/main.css
+      .guild-section, .guild-header, .guild-title, .guild-bonus, .guild-note
+      .guild-empty, .guild-routes, .guild-route-card, .guild-route-info
+      .guild-route-empire, .guild-route-count, .guild-route-income
+      .guild-boost-active, .btn--guild-boost

@@ -242,6 +242,11 @@ export function getAttackPreview(x, y) {
     }
   }
 
+  // T189: Legendary unit bonus — each immortalized unit type present adds +8% attack
+  for (const [lid, legend] of Object.entries(state.legendaryUnits ?? {})) {
+    if ((state.units[lid] ?? 0) > 0) attackPower *= (1 + (legend.bonus ?? 0.08));
+  }
+
   if (attackPower <= 0) return { valid: false, reason: 'Train military units first!' };
 
   if (state.techs.tactics)     attackPower *= 1.25;
@@ -421,6 +426,7 @@ export function getAttackPreview(x, y) {
     fortNetBonus,                                                               // T183
     cohesionTier:  cohesion.tier,                                               // T184
     cohesionLabel: cohesion.label,                                              // T184
+    legendaryCount: Object.entries(state.legendaryUnits ?? {}).filter(([id]) => (state.units[id] ?? 0) > 0).length, // T189
   };
 }
 
@@ -462,6 +468,11 @@ export function attackTile(x, y) {
       const seasonBuff = SEASON_UNIT_COMBAT_BUFF[state.season?.index ?? 0] === id ? SEASON_COMBAT_BUFF_MULT : 1.0;
       attackPower += def.attack * count * _rankMult(id) * upgradeMult * seasonBuff;
     }
+  }
+
+  // T189: Legendary unit bonus — each immortalized unit type present adds +8% attack
+  for (const [lid, legend] of Object.entries(state.legendaryUnits ?? {})) {
+    if ((state.units[lid] ?? 0) > 0) attackPower *= (1 + (legend.bonus ?? 0.08));
   }
 
   if (attackPower <= 0) {

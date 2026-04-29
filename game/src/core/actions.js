@@ -1360,4 +1360,54 @@ export function convertResource(fromRes) {
   return { ok: true, from: fromRes, to: toRes };
 }
 
+// ── T189: Legendary Unit System ───────────────────────────────────────────
+
+export const LEGENDARY_COST    = 200;   // gold to immortalize a unit type
+export const LEGENDARY_BONUS   = 0.08;  // +8% army-wide attack multiplier per legend
+export const LEGENDARY_MAX     = 2;     // max immortalized unit types per game
+
+const LEGENDARY_NAMES = [
+  'Iron Vanguard', 'Storm Riders', 'Blood Guard', 'Silver Wolves',
+  'Dragon Fist',   'Iron Legion',  'Shadow Wardens', 'Thunder Hawks',
+  'Crimson Blades', 'Steel Sentinels',
+];
+
+/**
+ * Immortalize an elite unit type, granting it a heroic name and +8% army attack.
+ * Requires: unit at Elite rank, 200 gold, fewer than LEGENDARY_MAX legends active.
+ */
+export function immortalizeUnit(unitId) {
+  if (!UNITS[unitId]) return { ok: false, reason: 'Unknown unit type.' };
+  if ((state.units[unitId] ?? 0) <= 0) return { ok: false, reason: 'No units of this type trained.' };
+  if (state.unitRanks?.[unitId] !== 'elite') {
+    return { ok: false, reason: 'Unit must be Elite rank to immortalize.' };
+  }
+  if (!state.legendaryUnits) state.legendaryUnits = {};
+  if (state.legendaryUnits[unitId]) {
+    return { ok: false, reason: 'This unit type is already Legendary.' };
+  }
+  if (Object.keys(state.legendaryUnits).length >= LEGENDARY_MAX) {
+    return { ok: false, reason: `Legendary limit (${LEGENDARY_MAX}) reached.` };
+  }
+  if ((state.resources.gold ?? 0) < LEGENDARY_COST) {
+    return { ok: false, reason: `Need ${LEGENDARY_COST} gold to immortalize.` };
+  }
+
+  state.resources.gold -= LEGENDARY_COST;
+
+  const usedNames = Object.values(state.legendaryUnits).map(u => u.name);
+  const available = LEGENDARY_NAMES.filter(n => !usedNames.includes(n));
+  const name      = available.length
+    ? available[Math.floor(Math.random() * available.length)]
+    : 'Immortal Guard';
+
+  state.legendaryUnits[unitId] = { name, immortalizedAt: state.tick, bonus: LEGENDARY_BONUS };
+
+  const unitName = UNITS[unitId]?.name ?? unitId;
+  addMessage(`🏅 ${name}: Your ${unitName}s have been immortalized! (+${Math.round(LEGENDARY_BONUS * 100)}% army attack)`, 'achievement');
+  emit(Events.UNIT_IMMORTALIZED, { unitId, name });
+  emit(Events.RESOURCE_CHANGED, {});
+  return { ok: true, name };
+}
+
 log('actions module loaded');

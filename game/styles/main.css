@@ -11055,3 +11055,240 @@ kbd {
   vertical-align: middle;
   white-space: nowrap;
 }
+
+/* ── T189: Legendary Unit System ─────────────────────────────────────────── */
+
+.legendary-section {
+  margin-top: 8px;
+  padding: 8px 10px;
+  background: rgba(250, 191, 24, 0.06);
+  border: 1px solid rgba(250, 191, 24, 0.20);
+  border-radius: 6px;
+}
+
+.legendary-header {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #fbbf24;
+  letter-spacing: 0.03em;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.legendary-limit {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.12);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+.legendary-slots {
+  font-size: 0.68rem;
+  color: #9ca3af;
+  font-weight: 400;
+}
+
+.legendary-card {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  margin-bottom: 4px;
+  background: rgba(250, 191, 24, 0.10);
+  border: 1px solid rgba(250, 191, 24, 0.30);
+  border-radius: 4px;
+  font-size: 0.78rem;
+}
+
+.legendary-icon { font-size: 1rem; }
+
+.legendary-name {
+  font-weight: 700;
+  color: #fde68a;
+  flex: 1;
+}
+
+.legendary-type {
+  font-size: 0.70rem;
+  color: #9ca3af;
+}
+
+.legendary-bonus {
+  font-size: 0.70rem;
+  font-weight: 700;
+  color: #34d399;
+  background: rgba(52, 211, 153, 0.10);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+.legendary-empty {
+  font-size: 0.72rem;
+  color: #6b7280;
+  font-style: italic;
+}
+
+.legendary-badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  background: rgba(250, 191, 24, 0.15);
+  border: 1px solid rgba(250, 191, 24, 0.40);
+  color: #fde68a;
+  vertical-align: middle;
+}
+
+.btn--immortalize {
+  margin-left: 6px;
+  padding: 2px 8px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  border: 1px solid rgba(250, 191, 24, 0.50);
+  border-radius: 4px;
+  background: linear-gradient(135deg, rgba(250,191,24,0.15), rgba(245,158,11,0.20));
+  color: #fde68a;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  vertical-align: middle;
+}
+
+.btn--immortalize:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(250,191,24,0.25), rgba(245,158,11,0.35));
+  border-color: rgba(250,191,24,0.70);
+}
+
+.btn--immortalize.btn--disabled,
+.btn--immortalize:disabled {
+  opacity: 0.40;
+  cursor: not-allowed;
+}
+
+/* ── T190: Trade Guild Hall ──────────────────────────────────────────────── */
+
+.guild-section {
+  margin-top: 14px;
+  padding: 10px 12px;
+  background: rgba(16, 185, 129, 0.05);
+  border: 1px solid rgba(16, 185, 129, 0.20);
+  border-radius: 6px;
+}
+
+.guild-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.guild-title {
+  font-size: 0.80rem;
+  font-weight: 700;
+  color: #34d399;
+  letter-spacing: 0.03em;
+}
+
+.guild-bonus {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #6ee7b7;
+  background: rgba(52, 211, 153, 0.10);
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.guild-note {
+  font-size: 0.70rem;
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+
+.guild-empty {
+  font-size: 0.72rem;
+  color: #6b7280;
+  font-style: italic;
+}
+
+.guild-routes {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.guild-route-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 8px;
+  background: rgba(16, 185, 129, 0.06);
+  border: 1px solid rgba(16, 185, 129, 0.15);
+  border-radius: 4px;
+}
+
+.guild-route-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.guild-route-empire {
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #d1fae5;
+  white-space: nowrap;
+}
+
+.guild-route-count {
+  font-size: 0.68rem;
+  color: #6b7280;
+}
+
+.guild-route-income {
+  font-size: 0.70rem;
+  font-weight: 700;
+  color: #fbbf24;
+}
+
+.guild-boost-active {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #34d399;
+  background: rgba(52, 211, 153, 0.12);
+  padding: 1px 5px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
+.btn--guild-boost {
+  padding: 3px 10px;
+  font-size: 0.70rem;
+  font-weight: 700;
+  border: 1px solid rgba(16, 185, 129, 0.40);
+  border-radius: 4px;
+  background: linear-gradient(135deg, rgba(16,185,129,0.15), rgba(5,150,105,0.20));
+  color: #6ee7b7;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+}
+
+.btn--guild-boost:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(16,185,129,0.25), rgba(5,150,105,0.35));
+  border-color: rgba(16,185,129,0.65);
+}
+
+.btn--guild-boost.btn--disabled,
+.btn--guild-boost:disabled {
+  opacity: 0.40;
+  cursor: not-allowed;
+}

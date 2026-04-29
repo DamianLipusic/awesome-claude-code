@@ -24,6 +24,7 @@ import { POLICIES } from '../data/policies.js';
 import { BOONS } from '../data/ageBoons.js';
 import { SYNERGIES } from '../data/techs.js';
 import { getCurrentTitle } from '../data/titles.js';
+import { isGuildActive, GUILD_ROUTE_BONUS, getTradeBoostMult } from './tradeGuildHall.js'; // T190
 
 /** Returns true if both techs in the named synergy pair are researched. */
 function _synergy(id) {
@@ -140,17 +141,21 @@ export function recalcRates() {
       const allyTradeMult = EMPIRES[emp.id]?.allianceBonus?.tradeIncomeMult ?? 1.0;
       // T172: dynastic marriage partner grants ×1.5 trade income
       const marriageMult = state.dynasticMarriage?.partnerId === emp.id ? 1.5 : 1.0;
+      // T190: guild boost multiplier for this empire's routes
+      const guildBoostMult = isGuildActive() ? getTradeBoostMult(emp.id) : 1.0;
       for (const [res, rate] of Object.entries(gift)) {
         if (rates[res] !== undefined) {
           // T185: trade route specialization doubles income for the chosen resource
           const specMult = (emp.tradeSpec === 'food_route' && res === 'food') ? 2.0 :
                            (emp.tradeSpec === 'gold_route' && res === 'gold') ? 2.0 :
                            (emp.tradeSpec === 'iron_route' && res === 'iron') ? 2.0 : 1.0;
-          rates[res] += rate * emp.tradeRoutes * navMult * merchantMult * economicMastery * allyTradeMult * grandTheoryTradeMult * marriageMult * specMult;
+          rates[res] += rate * emp.tradeRoutes * navMult * merchantMult * economicMastery * allyTradeMult * grandTheoryTradeMult * marriageMult * specMult * guildBoostMult;
         }
       }
       // Trade Empire: flat +0.8 gold/s per open trade route (stacks per route)
       if (tradeEmpireActive) rates.gold += 0.8 * emp.tradeRoutes;
+      // T190: Trade Guild Hall — flat +0.3 gold/s per open trade route per allied empire
+      if (isGuildActive()) rates.gold += GUILD_ROUTE_BONUS * emp.tradeRoutes;
     }
 
     // T091: Faction alliance flat rate bonuses (Mage Council +1 mana/s, Sea Wolves +1 gold/s)
@@ -765,6 +770,10 @@ export function getBreakdown(resId) {
                          (emp.tradeSpec === 'iron_route' && resId === 'iron') ? 2.0 : 1.0;
         const specLabel = specMult > 1 ? ' ×2 spec' : '';
         lines.push({ label: `🤝 ${empDef.name} trade${specLabel}`, value: gift[resId] * emp.tradeRoutes * navMult * specMult });
+      }
+      // T190: Trade Guild Hall flat bonus to gold
+      if (resId === 'gold' && isGuildActive()) {
+        lines.push({ label: `🏦 Guild bonus (${emp.id})`, value: GUILD_ROUTE_BONUS * emp.tradeRoutes });
       }
     }
   }
