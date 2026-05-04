@@ -151,4 +151,8 @@ export const Events = Object.freeze({
   SURGE_USED:               'surgeUsed',                   // T182: combat surge activated
   UNIT_IMMORTALIZED:        'unitImmortalized',            // T189: elite unit type immortalized
   TRADE_GUILD_BOOSTED:      'tradeGuildBoosted',           // T190: trade route boost activated/expired
+  MINT_CONVERSION:          'mintConversion',              // T191: resource converted to gold at imperial mint
+  ENVOY_DISPATCHED:         'envoyDispatched',             // T192: diplomatic envoy dispatched
+  ENVOY_ARRIVED:            'envoyArrived',                // T192: envoy arrived and applied relation change
+  ENVOY_RECALLED:           'envoyRecalled',               // T192: envoy recalled before arrival
 });

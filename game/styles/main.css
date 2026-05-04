@@ -11292,3 +11292,222 @@ kbd {
   opacity: 0.40;
   cursor: not-allowed;
 }
+
+/* ── T191: Imperial Mint ─────────────────────────────────────────────────── */
+
+.mint-section {
+  margin-top: 12px;
+  border: 1px solid rgba(251, 191, 36, 0.25);
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(251,191,36,0.06), rgba(245,158,11,0.04));
+  padding: 10px 12px;
+}
+
+.mint-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.mint-title {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #fbbf24;
+}
+
+.mint-status {
+  font-size: 0.70rem;
+  color: #6ee7b7;
+  margin-left: auto;
+}
+
+.mint-status--used {
+  color: #9ca3af;
+}
+
+.mint-note {
+  font-size: 0.68rem;
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+
+.mint-conversions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mint-conv-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0,0,0,0.15);
+  border-radius: 5px;
+  padding: 5px 8px;
+}
+
+.mint-conv-res {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #e5e7eb;
+  min-width: 52px;
+}
+
+.mint-conv-rate {
+  font-size: 0.68rem;
+  color: #fbbf24;
+  min-width: 44px;
+}
+
+.mint-conv-stock {
+  font-size: 0.68rem;
+  color: #9ca3af;
+  min-width: 60px;
+}
+
+.mint-conv-gain {
+  font-size: 0.70rem;
+  font-weight: 600;
+  color: #34d399;
+  flex: 1;
+}
+
+.btn--mint-conv {
+  padding: 3px 10px;
+  font-size: 0.70rem;
+  font-weight: 700;
+  border: 1px solid rgba(251,191,36,0.40);
+  border-radius: 4px;
+  background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(245,158,11,0.20));
+  color: #fbbf24;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+}
+
+.btn--mint-conv:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(251,191,36,0.25), rgba(245,158,11,0.35));
+  border-color: rgba(251,191,36,0.65);
+}
+
+.btn--mint-conv.btn--disabled,
+.btn--mint-conv:disabled {
+  opacity: 0.40;
+  cursor: not-allowed;
+}
+
+.mint-total {
+  margin-top: 6px;
+  font-size: 0.67rem;
+  color: #9ca3af;
+  text-align: right;
+}
+
+/* ── T192: Diplomatic Envoy ──────────────────────────────────────────────── */
+
+.envoy-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(99, 102, 241, 0.15);
+}
+
+.envoy-row--active {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 5px;
+  background: rgba(99, 102, 241, 0.07);
+  border-radius: 6px;
+  padding: 8px 10px;
+  border-top: none;
+  margin-top: 6px;
+}
+
+.envoy-row__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.envoy-row__label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #a5b4fc;
+}
+
+.envoy-row__timer {
+  font-size: 0.70rem;
+  font-weight: 700;
+  color: #6ee7b7;
+}
+
+.envoy-progress-bar {
+  height: 5px;
+  border-radius: 3px;
+  background: rgba(99, 102, 241, 0.20);
+  overflow: hidden;
+}
+
+.envoy-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #6366f1, #818cf8);
+  border-radius: 3px;
+  transition: width 0.5s linear;
+}
+
+.envoy-row__effect {
+  font-size: 0.68rem;
+  color: #9ca3af;
+}
+
+.envoy-row__reason {
+  font-size: 0.67rem;
+  color: #6b7280;
+  font-style: italic;
+}
+
+.btn--envoy {
+  padding: 3px 10px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  border: 1px solid rgba(99, 102, 241, 0.40);
+  border-radius: 4px;
+  background: linear-gradient(135deg, rgba(99,102,241,0.12), rgba(79,70,229,0.18));
+  color: #a5b4fc;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.btn--envoy:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(99,102,241,0.22), rgba(79,70,229,0.30));
+  border-color: rgba(99,102,241,0.65);
+}
+
+.btn--envoy.btn--disabled,
+.btn--envoy:disabled {
+  opacity: 0.40;
+  cursor: not-allowed;
+}
+
+.btn--envoy-recall {
+  padding: 3px 8px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  border: 1px solid rgba(156, 163, 175, 0.30);
+  border-radius: 4px;
+  background: rgba(55, 65, 81, 0.50);
+  color: #9ca3af;
+  cursor: pointer;
+  align-self: flex-end;
+  transition: background 0.15s;
+}
+
+.btn--envoy-recall:hover {
+  background: rgba(75, 85, 99, 0.70);
+  color: #d1d5db;
+}

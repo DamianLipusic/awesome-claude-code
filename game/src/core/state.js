@@ -122,6 +122,13 @@ export const state = {
   // null until Trade Guild Hall is built.
   tradeGuild: null,
 
+  // T191: Imperial Mint — { usedThisSeason: bool, totalConverted: number }
+  // null until mint is built; usedThisSeason resets on SEASON_CHANGED.
+  mint: null,
+
+  // T192: Diplomatic Envoy — { active: {empireId, arrivalTick, sentAtTick}|null, totalDispatched, totalArrived }
+  envoy: null,
+
   // Difficulty setting — persisted across new games (not reset by initState)
   // 'easy' | 'normal' | 'hard'
   difficulty: 'normal',
@@ -609,5 +616,7 @@ export function initState(empireName = 'My Empire') {
   state.relicShrine          = null; // T180: reset relic shrine state per game
   state.seasonChronicle      = null; // T181: reset season chronicle per game
   state.surge                = null; // T182: reset surge state per game
+  state.mint                 = null; // T191: reset mint state per game
+  state.envoy                = null; // T192: reset envoy state per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

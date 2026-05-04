@@ -14,6 +14,7 @@ import { bidOnAuction, passAuction } from '../systems/auction.js';
 import { executeDeal, getBlackMarketRefreshSecs } from '../systems/blackMarket.js';
 import { isGuildActive, GUILD_ROUTE_BONUS, BOOST_COST, BOOST_MULT, getBoostSecs, boostTradeRoute } from '../systems/tradeGuildHall.js'; // T190
 import { EMPIRES } from '../data/empires.js'; // T190
+import { isMintActive, getMintInfo, performMintConversion, MINT_RATES, MINT_CONVERSION_MAX } from '../systems/imperialMint.js'; // T191
 import { fmtNum } from '../utils/fmt.js';
 
 const RESOURCE_ICONS = {
@@ -42,6 +43,7 @@ export function initMarketPanel() {
   on(Events.AUCTION_CHANGED,      _render);  // T126: auction updates
   on(Events.BLACK_MARKET_CHANGED, _render);  // T167: black market deals refreshed
   on(Events.TRADE_GUILD_BOOSTED,  _render);  // T190: guild boost activated/expired
+  on(Events.MINT_CONVERSION,      _render);  // T191: mint conversion performed (also resets on existing SEASON_CHANGED)
 
   // Refresh contract/merchant/auction countdowns every ~4 ticks (~1 s)
   let _contractTickCount = 0;
@@ -107,7 +109,8 @@ function _render() {
     ${_contractsSection()}
     ${_auctionSection()}
     ${_blackMarketSection()}
-    ${_tradeGuildSection()}`;
+    ${_tradeGuildSection()}
+    ${_mintSection()}`;
 }
 
 function _row(res, seasonal = []) {
@@ -381,6 +384,9 @@ function _handleClick(e) {
   } else if (action === 'guild-boost') {
     // T190: boost a specific trade route
     result = boostTradeRoute(btn.dataset.empireId);
+  } else if (action === 'mint-convert') {
+    // T191: convert resource to gold at imperial mint
+    result = performMintConversion(btn.dataset.res, parseInt(btn.dataset.amt, 10));
   }
 
   if (result && !result.ok) {
@@ -517,5 +523,66 @@ function _tradeGuildSection() {
       </div>
       <div class="guild-note">Boost a route for ×${BOOST_MULT} income for 5 min (${BOOST_COST} gold each).</div>
       <div class="guild-routes">${routeCards}</div>
+    </div>`;
+}
+
+// ---------------------------------------------------------------------------
+// T191: Imperial Mint section
+// ---------------------------------------------------------------------------
+
+function _mintSection() {
+  if (!isMintActive()) return '';
+
+  const info = getMintInfo();
+  const gold  = state.resources?.gold  ?? 0;
+  const goldCap = state.caps?.gold ?? 500;
+
+  const RES_ICONS = { wood: '🪵', stone: '🪨', iron: '⚒️' };
+  const RES_NAMES = { wood: 'Wood', stone: 'Stone', iron: 'Iron' };
+
+  if (info.usedThisSeason) {
+    return `
+      <div class="mint-section">
+        <div class="mint-header">
+          <span class="mint-title">🏛️ Imperial Mint</span>
+          <span class="mint-status mint-status--used">✅ Converted this season</span>
+        </div>
+        <div class="mint-note">Available again next season. Total coined: ${fmtNum(info.totalConverted)} gold.</div>
+      </div>`;
+  }
+
+  const convBtns = Object.entries(MINT_RATES).map(([res, rate]) => {
+    const stock    = Math.floor(state.resources?.[res] ?? 0);
+    const maxGold  = Math.min(Math.floor(stock * rate), MINT_CONVERSION_MAX);
+    const resNeeded = Math.ceil(MINT_CONVERSION_MAX / rate);
+    const canConvert = stock > 0 && gold < goldCap;
+    const disabled  = !canConvert;
+    const tooltip = stock <= 0
+      ? `No ${RES_NAMES[res]} available`
+      : `Convert up to ${resNeeded} ${RES_NAMES[res]} → up to ${MINT_CONVERSION_MAX} gold (${rate}g/unit)`;
+    return `
+      <div class="mint-conv-row">
+        <span class="mint-conv-res">${RES_ICONS[res]} ${RES_NAMES[res]}</span>
+        <span class="mint-conv-rate">${rate}g/unit</span>
+        <span class="mint-conv-stock">Have: ${fmtNum(stock)}</span>
+        <span class="mint-conv-gain">→ up to ${fmtNum(maxGold)} 💰</span>
+        <button class="btn btn--mint-conv ${disabled ? 'btn--disabled' : ''}"
+          data-action="mint-convert" data-res="${res}" data-amt="${Math.max(1, stock)}"
+          ${disabled ? 'disabled' : ''}
+          title="${tooltip}">
+          Coin
+        </button>
+      </div>`;
+  }).join('');
+
+  return `
+    <div class="mint-section">
+      <div class="mint-header">
+        <span class="mint-title">🏛️ Imperial Mint</span>
+        <span class="mint-status">Ready — 1 conversion per season</span>
+      </div>
+      <div class="mint-note">Convert surplus resources to gold (max ${MINT_CONVERSION_MAX}g per conversion).</div>
+      <div class="mint-conversions">${convBtns}</div>
+      ${info.totalConverted > 0 ? `<div class="mint-total">Total coined: ${fmtNum(info.totalConverted)} gold</div>` : ''}
     </div>`;
 }

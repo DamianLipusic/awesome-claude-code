@@ -338,6 +338,23 @@ export const BUILDINGS = Object.freeze({
     unique: true,
   },
 
+  // T191: Imperial Mint — unique Iron Age building for seasonal resource-to-gold conversion
+  imperialMint: {
+    name: 'Imperial Mint',
+    icon: '🏛️',
+    description: 'Transforms surplus goods into gold. +0.3 gold/s. Once per season, convert up to 150 gold worth of wood (×1.5g), stone (×2g), or iron (×3g). Requires Economics.',
+    baseCost: { gold: 150, stone: 100, wood: 80 },
+    production: { gold: 0.3 },
+    consumption: {},
+    capBonus: {},
+    requires: [
+      { type: 'age',      minAge: 2 },
+      { type: 'building', id: 'market', count: 1 },
+      { type: 'tech',     id: 'economics' },
+    ],
+    unique: true,
+  },
+
   // T176: Ancient Monument — unique Medieval Age landmark with periodic ceremonies
   ancientMonument: {
     name: 'Ancient Monument',

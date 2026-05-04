@@ -3246,3 +3246,80 @@ Modified files:
       .guild-empty, .guild-routes, .guild-route-card, .guild-route-info
       .guild-route-empire, .guild-route-count, .guild-route-income
       .guild-boost-active, .btn--guild-boost
+
+T191: Imperial Mint
+----------------------------------------------------------------------
+New unique Iron Age building (requires Economics tech + Market×1; costs 150g+100s+80w;
++0.3 gold/s passive). Once per season, the player may convert surplus wood, stone, or
+iron into gold at fixed rates (wood×1.5, stone×2, iron×3), capped at 150 gold per
+conversion. The cooldown resets automatically on every SEASON_CHANGED event. Market
+panel shows an Imperial Mint section with per-resource conversion buttons showing
+current stock, rate, and estimated gold yield. After conversion the section shows a
+"Converted this season" badge until the next season.
+
+Modified files:
+  ~ game/src/data/buildings.js
+      imperialMint unique building (minAge:2, market×1+economics, 150g+100s+80w, gold:0.3)
+  + game/src/systems/imperialMint.js (new file)
+      MINT_RATES={wood:1.5,stone:2.0,iron:3.0}, MINT_CONVERSION_MAX=150
+      initImperialMint() — init state.mint + subscribe SEASON_CHANGED
+      isMintActive() — checks building presence
+      getMintInfo() — returns canConvert/usedThisSeason/totalConverted/rates/maxGold
+      performMintConversion(resourceId, amount) — validates, converts, emits MINT_CONVERSION
+      _onSeasonChanged() — resets state.mint.usedThisSeason = false
+  ~ game/src/core/events.js
+      MINT_CONVERSION: 'mintConversion' added
+  ~ game/src/core/state.js
+      mint: null field added; state.mint = null in initState()
+  ~ game/src/ui/marketPanel.js
+      Import isMintActive, getMintInfo, performMintConversion, MINT_RATES, MINT_CONVERSION_MAX
+      on(MINT_CONVERSION) → _render
+      _mintSection() renders conversion UI when mint is built (active/used states)
+      mint-convert action in _handleClick
+      ${_mintSection()} appended to render HTML after _tradeGuildSection
+  ~ game/src/main.js
+      Import initImperialMint; initImperialMint() in boot() and _newGame()
+      mint saved/loaded; save version 60→61 (partial, bumped fully with T192)
+  ~ game/styles/main.css
+      .mint-section, .mint-header, .mint-title, .mint-status (base+--used)
+      .mint-note, .mint-conversions, .mint-conv-row, .mint-conv-res
+      .mint-conv-rate, .mint-conv-stock, .mint-conv-gain, .btn--mint-conv, .mint-total
+
+T192: Diplomatic Envoy
+----------------------------------------------------------------------
+Players can dispatch a single traveling envoy to any empire to improve relations over
+8 minutes (1920 ticks). Cost: 80 gold. The envoy can be recalled at any time for a
+40 gold refund. On arrival: war→neutral (warScore reset), neutral→allied (free alliance),
+allied→+15 favor. Only one envoy may be active. The Diplomacy panel shows a per-empire
+envoy row: a progress bar with countdown when the envoy is en route to that empire, a
+Recall button, and a Dispatch button (disabled when another envoy is already active).
+
+Modified files:
+  + game/src/systems/envoy.js (new file)
+      ENVOY_COST=80, ENVOY_TRAVEL_TICKS=1920, ENVOY_RECALL_REFUND=40
+      initEnvoy() — init state.envoy = {active:null, totalDispatched:0, totalArrived:0}
+      isEnvoyActive() — !!state.envoy.active
+      getEnvoyInfo() — {active, travelSecsLeft, progressPct}
+      dispatchEnvoy(empireId) — validate+deduct gold+set active+emit ENVOY_DISPATCHED
+      recallEnvoy() — refund 40g+clear active+emit ENVOY_RECALLED
+      envoyTick() — check arrival: apply relation change (war→neutral/neutral→allied/+15 favor)
+        + recalcRates() for relation changes + emit ENVOY_ARRIVED+DIPLOMACY_CHANGED
+  ~ game/src/core/events.js
+      ENVOY_DISPATCHED, ENVOY_ARRIVED, ENVOY_RECALLED added
+  ~ game/src/core/state.js
+      envoy: null field added; state.envoy = null in initState()
+  ~ game/src/ui/diplomacyPanel.js
+      Import dispatchEnvoy+recallEnvoy+getEnvoyInfo+isEnvoyActive+ENVOY_COST+ENVOY_RECALL_REFUND
+      ENVOY_DISPATCHED/ARRIVED/RECALLED event listeners → _render
+      hasEnvoy check added to TICK throttle for live progress bar
+      _envoyRow(emp) — renders active-envoy progress bar+timer+effect preview+recall btn,
+        or dispatch button with context-aware disabled state and reason
+      _envoyRow(emp) inserted in _empireCard() above actions div
+      dispatch-envoy + recall-envoy cases in _onClick()
+  ~ game/src/main.js
+      Import initEnvoy, envoyTick; registerSystem(envoyTick); initEnvoy() in boot+_newGame
+      envoy saved/loaded; save version 61→62
+  ~ game/styles/main.css
+      .envoy-row (base+--active), .envoy-row__header, .envoy-row__label, .envoy-row__timer
+      .envoy-progress-bar, .envoy-progress-fill, .envoy-row__effect, .envoy-row__reason
+      .btn--envoy, .btn--envoy-recall

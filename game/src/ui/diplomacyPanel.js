@@ -42,6 +42,10 @@ import {
   startCampaign, getActiveCampaign, getCampaignSecsLeft, getCampaignCooldownSecs,
   CAMPAIGN_COST, CAMPAIGN_WIN_GOAL,
 } from '../systems/campaigns.js'; // T154
+import {
+  dispatchEnvoy, recallEnvoy, getEnvoyInfo, isEnvoyActive,
+  ENVOY_COST, ENVOY_RECALL_REFUND,
+} from '../systems/envoy.js'; // T192
 import { fmtNum } from '../utils/fmt.js';
 
 const PANEL_ID = 'panel-diplomacy';
@@ -74,6 +78,9 @@ export function initDiplomacyPanel() {
   on(Events.TRIBUTE_CHANGED,        () => _render(panel));  // T166
   on(Events.MARRIAGE_PROPOSED,      () => _render(panel));  // T172
   on(Events.SUMMIT_CALLED,          () => _render(panel));  // T174
+  on(Events.ENVOY_DISPATCHED,       () => _render(panel));  // T192
+  on(Events.ENVOY_ARRIVED,          () => _render(panel));  // T192
+  on(Events.ENVOY_RECALLED,         () => _render(panel));  // T192
   // Refresh cooldown countdown every second; also refresh ceasefire/gift/skirmish/aid timers when active
   on(Events.TICK, _throttle(() => {
     const cd = document.getElementById('espionage-cooldown');
@@ -95,7 +102,9 @@ export function initDiplomacyPanel() {
     const hasEmbargo  = state.diplomacy?.empires.some(e => (e.embargoUntil ?? 0) > state.tick);
     // T166: refresh while any tribute is being paid (countdown to next payment)
     const hasTribute  = state.tributes && Object.values(state.tributes.demanded ?? {}).some(t => t.paymentsLeft > 0);
-    if (hasCeasefire || hasAllied || hasGiftCooldown || hasSkirmish || hasAidActivity || hasMission || hasCampaign || hasEmbargo || hasTribute) {
+    // T192: refresh while an envoy is travelling (progress bar updates)
+    const hasEnvoy    = isEnvoyActive();
+    if (hasCeasefire || hasAllied || hasGiftCooldown || hasSkirmish || hasAidActivity || hasMission || hasCampaign || hasEmbargo || hasTribute || hasEnvoy) {
       _render(panel);
     }
   }, 4));
@@ -462,6 +471,57 @@ function _relativeTime(tick) {
 
 // ── T185: Trade Route Specialization row ────────────────────────────────────
 
+// ── T192: Diplomatic Envoy row ───────────────────────────────────────────────
+
+function _envoyRow(emp) {
+  const info     = getEnvoyInfo();
+  const gold     = state.resources?.gold ?? 0;
+  const isActive = !!info.active;
+  const activeHere = isActive && info.active.empireId === emp.id;
+  const activeElsewhere = isActive && info.active.empireId !== emp.id;
+
+  if (activeHere) {
+    const mins = Math.floor(info.travelSecsLeft / 60);
+    const secs = info.travelSecsLeft % 60;
+    const timeStr = mins > 0 ? `${mins}m ${String(secs).padStart(2, '0')}s` : `${info.travelSecsLeft}s`;
+    return `
+      <div class="envoy-row envoy-row--active">
+        <div class="envoy-row__header">
+          <span class="envoy-row__label">✉️ Envoy en route…</span>
+          <span class="envoy-row__timer">${timeStr} left</span>
+        </div>
+        <div class="envoy-progress-bar">
+          <div class="envoy-progress-fill" style="width:${info.progressPct}%"></div>
+        </div>
+        <div class="envoy-row__effect">
+          ${emp.relations === 'war' ? '⚔️→🤝 Restore peace' : emp.relations === 'neutral' ? '🤝→✅ Form alliance' : `✅→⭐ +15 favor`}
+        </div>
+        <button class="btn btn--envoy-recall"
+          data-action="recall-envoy"
+          title="Recall envoy — refunds ${ENVOY_RECALL_REFUND} gold">
+          ↩ Recall (+${ENVOY_RECALL_REFUND}💰)
+        </button>
+      </div>`;
+  }
+
+  const canDispatch = !isActive && gold >= ENVOY_COST;
+  const disabled    = isActive || gold < ENVOY_COST;
+  const reason      = activeElsewhere
+    ? `Envoy already on a mission to ${EMPIRES[info.active?.empireId]?.name ?? '…'}`
+    : gold < ENVOY_COST ? `Need ${ENVOY_COST} gold` : '';
+
+  return `
+    <div class="envoy-row">
+      <button class="btn btn--envoy ${disabled ? 'btn--disabled' : ''}"
+        data-action="dispatch-envoy" data-empire="${emp.id}"
+        ${disabled ? 'disabled' : ''}
+        title="${reason || `Send an envoy — improves relations after 8 min (${ENVOY_COST} gold)`}">
+        ✉️ Envoy (${ENVOY_COST}💰)
+      </button>
+      ${reason ? `<span class="envoy-row__reason">${reason}</span>` : ''}
+    </div>`;
+}
+
 function _tradeSpecRow(emp) {
   if (emp.relations !== 'allied' || emp.tradeRoutes <= 0) return '';
 
@@ -666,6 +726,7 @@ function _empireCard(emp) {
       ${_missionRow(emp)}
       ${_embargoRow(emp)}
       ${_tributeRow(emp)}
+      ${_envoyRow(emp)}
       <div class="dipl-empire-card__actions">${btns.join('')}</div>
     </div>
   `;
@@ -1091,6 +1152,16 @@ function _onClick(e) {
     }
     case 'set-trade-spec': {  // T185
       setTradeSpec(empire, btn.dataset.specType);
+      break;
+    }
+    case 'dispatch-envoy': {  // T192
+      result = dispatchEnvoy(empire);
+      if (!result.ok) addMessageFallback(result.reason);
+      break;
+    }
+    case 'recall-envoy': {  // T192
+      result = recallEnvoy();
+      if (!result.ok) addMessageFallback(result.reason);
       break;
     }
   }
