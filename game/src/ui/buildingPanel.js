@@ -8,11 +8,13 @@ import { on, Events } from '../core/events.js';
 import { buildBuilding, demolishBuilding, specializeBuilding, chooseCapitalPlan, upgradeResourceCap, CAP_UPGRADE_MAX, CAP_UPGRADE_BONUS, CAP_UPGRADE_BASE, forgeItem, addToBuildQueue, removeFromBuildQueue, BUILD_QUEUE_MAX, convertResource, CONVERSION_CHAIN, CONVERSION_INPUT, CONVERSION_OUTPUT, CONVERSION_COOLDOWN_TICKS } from '../core/actions.js';
 import { depositToVault, VAULT_DEPOSIT_AMOUNT, VAULT_RETURN_AMOUNT, VAULT_LOCK_TICKS } from '../systems/imperialVault.js';
 import { communeWithRelics, getCommuneSecsLeft, getRelicCount } from '../systems/relicShrine.js'; // T180
+import { GUILDS, GUILD_ORDER, GUILD_SLOTS, foundGuild, isGuildFounded, guildSecsLeft, activeGuildCount } from '../systems/artisanGuilds.js'; // T194
 import { BUILDINGS } from '../data/buildings.js';
 import { SPECIALIZATIONS, SPECIALS_BY_BUILDING, ELIGIBLE_BUILDINGS } from '../data/buildingSpecials.js';
 import { CAPITAL_PLANS, CAPITAL_PLAN_ORDER } from '../data/capitalPlans.js';
 import { FORGE_ITEMS, FORGE_ORDER } from '../data/forgeItems.js';
 import { fmtNum } from '../utils/fmt.js';
+import { TICKS_PER_SECOND } from '../core/tick.js';
 
 export function initBuildingPanel() {
   const panel = document.getElementById('panel-buildings');
@@ -36,6 +38,15 @@ export function initBuildingPanel() {
   on(Events.VAULT_CHANGED,         renderBuildingPanel);
   on(Events.RELIC_SHRINE_COMMUNE,  renderBuildingPanel); // T180
   on(Events.RELIC_DISCOVERED,      renderBuildingPanel); // T180: relic count update
+  on(Events.GUILD_FOUNDED,         renderBuildingPanel); // T194
+  on(Events.GUILD_RENEWED,         renderBuildingPanel); // T194
+  on(Events.GUILD_EXPIRED,         renderBuildingPanel); // T194
+  on(Events.GUILD_CHANGED,         renderBuildingPanel); // T194
+  // Refresh guild timers every second via TICK
+  let _guildTickCnt = 0;
+  on(Events.TICK, () => {
+    if (++_guildTickCnt % TICKS_PER_SECOND === 0 && state.guilds?.active?.length) renderBuildingPanel();
+  });
   on(Events.RESOURCE_CHANGED,      _throttleRender());
 }
 
@@ -138,6 +149,7 @@ function renderBuildingPanel() {
   html += _conversionSection();
   html += _vaultSection();
   html += _relicShrineSection(); // T180
+  html += _artisanGuildsSection(); // T194
 
   panel.innerHTML = html;
 
@@ -198,6 +210,14 @@ function renderBuildingPanel() {
       const result = communeWithRelics();
       if (!result.ok) {
         btn.classList.add('btn--shake');
+        setTimeout(() => btn.classList.remove('btn--shake'), 400);
+      }
+    }
+    if (action === 'guild-found') { // T194
+      const result = foundGuild(btn.dataset.gid);
+      if (!result.ok) {
+        btn.classList.add('btn--shake');
+        btn.title = result.reason;
         setTimeout(() => btn.classList.remove('btn--shake'), 400);
       }
     }
@@ -602,6 +622,84 @@ function _relicShrineSection() {
       ⛩️ Commune with Relics
     </button>
     ${statsHtml}
+  </div>`;
+}
+
+// ── T194: Artisan Guilds section ──────────────────────────────────────────────
+
+function _artisanGuildsSection() {
+  const activeCount = activeGuildCount();
+  const slotsLeft   = GUILD_SLOTS - activeCount;
+
+  const guildRows = GUILD_ORDER.map(gid => {
+    const def     = GUILDS[gid];
+    const active  = isGuildFounded(gid);
+    const secsLeft = active ? guildSecsLeft(gid) : 0;
+
+    const costStr = Object.entries(def.cost)
+      .map(([r, v]) => `${_resIcon(r)}${v}`)
+      .join(' ');
+    const bonusStr = Object.entries(def.bonuses)
+      .map(([r, v]) => `+${v} ${r}/s`)
+      .join(' ');
+
+    const renewCostStr = Object.entries(def.cost)
+      .map(([r, v]) => `${_resIcon(r)}${Math.ceil(v * 0.5)}`)
+      .join(' ');
+
+    const canAffordNew  = Object.entries(def.cost).every(([r, v]) => (state.resources?.[r] ?? 0) >= v);
+    const renewCost     = Object.fromEntries(Object.entries(def.cost).map(([r, v]) => [r, Math.ceil(v * 0.5)]));
+    const canAffordRenew = Object.entries(renewCost).every(([r, v]) => (state.resources?.[r] ?? 0) >= v);
+
+    if (active) {
+      const mins = Math.floor(secsLeft / 60);
+      const secs = secsLeft % 60;
+      const timeStr = mins > 0 ? `${mins}m${String(secs).padStart(2,'0')}s` : `${secsLeft}s`;
+      const nearExpiry = secsLeft < 60;
+
+      return `
+        <div class="guild-row guild-row--active${nearExpiry ? ' guild-row--expiring' : ''}">
+          <span class="guild-row__icon">${def.icon}</span>
+          <div class="guild-row__info">
+            <span class="guild-row__name">${def.name}</span>
+            <span class="guild-row__bonus">${bonusStr}</span>
+          </div>
+          <span class="guild-row__timer">${timeStr}</span>
+          <button class="btn btn--guild-renew ${canAffordRenew ? '' : 'btn--disabled'}"
+                  data-action="guild-found" data-gid="${gid}"
+                  ${canAffordRenew ? '' : 'disabled'}
+                  title="Renew for ${renewCostStr}">
+            ↺ Renew (${renewCostStr})
+          </button>
+        </div>`;
+    }
+
+    const blocked = !active && slotsLeft <= 0;
+    return `
+      <div class="guild-row${blocked ? ' guild-row--blocked' : ''} ${canAffordNew ? '' : 'guild-row--cant-afford'}">
+        <span class="guild-row__icon">${def.icon}</span>
+        <div class="guild-row__info">
+          <span class="guild-row__name">${def.name}</span>
+          <span class="guild-row__desc">${def.desc} <em>${bonusStr}</em></span>
+        </div>
+        <button class="btn btn--guild-found ${(canAffordNew && !blocked) ? '' : 'btn--disabled'}"
+                data-action="guild-found" data-gid="${gid}"
+                ${(canAffordNew && !blocked) ? '' : 'disabled'}
+                title="${blocked ? `Max ${GUILD_SLOTS} guilds active` : `Found for ${costStr}`}">
+          Found (${costStr})
+        </button>
+      </div>`;
+  }).join('');
+
+  const slotLine = `<div class="guilds-slots">Slots: ${activeCount} / ${GUILD_SLOTS} active</div>`;
+
+  return `<div class="guilds-section">
+    <div class="guilds-section__header">⚙️ Artisan Guilds</div>
+    <div class="guilds-section__intro">
+      Found up to ${GUILD_SLOTS} guilds simultaneously for flat production bonuses. Each lasts 4 minutes. Renew at half cost before expiry.
+    </div>
+    ${slotLine}
+    <div class="guilds-list">${guildRows}</div>
   </div>`;
 }
 

@@ -11511,3 +11511,292 @@ kbd {
   background: rgba(75, 85, 99, 0.70);
   color: #d1d5db;
 }
+
+/* ── T193: Oracle of Fate — Omen Card ─────────────────────────────────────── */
+
+.omen-card {
+  margin-bottom: 8px;
+  padding: 10px 12px;
+  border: 1px solid rgba(168, 85, 247, 0.40);
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(88, 28, 135, 0.20), rgba(109, 40, 217, 0.12));
+  animation: omenPulse 3s ease-in-out infinite;
+}
+
+.omen-card--warning {
+  border-color: rgba(251, 146, 60, 0.55);
+  background: linear-gradient(135deg, rgba(120, 53, 15, 0.25), rgba(194, 65, 12, 0.15));
+  animation: omenPulse 1.5s ease-in-out infinite;
+}
+
+.omen-card--urgent {
+  border-color: rgba(239, 68, 68, 0.70);
+  background: linear-gradient(135deg, rgba(127, 29, 29, 0.30), rgba(185, 28, 28, 0.20));
+  animation: omenPulse 0.8s ease-in-out infinite;
+}
+
+@keyframes omenPulse {
+  0%, 100% { box-shadow: 0 0 0 0 transparent; }
+  50% { box-shadow: 0 0 8px 2px rgba(168, 85, 247, 0.25); }
+}
+
+.omen-card--warning { animation-name: omenPulseWarn; }
+@keyframes omenPulseWarn {
+  0%, 100% { box-shadow: 0 0 0 0 transparent; }
+  50% { box-shadow: 0 0 8px 2px rgba(251, 146, 60, 0.35); }
+}
+
+.omen-card--urgent { animation-name: omenPulseUrgent; }
+@keyframes omenPulseUrgent {
+  0%, 100% { box-shadow: 0 0 0 0 transparent; }
+  50% { box-shadow: 0 0 10px 3px rgba(239, 68, 68, 0.45); }
+}
+
+.omen-card__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.omen-card__icon {
+  font-size: 1.2rem;
+}
+
+.omen-card__title {
+  flex: 1;
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: #e9d5ff;
+}
+
+.omen-card__timer {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #f59e0b;
+  font-variant-numeric: tabular-nums;
+  min-width: 28px;
+  text-align: right;
+}
+
+.omen-card--urgent .omen-card__timer {
+  color: #f87171;
+}
+
+.omen-card__desc {
+  font-size: 0.80rem;
+  color: #c4b5fd;
+  font-style: italic;
+  margin-bottom: 8px;
+  line-height: 1.35;
+}
+
+.omen-card__actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.btn--omen-avert {
+  flex: 1;
+  padding: 5px 8px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  border: 1px solid rgba(34, 197, 94, 0.40);
+  border-radius: 5px;
+  background: linear-gradient(135deg, rgba(5, 46, 22, 0.50), rgba(20, 83, 45, 0.35));
+  color: #86efac;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.btn--omen-avert:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(5, 46, 22, 0.70), rgba(20, 83, 45, 0.55));
+  border-color: rgba(34, 197, 94, 0.65);
+}
+
+.btn--omen-channel {
+  flex: 1;
+  padding: 5px 8px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  border: 1px solid rgba(99, 102, 241, 0.45);
+  border-radius: 5px;
+  background: linear-gradient(135deg, rgba(30, 27, 75, 0.50), rgba(49, 46, 129, 0.35));
+  color: #a5b4fc;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.btn--omen-channel:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(30, 27, 75, 0.70), rgba(49, 46, 129, 0.55));
+  border-color: rgba(99, 102, 241, 0.70);
+}
+
+.omen-card__footer {
+  font-size: 0.68rem;
+  color: #9ca3af;
+  font-style: italic;
+}
+
+
+/* ── T194: Artisan Guilds ─────────────────────────────────────────────────── */
+
+.guilds-section {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px solid rgba(234, 179, 8, 0.30);
+  border-radius: 8px;
+  background: rgba(20, 18, 5, 0.35);
+}
+
+.guilds-section__header {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #fde68a;
+  margin-bottom: 4px;
+}
+
+.guilds-section__intro {
+  font-size: 0.74rem;
+  color: #9ca3af;
+  margin-bottom: 6px;
+  line-height: 1.35;
+}
+
+.guilds-slots {
+  font-size: 0.74rem;
+  color: #d1d5db;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.guilds-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.guild-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  border-radius: 5px;
+  border: 1px solid rgba(75, 85, 99, 0.40);
+  background: rgba(31, 41, 55, 0.40);
+}
+
+.guild-row--active {
+  border-color: rgba(234, 179, 8, 0.45);
+  background: rgba(20, 18, 5, 0.55);
+}
+
+.guild-row--expiring {
+  border-color: rgba(239, 68, 68, 0.55);
+  animation: guildExpirePulse 1s ease-in-out infinite;
+}
+
+@keyframes guildExpirePulse {
+  0%, 100% { box-shadow: 0 0 0 0 transparent; }
+  50% { box-shadow: 0 0 6px 1px rgba(239, 68, 68, 0.30); }
+}
+
+.guild-row--blocked {
+  opacity: 0.50;
+}
+
+.guild-row--cant-afford {
+  opacity: 0.70;
+}
+
+.guild-row__icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.guild-row__info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.guild-row__name {
+  font-size: 0.80rem;
+  font-weight: 600;
+  color: #f9fafb;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.guild-row__bonus {
+  font-size: 0.72rem;
+  color: #86efac;
+  font-weight: 600;
+}
+
+.guild-row__desc {
+  font-size: 0.70rem;
+  color: #9ca3af;
+}
+
+.guild-row__desc em {
+  color: #86efac;
+  font-style: normal;
+  font-weight: 600;
+}
+
+.guild-row__timer {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #fbbf24;
+  font-variant-numeric: tabular-nums;
+  min-width: 36px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.btn--guild-found {
+  padding: 4px 8px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  border: 1px solid rgba(234, 179, 8, 0.40);
+  border-radius: 4px;
+  background: linear-gradient(135deg, rgba(30, 25, 5, 0.60), rgba(50, 40, 8, 0.45));
+  color: #fde68a;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.btn--guild-found:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(50, 40, 8, 0.80), rgba(70, 60, 12, 0.65));
+  border-color: rgba(234, 179, 8, 0.65);
+}
+
+.btn--guild-renew {
+  padding: 4px 8px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  border: 1px solid rgba(99, 102, 241, 0.40);
+  border-radius: 4px;
+  background: linear-gradient(135deg, rgba(15, 15, 40, 0.60), rgba(30, 28, 80, 0.45));
+  color: #a5b4fc;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.btn--guild-renew:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(30, 28, 80, 0.80), rgba(49, 46, 129, 0.65));
+  border-color: rgba(99, 102, 241, 0.65);
+}
+

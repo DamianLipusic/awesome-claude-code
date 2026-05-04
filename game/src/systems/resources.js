@@ -25,6 +25,7 @@ import { BOONS } from '../data/ageBoons.js';
 import { SYNERGIES } from '../data/techs.js';
 import { getCurrentTitle } from '../data/titles.js';
 import { isGuildActive, GUILD_ROUTE_BONUS, getTradeBoostMult } from './tradeGuildHall.js'; // T190
+import { getGuildRateBonuses } from './artisanGuilds.js'; // T194
 
 /** Returns true if both techs in the named synergy pair are researched. */
 function _synergy(id) {
@@ -622,6 +623,12 @@ export function recalcRates() {
     rates.food -= 0.6;
   } else if (_wexLevel >= 25) {
     rates.gold -= 0.3;
+  }
+
+  // T194: Artisan Guild flat rate bonuses
+  const _guildBonuses = getGuildRateBonuses();
+  for (const [res, val] of Object.entries(_guildBonuses)) {
+    if (rates[res] !== undefined) rates[res] += val;
   }
 
   Object.assign(state.rates, rates);

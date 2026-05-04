@@ -155,4 +155,12 @@ export const Events = Object.freeze({
   ENVOY_DISPATCHED:         'envoyDispatched',             // T192: diplomatic envoy dispatched
   ENVOY_ARRIVED:            'envoyArrived',                // T192: envoy arrived and applied relation change
   ENVOY_RECALLED:           'envoyRecalled',               // T192: envoy recalled before arrival
+  OMEN_APPEARED:            'omenAppeared',                // T193: oracle omen spawned
+  OMEN_AVERTED:             'omenAverted',                 // T193: player averted the omen
+  OMEN_CHANNELED:           'omenChanneled',               // T193: player channeled the omen
+  OMEN_FIRED:               'omenFired',                   // T193: omen expired — penalty applied
+  GUILD_FOUNDED:            'guildFounded',                // T194: artisan guild founded
+  GUILD_RENEWED:            'guildRenewed',                // T194: artisan guild renewed
+  GUILD_EXPIRED:            'guildExpired',                // T194: artisan guild disbanded
+  GUILD_CHANGED:            'guildChanged',                // T194: any artisan guild state change
 });

@@ -108,6 +108,8 @@ import { initFortificationNetwork } from './systems/fortificationNetwork.js';   
 import { initTradeGuildHall, tradeGuildTick } from './systems/tradeGuildHall.js';              // T190
 import { initImperialMint } from './systems/imperialMint.js';                                   // T191
 import { initEnvoy, envoyTick } from './systems/envoy.js';                                       // T192
+import { initOracle, oracleTick } from './systems/oracle.js';                                   // T193
+import { initGuilds, guildTick } from './systems/artisanGuilds.js';                             // T194
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
@@ -200,6 +202,8 @@ function boot() {
   registerSystem(relicShrineTick);    // T180: relic shrine passive prestige
   registerSystem(tradeGuildTick);     // T190: trade guild boost expiry
   registerSystem(envoyTick);          // T192: diplomatic envoy arrival check
+  registerSystem(oracleTick);         // T193: oracle omen lifecycle
+  registerSystem(guildTick);          // T194: artisan guild expiry check
 
   // Init event-driven systems
   initRandomEvents();
@@ -262,6 +266,8 @@ function boot() {
   initTradeGuildHall();        // T190: trade guild hall boost state
   initImperialMint();          // T191: mint seasonal cooldown listener
   initEnvoy();                 // T192: envoy state init
+  initOracle();                // T193: oracle omen state init
+  initGuilds();                // T194: artisan guilds state init
   // T176: monument init deferred — only activates when building is constructed
 
   // Init UI
@@ -512,7 +518,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 62, // T191: imperial mint; T192: diplomatic envoy
+      version: 63, // T193: oracle of fate; T194: artisan guilds
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -631,6 +637,8 @@ function _save() {
         tradeGuild:          state.tradeGuild          ?? null,  // T190
         mint:                state.mint                ?? null,  // T191
         envoy:               state.envoy               ?? null,  // T192
+        oracle:              state.oracle              ?? null,  // T193
+        guilds:              state.guilds              ?? null,  // T194
         tick:          state.tick,
       }
     }));
@@ -783,6 +791,8 @@ function _applySave(save) {
   state.tradeGuild           = s.tradeGuild           ?? null; // T190
   state.mint                 = s.mint                 ?? null; // T191
   state.envoy                = s.envoy                ?? null; // T192
+  state.oracle               = s.oracle               ?? null; // T193
+  state.guilds               = s.guilds               ?? null; // T194
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
@@ -1589,6 +1599,8 @@ function _newGame(opts = {}) {
   initTradeGuildHall();        // T190: reset trade guild boost state on new game
   initImperialMint();          // T191: reset mint state on new game
   initEnvoy();                 // T192: reset envoy state on new game
+  initOracle();                // T193: reset oracle state on new game
+  initGuilds();                // T194: reset guild state on new game
   _updateCelestialBanner(); // T153: hide banner on new game
   recalcRates();
   startLoop();  // restart loop in case it was stopped by game-over

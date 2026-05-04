@@ -15,6 +15,7 @@ import { hostPilgrimage } from '../systems/pilgrimages.js'; // T162
 import { getActiveSeasonalObjective } from '../systems/seasonalObjectives.js'; // T170
 import { TICKS_PER_SECOND } from '../core/tick.js';
 import { WIN_AGE, WIN_TILES, WIN_QUESTS, WIN_DIPLOMATIC_ALLIANCES, WIN_ECONOMIC_GOLD } from '../systems/victory.js'; // T187
+import { getActiveOmen, getOmenSecsLeft, avertOmen, channelOmen } from '../systems/oracle.js'; // T193
 
 export function initQuestPanel() {
   const panel = document.getElementById('panel-quests');
@@ -31,6 +32,8 @@ export function initQuestPanel() {
     Events.PILGRIMAGE_ARRIVED, Events.PILGRIMAGE_HOSTED, // T162
     Events.SEASONAL_OBJECTIVE,                          // T170
     Events.DIPLOMACY_CHANGED,                           // T187: victory progress alliance count
+    Events.OMEN_APPEARED, Events.OMEN_AVERTED,          // T193: oracle omen state changes
+    Events.OMEN_CHANNELED, Events.OMEN_FIRED,           // T193
   ];
   for (const ev of events) on(ev, render);
 
@@ -43,12 +46,30 @@ export function initQuestPanel() {
       const bo = state.bounty?.current;
       const pl = state.plague?.active;
       const pi = state.pilgrimages?.pending;
-      if (ch || pe || bo || pl || pi) render();
+      const om = state.oracle?.activeOmen;
+      if (ch || pe || bo || pl || pi || om) render();
     }
   });
 
   // Delegate click events
   panel.addEventListener('click', (e) => {
+    // Oracle omen actions (T193)
+    if (e.target.closest('[data-action="avert-omen"]')) {
+      const r = avertOmen();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="avert-omen"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+      return;
+    }
+    if (e.target.closest('[data-action="channel-omen"]')) {
+      const r = channelOmen();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="channel-omen"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+      return;
+    }
     // Political event choices
     const polBtn = e.target.closest('[data-pol-choice]');
     if (polBtn) {
@@ -94,6 +115,7 @@ function render() {
   const pct       = total > 0 ? Math.round((doneCount / total) * 100) : 0;
 
   panel.innerHTML = `
+    ${_oracleSection()}
     ${_plagueSection()}
     ${_pilgrimageSection()}
     ${_rebelSection()}
@@ -115,6 +137,43 @@ function render() {
     </div>
     ${_victoryProgressSection()}
   `;
+}
+
+// ── Oracle of Fate section (T193) ────────────────────────────────────────
+
+function _oracleSection() {
+  if ((state.age ?? 0) < 1) return '';  // only from Bronze Age
+
+  const omen = getActiveOmen();
+  if (!omen) return '';
+
+  const secsLeft = getOmenSecsLeft();
+  const urgency  = secsLeft < 20 ? 'omen-card--urgent'
+                 : secsLeft < 40 ? 'omen-card--warning' : '';
+
+  const _costStr = (costs) =>
+    Object.entries(costs).map(([r, v]) => `${v} ${r}`).join(' + ');
+
+  return `
+    <div class="omen-card ${urgency}">
+      <div class="omen-card__header">
+        <span class="omen-card__icon">${omen.icon}</span>
+        <span class="omen-card__title">${omen.title}</span>
+        <span class="omen-card__timer">${secsLeft}s</span>
+      </div>
+      <div class="omen-card__desc">${omen.desc}</div>
+      <div class="omen-card__actions">
+        <button class="btn btn--omen-avert" data-action="avert-omen"
+                title="${omen.avertDesc}">
+          🛡️ Avert (${_costStr(omen.avertCost)})
+        </button>
+        <button class="btn btn--omen-channel" data-action="channel-omen"
+                title="${omen.channelDesc}">
+          ✨ Channel (${_costStr(omen.channelCost)})
+        </button>
+      </div>
+      <div class="omen-card__footer">Ignore: omen fires in ${secsLeft}s.</div>
+    </div>`;
 }
 
 // ── Victory Progress section (T187) ──────────────────────────────────────

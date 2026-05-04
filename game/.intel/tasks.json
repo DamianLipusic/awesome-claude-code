@@ -1714,5 +1714,21 @@
     "status": "done",
     "phase": 75,
     "notes": "src/systems/envoy.js: New file \u2014 ENVOY_COST=80, ENVOY_TRAVEL_TICKS=1920 (8min), ENVOY_RECALL_REFUND=40; initEnvoy(); isEnvoyActive(); getEnvoyInfo() returning {active, travelSecsLeft, progressPct}; dispatchEnvoy(empireId) validates+deducts+sets active envoy; recallEnvoy() refunds 40g; envoyTick() checks arrival and applies: war\u2192neutral (warScore reset+recalcRates), neutral\u2192allied (recalcRates), allied\u2192+15 favor (capped at FAVOR_MAX). src/ui/diplomacyPanel.js: import dispatchEnvoy+recallEnvoy+getEnvoyInfo+isEnvoyActive+ENVOY_COST+ENVOY_RECALL_REFUND; ENVOY_DISPATCHED/ARRIVED/RECALLED event listeners; hasEnvoy check in TICK throttle for progress bar updates; _envoyRow(emp) renders active-envoy progress bar with recall button or dispatch button with reason; _envoyRow called in _empireCard template; dispatch-envoy+recall-envoy cases in _onClick. src/main.js: import initEnvoy+envoyTick; registerSystem(envoyTick); initEnvoy() in boot+_newGame; envoy saved/loaded; version 61\u219262. styles/main.css: .envoy-row (base+--active), .envoy-row__header, .envoy-row__label, .envoy-row__timer, .envoy-progress-bar, .envoy-progress-fill, .envoy-row__effect, .envoy-row__reason, .btn--envoy, .btn--envoy-recall."
+  },
+  {
+    "id": "T193",
+    "title": "Oracle of Fate \u2014 Seasonal Omen System",
+    "priority": 1,
+    "status": "done",
+    "spec": "Every 6 minutes the Oracle of Fate reveals one Prophetic Vision (omen) from a pool of 5 omen types. Player has 60 seconds to Avert (pay gold), Channel (pay mana for positive effect), or Ignore (omen fires its negative effect). Available from Bronze Age. State: state.oracle = { nextOmenTick, activeOmen, totalOmens, totalAverted, totalChanneled }. New file: systems/oracle.js. UI section in questPanel.js. Events: OMEN_APPEARED, OMEN_AVERTED, OMEN_CHANNELED, OMEN_FIRED, ORACLE_CHANGED. Save version 62\u219263.",
+    "notes": "Implemented oracle.js with 5 omen types (war_drums, flood_tide, dark_eclipse, viper_counsel, frost_blight). Each omen has avert (gold) and channel (mana) options with a 60-second decision window. Negative effects on ignore include gold/food/mana losses and morale penalties. Channel effects provide morale boosts, resource gains, and prestige. UI section added to questPanel.js with countdown timer and urgency CSS animations. Events: OMEN_APPEARED, OMEN_AVERTED, OMEN_CHANNELED, OMEN_FIRED. Wired into main.js (boot + _newGame). Save version 62\u219263."
+  },
+  {
+    "id": "T194",
+    "title": "Artisan Guilds \u2014 Production Specialization System",
+    "priority": 2,
+    "status": "done",
+    "spec": "Players can found up to 3 Artisan Guilds simultaneously. Each guild provides flat rate bonuses for a specific resource and lasts 4 minutes (GUILD_DURATION=960 ticks). Renewal at 50% cost. Guilds: Farmer (food+2.5), Lumber (wood+2.5), Miners (stone+2 iron+1), Merchant (gold+2), Mage (mana+2.5). State: state.guilds = { active: [{guildId, expiresAt}], totalFounded }. New file: systems/artisanGuilds.js. Rate bonuses applied in resources.js. UI section in buildingPanel.js. Events: GUILD_FOUNDED, GUILD_RENEWED, GUILD_EXPIRED, GUILD_CHANGED. Save version 63\u219264.",
+    "notes": "Implemented artisanGuilds.js with 5 guild types (farmers, lumberers, miners, merchants, mages). Max 3 active simultaneously. Each guild runs 4 minutes and provides flat rate bonuses (+2.0\u20132.5 res/s). Renewal at 50% cost. Rate bonuses applied via getGuildRateBonuses() in resources.js. UI section added to buildingPanel.js with active guild timers, expiry animation, and renew buttons. Events: GUILD_FOUNDED, GUILD_RENEWED, GUILD_EXPIRED, GUILD_CHANGED. Wired into main.js. Save version 63 includes guilds state."
   }
 ]

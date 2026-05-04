@@ -3323,3 +3323,85 @@ Modified files:
       .envoy-row (base+--active), .envoy-row__header, .envoy-row__label, .envoy-row__timer
       .envoy-progress-bar, .envoy-progress-fill, .envoy-row__effect, .envoy-row__reason
       .btn--envoy, .btn--envoy-recall
+
+T193: Oracle of Fate — Seasonal Omen System
+----------------------------------------------------------------------
+Every 6 minutes (Bronze Age+) the Oracle of Fate reveals one Prophetic Vision from
+a pool of 5 omen types. Player has 60 seconds to Avert (pay gold), Channel (pay
+mana for a positive boon), or Ignore (penalty fires). One omen active at a time.
+
+Omen pool:
+  ⚔️  war_drums     — raiders strike (lose 200–350 gold). Avert 50g; Channel 30 mana (+20 morale).
+  🌊  flood_tide    — crops ruined (lose 150–250 food + 80–150 wood). Avert 40g; Channel 25 mana (+200 food).
+  🌑  dark_eclipse  — calamity (lose 300–500 gold). Avert 60g; Channel 40 mana (+50 prestige +150 gold).
+  🐍  viper_counsel — treachery (−20 morale + lose 60–120 iron). Avert 50g; Channel 30 mana (+60 prestige +5 morale).
+  ❄️  frost_blight  — arcane loss (lose 100–180 mana + 60–120 stone). Avert 30g+20 mana; Channel 20 mana (+150 mana).
+
+Modified files:
+  + game/src/systems/oracle.js (new file)
+      OMEN_INTERVAL=1440 ticks (6 min); OMEN_DECISION_TICKS=240 (60 s)
+      initOracle() — init state.oracle = {nextOmenTick, activeOmen, totalOmens, totalAverted, totalChanneled}
+      getActiveOmen(), getOmenSecsLeft() — accessors for UI
+      avertOmen() — validate+deduct costs+clear omen+emit OMEN_AVERTED
+      channelOmen() — validate+deduct costs+apply positive effect+emit OMEN_CHANNELED
+      oracleTick() — check expiry (fire penalty) and spawn new omens at interval
+  ~ game/src/core/events.js
+      OMEN_APPEARED, OMEN_AVERTED, OMEN_CHANNELED, OMEN_FIRED added (T193)
+      GUILD_FOUNDED, GUILD_RENEWED, GUILD_EXPIRED, GUILD_CHANGED added (T194)
+  ~ game/src/ui/questPanel.js
+      Import getActiveOmen+getOmenSecsLeft+avertOmen+channelOmen
+      OMEN_APPEARED/AVERTED/CHANNELED/FIRED listeners → render
+      activeOmen included in TICK countdown check
+      avert-omen + channel-omen data-action click handlers
+      _oracleSection() renders omen card with urgency CSS (warning <40s, urgent <20s)
+  ~ game/src/main.js
+      Import initOracle+oracleTick; registerSystem(oracleTick); initOracle() in boot+_newGame
+      oracle saved/loaded; save version bumped
+  ~ game/styles/main.css
+      .omen-card (base+--warning+--urgent), .omen-card__header/icon/title/timer
+      .omen-card__desc, .omen-card__actions, .omen-card__footer
+      .btn--omen-avert, .btn--omen-channel
+      Pulsing keyframe animations (omenPulse, omenPulseWarn, omenPulseUrgent)
+
+T194: Artisan Guilds — Production Specialization System
+----------------------------------------------------------------------
+Players may found up to 3 Artisan Guilds simultaneously. Each provides flat rate
+bonuses for a specific resource group and lasts 4 minutes. Renewal at 50% cost
+extends the timer. Guilds expire silently with a log message.
+
+Guild types:
+  🌾  Farmer's Guild  (50g +30 food)  → +2.5 food/s for 4 min
+  🪓  Lumber Guild    (50g +30 wood)  → +2.5 wood/s for 4 min
+  ⛏️  Miners' Guild   (60g +20 stone) → +2.0 stone/s +1.0 iron/s for 4 min
+  💰  Merchant's Guild (80g)          → +2.0 gold/s for 4 min
+  🔮  Mage's Guild    (60g +30 mana)  → +2.5 mana/s for 4 min
+
+Modified files:
+  + game/src/systems/artisanGuilds.js (new file)
+      GUILD_SLOTS=3, GUILD_DURATION=960 ticks (4 min), RENEW_MULT=0.5
+      initGuilds() — init state.guilds = {active: [], totalFounded: 0}
+      getGuildRateBonuses() — returns summed bonuses for resources.js (no circular issue)
+      activeGuildCount(), isGuildFounded(), guildSecsLeft() — UI accessors
+      foundGuild(guildId) — validate+deduct costs+push to active/renew+recalcRates+emit
+      guildTick() — remove expired guilds+recalcRates+emit GUILD_EXPIRED per guild
+  ~ game/src/systems/resources.js
+      Import getGuildRateBonuses from artisanGuilds.js
+      T194 block at end of recalcRates: iterate guild bonuses and add to rates[]
+  ~ game/src/ui/buildingPanel.js
+      Import GUILDS, GUILD_ORDER, GUILD_SLOTS, foundGuild, isGuildFounded, guildSecsLeft, activeGuildCount
+      Import TICKS_PER_SECOND (for TICK-based timer refresh)
+      GUILD_FOUNDED/RENEWED/EXPIRED/CHANGED listeners → renderBuildingPanel
+      TICK listener refreshes every second when guilds are active
+      guild-found data-action click handler
+      _artisanGuildsSection() renders: slot counter, per-guild rows (active=timer+renew, inactive=found btn)
+        guild-row--expiring class + pulse animation when <60s remain
+  ~ game/src/main.js
+      Import initGuilds+guildTick; registerSystem(guildTick); initGuilds() in boot+_newGame
+      guilds saved/loaded; save version 62→63 (includes both T193+T194)
+  ~ game/styles/main.css
+      .guilds-section, .guilds-section__header/intro, .guilds-slots, .guilds-list
+      .guild-row (base+--active+--expiring+--blocked+--cant-afford)
+      .guild-row__icon/info/name/bonus/desc/timer
+      .btn--guild-found, .btn--guild-renew
+      @keyframes guildExpirePulse
+
