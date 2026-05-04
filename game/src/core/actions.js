@@ -150,6 +150,8 @@ export function trainUnit(id) {
   if (state.forge?.crafted?.war_drums) totalTicks = Math.ceil(totalTicks * 0.80);
   // T169: Military Academy building — -10% training time
   if ((state.buildings.militaryAcademy ?? 0) >= 1) totalTicks = Math.ceil(totalTicks * 0.90);
+  // T195: High Marshal Vizier — −20% training time
+  if (state.vizier?.active === 'high_marshal') totalTicks = Math.ceil(totalTicks * 0.80);
 
   state.trainingQueue.push({ unitId: id, remaining: totalTicks, totalTicks });
 

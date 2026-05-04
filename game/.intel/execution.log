@@ -3405,3 +3405,87 @@ Modified files:
       .btn--guild-found, .btn--guild-renew
       @keyframes guildExpirePulse
 
+
+T195: Grand Vizier — Court Advisor Appointment System
+----------------------------------------------------------------------
+Players may appoint one of 5 Grand Viziers to the imperial court.
+Each provides strong passive bonuses in their domain.
+First appointment is free; switching costs 80 gold + 5-min cooldown;
+dismissing the active vizier is always free.
+
+Vizier types:
+  📜 Chancellor of Finance — +1.5 gold/s, sell prices ×1.10
+  ⚔️  High Marshal         — training time ×0.80, attack power ×1.10
+  🔮 Grand Archmage        — mana ×1.30, spell cost ×0.85
+  🏗️  Royal Architect       — all positive rates ×1.05, research ×0.90
+  🤝 Court Diplomat        — trade income ×1.15, +6 favor to allies on appoint
+
+Modified files:
+  + game/src/systems/vizier.js (new file)
+      VIZIERS, VIZIER_ORDER, VIZIER_CHANGE_COST=80, VIZIER_COOLDOWN=5min
+      initVizier(), getActiveVizier(), getVizierCooldownSecs(), appointVizier(id)
+      getVizierGoldRate(), getVizierManaMult(), getVizierProdMult(), getVizierTradeMult()
+  ~ game/src/core/events.js
+      VIZIER_CHANGED event added
+  ~ game/src/systems/resources.js
+      import 4 vizier getter functions; vizierTradeMult in trade route formula
+      T195 block: chancellor +1.5 gold/s; archmage mana ×1.30; architect all-positive ×1.05
+  ~ game/src/systems/combat.js
+      T195 block (both getAttackPreview+attackTile): high_marshal ×1.10 attack power
+  ~ game/src/core/actions.js
+      T195 block in trainUnit(): high_marshal ×0.80 training time
+  ~ game/src/systems/market.js
+      T195 block in sellResources(): chancellor ×1.10 sell earnings
+  ~ game/src/systems/spells.js
+      T195 block: archmage ×0.85 spell mana cost
+  ~ game/src/systems/research.js
+      T195 block: architect ×0.90 research time
+  ~ game/src/ui/summaryPanel.js
+      import vizier exports; VIZIER_CHANGED listener; appoint-vizier click handler
+      _vizierCard() renders 5 vizier cards with active highlight, cooldown, cost
+  ~ game/src/main.js
+      import initVizier; boot+_newGame; save/load vizier state; version 63→64
+  ~ game/styles/main.css
+      .vizier-intro, .vizier-list, .vizier-card (base+--active), .vizier-card__*
+      .btn--vizier (base+--active+--blocked+:disabled)
+
+T196: Annual Trade Fair — Seasonal Economic Celebration
+----------------------------------------------------------------------
+Every 4 season transitions a Trade Fair opens for one full season.
+Market buy prices −20%, sell prices +20%. Three random bulk deals available.
+Participation: 5+ trades during fair → +80 gold +15 prestige.
+Fair cycle: season transitions 4, 8, 12, 16 …
+
+Fair Deals pool (3 drawn per fair):
+  🌾 Grain Surplus   (120g → 200 food)
+  🪵 Timber Lot      (160g → 200 wood)
+  🪨 Stone Cache     (180g → 150 stone)
+  ⚙️  Iron Haul       (250g → 100 iron)
+  ✨ Mana Crystals   (200g →  50 mana)
+
+Modified files:
+  + game/src/systems/tradeFair.js (new file)
+      FAIR_DEALS, FAIR_DEAL_ORDER, FAIR_CYCLE_SEASONS=4
+      FAIR_BUY_MULT=0.80, FAIR_SELL_MULT=1.20, FAIR_PARTICIPATION_GOAL=5
+      initTradeFair() + on(SEASON_CHANGED, _onSeasonChanged)
+      _onSeasonChanged(): increment seasonCount; end fair if active;
+        else start fair when seasonCount%4===0
+      isFairActive(), getFairBuyMult(), getFairSellMult()
+      getFairDeals(), isDealUsed(), useFairDeal(id), tradeFairTradeMade()
+  ~ game/src/core/events.js
+      TRADE_FAIR_CHANGED event added
+  ~ game/src/systems/market.js
+      import getFairBuyMult+getFairSellMult+tradeFairTradeMade
+      buyPrice() ×getFairBuyMult(); sellPrice() ×getFairSellMult()
+      tradeFairTradeMade() called in sellResources() and buyResources()
+  ~ game/src/ui/marketPanel.js
+      import fair exports; TRADE_FAIR_CHANGED listener; fair-deal click handler
+      _tradeFairSection() renders banner+3 deal cards+participation bar
+      Section rendered above merchant section when fair is active
+  ~ game/src/main.js
+      import initTradeFair; boot+_newGame; save/load tradeFair state; version 64→65
+  ~ game/styles/main.css
+      .fair-section, .fair-header, .fair-title, .fair-badge, .fair-benefits
+      .fair-deals, .fair-deal-row (base+--used), .fair-deal-icon/info/title/desc/terms
+      .btn--fair-deal, .fair-participation+__label+__bar-bg+__bar-fill
+      .fair-bonus-claimed

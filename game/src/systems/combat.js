@@ -338,6 +338,9 @@ export function getAttackPreview(x, y) {
   // T150: Grand Theory Military Supremacy — +40% all attack power
   if (state.grandTheory === 'military_supremacy') attackPower *= 1.40;
 
+  // T195: High Marshal Vizier — +10% attack power
+  if (state.vizier?.active === 'high_marshal') attackPower *= 1.10;
+
   // T152: Warrior heir — +15% attack power
   if (state.dynasty?.currentHeir === 'warrior') attackPower *= 1.15;
 
@@ -578,6 +581,9 @@ export function attackTile(x, y) {
 
   // T150: Grand Theory Military Supremacy — +40% all attack power
   if (state.grandTheory === 'military_supremacy') attackPower *= 1.40;
+
+  // T195: High Marshal Vizier — +10% attack power
+  if (state.vizier?.active === 'high_marshal') attackPower *= 1.10;
 
   // T152: Warrior heir — +15% attack power
   if (state.dynasty?.currentHeir === 'warrior') attackPower *= 1.15;

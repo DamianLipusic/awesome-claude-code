@@ -38,6 +38,10 @@ import {
   getAvailableGreatPerson, getGreatPersonSecsLeft,
   useGreatPerson,
 } from '../systems/greatPersons.js'; // T136
+import {
+  VIZIERS, VIZIER_ORDER, VIZIER_CHANGE_COST,
+  getActiveVizier, getVizierCooldownSecs, appointVizier,
+} from '../systems/vizier.js'; // T195
 const _GP_POINTS_TO_SPAWN = 3;
 
 const TOTAL_ACHIEVEMENTS = 25;
@@ -97,6 +101,7 @@ export function initSummaryPanel() {
   on(Events.CITIZEN_ROLES_CHANGED, _render);      // T096: rerender when roles adjusted
   on(Events.CAPITAL_PLAN_CHOSEN,   _render);      // T100: rerender when capital plan chosen
   on(Events.GREAT_PERSON,          _render);      // T136: great person spawned/used/expired
+  on(Events.VIZIER_CHANGED,        _render);      // T195: vizier appointed or dismissed
   on(Events.TICK, _tickCountdown());
 
   // Delegated click handler for citizen role +/- and great person use buttons
@@ -122,6 +127,17 @@ export function initSummaryPanel() {
           gpBtn.title = result.reason ?? 'Cannot use.';
           gpBtn.classList.add('btn--shake');
           setTimeout(() => gpBtn.classList.remove('btn--shake'), 400);
+        }
+        return;
+      }
+      // T195: appoint / dismiss vizier
+      const vzBtn = e.target.closest('[data-appoint-vizier]');
+      if (vzBtn) {
+        const result = appointVizier(vzBtn.dataset.appointVizier);
+        if (!result.ok) {
+          vzBtn.title = result.reason ?? 'Cannot appoint.';
+          vzBtn.classList.add('btn--shake');
+          setTimeout(() => vzBtn.classList.remove('btn--shake'), 400);
         }
       }
     });
@@ -154,6 +170,7 @@ function _render() {
       ${_diplomacyCard()}
       ${_citizenRolesCard()}
       ${_progressionCard()}
+      ${_vizierCard()}
       ${_statsCard(timeStr)}
       ${_chartCard()}
     </div>
@@ -845,6 +862,51 @@ function _chartCard() {
       ${caption}
     </div>
   </div>`;
+}
+
+// ── Grand Vizier card (T195) ───────────────────────────────────────────────
+
+function _vizierCard() {
+  const active    = getActiveVizier();
+  const cdSecs    = getVizierCooldownSecs();
+  const hasActive = !!active;
+
+  const cards = VIZIER_ORDER.map(id => {
+    const def       = VIZIERS[id];
+    const isActive  = active?.id === id;
+    const canSwitch = !hasActive || isActive || cdSecs === 0;
+    const canAfford = !hasActive || isActive || (state.resources.gold ?? 0) >= VIZIER_CHANGE_COST;
+
+    let btnLabel  = isActive ? 'Dismiss' : (hasActive ? `Switch (${VIZIER_CHANGE_COST}g)` : 'Appoint');
+    let btnClass  = isActive ? 'btn--vizier btn--vizier--active'
+                             : (canSwitch && canAfford ? 'btn--vizier' : 'btn--vizier btn--vizier--blocked');
+    let btnTitle  = '';
+    if (!isActive && hasActive && cdSecs > 0) {
+      btnLabel = `Cooldown (${cdSecs}s)`;
+      btnTitle = `Wait ${cdSecs}s before switching.`;
+    } else if (!isActive && !canAfford) {
+      btnTitle = `Need ${VIZIER_CHANGE_COST}g to switch.`;
+    }
+
+    return `
+      <div class="vizier-card${isActive ? ' vizier-card--active' : ''}">
+        <div class="vizier-card__icon">${def.icon}</div>
+        <div class="vizier-card__info">
+          <div class="vizier-card__name">${def.name}</div>
+          <div class="vizier-card__bonuses">${def.bonusLines.join(' · ')}</div>
+          <div class="vizier-card__desc">${def.desc}</div>
+        </div>
+        <button class="${btnClass}" data-appoint-vizier="${id}"
+          ${(!canSwitch || (!isActive && !canAfford)) ? 'disabled' : ''}
+          title="${btnTitle}">${btnLabel}</button>
+      </div>`;
+  }).join('');
+
+  const intro = hasActive
+    ? `<div class="vizier-intro">Switching costs <strong>${VIZIER_CHANGE_COST}g</strong> and applies a 5-minute cooldown.</div>`
+    : `<div class="vizier-intro">Appoint a Grand Vizier to lead your imperial court. First appointment is free.</div>`;
+
+  return _card('👑 Grand Vizier', `${intro}<div class="vizier-list">${cards}</div>`);
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────

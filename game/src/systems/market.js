@@ -11,6 +11,7 @@ import { emit, Events } from '../core/events.js';
 import { addMessage } from '../core/actions.js';
 import { TICKS_PER_SECOND } from '../core/tick.js';
 import { anyEmbargoActive } from './diplomacy.js'; // T159
+import { getFairBuyMult, getFairSellMult, tradeFairTradeMade } from './tradeFair.js'; // T196
 
 // Base gold value per 1 unit of each resource
 const BASE_PRICES = Object.freeze({
@@ -106,7 +107,8 @@ export function buyPrice(resource, amount = 1) {
   const base     = BASE_PRICES[resource] ?? 1;
   const mult     = state.market.prices[resource] ?? 1;
   const seasonal = getSeasonalCommodities().includes(resource) ? SEASONAL_BUY_MULT : 1.0;
-  return Math.ceil(base * mult * seasonal * (1 + SPREAD) * amount);
+  const fair     = getFairBuyMult(); // T196: trade fair discount
+  return Math.ceil(base * mult * seasonal * fair * (1 + SPREAD) * amount);
 }
 
 /** Gold earned for selling `amount` units of `resource`. */
@@ -115,7 +117,8 @@ export function sellPrice(resource, amount = 1) {
   const base     = BASE_PRICES[resource] ?? 1;
   const mult     = state.market.prices[resource] ?? 1;
   const seasonal = getSeasonalCommodities().includes(resource) ? SEASONAL_SELL_MULT : 1.0;
-  return Math.floor(base * mult * seasonal * (1 - SPREAD) * amount);
+  const fair     = getFairSellMult(); // T196: trade fair bonus
+  return Math.floor(base * mult * seasonal * fair * (1 - SPREAD) * amount);
 }
 
 // ---------------------------------------------------------------------------
@@ -160,9 +163,12 @@ export function sellResources(resource, amount) {
   if (_allTradeActive) earned = Math.floor(earned * 1.25);
   // T159: Trade Embargo — +15% sell prices while any empire is embargoed
   if (anyEmbargoActive()) earned = Math.floor(earned * 1.15);
+  // T195: Chancellor Vizier — +10% sell prices
+  if (state.vizier?.active === 'chancellor') earned = Math.floor(earned * 1.10);
   state.resources[resource]  = available - actual;
   state.resources.gold = Math.min(state.caps.gold, (state.resources.gold ?? 0) + earned);
   state.market.totalTrades++;
+  tradeFairTradeMade(); // T196: track fair participation
 
   emit(Events.RESOURCE_CHANGED, {});
   emit(Events.MARKET_CHANGED, {});
@@ -201,6 +207,7 @@ export function buyResources(resource, amount) {
   state.resources.gold -= totalCost;
   state.resources[resource] = current + finalAmount;
   state.market.totalTrades++;
+  tradeFairTradeMade(); // T196: track fair participation
 
   emit(Events.RESOURCE_CHANGED, {});
   emit(Events.MARKET_CHANGED, {});

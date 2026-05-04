@@ -26,6 +26,7 @@ import { SYNERGIES } from '../data/techs.js';
 import { getCurrentTitle } from '../data/titles.js';
 import { isGuildActive, GUILD_ROUTE_BONUS, getTradeBoostMult } from './tradeGuildHall.js'; // T190
 import { getGuildRateBonuses } from './artisanGuilds.js'; // T194
+import { getVizierGoldRate, getVizierManaMult, getVizierProdMult, getVizierTradeMult } from './vizier.js'; // T195
 
 /** Returns true if both techs in the named synergy pair are researched. */
 function _synergy(id) {
@@ -135,6 +136,8 @@ export function recalcRates() {
     const tradeEmpireActive = _synergy('trade_empire');
     // T150: Grand Theory Economic Mastery — ×1.5 trade route income
     const grandTheoryTradeMult = state.grandTheory === 'economic_mastery' ? 1.5 : 1.0;
+    // T195: Court Diplomat Vizier — ×1.15 trade route income
+    const vizierTradeMult  = getVizierTradeMult();
     for (const emp of state.diplomacy.empires) {
       if (emp.relations !== 'allied' || emp.tradeRoutes <= 0) continue;
       const gift = EMPIRES[emp.id]?.tradeGift ?? {};
@@ -150,7 +153,7 @@ export function recalcRates() {
           const specMult = (emp.tradeSpec === 'food_route' && res === 'food') ? 2.0 :
                            (emp.tradeSpec === 'gold_route' && res === 'gold') ? 2.0 :
                            (emp.tradeSpec === 'iron_route' && res === 'iron') ? 2.0 : 1.0;
-          rates[res] += rate * emp.tradeRoutes * navMult * merchantMult * economicMastery * allyTradeMult * grandTheoryTradeMult * marriageMult * specMult * guildBoostMult;
+          rates[res] += rate * emp.tradeRoutes * navMult * merchantMult * economicMastery * allyTradeMult * grandTheoryTradeMult * marriageMult * specMult * guildBoostMult * vizierTradeMult;
         }
       }
       // Trade Empire: flat +0.8 gold/s per open trade route (stacks per route)
@@ -629,6 +632,16 @@ export function recalcRates() {
   const _guildBonuses = getGuildRateBonuses();
   for (const [res, val] of Object.entries(_guildBonuses)) {
     if (rates[res] !== undefined) rates[res] += val;
+  }
+
+  // T195: Grand Vizier rate bonuses
+  const _vizierGold = getVizierGoldRate();
+  if (_vizierGold) rates.gold += _vizierGold;
+  const _vizierMana = getVizierManaMult();
+  if (_vizierMana !== 1.0 && rates.mana > 0) rates.mana *= _vizierMana;
+  const _vizierProd = getVizierProdMult();
+  if (_vizierProd !== 1.0) {
+    for (const res of RESOURCE_KEYS) if (rates[res] > 0) rates[res] *= _vizierProd;
   }
 
   Object.assign(state.rates, rates);

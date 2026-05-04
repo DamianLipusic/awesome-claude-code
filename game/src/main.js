@@ -110,6 +110,8 @@ import { initImperialMint } from './systems/imperialMint.js';                   
 import { initEnvoy, envoyTick } from './systems/envoy.js';                                       // T192
 import { initOracle, oracleTick } from './systems/oracle.js';                                   // T193
 import { initGuilds, guildTick } from './systems/artisanGuilds.js';                             // T194
+import { initVizier } from './systems/vizier.js';                                               // T195
+import { initTradeFair } from './systems/tradeFair.js';                                         // T196
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
@@ -268,6 +270,8 @@ function boot() {
   initEnvoy();                 // T192: envoy state init
   initOracle();                // T193: oracle omen state init
   initGuilds();                // T194: artisan guilds state init
+  initVizier();                // T195: grand vizier state init
+  initTradeFair();             // T196: trade fair state init + SEASON_CHANGED listener
   // T176: monument init deferred — only activates when building is constructed
 
   // Init UI
@@ -518,7 +522,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 63, // T193: oracle of fate; T194: artisan guilds
+      version: 65, // T195: grand vizier system; T196: annual trade fair
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -639,6 +643,8 @@ function _save() {
         envoy:               state.envoy               ?? null,  // T192
         oracle:              state.oracle              ?? null,  // T193
         guilds:              state.guilds              ?? null,  // T194
+        vizier:              state.vizier              ?? null,  // T195
+        tradeFair:           state.tradeFair           ?? null,  // T196
         tick:          state.tick,
       }
     }));
@@ -793,6 +799,8 @@ function _applySave(save) {
   state.envoy                = s.envoy                ?? null; // T192
   state.oracle               = s.oracle               ?? null; // T193
   state.guilds               = s.guilds               ?? null; // T194
+  state.vizier               = s.vizier               ?? null; // T195
+  state.tradeFair            = s.tradeFair            ?? null; // T196
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
@@ -1601,6 +1609,8 @@ function _newGame(opts = {}) {
   initEnvoy();                 // T192: reset envoy state on new game
   initOracle();                // T193: reset oracle state on new game
   initGuilds();                // T194: reset guild state on new game
+  initVizier();                // T195: reset vizier state on new game
+  initTradeFair();             // T196: reset trade fair state on new game
   _updateCelestialBanner(); // T153: hide banner on new game
   recalcRates();
   startLoop();  // restart loop in case it was stopped by game-over

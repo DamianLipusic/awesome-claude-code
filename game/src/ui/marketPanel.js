@@ -15,6 +15,7 @@ import { executeDeal, getBlackMarketRefreshSecs } from '../systems/blackMarket.j
 import { isGuildActive, GUILD_ROUTE_BONUS, BOOST_COST, BOOST_MULT, getBoostSecs, boostTradeRoute } from '../systems/tradeGuildHall.js'; // T190
 import { EMPIRES } from '../data/empires.js'; // T190
 import { isMintActive, getMintInfo, performMintConversion, MINT_RATES, MINT_CONVERSION_MAX } from '../systems/imperialMint.js'; // T191
+import { isFairActive, getFairDeals, isDealUsed, useFairDeal, FAIR_PARTICIPATION_GOAL } from '../systems/tradeFair.js'; // T196
 import { fmtNum } from '../utils/fmt.js';
 
 const RESOURCE_ICONS = {
@@ -44,6 +45,7 @@ export function initMarketPanel() {
   on(Events.BLACK_MARKET_CHANGED, _render);  // T167: black market deals refreshed
   on(Events.TRADE_GUILD_BOOSTED,  _render);  // T190: guild boost activated/expired
   on(Events.MINT_CONVERSION,      _render);  // T191: mint conversion performed (also resets on existing SEASON_CHANGED)
+  on(Events.TRADE_FAIR_CHANGED,   _render);  // T196: fair started / deal used / ended
 
   // Refresh contract/merchant/auction countdowns every ~4 ticks (~1 s)
   let _contractTickCount = 0;
@@ -105,6 +107,7 @@ function _render() {
       </div>
       ${rows}
     </div>
+    ${_tradeFairSection()}
     ${_merchantSection()}
     ${_contractsSection()}
     ${_auctionSection()}
@@ -387,6 +390,9 @@ function _handleClick(e) {
   } else if (action === 'mint-convert') {
     // T191: convert resource to gold at imperial mint
     result = performMintConversion(btn.dataset.res, parseInt(btn.dataset.amt, 10));
+  } else if (action === 'fair-deal') {
+    // T196: claim a trade fair deal
+    result = useFairDeal(btn.dataset.dealId);
   }
 
   if (result && !result.ok) {
@@ -394,6 +400,60 @@ function _handleClick(e) {
     btn.classList.add('btn--shake');
     btn.addEventListener('animationend', () => btn.classList.remove('btn--shake'), { once: true });
   }
+}
+
+// ---------------------------------------------------------------------------
+// T196: Trade Fair section
+// ---------------------------------------------------------------------------
+
+const RES_ICONS_FAIR = { gold: '💰', food: '🌾', wood: '🪵', stone: '🪨', iron: '⚙️', mana: '✨' };
+
+function _tradeFairSection() {
+  if (!isFairActive()) return '';
+
+  const tf      = state.tradeFair;
+  const deals   = getFairDeals();
+  const trades  = tf?.tradesDuringFair ?? 0;
+  const claimed = tf?.bonusClaimed ?? false;
+  const pct     = Math.min(100, Math.round((trades / FAIR_PARTICIPATION_GOAL) * 100));
+
+  const dealsHtml = deals.map(def => {
+    const used       = isDealUsed(def.id);
+    const costStr    = Object.entries(def.cost).map(([r, a]) => `${a}g`).join('');
+    const rewardStr  = Object.entries(def.reward).map(([r, a]) => `${RES_ICONS_FAIR[r] ?? r} +${a} ${r}`).join(', ');
+    const canAfford  = !used && Object.entries(def.cost).every(([r, a]) => (state.resources[r] ?? 0) >= a);
+
+    return `
+      <div class="fair-deal-row${used ? ' fair-deal-row--used' : ''}">
+        <div class="fair-deal-icon">${def.icon}</div>
+        <div class="fair-deal-info">
+          <div class="fair-deal-title">${def.title}</div>
+          <div class="fair-deal-desc">${def.desc}</div>
+          <div class="fair-deal-terms">${costStr} → ${rewardStr}</div>
+        </div>
+        <button class="btn btn--fair-deal${used || !canAfford ? ' btn--disabled' : ''}"
+          data-action="fair-deal" data-deal-id="${def.id}"
+          ${used || !canAfford ? 'disabled' : ''}>${used ? '✓ Claimed' : `Buy (${costStr})`}</button>
+      </div>`;
+  }).join('');
+
+  const progressHtml = claimed
+    ? `<div class="fair-bonus-claimed">🎁 Participation bonus claimed — well done!</div>`
+    : `<div class="fair-participation">
+        <div class="fair-participation__label">Participation: ${trades}/${FAIR_PARTICIPATION_GOAL} trades → +80g +15 prestige</div>
+        <div class="fair-participation__bar-bg"><div class="fair-participation__bar-fill" style="width:${pct}%"></div></div>
+       </div>`;
+
+  return `
+    <div class="fair-section">
+      <div class="fair-header">
+        <span class="fair-title">🎪 Annual Trade Fair</span>
+        <span class="fair-badge">ACTIVE</span>
+      </div>
+      <div class="fair-benefits">Buy prices −20% · Sell prices +20%</div>
+      <div class="fair-deals">${dealsHtml}</div>
+      ${progressHtml}
+    </div>`;
 }
 
 // ---------------------------------------------------------------------------

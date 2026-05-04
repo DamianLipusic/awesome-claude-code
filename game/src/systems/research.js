@@ -179,6 +179,9 @@ export function startResearch(techId) {
     addMessage('📖 Great Scholar: research time halved!', 'tech');
   }
 
+  // T195: Royal Architect Vizier — −10% research time
+  if (state.vizier?.active === 'architect') totalTicks = Math.ceil(totalTicks * 0.90);
+
   state.researchQueue.push({ techId, remaining: totalTicks, totalTicks });
   addMessage(`Researching ${def.name}…`, 'research');
   emit(Events.TECH_CHANGED, {});
