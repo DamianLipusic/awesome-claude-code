@@ -3516,3 +3516,93 @@ Modified files:
       .fair-deals, .fair-deal-row (base+--used), .fair-deal-icon/info/title/desc/terms
       .btn--fair-deal, .fair-participation+__label+__bar-bg+__bar-fill
       .fair-bonus-claimed
+
+---
+
+## 2026-05-05 — Session N+56
+
+**Tasks completed:** T199, T200
+
+**Summary:**
+All prior tasks (T001–T198) were complete. Created T199+T200 task specs then implemented two Phase 78 features: Imperial Tax Collector (T199) adding a seasonal manual gold collection mechanic with morale trade-offs, and Wandering Army (T200) adding periodic mercenary band offers with hire/negotiate/dismiss decisions.
+
+T199: Imperial Tax Collector — Seasonal Territory Tax
+----------------------------------------------------------------------
+Once per season, the player can manually collect imperial taxes from
+controlled territory. Three rate tiers offer a gold vs. morale trade-off:
+  🌿 Lenient  — 70% of base yield, no morale cost
+  ⚖️  Standard — 100% of base yield, −2 morale
+  ⚙️  Heavy    — 150% of base yield, −5 morale
+
+Base yield = controlled_tiles × (10 + age×5) gold, capped at 1000.
+Collection resets each season on SEASON_CHANGED.
+
+Modified files:
+  + game/src/systems/imperialTaxCollector.js (new file)
+      TAX_RATES (lenient/standard/heavy with icon/mult/moraleChange/desc)
+      TAX_RATE_ORDER; TAX_BASE_PER_TILE=10; TAX_BASE_PER_AGE=5; TAX_CAP=1000
+      initTaxCollection() + on(SEASON_CHANGED, _onSeasonChanged) resets flag
+      getTaxBaseYield(): tiles × (10+age×5), cap 1000
+      getTaxYieldForRate(rateId): base × rate.mult floored
+      collectTax(rateId): validate + deduct morale + add gold + emit TAX_COLLECTED
+  ~ game/src/core/state.js
+      taxCollection:null field + initState reset
+  ~ game/src/core/events.js
+      TAX_COLLECTED: 'taxCollected' event added
+  ~ game/src/ui/summaryPanel.js
+      import collectTax/getTaxYieldForRate/getTaxInfo/TAX_RATES/TAX_RATE_ORDER
+      on(TAX_COLLECTED) + on(SEASON_CHANGED) triggers _render
+      _taxCollectorCard() renders 3 rate rows with Collect buttons (unused)
+        or used-this-season message with last rate used
+      _countPlayerTilesSummary() helper
+      data-collect-tax click handler; card inserted between resources and military
+  ~ game/src/main.js
+      import initTaxCollection; initTaxCollection() in boot+_newGame
+      taxCollection saved/loaded; version 67→68
+  ~ game/styles/main.css
+      .tax-intro, .tax-rate-row, .tax-rate-info, .tax-rate-icon
+      .tax-rate-label, .tax-rate-yield, .tax-morale-cost, .tax-morale-ok
+      .btn--tax-collect (gold gradient), .tax-used, .tax-total
+
+T200: Wandering Army — Periodic Mercenary Band Offer
+----------------------------------------------------------------------
+Every 8–12 minutes (Bronze Age+) a wandering army appears offering their
+services. 90-second decision window with three choices:
+  Hire      — standard rate (gold+food → units)
+  Negotiate — pay +40 gold for +50% more units
+  Dismiss   — no cost, army moves on
+
+4 army types: ⚔️ Iron Wanderers (soldiers, Age 1+),
+              🏹 Forest Raiders (archers, Age 1+),
+              🛡️ Steel Mercenaries (knights, Age 2+),
+              🔮 Arcane Mage Band (mages, Age 3+).
+
+Modified files:
+  + game/src/systems/wanderingArmy.js (new file)
+      ARMY_POOL (4 band definitions), OFFER_TICKS=360, SPAWN_MIN/MAX ticks
+      initWanderingArmy(); getWanderingArmyOffer(); getWanderingArmySecsLeft()
+      hireWanderingArmy(); negotiateWanderingArmy(); dismissWanderingArmy()
+      wanderingArmyTick(): expire active offer + spawn when interval reached
+      _spawnArmy(): picks eligible band by age, computes negotiate terms
+      _doHire(negotiate): deducts resources, adds units, emits events
+      _clearCurrent(): resets timer with random interval
+  ~ game/src/core/state.js
+      wanderingArmy:null field + initState reset
+  ~ game/src/core/events.js
+      WANDERING_ARMY_CHANGED: 'wanderingArmyChanged' event added
+  ~ game/src/ui/militaryPanel.js
+      import 5 wandering army exports from systems/wanderingArmy.js
+      on(WANDERING_ARMY_CHANGED) → _render
+      _wanderingArmySection() at top of panel (Bronze Age+ only)
+        shows offer with hire/negotiate/dismiss buttons, urgency animation
+      data-army-action handler in _handleClick (before data-action block)
+      Tick check includes hasArmyOffer for countdown refreshes
+  ~ game/src/main.js
+      import initWanderingArmy+wanderingArmyTick
+      registerSystem(wanderingArmyTick)
+      initWanderingArmy() in boot+_newGame; save/load wanderingArmy; version 67→68
+  ~ game/styles/main.css
+      .wandering-army (base+--urgent with pulse-border animation)
+      .wandering-army__header/icon/name/timer/body/actions
+      .btn--army-hire (green gradient), .btn--army-negotiate (gold gradient)
+      .btn--army-dismiss (neutral grey)

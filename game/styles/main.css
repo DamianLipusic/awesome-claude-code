@@ -12166,3 +12166,205 @@ kbd {
   text-overflow: ellipsis;
   max-width: 160px;
 }
+
+
+/* ── Imperial Tax Collector (T199) ────────────────────────────────────────── */
+
+.tax-intro {
+  font-size: 0.74rem;
+  color: #9ca3af;
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+.tax-rate-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin-bottom: 6px;
+}
+
+.tax-rate-info {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex: 1;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.tax-rate-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.tax-rate-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #e2e8f0;
+  white-space: nowrap;
+}
+
+.tax-rate-yield {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #fde68a;
+  white-space: nowrap;
+}
+
+.tax-morale-cost {
+  font-size: 0.72rem;
+  color: #f87171;
+}
+
+.tax-morale-ok {
+  font-size: 0.72rem;
+  color: #86efac;
+}
+
+.btn--tax-collect {
+  padding: 5px 12px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  border: 1px solid rgba(240, 180, 41, 0.40);
+  border-radius: 4px;
+  background: linear-gradient(135deg, rgba(30, 25, 5, 0.60), rgba(60, 50, 10, 0.50));
+  color: #fde68a;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.btn--tax-collect:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(60, 50, 10, 0.80), rgba(90, 75, 15, 0.65));
+  border-color: rgba(240, 180, 41, 0.70);
+}
+
+.tax-used {
+  font-size: 0.78rem;
+  color: #6b7280;
+  font-style: italic;
+  padding: 6px 0;
+  line-height: 1.4;
+}
+
+.tax-total {
+  font-size: 0.72rem;
+  color: #9ca3af;
+  margin-top: 6px;
+}
+
+
+/* ── Wandering Army (T200) ────────────────────────────────────────────────── */
+
+.wandering-army {
+  background: rgba(16, 185, 129, 0.06);
+  border: 1px solid rgba(16, 185, 129, 0.30);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.wandering-army--urgent {
+  border-color: rgba(245, 158, 11, 0.60);
+  background: rgba(245, 158, 11, 0.07);
+  animation: pulse-border 1.2s ease-in-out infinite;
+}
+
+.wandering-army__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.wandering-army__icon {
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+
+.wandering-army__name {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #d1fae5;
+  flex: 1;
+}
+
+.wandering-army__timer {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #fbbf24;
+  white-space: nowrap;
+}
+
+.wandering-army__body {
+  font-size: 0.78rem;
+  color: #9ca3af;
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+.wandering-army__actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.btn--army-hire {
+  padding: 5px 10px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  border: 1px solid rgba(16, 185, 129, 0.40);
+  border-radius: 4px;
+  background: linear-gradient(135deg, rgba(5, 30, 20, 0.60), rgba(10, 60, 40, 0.50));
+  color: #a7f3d0;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.btn--army-hire:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(10, 60, 40, 0.80), rgba(15, 90, 60, 0.65));
+  border-color: rgba(16, 185, 129, 0.70);
+}
+
+.btn--army-negotiate {
+  padding: 5px 10px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  border: 1px solid rgba(251, 191, 36, 0.40);
+  border-radius: 4px;
+  background: linear-gradient(135deg, rgba(30, 25, 5, 0.60), rgba(60, 50, 10, 0.50));
+  color: #fde68a;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.btn--army-negotiate:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(60, 50, 10, 0.80), rgba(90, 75, 15, 0.65));
+  border-color: rgba(251, 191, 36, 0.70);
+}
+
+.btn--army-dismiss {
+  padding: 5px 10px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  border: 1px solid rgba(107, 114, 128, 0.40);
+  border-radius: 4px;
+  background: rgba(30, 30, 30, 0.50);
+  color: #9ca3af;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+
+.btn--army-dismiss:hover {
+  background: rgba(50, 50, 50, 0.65);
+}

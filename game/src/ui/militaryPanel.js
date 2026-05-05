@@ -11,6 +11,7 @@
 import { state } from '../core/state.js';
 import { on, Events } from '../core/events.js';
 import { trainUnit, recruitHero, useHeroAbility, setFormation, chooseHeroSkill, rallyTroops, upgradeUnit, UNIT_UPGRADE_MAX, UNIT_UPGRADE_COST_BASE, addMessage, chooseHeroTrait, chooseCompanion, issueProclamation, activateSurgeProvisions, conductBattleDrills, immortalizeUnit, LEGENDARY_COST, LEGENDARY_MAX, LEGENDARY_BONUS } from '../core/actions.js';
+import { getWanderingArmyOffer, getWanderingArmySecsLeft, hireWanderingArmy, negotiateWanderingArmy, dismissWanderingArmy } from '../systems/wanderingArmy.js'; // T200
 import { acceptDuel, declineDuel, getDuelSecsLeft } from '../systems/duels.js';
 import { getActiveWarlord, getWarlordSecsLeft } from '../systems/rovingWarlord.js'; // T165
 import { sendPioneerExpedition, getPioneerProgress, getPioneerSecsLeft, PIONEER_COST, PIONEER_MAX } from '../systems/pioneerExpeditions.js';
@@ -101,6 +102,7 @@ export function initMilitaryPanel() {
   on(Events.WARLORD_STRUCK,        () => _render(panel)); // T165: warlord struck and departed
   on(Events.ACADEMY_CHANGED,       () => _render(panel)); // T169: battle drills activated
   on(Events.UNIT_IMMORTALIZED,     () => _render(panel)); // T189: legendary unit immortalized
+  on(Events.WANDERING_ARMY_CHANGED, () => _render(panel)); // T200: army spawned/hired/dismissed
   on(Events.RESOURCE_CHANGED,  () => _renderCosts(panel));
   on(Events.GAME_LOADED,       () => _render(panel));
 
@@ -135,8 +137,9 @@ export function initMilitaryPanel() {
       state.supplyDepot.surgeExpiresAt > state.tick ||
       state.supplyDepot.surgeCooldownUntil > state.tick
     ));
-    const hasWarlord = !!state.warlord?.active;          // T165: warlord countdown
-    if (hasHeroActivity || hasSpellActivity || hasMercOffer || hasDecreeCooldown || hasRallyCooldown || hasAcademyDrill || hasDuelPending || hasPioneerActive || hasSurgeActivity || hasWarlord) _render(panel);
+    const hasWarlord       = !!state.warlord?.active;       // T165: warlord countdown
+    const hasArmyOffer     = !!state.wanderingArmy?.current; // T200: army countdown
+    if (hasHeroActivity || hasSpellActivity || hasMercOffer || hasDecreeCooldown || hasRallyCooldown || hasAcademyDrill || hasDuelPending || hasPioneerActive || hasSurgeActivity || hasWarlord || hasArmyOffer) _render(panel);
   });
 }
 
@@ -144,6 +147,7 @@ export function initMilitaryPanel() {
 
 function _render(panel) {
   panel.innerHTML = `
+    ${_wanderingArmySection()}
     ${_warlordSection()}
     ${_duelSection()}
     ${_mercenarySection()}
@@ -169,6 +173,51 @@ function _render(panel) {
   `;
 
   panel.addEventListener('click', _handleClick);
+}
+
+// ── T200: Wandering Army offer section ───────────────────────────────────
+
+function _wanderingArmySection() {
+  if ((state.age ?? 0) < 1) return '';
+  const offer = getWanderingArmyOffer();
+  if (!offer) return '';
+
+  const secsLeft  = getWanderingArmySecsLeft();
+  const urgent    = secsLeft <= 30;
+  const urgentCls = urgent ? ' wandering-army--urgent' : '';
+  const mins      = Math.floor(secsLeft / 60);
+  const secs      = secsLeft % 60;
+  const timeStr   = mins > 0 ? `${mins}m ${String(secs).padStart(2, '0')}s` : `${secsLeft}s`;
+
+  const canHire       = (state.resources.gold ?? 0) >= offer.goldCost && (state.resources.food ?? 0) >= offer.foodCost;
+  const canNegotiate  = (state.resources.gold ?? 0) >= offer.negotiateCost && (state.resources.food ?? 0) >= offer.foodCost;
+
+  return `
+    <div class="wandering-army${urgentCls}">
+      <div class="wandering-army__header">
+        <span class="wandering-army__icon">${offer.icon}</span>
+        <span class="wandering-army__name">${offer.name}</span>
+        <span class="wandering-army__timer">${timeStr}</span>
+      </div>
+      <div class="wandering-army__body">
+        ${offer.count} ${offer.unitId}s seek employment — act fast!
+      </div>
+      <div class="wandering-army__actions">
+        <button class="btn btn--sm btn--army-hire${canHire ? '' : ' btn--disabled'}"
+          data-army-action="hire"
+          title="Standard hire: ${offer.count} ${offer.unitId}s for ${offer.goldCost}g + ${offer.foodCost} food"
+          ${canHire ? '' : 'disabled'}>
+          Hire (${offer.goldCost}g+${offer.foodCost}f → ${offer.count} ${offer.unitId}s)
+        </button>
+        <button class="btn btn--sm btn--army-negotiate${canNegotiate ? '' : ' btn--disabled'}"
+          data-army-action="negotiate"
+          title="Negotiate: ${offer.negotiateCount} ${offer.unitId}s for ${offer.negotiateCost}g + ${offer.foodCost} food (+50% units)"
+          ${canNegotiate ? '' : 'disabled'}>
+          Negotiate (${offer.negotiateCost}g → ${offer.negotiateCount} ${offer.unitId}s)
+        </button>
+        <button class="btn btn--sm btn--army-dismiss" data-army-action="dismiss">Dismiss</button>
+      </div>
+    </div>`;
 }
 
 // ── T165: Roving Warlord alert section ────────────────────────────────────
@@ -1415,6 +1464,21 @@ function _handleClick(e) {
   if (proclamationBtn && !proclamationBtn.disabled) {
     const result = issueProclamation(proclamationBtn.dataset.issueProclamation);
     if (!result.ok) addMessage(result.reason ?? 'Cannot issue proclamation.', 'info');
+    return;
+  }
+
+  // T200: wandering army hire / negotiate / dismiss
+  const armyBtn = e.target.closest('[data-army-action]');
+  if (armyBtn && !armyBtn.disabled) {
+    const action = armyBtn.dataset.armyAction;
+    const result = action === 'hire'      ? hireWanderingArmy()
+                 : action === 'negotiate' ? negotiateWanderingArmy()
+                 : dismissWanderingArmy();
+    if (result && !result.ok) {
+      armyBtn.classList.add('btn--shake');
+      setTimeout(() => armyBtn.classList.remove('btn--shake'), 600);
+      if (result.reason) addMessage(result.reason, 'info');
+    }
     return;
   }
 

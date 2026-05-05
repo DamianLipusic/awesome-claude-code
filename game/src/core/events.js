@@ -166,4 +166,6 @@ export const Events = Object.freeze({
   VIZIER_CHANGED:           'vizierChanged',               // T195: grand vizier appointed or dismissed
   TRADE_FAIR_CHANGED:       'tradeFairChanged',            // T196: trade fair started / deal used / ended
   TRADE_WIND_CHANGED:       'tradeWindChanged',            // T198: trade wind event started or ended
+  TAX_COLLECTED:            'taxCollected',                // T199: imperial taxes collected for the season
+  WANDERING_ARMY_CHANGED:   'wanderingArmyChanged',        // T200: wandering army spawned / hired / dismissed / expired
 });

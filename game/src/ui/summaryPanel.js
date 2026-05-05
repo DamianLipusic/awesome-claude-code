@@ -42,6 +42,9 @@ import {
   VIZIERS, VIZIER_ORDER, VIZIER_CHANGE_COST,
   getActiveVizier, getVizierCooldownSecs, appointVizier,
 } from '../systems/vizier.js'; // T195
+import {
+  TAX_RATES, TAX_RATE_ORDER, getTaxInfo, getTaxYieldForRate, collectTax,
+} from '../systems/imperialTaxCollector.js'; // T199
 const _GP_POINTS_TO_SPAWN = 3;
 
 const TOTAL_ACHIEVEMENTS = 25;
@@ -102,6 +105,8 @@ export function initSummaryPanel() {
   on(Events.CAPITAL_PLAN_CHOSEN,   _render);      // T100: rerender when capital plan chosen
   on(Events.GREAT_PERSON,          _render);      // T136: great person spawned/used/expired
   on(Events.VIZIER_CHANGED,        _render);      // T195: vizier appointed or dismissed
+  on(Events.TAX_COLLECTED,         _render);      // T199: tax collection changes display
+  on(Events.SEASON_CHANGED,        _render);      // T199: resets usedThisSeason
   on(Events.TICK, _tickCountdown());
 
   // Delegated click handler for citizen role +/- and great person use buttons
@@ -139,6 +144,17 @@ export function initSummaryPanel() {
           vzBtn.classList.add('btn--shake');
           setTimeout(() => vzBtn.classList.remove('btn--shake'), 400);
         }
+        return;
+      }
+      // T199: collect taxes
+      const taxBtn = e.target.closest('[data-collect-tax]');
+      if (taxBtn) {
+        const result = collectTax(taxBtn.dataset.collectTax);
+        if (!result.ok) {
+          taxBtn.title = result.reason ?? 'Cannot collect.';
+          taxBtn.classList.add('btn--shake');
+          setTimeout(() => taxBtn.classList.remove('btn--shake'), 400);
+        }
       }
     });
   }
@@ -164,6 +180,7 @@ function _render() {
       ${_scoreCard()}
       ${_greatPersonCard()}
       ${_resourcesCard()}
+      ${_taxCollectorCard()}
       ${_militaryCard()}
       ${_territoryCard()}
       ${_terrainControlCard()}
@@ -907,6 +924,56 @@ function _vizierCard() {
     : `<div class="vizier-intro">Appoint a Grand Vizier to lead your imperial court. First appointment is free.</div>`;
 
   return _card('👑 Grand Vizier', `${intro}<div class="vizier-list">${cards}</div>`);
+}
+
+// ── Imperial Tax Collector card (T199) ────────────────────────────────────
+
+function _taxCollectorCard() {
+  const tc = getTaxInfo();
+  const used = tc?.usedThisSeason ?? false;
+
+  const intro = `<div class="tax-intro">Levy taxes from your ${_countPlayerTilesSummary()} controlled tiles once per season.</div>`;
+
+  if (used) {
+    const lastDef = TAX_RATES[tc?.lastRate ?? 'standard'];
+    return _card('🏛️ Tax Collector', `
+      ${intro}
+      <div class="tax-used">Taxes collected this season — ${lastDef?.icon ?? ''} ${_escHtml(lastDef?.label ?? 'Standard')} rate. Next collection available next season.</div>
+      <div class="tax-total">Total collected: ${fmtNum(tc?.totalCollected ?? 0)} gold</div>
+    `);
+  }
+
+  const rateCards = TAX_RATE_ORDER.map(rateId => {
+    const def   = TAX_RATES[rateId];
+    const yield_ = getTaxYieldForRate(rateId);
+    const moraleStr = def.moraleChange < 0
+      ? `<span class="tax-morale-cost">${def.moraleChange} morale</span>`
+      : `<span class="tax-morale-ok">No morale cost</span>`;
+    return `
+      <div class="tax-rate-row">
+        <div class="tax-rate-info">
+          <span class="tax-rate-icon">${def.icon}</span>
+          <span class="tax-rate-label">${def.label}</span>
+          <span class="tax-rate-yield">+${fmtNum(yield_)} gold</span>
+          ${moraleStr}
+        </div>
+        <button class="btn btn--sm btn--tax-collect" data-collect-tax="${rateId}"
+          title="${_escHtml(def.desc)}">Collect</button>
+      </div>`;
+  }).join('');
+
+  const totalRow = tc ? `<div class="tax-total">Total collected: ${fmtNum(tc.totalCollected)} gold</div>` : '';
+
+  return _card('🏛️ Tax Collector', `${intro}${rateCards}${totalRow}`);
+}
+
+function _countPlayerTilesSummary() {
+  if (!state.map) return 0;
+  let count = 0;
+  for (const row of state.map.tiles)
+    for (const t of row)
+      if (t.owner === 'player') count++;
+  return count;
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────

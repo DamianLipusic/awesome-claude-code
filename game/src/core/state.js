@@ -134,6 +134,16 @@ export const state = {
   //   nextWindSeason: number, history: [{id, icon, name, seasonName}], totalEvents: number } | null
   tradeWind: null,
 
+  // T199: Imperial Tax Collector — once-per-season manual gold collection from territory
+  // { usedThisSeason: bool, lastRate: string|null, totalCollected: number } | null
+  taxCollection: null,
+
+  // T200: Wandering Army — periodic mercenary band offer (Bronze Age+)
+  // { current: { unitId, count, goldCost, foodCost, expiresAt, icon, name,
+  //              negotiateCost, negotiateCount } | null,
+  //   nextSpawnTick: number, totalHired: number } | null
+  wanderingArmy: null,
+
   // Difficulty setting — persisted across new games (not reset by initState)
   // 'easy' | 'normal' | 'hard'
   difficulty: 'normal',
@@ -624,5 +634,7 @@ export function initState(empireName = 'My Empire') {
   state.mint                 = null; // T191: reset mint state per game
   state.envoy                = null; // T192: reset envoy state per game
   state.tradeWind            = null; // T198: reset trade wind state per game
+  state.taxCollection        = null; // T199: reset tax collection state per game
+  state.wanderingArmy        = null; // T200: reset wandering army state per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

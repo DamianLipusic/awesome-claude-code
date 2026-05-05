@@ -114,6 +114,8 @@ import { initVizier } from './systems/vizier.js';                               
 import { initTradeFair } from './systems/tradeFair.js';                                         // T196
 import { initSeasonPerformance } from './systems/seasonPerformance.js';                          // T197
 import { initTradeWinds } from './systems/tradeWinds.js';                                        // T198
+import { initTaxCollection } from './systems/imperialTaxCollector.js';                           // T199
+import { initWanderingArmy, wanderingArmyTick } from './systems/wanderingArmy.js';               // T200
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
@@ -208,6 +210,7 @@ function boot() {
   registerSystem(envoyTick);          // T192: diplomatic envoy arrival check
   registerSystem(oracleTick);         // T193: oracle omen lifecycle
   registerSystem(guildTick);          // T194: artisan guild expiry check
+  registerSystem(wanderingArmyTick);  // T200: wandering army spawn/expire
 
   // Init event-driven systems
   initRandomEvents();
@@ -276,6 +279,8 @@ function boot() {
   initTradeFair();             // T196: trade fair state init + SEASON_CHANGED listener
   initSeasonPerformance();     // T197: season-end morale/prestige recap (subscribes after chronicle)
   initTradeWinds();            // T198: trade wind events state init + SEASON_CHANGED listener
+  initTaxCollection();         // T199: imperial tax collector state init + SEASON_CHANGED listener
+  initWanderingArmy();         // T200: wandering army state init
   // T176: monument init deferred — only activates when building is constructed
 
   // Init UI
@@ -526,7 +531,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 66, // T197: season performance bonus; T198: trade wind events
+      version: 68, // T199: imperial tax collector; T200: wandering army
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -650,6 +655,8 @@ function _save() {
         vizier:              state.vizier              ?? null,  // T195
         tradeFair:           state.tradeFair           ?? null,  // T196
         tradeWind:           state.tradeWind           ?? null,  // T198
+        taxCollection:       state.taxCollection       ?? null,  // T199
+        wanderingArmy:       state.wanderingArmy       ?? null,  // T200
         tick:          state.tick,
       }
     }));
@@ -807,6 +814,8 @@ function _applySave(save) {
   state.vizier               = s.vizier               ?? null; // T195
   state.tradeFair            = s.tradeFair            ?? null; // T196
   state.tradeWind            = s.tradeWind            ?? null; // T198
+  state.taxCollection        = s.taxCollection        ?? null; // T199
+  state.wanderingArmy        = s.wanderingArmy        ?? null; // T200
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
@@ -1618,6 +1627,8 @@ function _newGame(opts = {}) {
   initVizier();                // T195: reset vizier state on new game
   initTradeFair();             // T196: reset trade fair state on new game
   initTradeWinds();            // T198: reset trade wind state on new game
+  initTaxCollection();         // T199: reset tax collection state on new game
+  initWanderingArmy();         // T200: reset wandering army state on new game
   _updateCelestialBanner(); // T153: hide banner on new game
   recalcRates();
   startLoop();  // restart loop in case it was stopped by game-over
