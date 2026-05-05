@@ -3636,3 +3636,53 @@ All prior tasks (T001–T200) were complete. Created T201+T202 task specs then i
 - `src/ui/questPanel.js`: Import EPIC_CHAINS/CHAIN_ORDER/getChainProgress; on(EPIC_QUEST_PROGRESS) → render; _epicChainsSection() renders 3 chain cards (step list with done/active/pending markers, progress bar, reward badge when completed); added to render() output after _victoryProgressSection().
 - `src/main.js`: Import + registerSystem(epicQuestsTick) + initEpicQuests() in boot+_newGame + save/load epicQuests; version 68→70.
 - `styles/main.css`: .epic-chains-section, .epic-chain (--completed), .epic-chain__header/reward/steps/step (--done/--active/default), .epic-chain__progress-bar/.epic-chain__progress-fill, .epic-chain__bonus-badge.
+
+---
+
+## 2026-05-05 — Session N+49
+
+**Tasks completed:** T203, T204
+
+**Summary:**
+All prior tasks (T001–T202) were complete. Created T203+T204 task specs in tasks.json then implemented two Phase 80 features: Corruption & Reform System (T203) and Grand Arena Events (T204).
+
+**T203 — Corruption & Reform System:**
+- `src/systems/corruptionSystem.js`: New file. Constants: TERRITORY_THRESHOLD=15 tiles, GROWTH_RATE_BASE=0.0001/tick/tile, AGE_MULT=[1.0,1.2,1.4,1.6], MAX_LEVEL=100, PENALTY_PER_LEVEL=0.002. `initCorruption()` creates state.corruption={level:0,totalReforms:0}; sets _lastWarnLevel to current level to avoid re-firing warnings on load. `getCorruptionPenalty()` returns max(0.80, 1.0-level*0.002). `adminReform()` deducts 200 gold, -30 corruption, +10 prestige, emits CORRUPTION_CHANGED. `justicePurge()` deducts 100 gold + changeMorale(-15), -50 corruption, +20 prestige. `corruptionTick()` grows corruption proportionally to tiles-15 with age multiplier; fires one-time warning messages at thresholds 40/70/90 using module-level _lastWarnLevel guard.
+- `src/core/state.js`: corruption:null field + initState reset (T203).
+- `src/core/events.js`: CORRUPTION_CHANGED: 'corruptionChanged' added.
+- `src/systems/resources.js`: import getCorruptionPenalty from corruptionSystem.js; T203 corruption penalty block after T202 — multiplies all positive rates by getCorruptionPenalty() when level > 0.
+- `src/ui/summaryPanel.js`: Import adminReform+justicePurge+getCorruptionPenalty; on(CORRUPTION_CHANGED) → _render; _corruptionCard() renders corruption header (level/penalty), colour-coded progress bar (green<30, yellow<60, red≥60), two reform buttons (data-reform="admin"/"purge") with affordability check; returns '' when level≤0. data-reform click handler in panel addEventListener (after council handler). Added _corruptionCard() between _councilCard() and _militaryCard() in _render().
+- `src/main.js`: import initCorruption+corruptionTick; registerSystem(corruptionTick); initCorruption() in boot init block + _newGame; save/load corruption field; version 70→72.
+- `styles/main.css`: T203 section — .corruption-header, .corruption-level (--medium/--high), .corruption-penalty, .corruption-bar-bg/.corruption-bar-fill, .corruption-reforms, .btn--reform-admin (blue gradient), .btn--reform-purge (red gradient), .corruption-note.
+
+**T204 — Grand Arena Events:**
+- `src/systems/grandArena.js`: New file. ARENA_EVENTS pool (4 types): Grand Melee (soldier, unitCost=2, minToWin=5, prize 120g+20p+10m), Archery Tournament (archer, 2, 5, 100g+15p+8m), Cavalry Joust (knight, 2, 4, 200g+30p+12m, minAge=2), Sorcerers' Duel (mage, 2, 3, 150g+35p+15m, minAge=3). Constants: SPAWN_INTERVAL=18min, OFFER_DURATION=90s. `initArena()` creates state.arena with nextEventTick=SPAWN_INTERVAL. `getArenaEvent()/getArenaSecsLeft()/getArenaNextSecs()` helpers. `enterArena()` deducts unitCost units; win chance=min(0.95, 0.50+extra*0.15); win applies full prize; loss applies 50g consolation; emits ARENA_CHANGED. `skipArena()` dismisses event. `arenaTick()` expires active event on timeout; spawns new event via `_spawnEvent()` which filters by age-eligibility.
+- `src/core/state.js`: arena:null field + initState reset (T204).
+- `src/core/events.js`: ARENA_CHANGED: 'arenaChanged' added.
+- `src/ui/militaryPanel.js`: Import 5 arena exports from grandArena.js; on(ARENA_CHANGED) → _render; hasArenaEvent=!!state.arena?.current added to tick countdown check condition; _arenaSection() at top of _render (Bronze Age+ only) shows active event (enter/skip buttons with unit-count affordability) or idle state (next event countdown + W/L record); data-arena-action handler added in _handleClick before data-army-action block.
+- `src/main.js`: import initArena+arenaTick; registerSystem(arenaTick); initArena() in boot init block + _newGame; save/load arena field; version 70→72.
+- `styles/main.css`: T204 section — .grand-arena (base/--idle/--urgent with pulse-border), .grand-arena__header/icon/name/timer/body/actions, .btn--arena-enter (amber gradient), .btn--arena-skip (neutral grey).
+
+Modified files:
+  + game/src/systems/corruptionSystem.js (new file)
+      initCorruption(), getCorruptionPenalty(), adminReform(), justicePurge(), corruptionTick()
+  + game/src/systems/grandArena.js (new file)
+      ARENA_EVENTS, initArena(), getArenaEvent(), getArenaSecsLeft(), getArenaNextSecs()
+      enterArena(), skipArena(), arenaTick(), _spawnEvent()
+  ~ game/src/core/state.js
+      corruption:null + arena:null fields; initState resets both
+  ~ game/src/core/events.js
+      CORRUPTION_CHANGED + ARENA_CHANGED events added
+  ~ game/src/systems/resources.js
+      import getCorruptionPenalty; T203 corruption penalty block in recalcRates()
+  ~ game/src/ui/summaryPanel.js
+      import adminReform+justicePurge+getCorruptionPenalty; CORRUPTION_CHANGED listener
+      _corruptionCard(); data-reform click handler; version 70→72
+  ~ game/src/ui/militaryPanel.js
+      import 5 arena exports; ARENA_CHANGED listener; hasArenaEvent tick check
+      _arenaSection(); data-arena-action click handler
+  ~ game/src/main.js
+      import initCorruption+corruptionTick+initArena+arenaTick
+      registerSystem both; initBoth in boot+_newGame; save/load both; version 70→72
+  ~ game/styles/main.css
+      T203 corruption styles + T204 grand arena styles

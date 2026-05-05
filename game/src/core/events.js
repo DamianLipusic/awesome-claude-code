@@ -170,4 +170,6 @@ export const Events = Object.freeze({
   WANDERING_ARMY_CHANGED:   'wanderingArmyChanged',        // T200: wandering army spawned / hired / dismissed / expired
   COUNCIL_SESSION_CHANGED:  'councilSessionChanged',       // T201: province council session spawned / resolved / expired
   EPIC_QUEST_PROGRESS:      'epicQuestProgress',           // T202: epic quest chain step advanced or chain completed
+  CORRUPTION_CHANGED:       'corruptionChanged',           // T203: corruption level changed (growth threshold or reform)
+  ARENA_CHANGED:            'arenaChanged',                // T204: arena event spawned / entered / skipped / expired
 });

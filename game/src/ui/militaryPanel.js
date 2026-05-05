@@ -12,6 +12,7 @@ import { state } from '../core/state.js';
 import { on, Events } from '../core/events.js';
 import { trainUnit, recruitHero, useHeroAbility, setFormation, chooseHeroSkill, rallyTroops, upgradeUnit, UNIT_UPGRADE_MAX, UNIT_UPGRADE_COST_BASE, addMessage, chooseHeroTrait, chooseCompanion, issueProclamation, activateSurgeProvisions, conductBattleDrills, immortalizeUnit, LEGENDARY_COST, LEGENDARY_MAX, LEGENDARY_BONUS } from '../core/actions.js';
 import { getWanderingArmyOffer, getWanderingArmySecsLeft, hireWanderingArmy, negotiateWanderingArmy, dismissWanderingArmy } from '../systems/wanderingArmy.js'; // T200
+import { getArenaEvent, getArenaSecsLeft, getArenaNextSecs, enterArena, skipArena } from '../systems/grandArena.js'; // T204
 import { acceptDuel, declineDuel, getDuelSecsLeft } from '../systems/duels.js';
 import { getActiveWarlord, getWarlordSecsLeft } from '../systems/rovingWarlord.js'; // T165
 import { sendPioneerExpedition, getPioneerProgress, getPioneerSecsLeft, PIONEER_COST, PIONEER_MAX } from '../systems/pioneerExpeditions.js';
@@ -103,6 +104,7 @@ export function initMilitaryPanel() {
   on(Events.ACADEMY_CHANGED,       () => _render(panel)); // T169: battle drills activated
   on(Events.UNIT_IMMORTALIZED,     () => _render(panel)); // T189: legendary unit immortalized
   on(Events.WANDERING_ARMY_CHANGED, () => _render(panel)); // T200: army spawned/hired/dismissed
+  on(Events.ARENA_CHANGED,          () => _render(panel)); // T204: arena event spawned/entered/skipped
   on(Events.RESOURCE_CHANGED,  () => _renderCosts(panel));
   on(Events.GAME_LOADED,       () => _render(panel));
 
@@ -139,7 +141,8 @@ export function initMilitaryPanel() {
     ));
     const hasWarlord       = !!state.warlord?.active;       // T165: warlord countdown
     const hasArmyOffer     = !!state.wanderingArmy?.current; // T200: army countdown
-    if (hasHeroActivity || hasSpellActivity || hasMercOffer || hasDecreeCooldown || hasRallyCooldown || hasAcademyDrill || hasDuelPending || hasPioneerActive || hasSurgeActivity || hasWarlord || hasArmyOffer) _render(panel);
+    const hasArenaEvent    = !!state.arena?.current;         // T204: arena countdown
+    if (hasHeroActivity || hasSpellActivity || hasMercOffer || hasDecreeCooldown || hasRallyCooldown || hasAcademyDrill || hasDuelPending || hasPioneerActive || hasSurgeActivity || hasWarlord || hasArmyOffer || hasArenaEvent) _render(panel);
   });
 }
 
@@ -147,6 +150,7 @@ export function initMilitaryPanel() {
 
 function _render(panel) {
   panel.innerHTML = `
+    ${_arenaSection()}
     ${_wanderingArmySection()}
     ${_warlordSection()}
     ${_duelSection()}
@@ -173,6 +177,73 @@ function _render(panel) {
   `;
 
   panel.addEventListener('click', _handleClick);
+}
+
+// ── T204: Grand Arena Events section ────────────────────────────────────
+
+function _arenaSection() {
+  if ((state.age ?? 0) < 1) return '';
+
+  const a     = state.arena;
+  const event = getArenaEvent();
+
+  if (!event) {
+    const nextSecs = getArenaNextSecs();
+    if (!nextSecs && !a) return '';
+    const minsLeft = Math.floor(nextSecs / 60);
+    const secsLeft = nextSecs % 60;
+    const timeStr  = minsLeft > 0 ? `${minsLeft}m ${String(secsLeft).padStart(2, '0')}s` : `${nextSecs}s`;
+    const wonLost  = a ? ` · W/L: ${a.eventsWon}/${a.eventsLost}` : '';
+    return `
+      <div class="grand-arena grand-arena--idle">
+        <div class="grand-arena__header">
+          <span class="grand-arena__icon">🏟️</span>
+          <span class="grand-arena__name">Grand Arena</span>
+          <span class="grand-arena__timer">Next: ${timeStr}</span>
+        </div>
+        <div class="grand-arena__body">
+          Periodic competitions for gold, prestige &amp; morale${wonLost}.
+        </div>
+      </div>`;
+  }
+
+  const secsLeft  = getArenaSecsLeft();
+  const urgent    = secsLeft <= 30;
+  const urgentCls = urgent ? ' grand-arena--urgent' : '';
+  const mins      = Math.floor(secsLeft / 60);
+  const secs      = secsLeft % 60;
+  const timeStr   = mins > 0 ? `${mins}m ${String(secs).padStart(2, '0')}s` : `${secsLeft}s`;
+
+  const hasUnits = (state.units[event.unitId] ?? 0) >= event.unitCost;
+
+  const prizeParts = [];
+  if (event.prize.gold)     prizeParts.push(`+${event.prize.gold}💰`);
+  if (event.prize.prestige) prizeParts.push(`+${event.prize.prestige}⭐`);
+  if (event.prize.morale)   prizeParts.push(`+${event.prize.morale}🔥`);
+
+  return `
+    <div class="grand-arena${urgentCls}">
+      <div class="grand-arena__header">
+        <span class="grand-arena__icon">${event.icon}</span>
+        <span class="grand-arena__name">${_escHtml(event.name)}</span>
+        <span class="grand-arena__timer">${timeStr}</span>
+      </div>
+      <div class="grand-arena__body">
+        ${_escHtml(event.desc)}<br>
+        Entry: <strong>${event.unitCost} ${event.unitId}s</strong> · Prize: ${prizeParts.join(' ')}
+      </div>
+      <div class="grand-arena__actions">
+        <button class="btn btn--sm btn--arena-enter${hasUnits ? '' : ' btn--disabled'}"
+          data-arena-action="enter"
+          title="${hasUnits ? `Enter with ${event.unitCost} ${event.unitId}s` : `Need ${event.unitCost} ${event.unitId}s`}"
+          ${hasUnits ? '' : 'disabled'}>
+          ⚔️ Enter (${event.unitCost} ${event.unitId}s)
+        </button>
+        <button class="btn btn--sm btn--arena-skip" data-arena-action="skip">
+          Skip
+        </button>
+      </div>
+    </div>`;
 }
 
 // ── T200: Wandering Army offer section ───────────────────────────────────
@@ -1464,6 +1535,19 @@ function _handleClick(e) {
   if (proclamationBtn && !proclamationBtn.disabled) {
     const result = issueProclamation(proclamationBtn.dataset.issueProclamation);
     if (!result.ok) addMessage(result.reason ?? 'Cannot issue proclamation.', 'info');
+    return;
+  }
+
+  // T204: grand arena enter / skip
+  const arenaBtn = e.target.closest('[data-arena-action]');
+  if (arenaBtn && !arenaBtn.disabled) {
+    const action = arenaBtn.dataset.arenaAction;
+    const result = action === 'enter' ? enterArena() : skipArena();
+    if (result && !result.ok) {
+      arenaBtn.classList.add('btn--shake');
+      setTimeout(() => arenaBtn.classList.remove('btn--shake'), 600);
+      if (result.reason) addMessage(result.reason, 'info');
+    }
     return;
   }
 

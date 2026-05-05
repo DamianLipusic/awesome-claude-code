@@ -12521,3 +12521,168 @@ kbd {
   color: #c4b5fd;
   margin-top: 4px;
 }
+
+/* ── T203: Corruption & Reform ──────────────────────────────────────────── */
+.corruption-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.corruption-level {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #3fb950;
+}
+.corruption-level--medium {
+  color: #f59e0b;
+}
+.corruption-level--high {
+  color: #f85149;
+}
+.corruption-penalty {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+.corruption-bar-bg {
+  height: 6px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+.corruption-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s ease, background 0.3s ease;
+}
+.corruption-reforms {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+.btn--reform-admin {
+  padding: 5px 10px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  border: 1px solid rgba(96, 165, 250, 0.40);
+  border-radius: 4px;
+  background: linear-gradient(135deg, rgba(5, 15, 30, 0.60), rgba(10, 30, 60, 0.50));
+  color: #bfdbfe;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s;
+}
+.btn--reform-admin:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(10, 30, 60, 0.80), rgba(15, 50, 90, 0.65));
+  border-color: rgba(96, 165, 250, 0.70);
+}
+.btn--reform-purge {
+  padding: 5px 10px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  border: 1px solid rgba(251, 113, 133, 0.40);
+  border-radius: 4px;
+  background: linear-gradient(135deg, rgba(30, 5, 10, 0.60), rgba(60, 10, 20, 0.50));
+  color: #fecdd3;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s;
+}
+.btn--reform-purge:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(60, 10, 20, 0.80), rgba(90, 15, 30, 0.65));
+  border-color: rgba(251, 113, 133, 0.70);
+}
+.corruption-note {
+  font-size: 0.68rem;
+  color: #6b7280;
+}
+
+/* ── T204: Grand Arena Events ───────────────────────────────────────────── */
+.grand-arena {
+  background: rgba(245, 158, 11, 0.06);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+.grand-arena--idle {
+  background: rgba(255,255,255,0.03);
+  border-color: rgba(255,255,255,0.10);
+}
+.grand-arena--urgent {
+  border-color: rgba(248, 81, 73, 0.60);
+  background: rgba(248, 81, 73, 0.06);
+  animation: pulse-border 1.2s ease-in-out infinite;
+}
+.grand-arena__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.grand-arena__icon {
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+.grand-arena__name {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #fde68a;
+  flex: 1;
+}
+.grand-arena--idle .grand-arena__name {
+  color: #9ca3af;
+}
+.grand-arena__timer {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #fbbf24;
+  white-space: nowrap;
+}
+.grand-arena--idle .grand-arena__timer {
+  color: #6b7280;
+}
+.grand-arena__body {
+  font-size: 0.78rem;
+  color: #9ca3af;
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+.grand-arena__actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.btn--arena-enter {
+  padding: 5px 10px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  border-radius: 4px;
+  background: linear-gradient(135deg, rgba(30, 20, 5, 0.60), rgba(60, 45, 10, 0.50));
+  color: #fde68a;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s;
+}
+.btn--arena-enter:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(60, 45, 10, 0.80), rgba(90, 70, 15, 0.65));
+  border-color: rgba(245, 158, 11, 0.75);
+}
+.btn--arena-skip {
+  padding: 5px 10px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  border: 1px solid rgba(107, 114, 128, 0.40);
+  border-radius: 4px;
+  background: rgba(30, 30, 30, 0.50);
+  color: #9ca3af;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+.btn--arena-skip:hover {
+  background: rgba(50, 50, 50, 0.65);
+}

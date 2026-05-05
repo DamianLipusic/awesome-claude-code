@@ -28,6 +28,7 @@ import { isGuildActive, GUILD_ROUTE_BONUS, getTradeBoostMult } from './tradeGuil
 import { getGuildRateBonuses } from './artisanGuilds.js'; // T194
 import { getVizierGoldRate, getVizierManaMult, getVizierProdMult, getVizierTradeMult } from './vizier.js'; // T195
 import { getTradeWindRateBonuses } from './tradeWinds.js'; // T198
+import { getCorruptionPenalty } from './corruptionSystem.js'; // T203
 
 /** Returns true if both techs in the named synergy pair are researched. */
 function _synergy(id) {
@@ -660,6 +661,16 @@ export function recalcRates() {
 
   // T202: Epic Quest Chains — Merchant Prince chain bonus: +1.5 gold/s
   if (state.epicQuests?.bonuses?.merchant) rates.gold += 1.5;
+
+  // T203: Corruption penalty — reduces all positive production rates (max -20% at level 100)
+  if (state.corruption?.level > 0) {
+    const pen = getCorruptionPenalty();
+    if (pen < 1.0) {
+      for (const res of RESOURCE_KEYS) {
+        if (rates[res] > 0) rates[res] *= pen;
+      }
+    }
+  }
 
   Object.assign(state.rates, rates);
   Object.assign(state.caps, caps);

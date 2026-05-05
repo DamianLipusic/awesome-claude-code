@@ -154,6 +154,16 @@ export const state = {
   //   bonuses: { conqueror: bool, scholar: bool, merchant: bool } } | null
   epicQuests: null,
 
+  // T203: Corruption & Reform System — governance quality metric that grows with territory
+  // { level: number (0-100), totalReforms: number } | null
+  corruption: null,
+
+  // T204: Grand Arena Events — periodic Bronze Age+ arena competitions for units
+  // { nextEventTick: number, current: {type, icon, name, desc, unitId, unitCost, minToWin,
+  //   prize: {gold, prestige, morale}, expiresAt} | null,
+  //   eventsWon: number, eventsLost: number, totalEntered: number } | null
+  arena: null,
+
   // Difficulty setting — persisted across new games (not reset by initState)
   // 'easy' | 'normal' | 'hard'
   difficulty: 'normal',
@@ -648,5 +658,7 @@ export function initState(empireName = 'My Empire') {
   state.wanderingArmy        = null; // T200: reset wandering army state per game
   state.council              = null; // T201: reset province council per game
   state.epicQuests           = null; // T202: reset epic quest chains per game
+  state.corruption           = null; // T203: reset corruption per game
+  state.arena                = null; // T204: reset arena per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

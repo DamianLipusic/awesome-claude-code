@@ -48,6 +48,7 @@ import {
 import {
   COUNCIL_OPTIONS, chooseCouncilOption, getCouncilSecsLeft, getCouncilNextSecs,
 } from '../systems/provinceCouncil.js'; // T201
+import { adminReform, justicePurge, getCorruptionPenalty } from '../systems/corruptionSystem.js'; // T203
 const _GP_POINTS_TO_SPAWN = 3;
 
 const TOTAL_ACHIEVEMENTS = 25;
@@ -111,6 +112,7 @@ export function initSummaryPanel() {
   on(Events.TAX_COLLECTED,          _render);      // T199: tax collection changes display
   on(Events.SEASON_CHANGED,         _render);      // T199: resets usedThisSeason
   on(Events.COUNCIL_SESSION_CHANGED, _render);     // T201: council session spawned/resolved/expired
+  on(Events.CORRUPTION_CHANGED,      _render);     // T203: corruption level changed
   on(Events.TICK, _tickCountdown());
 
   // Delegated click handler for citizen role +/- and great person use buttons
@@ -170,6 +172,17 @@ export function initSummaryPanel() {
           councilBtn.classList.add('btn--shake');
           setTimeout(() => councilBtn.classList.remove('btn--shake'), 400);
         }
+        return;
+      }
+      // T203: corruption reform buttons
+      const reformBtn = e.target.closest('[data-reform]');
+      if (reformBtn) {
+        const result = reformBtn.dataset.reform === 'admin' ? adminReform() : justicePurge();
+        if (!result.ok) {
+          reformBtn.title = result.reason ?? 'Cannot reform.';
+          reformBtn.classList.add('btn--shake');
+          setTimeout(() => reformBtn.classList.remove('btn--shake'), 400);
+        }
       }
     });
   }
@@ -197,6 +210,7 @@ function _render() {
       ${_resourcesCard()}
       ${_taxCollectorCard()}
       ${_councilCard()}
+      ${_corruptionCard()}
       ${_militaryCard()}
       ${_territoryCard()}
       ${_terrainControlCard()}
@@ -1022,6 +1036,51 @@ function _councilCard() {
   }
 
   return _card('🏛️ Province Council', body);
+}
+
+// ── T203: Corruption Card ─────────────────────────────────────────────────
+
+function _corruptionCard() {
+  const c = state.corruption;
+  if (!c || c.level <= 0) return '';
+
+  const level   = Math.round(c.level);
+  const penalty = Math.round((1.0 - getCorruptionPenalty()) * 100);
+  const pct     = Math.min(100, level);
+
+  // Colour bands: 0-30 green, 30-60 yellow, 60+ red
+  const barColor = level < 30 ? '#3fb950' : level < 60 ? '#f59e0b' : '#f85149';
+  const levelClass = level < 30 ? '' : level < 60 ? ' corruption-level--medium' : ' corruption-level--high';
+
+  const canAdmin = (state.resources.gold ?? 0) >= 200;
+  const canPurge = (state.resources.gold ?? 0) >= 100 && (state.morale ?? 50) >= 15;
+
+  const body = `
+    <div class="corruption-header">
+      <span class="corruption-level${levelClass}">${level}/100</span>
+      <span class="corruption-penalty">−${penalty}% production</span>
+    </div>
+    <div class="corruption-bar-bg">
+      <div class="corruption-bar-fill" style="width:${pct}%;background:${barColor}"></div>
+    </div>
+    <div class="corruption-reforms">
+      <button class="btn btn--sm btn--reform-admin${canAdmin ? '' : ' btn--disabled'}"
+        data-reform="admin"
+        title="Administrative Reform: 200 gold → −30 corruption, +10 prestige"
+        ${canAdmin ? '' : 'disabled'}>
+        📜 Admin Reform (200g → −30)
+      </button>
+      <button class="btn btn--sm btn--reform-purge${canPurge ? '' : ' btn--disabled'}"
+        data-reform="purge"
+        title="Justice Purge: 100 gold + 15 morale → −50 corruption, +20 prestige"
+        ${canPurge ? '' : 'disabled'}>
+        ⚖️ Justice Purge (100g+15🔥 → −50)
+      </button>
+    </div>
+    <div class="corruption-note">Reforms: ${c.totalReforms}</div>
+  `;
+
+  return _card('🔴 Corruption', body);
 }
 
 function _countPlayerTilesSummary() {

@@ -118,6 +118,8 @@ import { initTaxCollection } from './systems/imperialTaxCollector.js';          
 import { initWanderingArmy, wanderingArmyTick } from './systems/wanderingArmy.js';               // T200
 import { initCouncil, councilTick } from './systems/provinceCouncil.js';                         // T201
 import { initEpicQuests, epicQuestsTick } from './systems/epicQuests.js';                        // T202
+import { initCorruption, corruptionTick } from './systems/corruptionSystem.js';                  // T203
+import { initArena, arenaTick } from './systems/grandArena.js';                                  // T204
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
@@ -215,6 +217,8 @@ function boot() {
   registerSystem(wanderingArmyTick);  // T200: wandering army spawn/expire
   registerSystem(councilTick);        // T201: province council session check
   registerSystem(epicQuestsTick);     // T202: epic quest chain progress check
+  registerSystem(corruptionTick);     // T203: corruption growth check
+  registerSystem(arenaTick);          // T204: grand arena event spawn/expire
 
   // Init event-driven systems
   initRandomEvents();
@@ -287,6 +291,8 @@ function boot() {
   initWanderingArmy();         // T200: wandering army state init
   initCouncil();               // T201: province council state init
   initEpicQuests();            // T202: epic quest chains state init
+  initCorruption();            // T203: corruption system state init
+  initArena();                 // T204: grand arena state init
   // T176: monument init deferred — only activates when building is constructed
 
   // Init UI
@@ -537,7 +543,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 70, // T201: province council; T202: epic quest chains
+      version: 72, // T203: corruption system; T204: grand arena events
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -665,6 +671,8 @@ function _save() {
         wanderingArmy:       state.wanderingArmy       ?? null,  // T200
         council:             state.council             ?? null,  // T201
         epicQuests:          state.epicQuests          ?? null,  // T202
+        corruption:          state.corruption          ?? null,  // T203
+        arena:               state.arena               ?? null,  // T204
         tick:          state.tick,
       }
     }));
@@ -826,6 +834,8 @@ function _applySave(save) {
   state.wanderingArmy        = s.wanderingArmy        ?? null; // T200
   state.council              = s.council              ?? null; // T201
   state.epicQuests           = s.epicQuests           ?? null; // T202
+  state.corruption           = s.corruption           ?? null; // T203
+  state.arena                = s.arena                ?? null; // T204
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
@@ -1641,6 +1651,8 @@ function _newGame(opts = {}) {
   initWanderingArmy();         // T200: reset wandering army state on new game
   initCouncil();               // T201: reset province council state on new game
   initEpicQuests();            // T202: reset epic quest chains on new game
+  initCorruption();            // T203: reset corruption state on new game
+  initArena();                 // T204: reset arena state on new game
   _updateCelestialBanner(); // T153: hide banner on new game
   recalcRates();
   startLoop();  // restart loop in case it was stopped by game-over
