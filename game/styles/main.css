@@ -12368,3 +12368,156 @@ kbd {
 .btn--army-dismiss:hover {
   background: rgba(50, 50, 50, 0.65);
 }
+
+/* ── T201: Province Council ─────────────────────────────────────────────── */
+.council-intro {
+  margin: 0 0 6px;
+  font-size: 0.78rem;
+  color: #d1d5db;
+}
+.council-timer {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #a7f3d0;
+  margin-bottom: 8px;
+}
+.council-timer--urgent {
+  color: #f87171;
+  animation: flash-loss 0.8s ease-in-out infinite alternate;
+}
+.council-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.btn--council-opt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 7px 10px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  border: 1px solid rgba(251, 191, 36, 0.40);
+  border-radius: 6px;
+  background: linear-gradient(135deg, rgba(30, 25, 5, 0.60), rgba(60, 50, 10, 0.50));
+  color: #fde68a;
+  cursor: pointer;
+  min-width: 90px;
+  transition: background 0.15s, border-color 0.15s;
+}
+.btn--council-opt:hover {
+  background: linear-gradient(135deg, rgba(60, 50, 10, 0.80), rgba(90, 75, 15, 0.65));
+  border-color: rgba(251, 191, 36, 0.70);
+}
+.council-opt-icon {
+  font-size: 1.1em;
+  margin-bottom: 3px;
+}
+.council-opt-label {
+  text-align: center;
+  line-height: 1.2;
+}
+.council-idle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.78rem;
+  color: #9ca3af;
+  padding: 4px 0;
+}
+.council-idle-icon {
+  font-size: 1.2em;
+}
+
+/* ── T201 / T202: message log council / epic-quest entry ────────────────── */
+.log-entry--council {
+  border-left: 3px solid #f59e0b;
+}
+.log-entry--epic-quest {
+  border-left: 3px solid #a78bfa;
+}
+
+/* ── T202: Epic Quest Chains ─────────────────────────────────────────────── */
+.epic-chains-section {
+  margin-top: 8px;
+}
+.epic-chain {
+  background: rgba(15, 10, 30, 0.50);
+  border: 1px solid rgba(139, 92, 246, 0.30);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+.epic-chain--completed {
+  border-color: rgba(139, 92, 246, 0.70);
+  background: rgba(20, 10, 40, 0.60);
+}
+.epic-chain__header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #c4b5fd;
+  margin-bottom: 6px;
+}
+.epic-chain__reward {
+  font-size: 0.70rem;
+  color: #a78bfa;
+  margin-bottom: 6px;
+}
+.epic-chain__steps {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.epic-chain__step {
+  font-size: 0.72rem;
+  color: #9ca3af;
+  padding-left: 16px;
+  position: relative;
+}
+.epic-chain__step::before {
+  content: '○';
+  position: absolute;
+  left: 0;
+  color: #6b7280;
+}
+.epic-chain__step--done {
+  color: #86efac;
+  text-decoration: line-through;
+}
+.epic-chain__step--done::before {
+  content: '✓';
+  color: #4ade80;
+}
+.epic-chain__step--active::before {
+  content: '►';
+  color: #fbbf24;
+}
+.epic-chain__progress-bar {
+  height: 4px;
+  background: rgba(139, 92, 246, 0.20);
+  border-radius: 2px;
+  margin-top: 8px;
+  overflow: hidden;
+}
+.epic-chain__progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #7c3aed, #a78bfa);
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+.epic-chain__bonus-badge {
+  display: inline-block;
+  padding: 2px 7px;
+  background: rgba(139, 92, 246, 0.25);
+  border: 1px solid rgba(139, 92, 246, 0.50);
+  border-radius: 12px;
+  font-size: 0.68rem;
+  color: #c4b5fd;
+  margin-top: 4px;
+}

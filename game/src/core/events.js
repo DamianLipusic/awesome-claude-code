@@ -168,4 +168,6 @@ export const Events = Object.freeze({
   TRADE_WIND_CHANGED:       'tradeWindChanged',            // T198: trade wind event started or ended
   TAX_COLLECTED:            'taxCollected',                // T199: imperial taxes collected for the season
   WANDERING_ARMY_CHANGED:   'wanderingArmyChanged',        // T200: wandering army spawned / hired / dismissed / expired
+  COUNCIL_SESSION_CHANGED:  'councilSessionChanged',       // T201: province council session spawned / resolved / expired
+  EPIC_QUEST_PROGRESS:      'epicQuestProgress',           // T202: epic quest chain step advanced or chain completed
 });

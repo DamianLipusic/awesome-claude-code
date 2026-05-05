@@ -45,6 +45,9 @@ import {
 import {
   TAX_RATES, TAX_RATE_ORDER, getTaxInfo, getTaxYieldForRate, collectTax,
 } from '../systems/imperialTaxCollector.js'; // T199
+import {
+  COUNCIL_OPTIONS, chooseCouncilOption, getCouncilSecsLeft, getCouncilNextSecs,
+} from '../systems/provinceCouncil.js'; // T201
 const _GP_POINTS_TO_SPAWN = 3;
 
 const TOTAL_ACHIEVEMENTS = 25;
@@ -105,8 +108,9 @@ export function initSummaryPanel() {
   on(Events.CAPITAL_PLAN_CHOSEN,   _render);      // T100: rerender when capital plan chosen
   on(Events.GREAT_PERSON,          _render);      // T136: great person spawned/used/expired
   on(Events.VIZIER_CHANGED,        _render);      // T195: vizier appointed or dismissed
-  on(Events.TAX_COLLECTED,         _render);      // T199: tax collection changes display
-  on(Events.SEASON_CHANGED,        _render);      // T199: resets usedThisSeason
+  on(Events.TAX_COLLECTED,          _render);      // T199: tax collection changes display
+  on(Events.SEASON_CHANGED,         _render);      // T199: resets usedThisSeason
+  on(Events.COUNCIL_SESSION_CHANGED, _render);     // T201: council session spawned/resolved/expired
   on(Events.TICK, _tickCountdown());
 
   // Delegated click handler for citizen role +/- and great person use buttons
@@ -155,6 +159,17 @@ export function initSummaryPanel() {
           taxBtn.classList.add('btn--shake');
           setTimeout(() => taxBtn.classList.remove('btn--shake'), 400);
         }
+        return;
+      }
+      // T201: province council option choice
+      const councilBtn = e.target.closest('[data-council-option]');
+      if (councilBtn) {
+        const result = chooseCouncilOption(councilBtn.dataset.councilOption);
+        if (!result.ok) {
+          councilBtn.title = result.reason ?? 'Cannot choose.';
+          councilBtn.classList.add('btn--shake');
+          setTimeout(() => councilBtn.classList.remove('btn--shake'), 400);
+        }
       }
     });
   }
@@ -181,6 +196,7 @@ function _render() {
       ${_greatPersonCard()}
       ${_resourcesCard()}
       ${_taxCollectorCard()}
+      ${_councilCard()}
       ${_militaryCard()}
       ${_territoryCard()}
       ${_terrainControlCard()}
@@ -965,6 +981,47 @@ function _taxCollectorCard() {
   const totalRow = tc ? `<div class="tax-total">Total collected: ${fmtNum(tc.totalCollected)} gold</div>` : '';
 
   return _card('🏛️ Tax Collector', `${intro}${rateCards}${totalRow}`);
+}
+
+// ── T201: Province Council card ────────────────────────────────────────────
+
+function _councilCard() {
+  const c = state.council;
+  if (!c) return '';
+
+  const active  = c.active;
+  const secsLeft = getCouncilSecsLeft();
+  const nextSecs = getCouncilNextSecs();
+
+  let body = '';
+
+  if (active) {
+    const urgentClass = secsLeft <= 20 ? ' council-timer--urgent' : '';
+    const timerBar = `<div class="council-timer${urgentClass}">⏱ ${secsLeft}s remaining</div>`;
+    const optCards = active.options.map(opt => `
+      <button class="btn btn--sm btn--council-opt" data-council-option="${opt.id}"
+        title="${_escHtml(opt.desc)}">
+        <span class="council-opt-icon">${opt.icon}</span>
+        <span class="council-opt-label">${_escHtml(opt.label)}</span>
+      </button>`).join('');
+    body = `
+      <p class="council-intro">The council awaits your decree:</p>
+      ${timerBar}
+      <div class="council-options">${optCards}</div>
+    `;
+  } else {
+    const nextStr = nextSecs > 0
+      ? `Next session in ${Math.ceil(nextSecs / 60)} min`
+      : 'Session due soon';
+    body = `
+      <div class="council-idle">
+        <span class="council-idle-icon">🏛️</span>
+        <span>${nextStr} · Sessions held: ${c.totalSessions}</span>
+      </div>
+    `;
+  }
+
+  return _card('🏛️ Province Council', body);
 }
 
 function _countPlayerTilesSummary() {

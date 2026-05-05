@@ -344,6 +344,9 @@ export function getAttackPreview(x, y) {
   // T152: Warrior heir — +15% attack power
   if (state.dynasty?.currentHeir === 'warrior') attackPower *= 1.15;
 
+  // T202: Conqueror's Legacy epic quest chain bonus — +15% combat power
+  if (state.epicQuests?.bonuses?.conqueror) attackPower *= 1.15;
+
   // T153: Celestial event combat modifier (preview)
   const _celestialPreview = state.celestial?.active?.type;
   if (_celestialPreview === 'solar_eclipse')   attackPower *= 0.85;
@@ -587,6 +590,9 @@ export function attackTile(x, y) {
 
   // T152: Warrior heir — +15% attack power
   if (state.dynasty?.currentHeir === 'warrior') attackPower *= 1.15;
+
+  // T202: Conqueror's Legacy epic quest chain bonus — +15% combat power
+  if (state.epicQuests?.bonuses?.conqueror) attackPower *= 1.15;
 
   // T153: Celestial event combat modifier
   const _celestialAtk = state.celestial?.active?.type;

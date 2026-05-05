@@ -16,6 +16,7 @@ import { getActiveSeasonalObjective } from '../systems/seasonalObjectives.js'; /
 import { TICKS_PER_SECOND } from '../core/tick.js';
 import { WIN_AGE, WIN_TILES, WIN_QUESTS, WIN_DIPLOMATIC_ALLIANCES, WIN_ECONOMIC_GOLD } from '../systems/victory.js'; // T187
 import { getActiveOmen, getOmenSecsLeft, avertOmen, channelOmen } from '../systems/oracle.js'; // T193
+import { EPIC_CHAINS, CHAIN_ORDER, getChainProgress } from '../systems/epicQuests.js'; // T202
 
 export function initQuestPanel() {
   const panel = document.getElementById('panel-quests');
@@ -34,6 +35,7 @@ export function initQuestPanel() {
     Events.DIPLOMACY_CHANGED,                           // T187: victory progress alliance count
     Events.OMEN_APPEARED, Events.OMEN_AVERTED,          // T193: oracle omen state changes
     Events.OMEN_CHANNELED, Events.OMEN_FIRED,           // T193
+    Events.EPIC_QUEST_PROGRESS,                         // T202: epic quest chain step/completion
   ];
   for (const ev of events) on(ev, render);
 
@@ -136,6 +138,7 @@ function render() {
       ${QUESTS.map(q => _questCard(q, completed[q.id])).join('')}
     </div>
     ${_victoryProgressSection()}
+    ${_epicChainsSection()}
   `;
 }
 
@@ -616,6 +619,54 @@ function _escHtml(str) {
 }
 
 // ── Quest cards ────────────────────────────────────────────────────────────
+
+// ── T202: Epic Quest Chains section ────────────────────────────────────────
+
+function _epicChainsSection() {
+  if (!state.epicQuests) return '';
+
+  const chainCards = CHAIN_ORDER.map(id => {
+    const chain    = EPIC_CHAINS[id];
+    const progress = state.epicQuests.chains[id];
+    const pct      = Math.round(getChainProgress(id) * 100);
+    const step     = progress.step;
+    const completed = progress.completed;
+
+    const steps = chain.steps.map((s, i) => {
+      let cls = 'epic-chain__step';
+      if (i < step)  cls += ' epic-chain__step--done';
+      else if (i === step && !completed) cls += ' epic-chain__step--active';
+      return `<li class="${cls}">${_escHtml(s.label)}</li>`;
+    }).join('');
+
+    const badgeHtml = completed
+      ? `<div class="epic-chain__bonus-badge">✅ ${_escHtml(chain.rewardDesc)}</div>`
+      : `<div class="epic-chain__reward">🏆 Reward: ${_escHtml(chain.rewardDesc)}</div>`;
+
+    return `
+      <div class="epic-chain ${completed ? 'epic-chain--completed' : ''}">
+        <div class="epic-chain__header">
+          <span>${chain.icon}</span>
+          <span>${_escHtml(chain.name)}</span>
+        </div>
+        ${badgeHtml}
+        <ul class="epic-chain__steps">${steps}</ul>
+        <div class="epic-chain__progress-bar">
+          <div class="epic-chain__progress-fill" style="width:${pct}%"></div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  return `
+    <div class="epic-chains-section">
+      <div class="quest-header">
+        <div class="quest-header__title">⚗️ Epic Quest Chains</div>
+      </div>
+      ${chainCards}
+    </div>
+  `;
+}
 
 function _questCard(q, completedTick) {
   const done      = completedTick !== undefined;

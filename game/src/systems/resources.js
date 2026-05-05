@@ -653,6 +653,14 @@ export function recalcRates() {
     }
   }
 
+  // T201: Province Council — public_works temporary +12% all positive rates
+  if ((state.council?.prodBonusExpires ?? 0) > state.tick) {
+    for (const res of RESOURCE_KEYS) if (rates[res] > 0) rates[res] *= 1.12;
+  }
+
+  // T202: Epic Quest Chains — Merchant Prince chain bonus: +1.5 gold/s
+  if (state.epicQuests?.bonuses?.merchant) rates.gold += 1.5;
+
   Object.assign(state.rates, rates);
   Object.assign(state.caps, caps);
 }

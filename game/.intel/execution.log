@@ -3606,3 +3606,33 @@ Modified files:
       .wandering-army__header/icon/name/timer/body/actions
       .btn--army-hire (green gradient), .btn--army-negotiate (gold gradient)
       .btn--army-dismiss (neutral grey)
+
+---
+
+## 2026-05-05 — Session N+48
+
+**Tasks completed:** T201, T202
+
+**Summary:**
+All prior tasks (T001–T200) were complete. Created T201+T202 task specs then implemented two Phase 79 features: Province Council (T201) and Epic Quest Chains (T202).
+
+**T201 — Province Council:**
+- `src/systems/provinceCouncil.js`: New file. COUNCIL_OPTIONS (9 options pool). `initCouncil()` creates state.council with nextSessionTick=SESSION_INTERVAL. `councilTick()` spawns a session every 15 min when player controls 10+ tiles; auto-expires after 90s with log message. `chooseCouncilOption(id)` applies effect via `_applyOption()` switch: gold_levy (+80 gold), harvest_tithe (+80 food), conscription (state.units.soldier += 2), public_works (sets prodBonusExpires), stone_quarry (+60 stone +40 wood), iron_muster (+70 iron), morale_rally (changeMorale +15), mana_harvest (+60 mana), training_drill (sets drillBonusExpires). Helpers: getCouncilSecsLeft(), getCouncilNextSecs(), isCouncilProdBonusActive(), isCouncilDrillBonusActive().
+- `src/core/state.js`: council:null field + initState reset.
+- `src/core/events.js`: COUNCIL_SESSION_CHANGED added.
+- `src/systems/resources.js`: T201 prodBonusExpires check → all positive rates ×1.12 when active.
+- `src/core/actions.js`: trainUnit() T201 drillBonusExpires check → totalTicks ×0.75 when active.
+- `src/ui/summaryPanel.js`: Import COUNCIL_OPTIONS/chooseCouncilOption/getCouncilSecsLeft/getCouncilNextSecs; on(COUNCIL_SESSION_CHANGED) → _render; _councilCard() renders active session (3 option buttons with countdown timer) or idle state (next session ETA + sessions held count); data-council-option click handler in panel addEventListener.
+- `src/main.js`: Import + registerSystem(councilTick) + initCouncil() in boot+_newGame + save/load council; version 68→70.
+- `styles/main.css`: .council-intro, .council-timer (--urgent with flash-loss animation), .council-options, .btn--council-opt/.council-opt-icon/.council-opt-label, .council-idle/.council-idle-icon, .log-entry--council, .log-entry--epic-quest.
+
+**T202 — Epic Quest Chains:**
+- `src/systems/epicQuests.js`: New file. EPIC_CHAINS object with 3 chains: conqueror (5 steps: capture tile → 10 units → 5 wins → Bronze Age → 50 tiles; reward +15% combat), scholar (5 steps: 1 tech → 5 techs → Iron Age → 10 techs → 16 techs; reward -15% research time), merchant (5 steps: 1 trade route → 1k gold → 3 routes → 10k gold → 30k gold; reward +1.5 gold/s). Each step has a check(state) predicate. `epicQuestsTick()` advances chains one step at a time and calls `_completeChain()` on completion (awards 75 prestige + message + sets bonuses flag). `getChainProgress(id)` returns 0-1 fraction.
+- `src/core/state.js`: epicQuests:null field + initState reset.
+- `src/core/events.js`: EPIC_QUEST_PROGRESS added.
+- `src/systems/resources.js`: T202 merchant bonus → +1.5 gold/s when epicQuests.bonuses.merchant.
+- `src/systems/research.js`: T202 scholar bonus → totalTicks ×0.85 when epicQuests.bonuses.scholar.
+- `src/systems/combat.js`: T202 conqueror bonus → attackPower ×1.15 in both preview and resolution code paths.
+- `src/ui/questPanel.js`: Import EPIC_CHAINS/CHAIN_ORDER/getChainProgress; on(EPIC_QUEST_PROGRESS) → render; _epicChainsSection() renders 3 chain cards (step list with done/active/pending markers, progress bar, reward badge when completed); added to render() output after _victoryProgressSection().
+- `src/main.js`: Import + registerSystem(epicQuestsTick) + initEpicQuests() in boot+_newGame + save/load epicQuests; version 68→70.
+- `styles/main.css`: .epic-chains-section, .epic-chain (--completed), .epic-chain__header/reward/steps/step (--done/--active/default), .epic-chain__progress-bar/.epic-chain__progress-fill, .epic-chain__bonus-badge.

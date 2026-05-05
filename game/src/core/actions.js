@@ -152,6 +152,8 @@ export function trainUnit(id) {
   if ((state.buildings.militaryAcademy ?? 0) >= 1) totalTicks = Math.ceil(totalTicks * 0.90);
   // T195: High Marshal Vizier — −20% training time
   if (state.vizier?.active === 'high_marshal') totalTicks = Math.ceil(totalTicks * 0.80);
+  // T201: Province Council training_drill bonus — 25% faster training for 90 seconds
+  if ((state.council?.drillBonusExpires ?? 0) > state.tick) totalTicks = Math.ceil(totalTicks * 0.75);
 
   state.trainingQueue.push({ unitId: id, remaining: totalTicks, totalTicks });
 

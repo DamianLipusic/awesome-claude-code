@@ -144,6 +144,16 @@ export const state = {
   //   nextSpawnTick: number, totalHired: number } | null
   wanderingArmy: null,
 
+  // T201: Province Council — recurring governance sessions every 15 min (10+ tiles)
+  // { nextSessionTick, active: {options:[...], expiresAt}|null,
+  //   totalSessions, prodBonusExpires, drillBonusExpires } | null
+  council: null,
+
+  // T202: Epic Quest Chains — 3 multi-step quest chains with permanent rewards
+  // { chains: { conqueror: {step, completed}, scholar: {step, completed}, merchant: {step, completed} },
+  //   bonuses: { conqueror: bool, scholar: bool, merchant: bool } } | null
+  epicQuests: null,
+
   // Difficulty setting — persisted across new games (not reset by initState)
   // 'easy' | 'normal' | 'hard'
   difficulty: 'normal',
@@ -636,5 +646,7 @@ export function initState(empireName = 'My Empire') {
   state.tradeWind            = null; // T198: reset trade wind state per game
   state.taxCollection        = null; // T199: reset tax collection state per game
   state.wanderingArmy        = null; // T200: reset wandering army state per game
+  state.council              = null; // T201: reset province council per game
+  state.epicQuests           = null; // T202: reset epic quest chains per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

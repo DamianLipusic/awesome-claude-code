@@ -181,6 +181,8 @@ export function startResearch(techId) {
 
   // T195: Royal Architect Vizier — −10% research time
   if (state.vizier?.active === 'architect') totalTicks = Math.ceil(totalTicks * 0.90);
+  // T202: Scholar's Codex epic quest chain bonus — −15% research time
+  if (state.epicQuests?.bonuses?.scholar) totalTicks = Math.ceil(totalTicks * 0.85);
 
   state.researchQueue.push({ techId, remaining: totalTicks, totalTicks });
   addMessage(`Researching ${def.name}…`, 'research');
