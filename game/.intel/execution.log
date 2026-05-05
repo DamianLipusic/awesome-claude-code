@@ -2,6 +2,33 @@
 
 ---
 
+## 2026-05-05 — Session N+47
+
+**Tasks completed:** T197, T198
+
+**Summary:**
+All prior tasks (T001–T196) were complete. Created T197+T198 task specs then implemented two Phase 77 features: Season Performance Bonus (T197) and Trade Wind Events (T198).
+
+**T197 — Season Performance Bonus:**
+- `src/systems/seasonPerformance.js`: New file. `initSeasonPerformance()` subscribes to SEASON_CHANGED *after* SeasonChronicle (registered first in boot), ensuring `completed[0]` is already populated. `_onSeasonChanged()` reads `battlesWon`, `battlesLost`, `built`, `techs`, `tilesGained`, `quests` from the just-completed recap. Awards morale: +2 per 3 wins (max 6), +2 per 2 builds (max 4), +4 if any tech completed, +3 per 5 tiles gained (max 6), +3 if quest completed, +2 peaceful bonus if battlesLost===0. Prestige = min(40, floor(scoreSum × 0.25)) where scoreSum = wins×5 + built×3 + techs×10 + tiles×2 + quests×5. Calls `changeMorale()` + `awardPrestige()`, adds an info message to the log, shows a 6-second windfall toast with emoji breakdown.
+- `src/main.js`: Import + `initSeasonPerformance()` in boot() only (pure subscription, no per-game state to reset).
+
+**T198 — Trade Wind Events:**
+- `src/systems/tradeWinds.js`: New file. 5 wind types: `silk_road` (+1.0 gold/s), `pirate_raids` (−0.5 gold/s), `boom_season` (+0.8 gold/s +0.5 food/s), `supply_shortage` (−0.4 iron/s), `merchant_boom` (+0.6 gold/s +0.3 iron/s). `initTradeWinds()` creates `state.tradeWind = {active, nextWindSeason, history, totalEvents}`; subscribes SEASON_CHANGED. `_onSeasonChanged()`: (1) expire active wind if `active.endsAtSeason === idx`; (2) only decrement `nextWindSeason` when no active wind (prevents immediate back-to-back respawn); (3) call `_spawnWind()` when counter reaches 0. `_spawnWind()` picks a non-repeating wind, sets `endsAtSeason = (idx+1)%4` (1-season lifetime), updates history (max 4 entries), emits windfall message + TRADE_WIND_CHANGED + recalcRates. `getTradeWindRateBonuses()` exported for resources.js.
+- `src/core/state.js`: `tradeWind: null` declared in state object; `state.tradeWind = null` in `initState()`.
+- `src/core/events.js`: `TRADE_WIND_CHANGED: 'tradeWindChanged'` added.
+- `src/systems/resources.js`: `import getTradeWindRateBonuses` from tradeWinds.js; applied after Vizier rate bonuses in `recalcRates()` — flat add to gold/iron/food rates.
+- `src/ui/marketPanel.js`: Import `getActiveTradeWind + getTradeWindHistory`; added `on(Events.TRADE_WIND_CHANGED, _render)` listener; `_tradeWindSection()` appended to render — shows active wind card (icon/name/desc/effect) or "Calm Seas" + last 4 historical winds.
+- `src/main.js`: Import + `initTradeWinds()` in boot() + `_newGame()`; save version 65→66; `tradeWind` saved/loaded.
+- `styles/main.css`: `.trade-wind-section`, `.trade-wind-header`, `.trade-wind-note`, `.trade-wind-calm`, `.trade-wind-card` (+`--active` variant), `.trade-wind-card__icon/body/name/desc/effect/until`, `.trade-wind-history` + entries.
+
+**Architecture decisions:**
+- T197 reads from SeasonChronicle's completed[0] rather than maintaining its own counters. The event subscription ordering (chronicle registered before performance in boot) guarantees completed[0] is fully populated. No per-game state needed.
+- T198 uses season-index-based expiry (`endsAtSeason = (spawnSeason+1)%4`) rather than tick-based, which is simpler and naturally aligned to the season rhythm. The "only decrement when inactive" rule prevents a wind from expiring and spawning a replacement in the same SEASON_CHANGED call.
+- Circular import (tradeWinds ↔ resources) follows the established artisanGuilds/resources pattern — safe because ES module circulars resolve at function-call time, not module-load time.
+
+---
+
 ## 2026-04-29 — Session N+46
 
 **Tasks completed:** T187, T188

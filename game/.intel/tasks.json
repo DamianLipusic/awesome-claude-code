@@ -1748,5 +1748,23 @@
     "status": "done",
     "phase": 76,
     "notes": "src/systems/tradeFair.js: New file \u2014 FAIR_DEALS pool (5 deals), FAIR_DEAL_ORDER, FAIR_CYCLE_SEASONS=4, FAIR_BUY_MULT=0.80, FAIR_SELL_MULT=1.20. initTradeFair() registers on SEASON_CHANGED. _onSeasonChanged(): increment seasonCount; if fair active \u2192 end it; else if seasonCount%4===0 \u2192 _startFair() (sample 3 random deals). isFairActive(), getFairBuyMult(), getFairSellMult(), getFairDeals(), isDealUsed(), useFairDeal(id) (validate+deduct+reward+track), tradeFairTradeMade() (track participation, award bonus at 5 trades). awardPrestige imported from prestige.js. src/core/events.js: TRADE_FAIR_CHANGED added. src/systems/market.js: import getFairBuyMult+getFairSellMult+tradeFairTradeMade; buyPrice() applies getFairBuyMult(); sellPrice() applies getFairSellMult(); tradeFairTradeMade() called after each successful sell and buy. src/ui/marketPanel.js: import fair exports; on(TRADE_FAIR_CHANGED) \u2192 _render; fair-deal action in _handleClick calling useFairDeal; _tradeFairSection() renders fair banner+3 deal cards+participation progress bar (shown above merchant section). src/main.js: import initTradeFair; boot+_newGame; save/load tradeFair state; version 64\u219265. styles/main.css: .fair-section, .fair-header, .fair-title, .fair-badge, .fair-benefits, .fair-deals, .fair-deal-row (base+--used), .fair-deal-icon/info/title/desc/terms, .btn--fair-deal, .fair-participation (label+bar-bg+bar-fill), .fair-bonus-claimed."
+  },
+  {
+    "id": "T197",
+    "title": "Season Performance Bonus \u2014 morale and prestige awards at each season end",
+    "description": "At each season transition, read the just-completed season chronicle stats (wins, builds, techs, tiles, quests) and award morale + prestige bonuses. Show a toast recap and log entry so players feel the season transition is meaningful.",
+    "priority": 197,
+    "status": "done",
+    "phase": 77,
+    "notes": "src/systems/seasonPerformance.js: New file. initSeasonPerformance() subscribes to SEASON_CHANGED (after SeasonChronicle so completed[0] is already populated). _onSeasonChanged() reads recap.battlesWon/built/techs/tilesGained/quests/battlesLost. Awards: +2 morale per 3 wins (max 6), +2 per 2 builds (max 4), +4 if any tech, +3 per 5 tiles (max 6), +3 if quest completed, +2 peaceful bonus if no losses. Prestige = min(40, floor(score*0.25)) where score = wins*5+built*3+techs*10+tiles*2+quests*5. Calls changeMorale/awardPrestige, adds info message, shows windfall toast (6s) with emoji summary. src/main.js: import + initSeasonPerformance() in boot() only (pure event listener, no state to reset)."
+  },
+  {
+    "id": "T198",
+    "title": "Trade Wind Events \u2014 periodic economic environment shifts affecting gold/iron/food rates",
+    "description": "Every 5-8 seasons a trade wind event fires, applying a flat rate modifier for 1 season (silk road +1.0 gold/s, pirate raids -0.5 gold/s, economic boom +0.8 gold+0.5 food, supply shortage -0.4 iron, merchant windfall +0.6 gold+0.3 iron). State: state.tradeWind. UI in market panel. Rate integration in resources.js.",
+    "priority": 198,
+    "status": "done",
+    "phase": 77,
+    "notes": "src/systems/tradeWinds.js: New file. 5 wind types (silk_road +1.0g, pirate_raids -0.5g, boom_season +0.8g+0.5f, supply_shortage -0.4i, merchant_boom +0.6g+0.3i). initTradeWinds() creates state.tradeWind={active,nextWindSeason,history,totalEvents}; subscribes SEASON_CHANGED. _onSeasonChanged(): expire if active.endsAtSeason===idx; only decrement counter when no active wind (prevents immediate respawn); spawn when counter hits 0. _spawnWind() picks non-repeating wind, sets endsAtSeason=(idx+1)%4 (1-season lifetime), emits windfall message + TRADE_WIND_CHANGED + recalcRates. getTradeWindRateBonuses() exported for resources.js integration. src/core/state.js: tradeWind:null field declared; state.tradeWind=null in initState(). src/core/events.js: TRADE_WIND_CHANGED event added. src/systems/resources.js: import getTradeWindRateBonuses; apply after Vizier bonuses in recalcRates(). src/ui/marketPanel.js: import getActiveTradeWind+getTradeWindHistory; TRADE_WIND_CHANGED listener; _tradeWindSection() at bottom of render. src/main.js: import+init in boot()+_newGame(); save version 65\u219266; tradeWind saved/loaded. styles/main.css: .trade-wind-section/header/note/calm/card/card--active/card__icon/body/name/desc/effect/until + history styles."
   }
 ]

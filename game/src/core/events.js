@@ -165,4 +165,5 @@ export const Events = Object.freeze({
   GUILD_CHANGED:            'guildChanged',                // T194: any artisan guild state change
   VIZIER_CHANGED:           'vizierChanged',               // T195: grand vizier appointed or dismissed
   TRADE_FAIR_CHANGED:       'tradeFairChanged',            // T196: trade fair started / deal used / ended
+  TRADE_WIND_CHANGED:       'tradeWindChanged',            // T198: trade wind event started or ended
 });

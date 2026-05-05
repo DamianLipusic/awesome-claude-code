@@ -27,6 +27,7 @@ import { getCurrentTitle } from '../data/titles.js';
 import { isGuildActive, GUILD_ROUTE_BONUS, getTradeBoostMult } from './tradeGuildHall.js'; // T190
 import { getGuildRateBonuses } from './artisanGuilds.js'; // T194
 import { getVizierGoldRate, getVizierManaMult, getVizierProdMult, getVizierTradeMult } from './vizier.js'; // T195
+import { getTradeWindRateBonuses } from './tradeWinds.js'; // T198
 
 /** Returns true if both techs in the named synergy pair are researched. */
 function _synergy(id) {
@@ -642,6 +643,14 @@ export function recalcRates() {
   const _vizierProd = getVizierProdMult();
   if (_vizierProd !== 1.0) {
     for (const res of RESOURCE_KEYS) if (rates[res] > 0) rates[res] *= _vizierProd;
+  }
+
+  // T198: Trade wind flat rate bonuses/penalties
+  const _windBonuses = getTradeWindRateBonuses();
+  if (_windBonuses) {
+    for (const [res, val] of Object.entries(_windBonuses)) {
+      if (val !== 0 && rates[res] !== undefined) rates[res] += val;
+    }
   }
 
   Object.assign(state.rates, rates);

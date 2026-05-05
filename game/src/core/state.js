@@ -129,6 +129,11 @@ export const state = {
   // T192: Diplomatic Envoy — { active: {empireId, arrivalTick, sentAtTick}|null, totalDispatched, totalArrived }
   envoy: null,
 
+  // T198: Trade Wind Events — periodic economic environment shifts lasting one season
+  // { active: { id, icon, name, desc, goldBonus, ironBonus, foodBonus, endsAtSeason, startSeasonName }|null,
+  //   nextWindSeason: number, history: [{id, icon, name, seasonName}], totalEvents: number } | null
+  tradeWind: null,
+
   // Difficulty setting — persisted across new games (not reset by initState)
   // 'easy' | 'normal' | 'hard'
   difficulty: 'normal',
@@ -618,5 +623,6 @@ export function initState(empireName = 'My Empire') {
   state.surge                = null; // T182: reset surge state per game
   state.mint                 = null; // T191: reset mint state per game
   state.envoy                = null; // T192: reset envoy state per game
+  state.tradeWind            = null; // T198: reset trade wind state per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

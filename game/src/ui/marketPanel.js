@@ -16,6 +16,7 @@ import { isGuildActive, GUILD_ROUTE_BONUS, BOOST_COST, BOOST_MULT, getBoostSecs,
 import { EMPIRES } from '../data/empires.js'; // T190
 import { isMintActive, getMintInfo, performMintConversion, MINT_RATES, MINT_CONVERSION_MAX } from '../systems/imperialMint.js'; // T191
 import { isFairActive, getFairDeals, isDealUsed, useFairDeal, FAIR_PARTICIPATION_GOAL } from '../systems/tradeFair.js'; // T196
+import { getActiveTradeWind, getTradeWindHistory } from '../systems/tradeWinds.js'; // T198
 import { fmtNum } from '../utils/fmt.js';
 
 const RESOURCE_ICONS = {
@@ -46,6 +47,7 @@ export function initMarketPanel() {
   on(Events.TRADE_GUILD_BOOSTED,  _render);  // T190: guild boost activated/expired
   on(Events.MINT_CONVERSION,      _render);  // T191: mint conversion performed (also resets on existing SEASON_CHANGED)
   on(Events.TRADE_FAIR_CHANGED,   _render);  // T196: fair started / deal used / ended
+  on(Events.TRADE_WIND_CHANGED,   _render);  // T198: trade wind started or ended
 
   // Refresh contract/merchant/auction countdowns every ~4 ticks (~1 s)
   let _contractTickCount = 0;
@@ -113,7 +115,8 @@ function _render() {
     ${_auctionSection()}
     ${_blackMarketSection()}
     ${_tradeGuildSection()}
-    ${_mintSection()}`;
+    ${_mintSection()}
+    ${_tradeWindSection()}`;
 }
 
 function _row(res, seasonal = []) {
@@ -644,5 +647,53 @@ function _mintSection() {
       <div class="mint-note">Convert surplus resources to gold (max ${MINT_CONVERSION_MAX}g per conversion).</div>
       <div class="mint-conversions">${convBtns}</div>
       ${info.totalConverted > 0 ? `<div class="mint-total">Total coined: ${fmtNum(info.totalConverted)} gold</div>` : ''}
+    </div>`;
+}
+
+// ── Trade Wind section (T198) ────────────────────────────────────────────────
+
+function _tradeWindSection() {
+  const wind    = getActiveTradeWind();
+  const history = getTradeWindHistory();
+
+  const effectStr = (def) => {
+    const parts = [];
+    if (def.goldBonus > 0)  parts.push(`+${def.goldBonus} 💰/s`);
+    if (def.goldBonus < 0)  parts.push(`${def.goldBonus} 💰/s`);
+    if (def.ironBonus > 0)  parts.push(`+${def.ironBonus} ⚒️/s`);
+    if (def.ironBonus < 0)  parts.push(`${def.ironBonus} ⚒️/s`);
+    if (def.foodBonus > 0)  parts.push(`+${def.foodBonus} 🌾/s`);
+    if (def.foodBonus < 0)  parts.push(`${def.foodBonus} 🌾/s`);
+    return parts.join(' · ') || 'No rate change';
+  };
+
+  const activeHtml = wind
+    ? `<div class="trade-wind-card trade-wind-card--active">
+        <div class="trade-wind-card__icon">${wind.icon}</div>
+        <div class="trade-wind-card__body">
+          <div class="trade-wind-card__name">${wind.name}</div>
+          <div class="trade-wind-card__desc">${wind.desc}</div>
+          <div class="trade-wind-card__effect">${effectStr(wind)}</div>
+          <div class="trade-wind-card__until">Lasts until next season change.</div>
+        </div>
+      </div>`
+    : `<div class="trade-wind-calm">🌊 Calm Seas — no active trade wind.</div>`;
+
+  const historyHtml = history.length > 0
+    ? `<div class="trade-wind-history">
+        <div class="trade-wind-history__label">Recent winds:</div>
+        ${history.map(h => `
+          <span class="trade-wind-history__entry" title="${h.name} — ${h.seasonName}">
+            ${h.icon} ${h.name}
+          </span>`).join('')}
+      </div>`
+    : '';
+
+  return `
+    <div class="trade-wind-section">
+      <div class="trade-wind-header">🌬️ Trade Winds</div>
+      <div class="trade-wind-note">Global trade environment shifts every 5–8 seasons, affecting resource rates for one season.</div>
+      ${activeHtml}
+      ${historyHtml}
     </div>`;
 }
