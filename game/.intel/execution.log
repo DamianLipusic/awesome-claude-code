@@ -2,6 +2,34 @@
 
 ---
 
+## 2026-05-05 — Session N+48
+
+**Tasks completed:** T207, T208
+
+**Summary:**
+All prior tasks (T001–T206) were complete. Created T207+T208 task specs then implemented two Phase 82 features: Scout Reconnaissance (T207) and Resource Exchange Pact (T208).
+
+**T207 — Scout Reconnaissance:**
+- `src/systems/scoutMissions.js`: New file. `SCOUT_COST=50`, `SCOUT_COOLDOWN=1080 ticks` (3 seasons × 360 ticks/season), `SCOUT_REVEAL=8`, `SCOUT_MIN_AGE=1`. `initScouts()` lazy-creates `state.scouts={cooldownUntil:0,totalMissions:0,lastReport:null}`. `canDispatchScouts()` validates age≥1, gold≥50, cooldown expired. `dispatchScouts()` deducts 50 gold, finds frontier fog tiles via `_getFrontierFogTiles()` (8-dir BFS from player/revealed-neutral tiles), reveals up to 8, builds report via `_buildReport()` (enemy tile count, fog remaining, terrain names of revealed tiles), sets cooldown to `tick+1080`, increments `totalMissions`, emits `MAP_CHANGED+RESOURCE_CHANGED+SCOUT_MISSION`. `getScoutInfo()/getScoutCooldownSecs()` helpers exported.
+- `src/core/state.js`: `scouts:null` field declared in state object; `state.scouts=null` in `initState()`.
+- `src/core/events.js`: `SCOUT_MISSION:'scoutMission'` added.
+- `src/ui/mapPanel.js`: Import 5 scout exports; `on(SCOUT_MISSION/AGE_CHANGED/RESOURCE_CHANGED)` → `_updateScoutSection`; `panel.addEventListener('click', _onPanelClick)` for `data-scout-action=dispatch`; `_updateScoutSection()` renders locked notice (age<1), cooldown display+last report card, or ready button+last report card; `_buildHTML()` adds `<div id="scout-section">` after `#carto-survey`; called once in `initMapPanel()`.
+- `src/main.js`: Import `initScouts`; `initScouts()` in `boot()`+`_newGame()`; `scouts` saved/loaded; version 73→74.
+
+**T208 — Resource Exchange Pact:**
+- `src/systems/resourcePact.js`: New file. `PACT_SEASONS=2`. `PACT_DEFINITIONS` per empire: ironHorde (give 80 food, receive 60 iron), mageCouncil (give 60 gold, receive 80 mana), seaWolves (give 60 iron, receive 100 gold). `initResourcePact()` lazy-creates `state.resourcePact={active:null,totalPacts:0,history:[]}`; subscribes `SEASON_CHANGED` (Set-based pubsub deduplicates across boot/newGame calls). `proposeResourcePact(empireId)` validates no active pact, pact exists, alliance holds, resource affordable; executes first exchange immediately; sets `active.seasonsLeft=1` (2 seasons total, 1 done). `cancelResourcePact()` records to history, clears active. `_onSeasonChanged()`: (1) breaks if alliance lost; (2) marks complete if `seasonsLeft<=0`; (3) breaks if resources insufficient; (4) executes exchange, decrements `seasonsLeft`. `_recordHistory()` maintains newest-first history (max 5 entries).
+- `src/core/state.js`: `resourcePact:null` field + `initState()` reset.
+- `src/core/events.js`: `RESOURCE_PACT_CHANGED:'resourcePactChanged'` added.
+- `src/ui/diplomacyPanel.js`: Import 6 pact exports; `on(RESOURCE_PACT_CHANGED)` → `_render`; `_pactSection()` renders active pact card (empire/exchange/seasons-left/cancel button) or list of propose-pact offers for each allied empire with pact definition (affordability check); `_pactHistory()` renders past pacts; `_render()` appends `_pactSection()` before history section; `_onClick` handles `propose-pact`/`cancel-pact` data-actions.
+- `src/main.js`: Import `initResourcePact`; `initResourcePact()` in `boot()`+`_newGame()`; `resourcePact` saved/loaded; version 74.
+- `styles/main.css`: `.scout-section/locked/header/dispatch-btn/insufficient/report` (header/row/label/val); `.pact-section(--active)/header(icon/title/sub)/locked/card(--active)/__empire/__exchange/__give/__arrow/__receive/__seasons`, `.pact-cancel-btn`, `.pact-offer/__empire/__desc/__terms/__dur`, `.pact-propose-btn`, `.pact-history/__label`, `.pact-hist-entry`.
+
+**Architecture decisions:**
+- T207 BFS expands from both player-owned tiles AND neutral-revealed tiles (fog cleared by e.g. cartographer). This means scouts can push deeper past already-explored neutral land, not just the player's border — more useful in mid-game. The `SCOUT_COOLDOWN=1080 ticks` equals exactly 3 seasons (3 × 360), giving a natural rhythm.
+- T208 fires the first exchange immediately on proposal (season 0) rather than waiting for the next SEASON_CHANGED. This gives instant feedback and makes the pact immediately valuable. The `seasonsLeft` starts at 1 after proposal (not 2), so only one more automatic exchange will occur — total 2 exchanges as designed. The `Set`-based pubsub ensures calling `initResourcePact()` from both `boot()` and `_newGame()` doesn't double-register `_onSeasonChanged`.
+
+---
+
 ## 2026-05-05 — Session N+47
 
 **Tasks completed:** T197, T198

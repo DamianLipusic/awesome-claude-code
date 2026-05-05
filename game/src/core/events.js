@@ -174,4 +174,6 @@ export const Events = Object.freeze({
   ARENA_CHANGED:            'arenaChanged',                // T204: arena event spawned / entered / skipped / expired
   STANDARD_CHANGED:         'standardChanged',             // T205: battle standard assigned or transferred
   GOVERNORS_CHANGED:        'governorsChanged',            // T206: regional governor appointed or dismissed
+  SCOUT_MISSION:            'scoutMission',                // T207: scout party dispatched and report returned
+  RESOURCE_PACT_CHANGED:    'resourcePactChanged',         // T208: pact proposed / season exchange / cancelled / completed
 });

@@ -122,6 +122,8 @@ import { initCorruption, corruptionTick } from './systems/corruptionSystem.js'; 
 import { initArena, arenaTick } from './systems/grandArena.js';                                  // T204
 import { initBattleStandard } from './systems/battleStandard.js';                                 // T205
 import { initGovernors } from './systems/regionalGovernors.js';                                   // T206
+import { initScouts } from './systems/scoutMissions.js';                                          // T207
+import { initResourcePact } from './systems/resourcePact.js';                                     // T208
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
@@ -297,6 +299,8 @@ function boot() {
   initArena();                 // T204: grand arena state init
   initBattleStandard();        // T205: battle standard state init
   initGovernors();             // T206: regional governors state init
+  initScouts();                // T207: scout reconnaissance state init
+  initResourcePact();          // T208: resource exchange pact state init + SEASON_CHANGED listener
   // T176: monument init deferred — only activates when building is constructed
 
   // Init UI
@@ -547,7 +551,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 73, // T205: battle standard; T206: regional governors
+      version: 74, // T207: scout reconnaissance; T208: resource exchange pact
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -679,6 +683,8 @@ function _save() {
         arena:               state.arena               ?? null,  // T204
         battleStandard:      state.battleStandard      ?? null,  // T205
         governors:           state.governors           ?? null,  // T206
+        scouts:              state.scouts              ?? null,  // T207
+        resourcePact:        state.resourcePact        ?? null,  // T208
         tick:          state.tick,
       }
     }));
@@ -844,6 +850,8 @@ function _applySave(save) {
   state.arena                = s.arena                ?? null; // T204
   state.battleStandard       = s.battleStandard       ?? null; // T205
   state.governors            = s.governors            ?? null; // T206
+  state.scouts               = s.scouts               ?? null; // T207
+  state.resourcePact         = s.resourcePact         ?? null; // T208
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
@@ -1663,6 +1671,8 @@ function _newGame(opts = {}) {
   initArena();                 // T204: reset arena state on new game
   initBattleStandard();        // T205: reset battle standard on new game
   initGovernors();             // T206: reset governors on new game
+  initScouts();                // T207: reset scout state on new game
+  initResourcePact();          // T208: reset resource pact on new game
   _updateCelestialBanner(); // T153: hide banner on new game
   recalcRates();
   startLoop();  // restart loop in case it was stopped by game-over

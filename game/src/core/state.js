@@ -541,6 +541,19 @@ export const state = {
   // T206: Regional Governors — appoint governors to territory sectors for passive income
   // { north: bool, east: bool, south: bool, totalAppointed: number } | null
   governors: null,
+
+  // T207: Scout Reconnaissance — manual frontier reveal + field report action (Bronze Age+)
+  // { cooldownUntil: tick, totalMissions: number,
+  //   lastReport: { tilesRevealed, enemyTiles, fogRemaining, terrains: string[] } | null } | null
+  scouts: null,
+
+  // T208: Resource Exchange Pact — seasonal resource exchange with an allied empire
+  // { active: { empireId, empireLabel, empireIcon, offeredRes, offeredAmt,
+  //             receivedRes, receivedAmt, seasonsLeft } | null,
+  //   totalPacts: number,
+  //   history: [{ empireId, empireLabel, empireIcon, offeredRes, offeredAmt,
+  //               receivedRes, receivedAmt }] } | null
+  resourcePact: null,
 };
 
 /**
@@ -670,5 +683,7 @@ export function initState(empireName = 'My Empire') {
   state.arena                = null; // T204: reset arena per game
   state.battleStandard       = null; // T205: reset battle standard per game
   state.governors            = null; // T206: reset governors per game
+  state.scouts               = null; // T207: reset scouts per game
+  state.resourcePact         = null; // T208: reset resource pact per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

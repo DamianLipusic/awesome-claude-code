@@ -12782,3 +12782,245 @@ kbd {
 .btn--arena-skip:hover {
   background: rgba(50, 50, 50, 0.65);
 }
+
+/* ── T207: Scout Reconnaissance section ─────────────────────────────────── */
+.scout-section {
+  margin: 10px 0 4px;
+  padding: 10px 12px;
+  border: 1px solid rgba(100, 180, 255, 0.18);
+  border-radius: 6px;
+  background: rgba(10, 20, 40, 0.35);
+}
+.scout-section__locked {
+  font-size: 0.78rem;
+  color: #6b7280;
+  padding: 4px 0;
+}
+.scout-header {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.scout-header__icon {
+  font-size: 1.05rem;
+}
+.scout-header__title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #93c5fd;
+}
+.scout-header__sub {
+  font-size: 0.72rem;
+  color: #6b7280;
+  margin-left: auto;
+}
+.scout-dispatch-btn {
+  width: 100%;
+  padding: 7px 12px;
+  font-size: 0.80rem;
+  font-weight: 600;
+  border: 1px solid rgba(100, 180, 255, 0.40);
+  border-radius: 5px;
+  background: linear-gradient(135deg, rgba(10, 25, 60, 0.70), rgba(20, 45, 90, 0.55));
+  color: #bfdbfe;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  text-align: center;
+}
+.scout-dispatch-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(20, 45, 90, 0.85), rgba(40, 80, 150, 0.65));
+  border-color: rgba(100, 180, 255, 0.70);
+}
+.scout-dispatch-btn:disabled,
+.scout-dispatch-btn.btn--disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.scout-insufficient {
+  font-size: 0.72rem;
+  color: #f87171;
+  margin-top: 4px;
+  text-align: center;
+}
+.scout-report {
+  margin-top: 10px;
+  padding: 8px 10px;
+  border: 1px solid rgba(100, 180, 100, 0.20);
+  border-radius: 5px;
+  background: rgba(10, 30, 15, 0.40);
+}
+.scout-report__header {
+  font-size: 0.80rem;
+  font-weight: 600;
+  color: #86efac;
+  margin-bottom: 6px;
+}
+.scout-report__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.75rem;
+  padding: 2px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.scout-report__row:last-child {
+  border-bottom: none;
+}
+.scout-report__label {
+  color: #9ca3af;
+}
+.scout-report__val {
+  color: #e5e7eb;
+  font-weight: 600;
+}
+
+/* ── T208: Resource Exchange Pact section ───────────────────────────────── */
+.pact-section {
+  margin: 12px 0 4px;
+  padding: 10px 12px;
+  border: 1px solid rgba(180, 120, 255, 0.20);
+  border-radius: 6px;
+  background: rgba(15, 10, 35, 0.40);
+}
+.pact-section--active {
+  border-color: rgba(180, 120, 255, 0.45);
+  background: rgba(20, 10, 45, 0.55);
+}
+.pact-header {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.pact-header__icon {
+  font-size: 1.05rem;
+}
+.pact-header__title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #c4b5fd;
+}
+.pact-header__sub {
+  font-size: 0.72rem;
+  color: #6b7280;
+  margin-left: auto;
+}
+.pact-locked {
+  font-size: 0.78rem;
+  color: #6b7280;
+  padding: 4px 0;
+}
+.pact-card {
+  padding: 8px 10px;
+  border: 1px solid rgba(180, 120, 255, 0.25);
+  border-radius: 5px;
+  background: rgba(30, 15, 60, 0.50);
+  margin-bottom: 6px;
+}
+.pact-card--active {
+  border-color: rgba(180, 120, 255, 0.55);
+}
+.pact-card__empire {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #e9d5ff;
+  margin-bottom: 5px;
+}
+.pact-card__exchange {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.80rem;
+  margin-bottom: 5px;
+}
+.pact-card__give {
+  color: #fca5a5;
+}
+.pact-card__arrow {
+  color: #9ca3af;
+  font-weight: 700;
+}
+.pact-card__receive {
+  color: #86efac;
+}
+.pact-card__seasons {
+  font-size: 0.75rem;
+  color: #a78bfa;
+  margin-bottom: 6px;
+}
+.pact-cancel-btn {
+  font-size: 0.72rem;
+  padding: 3px 8px;
+  border: 1px solid rgba(248, 113, 113, 0.40);
+  border-radius: 4px;
+  background: rgba(40, 10, 10, 0.50);
+  color: #fca5a5;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.pact-cancel-btn:hover {
+  background: rgba(60, 20, 20, 0.70);
+}
+.pact-offer {
+  padding: 8px 10px;
+  border: 1px solid rgba(180, 120, 255, 0.18);
+  border-radius: 5px;
+  background: rgba(20, 10, 40, 0.40);
+  margin-bottom: 6px;
+}
+.pact-offer__empire {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #ddd6fe;
+  margin-bottom: 3px;
+}
+.pact-offer__desc {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin-bottom: 4px;
+}
+.pact-offer__terms {
+  font-size: 0.78rem;
+  color: #c4b5fd;
+  margin-bottom: 6px;
+}
+.pact-offer__dur {
+  font-size: 0.72rem;
+  color: #6b7280;
+  margin-left: 4px;
+}
+.pact-propose-btn {
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  border: 1px solid rgba(180, 120, 255, 0.45);
+  border-radius: 4px;
+  background: linear-gradient(135deg, rgba(20, 10, 50, 0.70), rgba(40, 20, 80, 0.55));
+  color: #e9d5ff;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.pact-propose-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(40, 20, 80, 0.85), rgba(60, 30, 120, 0.65));
+  border-color: rgba(180, 120, 255, 0.70);
+}
+.pact-propose-btn:disabled,
+.pact-propose-btn.btn--disabled {
+  opacity: 0.40;
+  cursor: not-allowed;
+}
+.pact-history {
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.pact-history__label {
+  font-size: 0.72rem;
+  color: #6b7280;
+  margin-bottom: 3px;
+}
+.pact-hist-entry {
+  font-size: 0.72rem;
+  color: #9ca3af;
+  padding: 2px 0;
+}

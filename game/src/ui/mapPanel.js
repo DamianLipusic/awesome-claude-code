@@ -29,6 +29,7 @@ import { claimDiscovery, getDiscoveryDef, spawnDiscoveries } from '../systems/di
 import { getCurrentWeather } from '../systems/weather.js'; // T149
 import { getCartographerSurvey, getCartographerSurveySecs } from '../systems/cartographersGuild.js'; // T179
 import { isInFortificationNetwork } from '../systems/fortificationNetwork.js'; // T183
+import { dispatchScouts, getScoutInfo, getScoutCooldownSecs, canDispatchScouts, SCOUT_COST } from '../systems/scoutMissions.js'; // T207
 
 const TILE_PX   = 24;     // pixels per tile side
 const GRID_SIZE = 20;     // tiles per axis
@@ -244,8 +245,17 @@ export function initMapPanel() {
   on(Events.BUILDING_CHANGED,      _updateSurveyReport);
   on(Events.CARTOGRAPHER_SURVEYED, _updateSurveyReport);
 
+  // T207: update scout section on relevant events
+  on(Events.SCOUT_MISSION,    _updateScoutSection);
+  on(Events.AGE_CHANGED,      _updateScoutSection);
+  on(Events.RESOURCE_CHANGED, _updateScoutSection);
+
+  // T207: panel-level click for scout button
+  panel.addEventListener('click', _onPanelClick);
+
   _render();
   _updateSurveyReport();
+  _updateScoutSection();
 }
 
 // ── HTML scaffold ──────────────────────────────────────────────────────────
@@ -288,6 +298,7 @@ function _buildHTML() {
     </div>
     <div id="map-stats" class="map-stats"></div>
     <div id="carto-survey" class="carto-survey"></div>
+    <div id="scout-section" class="scout-section"></div>
   `;
 }
 
@@ -936,6 +947,89 @@ function _updateSurveyReport() {
     <div class="carto-survey__header">🗺️ Cartographer's Survey ${countdownStr ? `<span class="carto-survey__countdown">(next in ${countdownStr})</span>` : ''}</div>
     <div class="carto-survey__lines">${linesHtml}</div>
   `;
+}
+
+// ── T207: Scout Reconnaissance section ────────────────────────────────────
+
+function _updateScoutSection() {
+  const el = document.getElementById('scout-section');
+  if (!el) return;
+
+  if ((state.age ?? 0) < 1) {
+    el.innerHTML = `
+      <div class="scout-section__locked">
+        🔭 <strong>Scout Reconnaissance</strong> — unlocks at Bronze Age.
+      </div>`;
+    return;
+  }
+
+  const info    = getScoutInfo();
+  const canRes  = canDispatchScouts();
+  const secs    = getScoutCooldownSecs();
+  const mins    = Math.floor(secs / 60);
+  const s       = secs % 60;
+  const cdStr   = secs > 0
+    ? (mins > 0 ? `${mins}m ${String(s).padStart(2,'0')}s` : `${secs}s`)
+    : '';
+  const gold    = state.resources?.gold ?? 0;
+  const btnDisabled = !canRes.ok;
+
+  const btnLabel = cdStr
+    ? `⏳ Scouts Resting (${cdStr})`
+    : `🔭 Dispatch Scouts (${SCOUT_COST}💰)`;
+
+  let reportHtml = '';
+  if (info?.lastReport) {
+    const r = info.lastReport;
+    const terrainStr = r.terrains.length ? r.terrains.join(', ') : 'No new terrain';
+    reportHtml = `
+      <div class="scout-report">
+        <div class="scout-report__header">📋 Last Field Report</div>
+        <div class="scout-report__row">
+          <span class="scout-report__label">Tiles revealed</span>
+          <span class="scout-report__val">${r.tilesRevealed}</span>
+        </div>
+        <div class="scout-report__row">
+          <span class="scout-report__label">Enemy territory</span>
+          <span class="scout-report__val">${r.enemyTiles} tiles</span>
+        </div>
+        <div class="scout-report__row">
+          <span class="scout-report__label">Fog remaining</span>
+          <span class="scout-report__val">${r.fogRemaining} tiles</span>
+        </div>
+        <div class="scout-report__row">
+          <span class="scout-report__label">Terrain ahead</span>
+          <span class="scout-report__val">${terrainStr}</span>
+        </div>
+      </div>`;
+  }
+
+  el.innerHTML = `
+    <div class="scout-header">
+      <span class="scout-header__icon">🔭</span>
+      <span class="scout-header__title">Scout Reconnaissance</span>
+      <span class="scout-header__sub">Reveal ${8} frontier tiles · 3-season cooldown</span>
+    </div>
+    <button class="btn scout-dispatch-btn ${btnDisabled ? 'btn--disabled' : ''}"
+      data-scout-action="dispatch"
+      ${btnDisabled ? 'disabled' : ''}
+      title="${canRes.ok ? `Send scouts to reveal ${8} fog tiles for ${SCOUT_COST} gold` : canRes.reason}">
+      ${btnLabel}
+    </button>
+    ${gold < SCOUT_COST && !cdStr ? `<div class="scout-insufficient">Need ${SCOUT_COST} 💰 gold</div>` : ''}
+    ${reportHtml}
+  `;
+}
+
+function _onPanelClick(e) {
+  const btn = e.target.closest('[data-scout-action]');
+  if (!btn || btn.disabled) return;
+  if (btn.dataset.scoutAction === 'dispatch') {
+    const result = dispatchScouts();
+    if (!result.ok) {
+      addMessage(`🔭 ${result.reason}`, 'info');
+    }
+  }
 }
 
 // ── Event handlers ─────────────────────────────────────────────────────────

@@ -46,6 +46,10 @@ import {
   dispatchEnvoy, recallEnvoy, getEnvoyInfo, isEnvoyActive,
   ENVOY_COST, ENVOY_RECALL_REFUND,
 } from '../systems/envoy.js'; // T192
+import {
+  proposeResourcePact, cancelResourcePact, getActivePact, getResourcePactInfo,
+  PACT_DEFINITIONS, PACT_SEASONS,
+} from '../systems/resourcePact.js'; // T208
 import { fmtNum } from '../utils/fmt.js';
 
 const PANEL_ID = 'panel-diplomacy';
@@ -81,6 +85,7 @@ export function initDiplomacyPanel() {
   on(Events.ENVOY_DISPATCHED,       () => _render(panel));  // T192
   on(Events.ENVOY_ARRIVED,          () => _render(panel));  // T192
   on(Events.ENVOY_RECALLED,         () => _render(panel));  // T192
+  on(Events.RESOURCE_PACT_CHANGED,  () => _render(panel));  // T208
   // Refresh cooldown countdown every second; also refresh ceasefire/gift/skirmish/aid timers when active
   on(Events.TICK, _throttle(() => {
     const cd = document.getElementById('espionage-cooldown');
@@ -134,6 +139,7 @@ function _render(panel) {
     <div class="dipl-empire-list">${cards}</div>
     ${_espionageSection()}
     ${_campaignSection()}
+    ${_pactSection()}
     ${_historySection()}
   `;
 }
@@ -430,6 +436,97 @@ function _campaignSection() {
       ${cdHtml}
       ${!active ? `<div class="campaign-launch-row">${launchBtns || '<span class="campaign-no-targets">Ally with all empires to unlock new campaigns.</span>'}</div>` : ''}
     </div>`;
+}
+
+// ── T208: Resource Exchange Pact section ────────────────────────────────────
+
+const _PACT_RES_ICONS = { food: '🍞', wood: '🪵', stone: '🪨', iron: '⚙️', gold: '💰', mana: '✨' };
+
+function _pactSection() {
+  const active = getActivePact();
+  const info   = getResourcePactInfo();
+
+  if (active) {
+    const r = active;
+    return `
+      <div class="pact-section pact-section--active">
+        <div class="pact-header">
+          <span class="pact-header__icon">🤝</span>
+          <span class="pact-header__title">Active Resource Pact</span>
+        </div>
+        <div class="pact-card pact-card--active">
+          <div class="pact-card__empire">${r.empireIcon} ${r.empireLabel}</div>
+          <div class="pact-card__exchange">
+            <span class="pact-card__give">−${r.offeredAmt} ${_PACT_RES_ICONS[r.offeredRes]} per season</span>
+            <span class="pact-card__arrow">→</span>
+            <span class="pact-card__receive">+${r.receivedAmt} ${_PACT_RES_ICONS[r.receivedRes]} per season</span>
+          </div>
+          <div class="pact-card__seasons">${r.seasonsLeft} season${r.seasonsLeft !== 1 ? 's' : ''} remaining</div>
+          <button class="btn btn--xs pact-cancel-btn" data-action="cancel-pact"
+            title="Cancel the pact — forfeit remaining exchanges">✕ Cancel Pact</button>
+        </div>
+        ${_pactHistory(info?.history)}
+      </div>`;
+  }
+
+  // Check for allied empires that have a pact definition
+  const allied = (state.diplomacy?.empires ?? []).filter(e => e.relations === 'allied' && PACT_DEFINITIONS[e.id]);
+  if (allied.length === 0) {
+    return `
+      <div class="pact-section">
+        <div class="pact-header">
+          <span class="pact-header__icon">🤝</span>
+          <span class="pact-header__title">Resource Exchange Pact</span>
+        </div>
+        <div class="pact-locked">Ally with Iron Horde, Mage Council, or Sea Wolves to unlock pacts.</div>
+        ${_pactHistory(info?.history)}
+      </div>`;
+  }
+
+  const offers = allied.map(e => {
+    const def  = PACT_DEFINITIONS[e.id];
+    const empDef = EMPIRES[e.id];
+    const res  = state.resources ?? {};
+    const canAfford = (res[def.offeredRes] ?? 0) >= def.offeredAmt;
+    return `
+      <div class="pact-offer">
+        <div class="pact-offer__empire">${empDef?.icon ?? ''} ${empDef?.name ?? e.id}</div>
+        <div class="pact-offer__desc">${def.icon} ${def.desc}</div>
+        <div class="pact-offer__terms">
+          Give ${def.offeredAmt} ${_PACT_RES_ICONS[def.offeredRes]} · Receive ${def.receivedAmt} ${_PACT_RES_ICONS[def.receivedRes]}
+          <span class="pact-offer__dur">× ${PACT_SEASONS} seasons</span>
+        </div>
+        <button class="btn btn--xs pact-propose-btn ${canAfford ? '' : 'btn--disabled'}"
+          data-action="propose-pact" data-empire="${e.id}"
+          ${canAfford ? '' : 'disabled'}
+          title="${canAfford
+            ? `Propose pact: pay ${def.offeredAmt} ${def.offeredRes} per season for ${PACT_SEASONS} seasons`
+            : `Need ${def.offeredAmt} ${def.offeredRes} to initiate`}">
+          🤝 Propose Pact
+        </button>
+      </div>`;
+  }).join('');
+
+  return `
+    <div class="pact-section">
+      <div class="pact-header">
+        <span class="pact-header__icon">🤝</span>
+        <span class="pact-header__title">Resource Exchange Pact</span>
+        <span class="pact-header__sub">Trade resources with allied empires for ${PACT_SEASONS} seasons</span>
+      </div>
+      ${offers}
+      ${_pactHistory(info?.history)}
+    </div>`;
+}
+
+function _pactHistory(history) {
+  if (!history || history.length === 0) return '';
+  const entries = history.map(p =>
+    `<div class="pact-hist-entry">
+       ${p.empireIcon} ${p.empireLabel}: −${p.offeredAmt} ${_PACT_RES_ICONS[p.offeredRes]} / +${p.receivedAmt} ${_PACT_RES_ICONS[p.receivedRes]}
+     </div>`
+  ).join('');
+  return `<div class="pact-history"><div class="pact-history__label">Past Pacts</div>${entries}</div>`;
 }
 
 function _historySection() {
@@ -1161,6 +1258,16 @@ function _onClick(e) {
     }
     case 'recall-envoy': {  // T192
       result = recallEnvoy();
+      if (!result.ok) addMessageFallback(result.reason);
+      break;
+    }
+    case 'propose-pact': {  // T208
+      result = proposeResourcePact(empire);
+      if (!result.ok) addMessageFallback(result.reason);
+      break;
+    }
+    case 'cancel-pact': {  // T208
+      result = cancelResourcePact();
       if (!result.ok) addMessageFallback(result.reason);
       break;
     }
