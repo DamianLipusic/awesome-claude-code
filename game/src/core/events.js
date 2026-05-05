@@ -172,4 +172,6 @@ export const Events = Object.freeze({
   EPIC_QUEST_PROGRESS:      'epicQuestProgress',           // T202: epic quest chain step advanced or chain completed
   CORRUPTION_CHANGED:       'corruptionChanged',           // T203: corruption level changed (growth threshold or reform)
   ARENA_CHANGED:            'arenaChanged',                // T204: arena event spawned / entered / skipped / expired
+  STANDARD_CHANGED:         'standardChanged',             // T205: battle standard assigned or transferred
+  GOVERNORS_CHANGED:        'governorsChanged',            // T206: regional governor appointed or dismissed
 });

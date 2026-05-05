@@ -533,6 +533,14 @@ export const state = {
   // T182: Combat Surge — one-shot attack boost with resource cost and cooldown
   // { cooldownUntil: tick, totalSurges: number } | null
   surge: null,
+
+  // T205: Battle Standard — unique banner granting one unit type +20% attack power
+  // { equippedUnit: string|null, transferCooldownUntil: tick, totalTransfers: number } | null
+  battleStandard: null,
+
+  // T206: Regional Governors — appoint governors to territory sectors for passive income
+  // { north: bool, east: bool, south: bool, totalAppointed: number } | null
+  governors: null,
 };
 
 /**
@@ -660,5 +668,7 @@ export function initState(empireName = 'My Empire') {
   state.epicQuests           = null; // T202: reset epic quest chains per game
   state.corruption           = null; // T203: reset corruption per game
   state.arena                = null; // T204: reset arena per game
+  state.battleStandard       = null; // T205: reset battle standard per game
+  state.governors            = null; // T206: reset governors per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

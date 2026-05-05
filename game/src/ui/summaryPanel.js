@@ -49,6 +49,7 @@ import {
   COUNCIL_OPTIONS, chooseCouncilOption, getCouncilSecsLeft, getCouncilNextSecs,
 } from '../systems/provinceCouncil.js'; // T201
 import { adminReform, justicePurge, getCorruptionPenalty } from '../systems/corruptionSystem.js'; // T203
+import { appointGovernor, dismissGovernor, getGovernorMaxSlots, getGovernorIncome, GOVERNOR_APPOINT_COST, GOVERNOR_INCOME, GOVERNOR_TILES_PER_SLOT } from '../systems/regionalGovernors.js'; // T206
 const _GP_POINTS_TO_SPAWN = 3;
 
 const TOTAL_ACHIEVEMENTS = 25;
@@ -113,6 +114,7 @@ export function initSummaryPanel() {
   on(Events.SEASON_CHANGED,         _render);      // T199: resets usedThisSeason
   on(Events.COUNCIL_SESSION_CHANGED, _render);     // T201: council session spawned/resolved/expired
   on(Events.CORRUPTION_CHANGED,      _render);     // T203: corruption level changed
+  on(Events.GOVERNORS_CHANGED,       _render);     // T206: governor appointed or dismissed
   on(Events.TICK, _tickCountdown());
 
   // Delegated click handler for citizen role +/- and great person use buttons
@@ -183,6 +185,17 @@ export function initSummaryPanel() {
           reformBtn.classList.add('btn--shake');
           setTimeout(() => reformBtn.classList.remove('btn--shake'), 400);
         }
+        return;
+      }
+      // T206: regional governor appoint / dismiss
+      const govBtn = e.target.closest('[data-gov-action]');
+      if (govBtn && !govBtn.disabled) {
+        const result = govBtn.dataset.govAction === 'appoint' ? appointGovernor() : dismissGovernor();
+        if (!result.ok) {
+          govBtn.title = result.reason ?? 'Cannot do that.';
+          govBtn.classList.add('btn--shake');
+          setTimeout(() => govBtn.classList.remove('btn--shake'), 400);
+        }
       }
     });
   }
@@ -211,6 +224,7 @@ function _render() {
       ${_taxCollectorCard()}
       ${_councilCard()}
       ${_corruptionCard()}
+      ${_governorsCard()}
       ${_militaryCard()}
       ${_territoryCard()}
       ${_terrainControlCard()}
@@ -1081,6 +1095,53 @@ function _corruptionCard() {
   `;
 
   return _card('🔴 Corruption', body);
+}
+
+// ── T206: Regional Governors card ─────────────────────────────────────────
+
+function _governorsCard() {
+  const gov      = state.governors ?? { active: 0, totalAppointed: 0 };
+  const maxSlots = getGovernorMaxSlots();
+  const income   = getGovernorIncome();
+  const canAfford = (state.resources.gold ?? 0) >= GOVERNOR_APPOINT_COST;
+  const canAppoint = canAfford && gov.active < maxSlots;
+  const canDismiss = gov.active > 0;
+
+  if (maxSlots === 0 && gov.active === 0) {
+    const tilesNeeded = GOVERNOR_TILES_PER_SLOT - (_countPlayerTilesSummary() % GOVERNOR_TILES_PER_SLOT || GOVERNOR_TILES_PER_SLOT);
+    return _card('🏛️ Regional Governors', `
+      <div class="governors-locked">Capture ${tilesNeeded} more tile${tilesNeeded !== 1 ? 's' : ''} to unlock your first governor slot.</div>
+      <div class="governors-note">Each governor: +${GOVERNOR_INCOME} gold/s · Cost: ${GOVERNOR_APPOINT_COST}💰</div>
+    `);
+  }
+
+  const slotDots = Array.from({ length: Math.max(maxSlots, gov.active) }, (_, i) =>
+    `<span class="governor-slot ${i < gov.active ? 'governor-slot--active' : ''}">🏛️</span>`
+  ).join('');
+
+  const body = `
+    <div class="governors-slots">${slotDots}</div>
+    <div class="governors-info">
+      <span>${gov.active} / ${maxSlots} governors</span>
+      <span class="governors-income ${income > 0 ? 'governors-income--pos' : ''}">+${income.toFixed(1)} gold/s</span>
+    </div>
+    <div class="governors-btns">
+      <button class="btn btn--sm btn--appoint-gov ${canAppoint ? '' : 'btn--disabled'}"
+        data-gov-action="appoint"
+        title="${GOVERNOR_APPOINT_COST} gold — appoint a new governor"
+        ${canAppoint ? '' : 'disabled'}>
+        + Appoint (${GOVERNOR_APPOINT_COST}💰)
+      </button>
+      <button class="btn btn--sm btn--dismiss-gov ${canDismiss ? '' : 'btn--disabled'}"
+        data-gov-action="dismiss"
+        title="Dismiss a governor (free)"
+        ${canDismiss ? '' : 'disabled'}>
+        − Dismiss
+      </button>
+    </div>
+    <div class="governors-note">Total appointed: ${gov.totalAppointed}</div>
+  `;
+  return _card('🏛️ Regional Governors', body);
 }
 
 function _countPlayerTilesSummary() {

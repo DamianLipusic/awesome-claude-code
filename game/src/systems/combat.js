@@ -238,7 +238,9 @@ export function getAttackPreview(x, y) {
       const upgradeMult = 1 + (state.unitUpgrades?.[id] ?? 0) * 0.10;
       // T163: seasonal unit combat buff (+20% for the season's featured unit type)
       const seasonBuff = SEASON_UNIT_COMBAT_BUFF[state.season?.index ?? 0] === id ? SEASON_COMBAT_BUFF_MULT : 1.0;
-      attackPower += def.attack * count * _rankMult(id) * upgradeMult * seasonBuff;
+      // T205: Battle Standard — +20% attack for the unit type bearing the standard
+      const standardMult = state.battleStandard?.equippedUnit === id ? 1.20 : 1.0;
+      attackPower += def.attack * count * _rankMult(id) * upgradeMult * seasonBuff * standardMult;
     }
   }
 
@@ -472,7 +474,9 @@ export function attackTile(x, y) {
       const upgradeMult = 1 + (state.unitUpgrades?.[id] ?? 0) * 0.10;
       // T163: seasonal unit combat buff (+20% for the season's featured unit type)
       const seasonBuff = SEASON_UNIT_COMBAT_BUFF[state.season?.index ?? 0] === id ? SEASON_COMBAT_BUFF_MULT : 1.0;
-      attackPower += def.attack * count * _rankMult(id) * upgradeMult * seasonBuff;
+      // T205: Battle Standard — +20% attack for the unit type bearing the standard
+      const standardMult = state.battleStandard?.equippedUnit === id ? 1.20 : 1.0;
+      attackPower += def.attack * count * _rankMult(id) * upgradeMult * seasonBuff * standardMult;
     }
   }
 

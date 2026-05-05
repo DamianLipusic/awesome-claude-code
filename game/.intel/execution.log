@@ -3686,3 +3686,42 @@ Modified files:
       registerSystem both; initBoth in boot+_newGame; save/load both; version 70→72
   ~ game/styles/main.css
       T203 corruption styles + T204 grand arena styles
+
+[2026-05-05] T205: Battle Standard System
+  + game/src/systems/battleStandard.js
+      STANDARD_COST={gold:150,iron:50}, TRANSFER_COST={gold:50}, STANDARD_BONUS=0.20
+      TRANSFER_COOLDOWN_TICKS=720; initBattleStandard(); getBattleStandard()
+      standardTransferSecs(); assignBattleStandard(unitId)
+  ~ game/src/core/state.js
+      battleStandard:null field + initState reset
+  ~ game/src/core/events.js
+      STANDARD_CHANGED event added
+  ~ game/src/systems/combat.js
+      standardMult per-unit multiplier in both getAttackPreview() and attackTile()
+  ~ game/src/ui/militaryPanel.js
+      import 6 battle-standard exports; STANDARD_CHANGED listener; hasStandardCooldown tick check
+      _battleStandardSection(); data-action='assign-standard' handler in _handleClick
+  ~ game/src/main.js
+      import initBattleStandard; initBattleStandard() in boot+_newGame; save/load battleStandard
+      version 72→73
+  ~ game/styles/main.css
+      .battle-standard-section, .standard-title/intro/cooldown/row/icon/name/bearer, .btn--standard
+
+[2026-05-05] T206: Regional Governors
+  + game/src/systems/regionalGovernors.js
+      GOVERNOR_APPOINT_COST=150, GOVERNOR_INCOME=1.0, GOVERNOR_TILES_PER_SLOT=8, GOVERNOR_MAX_SLOTS=5
+      initGovernors(); getGovernors(); getGovernorMaxSlots(); getGovernorIncome()
+      appointGovernor(); dismissGovernor()
+  ~ game/src/core/state.js
+      governors:null field + initState reset
+  ~ game/src/core/events.js
+      GOVERNORS_CHANGED event added
+  ~ game/src/systems/resources.js
+      import getGovernorIncome; add govIncome to rates.gold before corruption penalty
+  ~ game/src/ui/summaryPanel.js
+      import 7 governor exports; GOVERNORS_CHANGED listener; _governorsCard()
+      data-gov-action click handler (appoint/dismiss)
+  ~ game/src/main.js
+      import initGovernors; initGovernors() in boot+_newGame; save/load governors; version 73
+  ~ game/styles/main.css
+      .governors-locked/note/slots/info/income/btns, .governor-slot (--active), .btn--appoint-gov/dismiss-gov

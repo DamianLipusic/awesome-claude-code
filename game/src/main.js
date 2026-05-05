@@ -120,6 +120,8 @@ import { initCouncil, councilTick } from './systems/provinceCouncil.js';        
 import { initEpicQuests, epicQuestsTick } from './systems/epicQuests.js';                        // T202
 import { initCorruption, corruptionTick } from './systems/corruptionSystem.js';                  // T203
 import { initArena, arenaTick } from './systems/grandArena.js';                                  // T204
+import { initBattleStandard } from './systems/battleStandard.js';                                 // T205
+import { initGovernors } from './systems/regionalGovernors.js';                                   // T206
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
@@ -293,6 +295,8 @@ function boot() {
   initEpicQuests();            // T202: epic quest chains state init
   initCorruption();            // T203: corruption system state init
   initArena();                 // T204: grand arena state init
+  initBattleStandard();        // T205: battle standard state init
+  initGovernors();             // T206: regional governors state init
   // T176: monument init deferred — only activates when building is constructed
 
   // Init UI
@@ -543,7 +547,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 72, // T203: corruption system; T204: grand arena events
+      version: 73, // T205: battle standard; T206: regional governors
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -673,6 +677,8 @@ function _save() {
         epicQuests:          state.epicQuests          ?? null,  // T202
         corruption:          state.corruption          ?? null,  // T203
         arena:               state.arena               ?? null,  // T204
+        battleStandard:      state.battleStandard      ?? null,  // T205
+        governors:           state.governors           ?? null,  // T206
         tick:          state.tick,
       }
     }));
@@ -836,6 +842,8 @@ function _applySave(save) {
   state.epicQuests           = s.epicQuests           ?? null; // T202
   state.corruption           = s.corruption           ?? null; // T203
   state.arena                = s.arena                ?? null; // T204
+  state.battleStandard       = s.battleStandard       ?? null; // T205
+  state.governors            = s.governors            ?? null; // T206
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
@@ -1653,6 +1661,8 @@ function _newGame(opts = {}) {
   initEpicQuests();            // T202: reset epic quest chains on new game
   initCorruption();            // T203: reset corruption state on new game
   initArena();                 // T204: reset arena state on new game
+  initBattleStandard();        // T205: reset battle standard on new game
+  initGovernors();             // T206: reset governors on new game
   _updateCelestialBanner(); // T153: hide banner on new game
   recalcRates();
   startLoop();  // restart loop in case it was stopped by game-over

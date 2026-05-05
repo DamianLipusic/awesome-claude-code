@@ -12,6 +12,7 @@ import { state } from '../core/state.js';
 import { on, Events } from '../core/events.js';
 import { trainUnit, recruitHero, useHeroAbility, setFormation, chooseHeroSkill, rallyTroops, upgradeUnit, UNIT_UPGRADE_MAX, UNIT_UPGRADE_COST_BASE, addMessage, chooseHeroTrait, chooseCompanion, issueProclamation, activateSurgeProvisions, conductBattleDrills, immortalizeUnit, LEGENDARY_COST, LEGENDARY_MAX, LEGENDARY_BONUS } from '../core/actions.js';
 import { getWanderingArmyOffer, getWanderingArmySecsLeft, hireWanderingArmy, negotiateWanderingArmy, dismissWanderingArmy } from '../systems/wanderingArmy.js'; // T200
+import { assignBattleStandard, getBattleStandard, STANDARD_COST, TRANSFER_COST, STANDARD_BONUS, standardTransferSecs } from '../systems/battleStandard.js'; // T205
 import { getArenaEvent, getArenaSecsLeft, getArenaNextSecs, enterArena, skipArena } from '../systems/grandArena.js'; // T204
 import { acceptDuel, declineDuel, getDuelSecsLeft } from '../systems/duels.js';
 import { getActiveWarlord, getWarlordSecsLeft } from '../systems/rovingWarlord.js'; // T165
@@ -105,6 +106,7 @@ export function initMilitaryPanel() {
   on(Events.UNIT_IMMORTALIZED,     () => _render(panel)); // T189: legendary unit immortalized
   on(Events.WANDERING_ARMY_CHANGED, () => _render(panel)); // T200: army spawned/hired/dismissed
   on(Events.ARENA_CHANGED,          () => _render(panel)); // T204: arena event spawned/entered/skipped
+  on(Events.STANDARD_CHANGED,       () => _render(panel)); // T205: battle standard assigned/transferred
   on(Events.RESOURCE_CHANGED,  () => _renderCosts(panel));
   on(Events.GAME_LOADED,       () => _render(panel));
 
@@ -142,7 +144,8 @@ export function initMilitaryPanel() {
     const hasWarlord       = !!state.warlord?.active;       // T165: warlord countdown
     const hasArmyOffer     = !!state.wanderingArmy?.current; // T200: army countdown
     const hasArenaEvent    = !!state.arena?.current;         // T204: arena countdown
-    if (hasHeroActivity || hasSpellActivity || hasMercOffer || hasDecreeCooldown || hasRallyCooldown || hasAcademyDrill || hasDuelPending || hasPioneerActive || hasSurgeActivity || hasWarlord || hasArmyOffer || hasArenaEvent) _render(panel);
+    const hasStandardCooldown = !!(state.battleStandard && state.battleStandard.transferCooldownUntil > state.tick); // T205
+    if (hasHeroActivity || hasSpellActivity || hasMercOffer || hasDecreeCooldown || hasRallyCooldown || hasAcademyDrill || hasDuelPending || hasPioneerActive || hasSurgeActivity || hasWarlord || hasArmyOffer || hasArenaEvent || hasStandardCooldown) _render(panel);
   });
 }
 
@@ -161,6 +164,7 @@ function _render(panel) {
     ${_rallySection()}
     ${_academySection()}
     ${_upgradeSection()}
+    ${_battleStandardSection()}
     ${_spellsSection()}
     ${_decreesSection()}
     ${_proclamationsSection()}
@@ -623,6 +627,62 @@ function _upgradeSection() {
     <div class="upgrade-section">
       <div class="upgrade-title">🔧 Arsenal Upgrades</div>
       <div class="upgrade-intro">+10% attack per level · max ${UNIT_UPGRADE_MAX} levels · cost scales with level</div>
+      ${rows}
+    </div>`;
+}
+
+// ── Battle Standard section (T205) ──────────────────────────────────────────
+
+function _battleStandardSection() {
+  const hasAnyUnits = Object.values(state.units ?? {}).some(c => c > 0);
+  if (!hasAnyUnits) return '';
+
+  const bs = getBattleStandard();
+  const res = state.resources;
+  const equipped = bs.equippedUnit;
+  const isFirst  = equipped === null;
+  const cdSecs   = standardTransferSecs();
+  const onCd     = cdSecs > 0;
+
+  const rows = UNIT_ORDER
+    .filter(id => (state.units[id] ?? 0) > 0)
+    .map(id => {
+      const def       = UNITS[id];
+      const isBearer  = equipped === id;
+      const canAfford = isFirst
+        ? (res.gold >= STANDARD_COST.gold && res.iron >= STANDARD_COST.iron)
+        : (!onCd && res.gold >= TRANSFER_COST.gold);
+      const disabled  = isBearer || (!isFirst && onCd) || !canAfford;
+      const costLabel = isFirst
+        ? `${STANDARD_COST.gold}💰 ${STANDARD_COST.iron}🔩`
+        : `${TRANSFER_COST.gold}💰`;
+      return `
+        <div class="standard-row ${isBearer ? 'standard-row--active' : ''}">
+          <span class="standard-icon">${def?.icon ?? '⚔️'}</span>
+          <span class="standard-name">${def?.name ?? id}</span>
+          ${isBearer ? `<span class="standard-bearer">🚩 Bearer +${Math.round(STANDARD_BONUS * 100)}%</span>` : ''}
+          <button class="btn btn--sm btn--standard ${disabled ? 'btn--disabled' : ''}"
+            data-action="assign-standard" data-unit-id="${id}"
+            ${disabled ? 'disabled' : ''}
+            title="${isBearer ? 'Already bearing the standard' : isFirst ? 'Raise standard' : 'Transfer standard'}">
+            ${isBearer ? '✓' : costLabel}
+          </button>
+        </div>`;
+    }).join('');
+
+  let statusHtml = '';
+  if (onCd) {
+    const mins = Math.floor(cdSecs / 60);
+    const secs = cdSecs % 60;
+    const cdStr = mins > 0 ? `${mins}m ${String(secs).padStart(2, '0')}s` : `${cdSecs}s`;
+    statusHtml = `<div class="standard-cooldown">⏱ Transfer cooldown: ${cdStr}</div>`;
+  }
+
+  return `
+    <div class="battle-standard-section">
+      <div class="standard-title">🚩 Battle Standard</div>
+      <div class="standard-intro">Grants one unit type +${Math.round(STANDARD_BONUS * 100)}% attack power${isFirst ? ` · First: ${STANDARD_COST.gold}💰 ${STANDARD_COST.iron}🔩 · Transfer: ${TRANSFER_COST.gold}💰` : ''}</div>
+      ${statusHtml}
       ${rows}
     </div>`;
 }
@@ -1649,6 +1709,14 @@ function _handleClick(e) {
   } else if (actionBtn.dataset.action === 'immortalize-unit') {
     // T189: immortalize an elite unit type
     const result = immortalizeUnit(actionBtn.dataset.unitId);
+    if (!result.ok) {
+      actionBtn.classList.add('btn--shake');
+      setTimeout(() => actionBtn.classList.remove('btn--shake'), 600);
+      addMessage(result.reason, 'info');
+    }
+  } else if (actionBtn.dataset.action === 'assign-standard') {
+    // T205: assign / transfer the battle standard
+    const result = assignBattleStandard(actionBtn.dataset.unitId);
     if (!result.ok) {
       actionBtn.classList.add('btn--shake');
       setTimeout(() => actionBtn.classList.remove('btn--shake'), 600);

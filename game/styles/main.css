@@ -6763,6 +6763,102 @@ kbd {
   color: var(--accent-h);
 }
 
+/* T205: Battle Standard section */
+.battle-standard-section {
+  background: rgba(255, 215, 0, 0.06);
+  border: 1px solid rgba(255, 215, 0, 0.25);
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+}
+.standard-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gold, #ecc94b);
+  margin-bottom: 2px;
+}
+.standard-intro {
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.standard-cooldown {
+  font-size: 11px;
+  color: var(--warning, #ecc94b);
+  margin-bottom: 6px;
+}
+.standard-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 0;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.standard-row:first-of-type { border-top: none; }
+.standard-row--active { background: rgba(255, 215, 0, 0.08); border-radius: 4px; padding: 4px 4px; }
+.standard-icon { font-size: 16px; flex-shrink: 0; }
+.standard-name { flex: 1; font-size: 12px; }
+.standard-bearer { font-size: 11px; color: var(--gold, #ecc94b); font-weight: 600; }
+.btn--standard {
+  font-size: 11px;
+  padding: 2px 8px;
+  border: 1px solid rgba(255, 215, 0, 0.4);
+  color: var(--gold, #ecc94b);
+  background: transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn--standard:hover:not(:disabled) {
+  background: rgba(255, 215, 0, 0.12);
+}
+
+/* T206: Regional Governors card */
+.governors-locked {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.governors-note {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+.governors-slots {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+.governor-slot {
+  font-size: 18px;
+  opacity: 0.3;
+  filter: grayscale(1);
+  transition: opacity 0.2s, filter 0.2s;
+}
+.governor-slot--active {
+  opacity: 1;
+  filter: none;
+}
+.governors-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+.governors-income { color: var(--muted); }
+.governors-income--pos { color: var(--green, #3fb950); font-weight: 600; }
+.governors-btns {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+.btn--appoint-gov, .btn--dismiss-gov {
+  font-size: 11px;
+  padding: 3px 8px;
+}
+
 /* T099: Terrain Control card in Empire Summary */
 .sum-terrain-row {
   display: grid;
