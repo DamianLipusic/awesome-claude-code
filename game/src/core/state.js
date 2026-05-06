@@ -554,6 +554,14 @@ export const state = {
   //   history: [{ empireId, empireLabel, empireIcon, offeredRes, offeredAmt,
   //               receivedRes, receivedAmt }] } | null
   resourcePact: null,
+
+  // T209: Military Supply Lines — forward outposts extending attack supply range
+  // { outposts: [{ x, y }], totalPlaced: number } | null
+  supplyLines: null,
+
+  // T210: War Reparations — demand gold from an empire after sustained combat success
+  // { demanded: { [empireId]: true }, angryBonusUntil: tick, totalReceived: number } | null
+  reparations: null,
 };
 
 /**
@@ -685,5 +693,7 @@ export function initState(empireName = 'My Empire') {
   state.governors            = null; // T206: reset governors per game
   state.scouts               = null; // T207: reset scouts per game
   state.resourcePact         = null; // T208: reset resource pact per game
+  state.supplyLines          = null; // T209: reset supply lines per game
+  state.reparations          = null; // T210: reset war reparations per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

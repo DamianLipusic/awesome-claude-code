@@ -176,4 +176,6 @@ export const Events = Object.freeze({
   GOVERNORS_CHANGED:        'governorsChanged',            // T206: regional governor appointed or dismissed
   SCOUT_MISSION:            'scoutMission',                // T207: scout party dispatched and report returned
   RESOURCE_PACT_CHANGED:    'resourcePactChanged',         // T208: pact proposed / season exchange / cancelled / completed
+  SUPPLY_LINE_CHANGED:      'supplyLineChanged',           // T209: supply outpost established
+  REPARATIONS_DEMANDED:     'reparationsDemanded',         // T210: war reparations demanded (paid or refused)
 });

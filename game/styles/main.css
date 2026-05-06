@@ -6260,6 +6260,19 @@ kbd {
 
 /* ── Border Skirmish (T088) ──────────────────────────────────────────────── */
 
+/* ── T210: Righteous Anger banner ──────────────────────────────────────────── */
+.dipl-angry-banner {
+  border: 1px solid rgba(239,68,68,0.4);
+  border-left: 3px solid #ef4444;
+  border-radius: 6px;
+  padding: 8px 14px;
+  margin-bottom: 10px;
+  background: rgba(239,68,68,0.07);
+  font-size: 12px;
+  color: #fca5a5;
+}
+.dipl-angry-sub { font-size: 10px; color: var(--text-muted); margin-left: 6px; }
+
 .skirmish-banner {
   border: 1px solid rgba(252, 129, 74, 0.4);
   border-left: 3px solid #fc814a;
@@ -8169,6 +8182,54 @@ kbd {
 }
 .btn--city-found:hover:not(:disabled) { background: rgba(240,180,41,0.25); }
 .btn--city-found:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ── T209: Supply Outpost (improvement picker section) ───────────────────── */
+.imp-outpost-section {
+  background: rgba(16,185,129,0.07);
+  border: 1px solid rgba(16,185,129,0.3);
+  border-radius: var(--radius);
+  padding: 8px 10px;
+  margin-top: 8px;
+}
+.imp-outpost-header { font-size: 11px; font-weight: 600; color: #6ee7b7; margin-bottom: 3px; }
+.imp-outpost-desc   { font-size: 10px; color: var(--text-muted); margin-bottom: 4px; }
+.imp-outpost-built  { font-size: 11px; color: #6ee7b7; padding: 4px 0; }
+.btn--outpost {
+  margin-top: 6px;
+  background: rgba(16,185,129,0.12);
+  border: 1px solid rgba(16,185,129,0.5);
+  color: #6ee7b7;
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+.btn--outpost:hover:not(:disabled) { background: rgba(16,185,129,0.25); }
+.btn--outpost:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ── T210: War Reparations (diplomacy panel) ─────────────────────────────── */
+.dipl-reparations {
+  margin-top: 6px;
+  padding: 6px 8px;
+  background: rgba(245,158,11,0.07);
+  border: 1px solid rgba(245,158,11,0.3);
+  border-radius: var(--radius);
+  font-size: 11px;
+}
+.dipl-reparations__label { color: #fbbf24; font-weight: 600; margin-bottom: 3px; }
+.dipl-reparations__desc  { color: var(--text-muted); margin-bottom: 4px; }
+.btn--reparations {
+  background: rgba(245,158,11,0.12);
+  border: 1px solid rgba(245,158,11,0.4);
+  color: #fbbf24;
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+.btn--reparations:hover:not(:disabled) { background: rgba(245,158,11,0.25); }
+.btn--reparations:disabled { opacity: 0.4; cursor: not-allowed; }
+.dipl-reparations--demanded { color: var(--text-muted); font-style: italic; margin-top: 4px; }
 
 /* ── T122: Hero Companion ────────────────────────────────────────────────── */
 .companion-section {

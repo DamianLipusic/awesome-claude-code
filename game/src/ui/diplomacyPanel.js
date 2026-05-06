@@ -50,6 +50,10 @@ import {
   proposeResourcePact, cancelResourcePact, getActivePact, getResourcePactInfo,
   PACT_DEFINITIONS, PACT_SEASONS,
 } from '../systems/resourcePact.js'; // T208
+import {
+  demandReparations, canDemandReparations, isAngryBonusActive, getAngryBonusSecs,
+  REPARATIONS_PRESTIGE_COST, REPARATIONS_WAR_SCORE_MIN,
+} from '../systems/warReparations.js'; // T210
 import { fmtNum } from '../utils/fmt.js';
 
 const PANEL_ID = 'panel-diplomacy';
@@ -86,6 +90,7 @@ export function initDiplomacyPanel() {
   on(Events.ENVOY_ARRIVED,          () => _render(panel));  // T192
   on(Events.ENVOY_RECALLED,         () => _render(panel));  // T192
   on(Events.RESOURCE_PACT_CHANGED,  () => _render(panel));  // T208
+  on(Events.REPARATIONS_DEMANDED,   () => _render(panel));  // T210
   // Refresh cooldown countdown every second; also refresh ceasefire/gift/skirmish/aid timers when active
   on(Events.TICK, _throttle(() => {
     const cd = document.getElementById('espionage-cooldown');
@@ -109,7 +114,9 @@ export function initDiplomacyPanel() {
     const hasTribute  = state.tributes && Object.values(state.tributes.demanded ?? {}).some(t => t.paymentsLeft > 0);
     // T192: refresh while an envoy is travelling (progress bar updates)
     const hasEnvoy    = isEnvoyActive();
-    if (hasCeasefire || hasAllied || hasGiftCooldown || hasSkirmish || hasAidActivity || hasMission || hasCampaign || hasEmbargo || hasTribute || hasEnvoy) {
+    // T210: refresh while righteous anger countdown is active
+    const hasAngryBonus = isAngryBonusActive();
+    if (hasCeasefire || hasAllied || hasGiftCooldown || hasSkirmish || hasAidActivity || hasMission || hasCampaign || hasEmbargo || hasTribute || hasEnvoy || hasAngryBonus) {
       _render(panel);
     }
   }, 4));
@@ -134,6 +141,7 @@ function _render(panel) {
       </div>
     </div>
     ${_skirmishBanner()}
+    ${_angryBonusBanner()}
     ${_tradeNetworkBanner()}
     ${_summitSection()}
     <div class="dipl-empire-list">${cards}</div>
@@ -142,6 +150,18 @@ function _render(panel) {
     ${_pactSection()}
     ${_historySection()}
   `;
+}
+
+// ── T210: Righteous Anger banner ────────────────────────────────────────────
+
+function _angryBonusBanner() {
+  if (!isAngryBonusActive()) return '';
+  const secs = getAngryBonusSecs();
+  return `
+    <div class="dipl-angry-banner">
+      ⚔️ <strong>Righteous Anger</strong> — +10% attack power for ${secs}s
+      <span class="dipl-angry-sub">(Reparations refused)</span>
+    </div>`;
 }
 
 // ── T088: Border Skirmish banner ────────────────────────────────────────────
@@ -739,6 +759,21 @@ function _empireCard(emp) {
       title="Propose peace — costs ${PEACE_COST} gold">
       🕊️ Propose Peace (${fmtNum(PEACE_COST)}💰)
     </button>`);
+    // T210: Demand War Reparations
+    const repCheck   = canDemandReparations(emp.id);
+    const demanded   = !!(state.reparations?.demanded?.[emp.id]);
+    const repWs      = emp.warScore ?? 0;
+    if (demanded) {
+      btns.push(`<div class="dipl-reparations--demanded">💰 Reparations demanded this war</div>`);
+    } else if (repWs >= REPARATIONS_WAR_SCORE_MIN) {
+      btns.push(`<button
+        class="btn btn--reparations ${repCheck.ok ? '' : 'btn--disabled'}"
+        data-action="demand-reparations" data-empire="${emp.id}"
+        ${repCheck.ok ? '' : 'disabled'}
+        title="${repCheck.ok ? `Demand war reparations — costs ${REPARATIONS_PRESTIGE_COST} prestige` : repCheck.reason}">
+        💰 Demand Reparations (${REPARATIONS_PRESTIGE_COST}⭐)
+      </button>`);
+    }
     // T058: Demand Surrender when enough war score accumulated
     const ws = emp.warScore ?? 0;
     if (ws >= WAR_SCORE_THRESHOLD) {
@@ -1268,6 +1303,11 @@ function _onClick(e) {
     }
     case 'cancel-pact': {  // T208
       result = cancelResourcePact();
+      if (!result.ok) addMessageFallback(result.reason);
+      break;
+    }
+    case 'demand-reparations': {  // T210
+      result = demandReparations(empire);
       if (!result.ok) addMessageFallback(result.reason);
       break;
     }

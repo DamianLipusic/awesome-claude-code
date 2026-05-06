@@ -41,6 +41,7 @@ import { recordCapturedCapital } from './tributes.js';                          
 import { tryClaimSeasonalObjective } from './seasonalObjectives.js';                   // T170
 import { addWarExhaustion } from './warExhaustion.js';                                 // T175
 import { getFortificationNetworkBonus } from './fortificationNetwork.js';              // T183
+import { getSupplyPenalty } from './supplyLines.js';                                   // T209
 
 /** Returns true if both techs of a named synergy are researched. */
 function _synergy(id) {
@@ -358,6 +359,13 @@ export function getAttackPreview(x, y) {
   const surgeActive = (state.supplyDepot?.surgeExpiresAt ?? 0) > state.tick;
   if (surgeActive) attackPower += 15;
 
+  // T210: War Reparations righteous anger — +10% attack power when demand was refused
+  if ((state.reparations?.angryBonusUntil ?? 0) > state.tick) attackPower *= 1.10;
+
+  // T209: Supply line penalty — reduced attack when target is beyond supply range
+  const supplyPenalty = getSupplyPenalty(x, y);
+  if (supplyPenalty < 1.0) attackPower *= supplyPenalty;
+
   // T071: terrain combat modifiers
   const terrainMod = _terrainMod(tile.type);
   attackPower     *= terrainMod.attackMult;
@@ -435,6 +443,8 @@ export function getAttackPreview(x, y) {
     cohesionTier:  cohesion.tier,                                               // T184
     cohesionLabel: cohesion.label,                                              // T184
     legendaryCount: Object.entries(state.legendaryUnits ?? {}).filter(([id]) => (state.units[id] ?? 0) > 0).length, // T189
+    supplyPenalty,                                                              // T209
+    angryBonusActive: (state.reparations?.angryBonusUntil ?? 0) > state.tick, // T210
   };
 }
 
@@ -605,6 +615,17 @@ export function attackTile(x, y) {
 
   // T157: Supply Depot Surge Provisions — +15 flat attack while surge is active
   if ((state.supplyDepot?.surgeExpiresAt ?? 0) > state.tick) attackPower += 15;
+
+  // T210: War Reparations righteous anger — +10% attack power when demand was refused
+  if ((state.reparations?.angryBonusUntil ?? 0) > state.tick) attackPower *= 1.10;
+
+  // T209: Supply line penalty — reduced attack when target is beyond supply range
+  const _supplyPenalty = getSupplyPenalty(x, y);
+  if (_supplyPenalty < 1.0) {
+    attackPower *= _supplyPenalty;
+    const pctPenalty = Math.round((1 - _supplyPenalty) * 100);
+    addMessage(`⛺ Supply lines stretched — attack power reduced by ${pctPenalty}%!`, 'info');
+  }
 
   // T182: Combat Surge ability — flat bonus injected by attackTileWithSurge()
   if (_surgeActive && _surgeBonus > 0) {

@@ -124,6 +124,8 @@ import { initBattleStandard } from './systems/battleStandard.js';               
 import { initGovernors } from './systems/regionalGovernors.js';                                   // T206
 import { initScouts } from './systems/scoutMissions.js';                                          // T207
 import { initResourcePact } from './systems/resourcePact.js';                                     // T208
+import { initSupplyLines } from './systems/supplyLines.js';                                       // T209
+import { initReparations } from './systems/warReparations.js';                                    // T210
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
@@ -301,6 +303,8 @@ function boot() {
   initGovernors();             // T206: regional governors state init
   initScouts();                // T207: scout reconnaissance state init
   initResourcePact();          // T208: resource exchange pact state init + SEASON_CHANGED listener
+  initSupplyLines();           // T209: supply lines state init
+  initReparations();           // T210: war reparations state init + DIPLOMACY_CHANGED listener
   // T176: monument init deferred — only activates when building is constructed
 
   // Init UI
@@ -551,7 +555,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 74, // T207: scout reconnaissance; T208: resource exchange pact
+      version: 75, // T209: military supply lines; T210: war reparations
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -685,6 +689,8 @@ function _save() {
         governors:           state.governors           ?? null,  // T206
         scouts:              state.scouts              ?? null,  // T207
         resourcePact:        state.resourcePact        ?? null,  // T208
+        supplyLines:         state.supplyLines         ?? null,  // T209
+        reparations:         state.reparations         ?? null,  // T210
         tick:          state.tick,
       }
     }));
@@ -852,6 +858,8 @@ function _applySave(save) {
   state.governors            = s.governors            ?? null; // T206
   state.scouts               = s.scouts               ?? null; // T207
   state.resourcePact         = s.resourcePact         ?? null; // T208
+  state.supplyLines          = s.supplyLines          ?? null; // T209
+  state.reparations          = s.reparations          ?? null; // T210
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
@@ -1673,6 +1681,8 @@ function _newGame(opts = {}) {
   initGovernors();             // T206: reset governors on new game
   initScouts();                // T207: reset scout state on new game
   initResourcePact();          // T208: reset resource pact on new game
+  initSupplyLines();           // T209: reset supply lines on new game
+  initReparations();           // T210: reset war reparations on new game
   _updateCelestialBanner(); // T153: hide banner on new game
   recalcRates();
   startLoop();  // restart loop in case it was stopped by game-over

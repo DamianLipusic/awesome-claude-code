@@ -30,6 +30,7 @@ import { getCurrentWeather } from '../systems/weather.js'; // T149
 import { getCartographerSurvey, getCartographerSurveySecs } from '../systems/cartographersGuild.js'; // T179
 import { isInFortificationNetwork } from '../systems/fortificationNetwork.js'; // T183
 import { dispatchScouts, getScoutInfo, getScoutCooldownSecs, canDispatchScouts, SCOUT_COST } from '../systems/scoutMissions.js'; // T207
+import { establishOutpost, getOutpostAt, getOutpostCount, OUTPOST_COST, MAX_OUTPOSTS, OUTPOST_MIN_AGE, SUPPLY_RANGE, OUTPOST_RANGE } from '../systems/supplyLines.js'; // T209
 
 const TILE_PX   = 24;     // pixels per tile side
 const GRID_SIZE = 20;     // tiles per axis
@@ -735,6 +736,16 @@ function _drawTile(tile, x, y, capital) {
     ctx.textAlign = 'center';
   }
 
+  // T209: draw supply outpost indicator '⛺' in the bottom-right corner
+  if (tile.owner === 'player' && getOutpostAt(x, y)) {
+    ctx.font         = `8px sans-serif`;
+    ctx.textAlign    = 'right';
+    ctx.textBaseline = 'bottom';
+    ctx.fillText('⛺', px + TILE_PX - 1, py + TILE_PX - 1);
+    ctx.textAlign    = 'center';
+    ctx.textBaseline = 'middle';
+  }
+
   // T183: draw dashed azure inner border on tiles that are part of a fortification network
   if (tile.owner === 'player' && isInFortificationNetwork(x, y)) {
     ctx.save();
@@ -1413,6 +1424,13 @@ function _createImprovementPicker() {
       const result = foundCity(sx, sy);
       if (!result.ok) addMessage(`❌ ${result.reason}`, 'info');
     }
+    // T209: Establish supply outpost button
+    if (e.target.dataset.establishOutpost) {
+      const [sx, sy] = e.target.dataset.establishOutpost.split(',').map(Number);
+      _hideImprovementPicker();
+      const result = establishOutpost(sx, sy);
+      if (!result.ok) addMessage(`❌ ${result.reason}`, 'info');
+    }
     // T068: Withdraw garrison button
     if (e.target.dataset.withdrawGarrison) {
       const [sx, sy] = e.target.dataset.withdrawGarrison.split(',').map(Number);
@@ -1426,6 +1444,37 @@ function _createImprovementPicker() {
     if (_impPickerEl?.classList.contains('imp-picker--hidden')) return;
     if (e.key === 'Escape') { e.stopPropagation(); _hideImprovementPicker(); }
   });
+}
+
+function _outpostSection(x, y, tile) {
+  if (tile.type === 'capital') return '';
+
+  const isOutpost  = !!getOutpostAt(x, y);
+  if (isOutpost) {
+    return `<div class="imp-outpost-built">⛺ Supply Outpost — extends attack range by ${OUTPOST_RANGE} tiles</div>`;
+  }
+
+  const bronzeAge  = (state.age ?? 0) >= OUTPOST_MIN_AGE;
+  const atMax      = getOutpostCount() >= MAX_OUTPOSTS;
+  const canAfford  = (state.resources.gold ?? 0) >= OUTPOST_COST.gold
+                  && (state.resources.iron ?? 0) >= OUTPOST_COST.iron;
+  const disabled   = !bronzeAge || atMax || !canAfford;
+  const costClass  = canAfford ? 'imp-cost--ok' : 'imp-cost--bad';
+  const ageNote    = !bronzeAge ? '<span class="imp-note">🔒 Requires Bronze Age</span>' : '';
+  const maxNote    = atMax     ? `<span class="imp-note">Outpost limit (${MAX_OUTPOSTS}) reached</span>` : '';
+  const count      = getOutpostCount();
+
+  return `
+    <div class="imp-outpost-section">
+      <div class="imp-outpost-header">⛺ Supply Outpost — ${OUTPOST_COST.gold}💰 ${OUTPOST_COST.iron}⚙️ (${count}/${MAX_OUTPOSTS})</div>
+      <div class="imp-outpost-desc">Extends supply range by ${OUTPOST_RANGE} tiles. Tiles beyond range (${SUPPLY_RANGE} tiles) suffer up to −30% attack.</div>
+      <span class="${costClass}">${OUTPOST_COST.gold} gold · ${OUTPOST_COST.iron} iron</span>
+      ${ageNote}${maxNote}
+      <button class="btn btn--sm btn--outpost" data-establish-outpost="${x},${y}"
+        ${disabled ? 'disabled' : ''}>
+        ⛺ Build Outpost
+      </button>
+    </div>`;
 }
 
 function _citySection(x, y, tile) {
@@ -1521,6 +1570,7 @@ function _showImprovementPicker(x, y, tile) {
         ${fortifySection}
         ${garrisonSection}
         ${_citySection(x, y, tile)}
+        ${_outpostSection(x, y, tile)}
         <div class="imp-actions">
           <button id="imp-picker-cancel" class="btn btn--sm btn--ghost">Close</button>
         </div>
@@ -1535,6 +1585,7 @@ function _showImprovementPicker(x, y, tile) {
         ${fortifySection}
         ${garrisonSection}
         ${_citySection(x, y, tile)}
+        ${_outpostSection(x, y, tile)}
         <div class="imp-actions">
           <button id="imp-picker-cancel" class="btn btn--sm btn--ghost">Close</button>
         </div>
@@ -1570,6 +1621,7 @@ function _showImprovementPicker(x, y, tile) {
         ${fortifySection}
         ${garrisonSection}
         ${_citySection(x, y, tile)}
+        ${_outpostSection(x, y, tile)}
         <div class="imp-hint">Escape to cancel</div>
       </div>`;
   }
