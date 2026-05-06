@@ -54,6 +54,9 @@ import {
   demandReparations, canDemandReparations, isAngryBonusActive, getAngryBonusSecs,
   REPARATIONS_PRESTIGE_COST, REPARATIONS_WAR_SCORE_MIN,
 } from '../systems/warReparations.js'; // T210
+import {
+  getActiveCounteroffensives, getCounteroffensiveSecs,
+} from '../systems/counteroffensive.js'; // T212
 import { fmtNum } from '../utils/fmt.js';
 
 const PANEL_ID = 'panel-diplomacy';
@@ -91,6 +94,7 @@ export function initDiplomacyPanel() {
   on(Events.ENVOY_RECALLED,         () => _render(panel));  // T192
   on(Events.RESOURCE_PACT_CHANGED,  () => _render(panel));  // T208
   on(Events.REPARATIONS_DEMANDED,   () => _render(panel));  // T210
+  on(Events.COUNTEROFFENSIVE,       () => _render(panel));  // T212
   // Refresh cooldown countdown every second; also refresh ceasefire/gift/skirmish/aid timers when active
   on(Events.TICK, _throttle(() => {
     const cd = document.getElementById('espionage-cooldown');
@@ -140,6 +144,7 @@ function _render(panel) {
         War empires will raid your stores periodically.
       </div>
     </div>
+    ${_counteroffensiveBanner()}
     ${_skirmishBanner()}
     ${_angryBonusBanner()}
     ${_tradeNetworkBanner()}
@@ -153,6 +158,27 @@ function _render(panel) {
 }
 
 // ── T210: Righteous Anger banner ────────────────────────────────────────────
+
+// ── T212: Counteroffensive warning banner ───────────────────────────────────
+
+function _counteroffensiveBanner() {
+  const active = getActiveCounteroffensives();
+  if (active.length === 0) return '';
+  const items = active.map(({ factionId, expiresAt }) => {
+    const def = EMPIRES[factionId] ?? null;
+    const name = def ? `${def.icon} ${def.name}` : factionId;
+    const secs = getCounteroffensiveSecs(factionId);
+    return `<div class="dipl-coff-banner__item">
+      <span class="dipl-coff-faction">${name}</span>
+      — 3× expansion, +40% attack chance for ${secs}s
+    </div>`;
+  }).join('');
+  return `
+    <div class="dipl-coff-banner">
+      ⚠️ <strong>Enemy Counteroffensive!</strong><br>
+      ${items}
+    </div>`;
+}
 
 function _angryBonusBanner() {
   if (!isAngryBonusActive()) return '';

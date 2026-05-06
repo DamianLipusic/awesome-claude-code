@@ -16,6 +16,7 @@ import { addMessage } from '../core/actions.js';
 import { recalcRates } from './resources.js';
 import { EMPIRES } from '../data/empires.js';
 import { TICKS_PER_SECOND } from '../core/tick.js';
+import { changeReputation } from './reputation.js'; // T211
 
 const AI_MIN_INTERVAL  = 60  * TICKS_PER_SECOND;   // 240 ticks  (~60 s)
 const AI_MAX_INTERVAL  = 120 * TICKS_PER_SECOND;   // 480 ticks  (~120 s)
@@ -221,6 +222,7 @@ export function proposeAlliance(empireId) {
   emp.relations = 'allied';
   const def = EMPIRES[empireId];
   recalcRates();
+  changeReputation(+5, 'alliance forged'); // T211
   emit(Events.DIPLOMACY_CHANGED, { empireId, relations: 'allied' });
   emit(Events.RESOURCE_CHANGED, {});
   _logDiplomacy(empireId, 'alliance', `Alliance forged with ${def.name}`);
@@ -300,6 +302,7 @@ export function declareWar(empireId) {
   emp.nextWarRaidTick = state.tick + WAR_RAID_MIN;
   const def = EMPIRES[empireId];
   recalcRates();
+  changeReputation(-10, 'war declared'); // T211
   emit(Events.DIPLOMACY_CHANGED, { empireId, relations: 'war' });
   if (wasAllied) emit(Events.RESOURCE_CHANGED, {});
   _logDiplomacy(empireId, 'war', `You declared war on ${def.name}`);
@@ -320,6 +323,7 @@ export function proposePeace(empireId) {
   emp.relations = 'neutral';
   const def = EMPIRES[empireId];
   recalcRates();
+  changeReputation(+8, 'peace treaty signed'); // T211
   emit(Events.DIPLOMACY_CHANGED, { empireId, relations: 'neutral' });
   emit(Events.RESOURCE_CHANGED, {});
   _logDiplomacy(empireId, 'peace', `Peace treaty signed with ${def.name}`);
@@ -443,6 +447,7 @@ export function sendGift(empireId, size = 'small') {
   const def = EMPIRES[empireId];
   state.resources.gold -= cost;
   emp.playerGiftCooldownUntil = state.tick + PLAYER_GIFT_COOLDOWN_TICKS;
+  changeReputation(+3, 'gift sent'); // T211
 
   if (emp.relations === 'neutral') {
     if (Math.random() < chance) {
@@ -925,6 +930,7 @@ function _warRaid(emp) {
   // T067: suppress raid during ceasefire
   if (emp.ceasefireTick > state.tick) return;
   if (Math.random() >= 0.5) return;  // 50% chance each check
+  changeReputation(-3, 'war raid suffered'); // T211: enemy raids erode honor
   const def     = EMPIRES[emp.id];
   // T159: trade embargo reduces raid loot by 30%
   const raidMult = (emp.embargoUntil ?? 0) > state.tick ? 0.70 : 1.0;

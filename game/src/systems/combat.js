@@ -42,6 +42,7 @@ import { tryClaimSeasonalObjective } from './seasonalObjectives.js';            
 import { addWarExhaustion } from './warExhaustion.js';                                 // T175
 import { getFortificationNetworkBonus } from './fortificationNetwork.js';              // T183
 import { getSupplyPenalty } from './supplyLines.js';                                   // T209
+import { recordFactionCapture } from './counteroffensive.js';                          // T212
 
 /** Returns true if both techs of a named synergy are researched. */
 function _synergy(id) {
@@ -885,6 +886,9 @@ function _victory(tile, x, y, attackPower, defense) {
       emit(Events.DIPLOMACY_CHANGED, { empireId: warEmp.id });
     }
   }
+
+  // T212: record faction capture for counteroffensive tracking
+  if (prevFaction) recordFactionCapture(prevFaction);
 
   // T142: count this win towards any active alliance mission
   trackMissionBattleWin();

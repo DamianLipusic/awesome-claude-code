@@ -126,6 +126,8 @@ import { initScouts } from './systems/scoutMissions.js';                        
 import { initResourcePact } from './systems/resourcePact.js';                                     // T208
 import { initSupplyLines } from './systems/supplyLines.js';                                       // T209
 import { initReparations } from './systems/warReparations.js';                                    // T210
+import { initReputation } from './systems/reputation.js';                                         // T211
+import { initCounteroffensive, counteroffensiveTick } from './systems/counteroffensive.js';       // T212
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
@@ -225,6 +227,7 @@ function boot() {
   registerSystem(epicQuestsTick);     // T202: epic quest chain progress check
   registerSystem(corruptionTick);     // T203: corruption growth check
   registerSystem(arenaTick);          // T204: grand arena event spawn/expire
+  registerSystem(counteroffensiveTick); // T212: prune expired counteroffensives
 
   // Init event-driven systems
   initRandomEvents();
@@ -305,6 +308,8 @@ function boot() {
   initResourcePact();          // T208: resource exchange pact state init + SEASON_CHANGED listener
   initSupplyLines();           // T209: supply lines state init
   initReparations();           // T210: war reparations state init + DIPLOMACY_CHANGED listener
+  initReputation();            // T211: reputation system state init
+  initCounteroffensive();      // T212: counteroffensive tracking state init
   // T176: monument init deferred — only activates when building is constructed
 
   // Init UI
@@ -391,6 +396,10 @@ function boot() {
   // T101: Update streak badge on streak changes
   _updateStreakBadge();
   on(Events.STREAK_CHANGED, _updateStreakBadge);
+
+  // T211: Reputation badge — update on rep changes
+  _updateRepBadge();
+  on(Events.REPUTATION_CHANGED, _updateRepBadge);
 
   // T175: Update exhaustion badge on exhaustion changes
   _updateExhaustionBadge();
@@ -691,6 +700,8 @@ function _save() {
         resourcePact:        state.resourcePact        ?? null,  // T208
         supplyLines:         state.supplyLines         ?? null,  // T209
         reparations:         state.reparations         ?? null,  // T210
+        reputation:          state.reputation          ?? null,  // T211
+        counteroffensives:   state.counteroffensives   ?? null,  // T212
         tick:          state.tick,
       }
     }));
@@ -860,6 +871,8 @@ function _applySave(save) {
   state.resourcePact         = s.resourcePact         ?? null; // T208
   state.supplyLines          = s.supplyLines          ?? null; // T209
   state.reparations          = s.reparations          ?? null; // T210
+  state.reputation           = s.reputation           ?? null; // T211
+  state.counteroffensives    = s.counteroffensives    ?? null; // T212
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
@@ -1318,6 +1331,27 @@ function _updateStreakBadge() {
   el.style.display = '';
 }
 
+// ── Reputation badge (T211) ─────────────────────────────────────────────
+
+function _updateRepBadge() {
+  const el = document.getElementById('rep-badge');
+  if (!el) return;
+  const score = state.reputation?.score ?? 50;
+  if (score >= 70) {
+    el.textContent = `⭐ Noble ${score}`;
+    el.className = 'rep-badge rep-badge--noble';
+    el.title = `Imperial Reputation: Noble (${score}/100) — +8% market sell prices`;
+    el.style.display = '';
+  } else if (score <= 30) {
+    el.textContent = `☠️ Feared ${score}`;
+    el.className = 'rep-badge rep-badge--feared';
+    el.title = `Imperial Reputation: Feared (${score}/100) — +15% raid loot, faster barbarian spawns`;
+    el.style.display = '';
+  } else {
+    el.style.display = 'none';
+  }
+}
+
 // ── Title badge (T105) ───────────────────────────────────────────────────
 
 let _lastTitleLevel = 0;
@@ -1683,6 +1717,8 @@ function _newGame(opts = {}) {
   initResourcePact();          // T208: reset resource pact on new game
   initSupplyLines();           // T209: reset supply lines on new game
   initReparations();           // T210: reset war reparations on new game
+  initReputation();            // T211: reset reputation on new game
+  initCounteroffensive();      // T212: reset counteroffensives on new game
   _updateCelestialBanner(); // T153: hide banner on new game
   recalcRates();
   startLoop();  // restart loop in case it was stopped by game-over
@@ -1705,6 +1741,7 @@ function _newGame(opts = {}) {
   _updatePrestigeBadge();
   _updateSiegeBadge();
   _updateStreakBadge();
+  _updateRepBadge();        // T211: reset rep badge on new game
   _lastTitleLevel = 0;
   _updateTitleBadge();
 }

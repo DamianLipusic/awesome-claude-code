@@ -3795,3 +3795,65 @@ Modified files:
       import+init+save/load initSupplyLines+initReparations; version 74→75
   ~ game/styles/main.css
       T209 outpost styles + T210 reparations/angry-banner styles
+
+---
+
+## 2026-05-06 — Session N+49
+
+**Tasks completed:** T211, T212
+
+**Summary:**
+All prior tasks (T001–T210) were complete. Created T211+T212 task specs then implemented two Phase 84 features: Imperial Reputation System (T211) and Dynamic Enemy Counteroffensive (T212).
+
+**T211 — Imperial Reputation System:**
+- `src/systems/reputation.js`: New file. `NOBLE_THRESHOLD=70`, `FEARED_THRESHOLD=30`, `MAX_HISTORY=10`. `initReputation()` lazy-creates `state.reputation={score:50,history:[]}`. `getReputationTier()` returns `'noble'|'feared'|'neutral'`. `changeReputation(delta, reason)` clamps 0-100, records history (newest-first, max 10), emits `REPUTATION_CHANGED`. Helper exports: `getReputationSellBonus()` (+8% when noble), `getReputationRaidBonus()` (+15% when feared), `getReputationSpawnMult()` (0.75 when feared = 25% faster spawns).
+- `src/core/state.js`: `reputation:null` field in state object; `state.reputation=null` reset in `initState()`.
+- `src/core/events.js`: `REPUTATION_CHANGED:'reputationChanged'` added.
+- `src/systems/market.js`: Import `getReputationSellBonus`; T211 Noble sell bonus block applied in `sellResources()` after T195 vizier bonus.
+- `src/systems/barbarianCamps.js`: Import `getReputationSpawnMult`; Feared spawn rate applied — `nextSpawnTick *= spawnMult` in `barbarianTick()` spawn schedule.
+- `src/systems/diplomacy.js`: Import `changeReputation`; calls: `+5` on `proposeAlliance`, `-10` on `declareWar`, `+8` on `proposePeace`, `+3` on `sendGift`, `-3` on `_warRaid` (when raid fires).
+- `index.html`: `<span id="rep-badge">` added to HUD title bar after streak-badge.
+- `src/main.js`: Import `initReputation`; `registerSystem` not needed (event-driven only); `initReputation()` in `boot()`+`_newGame()`; `reputation` saved/loaded; `_updateRepBadge()` function renders Noble/Feared tier badge; wired on `REPUTATION_CHANGED` event and called in `_newGame()`.
+- `styles/main.css`: `.rep-badge`, `.rep-badge--noble` (gold), `.rep-badge--feared` (red).
+
+**T212 — Dynamic Enemy Counteroffensive:**
+- `src/systems/counteroffensive.js`: New file. `CAPTURE_WINDOW=480 ticks` (2 min), `CAPTURE_THRESHOLD=3`, `COUNTEROFFENSIVE_TICKS=1920 ticks` (8 min), `COFF_EXPAND_MULT=3`, `COFF_ATTACK_MULT=1.4`. `initCounteroffensive()` lazy-creates `state.counteroffensives={recentCaptures:{},active:{},totalLaunched:0}`. `recordFactionCapture(factionId)` prunes old entries, pushes new entry; if count≥3 and faction not already in counteroffensive: sets `active[factionId]={expiresAt,launchedAt}`, clears recentCaptures, increments totalLaunched, shows warning message, emits `COUNTEROFFENSIVE`. `getActiveCounteroffensives()` returns array of active entries. `getCounteroffensiveMultipliers(factionId)` returns `{expandMult,attackMult}` or `{1,1}` if inactive. `getCounteroffensiveSecs(factionId)` countdown helper. `counteroffensiveTick()` prunes expired entries and emits `COUNTEROFFENSIVE` with `{expired:true}`.
+- `src/core/state.js`: `counteroffensives:null` field + `initState()` reset.
+- `src/core/events.js`: `COUNTEROFFENSIVE:'counteroffensive'` added.
+- `src/systems/combat.js`: Import `recordFactionCapture`; `_victory()` calls `recordFactionCapture(prevFaction)` when `prevFaction` is set (tile was owned by an AI faction).
+- `src/systems/enemyAI.js`: Import `getCounteroffensiveMultipliers`; `_expandEnemies()` now loops `expandCount` times (1× normal, 3× during counteroffensive) per expansion cycle; `_counterattack()` looks up attacking faction from neighboring tiles and multiplies `winChance` by `attackMult` (1.4× during counteroffensive).
+- `src/ui/diplomacyPanel.js`: Import `getActiveCounteroffensives`, `getCounteroffensiveSecs`; `on(COUNTEROFFENSIVE)` → `_render`; `_counteroffensiveBanner()` renders orange warning panel listing active faction counteroffensives with countdown; prepended to `_render` HTML before skirmish banner.
+- `src/main.js`: Import `initCounteroffensive`, `counteroffensiveTick`; `registerSystem(counteroffensiveTick)`; `initCounteroffensive()` in `boot()`+`_newGame()`; `counteroffensives` saved/loaded.
+- `styles/main.css`: `.dipl-coff-banner` (orange left-border), `.dipl-coff-banner__item`, `.dipl-coff-faction`.
+
+**Architecture decisions:**
+- T211 reputation starts at 50 (neutral) so neither Noble nor Feared bonuses are active on a fresh game. Both tiers require sustained consistent behavior — 4 alliances for Noble, or 3+ wars with many raids for Feared. This creates meaningful long-term player identity choices without front-loading benefits.
+- T211 does NOT add a save version bump. The `reputation` field defaults to `null` in `_applySave`, and `initReputation()` creates it fresh — so old saves correctly start with a neutral score of 50.
+- T212 uses `prevFaction` (saved before tile.owner is cleared in `_victory()`) to correctly attribute the capture to the enemy faction even after the tile ownership changes. The 3× expansion multiplier applies per tile-source: a counteroffensive faction with 3 border tiles can now expand up to 9 tiles in one tick cycle instead of 1, making the threat genuinely escalating.
+- T212 does NOT add a save version bump — `counteroffensives` defaults to `null` with safe lazy init.
+
+**Files modified:**
+  + game/src/systems/reputation.js (new)
+  + game/src/systems/counteroffensive.js (new)
+  ~ game/src/core/state.js
+      reputation+counteroffensives fields; initState resets
+  ~ game/src/core/events.js
+      REPUTATION_CHANGED + COUNTEROFFENSIVE events added
+  ~ game/src/systems/market.js
+      import+apply getReputationSellBonus in sellResources
+  ~ game/src/systems/barbarianCamps.js
+      import+apply getReputationSpawnMult in spawn schedule
+  ~ game/src/systems/diplomacy.js
+      import changeReputation; 5 call sites (alliance/war/peace/gift/warRaid)
+  ~ game/src/systems/combat.js
+      import recordFactionCapture; call in _victory() on prevFaction
+  ~ game/src/systems/enemyAI.js
+      import getCounteroffensiveMultipliers; expand loop + attack winChance multiplier
+  ~ game/src/ui/diplomacyPanel.js
+      import counteroffensive exports; COUNTEROFFENSIVE listener; _counteroffensiveBanner()
+  ~ game/index.html
+      rep-badge span in HUD title bar
+  ~ game/src/main.js
+      import+init+save/load reputation+counteroffensive; _updateRepBadge(); registerSystem
+  ~ game/styles/main.css
+      T211 rep-badge styles + T212 counteroffensive banner styles

@@ -29,6 +29,7 @@ import { BOONS } from '../data/ageBoons.js';
 import { SYNERGIES } from '../data/techs.js';
 import { clearInfluence } from './influence.js'; // T145
 import { getFortificationNetworkBonus } from './fortificationNetwork.js'; // T183
+import { getCounteroffensiveMultipliers } from './counteroffensive.js';    // T212
 
 // ── Timing constants ───────────────────────────────────────────────────────
 
@@ -95,17 +96,27 @@ function _expandEnemies() {
 
     if (expandable.length === 0) continue;
 
-    const { nx, ny } = expandable[Math.floor(Math.random() * expandable.length)];
-    // T056: clear barbarian camp metadata if the target was a camp
-    if (tiles[ny][nx].owner === 'barbarian') clearBarbarianCamp(tiles[ny][nx]);
-    // T104: clear any resource node on the tile being claimed
-    clearResourceNode(nx, ny);
-    // T145: clear cultural influence when enemy expands into neutral tile
-    clearInfluence(nx, ny);
-    tiles[ny][nx].owner   = 'enemy';
-    tiles[ny][nx].faction = tiles[y][x].faction ?? null;  // T053: inherit parent faction
-    emit(Events.MAP_CHANGED, {});
-    return; // one expansion per interval
+    // T212: counteroffensive — active faction gets extra expansions this cycle
+    const faction = tiles[y][x].faction ?? null;
+    const { expandMult } = faction ? getCounteroffensiveMultipliers(faction) : { expandMult: 1 };
+    const expandCount = Math.max(1, expandMult);
+
+    let expanded = 0;
+    while (expanded < expandCount && expandable.length > 0) {
+      const idx = Math.floor(Math.random() * expandable.length);
+      const { nx, ny } = expandable.splice(idx, 1)[0];
+      // T056: clear barbarian camp metadata if the target was a camp
+      if (tiles[ny][nx].owner === 'barbarian') clearBarbarianCamp(tiles[ny][nx]);
+      // T104: clear any resource node on the tile being claimed
+      clearResourceNode(nx, ny);
+      // T145: clear cultural influence when enemy expands into neutral tile
+      clearInfluence(nx, ny);
+      tiles[ny][nx].owner   = 'enemy';
+      tiles[ny][nx].faction = tiles[y][x].faction ?? null;  // T053: inherit parent faction
+      emit(Events.MAP_CHANGED, {});
+      expanded++;
+    }
+    return; // one expansion cycle per tile (may expand multiple tiles if counteroffensive)
   }
 }
 
@@ -182,6 +193,22 @@ function _counterattack() {
   if (state.forge?.crafted?.ironwood_shield) winChance *= 0.80;
   // T131: Iron Will proclamation — -20% enemy counterattack success
   if (state.proclamation?.activeId === 'iron_will') winChance *= 0.80;
+  // T212: active counteroffensive from the attacking faction — +40% win chance
+  {
+    let attackingFaction = null;
+    for (const [dx, dy] of DIRS) {
+      const nx = target.x + dx;
+      const ny = target.y + dy;
+      if (_inBounds(nx, ny) && tiles[ny][nx].owner === 'enemy' && tiles[ny][nx].faction) {
+        attackingFaction = tiles[ny][nx].faction;
+        break;
+      }
+    }
+    if (attackingFaction) {
+      const { attackMult } = getCounteroffensiveMultipliers(attackingFaction);
+      winChance *= attackMult;
+    }
+  }
   winChance = Math.min(0.9, winChance);
   const roll = Math.random();
 

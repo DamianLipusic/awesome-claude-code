@@ -28,6 +28,7 @@ import { MAP_W, MAP_H } from './map.js';
 import { TICKS_PER_SECOND } from '../core/tick.js';
 import { UNITS } from '../data/units.js';
 import { changeMorale } from './morale.js';
+import { getReputationSpawnMult } from './reputation.js'; // T211
 
 // ── Camp constants ─────────────────────────────────────────────────────────
 
@@ -98,7 +99,8 @@ export function barbarianTick() {
   if (state.tick >= state.barbarians.nextSpawnTick) {
     if (campCount < MAX_CAMPS) _spawnCamp(tiles);
     const range = SPAWN_MAX - SPAWN_MIN;
-    state.barbarians.nextSpawnTick = state.tick + SPAWN_MIN + Math.floor(Math.random() * range);
+    const spawnMult = getReputationSpawnMult(); // T211: Feared tier reduces spawn interval
+    state.barbarians.nextSpawnTick = state.tick + Math.round((SPAWN_MIN + Math.floor(Math.random() * range)) * spawnMult);
     // Recount after potential spawn
     campCount = 0;
     for (let y = 0; y < MAP_H; y++)

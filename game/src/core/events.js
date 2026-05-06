@@ -178,4 +178,6 @@ export const Events = Object.freeze({
   RESOURCE_PACT_CHANGED:    'resourcePactChanged',         // T208: pact proposed / season exchange / cancelled / completed
   SUPPLY_LINE_CHANGED:      'supplyLineChanged',           // T209: supply outpost established
   REPARATIONS_DEMANDED:     'reparationsDemanded',         // T210: war reparations demanded (paid or refused)
+  REPUTATION_CHANGED:       'reputationChanged',           // T211: reputation score changed
+  COUNTEROFFENSIVE:         'counteroffensive',            // T212: faction counteroffensive launched
 });

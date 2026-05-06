@@ -562,6 +562,16 @@ export const state = {
   // T210: War Reparations — demand gold from an empire after sustained combat success
   // { demanded: { [empireId]: true }, angryBonusUntil: tick, totalReceived: number } | null
   reparations: null,
+
+  // T211: Imperial Reputation — 0-100 honor/fear score
+  // { score: number, history: [{tick,delta,reason}] } | null
+  reputation: null,
+
+  // T212: Dynamic Enemy Counteroffensive — faction retaliation for rapid tile captures
+  // { recentCaptures: { [factionId]: [{tick}] },
+  //   active: { [factionId]: { expiresAt, launchedAt } },
+  //   totalLaunched: number } | null
+  counteroffensives: null,
 };
 
 /**
@@ -695,5 +705,7 @@ export function initState(empireName = 'My Empire') {
   state.resourcePact         = null; // T208: reset resource pact per game
   state.supplyLines          = null; // T209: reset supply lines per game
   state.reparations          = null; // T210: reset war reparations per game
+  state.reputation           = null; // T211: reset reputation per game
+  state.counteroffensives    = null; // T212: reset counteroffensives per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }
