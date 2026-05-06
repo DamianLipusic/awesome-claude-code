@@ -131,6 +131,8 @@ import { initCounteroffensive, counteroffensiveTick } from './systems/counteroff
 import { initRoyalHunt, huntTick } from './systems/royalHunt.js';                                  // T214
 import { initCodex } from './systems/imperialCodex.js';                                            // T215
 import { initLegendary, legendaryTick } from './systems/legendaryEncounters.js';                   // T216
+import { initRefugees, refugeeTick, acceptRefugees, integrateRefugees, declineRefugees, getRefugeeSecsLeft, INTEGRATE_GOLD, INTEGRATE_FOOD } from './systems/refugeeCrisis.js'; // T217
+import { initSilkRoad, silkRoadTick } from './systems/silkRoad.js';                               // T218
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
@@ -233,6 +235,8 @@ function boot() {
   registerSystem(counteroffensiveTick); // T212: prune expired counteroffensives
   registerSystem(huntTick);             // T214: royal hunt spawn/resolve
   registerSystem(legendaryTick);        // T216: legendary encounter spawn/expiry
+  registerSystem(refugeeTick);          // T217: refugee crisis spawn/expiry
+  registerSystem(silkRoadTick);         // T218: silk road window lifecycle
 
   // Init event-driven systems
   initRandomEvents();
@@ -318,6 +322,8 @@ function boot() {
   initRoyalHunt();             // T214: royal hunt state init
   initCodex();               // T215: imperial codex state init
   initLegendary();           // T216: legendary encounters state init
+  initRefugees();            // T217: refugee crisis state init
+  initSilkRoad();            // T218: silk road state init
   // T176: monument init deferred — only activates when building is constructed
 
   // Init UI
@@ -495,6 +501,13 @@ function boot() {
   on(Events.RESOURCE_CHANGED,  _updateNobleBanner);
   let _nobleBannerTick = 0;
   on(Events.TICK, () => { if (++_nobleBannerTick % 4 === 0) _updateNobleBanner(); });
+
+  // T217: Refugee crisis banner — update on crisis events and countdown tick
+  _updateRefugeeBanner();
+  on(Events.REFUGEE_CRISIS,    _updateRefugeeBanner);
+  on(Events.RESOURCE_CHANGED,  _updateRefugeeBanner);
+  let _refugeeBannerTick = 0;
+  on(Events.TICK, () => { if (++_refugeeBannerTick % 4 === 0) _updateRefugeeBanner(); });
 
   // T152: Update succession countdown every tick while pending
   let _successionTickCount = 0;
@@ -713,6 +726,8 @@ function _save() {
         royalHunt:           state.royalHunt           ?? null,  // T214
         codex:               state.codex               ?? null,  // T215
         legendary:           state.legendary           ?? null,  // T216
+        refugees:            state.refugees            ?? null,  // T217
+        silkRoad:            state.silkRoad            ?? null,  // T218
         tick:          state.tick,
       }
     }));
@@ -887,6 +902,8 @@ function _applySave(save) {
   state.royalHunt            = s.royalHunt            ?? null; // T214
   state.codex                = s.codex                ?? null; // T215
   state.legendary            = s.legendary            ?? null; // T216
+  state.refugees             = s.refugees             ?? null; // T217
+  state.silkRoad             = s.silkRoad             ?? null; // T218
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
@@ -1107,6 +1124,51 @@ function _updateNobleBanner() {
         Satisfy
       </button>
       <button class="btn btn--sm btn--noble-refuse" id="btn-noble-refuse">Refuse</button>
+    </div>`;
+  banner.style.display = 'flex';
+}
+
+// ── Refugee Crisis banner (T217) ─────────────────────────────────────────
+
+function _updateRefugeeBanner() {
+  const banner = document.getElementById('refugee-banner');
+  if (!banner) return;
+
+  const crisis = state.refugees?.current;
+  if (!crisis) {
+    banner.style.display = 'none';
+    banner.innerHTML = '';
+    return;
+  }
+
+  const secsLeft = getRefugeeSecsLeft();
+  const timeStr  = secsLeft >= 60
+    ? `${Math.floor(secsLeft / 60)}m ${String(secsLeft % 60).padStart(2, '0')}s`
+    : `${secsLeft}s`;
+
+  const gold = Math.floor(state.resources.gold ?? 0);
+  const food = Math.floor(state.resources.food ?? 0);
+  const canIntegrate = gold >= INTEGRATE_GOLD && food >= INTEGRATE_FOOD;
+
+  banner.innerHTML = `
+    <div class="refugee-banner__icon">🏚️</div>
+    <div class="refugee-banner__body">
+      <div class="refugee-banner__title">Refugee Crisis — ${crisis.count} displaced from ${crisis.sourceName}</div>
+      <div class="refugee-banner__desc">
+        Accept (free · +${crisis.count} pop · food strained 2 min) ·
+        Integrate (💰${INTEGRATE_GOLD} + 🍞${INTEGRATE_FOOD} · +0.15 ${crisis.integrateBonus}/s permanently) ·
+        Decline (displeases ${crisis.sourceName})
+      </div>
+    </div>
+    <div class="refugee-banner__actions">
+      <div class="refugee-banner__timer">Expires in ${timeStr}</div>
+      <button class="btn btn--sm btn--refugee-accept" id="btn-refugee-accept">Accept</button>
+      <button class="btn btn--sm btn--refugee-integrate ${canIntegrate ? '' : 'btn--disabled'}"
+        id="btn-refugee-integrate" ${canIntegrate ? '' : 'disabled'}
+        title="${canIntegrate ? 'Integrate for permanent bonus' : `Need ${INTEGRATE_GOLD}g + ${INTEGRATE_FOOD} food`}">
+        Integrate
+      </button>
+      <button class="btn btn--sm btn--refugee-decline" id="btn-refugee-decline">Decline</button>
     </div>`;
   banner.style.display = 'flex';
 }
@@ -1736,7 +1798,10 @@ function _newGame(opts = {}) {
   initRoyalHunt();             // T214: reset royal hunt on new game
   initCodex();               // T215: reset imperial codex on new game
   initLegendary();           // T216: reset legendary encounters on new game
+  initRefugees();            // T217: reset refugee crisis on new game
+  initSilkRoad();            // T218: reset silk road on new game
   _updateCelestialBanner(); // T153: hide banner on new game
+  _updateRefugeeBanner();   // T217: hide refugee banner on new game
   recalcRates();
   startLoop();  // restart loop in case it was stopped by game-over
   _syncPauseUI();  // ensure pause overlay is hidden on new game
@@ -1852,6 +1917,20 @@ function _bindControls() {
       refuseDemand();
       _updateNobleBanner();
     }
+  });
+
+  // T217: Refugee crisis banner — accept / integrate / decline buttons
+  document.getElementById('refugee-banner')?.addEventListener('click', (e) => {
+    let result;
+    if (e.target.closest('#btn-refugee-accept')) {
+      result = acceptRefugees();
+    } else if (e.target.closest('#btn-refugee-integrate')) {
+      result = integrateRefugees();
+    } else if (e.target.closest('#btn-refugee-decline')) {
+      result = declineRefugees();
+    }
+    if (result && !result.ok && result.reason) addMessage(`🏚️ ${result.reason}`, 'info');
+    _updateRefugeeBanner();
   });
 
   _bindKeyboard();

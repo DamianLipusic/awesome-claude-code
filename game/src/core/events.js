@@ -183,4 +183,6 @@ export const Events = Object.freeze({
   HUNT_CHANGED:             'huntChanged',                 // T214: royal hunt spawned / launched / resolved / expired
   CODEX_MILESTONE:          'codexMilestone',              // T215: imperial codex fragment count updated / milestone reached
   LEGENDARY_CHANGED:        'legendaryChanged',            // T216: legendary creature spawned / defeated / expired
+  REFUGEE_CRISIS:           'refugeeCrisis',               // T217: refugee crisis spawned / accepted / integrated / declined / expired
+  SILK_ROAD_CHANGED:        'silkRoadChanged',             // T218: silk road window opened / purchased / closed
 });

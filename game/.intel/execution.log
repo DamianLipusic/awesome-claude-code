@@ -3926,3 +3926,29 @@ All prior tasks (T001–T210) were complete. Created T211+T212 task specs then i
       import+register+init+save/load huntTick+initRoyalHunt
   ~ game/styles/main.css
       T213 locked mission styles; T214 hunt-section + btn--hunt styles
+
+---
+
+## 2026-05-06 — Session N+54
+
+**Tasks completed:** T217, T218
+
+**Summary:**
+All prior tasks (T001–T216) were complete. Created T217+T218 task specs then implemented two new Phase 87 features: Refugee Crisis System (T217) and Silk Road Trade Window (T218).
+
+**T217 — Refugee Crisis System:**
+- `src/systems/refugeeCrisis.js`: New file. FACTION_NAMES map (ironHorde/mageCouncil/seaWolves). INTEGRATE_GOLD=80, INTEGRATE_FOOD=60, SKILL_BONUS_RATE=0.15, FOOD_DEBUFF_RATE=0.4. initRefugees() idempotent init. refugeeTick() spawns crises every 12–18 min (first>=14 min, Bronze Age+) and expires after 90s. _spawnCrisis() picks random faction, count 25–50, bonus resource. acceptRefugees() adds population (capped to pop.cap), sets debuffUntil for 2-min food penalty. integrateRefugees() checks gold+food cost, adds population, increments skillBonus[bonus] +0.15, awards 20 prestige. declineRefugees() adds +5 warScore to source faction. getRefugeeSecsLeft(), getActiveCrisisRef() helpers.
+- `src/core/events.js`: Added REFUGEE_CRISIS event.
+- `src/core/state.js`: Added refugees:null field definition + initState() reset.
+- `src/systems/resources.js`: T217 block after codex block — applies refugees.skillBonus per resource to rates; applies −0.4 food/s debuff when refugees.debuffUntil > state.tick.
+- `src/main.js`: Import initRefugees/refugeeTick/acceptRefugees/integrateRefugees/declineRefugees/getRefugeeSecsLeft/INTEGRATE_GOLD/INTEGRATE_FOOD. registerSystem(refugeeTick). initRefugees() in boot. Save/load refugees field. _updateRefugeeBanner() renders 3-button banner (Accept/Integrate/Decline) with countdown timer and integrate affordability check. Wired to REFUGEE_CRISIS+RESOURCE_CHANGED+TICK events. Click handler on refugee-banner div.
+- `game/index.html`: Added refugee-banner div after noble-banner.
+- `styles/main.css`: .refugee-banner, .__icon/body/title/desc/actions/timer subclasses, .btn--refugee-accept/integrate/decline.
+
+**T218 — Silk Road Trade Window:**
+- `src/systems/silkRoad.js`: New file. ALL_GOODS pool of 10 exotic items. initSilkRoad() idempotent init. silkRoadTick() opens windows every 20–25 min (first>=20 min, Iron Age+) for 3 minutes. _openWindow() samples 4 random goods from pool. _closeWindow() logs departure. buySilkRoadGood(goodId) validates affordability+purchase limit (max 2), deducts gold, calls _applyGood(). _applyGood() switch covers: fine_silks (+30 morale+20 prestige), ancient_maps (reveal 8 tiles via _revealTiles), eastern_herbs (+80 food+plague immuneUntil), rare_spices (+70 food+5 morale), iron_ingots (+100 iron), jade_figurines (+0.15 permanentGoldRate), crystal_lens (+60 mana+35 prestige), war_provisions (+60 iron+40 food), philosophers_tome (+60 prestige+5 codex fragments), silk_banner (+35 morale+20 prestige). Helpers: isSilkRoadOpen, getSilkRoadSecsLeft, getSilkRoadGoods, getSilkRoadBuysLeft, getSilkRoadNextSecs.
+- `src/core/events.js`: Added SILK_ROAD_CHANGED event.
+- `src/core/state.js`: Added silkRoad:null field definition + initState() reset.
+- `src/systems/resources.js`: T218 block adds silkRoad.permanentGoldRate to gold rate.
+- `src/ui/marketPanel.js`: Import buySilkRoadGood+helpers. on(SILK_ROAD_CHANGED, _render). TICK refresh when current active. _silkRoadSection() renders idle state (countdown + permanent bonus display) or 2-column goods grid with buy buttons (data-action=silk-road-buy, data-silk-good=id). Click handler dispatches to buySilkRoadGood().
+- `styles/main.css`: .silk-road-section/header/timer/subtitle/goods/good/good--purchased/good-name/good-desc/idle classes.

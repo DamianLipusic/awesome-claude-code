@@ -587,6 +587,17 @@ export const state = {
   // { current: { type, x, y, icon, name, boostedDefense, expiresAt } | null,
   //   nextSpawnTick: number, totalDefeated: number } | null
   legendary: null,
+
+  // T217: Refugee Crisis — periodic displaced persons event (Bronze Age+)
+  // { current: {count, sourceFactionId, sourceName, expiresAt, integrateCost, integrateBonus}|null,
+  //   nextCrisisTick, totalAccepted, totalIntegrated,
+  //   skillBonus: {gold,food,wood,stone,iron,mana}, debuffUntil } | null
+  refugees: null,
+
+  // T218: Silk Road Trade Window — periodic exotic goods market (Iron Age+)
+  // { current: {goods:[{id,icon,name,desc,cost,purchased}], expiresAt, boughtCount}|null,
+  //   nextWindowTick, totalPurchases, permanentGoldRate } | null
+  silkRoad: null,
 };
 
 /**
@@ -725,5 +736,7 @@ export function initState(empireName = 'My Empire') {
   state.royalHunt            = null; // T214: reset royal hunt per game
   state.codex                = null; // T215: reset codex per game
   state.legendary            = null; // T216: reset legendary encounters per game
+  state.refugees             = null; // T217: reset refugee crisis per game
+  state.silkRoad             = null; // T218: reset silk road per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

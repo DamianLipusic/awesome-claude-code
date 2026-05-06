@@ -687,6 +687,23 @@ export function recalcRates() {
     }
   }
 
+  // T217: Refugee Crisis — permanent skill bonus from integrated refugees
+  if (state.refugees?.skillBonus) {
+    for (const res of RESOURCE_KEYS) {
+      const bonus = state.refugees.skillBonus[res] ?? 0;
+      if (bonus > 0) rates[res] = (rates[res] ?? 0) + bonus;
+    }
+    // Temporary food-rate debuff while refugees are settling
+    if (state.refugees.debuffUntil > state.tick && rates.food > 0) {
+      rates.food = Math.max(0, rates.food - 0.4);
+    }
+  }
+
+  // T218: Silk Road — permanent gold rate from Jade Figurines
+  if ((state.silkRoad?.permanentGoldRate ?? 0) > 0) {
+    rates.gold = (rates.gold ?? 0) + state.silkRoad.permanentGoldRate;
+  }
+
   Object.assign(state.rates, rates);
   Object.assign(state.caps, caps);
 }

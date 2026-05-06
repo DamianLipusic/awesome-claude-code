@@ -17,6 +17,7 @@ import { EMPIRES } from '../data/empires.js'; // T190
 import { isMintActive, getMintInfo, performMintConversion, MINT_RATES, MINT_CONVERSION_MAX } from '../systems/imperialMint.js'; // T191
 import { isFairActive, getFairDeals, isDealUsed, useFairDeal, FAIR_PARTICIPATION_GOAL } from '../systems/tradeFair.js'; // T196
 import { getActiveTradeWind, getTradeWindHistory } from '../systems/tradeWinds.js'; // T198
+import { buySilkRoadGood, isSilkRoadOpen, getSilkRoadSecsLeft, getSilkRoadGoods, getSilkRoadBuysLeft, getSilkRoadNextSecs } from '../systems/silkRoad.js'; // T218
 import { fmtNum } from '../utils/fmt.js';
 
 const RESOURCE_ICONS = {
@@ -48,12 +49,13 @@ export function initMarketPanel() {
   on(Events.MINT_CONVERSION,      _render);  // T191: mint conversion performed (also resets on existing SEASON_CHANGED)
   on(Events.TRADE_FAIR_CHANGED,   _render);  // T196: fair started / deal used / ended
   on(Events.TRADE_WIND_CHANGED,   _render);  // T198: trade wind started or ended
+  on(Events.SILK_ROAD_CHANGED,    _render);  // T218: silk road window opened / purchased / closed
 
-  // Refresh contract/merchant/auction countdowns every ~4 ticks (~1 s)
+  // Refresh contract/merchant/auction/silk-road countdowns every ~4 ticks (~1 s)
   let _contractTickCount = 0;
   on(Events.TICK, () => {
     if (++_contractTickCount % 4 !== 0) return;
-    if (state.contracts?.active || state.merchant?.offer || state.auction?.current) _render();
+    if (state.contracts?.active || state.merchant?.offer || state.auction?.current || state.silkRoad?.current) _render();
   });
 
   _panel.addEventListener('click', _handleClick);
@@ -116,7 +118,8 @@ function _render() {
     ${_blackMarketSection()}
     ${_tradeGuildSection()}
     ${_mintSection()}
-    ${_tradeWindSection()}`;
+    ${_tradeWindSection()}
+    ${_silkRoadSection()}`;
 }
 
 function _row(res, seasonal = []) {
@@ -396,6 +399,9 @@ function _handleClick(e) {
   } else if (action === 'fair-deal') {
     // T196: claim a trade fair deal
     result = useFairDeal(btn.dataset.dealId);
+  } else if (action === 'silk-road-buy') {
+    // T218: purchase a Silk Road exotic good
+    result = buySilkRoadGood(btn.dataset.silkGood);
   }
 
   if (result && !result.ok) {
@@ -695,5 +701,62 @@ function _tradeWindSection() {
       <div class="trade-wind-note">Global trade environment shifts every 5–8 seasons, affecting resource rates for one season.</div>
       ${activeHtml}
       ${historyHtml}
+    </div>`;
+}
+
+// ---------------------------------------------------------------------------
+// Silk Road section (T218)
+// ---------------------------------------------------------------------------
+
+function _silkRoadSection() {
+  const age = state.age ?? 0;
+  if (age < 2) return '';  // Iron Age+ only
+
+  const sr   = state.silkRoad;
+  if (!sr) return '';
+
+  if (!sr.current) {
+    const nextSecs = getSilkRoadNextSecs();
+    const nextStr  = nextSecs > 0
+      ? `Next caravan in ~${Math.ceil(nextSecs / 60)}m`
+      : 'A caravan is expected soon…';
+    const permStr  = sr.permanentGoldRate > 0
+      ? ` · ${sr.permanentGoldRate.toFixed(2)} gold/s from trade goods`
+      : '';
+    return `
+      <div class="silk-road-section">
+        <div class="silk-road-header">🐪 Silk Road</div>
+        <div class="silk-road-idle">${nextStr}${permStr}. Total purchases: ${sr.totalPurchases ?? 0}</div>
+      </div>`;
+  }
+
+  const secsLeft = getSilkRoadSecsLeft();
+  const buysLeft = getSilkRoadBuysLeft();
+  const goods    = getSilkRoadGoods();
+  const gold     = Math.floor(state.resources.gold ?? 0);
+
+  const goodsHtml = goods.map(g => {
+    const canAfford = gold >= g.cost && !g.purchased && buysLeft > 0;
+    return `
+      <div class="silk-road-good ${g.purchased ? 'silk-road-good--purchased' : ''}">
+        <div class="silk-road-good-name">${g.icon} ${g.name}</div>
+        <div class="silk-road-good-desc">${g.desc}</div>
+        <button class="btn btn--xs btn--buy
+          ${(g.purchased || !canAfford) ? 'btn--disabled' : ''}"
+          data-action="silk-road-buy" data-silk-good="${g.id}"
+          ${(g.purchased || !canAfford) ? 'disabled' : ''}>
+          ${g.purchased ? '✓ Purchased' : `💰${g.cost}g`}
+        </button>
+      </div>`;
+  }).join('');
+
+  return `
+    <div class="silk-road-section">
+      <div class="silk-road-header">
+        🐪 Silk Road Caravan
+        <span class="silk-road-timer">${secsLeft}s · ${buysLeft} buy${buysLeft === 1 ? '' : 's'} left</span>
+      </div>
+      <div class="silk-road-subtitle">Exotic goods from distant lands. Buy up to 2 items.</div>
+      <div class="silk-road-goods">${goodsHtml}</div>
     </div>`;
 }

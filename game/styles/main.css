@@ -13333,3 +13333,137 @@ kbd {
   color: #9ca3af;
   padding: 2px 0;
 }
+
+/* ── T217: Refugee Crisis Banner ─────────────────────────────────────────── */
+
+.refugee-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, rgba(10, 20, 35, 0.96), rgba(15, 35, 55, 0.96));
+  border-bottom: 2px solid #3b82f6;
+  font-size: 0.88rem;
+  color: #dbeafe;
+}
+
+.refugee-banner__icon { font-size: 1.4rem; flex-shrink: 0; }
+.refugee-banner__body { flex: 1; min-width: 0; }
+.refugee-banner__title {
+  font-weight: 700;
+  font-size: 0.90rem;
+  color: #93c5fd;
+  margin-bottom: 2px;
+}
+.refugee-banner__desc {
+  font-size: 0.80rem;
+  color: #bfdbfe;
+  opacity: 0.9;
+}
+.refugee-banner__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.refugee-banner__timer {
+  font-size: 0.80rem;
+  font-family: monospace;
+  color: #93c5fd;
+  white-space: nowrap;
+}
+
+.btn--refugee-accept {
+  background: linear-gradient(135deg, #1d4ed8, #1e3a8a);
+  color: #dbeafe;
+  border: 1px solid #3b82f6;
+  font-size: 0.80rem;
+  padding: 4px 12px;
+}
+.btn--refugee-accept:hover:not(.btn--disabled) {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+}
+
+.btn--refugee-integrate {
+  background: linear-gradient(135deg, #0f766e, #134e4a);
+  color: #ccfbf1;
+  border: 1px solid #14b8a6;
+  font-size: 0.80rem;
+  padding: 4px 12px;
+}
+.btn--refugee-integrate:hover:not(.btn--disabled) {
+  background: linear-gradient(135deg, #0d9488, #0f766e);
+}
+
+.btn--refugee-decline {
+  background: rgba(255,255,255,0.08);
+  color: #94a3b8;
+  border: 1px solid rgba(255,255,255,0.15);
+  font-size: 0.80rem;
+  padding: 4px 10px;
+}
+.btn--refugee-decline:hover { background: rgba(255,255,255,0.14); }
+
+/* ── T218: Silk Road Market Section ─────────────────────────────────────── */
+
+.silk-road-section {
+  margin-top: 16px;
+  padding: 12px;
+  background: rgba(146, 64, 14, 0.12);
+  border: 1px solid rgba(217, 119, 6, 0.4);
+  border-radius: 6px;
+}
+.silk-road-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #fbbf24;
+  margin-bottom: 4px;
+}
+.silk-road-timer {
+  font-size: 0.75rem;
+  color: #d97706;
+  font-family: monospace;
+  background: rgba(217,119,6,0.15);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+.silk-road-subtitle {
+  font-size: 0.78rem;
+  color: #fde68a;
+  margin-bottom: 10px;
+  opacity: 0.85;
+}
+.silk-road-goods {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+.silk-road-good {
+  padding: 8px 10px;
+  background: rgba(0,0,0,0.25);
+  border: 1px solid rgba(217,119,6,0.25);
+  border-radius: 4px;
+  font-size: 0.80rem;
+}
+.silk-road-good--purchased {
+  opacity: 0.45;
+  border-color: rgba(255,255,255,0.1);
+}
+.silk-road-good-name {
+  font-weight: 600;
+  color: #fcd34d;
+  margin-bottom: 2px;
+}
+.silk-road-good-desc {
+  color: #d1d5db;
+  font-size: 0.74rem;
+  margin-bottom: 6px;
+}
+.silk-road-idle {
+  font-size: 0.80rem;
+  color: #78716c;
+  font-style: italic;
+}
