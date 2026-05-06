@@ -128,6 +128,7 @@ import { initSupplyLines } from './systems/supplyLines.js';                     
 import { initReparations } from './systems/warReparations.js';                                    // T210
 import { initReputation } from './systems/reputation.js';                                         // T211
 import { initCounteroffensive, counteroffensiveTick } from './systems/counteroffensive.js';       // T212
+import { initRoyalHunt, huntTick } from './systems/royalHunt.js';                                  // T214
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
@@ -228,6 +229,7 @@ function boot() {
   registerSystem(corruptionTick);     // T203: corruption growth check
   registerSystem(arenaTick);          // T204: grand arena event spawn/expire
   registerSystem(counteroffensiveTick); // T212: prune expired counteroffensives
+  registerSystem(huntTick);             // T214: royal hunt spawn/resolve
 
   // Init event-driven systems
   initRandomEvents();
@@ -310,6 +312,7 @@ function boot() {
   initReparations();           // T210: war reparations state init + DIPLOMACY_CHANGED listener
   initReputation();            // T211: reputation system state init
   initCounteroffensive();      // T212: counteroffensive tracking state init
+  initRoyalHunt();             // T214: royal hunt state init
   // T176: monument init deferred — only activates when building is constructed
 
   // Init UI
@@ -702,6 +705,7 @@ function _save() {
         reparations:         state.reparations         ?? null,  // T210
         reputation:          state.reputation          ?? null,  // T211
         counteroffensives:   state.counteroffensives   ?? null,  // T212
+        royalHunt:           state.royalHunt           ?? null,  // T214
         tick:          state.tick,
       }
     }));
@@ -873,6 +877,7 @@ function _applySave(save) {
   state.reparations          = s.reparations          ?? null; // T210
   state.reputation           = s.reputation           ?? null; // T211
   state.counteroffensives    = s.counteroffensives    ?? null; // T212
+  state.royalHunt            = s.royalHunt            ?? null; // T214
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
@@ -1719,6 +1724,7 @@ function _newGame(opts = {}) {
   initReparations();           // T210: reset war reparations on new game
   initReputation();            // T211: reset reputation on new game
   initCounteroffensive();      // T212: reset counteroffensives on new game
+  initRoyalHunt();             // T214: reset royal hunt on new game
   _updateCelestialBanner(); // T153: hide banner on new game
   recalcRates();
   startLoop();  // restart loop in case it was stopped by game-over

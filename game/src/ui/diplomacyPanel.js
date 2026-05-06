@@ -323,7 +323,16 @@ function _espionageSection() {
   const ready = coolSecs === 0;
 
   // Mission buttons (each target all 3 empires)
+  const networkLevel = state.espionage?.networkLevel ?? 0;
   const missionRows = Object.entries(MISSION_LABELS).map(([mId, label]) => {
+    // T213: tech_theft is locked until spy network reaches Intelligence Bureau (level 2)
+    if (mId === 'tech_theft' && networkLevel < 2) {
+      return `
+        <div class="dipl-esp-mission dipl-esp-mission--locked">
+          <span class="dipl-esp-mission__label">${label}</span>
+          <span class="dipl-esp-mission__locked-note">🔐 Requires Intelligence Bureau (level 2)</span>
+        </div>`;
+    }
     const { ok } = ready ? canLaunchMission(mId) : { ok: false };
     const empireBtns = (state.diplomacy?.empires ?? []).map(emp => {
       const empDef = EMPIRES[emp.id];

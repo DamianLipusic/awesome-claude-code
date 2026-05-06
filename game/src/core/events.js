@@ -180,4 +180,5 @@ export const Events = Object.freeze({
   REPARATIONS_DEMANDED:     'reparationsDemanded',         // T210: war reparations demanded (paid or refused)
   REPUTATION_CHANGED:       'reputationChanged',           // T211: reputation score changed
   COUNTEROFFENSIVE:         'counteroffensive',            // T212: faction counteroffensive launched
+  HUNT_CHANGED:             'huntChanged',                 // T214: royal hunt spawned / launched / resolved / expired
 });

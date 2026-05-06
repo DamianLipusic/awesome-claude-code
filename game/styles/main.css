@@ -1711,6 +1711,16 @@ body {
   gap: 6px;
   flex-wrap: wrap;
 }
+/* T213: locked tech_theft mission row */
+.dipl-esp-mission--locked {
+  opacity: 0.65;
+  gap: 8px;
+}
+.dipl-esp-mission__locked-note {
+  font-size: 11px;
+  color: var(--accent);
+  font-style: italic;
+}
 .btn--spy {
   font-size: 11px;
   padding: 3px 8px;
@@ -10414,6 +10424,45 @@ kbd {
 }
 .btn--pilgrimage:hover:not(.btn--disabled) {
   background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+}
+
+/* ── T214: Royal Hunt section ────────────────────────────────────────────── */
+
+.hunt-section {
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-left: 3px solid #f59e0b;
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  margin-bottom: 12px;
+}
+.hunt-section--active {
+  background: rgba(52, 211, 153, 0.08);
+  border-color: rgba(52, 211, 153, 0.35);
+  border-left-color: #34d399;
+}
+.hunt-section__header {
+  font-weight: 700;
+  font-size: 13px;
+  color: #fbbf24;
+  margin-bottom: 5px;
+}
+.hunt-section--active .hunt-section__header { color: #34d399; }
+.hunt-section__desc {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+.hunt-section__actions { display: flex; gap: 8px; }
+
+.btn--hunt {
+  background: linear-gradient(135deg, #92400e, #b45309);
+  color: #fef3c7;
+  border: none;
+}
+.btn--hunt:hover:not(.btn--disabled) {
+  background: linear-gradient(135deg, #b45309, #d97706);
 }
 
 /* ── T165: Roving Warlord Alert ──────────────────────────────────────────── */

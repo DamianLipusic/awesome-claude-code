@@ -17,6 +17,7 @@ import { TICKS_PER_SECOND } from '../core/tick.js';
 import { WIN_AGE, WIN_TILES, WIN_QUESTS, WIN_DIPLOMATIC_ALLIANCES, WIN_ECONOMIC_GOLD } from '../systems/victory.js'; // T187
 import { getActiveOmen, getOmenSecsLeft, avertOmen, channelOmen } from '../systems/oracle.js'; // T193
 import { EPIC_CHAINS, CHAIN_ORDER, getChainProgress } from '../systems/epicQuests.js'; // T202
+import { getRoyalHuntStatus, launchRoyalHunt, HUNT_GOLD_COST, HUNT_FOOD_COST } from '../systems/royalHunt.js'; // T214
 
 export function initQuestPanel() {
   const panel = document.getElementById('panel-quests');
@@ -36,6 +37,7 @@ export function initQuestPanel() {
     Events.OMEN_APPEARED, Events.OMEN_AVERTED,          // T193: oracle omen state changes
     Events.OMEN_CHANNELED, Events.OMEN_FIRED,           // T193
     Events.EPIC_QUEST_PROGRESS,                         // T202: epic quest chain step/completion
+    Events.HUNT_CHANGED,                                // T214: royal hunt state changes
   ];
   for (const ev of events) on(ev, render);
 
@@ -49,7 +51,8 @@ export function initQuestPanel() {
       const pl = state.plague?.active;
       const pi = state.pilgrimages?.pending;
       const om = state.oracle?.activeOmen;
-      if (ch || pe || bo || pl || pi || om) render();
+      const rh = state.royalHunt?.pending || state.royalHunt?.active;
+      if (ch || pe || bo || pl || pi || om || rh) render();
     }
   });
 
@@ -100,6 +103,15 @@ export function initQuestPanel() {
         const b = e.target.closest('[data-action="host-pilgrimage"]');
         if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
       }
+      return;
+    }
+    // Launch royal hunt button (T214)
+    if (e.target.closest('[data-action="launch-hunt"]')) {
+      const r = launchRoyalHunt();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="launch-hunt"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
     }
   });
 
@@ -120,6 +132,7 @@ function render() {
     ${_oracleSection()}
     ${_plagueSection()}
     ${_pilgrimageSection()}
+    ${_royalHuntSection()}
     ${_rebelSection()}
     ${_seasonalObjectiveSection()}
     ${_bountySection()}
@@ -326,6 +339,48 @@ function _pilgrimageSection() {
       <div class="pilgrimage-section__actions">
         <button class="${btnClass}" data-action="host-pilgrimage" title="${reason}">
           🏛️ Host (20💰 30🍞)
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── Royal Hunt section (T214) ────────────────────────────────────────────
+
+function _royalHuntSection() {
+  if ((state.age ?? 0) < 1) return '';  // Bronze Age+ only
+  const hs = getRoyalHuntStatus();
+  if (!hs.pending && !hs.active) return '';
+
+  // Hunt underway
+  if (hs.active) {
+    return `
+      <div class="hunt-section hunt-section--active">
+        <div class="hunt-section__header">🦌 Royal Hunt Underway</div>
+        <div class="hunt-section__desc">
+          The hunting party is out in the field. Results in <strong>${hs.activeSecsLeft}s</strong>.
+        </div>
+      </div>`;
+  }
+
+  // Pending invitation
+  const canAffordGold = (state.resources?.gold ?? 0) >= HUNT_GOLD_COST;
+  const canAffordFood = (state.resources?.food ?? 0) >= HUNT_FOOD_COST;
+  const canLaunch = canAffordGold && canAffordFood;
+  const btnClass = `btn btn--sm btn--hunt${canLaunch ? '' : ' btn--disabled'}`;
+  const reason = !canAffordGold ? `Need ${HUNT_GOLD_COST}💰`
+               : !canAffordFood ? `Need ${HUNT_FOOD_COST}🍞`
+               : 'Join the royal hunt';
+
+  return `
+    <div class="hunt-section hunt-section--pending">
+      <div class="hunt-section__header">🦌 Royal Hunt Called!</div>
+      <div class="hunt-section__desc">
+        A hunting season has begun. Success grants +15 morale, +5 prestige, and a chance at iron.
+        Expires in <strong>${hs.pendingSecsLeft}s</strong>.
+      </div>
+      <div class="hunt-section__actions">
+        <button class="${btnClass}" data-action="launch-hunt" title="${reason}">
+          🏹 Join Hunt (${HUNT_GOLD_COST}💰 ${HUNT_FOOD_COST}🍞)
         </button>
       </div>
     </div>`;

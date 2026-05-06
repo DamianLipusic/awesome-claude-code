@@ -572,6 +572,12 @@ export const state = {
   //   active: { [factionId]: { expiresAt, launchedAt } },
   //   totalLaunched: number } | null
   counteroffensives: null,
+
+  // T214: Royal Hunt Event — periodic Bronze Age+ hunt opportunity
+  // { pending: bool, pendingUntil: tick,
+  //   active: { resolvesAt: tick } | null,
+  //   nextSpawn: tick, totalHunts: number } | null
+  royalHunt: null,
 };
 
 /**
@@ -707,5 +713,6 @@ export function initState(empireName = 'My Empire') {
   state.reparations          = null; // T210: reset war reparations per game
   state.reputation           = null; // T211: reset reputation per game
   state.counteroffensives    = null; // T212: reset counteroffensives per game
+  state.royalHunt            = null; // T214: reset royal hunt per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

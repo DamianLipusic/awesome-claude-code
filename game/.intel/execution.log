@@ -3857,3 +3857,39 @@ All prior tasks (T001–T210) were complete. Created T211+T212 task specs then i
       import+init+save/load reputation+counteroffensive; _updateRepBadge(); registerSystem
   ~ game/styles/main.css
       T211 rep-badge styles + T212 counteroffensive banner styles
+
+**T213 — Tech Espionage Mission:**
+- `src/systems/espionage.js`: Added `tech_theft:100` to `COST`. Imported `TECHS` from `data/techs.js`. Added `_getStealableTechs()` helper (filters techs where prereqs met, not yet researched, not already queued). Updated `canLaunchMission()` to return `{ok:false}` for `tech_theft` when `networkLevel<2`. Added `tech_theft` branch in `_resolve()`: if no candidates refunds cost; if success and queue<3 adds `{techId, remaining=researchTicks*(1-0.4..0.6)}` to `state.researchQueue` and emits `TECH_CHANGED`; if queue full sells plans for 40% of stolen ticks as gold; if failure deducts 80 gold. Added `tech_theft:'🔬 Tech Theft'` to `MISSION_LABELS` and description to `MISSION_DESCS`.
+- `src/ui/diplomacyPanel.js`: In `_espionageSection()` `missionRows` map, added check for `mId==='tech_theft' && networkLevel<2` → renders `.dipl-esp-mission--locked` row with lock note instead of empire buttons.
+- `styles/main.css`: `.dipl-esp-mission--locked` (opacity 0.65) and `.dipl-esp-mission__locked-note` (amber italic) styles.
+
+**T214 — Royal Hunt Event:**
+- `src/systems/royalHunt.js`: New file. `SPAWN_MIN=8min`, `SPAWN_MAX=12min`, `PENDING_WINDOW=3min`, `HUNT_DURATION=90s (360 ticks)`, `SUCCESS_CHANCE=0.60`, `IRON_BONUS_CHANCE=0.30`, `IRON_BONUS_AMT=50`. `initRoyalHunt()` lazy-creates `state.royalHunt={pending:false, pendingUntil:0, active:null, nextSpawn, totalHunts:0}`. `launchRoyalHunt()` validates resources, deducts food+gold, sets `active={resolvesAt}`, increments `totalHunts`. `huntTick()`: resolves active hunt on timer; expires pending after 3 min; spawns new invitation when tick>=nextSpawn and Bronze Age+. `_resolveHunt()`: 60% success→`changeMorale(15)`, `awardPrestige(5)`, 30% chance +50 iron; 40% failure→`changeMorale(-8)`, −30 gold. `getRoyalHuntStatus()` helper returns pending/active state with sec countdowns.
+- `src/core/events.js`: `HUNT_CHANGED:'huntChanged'` added.
+- `src/core/state.js`: `royalHunt:null` field added with comment; `state.royalHunt=null` in `initState()`.
+- `src/ui/questPanel.js`: Import `getRoyalHuntStatus`, `launchRoyalHunt`, `HUNT_GOLD_COST`, `HUNT_FOOD_COST`. Added `HUNT_CHANGED` to event listener array. Added `rh` to tick-refresh check. Added `_royalHuntSection()`: shows hunt pending card (with `🏹 Join Hunt` button, costs, countdown) or hunt active card (countdown). Inserted `${_royalHuntSection()}` in render HTML. Click handler for `data-action="launch-hunt"`.
+- `src/main.js`: Import `initRoyalHunt`, `huntTick`; `registerSystem(huntTick)`; `initRoyalHunt()` in `boot()`+`_newGame()`; `royalHunt` saved/loaded.
+- `styles/main.css`: `.hunt-section` (amber border), `.hunt-section--active` (green border), header/desc/actions, `.btn--hunt` (amber gradient).
+
+**Architecture decisions:**
+- T213 tech_theft does NOT change AI relations state — the failure is a gold penalty + message (espionage is deniable). This avoids complex state changes on failure while still being punishing.
+- T213 uses the player's actual research queue (max 3 slots) naturally. Selling plans for gold when queue is full keeps the mechanic always rewarding while respecting existing queue limits.
+- T214 uses Bronze Age+ gate (same as mercenaries, pilgrimage) to keep early game simple. The 3-minute pending window and 90-second resolution create tension without being too demanding.
+- T214 does NOT add a save version bump — `royalHunt` defaults to `null` with safe lazy init, so old saves just skip the hunt state.
+
+**Files modified:**
+  ~ game/src/systems/espionage.js
+      tech_theft mission type; TECHS import; _getStealableTechs helper; canLaunchMission level check; _resolve handler; MISSION_LABELS+DESCS
+  ~ game/src/ui/diplomacyPanel.js
+      missionRows locked state for tech_theft at level <2
+  + game/src/systems/royalHunt.js (new)
+  ~ game/src/core/events.js
+      HUNT_CHANGED event
+  ~ game/src/core/state.js
+      royalHunt:null field; initState reset
+  ~ game/src/ui/questPanel.js
+      import hunt exports; HUNT_CHANGED listener; rh tick check; _royalHuntSection(); render inclusion; click handler
+  ~ game/src/main.js
+      import+register+init+save/load huntTick+initRoyalHunt
+  ~ game/styles/main.css
+      T213 locked mission styles; T214 hunt-section + btn--hunt styles

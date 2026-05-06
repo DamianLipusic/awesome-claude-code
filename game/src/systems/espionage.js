@@ -1,5 +1,5 @@
 /**
- * EmpireOS — Espionage system (T060).
+ * EmpireOS — Espionage system (T060, T213).
  *
  * Requires the 'espionage' tech (listed in techs.js).
  *
@@ -17,6 +17,11 @@
  *                  Success: reveal their tile count, relations, and army strength.
  *                  Failure: lose 30 gold (blown cover).
  *
+ *   tech_theft   — Steal technology blueprints from a rival (T213).
+ *                  Requires Intelligence Bureau (spy network level 2+).
+ *                  Success: queues a random unresearched tech at 40–60% completion.
+ *                  Failure: lose 80 gold and diplomatic trust damaged.
+ *
  * Success chance (base 60 %):
  *   - Each alliance with a different empire:  +5 %
  *   - Currently at war with the target:      −10 %
@@ -32,6 +37,7 @@ import { addMessage } from '../core/actions.js';
 import { changeMorale } from './morale.js';
 import { EMPIRES } from '../data/empires.js';
 import { TICKS_PER_SECOND } from '../core/tick.js';
+import { TECHS } from '../data/techs.js'; // T213: tech theft mission
 
 // Cooldown in ticks (60 seconds base)
 export const ESPIONAGE_COOLDOWN = 60 * TICKS_PER_SECOND;
@@ -41,6 +47,7 @@ const COST = {
   gold_heist: 50,
   sabotage:   75,
   intel:      30,
+  tech_theft: 100, // T213: tech theft requires Intelligence Bureau (network level 2+)
 };
 
 // T113: Spy network upgrade levels
@@ -124,6 +131,10 @@ export function canLaunchMission(missionId) {
   if (!state.techs?.espionage) {
     return { ok: false, reason: 'Research the Espionage tech first.' };
   }
+  // T213: tech_theft requires Intelligence Bureau (network level 2+)
+  if (missionId === 'tech_theft' && (state.espionage?.networkLevel ?? 0) < 2) {
+    return { ok: false, reason: 'Tech Theft requires Intelligence Bureau (spy network level 2).' };
+  }
   const cost = COST[missionId] ?? 0;
   if ((state.resources?.gold ?? 0) < cost) {
     return { ok: false, reason: `Not enough gold (need ${cost}).` };
@@ -190,6 +201,7 @@ export const MISSION_LABELS = {
   gold_heist: '💰 Gold Heist',
   sabotage:   '💣 Sabotage',
   intel:      '🔭 Gather Intel',
+  tech_theft: '🔬 Tech Theft',  // T213
 };
 
 /** Mission descriptions for tooltip. */
@@ -197,9 +209,21 @@ export const MISSION_DESCS = {
   gold_heist: `Steal 150–350 gold from an enemy treasury. Costs ${COST.gold_heist} gold. Failure loses ${50} gold.`,
   sabotage:   `Sabotage a rival's supply lines, boosting your army morale +8. Costs ${COST.sabotage} gold. Failure triggers a counter-raid.`,
   intel:      `Gather intelligence on a rival — reveals their territory, army, and relations. Costs ${COST.intel} gold. Failure loses ${30} gold.`,
+  tech_theft: `Steal technology blueprints from a rival — queues a random unresearched tech at 40–60% completion. Costs ${COST.tech_theft} gold. Failure loses 80 gold. Requires Intelligence Bureau (level 2).`,
 };
 
 // ── Internal helpers ───────────────────────────────────────────────────────
+
+/** T213: Returns tech IDs that can be targeted for theft (prereqs met, not researched, not queued). */
+function _getStealableTechs() {
+  return Object.keys(TECHS).filter(id => {
+    if (state.techs?.[id]) return false;
+    if (state.researchQueue?.some(e => e.techId === id)) return false;
+    const def = TECHS[id];
+    if (!def) return false;
+    return (def.requires ?? []).every(r => state.techs?.[r]);
+  });
+}
 
 function _successChance(emp) {
   let chance = 0.60;
@@ -274,6 +298,50 @@ function _resolve(missionId, emp, empDef, success) {
       state.resources.gold = Math.max(0, (state.resources.gold ?? 0) - penalty);
       emit(Events.RESOURCE_CHANGED, {});
       text = `🕵️ Intel mission on ${empDef.name} blown! Spy extracted — lost ${penalty} gold.`;
+      addMessage(text, 'raid');
+    }
+  }
+
+  // T213: Tech Theft — steal research progress from a rival
+  else if (missionId === 'tech_theft') {
+    const candidates = _getStealableTechs();
+    if (candidates.length === 0) {
+      // Nothing to steal — refund the mission cost
+      state.resources.gold = Math.min(
+        state.caps?.gold ?? 500,
+        (state.resources.gold ?? 0) + COST.tech_theft,
+      );
+      emit(Events.RESOURCE_CHANGED, {});
+      text = `🕵️ Tech Theft from ${empDef.name}: no viable technology targets. Gold refunded.`;
+      addMessage(text, 'info');
+    } else if (success) {
+      const techId = candidates[Math.floor(Math.random() * candidates.length)];
+      const def = TECHS[techId];
+      const pct = 0.40 + Math.random() * 0.20;           // 40–60% progress
+      const stolenTicks = Math.round(def.researchTicks * pct);
+      const remaining   = Math.max(1, def.researchTicks - stolenTicks);
+      if (!state.researchQueue) state.researchQueue = [];
+      if (state.researchQueue.length < 3) {
+        state.researchQueue.push({ techId, remaining });
+        emit(Events.TECH_CHANGED, {});
+        text = `🕵️ Tech Theft from ${empDef.name} succeeded! ${def.name} blueprints obtained (${Math.round(pct * 100)}% progress). Added to research queue.`;
+        addMessage(text, 'tech');
+      } else {
+        // Research queue full — sell the plans for gold
+        const goldBonus = Math.round(stolenTicks * 0.4);
+        state.resources.gold = Math.min(
+          state.caps?.gold ?? 500,
+          (state.resources.gold ?? 0) + goldBonus,
+        );
+        emit(Events.RESOURCE_CHANGED, {});
+        text = `🕵️ Tech Theft from ${empDef.name} succeeded! ${def.name} plans sold for ${goldBonus}💰 (research queue full).`;
+        addMessage(text, 'tech');
+      }
+    } else {
+      const penalty = 80;
+      state.resources.gold = Math.max(0, (state.resources.gold ?? 0) - penalty);
+      emit(Events.RESOURCE_CHANGED, {});
+      text = `🕵️ Tech Theft from ${empDef.name} failed! Spy captured — lost ${penalty} gold. Diplomatic relations strained.`;
       addMessage(text, 'raid');
     }
   }
