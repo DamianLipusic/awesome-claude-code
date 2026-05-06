@@ -181,4 +181,6 @@ export const Events = Object.freeze({
   REPUTATION_CHANGED:       'reputationChanged',           // T211: reputation score changed
   COUNTEROFFENSIVE:         'counteroffensive',            // T212: faction counteroffensive launched
   HUNT_CHANGED:             'huntChanged',                 // T214: royal hunt spawned / launched / resolved / expired
+  CODEX_MILESTONE:          'codexMilestone',              // T215: imperial codex fragment count updated / milestone reached
+  LEGENDARY_CHANGED:        'legendaryChanged',            // T216: legendary creature spawned / defeated / expired
 });

@@ -13175,3 +13175,161 @@ kbd {
   color: #9ca3af;
   padding: 2px 0;
 }
+
+/* ── T215: Imperial Codex ──────────────────────────────────────────── */
+.codex-section {
+  background: rgba(139,92,246,0.07);
+  border: 1px solid rgba(139,92,246,0.25);
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 14px;
+}
+.codex-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #c4b5fd;
+  margin-bottom: 4px;
+}
+.codex-frag-count {
+  font-size: 0.78rem;
+  color: #a78bfa;
+  background: rgba(139,92,246,0.15);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+.codex-intro {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin-bottom: 8px;
+}
+.codex-next {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  color: #d1d5db;
+  margin-bottom: 4px;
+}
+.codex-next__label { color: #c4b5fd; }
+.codex-next__threshold { color: #9ca3af; font-size: 0.73rem; }
+.codex-progress-bg {
+  background: rgba(255,255,255,0.08);
+  border-radius: 4px;
+  height: 6px;
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+.codex-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #7c3aed, #a78bfa);
+  border-radius: 4px;
+  transition: width 0.4s ease;
+}
+.codex-all-done {
+  font-size: 0.80rem;
+  color: #34d399;
+  text-align: center;
+  padding: 4px 0 8px;
+}
+.codex-bonuses {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.codex-bonus {
+  font-size: 0.73rem;
+  color: #fbbf24;
+  background: rgba(251,191,36,0.12);
+  border: 1px solid rgba(251,191,36,0.20);
+  border-radius: 8px;
+  padding: 2px 8px;
+}
+.codex-ms-list { display: flex; flex-direction: column; gap: 4px; }
+.codex-ms {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.04);
+  font-size: 0.78rem;
+}
+.codex-ms--done {
+  background: rgba(139,92,246,0.12);
+  border: 1px solid rgba(139,92,246,0.20);
+}
+.codex-ms--locked { opacity: 0.55; }
+.codex-ms__icon { font-size: 1.0rem; flex-shrink: 0; }
+.codex-ms__info { flex: 1; min-width: 0; }
+.codex-ms__name { display: block; font-weight: 600; color: #e5e7eb; }
+.codex-ms__desc { display: block; font-size: 0.72rem; color: #9ca3af; }
+.codex-ms__thresh {
+  font-size: 0.78rem;
+  color: #6b7280;
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+.codex-ms--done .codex-ms__thresh { color: #34d399; font-weight: 700; }
+
+/* ── T216: Legendary Encounters ────────────────────────────────────── */
+.legendary-section {
+  background: rgba(245,158,11,0.07);
+  border: 1px solid rgba(245,158,11,0.30);
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 12px;
+  animation: pop-in 0.25s ease;
+}
+.legendary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #fbbf24;
+  margin-bottom: 4px;
+}
+.legendary-countdown {
+  font-size: 0.75rem;
+  color: #f59e0b;
+  background: rgba(245,158,11,0.15);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+.legendary-desc {
+  font-size: 0.78rem;
+  color: #d1d5db;
+  margin-bottom: 6px;
+}
+.legendary-stats {
+  display: flex;
+  gap: 12px;
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin-bottom: 8px;
+}
+.legendary-stat-val { color: #f87171; font-weight: 600; }
+.legendary-reward {
+  font-size: 0.75rem;
+  color: #a3e635;
+  margin-bottom: 8px;
+}
+.legendary-hint {
+  font-size: 0.72rem;
+  color: #6b7280;
+  font-style: italic;
+}
+.legendary-history { margin-top: 8px; }
+.legendary-history__label {
+  font-size: 0.72rem;
+  color: #6b7280;
+  margin-bottom: 3px;
+}
+.legendary-hist-entry {
+  font-size: 0.72rem;
+  color: #9ca3af;
+  padding: 2px 0;
+}

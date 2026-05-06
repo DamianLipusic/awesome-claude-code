@@ -31,6 +31,7 @@ import { getCartographerSurvey, getCartographerSurveySecs } from '../systems/car
 import { isInFortificationNetwork } from '../systems/fortificationNetwork.js'; // T183
 import { dispatchScouts, getScoutInfo, getScoutCooldownSecs, canDispatchScouts, SCOUT_COST } from '../systems/scoutMissions.js'; // T207
 import { establishOutpost, getOutpostAt, getOutpostCount, OUTPOST_COST, MAX_OUTPOSTS, OUTPOST_MIN_AGE, SUPPLY_RANGE, OUTPOST_RANGE } from '../systems/supplyLines.js'; // T209
+import { getActiveLegendary, getLegendarySecsLeft, LEGENDARY_TYPES } from '../systems/legendaryEncounters.js'; // T216
 
 const TILE_PX   = 24;     // pixels per tile side
 const GRID_SIZE = 20;     // tiles per axis
@@ -60,6 +61,8 @@ const FOG_GRID         = '#12161b';
 const PLAYER_TINT      = 'rgba(88,166,255,0.22)';
 const ENEMY_TINT       = 'rgba(248,81,73,0.28)';
 const BARBARIAN_TINT   = 'rgba(192,60,30,0.38)';   // T056
+const LEGENDARY_TINT   = 'rgba(245,158,11,0.32)';  // T216: legendary encounter amber glow
+const LEGENDARY_BORDER = '#f59e0b';                 // T216: legendary tile border
 const CARAVAN_TINT     = 'rgba(255,200,50,0.28)';  // T063
 const NODE_TINT        = 'rgba(255,170,0,0.35)';   // T104: resource node amber glow
 const RUIN_TINT        = 'rgba(40,160,140,0.30)';  // T106: ancient ruin dark teal glow
@@ -361,6 +364,12 @@ function _showTileTip(tile, x, y, mouseX, mouseY) {
     : tile.owner === 'rebel'   ? `<span class="map-tt-owner map-tt-owner--rebel">🔥 Rebel-held — Attack to reclaim!</span>` // T151
     : tile.owner === 'enemy'   ? `<span class="map-tt-owner map-tt-owner--enemy">${capitalLabel}</span>`
     : tile.owner === 'barbarian' ? `<span class="map-tt-owner map-tt-owner--enemy">💀 Barbarian Camp</span>`
+    : tile.owner === 'legendary' ? (() => {
+        const leg = getActiveLegendary();
+        const def = leg ? LEGENDARY_TYPES[leg.type] : null;
+        const secsLeft = getLegendarySecsLeft();
+        return `<span class="map-tt-owner" style="color:#f59e0b">${leg?.icon ?? '⚠️'} ${leg?.name ?? 'Legendary'} — ${secsLeft}s left</span>`;
+      })()
     : `<span class="map-tt-owner">Neutral</span>`;
 
   const bonusTxt  = TERRAIN_BONUS[tile.type];
@@ -637,6 +646,10 @@ function _drawTile(tile, x, y, capital) {
   } else if (tile.owner === 'barbarian') {
     ctx.fillStyle = BARBARIAN_TINT;
     ctx.fillRect(px, py, TILE_PX, TILE_PX);
+  } else if (tile.owner === 'legendary') {
+    // T216: legendary encounter — amber tint
+    ctx.fillStyle = LEGENDARY_TINT;
+    ctx.fillRect(px, py, TILE_PX, TILE_PX);
   } else if (tile.owner === 'rebel') {
     // T151: rebel-held tile — red tint over terrain
     ctx.fillStyle = REBEL_TINT;
@@ -668,6 +681,7 @@ function _drawTile(tile, x, y, capital) {
                     : tile.owner === 'enemy'      ? ((tile.faction && FACTION_BORDER[tile.faction]) ?? ENEMY_BORDER)
                     : tile.owner === 'barbarian'  ? BARBARIAN_BORDER
                     : tile.owner === 'rebel'      ? REBEL_BORDER       // T151
+                    : tile.owner === 'legendary'  ? LEGENDARY_BORDER   // T216
                     : NEUTRAL_BORDER;
   ctx.strokeStyle = borderColor;
   ctx.lineWidth   = tile.owner ? 1.5 : 0.5;
@@ -691,6 +705,10 @@ function _drawTile(tile, x, y, capital) {
     _drawIcon(px, py, '🏰');
   } else if (tile.owner === 'barbarian' && tile.revealed) {
     _drawIcon(px, py, '💀');   // T056: barbarian camp skull
+  } else if (tile.owner === 'legendary' && tile.revealed) {
+    // T216: show creature icon from active legendary encounter
+    const leg = getActiveLegendary();
+    _drawIcon(px, py, leg?.icon ?? '⚠️');
   } else if (tile.owner === 'rebel' && tile.revealed) {
     _drawIcon(px, py, '🔥');   // T151: rebel uprising tile
   } else if (tile.owner === 'enemy' && tile.revealed) {
@@ -1222,7 +1240,8 @@ function _showCombatPreview(x, y) {
   const winPct   = Math.round(p.winChance * 100);
   const winColor = winPct >= 70 ? 'var(--green)' : winPct >= 40 ? 'var(--accent)' : 'var(--red)';
   const terrain  = _TERRAIN_LABELS[p.terrain] ?? p.terrain;
-  const ownerStr = p.owner === 'barbarian' ? '💀 Barbarian Camp'
+  const ownerStr = p.owner === 'barbarian'  ? '💀 Barbarian Camp'
+                 : p.owner === 'legendary' ? (() => { const lg = getActiveLegendary(); return `${lg?.icon ?? '⚠️'} ${lg?.name ?? 'Legendary'}`; })()
                  : p.owner === 'enemy'     ? 'Enemy territory'
                  : 'Neutral territory';
 
@@ -1280,6 +1299,17 @@ function _showCombatPreview(x, y) {
   // T132: Siege Engine notice
   const siegeEngineHtml = p.siegeEngineActive
     ? `<div class="cp-siege-notice" style="color:#fbd38d">🏰 Siege Engine: fortification defenses halved!</div>`
+    : '';
+
+  // T216: Legendary encounter notice
+  const legendaryHtml = p.owner === 'legendary'
+    ? (() => {
+        const lg  = getActiveLegendary();
+        const def = lg ? LEGENDARY_TYPES[lg.type] : null;
+        return def
+          ? `<div class="cp-siege-notice" style="color:#f59e0b">${lg.icon} Legendary creature — ×${def.defenseBoost} defense · Reward: ${def.rewardDesc}</div>`
+          : '';
+      })()
     : '';
 
   // Use effective defense (after terrain) for the stat display; show base if different
@@ -1349,7 +1379,7 @@ function _showCombatPreview(x, y) {
           <span class="cp-stat__value" style="color:${winColor}">${winPct}%</span>
         </div>
       </div>
-      ${terrainNoticeHtml}${weatherHtml}${siegeHtml}${manaBoltHtml}${battleCryHtml}${formationHtml}${streakHtmlPreview}${aidHtmlPreview}${siegeEngineHtml}
+      ${terrainNoticeHtml}${weatherHtml}${siegeHtml}${manaBoltHtml}${battleCryHtml}${formationHtml}${streakHtmlPreview}${aidHtmlPreview}${siegeEngineHtml}${legendaryHtml}
       <div class="cp-loot-row">
         <span class="cp-loot-label">Loot on victory:</span>
         <span class="cp-loot-items">${lootHtml}</span>

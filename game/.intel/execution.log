@@ -2,6 +2,39 @@
 
 ---
 
+## 2026-05-06 — Session N+49
+
+**Tasks completed:** T215, T216
+
+**Summary:**
+All prior tasks (T001–T214) were complete. Created T215+T216 task specs then implemented two Phase 86 features: Imperial Codex (T215) and Legendary Encounters (T216).
+
+**T215 — Imperial Codex:**
+- `src/systems/imperialCodex.js`: New file. `CODEX_MILESTONES` array of 6 milestone objects (thresholds 10/25/50/75/100/150). Each milestone has `icon`, `name`, `desc`, and `apply(state)` method. `initCodex()` lazy-creates `state.codex={fragments:0,milestones:[],codexGoldRate:0,codexProdMult:1.0}`. `_addFragments(count,source)` increments `state.codex.fragments` and calls `_checkMilestones()`. `_checkMilestones()` loops milestones array and applies newly reached ones via `ms.apply(state)`, calls `recalcRates()`, logs a windfall message. Event subscriptions: `MAP_CHANGED(outcome=victory)→+1`, `QUEST_COMPLETED→+3`, `TECH_CHANGED(new techs detected by count diff)→+2 each`, `AGE_CHANGED→+10`, `ACHIEVEMENT_UNLOCKED→+5`, `OMEN_AVERTED/CHANNELED→+2`, `EPIC_QUEST_PROGRESS(data.completed=true)→+8`. `getCodexInfo()` returns UI-facing state summary.
+- `src/core/events.js`: `CODEX_MILESTONE:'codexMilestone'` added.
+- `src/core/state.js`: `codex:null` field in static object + `state.codex=null` in `initState()`.
+- `src/systems/resources.js`: T215 block after corruption penalty: applies `state.codex.codexGoldRate` to gold rate; applies `codexProdMult` (>1.0) to all positive resource rates.
+- `src/ui/researchPanel.js`: Import `getCodexInfo+CODEX_MILESTONES`; `on(CODEX_MILESTONE)` re-render; `_codexSection()` renders header (purple section, fragment count pill), intro text, progress bar toward next milestone (two-threshold normalisation), active bonus pills (gold rate + prod mult %), milestone list (done=purple tint+✓/locked=dim+threshold number); appended to `panel.innerHTML`.
+- `src/main.js`: Import `initCodex`; `initCodex()` in `boot()`+`_newGame()`; `codex:state.codex??null` in `_save()`; `state.codex=s.codex??null` in `_applySave()`; version `75→76`.
+- `styles/main.css`: `.codex-section` (purple border/bg), `.codex-header`, `.codex-frag-count` (pill), `.codex-intro`, `.codex-next`/`.codex-next__label`/`.codex-next__threshold`, `.codex-progress-bg`/`.codex-progress-fill` (purple gradient), `.codex-all-done`, `.codex-bonuses`/`.codex-bonus` (gold pill), `.codex-ms-list`, `.codex-ms`/`--done`/`--locked`, `.codex-ms__icon`/`.info`/`.name`/`.desc`/`.thresh`.
+
+**T216 — Legendary Encounters:**
+- `src/systems/legendaryEncounters.js`: New file. `LEGENDARY_TYPES` map (dragon/guardian/hydra with icon/name/desc/defenseBoost/terrains/rewardDesc). `initLegendary()` lazy-creates `state.legendary={current:null,nextSpawnTick:tick+10min,totalDefeated:0,history:[]}`. `legendaryTick()` expires current if tick≥expiresAt and spawns if tick≥nextSpawnTick and no current. `_trySpawn()` collects candidate revealed non-player tiles by terrain (mountain→dragon, river→hydra, any→guardian), picks weighted random type and random tile, sets `tile.owner='legendary'`, logs sighting message, emits `LEGENDARY_CHANGED+MAP_CHANGED`. `_expireCurrent()` reverts tile owner to null, logs departure. `defeatLegendary(x,y)` called from combat: applies per-type rewards (dragon=+200g+40pres+8mor; guardian=+80mana+10% research progress cut; hydra=+100g+30iron+5mor), logs victory, records history (max 5), clears `current`, emits events. `getLegendaryDefenseBoost(x,y)` returns creature's `defenseBoost` for tile. `getActiveLegendary()`, `getLegendarySecsLeft()`, `getLegendaryHistory()` helpers exported.
+- `src/core/events.js`: `LEGENDARY_CHANGED:'legendaryChanged'` added.
+- `src/core/state.js`: `legendary:null` field + `initState()` reset.
+- `src/systems/combat.js`: Import `getLegendaryDefenseBoost+defeatLegendary`; T216 blocks in `getAttackPreview()` and `attackTile()` apply `effectiveDefense *= legBoost` when `legBoost>1.0`; `attackTile()` logs info message for legendary tile; `_victory()` checks `wasLegendary` (captured before `tile.owner='player'`), calls `defeatLegendary(x,y)` and suppresses duplicate victory message.
+- `src/ui/mapPanel.js`: Import `getActiveLegendary+getLegendarySecsLeft+LEGENDARY_TYPES`; `LEGENDARY_TINT='rgba(245,158,11,0.32)'` + `LEGENDARY_BORDER='#f59e0b'`; `_drawTile()` applies amber tint+border for `tile.owner==='legendary'`; icon branch draws creature icon via `getActiveLegendary().icon`; tile tooltip `ownerStr` handles legendary with name+countdown; combat preview adds `legendaryHtml` notice (orange badge with defenseBoost and reward).
+- `src/ui/questPanel.js`: Import 4 legendary exports; `LEGENDARY_CHANGED` in event list; tick handler re-renders when `state.legendary.current` active; `_legendarySection()` renders amber-bordered sighting card (icon/name/defense boost/reward desc/map hint) + history section (last 5 victories with reward and relative time); injected first in `panel.innerHTML`.
+- `src/ui/minimap.js`: `CLR_LEGENDARY='#b45309'`; `legendary` branch in color selection.
+- `src/main.js`: Import `initLegendary+legendaryTick`; `registerSystem(legendaryTick)`; `initLegendary()` in `boot()`+`_newGame()`; `legendary:state.legendary??null` in `_save()`; `state.legendary=s.legendary??null` in `_applySave()`; version 76.
+- `styles/main.css`: `.legendary-section` (amber border+bg, pop-in animation), `.legendary-header`, `.legendary-countdown` (amber pill), `.legendary-desc`, `.legendary-stats`/`.legendary-stat-val` (red), `.legendary-reward` (lime), `.legendary-hint`, `.legendary-history`/`.legendary-history__label`, `.legendary-hist-entry`.
+
+**Architecture decisions:**
+- T215 codex tracks tech count via module-level `_prevTechCount` (updated on each `TECH_CHANGED`) rather than attaching to individual tech research events. This cleanly handles bulk research (e.g. from legacy traits or save-loading) without double-counting. The `_initialized` guard prevents double-registration when `initCodex()` is called from both `boot()` and `_newGame()`.
+- T216 legendary creatures use `tile.owner='legendary'` (a new owner string, not a tile property) so the existing combat flow (`tile.owner !== 'player'` check for adjacency validation) naturally treats legendary tiles as attackable. The defense boost is applied as a multiplier in `getAttackPreview()` and `attackTile()` so it correctly stacks with terrain defense multipliers, fortification networks, and siege engine halving — all existing modifiers apply first, then the legendary multiplier scales the result.
+
+---
+
 ## 2026-05-05 — Session N+48
 
 **Tasks completed:** T207, T208

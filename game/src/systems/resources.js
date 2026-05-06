@@ -677,6 +677,16 @@ export function recalcRates() {
     }
   }
 
+  // T215: Imperial Codex — permanent gold rate + production multiplier milestones
+  if (state.codex) {
+    if (state.codex.codexGoldRate > 0) rates.gold += state.codex.codexGoldRate;
+    if ((state.codex.codexProdMult ?? 1.0) > 1.0) {
+      for (const res of RESOURCE_KEYS) {
+        if (rates[res] > 0) rates[res] *= state.codex.codexProdMult;
+      }
+    }
+  }
+
   Object.assign(state.rates, rates);
   Object.assign(state.caps, caps);
 }

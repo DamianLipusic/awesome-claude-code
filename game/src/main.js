@@ -129,6 +129,8 @@ import { initReparations } from './systems/warReparations.js';                  
 import { initReputation } from './systems/reputation.js';                                         // T211
 import { initCounteroffensive, counteroffensiveTick } from './systems/counteroffensive.js';       // T212
 import { initRoyalHunt, huntTick } from './systems/royalHunt.js';                                  // T214
+import { initCodex } from './systems/imperialCodex.js';                                            // T215
+import { initLegendary, legendaryTick } from './systems/legendaryEncounters.js';                   // T216
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
@@ -230,6 +232,7 @@ function boot() {
   registerSystem(arenaTick);          // T204: grand arena event spawn/expire
   registerSystem(counteroffensiveTick); // T212: prune expired counteroffensives
   registerSystem(huntTick);             // T214: royal hunt spawn/resolve
+  registerSystem(legendaryTick);        // T216: legendary encounter spawn/expiry
 
   // Init event-driven systems
   initRandomEvents();
@@ -313,6 +316,8 @@ function boot() {
   initReputation();            // T211: reputation system state init
   initCounteroffensive();      // T212: counteroffensive tracking state init
   initRoyalHunt();             // T214: royal hunt state init
+  initCodex();               // T215: imperial codex state init
+  initLegendary();           // T216: legendary encounters state init
   // T176: monument init deferred — only activates when building is constructed
 
   // Init UI
@@ -567,7 +572,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 75, // T209: military supply lines; T210: war reparations
+      version: 76, // T215: imperial codex; T216: legendary encounters
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -706,6 +711,8 @@ function _save() {
         reputation:          state.reputation          ?? null,  // T211
         counteroffensives:   state.counteroffensives   ?? null,  // T212
         royalHunt:           state.royalHunt           ?? null,  // T214
+        codex:               state.codex               ?? null,  // T215
+        legendary:           state.legendary           ?? null,  // T216
         tick:          state.tick,
       }
     }));
@@ -878,6 +885,8 @@ function _applySave(save) {
   state.reputation           = s.reputation           ?? null; // T211
   state.counteroffensives    = s.counteroffensives    ?? null; // T212
   state.royalHunt            = s.royalHunt            ?? null; // T214
+  state.codex                = s.codex                ?? null; // T215
+  state.legendary            = s.legendary            ?? null; // T216
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
@@ -1725,6 +1734,8 @@ function _newGame(opts = {}) {
   initReputation();            // T211: reset reputation on new game
   initCounteroffensive();      // T212: reset counteroffensives on new game
   initRoyalHunt();             // T214: reset royal hunt on new game
+  initCodex();               // T215: reset imperial codex on new game
+  initLegendary();           // T216: reset legendary encounters on new game
   _updateCelestialBanner(); // T153: hide banner on new game
   recalcRates();
   startLoop();  // restart loop in case it was stopped by game-over

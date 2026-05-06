@@ -22,6 +22,7 @@ import { acceptInspiration, dismissInspiration, getInspirationSecsLeft, INSPIRAT
 import { WONDERS, WONDER_ORDER } from '../data/wonders.js';
 import { startWonder, getWonderProgress, getCompletedWonder, isWonderBuilding } from '../systems/wonders.js';
 import { SEASON_RESEARCH_AFFINITY, SEASON_AFFINITY_LABELS, SEASON_AFFINITY_DISCOUNT } from '../data/seasons.js'; // T188
+import { getCodexInfo, CODEX_MILESTONES } from '../systems/imperialCodex.js'; // T215
 
 export function initResearchPanel() {
   const panel = document.getElementById('panel-research');
@@ -45,6 +46,7 @@ export function initResearchPanel() {
   on(Events.WONDER_CHANGED,         renderResearchPanel);  // T133
   on(Events.GRAND_THEORY_CHOSEN,    renderResearchPanel);  // T150
   on(Events.SEASON_CHANGED,         renderResearchPanel);  // T188: re-render when season flips so affinity badges update
+  on(Events.CODEX_MILESTONE,        renderResearchPanel);  // T215: re-render when codex fragment count changes
   // Refresh countdown text every second while a festival, inspiration, or wonder is active
   on(Events.TICK, _throttle(() => {
     const hasActivity = getActiveFestival() || getFestivalCooldownSecs() > 0
@@ -113,7 +115,7 @@ function renderResearchPanel() {
     </div>`;
   }).join('');
 
-  panel.innerHTML = _ageSection() + progressHtml + _inspirationCard() + `<div class="tech-grid">${techCards}</div>` + _masteriesSection() + _synergiesSection() + _policySection() + _festivalsSection() + _wondersSection() + _relicsSection() + _landmarksSection() + _ruinsSection() + _grandTheorySection();
+  panel.innerHTML = _ageSection() + progressHtml + _inspirationCard() + `<div class="tech-grid">${techCards}</div>` + _masteriesSection() + _synergiesSection() + _policySection() + _festivalsSection() + _wondersSection() + _relicsSection() + _landmarksSection() + _ruinsSection() + _grandTheorySection() + _codexSection();
 
   panel.onclick = (e) => {
     // T116: Research inspiration accept/dismiss
@@ -853,6 +855,65 @@ function _canAffordAge(cost) {
 
 const RES_ICONS = { gold: '💰', food: '🍞', wood: '🪵', stone: '🪨', iron: '⚙️', mana: '✨' };
 function _resIcon(res) { return RES_ICONS[res] ?? ''; }
+
+// T215: Imperial Codex section
+function _codexSection() {
+  const info = getCodexInfo();
+  if (!info) return '';
+
+  const { fragments, milestones, codexGoldRate, codexProdMult, nextMilestone, allDone } = info;
+
+  // Progress bar toward next milestone
+  let progressHtml = '';
+  if (!allDone && nextMilestone) {
+    const prev = CODEX_MILESTONES.findIndex(m => m.id === nextMilestone.id);
+    const prevThresh = prev > 0 ? CODEX_MILESTONES[prev - 1].threshold : 0;
+    const pct = Math.min(100, Math.round(
+      ((fragments - prevThresh) / (nextMilestone.threshold - prevThresh)) * 100
+    ));
+    progressHtml = `
+      <div class="codex-next">
+        <span class="codex-next__label">Next: ${nextMilestone.icon} ${nextMilestone.name}</span>
+        <span class="codex-next__threshold">${fragments} / ${nextMilestone.threshold} fragments</span>
+      </div>
+      <div class="codex-progress-bg"><div class="codex-progress-fill" style="width:${pct}%"></div></div>`;
+  } else {
+    progressHtml = `<div class="codex-all-done">📖 All codex milestones unlocked!</div>`;
+  }
+
+  // Active bonuses
+  const bonusLines = [];
+  if (codexGoldRate > 0) bonusLines.push(`💰 +${codexGoldRate.toFixed(2)} gold/s`);
+  if (codexProdMult > 1.0) bonusLines.push(`⚙️ +${Math.round((codexProdMult - 1) * 100)}% building production`);
+  const bonusHtml = bonusLines.length
+    ? `<div class="codex-bonuses">${bonusLines.map(l => `<span class="codex-bonus">${l}</span>`).join('')}</div>`
+    : '';
+
+  // Milestone list
+  const msHtml = CODEX_MILESTONES.map(ms => {
+    const done = milestones.includes(ms.id);
+    return `<div class="codex-ms ${done ? 'codex-ms--done' : 'codex-ms--locked'}">
+      <span class="codex-ms__icon">${ms.icon}</span>
+      <span class="codex-ms__info">
+        <span class="codex-ms__name">${ms.name}</span>
+        <span class="codex-ms__desc">${ms.desc}</span>
+      </span>
+      <span class="codex-ms__thresh">${done ? '✓' : ms.threshold}</span>
+    </div>`;
+  }).join('');
+
+  return `
+    <div class="codex-section">
+      <div class="codex-header">
+        <span>📖 Imperial Codex</span>
+        <span class="codex-frag-count">${fragments} fragments</span>
+      </div>
+      <div class="codex-intro">Accumulate knowledge across your reign. Each milestone unlocks a permanent empire bonus.</div>
+      ${progressHtml}
+      ${bonusHtml}
+      <div class="codex-ms-list">${msHtml}</div>
+    </div>`;
+}
 
 function _throttle(fn, ticks) {
   let last = 0;

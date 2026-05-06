@@ -18,6 +18,7 @@ import { WIN_AGE, WIN_TILES, WIN_QUESTS, WIN_DIPLOMATIC_ALLIANCES, WIN_ECONOMIC_
 import { getActiveOmen, getOmenSecsLeft, avertOmen, channelOmen } from '../systems/oracle.js'; // T193
 import { EPIC_CHAINS, CHAIN_ORDER, getChainProgress } from '../systems/epicQuests.js'; // T202
 import { getRoyalHuntStatus, launchRoyalHunt, HUNT_GOLD_COST, HUNT_FOOD_COST } from '../systems/royalHunt.js'; // T214
+import { getActiveLegendary, getLegendarySecsLeft, getLegendaryHistory, LEGENDARY_TYPES } from '../systems/legendaryEncounters.js'; // T216
 
 export function initQuestPanel() {
   const panel = document.getElementById('panel-quests');
@@ -38,6 +39,7 @@ export function initQuestPanel() {
     Events.OMEN_CHANNELED, Events.OMEN_FIRED,           // T193
     Events.EPIC_QUEST_PROGRESS,                         // T202: epic quest chain step/completion
     Events.HUNT_CHANGED,                                // T214: royal hunt state changes
+    Events.LEGENDARY_CHANGED,                           // T216: legendary encounter spawned/defeated/expired
   ];
   for (const ev of events) on(ev, render);
 
@@ -51,8 +53,9 @@ export function initQuestPanel() {
       const pl = state.plague?.active;
       const pi = state.pilgrimages?.pending;
       const om = state.oracle?.activeOmen;
-      const rh = state.royalHunt?.pending || state.royalHunt?.active;
-      if (ch || pe || bo || pl || pi || om || rh) render();
+      const rh  = state.royalHunt?.pending || state.royalHunt?.active;
+      const leg = state.legendary?.current;
+      if (ch || pe || bo || pl || pi || om || rh || leg) render();
     }
   });
 
@@ -129,6 +132,7 @@ function render() {
   const pct       = total > 0 ? Math.round((doneCount / total) * 100) : 0;
 
   panel.innerHTML = `
+    ${_legendarySection()}
     ${_oracleSection()}
     ${_plagueSection()}
     ${_pilgrimageSection()}
@@ -342,6 +346,50 @@ function _pilgrimageSection() {
         </button>
       </div>
     </div>`;
+}
+
+// ── Legendary Encounter section (T216) ───────────────────────────────────
+
+function _legendarySection() {
+  const leg  = getActiveLegendary();
+  const hist = getLegendaryHistory();
+  if (!leg && hist.length === 0) return '';
+
+  const totalDefeated = state.legendary?.totalDefeated ?? 0;
+
+  let activeHtml = '';
+  if (leg) {
+    const def      = LEGENDARY_TYPES[leg.type];
+    const secsLeft = getLegendarySecsLeft();
+    activeHtml = `
+      <div class="legendary-section">
+        <div class="legendary-header">
+          <span>${leg.icon} ${leg.name} Sighted!</span>
+          <span class="legendary-countdown">${secsLeft}s remaining</span>
+        </div>
+        <div class="legendary-desc">${def.desc}</div>
+        <div class="legendary-stats">
+          <span>Defense boost: <span class="legendary-stat-val">×${def.defenseBoost}</span></span>
+          <span>Reward: <span class="legendary-reward">${def.rewardDesc}</span></span>
+        </div>
+        <div class="legendary-hint">🗺️ Find the ${leg.icon} tile on the map and attack it!</div>
+      </div>`;
+  }
+
+  let histHtml = '';
+  if (hist.length > 0) {
+    const rows = hist.map(h => {
+      const ago = Math.floor((state.tick - h.tick) / (4 * 60));
+      return `<div class="legendary-hist-entry">${h.icon} ${h.name} — ${h.reward} (${ago}m ago)</div>`;
+    }).join('');
+    histHtml = `
+      <div class="legendary-history">
+        <div class="legendary-history__label">Legendary Victories (${totalDefeated} total)</div>
+        ${rows}
+      </div>`;
+  }
+
+  return activeHtml + (histHtml ? `<div style="margin-top:6px">${histHtml}</div>` : '');
 }
 
 // ── Royal Hunt section (T214) ────────────────────────────────────────────

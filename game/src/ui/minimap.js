@@ -32,6 +32,7 @@ const CLR_PLAYER      = '#1e40af';
 const CLR_ENEMY       = '#991b1b';
 const CLR_CAPITAL     = '#d97706';
 const CLR_BARBARIAN   = '#7a1c0a';  // T056: dark maroon for barbarian camps
+const CLR_LEGENDARY   = '#b45309';  // T216: amber-brown for legendary encounters
 
 // T053: per-faction minimap colors (darker versions of the map canvas tints)
 const CLR_FACTION = {
@@ -96,6 +97,8 @@ export function drawMinimap() {
         color = (tile.faction && CLR_FACTION[tile.faction]) ? CLR_FACTION[tile.faction] : CLR_ENEMY;
       } else if (tile.owner === 'barbarian') {
         color = CLR_BARBARIAN;  // T056: dark maroon for barbarian camps
+      } else if (tile.owner === 'legendary') {
+        color = CLR_LEGENDARY;  // T216: amber-brown for legendary encounters
       } else {
         color = CLR_NEUTRAL;
       }

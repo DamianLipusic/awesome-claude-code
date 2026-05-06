@@ -43,6 +43,7 @@ import { addWarExhaustion } from './warExhaustion.js';                          
 import { getFortificationNetworkBonus } from './fortificationNetwork.js';              // T183
 import { getSupplyPenalty } from './supplyLines.js';                                   // T209
 import { recordFactionCapture } from './counteroffensive.js';                          // T212
+import { getLegendaryDefenseBoost, defeatLegendary } from './legendaryEncounters.js';  // T216
 
 /** Returns true if both techs of a named synergy are researched. */
 function _synergy(id) {
@@ -382,6 +383,10 @@ export function getAttackPreview(x, y) {
   const fortNetBonus = getFortificationNetworkBonus(x, y);
   effectiveDefense += fortNetBonus;
 
+  // T216: Legendary Encounters — apply defense multiplier for legendary creature tiles
+  const legBoost = getLegendaryDefenseBoost(x, y);
+  if (legBoost > 1.0) effectiveDefense = Math.round(effectiveDefense * legBoost);
+
   const heroReady      = state.hero?.recruited && !_heroInjured() && !_heroOnExpedition();
   const siegeActive    = !!(heroReady && state.hero.activeEffects?.siege);
   const manaBoltActive = !!(state.spells?.activeEffects?.manaBolt);
@@ -675,6 +680,13 @@ export function attackTile(x, y) {
   // T183: fortification network — networked fortified tiles are harder to capture
   effectiveDefense += getFortificationNetworkBonus(x, y);
 
+  // T216: legendary encounter defense boost
+  const _legBoost = getLegendaryDefenseBoost(x, y);
+  if (_legBoost > 1.0) {
+    effectiveDefense = Math.round(effectiveDefense * _legBoost);
+    addMessage(`${state.legendary?.current?.icon ?? '⚠️'} Legendary creature: defense greatly increased!`, 'info');
+  }
+
   let winChance = siegeActive
     ? 1.0
     : Math.min(0.95, Math.max(0.1, attackPower / (attackPower + effectiveDefense)));
@@ -749,6 +761,7 @@ function _victory(tile, x, y, attackPower, defense) {
   const wasFactionCapital = tile.isFactionCapital ?? null;         // T093: check before changing owner
   const prevFaction       = tile.faction ?? null;                  // T154: save before clearing for campaign
   const wasWarlord        = !!(tile.warlord);                      // T165: roving warlord
+  const wasLegendary      = tile.owner === 'legendary';            // T216: legendary encounter
 
   tile.owner            = 'player';
   tile.faction          = null;    // T053: clear faction on player capture
@@ -902,12 +915,17 @@ function _victory(tile, x, y, attackPower, defense) {
   // T166: record captured faction capital for tribute eligibility
   if (wasFactionCapital) recordCapturedCapital(wasFactionCapital);
 
+  // T216: legendary encounter defeated — apply special rewards
+  if (wasLegendary) defeatLegendary(x, y);
+
   recalcRates();
   emit(Events.MAP_CHANGED, { x, y, outcome: 'win' });
   emit(Events.RESOURCE_CHANGED, {});
 
   const lootStr = lootParts.length ? ` Looted: ${lootParts.join(', ')}.` : '';
-  if (wasBarbarian) {
+  if (wasLegendary) {
+    // defeatLegendary() already adds its own message; nothing extra needed here
+  } else if (wasBarbarian) {
     addMessage(
       `💀 Barbarian camp cleared at (${x},${y})!${lootStr}`,
       'combat-win',

@@ -578,6 +578,15 @@ export const state = {
   //   active: { resolvesAt: tick } | null,
   //   nextSpawn: tick, totalHunts: number } | null
   royalHunt: null,
+
+  // T215: Imperial Codex — cross-system knowledge fragment collection
+  // { fragments: number, milestones: string[], codexGoldRate: number, codexProdMult: number } | null
+  codex: null,
+
+  // T216: Legendary Encounters — rare creature map events
+  // { current: { type, x, y, icon, name, boostedDefense, expiresAt } | null,
+  //   nextSpawnTick: number, totalDefeated: number } | null
+  legendary: null,
 };
 
 /**
@@ -714,5 +723,7 @@ export function initState(empireName = 'My Empire') {
   state.reputation           = null; // T211: reset reputation per game
   state.counteroffensives    = null; // T212: reset counteroffensives per game
   state.royalHunt            = null; // T214: reset royal hunt per game
+  state.codex                = null; // T215: reset codex per game
+  state.legendary            = null; // T216: reset legendary encounters per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }
