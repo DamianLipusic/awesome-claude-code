@@ -133,6 +133,8 @@ import { initCodex } from './systems/imperialCodex.js';                         
 import { initLegendary, legendaryTick } from './systems/legendaryEncounters.js';                   // T216
 import { initRefugees, refugeeTick, acceptRefugees, integrateRefugees, declineRefugees, getRefugeeSecsLeft, INTEGRATE_GOLD, INTEGRATE_FOOD } from './systems/refugeeCrisis.js'; // T217
 import { initSilkRoad, silkRoadTick } from './systems/silkRoad.js';                               // T218
+import { initPropaganda, propagandaTick } from './systems/propaganda.js';                         // T219
+import { initMilitaryIntel, militaryIntelTick } from './systems/militaryIntel.js';                // T220
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
@@ -237,6 +239,8 @@ function boot() {
   registerSystem(legendaryTick);        // T216: legendary encounter spawn/expiry
   registerSystem(refugeeTick);          // T217: refugee crisis spawn/expiry
   registerSystem(silkRoadTick);         // T218: silk road window lifecycle
+  registerSystem(propagandaTick);       // T219: propaganda campaign expiry
+  registerSystem(militaryIntelTick);    // T220: military intelligence report generation
 
   // Init event-driven systems
   initRandomEvents();
@@ -324,6 +328,8 @@ function boot() {
   initLegendary();           // T216: legendary encounters state init
   initRefugees();            // T217: refugee crisis state init
   initSilkRoad();            // T218: silk road state init
+  initPropaganda();          // T219: propaganda campaigns state init
+  initMilitaryIntel();       // T220: military intelligence state init
   // T176: monument init deferred — only activates when building is constructed
 
   // Init UI
@@ -728,6 +734,8 @@ function _save() {
         legendary:           state.legendary           ?? null,  // T216
         refugees:            state.refugees            ?? null,  // T217
         silkRoad:            state.silkRoad            ?? null,  // T218
+        propaganda:          state.propaganda          ?? null,  // T219
+        intel:               state.intel               ?? null,  // T220
         tick:          state.tick,
       }
     }));
@@ -904,6 +912,8 @@ function _applySave(save) {
   state.legendary            = s.legendary            ?? null; // T216
   state.refugees             = s.refugees             ?? null; // T217
   state.silkRoad             = s.silkRoad             ?? null; // T218
+  state.propaganda           = s.propaganda           ?? null; // T219
+  state.intel                = s.intel                ?? null; // T220
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
@@ -1800,6 +1810,8 @@ function _newGame(opts = {}) {
   initLegendary();           // T216: reset legendary encounters on new game
   initRefugees();            // T217: reset refugee crisis on new game
   initSilkRoad();            // T218: reset silk road on new game
+  initPropaganda();          // T219: reset propaganda campaigns on new game
+  initMilitaryIntel();       // T220: reset military intel on new game
   _updateCelestialBanner(); // T153: hide banner on new game
   _updateRefugeeBanner();   // T217: hide refugee banner on new game
   recalcRates();

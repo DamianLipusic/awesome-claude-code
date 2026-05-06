@@ -23,6 +23,7 @@ import { WONDERS, WONDER_ORDER } from '../data/wonders.js';
 import { startWonder, getWonderProgress, getCompletedWonder, isWonderBuilding } from '../systems/wonders.js';
 import { SEASON_RESEARCH_AFFINITY, SEASON_AFFINITY_LABELS, SEASON_AFFINITY_DISCOUNT } from '../data/seasons.js'; // T188
 import { getCodexInfo, CODEX_MILESTONES } from '../systems/imperialCodex.js'; // T215
+import { CAMPAIGN_DEFS, launchCampaign, getPropagandaInfo, getPropagandaSecsLeft, getPropagandaCooldownSecs } from '../systems/propaganda.js'; // T219
 
 export function initResearchPanel() {
   const panel = document.getElementById('panel-research');
@@ -47,10 +48,12 @@ export function initResearchPanel() {
   on(Events.GRAND_THEORY_CHOSEN,    renderResearchPanel);  // T150
   on(Events.SEASON_CHANGED,         renderResearchPanel);  // T188: re-render when season flips so affinity badges update
   on(Events.CODEX_MILESTONE,        renderResearchPanel);  // T215: re-render when codex fragment count changes
-  // Refresh countdown text every second while a festival, inspiration, or wonder is active
+  on(Events.PROPAGANDA_LAUNCHED,   renderResearchPanel);  // T219: re-render when campaign starts/ends
+  // Refresh countdown text every second while a festival, inspiration, wonder, or campaign is active
   on(Events.TICK, _throttle(() => {
     const hasActivity = getActiveFestival() || getFestivalCooldownSecs() > 0
-      || !!state.researchInspiration?.pending || isWonderBuilding();
+      || !!state.researchInspiration?.pending || isWonderBuilding()
+      || !!state.propaganda?.activeCampaign || (getPropagandaCooldownSecs() > 0);
     if (hasActivity) renderResearchPanel();
   }, 4));
 }
@@ -115,7 +118,7 @@ function renderResearchPanel() {
     </div>`;
   }).join('');
 
-  panel.innerHTML = _ageSection() + progressHtml + _inspirationCard() + `<div class="tech-grid">${techCards}</div>` + _masteriesSection() + _synergiesSection() + _policySection() + _festivalsSection() + _wondersSection() + _relicsSection() + _landmarksSection() + _ruinsSection() + _grandTheorySection() + _codexSection();
+  panel.innerHTML = _ageSection() + progressHtml + _inspirationCard() + `<div class="tech-grid">${techCards}</div>` + _masteriesSection() + _synergiesSection() + _policySection() + _festivalsSection() + _wondersSection() + _relicsSection() + _landmarksSection() + _ruinsSection() + _grandTheorySection() + _codexSection() + _propagandaSection();
 
   panel.onclick = (e) => {
     // T116: Research inspiration accept/dismiss
@@ -164,6 +167,13 @@ function renderResearchPanel() {
     const gtBtn = e.target.closest('[data-grand-theory]');
     if (gtBtn) {
       chooseGrandTheory(gtBtn.dataset.grandTheory);
+      return;
+    }
+    // T219: Propaganda campaign launch
+    const propBtn = e.target.closest('[data-propaganda]');
+    if (propBtn) {
+      const result = launchCampaign(propBtn.dataset.propaganda);
+      if (!result.ok) propBtn.title = result.reason;
       return;
     }
     const btn = e.target.closest('[data-tech]');
@@ -912,6 +922,77 @@ function _codexSection() {
       ${progressHtml}
       ${bonusHtml}
       <div class="codex-ms-list">${msHtml}</div>
+    </div>`;
+}
+
+// T219: Imperial Propaganda Campaigns section
+function _propagandaSection() {
+  if (!state.propaganda) return '';
+
+  const info        = getPropagandaInfo();
+  const secsLeft    = getPropagandaSecsLeft();
+  const cooldownSec = getPropagandaCooldownSecs();
+  const gold        = state.resources?.gold ?? 0;
+
+  // Active campaign status banner
+  let statusHtml = '';
+  if (info.activeCampaign) {
+    const def = CAMPAIGN_DEFS.find(d => d.id === info.activeCampaign.type);
+    statusHtml = `<div class="prop-active">
+      <span class="prop-active__icon">${def?.icon ?? '📣'}</span>
+      <span class="prop-active__name">${def?.name ?? 'Campaign'} active</span>
+      <span class="prop-active__timer">${secsLeft}s remaining</span>
+    </div>`;
+  } else if (cooldownSec > 0) {
+    statusHtml = `<div class="prop-cooldown">⏳ Next campaign in ${fmtTime(cooldownSec)}</div>`;
+  }
+
+  // Campaign cards
+  const onCooldown = cooldownSec > 0 || !!info.activeCampaign;
+  const cardsHtml = CAMPAIGN_DEFS.map(def => {
+    const costParts = Object.entries(def.costs).map(([r, a]) => `${_resIcon(r)}${a}`).join(' ');
+    const canAfford = Object.entries(def.costs).every(([r, a]) => (state.resources[r] ?? 0) >= a);
+    const needsRoute = def.requires === 'tradeRoute';
+    const hasRoute   = state.diplomacy?.empires?.some(e => e.relations === 'allied' && (e.tradeRoutes ?? 0) > 0);
+    const reqMet     = !needsRoute || hasRoute;
+    const canLaunch  = !onCooldown && canAfford && reqMet;
+
+    let hintHtml = '';
+    if (needsRoute && !hasRoute) {
+      hintHtml = `<div class="prop-req">Requires allied empire with trade route</div>`;
+    }
+
+    return `<div class="prop-card">
+      <div class="prop-card__header">
+        <span class="prop-card__icon">${def.icon}</span>
+        <span class="prop-card__name">${def.name}</span>
+        <span class="prop-card__cost">${costParts}</span>
+      </div>
+      <div class="prop-card__desc">${def.desc}</div>
+      ${hintHtml}
+      <button
+        class="btn btn--propaganda ${canLaunch ? '' : 'btn--disabled'}"
+        data-propaganda="${def.id}"
+        ${canLaunch ? '' : 'disabled'}
+        title="${onCooldown ? 'Campaign on cooldown' : !canAfford ? 'Cannot afford' : !reqMet ? 'Requires allied trade route' : def.desc}">
+        Launch
+      </button>
+    </div>`;
+  }).join('');
+
+  const totalHtml = info.totalLaunched > 0
+    ? `<div class="prop-total">Total campaigns launched: ${info.totalLaunched}</div>`
+    : '';
+
+  return `
+    <div class="prop-section">
+      <div class="prop-header">
+        <span>📣 Imperial Propaganda</span>
+      </div>
+      <div class="prop-intro">Commission empire-wide campaigns to boost military, trade, or diplomacy for a limited time.</div>
+      ${statusHtml}
+      <div class="prop-cards">${cardsHtml}</div>
+      ${totalHtml}
     </div>`;
 }
 

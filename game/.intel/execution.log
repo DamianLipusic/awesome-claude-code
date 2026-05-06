@@ -3952,3 +3952,23 @@ All prior tasks (T001–T216) were complete. Created T217+T218 task specs then i
 - `src/systems/resources.js`: T218 block adds silkRoad.permanentGoldRate to gold rate.
 - `src/ui/marketPanel.js`: Import buySilkRoadGood+helpers. on(SILK_ROAD_CHANGED, _render). TICK refresh when current active. _silkRoadSection() renders idle state (countdown + permanent bonus display) or 2-column goods grid with buy buttons (data-action=silk-road-buy, data-silk-good=id). Click handler dispatches to buySilkRoadGood().
 - `styles/main.css`: .silk-road-section/header/timer/subtitle/goods/good/good--purchased/good-name/good-desc/idle classes.
+
+## Session N+55 — 2026-05-06
+
+### T219: Imperial Propaganda Campaigns
+New file `src/systems/propaganda.js`. CAMPAIGN_DEFS array with 3 types: military_morale (120g+50i, +12 morale, +5% attack 5min), economic_stimulus (100g+50f, +20% market sell 4min + +8 codex fragments), cultural_diplomacy (150g+50m, requires allied trade route, +12 reputation +8 favor/ally). initPropaganda() lazy-creates state.propaganda. propagandaTick() expires campaigns and starts 8-min cooldown. launchCampaign(type) validates and applies effects. isPropagandaActive(type) used by combat.js and market.js.
+- `src/core/events.js`: PROPAGANDA_LAUNCHED event added.
+- `src/core/state.js`: propaganda:null field + initState reset.
+- `src/systems/combat.js`: import isPropagandaActive; +5% attackPower block in both getAttackPreview and attackTile paths.
+- `src/systems/market.js`: import isPropagandaActive; +20% earned block in sellResources.
+- `src/ui/researchPanel.js`: import helpers; on(PROPAGANDA_LAUNCHED) re-render; TICK refresh includes propaganda; [data-propaganda] click handler; _propagandaSection() renders active/cooldown banner and 3 campaign cards.
+- `src/main.js`: import + registerSystem(propagandaTick) + initPropaganda() in boot+_newGame + save/load.
+- `styles/main.css`: .prop-section/header/intro/active/cooldown/cards/card styles + .btn--propaganda.
+
+### T220: Military Intelligence Reports
+New file `src/systems/militaryIntel.js`. Generates automated spy briefings on non-allied empires every 8-12 min when espionage tech is researched. _generateReports() counts empire tile ownership and player-border adjacency from state.map.tiles, derives tileTrend (±3 threshold vs prev cycle), powerTier (tile+tech score weak/average/strong/overwhelming), threatLevel (border tile count low/medium/high). Reports stored per empire in state.intel.reports.
+- `src/core/events.js`: INTEL_REPORT event added.
+- `src/core/state.js`: intel:null field + initState reset.
+- `src/ui/diplomacyPanel.js`: import getIntelReport+helpers; on(INTEL_REPORT) re-render; _intelRow(emp) renders pending notice or live report card (tile trend, power tier, threat level, age) injected into each non-allied empire card.
+- `src/main.js`: import + registerSystem(militaryIntelTick) + initMilitaryIntel() in boot+_newGame + save/load.
+- `styles/main.css`: .intel-row/--pending and sub-element styles.

@@ -13467,3 +13467,130 @@ kbd {
   color: #78716c;
   font-style: italic;
 }
+
+/* ── T219: Imperial Propaganda Campaigns ─────────────────────────────────── */
+.prop-section {
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 14px;
+  background: rgba(251, 191, 36, 0.04);
+}
+.prop-header {
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: #fbbf24;
+  margin-bottom: 6px;
+}
+.prop-intro {
+  font-size: 0.77rem;
+  color: #9ca3af;
+  margin-bottom: 10px;
+}
+.prop-active {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(251, 191, 36, 0.12);
+  border: 1px solid rgba(251, 191, 36, 0.4);
+  border-radius: 6px;
+  padding: 6px 10px;
+  margin-bottom: 10px;
+  font-size: 0.82rem;
+}
+.prop-active__name { font-weight: 600; color: #fde68a; flex: 1; }
+.prop-active__timer { color: #fbbf24; font-variant-numeric: tabular-nums; }
+.prop-cooldown {
+  font-size: 0.80rem;
+  color: #78716c;
+  margin-bottom: 8px;
+  font-style: italic;
+}
+.prop-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.prop-card {
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px;
+  padding: 8px 10px;
+  background: rgba(255,255,255,0.03);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.prop-card__header {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.82rem;
+}
+.prop-card__icon { font-size: 1rem; }
+.prop-card__name { font-weight: 600; color: #e5e7eb; flex: 1; }
+.prop-card__cost { font-size: 0.75rem; color: #9ca3af; white-space: nowrap; }
+.prop-card__desc {
+  font-size: 0.74rem;
+  color: #9ca3af;
+  margin-bottom: 4px;
+}
+.prop-req {
+  font-size: 0.72rem;
+  color: #f87171;
+  margin-bottom: 2px;
+}
+.btn--propaganda {
+  background: linear-gradient(135deg, #b45309, #92400e);
+  color: #fde68a;
+  border: none;
+  border-radius: 5px;
+  padding: 4px 10px;
+  font-size: 0.77rem;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: opacity 0.15s;
+}
+.btn--propaganda:hover:not(:disabled) { opacity: 0.85; }
+.btn--propaganda.btn--disabled,
+.btn--propaganda:disabled {
+  background: rgba(255,255,255,0.08);
+  color: #6b7280;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+.prop-total {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+/* ── T220: Military Intelligence row ────────────────────────────────────── */
+.intel-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  background: rgba(30, 41, 59, 0.5);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  border-radius: 5px;
+  padding: 5px 8px;
+  margin-top: 6px;
+  font-size: 0.76rem;
+}
+.intel-row--pending {
+  color: #6b7280;
+  font-style: italic;
+  background: transparent;
+  border-color: rgba(255,255,255,0.08);
+}
+.intel-row__label { font-weight: 600; color: #818cf8; }
+.intel-row__tiles { color: #e5e7eb; }
+.intel-row__power { font-weight: 600; }
+.intel-row__threat { font-weight: 600; }
+.intel-row__age {
+  margin-left: auto;
+  color: #6b7280;
+  font-size: 0.70rem;
+  font-style: italic;
+}

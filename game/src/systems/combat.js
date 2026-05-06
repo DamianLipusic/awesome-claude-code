@@ -44,6 +44,7 @@ import { getFortificationNetworkBonus } from './fortificationNetwork.js';       
 import { getSupplyPenalty } from './supplyLines.js';                                   // T209
 import { recordFactionCapture } from './counteroffensive.js';                          // T212
 import { getLegendaryDefenseBoost, defeatLegendary } from './legendaryEncounters.js';  // T216
+import { isPropagandaActive }                        from './propaganda.js';            // T219
 
 /** Returns true if both techs of a named synergy are researched. */
 function _synergy(id) {
@@ -361,6 +362,9 @@ export function getAttackPreview(x, y) {
   const surgeActive = (state.supplyDepot?.surgeExpiresAt ?? 0) > state.tick;
   if (surgeActive) attackPower += 15;
 
+  // T219: Military Morale propaganda campaign — +5% attack power while active
+  if (isPropagandaActive('military_morale')) attackPower *= 1.05;
+
   // T210: War Reparations righteous anger — +10% attack power when demand was refused
   if ((state.reparations?.angryBonusUntil ?? 0) > state.tick) attackPower *= 1.10;
 
@@ -621,6 +625,9 @@ export function attackTile(x, y) {
 
   // T157: Supply Depot Surge Provisions — +15 flat attack while surge is active
   if ((state.supplyDepot?.surgeExpiresAt ?? 0) > state.tick) attackPower += 15;
+
+  // T219: Military Morale propaganda campaign — +5% attack power while active
+  if (isPropagandaActive('military_morale')) attackPower *= 1.05;
 
   // T210: War Reparations righteous anger — +10% attack power when demand was refused
   if ((state.reparations?.angryBonusUntil ?? 0) > state.tick) attackPower *= 1.10;

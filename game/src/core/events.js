@@ -185,4 +185,6 @@ export const Events = Object.freeze({
   LEGENDARY_CHANGED:        'legendaryChanged',            // T216: legendary creature spawned / defeated / expired
   REFUGEE_CRISIS:           'refugeeCrisis',               // T217: refugee crisis spawned / accepted / integrated / declined / expired
   SILK_ROAD_CHANGED:        'silkRoadChanged',             // T218: silk road window opened / purchased / closed
+  PROPAGANDA_LAUNCHED:      'propagandaLaunched',          // T219: propaganda campaign started or ended
+  INTEL_REPORT:             'intelReport',                  // T220: military intelligence report generated
 });

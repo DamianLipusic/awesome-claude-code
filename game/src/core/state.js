@@ -598,6 +598,15 @@ export const state = {
   // { current: {goods:[{id,icon,name,desc,cost,purchased}], expiresAt, boughtCount}|null,
   //   nextWindowTick, totalPurchases, permanentGoldRate } | null
   silkRoad: null,
+
+  // T219: Imperial Propaganda Campaigns
+  // { activeCampaign: {type, expiresAt}|null, cooldownUntil, totalLaunched } | null
+  propaganda: null,
+
+  // T220: Military Intelligence Reports
+  // { reports: {[empireId]: {tileTrend, powerTier, threatLevel, generatedAt}},
+  //   nextReportTick, totalReports } | null
+  intel: null,
 };
 
 /**
@@ -738,5 +747,7 @@ export function initState(empireName = 'My Empire') {
   state.legendary            = null; // T216: reset legendary encounters per game
   state.refugees             = null; // T217: reset refugee crisis per game
   state.silkRoad             = null; // T218: reset silk road per game
+  state.propaganda           = null; // T219: reset propaganda campaigns per game
+  state.intel                = null; // T220: reset military intel per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

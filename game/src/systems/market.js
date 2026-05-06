@@ -13,6 +13,7 @@ import { TICKS_PER_SECOND } from '../core/tick.js';
 import { anyEmbargoActive } from './diplomacy.js'; // T159
 import { getFairBuyMult, getFairSellMult, tradeFairTradeMade } from './tradeFair.js'; // T196
 import { getReputationSellBonus } from './reputation.js'; // T211
+import { isPropagandaActive }     from './propaganda.js';  // T219
 
 // Base gold value per 1 unit of each resource
 const BASE_PRICES = Object.freeze({
@@ -168,6 +169,8 @@ export function sellResources(resource, amount) {
   if (state.vizier?.active === 'chancellor') earned = Math.floor(earned * 1.10);
   // T211: Noble reputation — +8% sell prices
   earned = Math.floor(earned * getReputationSellBonus());
+  // T219: Economic Stimulus propaganda campaign — +20% sell prices while active
+  if (isPropagandaActive('economic_stimulus')) earned = Math.floor(earned * 1.20);
   state.resources[resource]  = available - actual;
   state.resources.gold = Math.min(state.caps.gold, (state.resources.gold ?? 0) + earned);
   state.market.totalTrades++;

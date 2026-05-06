@@ -57,6 +57,7 @@ import {
 import {
   getActiveCounteroffensives, getCounteroffensiveSecs,
 } from '../systems/counteroffensive.js'; // T212
+import { getIntelReport, getIntelNextSecs, isIntelActive } from '../systems/militaryIntel.js'; // T220
 import { fmtNum } from '../utils/fmt.js';
 
 const PANEL_ID = 'panel-diplomacy';
@@ -95,6 +96,7 @@ export function initDiplomacyPanel() {
   on(Events.RESOURCE_PACT_CHANGED,  () => _render(panel));  // T208
   on(Events.REPARATIONS_DEMANDED,   () => _render(panel));  // T210
   on(Events.COUNTEROFFENSIVE,       () => _render(panel));  // T212
+  on(Events.INTEL_REPORT,           () => _render(panel));  // T220
   // Refresh cooldown countdown every second; also refresh ceasefire/gift/skirmish/aid timers when active
   on(Events.TICK, _throttle(() => {
     const cd = document.getElementById('espionage-cooldown');
@@ -674,6 +676,41 @@ function _envoyRow(emp) {
     </div>`;
 }
 
+// ── T220: Military Intelligence row ─────────────────────────────────────────
+
+function _intelRow(emp) {
+  if (!isIntelActive()) return '';
+  if (emp.relations === 'allied') return ''; // intel only for neutral/war empires
+
+  const report = getIntelReport(emp.id);
+  if (!report) {
+    const nextSecs = getIntelNextSecs();
+    const hintStr  = nextSecs > 0 ? ` (first report in ~${Math.ceil(nextSecs / 60)} min)` : '';
+    return `<div class="intel-row intel-row--pending">🔍 Intel: awaiting first report${hintStr}</div>`;
+  }
+
+  const TREND_ICON  = { expanding: '📈', stable: '➡️', contracting: '📉' };
+  const POWER_COLOR = { weak: '#6b7280', average: '#22c55e', strong: '#f59e0b', overwhelming: '#ef4444' };
+  const THREAT_COLOR = { low: '#22c55e', medium: '#f59e0b', high: '#ef4444' };
+
+  const trendIcon   = TREND_ICON[report.tileTrend]   ?? '➡️';
+  const powerColor  = POWER_COLOR[report.powerTier]  ?? '#9ca3af';
+  const threatColor = THREAT_COLOR[report.threatLevel] ?? '#9ca3af';
+
+  const ageTicks = state.tick - report.generatedAt;
+  const ageMins  = Math.floor(ageTicks / (60 * 4)); // TICKS_PER_SECOND=4
+  const ageStr   = ageMins < 1 ? 'just now' : `${ageMins}m ago`;
+
+  return `
+    <div class="intel-row">
+      <span class="intel-row__label">🔍 Intel</span>
+      <span class="intel-row__tiles">${trendIcon} ${report.tileCount} tiles (${report.tileTrend})</span>
+      <span class="intel-row__power" style="color:${powerColor}">⚔️ ${report.powerTier}</span>
+      <span class="intel-row__threat" style="color:${threatColor}">🎯 ${report.threatLevel} threat</span>
+      <span class="intel-row__age">${ageStr}</span>
+    </div>`;
+}
+
 function _tradeSpecRow(emp) {
   if (emp.relations !== 'allied' || emp.tradeRoutes <= 0) return '';
 
@@ -894,6 +931,7 @@ function _empireCard(emp) {
       ${_embargoRow(emp)}
       ${_tributeRow(emp)}
       ${_envoyRow(emp)}
+      ${_intelRow(emp)}
       <div class="dipl-empire-card__actions">${btns.join('')}</div>
     </div>
   `;
