@@ -736,6 +736,14 @@ export function recalcRates() {
     rates.gold = (rates.gold ?? 0) + 1.0;
   }
 
+  // T228: Wartime Rationing — food consumption −30%, non-food positive rates −15%
+  if (state.rationing?.active && state.rationing.active.expiresAt > state.tick) {
+    if (rates.food < 0) rates.food *= 0.70;  // reduce net consumption by 30%
+    for (const res of ['gold', 'wood', 'stone', 'iron', 'mana']) {
+      if (rates[res] > 0) rates[res] *= 0.85;
+    }
+  }
+
   Object.assign(state.rates, rates);
   Object.assign(state.caps, caps);
 }

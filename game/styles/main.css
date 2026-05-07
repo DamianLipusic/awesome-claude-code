@@ -13858,3 +13858,174 @@ kbd {
   margin-top: 4px;
   line-height: 1.4;
 }
+
+/* ── T227: Alchemy Workshop ─────────────────────────────────────────────── */
+.alchemy-section {
+  background: rgba(139, 92, 246, 0.07);
+  border: 1px solid rgba(139, 92, 246, 0.25);
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-top: 8px;
+  font-size: 0.82rem;
+}
+.alchemy-section--active {
+  background: rgba(139, 92, 246, 0.13);
+  border-color: rgba(139, 92, 246, 0.45);
+}
+.alchemy-header {
+  color: #c4b5fd;
+  font-weight: 700;
+  font-size: 0.86rem;
+  margin-bottom: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.alchemy-chance {
+  color: #a78bfa;
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+.alchemy-intro {
+  color: #9ca3af;
+  font-size: 0.75rem;
+  margin-bottom: 6px;
+}
+.alchemy-offer-desc {
+  color: #e5e7eb;
+  font-size: 0.80rem;
+  line-height: 1.4;
+  margin-bottom: 5px;
+}
+.alchemy-timer {
+  color: #a78bfa;
+  font-size: 0.74rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.alchemy-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.btn--alchemy {
+  background: linear-gradient(135deg, #7c3aed, #5b21b6);
+  color: #ede9fe;
+  border: 1px solid rgba(139, 92, 246, 0.5);
+  border-radius: 4px;
+  padding: 4px 12px;
+  cursor: pointer;
+  font-size: 0.80rem;
+  font-weight: 600;
+}
+.btn--alchemy:hover:not(.btn--disabled) {
+  background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+}
+.btn--alchemy-dismiss {
+  background: transparent;
+  color: #9ca3af;
+  border: 1px solid rgba(156, 163, 175, 0.3);
+  border-radius: 4px;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 0.75rem;
+}
+.btn--alchemy-dismiss:hover {
+  color: #e5e7eb;
+  border-color: rgba(156, 163, 175, 0.5);
+}
+.alchemy-next {
+  color: #6b7280;
+  font-size: 0.75rem;
+  font-style: italic;
+}
+.alchemy-stats {
+  color: #6b7280;
+  font-size: 0.72rem;
+  margin-top: 5px;
+}
+
+/* ── T228: Wartime Rationing ────────────────────────────────────────────── */
+.ration-section {
+  background: rgba(239, 68, 68, 0.06);
+  border: 1px solid rgba(239, 68, 68, 0.22);
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-top: 8px;
+  font-size: 0.82rem;
+}
+.ration-section--active {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.45);
+}
+.ration-header {
+  color: #fca5a5;
+  font-weight: 700;
+  font-size: 0.86rem;
+  margin-bottom: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.ration-count {
+  color: #ef4444;
+  font-size: 0.73rem;
+  font-weight: 600;
+}
+.ration-desc {
+  color: #9ca3af;
+  font-size: 0.75rem;
+  margin-bottom: 6px;
+  line-height: 1.35;
+}
+.ration-active {
+  background: rgba(239, 68, 68, 0.10);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 4px;
+  padding: 5px 8px;
+  color: #fca5a5;
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.5;
+  margin-bottom: 4px;
+}
+.ration-timer {
+  display: block;
+  color: #ef4444;
+  font-size: 0.74rem;
+  margin-top: 2px;
+}
+.ration-cd {
+  color: #9ca3af;
+  font-size: 0.75rem;
+  font-style: italic;
+  display: block;
+  margin-bottom: 5px;
+}
+.ration-locked {
+  color: #6b7280;
+  font-size: 0.75rem;
+  font-style: italic;
+  display: block;
+  margin-bottom: 5px;
+}
+.ration-ready {
+  color: #86efac;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 5px;
+}
+.btn--rationing {
+  background: linear-gradient(135deg, #dc2626, #991b1b);
+  color: #fee2e2;
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  border-radius: 4px;
+  padding: 4px 12px;
+  cursor: pointer;
+  font-size: 0.80rem;
+  font-weight: 600;
+}
+.btn--rationing:hover:not(.btn--disabled) {
+  background: linear-gradient(135deg, #ef4444, #b91c1c);
+}

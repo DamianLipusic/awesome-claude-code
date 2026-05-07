@@ -34,6 +34,7 @@ import { fmtNum } from '../utils/fmt.js';
 import { SEASON_UNIT_DISCOUNT, SEASON_UNIT_COMBAT_BUFF } from '../data/seasons.js';
 import { getArmyCompositionBonus } from '../systems/combat.js'; // T224
 import { getTrophyCount, getTrophyAttackMult, getTrophyGoldRate, TROPHY_ATTACK_THRESHOLD, TROPHY_MORALE_THRESHOLD, TROPHY_GOLD_THRESHOLD } from '../systems/warTrophies.js'; // T226
+import { declareRationing, canDeclareRationing, isRationingActive, getRationingSecsLeft, getRationingCooldownSecs } from '../systems/rationing.js'; // T228
 
 const UNIT_ORDER = ['soldier', 'archer', 'knight', 'mage', 'siege_engine'];
 
@@ -110,6 +111,7 @@ export function initMilitaryPanel() {
   on(Events.ARENA_CHANGED,          () => _render(panel)); // T204: arena event spawned/entered/skipped
   on(Events.STANDARD_CHANGED,       () => _render(panel)); // T205: battle standard assigned/transferred
   on(Events.TROPHY_EARNED,          () => _render(panel)); // T226: trophy earned
+  on(Events.RATIONING_CHANGED,      () => _render(panel)); // T228: rationing declared/expired
   on(Events.RESOURCE_CHANGED,  () => _renderCosts(panel));
   on(Events.GAME_LOADED,       () => _render(panel));
 
@@ -148,7 +150,8 @@ export function initMilitaryPanel() {
     const hasArmyOffer     = !!state.wanderingArmy?.current; // T200: army countdown
     const hasArenaEvent    = !!state.arena?.current;         // T204: arena countdown
     const hasStandardCooldown = !!(state.battleStandard && state.battleStandard.transferCooldownUntil > state.tick); // T205
-    if (hasHeroActivity || hasSpellActivity || hasMercOffer || hasDecreeCooldown || hasRallyCooldown || hasAcademyDrill || hasDuelPending || hasPioneerActive || hasSurgeActivity || hasWarlord || hasArmyOffer || hasArenaEvent || hasStandardCooldown) _render(panel);
+    const hasRationing        = isRationingActive() || (getRationingCooldownSecs() > 0); // T228
+    if (hasHeroActivity || hasSpellActivity || hasMercOffer || hasDecreeCooldown || hasRallyCooldown || hasAcademyDrill || hasDuelPending || hasPioneerActive || hasSurgeActivity || hasWarlord || hasArmyOffer || hasArenaEvent || hasStandardCooldown || hasRationing) _render(panel);
   });
 }
 
@@ -164,6 +167,7 @@ function _render(panel) {
     ${_supplyDepotSection()}
     ${_formationSection()}
     ${_moraleSection()}
+    ${_rationingSection()}
     ${_rallySection()}
     ${_academySection()}
     ${_upgradeSection()}
@@ -1734,7 +1738,68 @@ function _handleClick(e) {
       setTimeout(() => actionBtn.classList.remove('btn--shake'), 600);
       addMessage(result.reason, 'info');
     }
+  } else if (actionBtn.dataset.action === 'declare-rationing') {
+    // T228: declare wartime rationing
+    const result = declareRationing();
+    if (!result.ok) {
+      actionBtn.classList.add('btn--shake');
+      setTimeout(() => actionBtn.classList.remove('btn--shake'), 600);
+      addMessage(result.reason, 'info');
+    }
   }
+}
+
+// ── T228: Wartime Rationing section ──────────────────────────────────────
+
+function _rationingSection() {
+  const minAge = 1;
+  if ((state.age ?? 0) < minAge) return '';
+
+  const active      = isRationingActive();
+  const secsLeft    = getRationingSecsLeft();
+  const cdSecs      = getRationingCooldownSecs();
+  const check       = canDeclareRationing();
+  const canDeclare  = check.ok;
+  const atWar       = state.diplomacy?.empires?.some(e => e.relations === 'war') ?? false;
+  const total       = state.rationing?.totalDeclared ?? 0;
+
+  let statusHtml;
+  if (active) {
+    const mins = Math.floor(secsLeft / 60);
+    const secs = secsLeft % 60;
+    const timeStr = mins > 0 ? `${mins}m ${String(secs).padStart(2, '0')}s` : `${secsLeft}s`;
+    statusHtml = `
+      <div class="ration-active">
+        📦 Rationing active — food −30%, production −15%, morale −1/30s
+        <span class="ration-timer">⏱ ${timeStr} remaining</span>
+      </div>`;
+  } else if (cdSecs > 0) {
+    const mins = Math.floor(cdSecs / 60);
+    const secs = cdSecs % 60;
+    const cdStr = mins > 0 ? `${mins}m ${String(secs).padStart(2, '0')}s` : `${cdSecs}s`;
+    statusHtml = `<span class="ration-cd">⏳ Cooldown: ${cdStr}</span>`;
+  } else if (!atWar) {
+    statusHtml = `<span class="ration-locked">⚔️ Only available during active wars</span>`;
+  } else {
+    statusHtml = `<span class="ration-ready">✅ Ready</span>`;
+  }
+
+  return `
+    <div class="ration-section${active ? ' ration-section--active' : ''}">
+      <div class="ration-header">
+        <span>📦 Wartime Rationing</span>
+        ${total > 0 ? `<span class="ration-count">${total}× declared</span>` : ''}
+      </div>
+      <div class="ration-desc">Tighten belts during war. Food consumption −30%, production −15%, morale −1/30s for 5 min.</div>
+      ${statusHtml}
+      ${!active ? `
+        <button class="btn btn--rationing ${canDeclare ? '' : 'btn--disabled'}"
+          data-action="declare-rationing"
+          ${canDeclare ? '' : 'disabled'}
+          title="${canDeclare ? 'Declare wartime rationing' : check.reason}">
+          📦 Declare Rationing
+        </button>` : ''}
+    </div>`;
 }
 
 // ── T083: Empire Decrees section ─────────────────────────────────────────

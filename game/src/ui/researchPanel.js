@@ -24,6 +24,7 @@ import { startWonder, getWonderProgress, getCompletedWonder, isWonderBuilding } 
 import { SEASON_RESEARCH_AFFINITY, SEASON_AFFINITY_LABELS, SEASON_AFFINITY_DISCOUNT } from '../data/seasons.js'; // T188
 import { getCodexInfo, CODEX_MILESTONES } from '../systems/imperialCodex.js'; // T215
 import { CAMPAIGN_DEFS, launchCampaign, getPropagandaInfo, getPropagandaSecsLeft, getPropagandaCooldownSecs } from '../systems/propaganda.js'; // T219
+import { acceptTransmutation, dismissTransmutation, isAlchemyUnlocked, getSuccessChance, getAlchemyPendingSecsLeft, getAlchemyNextSecs, ALCHEMY_IRON_COST, ALCHEMY_MANA_SUCCESS, ALCHEMY_MANA_FAIL } from '../systems/alchemy.js'; // T227
 
 export function initResearchPanel() {
   const panel = document.getElementById('panel-research');
@@ -49,11 +50,13 @@ export function initResearchPanel() {
   on(Events.SEASON_CHANGED,         renderResearchPanel);  // T188: re-render when season flips so affinity badges update
   on(Events.CODEX_MILESTONE,        renderResearchPanel);  // T215: re-render when codex fragment count changes
   on(Events.PROPAGANDA_LAUNCHED,   renderResearchPanel);  // T219: re-render when campaign starts/ends
-  // Refresh countdown text every second while a festival, inspiration, wonder, or campaign is active
+  on(Events.ALCHEMY_CHANGED,       renderResearchPanel);  // T227: re-render on alchemy offer changes
+  // Refresh countdown text every second while a festival, inspiration, wonder, campaign, or alchemy is active
   on(Events.TICK, _throttle(() => {
     const hasActivity = getActiveFestival() || getFestivalCooldownSecs() > 0
       || !!state.researchInspiration?.pending || isWonderBuilding()
-      || !!state.propaganda?.activeCampaign || (getPropagandaCooldownSecs() > 0);
+      || !!state.propaganda?.activeCampaign || (getPropagandaCooldownSecs() > 0)
+      || !!state.alchemy?.pending;
     if (hasActivity) renderResearchPanel();
   }, 4));
 }
@@ -118,7 +121,7 @@ function renderResearchPanel() {
     </div>`;
   }).join('');
 
-  panel.innerHTML = _ageSection() + progressHtml + _inspirationCard() + `<div class="tech-grid">${techCards}</div>` + _masteriesSection() + _synergiesSection() + _policySection() + _festivalsSection() + _wondersSection() + _relicsSection() + _landmarksSection() + _ruinsSection() + _grandTheorySection() + _codexSection() + _propagandaSection();
+  panel.innerHTML = _ageSection() + progressHtml + _inspirationCard() + `<div class="tech-grid">${techCards}</div>` + _masteriesSection() + _synergiesSection() + _policySection() + _festivalsSection() + _wondersSection() + _relicsSection() + _landmarksSection() + _ruinsSection() + _grandTheorySection() + _codexSection() + _propagandaSection() + _alchemySection();
 
   panel.onclick = (e) => {
     // T116: Research inspiration accept/dismiss
@@ -174,6 +177,19 @@ function renderResearchPanel() {
     if (propBtn) {
       const result = launchCampaign(propBtn.dataset.propaganda);
       if (!result.ok) propBtn.title = result.reason;
+      return;
+    }
+    // T227: Alchemy transmutation accept/dismiss
+    if (e.target.closest('[data-action="alchemy-accept"]')) {
+      const result = acceptTransmutation();
+      if (!result.ok) {
+        const btn = e.target.closest('[data-action="alchemy-accept"]');
+        if (btn) btn.title = result.reason;
+      }
+      return;
+    }
+    if (e.target.closest('[data-action="alchemy-dismiss"]')) {
+      dismissTransmutation();
       return;
     }
     const btn = e.target.closest('[data-tech]');
@@ -993,6 +1009,68 @@ function _propagandaSection() {
       ${statusHtml}
       <div class="prop-cards">${cardsHtml}</div>
       ${totalHtml}
+    </div>`;
+}
+
+// ── T227: Alchemy Workshop section ───────────────────────────────────────────
+
+function _alchemySection() {
+  if (!isAlchemyUnlocked()) return '';
+
+  const a            = state.alchemy;
+  const hasPending   = !!(a?.pending);
+  const secsLeft     = getAlchemyPendingSecsLeft();
+  const nextSecs     = getAlchemyNextSecs();
+  const successPct   = Math.round(getSuccessChance() * 100);
+  const ironOk       = (state.resources.iron ?? 0) >= ALCHEMY_IRON_COST;
+  const totalTrans   = a?.totalTransmuted ?? 0;
+  const totalFailed  = a?.totalFailed ?? 0;
+
+  let bodyHtml;
+  if (hasPending) {
+    const mins = Math.floor(secsLeft / 60);
+    const secs = secsLeft % 60;
+    const timeStr = mins > 0 ? `${mins}m ${String(secs).padStart(2, '0')}s` : `${secsLeft}s`;
+    bodyHtml = `
+      <div class="alchemy-offer">
+        <div class="alchemy-offer-desc">
+          The Alchemist stands ready. Transmute <strong>⚒️${ALCHEMY_IRON_COST} iron</strong> into
+          <strong>✨${ALCHEMY_MANA_SUCCESS} mana</strong> (${successPct}% success)
+          or <strong>✨${ALCHEMY_MANA_FAIL} mana</strong> on partial.
+        </div>
+        <div class="alchemy-timer">⏱ Expires in ${timeStr}</div>
+        <div class="alchemy-actions">
+          <button class="btn btn--alchemy ${ironOk ? '' : 'btn--disabled'}"
+            data-action="alchemy-accept" ${ironOk ? '' : 'disabled'}>
+            ⚗️ Transmute
+          </button>
+          <button class="btn btn--sm btn--alchemy-dismiss" data-action="alchemy-dismiss">
+            Dismiss
+          </button>
+        </div>
+      </div>`;
+  } else {
+    const mins = Math.floor(nextSecs / 60);
+    const secs = nextSecs % 60;
+    const nextStr = nextSecs > 0
+      ? (mins > 0 ? `${mins}m ${String(secs).padStart(2, '0')}s` : `${nextSecs}s`)
+      : 'soon';
+    bodyHtml = `<div class="alchemy-next">Next offer in ${nextStr}</div>`;
+  }
+
+  const statsHtml = (totalTrans + totalFailed) > 0
+    ? `<div class="alchemy-stats">Transmutations: ${totalTrans} success, ${totalFailed} partial</div>`
+    : '';
+
+  return `
+    <div class="alchemy-section${hasPending ? ' alchemy-section--active' : ''}">
+      <div class="alchemy-header">
+        <span>⚗️ Alchemy Workshop</span>
+        <span class="alchemy-chance">${successPct}% success</span>
+      </div>
+      <div class="alchemy-intro">Transmute iron into mana. Offer window: 3 min.</div>
+      ${bodyHtml}
+      ${statsHtml}
     </div>`;
 }
 

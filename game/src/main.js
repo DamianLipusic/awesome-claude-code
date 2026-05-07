@@ -139,6 +139,8 @@ import { initConstructionDrive, constructionDriveTick } from './systems/construc
 import { initPeaceOvertures } from './systems/peaceOverture.js';                                   // T222
 import { initForecast } from './systems/royalForecast.js';                                         // T225
 import { initTrophies } from './systems/warTrophies.js';                                           // T226
+import { initAlchemy, alchemyTick } from './systems/alchemy.js';                                   // T227
+import { initRationing, rationingTick } from './systems/rationing.js';                             // T228
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
@@ -246,6 +248,8 @@ function boot() {
   registerSystem(propagandaTick);       // T219: propaganda campaign expiry
   registerSystem(militaryIntelTick);    // T220: military intelligence report generation
   registerSystem(constructionDriveTick); // T221: construction drive expiry check
+  registerSystem(alchemyTick);           // T227: alchemy offer spawn/accept/expire
+  registerSystem(rationingTick);         // T228: rationing expiry + morale drain
 
   // Init event-driven systems
   initRandomEvents();
@@ -339,6 +343,8 @@ function boot() {
   initPeaceOvertures();      // T222: peace overture state init
   initForecast();            // T225: royal forecast state init + SEASON_CHANGED listener
   initTrophies();            // T226: war trophy state init + victory event listeners
+  initAlchemy();             // T227: alchemy workshop state init
+  initRationing();           // T228: wartime rationing state init
   // T176: monument init deferred — only activates when building is constructed
 
   // Init UI
@@ -600,7 +606,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 77, // T225: royal forecast; T226: war trophies
+      version: 78, // T227: alchemy workshop; T228: wartime rationing
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -749,6 +755,8 @@ function _save() {
         peaceOvertures:      state.peaceOvertures      ?? null,  // T222
         forecast:            state.forecast            ?? null,  // T225
         trophies:            state.trophies            ?? null,  // T226
+        alchemy:             state.alchemy             ?? null,  // T227
+        rationing:           state.rationing           ?? null,  // T228
         tick:          state.tick,
       }
     }));
@@ -931,6 +939,8 @@ function _applySave(save) {
   state.peaceOvertures       = s.peaceOvertures       ?? null; // T222
   state.forecast             = s.forecast             ?? null; // T225
   state.trophies             = s.trophies             ?? null; // T226
+  state.alchemy              = s.alchemy              ?? null; // T227
+  state.rationing            = s.rationing            ?? null; // T228
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
@@ -1831,6 +1841,8 @@ function _newGame(opts = {}) {
   initMilitaryIntel();       // T220: reset military intel on new game
   initConstructionDrive();   // T221: reset construction drive on new game
   initPeaceOvertures();      // T222: reset peace overtures on new game
+  initAlchemy();             // T227: reset alchemy state on new game
+  initRationing();           // T228: reset rationing state on new game
   _updateCelestialBanner(); // T153: hide banner on new game
   _updateRefugeeBanner();   // T217: hide refugee banner on new game
   recalcRates();

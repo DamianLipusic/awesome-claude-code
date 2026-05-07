@@ -191,4 +191,6 @@ export const Events = Object.freeze({
   PEACE_OVERTURE_CHANGED:      'peaceOvertureChanged',         // T222: peace overture sent (accepted or refused)
   FORECAST_CHANGED:            'forecastChanged',              // T225: royal forecast generated or heeded
   TROPHY_EARNED:               'trophyEarned',                 // T226: war trophy awarded
+  ALCHEMY_CHANGED:             'alchemyChanged',               // T227: alchemy offer spawned/accepted/dismissed/expired
+  RATIONING_CHANGED:           'rationingChanged',             // T228: wartime rationing declared or expired
 });

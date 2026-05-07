@@ -623,6 +623,15 @@ export const state = {
   // T226: War Trophy Collection — trophies from major victories
   // { list: [{type, name, icon, tick}], moraleAwarded5: boolean }
   trophies: null,
+
+  // T227: Alchemy Workshop — periodic iron→mana transmutation (Iron Age + alchemy tech)
+  // { pending: { expiresAt: tick } | null, nextOfferTick: number,
+  //   totalTransmuted: number, totalFailed: number } | null
+  alchemy: null,
+
+  // T228: Wartime Rationing — food/production tradeoff during active wars
+  // { active: { expiresAt: tick } | null, cooldownUntil: tick, totalDeclared: number } | null
+  rationing: null,
 };
 
 /**
@@ -769,5 +778,7 @@ export function initState(empireName = 'My Empire') {
   state.peaceOvertures       = null; // T222: reset peace overtures per game
   state.forecast             = null; // T225: reset forecast per game
   state.trophies             = null; // T226: reset trophies per game
+  state.alchemy              = null; // T227: reset alchemy state per game
+  state.rationing            = null; // T228: reset rationing state per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

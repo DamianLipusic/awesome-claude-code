@@ -2,6 +2,59 @@
 
 ---
 
+## 2026-05-07 — Session N+58
+
+**Tasks completed:** T227, T228
+
+**Summary:**
+All prior tasks (T001–T226) were complete. Created T227+T228 task specs in tasks.json then implemented two Phase 92 features: Alchemy Workshop (T227) and Wartime Rationing (T228).
+
+**T227 — Alchemy Workshop:**
+- `src/systems/alchemy.js`: New file. ALCHEMY_IRON_COST=100, success output 80 mana (base 70% chance) or 40 mana partial (30%). With all 3 arcane techs (arcane+alchemy+divine_favor): 90%/10% split. Offer window 3 min, spawn interval 12–15 min. `initAlchemy()` lazy-creates state.alchemy. `alchemyTick()` handles expiry and spawning. `acceptTransmutation()` deducts iron, rolls success, adds mana (capped), updates counters, emits ALCHEMY_CHANGED+RESOURCE_CHANGED. `dismissTransmutation()` cancels offer. Accessors: `isAlchemyUnlocked()`, `getSuccessChance()`, `getAlchemyPendingSecsLeft()`, `getAlchemyNextSecs()`.
+- `src/core/events.js`: ALCHEMY_CHANGED:'alchemyChanged' added.
+- `src/core/state.js`: `alchemy:null` field + initState reset.
+- `src/ui/researchPanel.js`: Import 7 alchemy exports; `on(ALCHEMY_CHANGED, renderResearchPanel)`; tick condition includes `state.alchemy?.pending`; `_alchemySection()` renders offer with cost/output/success%/countdown + Transmute+Dismiss buttons, or next-offer countdown, plus stats; appended to panel.innerHTML; click handlers for data-action=alchemy-accept/alchemy-dismiss.
+- `src/main.js`: Import initAlchemy+alchemyTick; registerSystem(alchemyTick); init in boot+_newGame; save/load state.alchemy. Version 77→78.
+- `styles/main.css`: `.alchemy-section` (purple border/bg), `.alchemy-section--active`, `.alchemy-header`, `.alchemy-chance`, `.alchemy-intro`, `.alchemy-offer-desc`, `.alchemy-timer`, `.alchemy-actions`, `.btn--alchemy` (purple gradient), `.btn--alchemy-dismiss` (ghost), `.alchemy-next`, `.alchemy-stats`.
+
+**T228 — Wartime Rationing:**
+- `src/systems/rationing.js`: New file. RATION_DURATION=1200 ticks (5 min), RATION_COOLDOWN=2880 (12 min), RATION_MORALE_INTERVAL=120 (30 s), RATION_MIN_AGE=1. `initRationing()` lazy-creates state.rationing. `rationingTick()` checks expiry, drains morale −1 every 30s via changeMorale(). `declareRationing()` validates age+active+cooldown+war, activates, emits RATIONING_CHANGED+RESOURCE_CHANGED. `canDeclareRationing()`, `isRationingActive()`, `getRationingSecsLeft()`, `getRationingCooldownSecs()` helpers. `_isAtWar()` checks diplomacy empires for war relations.
+- `src/core/events.js`: RATIONING_CHANGED:'rationingChanged' added.
+- `src/core/state.js`: `rationing:null` field + initState reset.
+- `src/systems/resources.js`: T228 block at end of recalcRates() — when active: `rates.food<0 *= 0.70` (−30% consumption); non-food positive rates `*= 0.85` (−15%).
+- `src/ui/militaryPanel.js`: Import 5 rationing exports; `on(RATIONING_CHANGED)` re-render; tick condition includes rationing state; `_rationingSection()` added before `_decreesSection` — renders active banner with countdown, cooldown/locked/ready status, Declare Rationing button; click handler for data-action=declare-rationing.
+- `src/main.js`: Import initRationing+rationingTick; registerSystem(rationingTick); init in boot+_newGame; save/load state.rationing.
+- `styles/main.css`: `.ration-section` (red border/bg), `.ration-section--active`, `.ration-header`, `.ration-count`, `.ration-desc`, `.ration-active`, `.ration-timer`, `.ration-cd`, `.ration-locked`, `.ration-ready`, `.btn--rationing` (red gradient).
+
+**Architecture decisions:**
+- T227 alchemy uses lazy-init in alchemyTick() so state is recreated after New Game even though event listeners aren't re-registered. The tick-driven system has no event subscriptions.
+- T227 success chance computation uses ARCANE_TECHS=['arcane','alchemy','divine_favor'] matching the existing Arcane mastery group. Count≥3 gives 90% success.
+- T228 food modifier applies `rates.food *= 0.70` only when food is negative (net consumption). This correctly reduces consumption without affecting food-producing rates.
+- T228 morale drain uses module-level `_lastMoraleDrainTick` variable. Reset to `state.tick` when rationing is declared, ensuring the first drain occurs 30 seconds after activation.
+- Save version bumped 77→78. Both systems use `?? null` fallback in `_applySave` for save compatibility.
+
+**Files modified:**
+  + game/src/systems/alchemy.js (new)
+      initAlchemy(), alchemyTick(), acceptTransmutation(), dismissTransmutation()
+  + game/src/systems/rationing.js (new)
+      initRationing(), rationingTick(), declareRationing(), canDeclareRationing()
+  ~ game/src/core/events.js
+      ALCHEMY_CHANGED + RATIONING_CHANGED added
+  ~ game/src/core/state.js
+      alchemy:null + rationing:null fields; initState resets both
+  ~ game/src/systems/resources.js
+      T228 rationing rate modifier block at end of recalcRates()
+  ~ game/src/ui/researchPanel.js
+      alchemy imports + event listener + _alchemySection() + click handlers
+  ~ game/src/ui/militaryPanel.js
+      rationing imports + event listener + _rationingSection() + click handler
+  ~ game/src/main.js
+      imports + registerSystem + init in boot/newGame + save/load + version 78
+  ~ game/styles/main.css
+      T227 alchemy CSS + T228 rationing CSS
+
+---
+
 ## 2026-05-07 — Session N+57
 
 **Tasks completed:** T225, T226
