@@ -10,6 +10,7 @@ import { depositToVault, VAULT_DEPOSIT_AMOUNT, VAULT_RETURN_AMOUNT, VAULT_LOCK_T
 import { communeWithRelics, getCommuneSecsLeft, getRelicCount } from '../systems/relicShrine.js'; // T180
 import { GUILDS, GUILD_ORDER, GUILD_SLOTS, foundGuild, isGuildFounded, guildSecsLeft, activeGuildCount } from '../systems/artisanGuilds.js'; // T194
 import { launchConstructionDrive, isDriveActive, getDriveSecsLeft, getDriveCooldownSecs, DRIVE_STONE_COST, DRIVE_WOOD_COST } from '../systems/constructionDrive.js'; // T221
+import { getBuildingNetworks } from '../systems/resources.js'; // T223
 import { BUILDINGS } from '../data/buildings.js';
 import { SPECIALIZATIONS, SPECIALS_BY_BUILDING, ELIGIBLE_BUILDINGS } from '../data/buildingSpecials.js';
 import { CAPITAL_PLANS, CAPITAL_PLAN_ORDER } from '../data/capitalPlans.js';
@@ -155,6 +156,7 @@ function renderBuildingPanel() {
   html += _vaultSection();
   html += _relicShrineSection();       // T180
   html += _artisanGuildsSection();     // T194
+  html += _buildingNetworksSection();  // T223
   html += _constructionDriveSection(); // T221
 
   panel.innerHTML = html;
@@ -718,6 +720,27 @@ function _artisanGuildsSection() {
 }
 
 // ── T221: Imperial Construction Drive section ─────────────────────────────────
+
+// ── T223: Building Network Bonuses ───────────────────────────────────────────
+
+function _buildingNetworksSection() {
+  const networks = getBuildingNetworks();
+  if (networks.length === 0) return '';
+
+  const rows = networks.map(n => `
+    <div class="bnet-row">
+      <span class="bnet-icon">${n.icon}</span>
+      <span class="bnet-label">${n.label}</span>
+      <span class="bnet-count">×${n.count}</span>
+      <span class="bnet-bonus">${n.bonus}</span>
+    </div>`).join('');
+
+  return `
+    <div class="bnet-section">
+      <div class="bnet-header">🔗 Active Building Networks</div>
+      ${rows}
+    </div>`;
+}
 
 function _constructionDriveSection() {
   if ((state.age ?? 0) < 1) return ''; // Bronze Age+

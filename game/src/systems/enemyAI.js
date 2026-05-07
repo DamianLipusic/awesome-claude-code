@@ -169,6 +169,8 @@ function _counterattack() {
   }
   // T183: fortification network — connected fortified player tiles are harder to capture
   playerDefense += getFortificationNetworkBonus(target.x, target.y);
+  // T223: Watchtower Network — 3+ watchtowers: +8 flat defense on all player tiles
+  if ((state.buildings?.watchtower ?? 0) >= 3) playerDefense += 8;
 
   let winChance = Math.min(0.5, enemyPower / (enemyPower + playerDefense));
   // Fortification tech: -40% enemy success chance against player tiles

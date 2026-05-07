@@ -711,8 +711,45 @@ export function recalcRates() {
     }
   }
 
+  // T223: Building Network Bonuses — passive bonuses when 3+ of the same building type
+  for (const net of getBuildingNetworks()) {
+    if (net.mult && net.res) {
+      if (rates[net.res] > 0) rates[net.res] *= net.mult;
+    }
+    if (net.capBonus && net.res) {
+      caps[net.res] = (caps[net.res] ?? 0) + net.capBonus;
+    }
+    if (net.perUnit && net.res) {
+      rates[net.res] = (rates[net.res] ?? 0) + net.count * net.perUnit;
+    }
+  }
+
   Object.assign(state.rates, rates);
   Object.assign(state.caps, caps);
+}
+
+// ── T223: Building Network Bonuses ───────────────────────────────────────────
+
+const _NETWORK_THRESHOLD = 3;
+const _NETWORK_DEFS = [
+  { id: 'farm',        label: 'Farm Network',         icon: '🌾', bonus: '+15% food',            res: 'food',  mult: 1.15 },
+  { id: 'lumberMill',  label: 'Lumber Mill Network',  icon: '🪵', bonus: '+15% wood',            res: 'wood',  mult: 1.15 },
+  { id: 'quarry',      label: 'Quarry Network',        icon: '🪨', bonus: '+15% stone',           res: 'stone', mult: 1.15 },
+  { id: 'ironFoundry', label: 'Foundry Network',       icon: '⚙️', bonus: '+15% iron',            res: 'iron',  mult: 1.15 },
+  { id: 'manaWell',    label: 'Mana Well Network',     icon: '✨', bonus: '+15% mana, +100 cap', res: 'mana',  mult: 1.15, capBonus: 100 },
+  { id: 'market',      label: 'Market Network',        icon: '💰', bonus: '+0.5💰/s per market', res: 'gold',  perUnit: 0.5 },
+  { id: 'barracks',    label: 'Barracks Network',      icon: '⚔️', bonus: '-10% train time',     special: 'barracks_train' },
+  { id: 'watchtower',  label: 'Watchtower Network',    icon: '🗼', bonus: '+8 tile defense',      special: 'watchtower_defense' },
+];
+
+/** Returns an array of active building networks (those with 3+ buildings of that type). */
+export function getBuildingNetworks() {
+  const active = [];
+  for (const def of _NETWORK_DEFS) {
+    const count = state.buildings[def.id] ?? 0;
+    if (count >= _NETWORK_THRESHOLD) active.push({ ...def, count });
+  }
+  return active;
 }
 
 /**

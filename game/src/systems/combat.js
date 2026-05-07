@@ -46,6 +46,59 @@ import { recordFactionCapture } from './counteroffensive.js';                   
 import { getLegendaryDefenseBoost, defeatLegendary } from './legendaryEncounters.js';  // T216
 import { isPropagandaActive }                        from './propaganda.js';            // T219
 
+// ── T224: Army Composition Synergies ─────────────────────────────────────────
+
+/**
+ * Returns the combined attack multiplier and flat bonus from army composition synergies.
+ * Checks active unit counts: combined arms, infantry wall, volley barrage, cavalry charge, arcane barrage.
+ * { mult, flat, synergies } where synergies is an array of { label, bonus } for display.
+ */
+export function getArmyCompositionBonus() {
+  const soldier = state.units.soldier ?? 0;
+  const archer  = state.units.archer  ?? 0;
+  const knight  = state.units.knight  ?? 0;
+  const mage    = state.units.mage    ?? 0;
+
+  const activeTypes = [soldier > 0, archer > 0, knight > 0, mage > 0].filter(Boolean).length;
+
+  let mult    = 1.0;
+  let flat    = 0;
+  const synergies = [];
+
+  // Combined Arms: 3+ different unit types → +15% attack
+  if (activeTypes >= 3) {
+    mult *= 1.15;
+    synergies.push({ label: 'Combined Arms', bonus: '+15% atk' });
+  }
+
+  // Infantry Wall: 3+ soldiers → +20 flat defense (applied in enemyAI, not here)
+  // Represented as flat attack bonus in offensive context
+  if (soldier >= 3) {
+    flat += 20;
+    synergies.push({ label: 'Infantry Wall', bonus: '+20 atk' });
+  }
+
+  // Volley Barrage: 3+ archers → +20% attack
+  if (archer >= 3) {
+    mult *= 1.20;
+    synergies.push({ label: 'Volley Barrage', bonus: '+20% atk' });
+  }
+
+  // Cavalry Charge: 3+ knights → +25% attack
+  if (knight >= 3) {
+    mult *= 1.25;
+    synergies.push({ label: 'Cavalry Charge', bonus: '+25% atk' });
+  }
+
+  // Arcane Barrage: 3+ mages → +25% attack
+  if (mage >= 3) {
+    mult *= 1.25;
+    synergies.push({ label: 'Arcane Barrage', bonus: '+25% atk' });
+  }
+
+  return { mult, flat, synergies };
+}
+
 /** Returns true if both techs of a named synergy are researched. */
 function _synergy(id) {
   const syn = SYNERGIES[id];
@@ -368,6 +421,11 @@ export function getAttackPreview(x, y) {
   // T210: War Reparations righteous anger — +10% attack power when demand was refused
   if ((state.reparations?.angryBonusUntil ?? 0) > state.tick) attackPower *= 1.10;
 
+  // T224: Army Composition Synergies — multiplier and flat bonus based on unit mix (preview)
+  const _compBonus = getArmyCompositionBonus();
+  if (_compBonus.mult !== 1.0) attackPower *= _compBonus.mult;
+  if (_compBonus.flat > 0)     attackPower += _compBonus.flat;
+
   // T209: Supply line penalty — reduced attack when target is beyond supply range
   const supplyPenalty = getSupplyPenalty(x, y);
   if (supplyPenalty < 1.0) attackPower *= supplyPenalty;
@@ -455,6 +513,7 @@ export function getAttackPreview(x, y) {
     legendaryCount: Object.entries(state.legendaryUnits ?? {}).filter(([id]) => (state.units[id] ?? 0) > 0).length, // T189
     supplyPenalty,                                                              // T209
     angryBonusActive: (state.reparations?.angryBonusUntil ?? 0) > state.tick, // T210
+    compositionSynergies: _compBonus.synergies,                                // T224
   };
 }
 
@@ -631,6 +690,16 @@ export function attackTile(x, y) {
 
   // T210: War Reparations righteous anger — +10% attack power when demand was refused
   if ((state.reparations?.angryBonusUntil ?? 0) > state.tick) attackPower *= 1.10;
+
+  // T224: Army Composition Synergies
+  const _compSyn = getArmyCompositionBonus();
+  if (_compSyn.mult !== 1.0) attackPower *= _compSyn.mult;
+  if (_compSyn.flat > 0) {
+    attackPower += _compSyn.flat;
+    if (_compSyn.synergies.length > 0) {
+      addMessage(`⚔️ ${_compSyn.synergies.map(s => s.label).join(', ')}: army synergy bonus applied!`, 'info');
+    }
+  }
 
   // T209: Supply line penalty — reduced attack when target is beyond supply range
   const _supplyPenalty = getSupplyPenalty(x, y);

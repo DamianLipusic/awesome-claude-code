@@ -4025,3 +4025,50 @@ All prior tasks (T001–T220) were complete. Created T221+T222 task specs in tas
       import+register+init+save/load constructionDrive; import+init+save/load peaceOvertures
   ~ game/styles/main.css
       T221 cdrive styles + T222 overture button/badge styles
+
+---
+
+## Session N+51 — 2026-05-07
+
+**Tasks completed:** T223 (Building Network Bonuses), T224 (Army Composition Synergies)
+
+**T223: Building Network Bonuses**
+Passive bonuses activate when the player builds 3+ of the same building type. Eight network types defined.
+
+Changes:
+- `src/systems/resources.js`: Added `_NETWORK_DEFS` array (8 entries: farm/lumberMill/quarry/ironFoundry/manaWell/market/barracks/watchtower) and exported `getBuildingNetworks()` that returns active networks (count≥3). T223 block in `recalcRates()` after T221 — applies `mult` to rates, `capBonus` to caps, `perUnit×count` to gold for market network.
+- `src/core/actions.js`: Import `getBuildingNetworks`; T223 block in `trainUnit()` — `×0.90` on `totalTicks` when barracks_train network active (3+ barracks).
+- `src/systems/enemyAI.js`: T223 block in `_counterattack()` — `playerDefense += 8` when `state.buildings.watchtower >= 3`.
+- `src/ui/buildingPanel.js`: Import `getBuildingNetworks`; `_buildingNetworksSection()` renders green-bordered section with active network rows (icon / label / count / bonus); inserted between `_artisanGuildsSection` and `_constructionDriveSection`.
+- `styles/main.css`: `.bnet-section` (green border/bg), `.bnet-header`, `.bnet-row`, `.bnet-icon`, `.bnet-label`, `.bnet-count`, `.bnet-bonus`.
+
+**T224: Army Composition Synergies**
+Dynamic combat attack bonuses based on unit mix. Five synergy types defined.
+
+Changes:
+- `src/systems/combat.js`: Exported `getArmyCompositionBonus()` — checks soldier/archer/knight/mage counts, returns `{mult, flat, synergies[]}`. Applied in `getAttackPreview()` after propaganda block: mult+flat on attackPower, `compositionSynergies` added to return object. Applied in `attackTile()` after propaganda block: mult+flat applied, `addMessage` fires if synergies active.
+- `src/ui/militaryPanel.js`: Import `getArmyCompositionBonus`; in `_armySection()` builds `compHtml` — flex-wrapped `.mil-composition` div with `.mil-comp-badge` spans per active synergy; inserted between cohesionHtml and `_legendarySection()`.
+- `styles/main.css`: `.mil-composition` (flex wrap gap-4), `.mil-comp-badge` (red-tinted border badge), `.mil-comp-bonus` (brighter red bold).
+
+**Architecture decisions:**
+- Network bonuses are computed dynamically each `recalcRates()` call — no new state needed. This means they respond instantly to building demolition and always reflect the true count.
+- T223 market network adds `+0.5 × count` gold/s (not just the surplus beyond 3), rewarding scaling into markets heavily.
+- T224 Infantry Wall gives +20 flat attack (not defense) in the offensive context — the defensive interpretation is implicit (more soldiers = harder to dislodge). This keeps the system self-contained in combat.js.
+- Composition synergies use exact counts (not ratios) so the player has clear, buildable thresholds.
+- No new events or state fields — both systems are purely derived from existing state.
+
+**Files modified:**
+  ~ game/src/systems/resources.js
+      _NETWORK_DEFS + getBuildingNetworks() + T223 block in recalcRates()
+  ~ game/src/systems/combat.js
+      getArmyCompositionBonus() + T224 applied in getAttackPreview() + attackTile()
+  ~ game/src/core/actions.js
+      import getBuildingNetworks + T223 barracks network train time reduction
+  ~ game/src/systems/enemyAI.js
+      T223 watchtower network defense bonus in _counterattack()
+  ~ game/src/ui/buildingPanel.js
+      import getBuildingNetworks + _buildingNetworksSection() + call in renderBuildingPanel()
+  ~ game/src/ui/militaryPanel.js
+      import getArmyCompositionBonus + composition badge in _armySection()
+  ~ game/styles/main.css
+      T223 bnet styles + T224 mil-composition styles

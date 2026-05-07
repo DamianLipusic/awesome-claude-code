@@ -19,7 +19,7 @@ import { FORGE_ITEMS } from '../data/forgeItems.js';
 import { SEASON_UNIT_DISCOUNT } from '../data/seasons.js';
 import { PROCLAMATIONS } from '../data/proclamations.js';
 import { GRAND_THEORIES, GRAND_THEORY_MIN_TECHS } from '../data/grandTheory.js';
-import { recalcRates } from '../systems/resources.js';
+import { recalcRates, getBuildingNetworks } from '../systems/resources.js';
 import { log } from '../utils/logger.js';
 
 // ---------------------------------------------------------------------------
@@ -154,6 +154,8 @@ export function trainUnit(id) {
   if (state.vizier?.active === 'high_marshal') totalTicks = Math.ceil(totalTicks * 0.80);
   // T201: Province Council training_drill bonus — 25% faster training for 90 seconds
   if ((state.council?.drillBonusExpires ?? 0) > state.tick) totalTicks = Math.ceil(totalTicks * 0.75);
+  // T223: Barracks Network — 3+ barracks: -10% training time
+  if (getBuildingNetworks().some(n => n.special === 'barracks_train')) totalTicks = Math.ceil(totalTicks * 0.90);
 
   state.trainingQueue.push({ unitId: id, remaining: totalTicks, totalTicks });
 

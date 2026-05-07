@@ -32,6 +32,7 @@ import { AGES } from '../data/ages.js';
 import { HERO_DEF, HERO_SKILLS, HERO_SKILL_WIN_INTERVAL, HERO_MAX_SKILLS, HERO_TRAITS, COMPANIONS, COMPANION_ORDER } from '../data/hero.js';
 import { fmtNum } from '../utils/fmt.js';
 import { SEASON_UNIT_DISCOUNT, SEASON_UNIT_COMBAT_BUFF } from '../data/seasons.js';
+import { getArmyCompositionBonus } from '../systems/combat.js'; // T224
 
 const UNIT_ORDER = ['soldier', 'archer', 'knight', 'mage', 'siege_engine'];
 
@@ -1364,11 +1365,19 @@ function _armySection() {
         ⚔️ Cohesion: <strong>${cohesion.label}</strong>${cohesion.tier > 0 ? ` <span class="cohesion-bonus">(${cohesionBonuses[cohesion.tier]})</span>` : ''}
       </div>` : '';
 
+  // T224: Army Composition Synergies badge
+  const comp = getArmyCompositionBonus();
+  const compHtml = comp.synergies.length > 0
+    ? `<div class="mil-composition">
+        ${comp.synergies.map(s => `<span class="mil-comp-badge">${s.label} <span class="mil-comp-bonus">${s.bonus}</span></span>`).join('')}
+      </div>` : '';
+
   return `<div class="mil-army">
     <span class="mil-section-title">⚔️ Army <span class="mil-total-power">Combat power: ${Math.round(totalPower)}</span></span>
     <div class="mil-badges">${heroEntry}${items}</div>
     ${aidHtml}
     ${cohesionHtml}
+    ${compHtml}
     ${_legendarySection()}
   </div>`;
 }
