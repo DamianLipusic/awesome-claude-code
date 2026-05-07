@@ -46,6 +46,7 @@ import { recordFactionCapture } from './counteroffensive.js';                   
 import { getLegendaryDefenseBoost, defeatLegendary } from './legendaryEncounters.js';  // T216
 import { isPropagandaActive }                        from './propaganda.js';            // T219
 import { getTrophyAttackMult }                      from './warTrophies.js';            // T226
+import { getMilitiaAttackBonus }                    from './militia.js';                // T229
 
 // ── T224: Army Composition Synergies ─────────────────────────────────────────
 
@@ -430,6 +431,10 @@ export function getAttackPreview(x, y) {
   // T226: War Trophy Collection — +5% attack at 3+ trophies
   attackPower *= getTrophyAttackMult();
 
+  // T229: Peasant Militia — flat attack bonus from conscripted population
+  const _militiaBonus = getMilitiaAttackBonus();
+  if (_militiaBonus > 0) attackPower += _militiaBonus;
+
   // T209: Supply line penalty — reduced attack when target is beyond supply range
   const supplyPenalty = getSupplyPenalty(x, y);
   if (supplyPenalty < 1.0) attackPower *= supplyPenalty;
@@ -707,6 +712,13 @@ export function attackTile(x, y) {
 
   // T226: War Trophy Collection — +5% attack at 3+ trophies
   attackPower *= getTrophyAttackMult();
+
+  // T229: Peasant Militia — flat attack bonus from conscripted population
+  const _milBonus = getMilitiaAttackBonus();
+  if (_milBonus > 0) {
+    attackPower += _milBonus;
+    addMessage(`🏘️ Militia support! +${_milBonus} flat attack power.`, 'info');
+  }
 
   // T209: Supply line penalty — reduced attack when target is beyond supply range
   const _supplyPenalty = getSupplyPenalty(x, y);

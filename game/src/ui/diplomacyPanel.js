@@ -59,6 +59,12 @@ import {
 } from '../systems/counteroffensive.js'; // T212
 import { getIntelReport, getIntelNextSecs, isIntelActive } from '../systems/militaryIntel.js'; // T220
 import { sendPeaceOverture, canSendOverture, hasAttemptedOverture, OVERTURE_PRESTIGE_COST } from '../systems/peaceOverture.js'; // T222
+import {
+  forgeAncientPact, dissolveAncientPact, isAncientPactActive, getPactTier,
+  getPactGoldRate, getPactManaRate, getPactMoraleBonus, getPactEmpireId,
+  getPactCooldownSecs, getPactElapsedSecs, getPactNextTierSecs,
+  PACT_PRESTIGE_COST, PACT_RATES, PACT_MORALE_BONUS,
+} from '../systems/ancientPact.js'; // T230
 import { fmtNum } from '../utils/fmt.js';
 
 const PANEL_ID = 'panel-diplomacy';
@@ -99,6 +105,7 @@ export function initDiplomacyPanel() {
   on(Events.COUNTEROFFENSIVE,        () => _render(panel));  // T212
   on(Events.INTEL_REPORT,            () => _render(panel));  // T220
   on(Events.PEACE_OVERTURE_CHANGED,  () => _render(panel));  // T222
+  on(Events.ANCIENT_PACT_CHANGED,   () => _render(panel));  // T230
   // Refresh cooldown countdown every second; also refresh ceasefire/gift/skirmish/aid timers when active
   on(Events.TICK, _throttle(() => {
     const cd = document.getElementById('espionage-cooldown');
@@ -124,7 +131,9 @@ export function initDiplomacyPanel() {
     const hasEnvoy    = isEnvoyActive();
     // T210: refresh while righteous anger countdown is active
     const hasAngryBonus = isAngryBonusActive();
-    if (hasCeasefire || hasAllied || hasGiftCooldown || hasSkirmish || hasAidActivity || hasMission || hasCampaign || hasEmbargo || hasTribute || hasEnvoy || hasAngryBonus) {
+    // T230: refresh while ancient pact is active (tier timer ticking)
+    const hasAncientPact = isAncientPactActive();
+    if (hasCeasefire || hasAllied || hasGiftCooldown || hasSkirmish || hasAidActivity || hasMission || hasCampaign || hasEmbargo || hasTribute || hasEnvoy || hasAngryBonus || hasAncientPact) {
       _render(panel);
     }
   }, 4));
@@ -157,6 +166,7 @@ function _render(panel) {
     ${_espionageSection()}
     ${_campaignSection()}
     ${_pactSection()}
+    ${_ancientPactSection()}
     ${_historySection()}
   `;
 }
@@ -586,6 +596,98 @@ function _pactHistory(history) {
      </div>`
   ).join('');
   return `<div class="pact-history"><div class="pact-history__label">Past Pacts</div>${entries}</div>`;
+}
+
+// ── T230: Ancient Pact section ────────────────────────────────────────────
+
+function _ancientPactSection() {
+  if ((state.age ?? 0) < 2) return '';  // Iron Age+
+
+  const active      = isAncientPactActive();
+  const cdSecs      = getPactCooldownSecs();
+  const empireId    = getPactEmpireId();
+  const tier        = getPactTier();
+  const goldRate    = getPactGoldRate();
+  const manaRate    = getPactManaRate();
+  const moraleBonus = getPactMoraleBonus();
+  const elapsedSecs = getPactElapsedSecs();
+  const nextSecs    = getPactNextTierSecs();
+  const totalPacts  = state.ancientPact?.totalPacts ?? 0;
+  const score       = state.prestige?.score ?? 0;
+
+  const alliedEmpires = (state.diplomacy?.empires ?? []).filter(e => e.relations === 'allied');
+
+  if (active) {
+    const empDef = EMPIRES[empireId] ?? null;
+    const elapsedMins = Math.floor(elapsedSecs / 60);
+    const elapsedSec  = elapsedSecs % 60;
+    const elapsedStr  = elapsedMins > 0 ? `${elapsedMins}m ${String(elapsedSec).padStart(2, '0')}s` : `${elapsedSecs}s`;
+    const tierLabels  = ['', 'I', 'II', 'III'];
+    const tierColors  = ['', '#f6d860', '#fbbf24', '#f97316'];
+
+    const bonuses = [`+${goldRate} gold/s`];
+    if (manaRate > 0)    bonuses.push(`+${manaRate} mana/s`);
+    if (moraleBonus > 0) bonuses.push(`+${moraleBonus} morale bonus granted`);
+
+    const nextHint = tier < 3
+      ? `<span class="anc-pact-next">Tier ${tierLabels[tier + 1]} in ${nextSecs}s: ${PACT_RATES[tier + 1].gold} gold/s${PACT_RATES[tier + 1].mana > 0 ? ` + ${PACT_RATES[tier + 1].mana} mana/s` : ''}${tier + 1 === 3 ? ` + ${PACT_MORALE_BONUS} morale` : ''}</span>`
+      : `<span class="anc-pact-next anc-pact-next--max">⭐ Maximum tier reached!</span>`;
+
+    return `
+      <div class="anc-pact-section anc-pact-section--active">
+        <div class="anc-pact-header">
+          <span>🏛️ Ancient Pact</span>
+          <span class="anc-pact-tier" style="color:${tierColors[tier]}">Tier ${tierLabels[tier]}</span>
+        </div>
+        <div class="anc-pact-empire">
+          ${empDef ? `${empDef.icon} ${empDef.name}` : empireId}
+          <span class="anc-pact-elapsed"> — ${elapsedStr} active</span>
+        </div>
+        <div class="anc-pact-bonuses">
+          ${bonuses.map(b => `<span class="anc-pact-bonus">${b}</span>`).join('')}
+        </div>
+        ${nextHint}
+        <button class="btn btn--xs btn--anc-pact-dissolve" data-action="dissolve-ancient-pact">
+          ✕ Dissolve Pact
+        </button>
+      </div>`;
+  }
+
+  // Inactive — show forge options
+  let body;
+  if (cdSecs > 0) {
+    const mins = Math.floor(cdSecs / 60);
+    const secs = cdSecs % 60;
+    const cdStr = mins > 0 ? `${mins}m ${String(secs).padStart(2, '0')}s` : `${cdSecs}s`;
+    body = `<span class="anc-pact-cd">⏳ Cooldown: ${cdStr}</span>`;
+  } else if (alliedEmpires.length === 0) {
+    body = `<span class="anc-pact-locked">Ally with an empire to unlock the Ancient Pact.</span>`;
+  } else {
+    const canAfford = score >= PACT_PRESTIGE_COST;
+    const buttons   = alliedEmpires.map(e => {
+      const empDef = EMPIRES[e.id] ?? null;
+      return `
+        <button class="btn btn--xs btn--anc-pact ${canAfford ? '' : 'btn--disabled'}"
+          data-action="forge-ancient-pact" data-empire="${e.id}"
+          ${canAfford ? '' : 'disabled'}
+          title="${canAfford ? `Forge an Ancient Pact with ${empDef?.name ?? e.id}` : `Need ${PACT_PRESTIGE_COST} prestige (have ${score})`}">
+          🏛️ Pact with ${empDef ? `${empDef.icon} ${empDef.name}` : e.id}
+        </button>`;
+    }).join('');
+    body = `
+      <div class="anc-pact-desc">Deepens over 15 min: +0.5 gold/s → +1.5 gold/s + 0.5 mana/s + +5 morale on final tier. Dissolves if alliance breaks.</div>
+      ${!canAfford ? `<span class="anc-pact-locked">Need ${PACT_PRESTIGE_COST} prestige (have ${score})</span>` : ''}
+      <div class="anc-pact-forge-row">${buttons}</div>`;
+  }
+
+  return `
+    <div class="anc-pact-section">
+      <div class="anc-pact-header">
+        <span>🏛️ Ancient Pact</span>
+        ${totalPacts > 0 ? `<span class="anc-pact-count">${totalPacts}× formed</span>` : ''}
+      </div>
+      ${body}
+    </div>`;
 }
 
 function _historySection() {
@@ -1407,6 +1509,15 @@ function _onClick(e) {
     case 'send-overture': {  // T222
       result = sendPeaceOverture(empire);
       if (!result.ok) addMessageFallback(result.reason);
+      break;
+    }
+    case 'forge-ancient-pact': {  // T230
+      result = forgeAncientPact(empire);
+      if (!result.ok) addMessageFallback(result.reason);
+      break;
+    }
+    case 'dissolve-ancient-pact': {  // T230
+      dissolveAncientPact('manual');
       break;
     }
   }

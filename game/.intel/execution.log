@@ -4183,3 +4183,37 @@ Changes:
       import getArmyCompositionBonus + composition badge in _armySection()
   ~ game/styles/main.css
       T223 bnet styles + T224 mil-composition styles
+
+---
+Session: 2026-05-07
+
+T229: Peasant Militia System
+  Implemented a wartime peasant conscription system (Bronze Age+).
+  New file: src/systems/militia.js
+    - initMilitia(), militiaTick(), conscriptMilitia(), canConscriptMilitia()
+    - Militia size scaled to population (max 10 × 3 = +30 attack)
+    - Food rate penalty while active (-0.15/s per militiaman)
+    - 5 min duration, 15 min cooldown, costs 50 food + 30 gold
+  Modified files:
+    ~ src/core/events.js: MILITIA_CHANGED event
+    ~ src/core/state.js: militia:null field + initState reset
+    ~ src/systems/resources.js: T229 food penalty in recalcRates()
+    ~ src/systems/combat.js: import getMilitiaAttackBonus; T229 flat attack bonus in preview + attackTile
+    ~ src/ui/militaryPanel.js: import militia exports; MILITIA_CHANGED re-render; _militiaSection() + click handler
+    ~ src/main.js: import+register+init+save/load militia; version 78→79
+    ~ src/styles/main.css: .militia-section + .btn--militia styles
+
+T230: Ancient Pact System
+  Implemented a deepening long-term alliance bonus (Iron Age+).
+  New file: src/systems/ancientPact.js
+    - initAncientPact(), ancientPactTick(), forgeAncientPact(), dissolveAncientPact()
+    - 3 tiers: +0.5 gold/s → +1.0+0.3 mana/s → +1.5+0.5 mana/s + morale
+    - Auto-dissolves when alliance breaks (DIPLOMACY_CHANGED listener)
+    - 200 prestige cost, 10 min cooldown after dissolution
+  Modified files:
+    ~ src/core/events.js: ANCIENT_PACT_CHANGED event
+    ~ src/core/state.js: ancientPact:null field + initState reset
+    ~ src/systems/resources.js: T230 pact gold+mana rates in recalcRates()
+    ~ src/ui/diplomacyPanel.js: import ancientPact exports; ANCIENT_PACT_CHANGED re-render; _ancientPactSection() + forge/dissolve click handlers; tick refresh when active
+    ~ src/main.js: import+register+init+save/load ancientPact
+    ~ src/styles/main.css: .anc-pact-section + .btn--anc-pact styles

@@ -35,6 +35,7 @@ import { SEASON_UNIT_DISCOUNT, SEASON_UNIT_COMBAT_BUFF } from '../data/seasons.j
 import { getArmyCompositionBonus } from '../systems/combat.js'; // T224
 import { getTrophyCount, getTrophyAttackMult, getTrophyGoldRate, TROPHY_ATTACK_THRESHOLD, TROPHY_MORALE_THRESHOLD, TROPHY_GOLD_THRESHOLD } from '../systems/warTrophies.js'; // T226
 import { declareRationing, canDeclareRationing, isRationingActive, getRationingSecsLeft, getRationingCooldownSecs } from '../systems/rationing.js'; // T228
+import { conscriptMilitia, canConscriptMilitia, isMilitiaActive, getMilitiaAttackBonus, getMilitiaSecsLeft, getMilitiaCooldownSecs, MILITIA_FOOD_COST, MILITIA_GOLD_COST } from '../systems/militia.js'; // T229
 
 const UNIT_ORDER = ['soldier', 'archer', 'knight', 'mage', 'siege_engine'];
 
@@ -112,6 +113,7 @@ export function initMilitaryPanel() {
   on(Events.STANDARD_CHANGED,       () => _render(panel)); // T205: battle standard assigned/transferred
   on(Events.TROPHY_EARNED,          () => _render(panel)); // T226: trophy earned
   on(Events.RATIONING_CHANGED,      () => _render(panel)); // T228: rationing declared/expired
+  on(Events.MILITIA_CHANGED,        () => _render(panel)); // T229: militia conscripted/disbanded
   on(Events.RESOURCE_CHANGED,  () => _renderCosts(panel));
   on(Events.GAME_LOADED,       () => _render(panel));
 
@@ -151,7 +153,8 @@ export function initMilitaryPanel() {
     const hasArenaEvent    = !!state.arena?.current;         // T204: arena countdown
     const hasStandardCooldown = !!(state.battleStandard && state.battleStandard.transferCooldownUntil > state.tick); // T205
     const hasRationing        = isRationingActive() || (getRationingCooldownSecs() > 0); // T228
-    if (hasHeroActivity || hasSpellActivity || hasMercOffer || hasDecreeCooldown || hasRallyCooldown || hasAcademyDrill || hasDuelPending || hasPioneerActive || hasSurgeActivity || hasWarlord || hasArmyOffer || hasArenaEvent || hasStandardCooldown || hasRationing) _render(panel);
+    const hasMilitia          = isMilitiaActive() || (getMilitiaCooldownSecs() > 0);      // T229
+    if (hasHeroActivity || hasSpellActivity || hasMercOffer || hasDecreeCooldown || hasRallyCooldown || hasAcademyDrill || hasDuelPending || hasPioneerActive || hasSurgeActivity || hasWarlord || hasArmyOffer || hasArenaEvent || hasStandardCooldown || hasRationing || hasMilitia) _render(panel);
   });
 }
 
@@ -168,6 +171,7 @@ function _render(panel) {
     ${_formationSection()}
     ${_moraleSection()}
     ${_rationingSection()}
+    ${_militiaSection()}
     ${_rallySection()}
     ${_academySection()}
     ${_upgradeSection()}
@@ -1746,10 +1750,76 @@ function _handleClick(e) {
       setTimeout(() => actionBtn.classList.remove('btn--shake'), 600);
       addMessage(result.reason, 'info');
     }
+  } else if (actionBtn.dataset.action === 'conscript-militia') {
+    // T229: conscript peasant militia
+    const result = conscriptMilitia();
+    if (!result.ok) {
+      actionBtn.classList.add('btn--shake');
+      setTimeout(() => actionBtn.classList.remove('btn--shake'), 600);
+      addMessage(result.reason, 'info');
+    }
   }
 }
 
 // ── T228: Wartime Rationing section ──────────────────────────────────────
+
+// ── T229: Peasant Militia section ────────────────────────────────────────
+
+function _militiaSection() {
+  if ((state.age ?? 0) < 1) return '';  // Bronze Age+
+
+  const active       = isMilitiaActive();
+  const secsLeft     = getMilitiaSecsLeft();
+  const cdSecs       = getMilitiaCooldownSecs();
+  const check        = canConscriptMilitia();
+  const bonus        = getMilitiaAttackBonus();
+  const total        = state.militia?.totalCalled ?? 0;
+  const atWar        = state.diplomacy?.empires?.some(e => e.relations === 'war') ?? false;
+  const pop          = Math.floor(state.population?.count ?? 0);
+  const size         = Math.min(Math.floor(pop / 100), 10);
+  const previewBonus = size * 3;
+  const previewFood  = +(size * 0.15).toFixed(2);
+
+  let statusHtml;
+  if (active) {
+    const mins = Math.floor(secsLeft / 60);
+    const secs = secsLeft % 60;
+    const timeStr = mins > 0 ? `${mins}m ${String(secs).padStart(2, '0')}s` : `${secsLeft}s`;
+    statusHtml = `
+      <div class="militia-active">
+        ⚔️ Militia active — +${bonus} flat attack, -${state.militia.active.foodPenalty} food/s
+        <span class="militia-timer">⏱ ${timeStr} remaining</span>
+      </div>`;
+  } else if (cdSecs > 0) {
+    const mins = Math.floor(cdSecs / 60);
+    const secs = cdSecs % 60;
+    const cdStr = mins > 0 ? `${mins}m ${String(secs).padStart(2, '0')}s` : `${cdSecs}s`;
+    statusHtml = `<span class="militia-cd">⏳ Cooldown: ${cdStr}</span>`;
+  } else if (!atWar) {
+    statusHtml = `<span class="militia-locked">⚔️ Only available during active wars</span>`;
+  } else if (size === 0) {
+    statusHtml = `<span class="militia-locked">🏘️ Need 100+ citizens to conscript militia</span>`;
+  } else {
+    statusHtml = `<span class="militia-ready">✅ Ready — ${size * 100} citizens available (+${previewBonus} attack, -${previewFood} food/s)</span>`;
+  }
+
+  return `
+    <div class="militia-section${active ? ' militia-section--active' : ''}">
+      <div class="militia-header">
+        <span>🏘️ Peasant Militia</span>
+        ${total > 0 ? `<span class="militia-count">${total}× called</span>` : ''}
+      </div>
+      <div class="militia-desc">Conscript citizens as temporary militia during wartime. Provides flat attack bonus scaled to population, but drains food.</div>
+      ${statusHtml}
+      ${!active ? `
+        <button class="btn btn--militia ${check.ok ? '' : 'btn--disabled'}"
+          data-action="conscript-militia"
+          ${check.ok ? '' : 'disabled'}
+          title="${check.ok ? `Cost: ${MILITIA_FOOD_COST} food + ${MILITIA_GOLD_COST} gold` : check.reason}">
+          🏘️ Conscript Militia (${MILITIA_FOOD_COST}🍞 ${MILITIA_GOLD_COST}💰)
+        </button>` : ''}
+    </div>`;
+}
 
 function _rationingSection() {
   const minAge = 1;

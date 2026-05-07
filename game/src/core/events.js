@@ -193,4 +193,6 @@ export const Events = Object.freeze({
   TROPHY_EARNED:               'trophyEarned',                 // T226: war trophy awarded
   ALCHEMY_CHANGED:             'alchemyChanged',               // T227: alchemy offer spawned/accepted/dismissed/expired
   RATIONING_CHANGED:           'rationingChanged',             // T228: wartime rationing declared or expired
+  MILITIA_CHANGED:             'militiaChanged',               // T229: militia conscripted or disbanded
+  ANCIENT_PACT_CHANGED:        'ancientPactChanged',           // T230: ancient pact forged, tiered, or dissolved
 });

@@ -744,6 +744,20 @@ export function recalcRates() {
     }
   }
 
+  // T229: Peasant Militia — food rate penalty while militia is active
+  if (state.militia?.active && state.militia.active.expiresAt > state.tick) {
+    rates.food -= state.militia.active.foodPenalty;
+  }
+
+  // T230: Ancient Pact — growing gold/mana rate bonuses from allied pact
+  if (state.ancientPact?.active) {
+    const tier = state.ancientPact.active.tier ?? 1;
+    const GOLD_BY_TIER = [0, 0.5, 1.0, 1.5];
+    const MANA_BY_TIER = [0, 0.0, 0.3, 0.5];
+    rates.gold += GOLD_BY_TIER[tier] ?? 0;
+    rates.mana += MANA_BY_TIER[tier] ?? 0;
+  }
+
   Object.assign(state.rates, rates);
   Object.assign(state.caps, caps);
 }

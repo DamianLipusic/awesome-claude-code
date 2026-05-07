@@ -14029,3 +14029,209 @@ kbd {
 .btn--rationing:hover:not(.btn--disabled) {
   background: linear-gradient(135deg, #ef4444, #b91c1c);
 }
+
+/* ── T229: Peasant Militia ─────────────────────────────────────────────── */
+.militia-section {
+  background: rgba(234, 179, 8, 0.06);
+  border: 1px solid rgba(234, 179, 8, 0.22);
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-top: 8px;
+  font-size: 0.82rem;
+}
+.militia-section--active {
+  background: rgba(234, 179, 8, 0.12);
+  border-color: rgba(234, 179, 8, 0.45);
+}
+.militia-header {
+  color: #fde68a;
+  font-weight: 700;
+  font-size: 0.86rem;
+  margin-bottom: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.militia-count {
+  color: #ca8a04;
+  font-size: 0.73rem;
+  font-weight: 600;
+}
+.militia-desc {
+  color: #9ca3af;
+  font-size: 0.75rem;
+  margin-bottom: 6px;
+  line-height: 1.35;
+}
+.militia-active {
+  background: rgba(234, 179, 8, 0.10);
+  border: 1px solid rgba(234, 179, 8, 0.30);
+  border-radius: 4px;
+  padding: 5px 8px;
+  color: #fde68a;
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.5;
+  margin-bottom: 4px;
+}
+.militia-timer {
+  display: block;
+  color: #eab308;
+  font-size: 0.74rem;
+  margin-top: 2px;
+}
+.militia-cd {
+  color: #9ca3af;
+  font-size: 0.75rem;
+  font-style: italic;
+  display: block;
+  margin-bottom: 5px;
+}
+.militia-locked {
+  color: #6b7280;
+  font-size: 0.75rem;
+  font-style: italic;
+  display: block;
+  margin-bottom: 5px;
+}
+.militia-ready {
+  color: #86efac;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 5px;
+}
+.btn--militia {
+  background: linear-gradient(135deg, #ca8a04, #92400e);
+  color: #fef3c7;
+  border: 1px solid rgba(234, 179, 8, 0.45);
+  border-radius: 4px;
+  padding: 4px 12px;
+  cursor: pointer;
+  font-size: 0.80rem;
+  font-weight: 600;
+}
+.btn--militia:hover:not(.btn--disabled) {
+  background: linear-gradient(135deg, #d97706, #b45309);
+}
+
+/* ── T230: Ancient Pact ────────────────────────────────────────────────── */
+.anc-pact-section {
+  background: rgba(168, 85, 247, 0.06);
+  border: 1px solid rgba(168, 85, 247, 0.22);
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-top: 8px;
+  font-size: 0.82rem;
+}
+.anc-pact-section--active {
+  background: rgba(168, 85, 247, 0.12);
+  border-color: rgba(168, 85, 247, 0.45);
+}
+.anc-pact-header {
+  color: #d8b4fe;
+  font-weight: 700;
+  font-size: 0.86rem;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.anc-pact-tier {
+  font-size: 0.80rem;
+  font-weight: 700;
+}
+.anc-pact-count {
+  color: #a855f7;
+  font-size: 0.73rem;
+  font-weight: 600;
+}
+.anc-pact-empire {
+  color: #c4b5fd;
+  font-size: 0.80rem;
+  margin-bottom: 4px;
+}
+.anc-pact-elapsed {
+  color: #9ca3af;
+  font-size: 0.73rem;
+}
+.anc-pact-bonuses {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+.anc-pact-bonus {
+  background: rgba(168, 85, 247, 0.15);
+  border: 1px solid rgba(168, 85, 247, 0.30);
+  border-radius: 3px;
+  color: #e9d5ff;
+  font-size: 0.72rem;
+  padding: 2px 6px;
+  font-weight: 600;
+}
+.anc-pact-next {
+  display: block;
+  color: #9ca3af;
+  font-size: 0.73rem;
+  font-style: italic;
+  margin-bottom: 5px;
+}
+.anc-pact-next--max {
+  color: #f6d860;
+  font-style: normal;
+  font-weight: 600;
+}
+.anc-pact-desc {
+  color: #9ca3af;
+  font-size: 0.75rem;
+  margin-bottom: 6px;
+  line-height: 1.35;
+}
+.anc-pact-cd {
+  color: #9ca3af;
+  font-size: 0.75rem;
+  font-style: italic;
+  display: block;
+  margin-bottom: 5px;
+}
+.anc-pact-locked {
+  color: #6b7280;
+  font-size: 0.75rem;
+  font-style: italic;
+  display: block;
+  margin-bottom: 5px;
+}
+.anc-pact-forge-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+.btn--anc-pact {
+  background: linear-gradient(135deg, #7c3aed, #5b21b6);
+  color: #ede9fe;
+  border: 1px solid rgba(168, 85, 247, 0.45);
+  border-radius: 4px;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+.btn--anc-pact:hover:not(.btn--disabled) {
+  background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+}
+.btn--anc-pact-dissolve {
+  background: transparent;
+  color: #9ca3af;
+  border: 1px solid rgba(156, 163, 175, 0.30);
+  border-radius: 3px;
+  padding: 2px 8px;
+  cursor: pointer;
+  font-size: 0.72rem;
+  margin-top: 4px;
+}
+.btn--anc-pact-dissolve:hover {
+  color: #ef4444;
+  border-color: rgba(239, 68, 68, 0.40);
+}

@@ -632,6 +632,16 @@ export const state = {
   // T228: Wartime Rationing — food/production tradeoff during active wars
   // { active: { expiresAt: tick } | null, cooldownUntil: tick, totalDeclared: number } | null
   rationing: null,
+
+  // T229: Peasant Militia — temporary attack boost from conscripted population
+  // { active: { expiresAt: tick, attackBonus: number, foodPenalty: number } | null,
+  //   cooldownUntil: tick, totalCalled: number } | null
+  militia: null,
+
+  // T230: Ancient Pact — deepening long-term alliance with one empire
+  // { active: { empireId: string, startTick: tick, tier: 1|2|3 } | null,
+  //   cooldownUntil: tick, totalPacts: number, moraleBonus: number } | null
+  ancientPact: null,
 };
 
 /**
@@ -780,5 +790,7 @@ export function initState(empireName = 'My Empire') {
   state.trophies             = null; // T226: reset trophies per game
   state.alchemy              = null; // T227: reset alchemy state per game
   state.rationing            = null; // T228: reset rationing state per game
+  state.militia              = null; // T229: reset militia state per game
+  state.ancientPact          = null; // T230: reset ancient pact state per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }
