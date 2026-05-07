@@ -3972,3 +3972,56 @@ New file `src/systems/militaryIntel.js`. Generates automated spy briefings on no
 - `src/ui/diplomacyPanel.js`: import getIntelReport+helpers; on(INTEL_REPORT) re-render; _intelRow(emp) renders pending notice or live report card (tile trend, power tier, threat level, age) injected into each non-allied empire card.
 - `src/main.js`: import + registerSystem(militaryIntelTick) + initMilitaryIntel() in boot+_newGame + save/load.
 - `styles/main.css`: .intel-row/--pending and sub-element styles.
+
+---
+
+## 2026-05-07 — Session N+56
+
+**Tasks completed:** T221, T222
+
+**Summary:**
+All prior tasks (T001–T220) were complete. Created T221+T222 task specs in tasks.json then implemented two Phase 89 features: Imperial Construction Drive (T221) and Peace Overture (T222).
+
+**T221 — Imperial Construction Drive:**
+- `src/systems/constructionDrive.js`: New file. DRIVE_STONE_COST=150, DRIVE_WOOD_COST=100, DRIVE_PROD_MULT=1.20, DRIVE_DURATION=3min (720 ticks), COOLDOWN_TICKS=12min (2880 ticks), MIN_AGE=1 (Bronze Age+). `initConstructionDrive()` lazy-creates `state.constructionDrive={active:null, cooldownUntil:0, totalDrives:0}`. `constructionDriveTick()` checks if `state.tick >= active.expiresAt`, clears active, sets 12-min cooldown, awards `changeMorale(+5)`, emits CONSTRUCTION_DRIVE_CHANGED. `launchConstructionDrive()` validates age/active/cooldown/resources, deducts stone+wood, sets active, increments totalDrives, emits CONSTRUCTION_DRIVE_CHANGED+RESOURCE_CHANGED. Accessors: `isDriveActive()`, `getDriveSecsLeft()`, `getDriveCooldownSecs()`.
+- `src/core/events.js`: CONSTRUCTION_DRIVE_CHANGED:'constructionDriveChanged' added.
+- `src/core/state.js`: `constructionDrive:null` field definition + `state.constructionDrive=null` reset in `initState()`.
+- `src/systems/resources.js`: T221 block after T218 — when `state.constructionDrive?.active?.expiresAt > state.tick`, multiplies all positive resource rates by 1.20 before `Object.assign(state.rates, rates)`.
+- `src/ui/buildingPanel.js`: import 6 constructionDrive exports; `on(CONSTRUCTION_DRIVE_CHANGED, renderBuildingPanel)`; TICK handler also refreshes when `isDriveActive()`; `_constructionDriveSection()` renders active banner with countdown (mins+secs), cooldown notice, or launch button (disabled when on cooldown/not affordable/already active); `data-action="construction-drive"` click handler calls `launchConstructionDrive()` with shake-on-fail. Section appended after `_artisanGuildsSection()`.
+- `src/main.js`: import `initConstructionDrive+constructionDriveTick`; `registerSystem(constructionDriveTick)`; `initConstructionDrive()` in `boot()`+`_newGame()`; `constructionDrive` saved/loaded.
+- `styles/main.css`: `.cdrive-section` (green border+bg), `.cdrive-header` (green text, 700 weight), `.cdrive-desc` (muted), `.cdrive-active` (green pill banner with icon/text/timer), `.cdrive-cooldown` (muted timer), `.cdrive-actions/have/total`, `.btn--cdrive` (green gradient hover).
+
+**T222 — Peace Overture:**
+- `src/systems/peaceOverture.js`: New file. PRESTIGE_COST=40, REFUSE_WS_BONUS=10, acceptance thresholds: CHANCE_WINNING=0.75 (ws≥15), CHANCE_EVEN=0.50 (ws 5-14), CHANCE_LOSING=0.25 (ws<5). `initPeaceOvertures()` lazy-creates `state.peaceOvertures={attempted:{}}` and registers a DIPLOMACY_CHANGED listener `_clearAttempted()` that deletes attempted[empireId] for any empire no longer in 'war' relations — auto-resets per-war tracking without needing explicit IDs. `canSendOverture(empireId)` validates: relation=war, not attempted, prestige≥40. `sendPeaceOverture(empireId)` marks attempted, deducts prestige, rolls acceptance; on accept: sets relations='neutral', warScore=0, emits DIPLOMACY_CHANGED; on refuse: warScore+=10, raid message; always emits PEACE_OVERTURE_CHANGED. `hasAttemptedOverture(empireId)` accessor.
+- `src/core/events.js`: PEACE_OVERTURE_CHANGED:'peaceOvertureChanged' added.
+- `src/core/state.js`: `peaceOvertures:null` field definition + `state.peaceOvertures=null` reset in `initState()`.
+- `src/ui/diplomacyPanel.js`: import 4 peaceOverture exports; `on(PEACE_OVERTURE_CHANGED, _render)`; in `_empireCard()` war section — added before demand-surrender block: if `hasAttemptedOverture` shows `.dipl-overture-badge` badge; else shows `btn--overture` button with dynamic title showing accept chance percentage (75%/50%/25%) based on current warScore; `send-overture` case in `_onClick` dispatches to `sendPeaceOverture(empire)`.
+- `src/main.js`: import `initPeaceOvertures`; `initPeaceOvertures()` in `boot()`+`_newGame()`; `peaceOvertures` saved/loaded (no tick system needed — event-driven via DIPLOMACY_CHANGED listener).
+- `styles/main.css`: `.btn--overture` (indigo gradient, #e0e7ff text, 0.78rem), `.dipl-overture-badge` (muted indigo italic).
+
+**Architecture decisions:**
+- T221 applies the +20% multiplier only to positive rates — resources with 0 or negative rates are unaffected. This prevents the drive from amplifying production debuffs.
+- T221 is Bronze Age+ gated (same tier as mercenaries, royal hunt) to keep early game simple. Stone and wood are typically abundant in Bronze Age, making this a natural pressure release valve.
+- T222 uses `DIPLOMACY_CHANGED` to auto-clear the `attempted` flag when war ends. Since wars don't have unique IDs, this is cleaner than tracking war start ticks. The listener fires whether peace is made via Peace Overture, proposePeace(), or demandSurrender().
+- T222 does NOT add a save version bump — `peaceOvertures` defaults to `null` with safe lazy init.
+
+**Files modified:**
+  + game/src/systems/constructionDrive.js (new)
+      initConstructionDrive(), constructionDriveTick(), launchConstructionDrive()
+      isDriveActive(), getDriveSecsLeft(), getDriveCooldownSecs()
+  + game/src/systems/peaceOverture.js (new)
+      initPeaceOvertures(), canSendOverture(), sendPeaceOverture(), hasAttemptedOverture()
+  ~ game/src/core/events.js
+      CONSTRUCTION_DRIVE_CHANGED + PEACE_OVERTURE_CHANGED events added
+  ~ game/src/core/state.js
+      constructionDrive:null + peaceOvertures:null fields; initState resets both
+  ~ game/src/systems/resources.js
+      T221 block: *1.20 mult on all positive rates when drive active
+  ~ game/src/ui/buildingPanel.js
+      import 6 constructionDrive exports; CONSTRUCTION_DRIVE_CHANGED listener; TICK refresh when active; _constructionDriveSection(); click handler
+  ~ game/src/ui/diplomacyPanel.js
+      import 4 peaceOverture exports; PEACE_OVERTURE_CHANGED listener; overture button+badge in _empireCard war section; send-overture click handler
+  ~ game/src/main.js
+      import+register+init+save/load constructionDrive; import+init+save/load peaceOvertures
+  ~ game/styles/main.css
+      T221 cdrive styles + T222 overture button/badge styles

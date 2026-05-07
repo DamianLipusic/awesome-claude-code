@@ -135,6 +135,8 @@ import { initRefugees, refugeeTick, acceptRefugees, integrateRefugees, declineRe
 import { initSilkRoad, silkRoadTick } from './systems/silkRoad.js';                               // T218
 import { initPropaganda, propagandaTick } from './systems/propaganda.js';                         // T219
 import { initMilitaryIntel, militaryIntelTick } from './systems/militaryIntel.js';                // T220
+import { initConstructionDrive, constructionDriveTick } from './systems/constructionDrive.js';     // T221
+import { initPeaceOvertures } from './systems/peaceOverture.js';                                   // T222
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
@@ -241,6 +243,7 @@ function boot() {
   registerSystem(silkRoadTick);         // T218: silk road window lifecycle
   registerSystem(propagandaTick);       // T219: propaganda campaign expiry
   registerSystem(militaryIntelTick);    // T220: military intelligence report generation
+  registerSystem(constructionDriveTick); // T221: construction drive expiry check
 
   // Init event-driven systems
   initRandomEvents();
@@ -330,6 +333,8 @@ function boot() {
   initSilkRoad();            // T218: silk road state init
   initPropaganda();          // T219: propaganda campaigns state init
   initMilitaryIntel();       // T220: military intelligence state init
+  initConstructionDrive();   // T221: construction drive state init
+  initPeaceOvertures();      // T222: peace overture state init
   // T176: monument init deferred — only activates when building is constructed
 
   // Init UI
@@ -736,6 +741,8 @@ function _save() {
         silkRoad:            state.silkRoad            ?? null,  // T218
         propaganda:          state.propaganda          ?? null,  // T219
         intel:               state.intel               ?? null,  // T220
+        constructionDrive:   state.constructionDrive   ?? null,  // T221
+        peaceOvertures:      state.peaceOvertures      ?? null,  // T222
         tick:          state.tick,
       }
     }));
@@ -914,6 +921,8 @@ function _applySave(save) {
   state.silkRoad             = s.silkRoad             ?? null; // T218
   state.propaganda           = s.propaganda           ?? null; // T219
   state.intel                = s.intel                ?? null; // T220
+  state.constructionDrive    = s.constructionDrive    ?? null; // T221
+  state.peaceOvertures       = s.peaceOvertures       ?? null; // T222
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
@@ -1812,6 +1821,8 @@ function _newGame(opts = {}) {
   initSilkRoad();            // T218: reset silk road on new game
   initPropaganda();          // T219: reset propaganda campaigns on new game
   initMilitaryIntel();       // T220: reset military intel on new game
+  initConstructionDrive();   // T221: reset construction drive on new game
+  initPeaceOvertures();      // T222: reset peace overtures on new game
   _updateCelestialBanner(); // T153: hide banner on new game
   _updateRefugeeBanner();   // T217: hide refugee banner on new game
   recalcRates();

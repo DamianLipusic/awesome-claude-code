@@ -607,6 +607,14 @@ export const state = {
   // { reports: {[empireId]: {tileTrend, powerTier, threatLevel, generatedAt}},
   //   nextReportTick, totalReports } | null
   intel: null,
+
+  // T221: Imperial Construction Drive — temporary production boost via stone+wood expenditure
+  // { active: { expiresAt: number } | null, cooldownUntil: number, totalDrives: number } | null
+  constructionDrive: null,
+
+  // T222: Peace Overtures — one formal overture per war per empire
+  // { attempted: { [empireId]: true } } | null
+  peaceOvertures: null,
 };
 
 /**
@@ -749,5 +757,7 @@ export function initState(empireName = 'My Empire') {
   state.silkRoad             = null; // T218: reset silk road per game
   state.propaganda           = null; // T219: reset propaganda campaigns per game
   state.intel                = null; // T220: reset military intel per game
+  state.constructionDrive    = null; // T221: reset construction drive per game
+  state.peaceOvertures       = null; // T222: reset peace overtures per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

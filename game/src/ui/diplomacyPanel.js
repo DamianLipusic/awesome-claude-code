@@ -58,6 +58,7 @@ import {
   getActiveCounteroffensives, getCounteroffensiveSecs,
 } from '../systems/counteroffensive.js'; // T212
 import { getIntelReport, getIntelNextSecs, isIntelActive } from '../systems/militaryIntel.js'; // T220
+import { sendPeaceOverture, canSendOverture, hasAttemptedOverture, OVERTURE_PRESTIGE_COST } from '../systems/peaceOverture.js'; // T222
 import { fmtNum } from '../utils/fmt.js';
 
 const PANEL_ID = 'panel-diplomacy';
@@ -94,9 +95,10 @@ export function initDiplomacyPanel() {
   on(Events.ENVOY_ARRIVED,          () => _render(panel));  // T192
   on(Events.ENVOY_RECALLED,         () => _render(panel));  // T192
   on(Events.RESOURCE_PACT_CHANGED,  () => _render(panel));  // T208
-  on(Events.REPARATIONS_DEMANDED,   () => _render(panel));  // T210
-  on(Events.COUNTEROFFENSIVE,       () => _render(panel));  // T212
-  on(Events.INTEL_REPORT,           () => _render(panel));  // T220
+  on(Events.REPARATIONS_DEMANDED,    () => _render(panel));  // T210
+  on(Events.COUNTEROFFENSIVE,        () => _render(panel));  // T212
+  on(Events.INTEL_REPORT,            () => _render(panel));  // T220
+  on(Events.PEACE_OVERTURE_CHANGED,  () => _render(panel));  // T222
   // Refresh cooldown countdown every second; also refresh ceasefire/gift/skirmish/aid timers when active
   on(Events.TICK, _throttle(() => {
     const cd = document.getElementById('espionage-cooldown');
@@ -846,6 +848,24 @@ function _empireCard(emp) {
         💰 Demand Reparations (${REPARATIONS_PRESTIGE_COST}⭐)
       </button>`);
     }
+    // T222: Peace Overture — formal prestige-based peace proposal
+    const overtureCheck    = canSendOverture(emp.id);
+    const overtureAttempted = hasAttemptedOverture(emp.id);
+    const prestige         = state.prestige?.score ?? 0;
+    if (overtureAttempted) {
+      btns.push(`<div class="dipl-overture-badge">📜 Peace Overture sent this war</div>`);
+    } else {
+      btns.push(`<button
+        class="btn btn--overture ${overtureCheck.ok ? '' : 'btn--disabled'}"
+        data-action="send-overture" data-empire="${emp.id}"
+        ${overtureCheck.ok ? '' : 'disabled'}
+        title="${overtureCheck.ok
+          ? `Send a formal peace overture — costs ${OVERTURE_PRESTIGE_COST} prestige. Accept chance: ${(emp.warScore ?? 0) >= 15 ? '75%' : (emp.warScore ?? 0) >= 5 ? '50%' : '25%'}.`
+          : overtureCheck.reason}">
+        📜 Peace Overture (${OVERTURE_PRESTIGE_COST}⭐)
+      </button>`);
+    }
+
     // T058: Demand Surrender when enough war score accumulated
     const ws = emp.warScore ?? 0;
     if (ws >= WAR_SCORE_THRESHOLD) {
@@ -1381,6 +1401,11 @@ function _onClick(e) {
     }
     case 'demand-reparations': {  // T210
       result = demandReparations(empire);
+      if (!result.ok) addMessageFallback(result.reason);
+      break;
+    }
+    case 'send-overture': {  // T222
+      result = sendPeaceOverture(empire);
       if (!result.ok) addMessageFallback(result.reason);
       break;
     }

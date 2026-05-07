@@ -186,5 +186,7 @@ export const Events = Object.freeze({
   REFUGEE_CRISIS:           'refugeeCrisis',               // T217: refugee crisis spawned / accepted / integrated / declined / expired
   SILK_ROAD_CHANGED:        'silkRoadChanged',             // T218: silk road window opened / purchased / closed
   PROPAGANDA_LAUNCHED:      'propagandaLaunched',          // T219: propaganda campaign started or ended
-  INTEL_REPORT:             'intelReport',                  // T220: military intelligence report generated
+  INTEL_REPORT:                 'intelReport',                  // T220: military intelligence report generated
+  CONSTRUCTION_DRIVE_CHANGED:  'constructionDriveChanged',     // T221: construction drive started or ended
+  PEACE_OVERTURE_CHANGED:      'peaceOvertureChanged',         // T222: peace overture sent (accepted or refused)
 });

@@ -704,6 +704,13 @@ export function recalcRates() {
     rates.gold = (rates.gold ?? 0) + state.silkRoad.permanentGoldRate;
   }
 
+  // T221: Imperial Construction Drive — +20% to all rates while active
+  if (state.constructionDrive?.active && state.constructionDrive.active.expiresAt > state.tick) {
+    for (const res of ['gold', 'food', 'wood', 'stone', 'iron', 'mana']) {
+      if (rates[res] > 0) rates[res] *= 1.20;
+    }
+  }
+
   Object.assign(state.rates, rates);
   Object.assign(state.caps, caps);
 }

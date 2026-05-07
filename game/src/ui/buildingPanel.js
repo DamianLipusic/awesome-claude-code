@@ -9,6 +9,7 @@ import { buildBuilding, demolishBuilding, specializeBuilding, chooseCapitalPlan,
 import { depositToVault, VAULT_DEPOSIT_AMOUNT, VAULT_RETURN_AMOUNT, VAULT_LOCK_TICKS } from '../systems/imperialVault.js';
 import { communeWithRelics, getCommuneSecsLeft, getRelicCount } from '../systems/relicShrine.js'; // T180
 import { GUILDS, GUILD_ORDER, GUILD_SLOTS, foundGuild, isGuildFounded, guildSecsLeft, activeGuildCount } from '../systems/artisanGuilds.js'; // T194
+import { launchConstructionDrive, isDriveActive, getDriveSecsLeft, getDriveCooldownSecs, DRIVE_STONE_COST, DRIVE_WOOD_COST } from '../systems/constructionDrive.js'; // T221
 import { BUILDINGS } from '../data/buildings.js';
 import { SPECIALIZATIONS, SPECIALS_BY_BUILDING, ELIGIBLE_BUILDINGS } from '../data/buildingSpecials.js';
 import { CAPITAL_PLANS, CAPITAL_PLAN_ORDER } from '../data/capitalPlans.js';
@@ -38,14 +39,18 @@ export function initBuildingPanel() {
   on(Events.VAULT_CHANGED,         renderBuildingPanel);
   on(Events.RELIC_SHRINE_COMMUNE,  renderBuildingPanel); // T180
   on(Events.RELIC_DISCOVERED,      renderBuildingPanel); // T180: relic count update
-  on(Events.GUILD_FOUNDED,         renderBuildingPanel); // T194
-  on(Events.GUILD_RENEWED,         renderBuildingPanel); // T194
-  on(Events.GUILD_EXPIRED,         renderBuildingPanel); // T194
-  on(Events.GUILD_CHANGED,         renderBuildingPanel); // T194
-  // Refresh guild timers every second via TICK
+  on(Events.GUILD_FOUNDED,             renderBuildingPanel); // T194
+  on(Events.GUILD_RENEWED,             renderBuildingPanel); // T194
+  on(Events.GUILD_EXPIRED,             renderBuildingPanel); // T194
+  on(Events.GUILD_CHANGED,             renderBuildingPanel); // T194
+  on(Events.CONSTRUCTION_DRIVE_CHANGED, renderBuildingPanel); // T221
+  // Refresh guild timers and construction drive countdown every second via TICK
   let _guildTickCnt = 0;
   on(Events.TICK, () => {
-    if (++_guildTickCnt % TICKS_PER_SECOND === 0 && state.guilds?.active?.length) renderBuildingPanel();
+    _guildTickCnt++;
+    const refreshGuild = _guildTickCnt % TICKS_PER_SECOND === 0 && state.guilds?.active?.length;
+    const refreshDrive = _guildTickCnt % TICKS_PER_SECOND === 0 && isDriveActive();
+    if (refreshGuild || refreshDrive) renderBuildingPanel();
   });
   on(Events.RESOURCE_CHANGED,      _throttleRender());
 }
@@ -148,8 +153,9 @@ function renderBuildingPanel() {
   html += _forgeSection();
   html += _conversionSection();
   html += _vaultSection();
-  html += _relicShrineSection(); // T180
-  html += _artisanGuildsSection(); // T194
+  html += _relicShrineSection();       // T180
+  html += _artisanGuildsSection();     // T194
+  html += _constructionDriveSection(); // T221
 
   panel.innerHTML = html;
 
@@ -215,6 +221,14 @@ function renderBuildingPanel() {
     }
     if (action === 'guild-found') { // T194
       const result = foundGuild(btn.dataset.gid);
+      if (!result.ok) {
+        btn.classList.add('btn--shake');
+        btn.title = result.reason;
+        setTimeout(() => btn.classList.remove('btn--shake'), 400);
+      }
+    }
+    if (action === 'construction-drive') { // T221
+      const result = launchConstructionDrive();
       if (!result.ok) {
         btn.classList.add('btn--shake');
         btn.title = result.reason;
@@ -701,6 +715,67 @@ function _artisanGuildsSection() {
     ${slotLine}
     <div class="guilds-list">${guildRows}</div>
   </div>`;
+}
+
+// ── T221: Imperial Construction Drive section ─────────────────────────────────
+
+function _constructionDriveSection() {
+  if ((state.age ?? 0) < 1) return ''; // Bronze Age+
+
+  const active     = isDriveActive();
+  const secsLeft   = getDriveSecsLeft();
+  const cdSecs     = getDriveCooldownSecs();
+  const stone      = state.resources?.stone ?? 0;
+  const wood       = state.resources?.wood  ?? 0;
+  const canAfford  = stone >= DRIVE_STONE_COST && wood >= DRIVE_WOOD_COST;
+  const onCooldown = !active && cdSecs > 0;
+
+  let statusHtml = '';
+  if (active) {
+    const mins = Math.floor(secsLeft / 60);
+    const secs = secsLeft % 60;
+    const tStr = mins > 0 ? `${mins}m ${String(secs).padStart(2, '0')}s` : `${secsLeft}s`;
+    statusHtml = `
+      <div class="cdrive-active">
+        <span class="cdrive-active__icon">🏗️</span>
+        <span class="cdrive-active__text">Drive active — all production +20%</span>
+        <span class="cdrive-active__timer">${tStr} remaining</span>
+      </div>`;
+  } else if (onCooldown) {
+    statusHtml = `<div class="cdrive-cooldown">⏳ Cooldown: ${cdSecs}s</div>`;
+  }
+
+  const disabled = active || onCooldown || !canAfford;
+  const btnTitle = active
+    ? 'Drive already active'
+    : onCooldown
+      ? `On cooldown for ${cdSecs}s`
+      : !canAfford
+        ? `Need ${DRIVE_STONE_COST}🪨 ${DRIVE_WOOD_COST}🪵`
+        : `Spend ${DRIVE_STONE_COST} stone + ${DRIVE_WOOD_COST} wood to boost all production +20% for 3 min`;
+
+  return `
+    <div class="cdrive-section">
+      <div class="cdrive-header">🏗️ Imperial Construction Drive</div>
+      <div class="cdrive-desc">
+        Spend <strong>${DRIVE_STONE_COST}🪨 stone</strong> and <strong>${DRIVE_WOOD_COST}🪵 wood</strong>
+        to rally your workforce — all resource production <strong>+20%</strong> for 3 minutes.
+        Awards +5 morale on completion. 12-min cooldown.
+      </div>
+      ${statusHtml}
+      ${!active ? `
+        <div class="cdrive-actions">
+          <button class="btn btn--cdrive ${disabled ? 'btn--disabled' : ''}"
+                  data-action="construction-drive"
+                  ${disabled ? 'disabled' : ''}
+                  title="${btnTitle}">
+            🏗️ Launch Drive (${DRIVE_STONE_COST}🪨 ${DRIVE_WOOD_COST}🪵)
+          </button>
+          <span class="cdrive-have">Have: ${Math.floor(stone)}🪨 ${Math.floor(wood)}🪵</span>
+        </div>` : ''}
+      ${state.constructionDrive?.totalDrives > 0
+        ? `<div class="cdrive-total">Total drives: ${state.constructionDrive.totalDrives}</div>` : ''}
+    </div>`;
 }
 
 // ── helpers ──────────────────────────────────────────────────────────────────
