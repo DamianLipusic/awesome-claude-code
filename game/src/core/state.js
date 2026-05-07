@@ -615,6 +615,14 @@ export const state = {
   // T222: Peace Overtures — one formal overture per war per empire
   // { attempted: { [empireId]: true } } | null
   peaceOvertures: null,
+
+  // T225: Royal Forecast — seasonal prediction from the Court Astronomer
+  // { seasonIdx, icon, name, prediction, bonusDesc, bonus, heeded, totalHeeded } | null
+  forecast: null,
+
+  // T226: War Trophy Collection — trophies from major victories
+  // { list: [{type, name, icon, tick}], moraleAwarded5: boolean }
+  trophies: null,
 };
 
 /**
@@ -759,5 +767,7 @@ export function initState(empireName = 'My Empire') {
   state.intel                = null; // T220: reset military intel per game
   state.constructionDrive    = null; // T221: reset construction drive per game
   state.peaceOvertures       = null; // T222: reset peace overtures per game
+  state.forecast             = null; // T225: reset forecast per game
+  state.trophies             = null; // T226: reset trophies per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

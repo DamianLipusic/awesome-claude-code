@@ -33,6 +33,7 @@ import { HERO_DEF, HERO_SKILLS, HERO_SKILL_WIN_INTERVAL, HERO_MAX_SKILLS, HERO_T
 import { fmtNum } from '../utils/fmt.js';
 import { SEASON_UNIT_DISCOUNT, SEASON_UNIT_COMBAT_BUFF } from '../data/seasons.js';
 import { getArmyCompositionBonus } from '../systems/combat.js'; // T224
+import { getTrophyCount, getTrophyAttackMult, getTrophyGoldRate, TROPHY_ATTACK_THRESHOLD, TROPHY_MORALE_THRESHOLD, TROPHY_GOLD_THRESHOLD } from '../systems/warTrophies.js'; // T226
 
 const UNIT_ORDER = ['soldier', 'archer', 'knight', 'mage', 'siege_engine'];
 
@@ -108,6 +109,7 @@ export function initMilitaryPanel() {
   on(Events.WANDERING_ARMY_CHANGED, () => _render(panel)); // T200: army spawned/hired/dismissed
   on(Events.ARENA_CHANGED,          () => _render(panel)); // T204: arena event spawned/entered/skipped
   on(Events.STANDARD_CHANGED,       () => _render(panel)); // T205: battle standard assigned/transferred
+  on(Events.TROPHY_EARNED,          () => _render(panel)); // T226: trophy earned
   on(Events.RESOURCE_CHANGED,  () => _renderCosts(panel));
   on(Events.GAME_LOADED,       () => _render(panel));
 
@@ -177,6 +179,7 @@ function _render(panel) {
       ${UNIT_ORDER.map(id => _unitCard(id)).join('')}
     </div>
     ${_pioneerSection()}
+    ${_trophySection()}
     ${_combatStatsSection()}
     ${_combatHistorySection()}
   `;
@@ -1858,6 +1861,52 @@ const TERRAIN_NAMES = {
   grass: 'Grassland', forest: 'Forest', hills: 'Hills',
   river: 'River', mountain: 'Mountain', capital: 'Capital',
 };
+
+// ── T226: War Trophy Vault ─────────────────────────────────────────────────
+
+function _trophySection() {
+  const count    = getTrophyCount();
+  const list     = state.trophies?.list ?? [];
+  const atkMult  = getTrophyAttackMult();
+  const goldRate = getTrophyGoldRate();
+
+  const activeBonuses = [];
+  if (atkMult > 1.0)   activeBonuses.push({ label: `+${Math.round((atkMult - 1) * 100)}% attack`, threshold: TROPHY_ATTACK_THRESHOLD });
+  if (goldRate > 0)    activeBonuses.push({ label: `+${goldRate} gold/s`, threshold: TROPHY_GOLD_THRESHOLD });
+
+  const bonusHtml = activeBonuses.length
+    ? `<div class="trophy-bonuses">${activeBonuses.map(b =>
+        `<span class="trophy-bonus-badge">🏆 ${b.label}</span>`).join('')}</div>`
+    : '';
+
+  const milestoneHint = [];
+  if (count < TROPHY_ATTACK_THRESHOLD) milestoneHint.push(`${TROPHY_ATTACK_THRESHOLD} trophies → +5% attack`);
+  if (count < TROPHY_MORALE_THRESHOLD) milestoneHint.push(`${TROPHY_MORALE_THRESHOLD} trophies → +5 morale`);
+  if (count < TROPHY_GOLD_THRESHOLD)   milestoneHint.push(`${TROPHY_GOLD_THRESHOLD} trophies → +1 gold/s`);
+
+  const entriesHtml = list.slice(0, 8).map(t => `
+    <div class="trophy-entry">
+      <span class="trophy-entry__icon">${t.icon}</span>
+      <span class="trophy-entry__name">${t.name}</span>
+      <span class="trophy-entry__type">${t.type}</span>
+    </div>`).join('');
+
+  return `
+    <div class="trophy-section">
+      <div class="trophy-header">
+        🏆 War Trophy Vault
+        <span class="trophy-count">${count} trophy${count !== 1 ? 'ies' : 'y'}</span>
+      </div>
+      ${bonusHtml}
+      ${entriesHtml
+        ? `<div class="trophy-list">${entriesHtml}</div>`
+        : `<div class="trophy-milestone">No trophies yet. Defeat warlords, legendary creatures, or complete campaigns.</div>`
+      }
+      ${milestoneHint.length
+        ? `<div class="trophy-milestone">Next: ${milestoneHint[0]}</div>`
+        : ''}
+    </div>`;
+}
 
 // ── T186: Combat Statistics Dashboard ─────────────────────────────────────
 

@@ -2,6 +2,64 @@
 
 ---
 
+## 2026-05-07 — Session N+57
+
+**Tasks completed:** T225, T226
+
+**Summary:**
+All prior tasks (T001–T224) were complete. Created T225+T226 task specs in tasks.json then implemented two Phase 91 features: Royal Forecast System (T225) and War Trophy Collection (T226).
+
+**T225 — Royal Forecast System:**
+- `src/systems/royalForecast.js`: New file. FORECAST_GOLD_COST=30. _FORECAST_DEFS array with 4 entries (Spring/Summer/Autumn/Winter), each defining seasonIdx, icon, name, prediction text, bonusDesc string, and bonus rate delta object. `initForecast()` subscribes to SEASON_CHANGED. `_onSeasonChanged(data)` replaces state.forecast with the new season's definition, preserving totalHeeded across transitions, emits FORECAST_CHANGED + addMessage with prediction text. `heedForecast()` validates: forecast exists, not already heeded, gold≥30; deducts gold, sets heeded=true, increments totalHeeded, emits FORECAST_CHANGED+RESOURCE_CHANGED. `getForecastBonus()` returns the bonus object (or null) — used in resources.js to apply the rate delta each recalcRates() call.
+- `src/core/events.js`: FORECAST_CHANGED:'forecastChanged' added.
+- `src/core/state.js`: `forecast:null` field definition + `state.forecast=null` reset in `initState()`.
+- `src/systems/resources.js`: T225 block after T223 — iterates state.forecast.bonus entries and adds each delta to the matching rate when heeded. T226 block also added in same area: +1 gold/s when `state.trophies?.list?.length >= 8`.
+- `src/ui/buildingPanel.js`: import heedForecast+FORECAST_GOLD_COST; `on(FORECAST_CHANGED, renderBuildingPanel)`; `html += _forecastSection()` after constructionDriveSection; 'heed-forecast' action in click handler; `_forecastSection()` renders heeded state (green active banner with bonusDesc and "expires next season") or unheeded state (prediction text + bonusHint + Heed button with affordability check).
+- `src/main.js`: import `initForecast`; `initForecast()` in `boot()`; `forecast` saved/loaded with `?? null` fallback.
+- `styles/main.css`: `.forecast-section` (purple border+bg), `.forecast-header`, `.forecast-name`, `.forecast-prediction` (italic purple), `.forecast-bonus-hint`, `.forecast-active` (green pill), `.forecast-actions`, `.btn--forecast` (purple gradient), `.forecast-have`, `.forecast-total`.
+
+**T226 — War Trophy Collection:**
+- `src/systems/warTrophies.js`: New file. TROPHY_ATTACK_THRESHOLD=3 (×1.05 mult), TROPHY_MORALE_THRESHOLD=5 (+5 morale one-time), TROPHY_GOLD_THRESHOLD=8 (+1 gold/s). `initTrophies()` lazy-creates `state.trophies={list:[],moraleAwarded5:false}`, migrates missing fields for old saves, subscribes to WARLORD_DEFEATED/LEGENDARY_CHANGED/CAMPAIGN_WON. `_onLegendaryChanged` guards `action!=='defeated'` to avoid spurious awards on spawn/expire. Each handler calls `_awardTrophy(type,name,icon)` which prepends the trophy, emits TROPHY_EARNED, and checks milestones: 3=message, 5=changeMorale(+5)+message, 8=message+RESOURCE_CHANGED. Accessors: `getTrophyCount()`, `getTrophyAttackMult()`, `getTrophyGoldRate()`.
+- `src/core/events.js`: TROPHY_EARNED:'trophyEarned' added.
+- `src/core/state.js`: `trophies:null` field definition + `state.trophies=null` reset in `initState()`.
+- `src/systems/combat.js`: import `getTrophyAttackMult` from warTrophies.js; T226 block added in both `getAttackPreview()` and `attackTile()` after the T224 composition synergies block: `attackPower *= getTrophyAttackMult()`.
+- `src/systems/resources.js`: T226 +1 gold/s block included in the T225 section (after forecast bonus).
+- `src/ui/militaryPanel.js`: import 6 warTrophies exports (getTrophyCount, getTrophyAttackMult, getTrophyGoldRate, three threshold constants); `on(TROPHY_EARNED, _render)`; `html += _trophySection()` after `_pioneerSection()`; `_trophySection()` renders: header with count, active bonus badges (attack/gold rate), scrollable list of up to 8 trophies (icon/name/type), next milestone hint showing the nearest uncrossed threshold.
+- `src/main.js`: import `initTrophies`; `initTrophies()` in `boot()`; `trophies` saved/loaded with `?? null` fallback. Save version bumped 76→77.
+- `styles/main.css`: `.trophy-section` (amber border+bg), `.trophy-header`, `.trophy-count`, `.trophy-bonuses`, `.trophy-bonus-badge` (amber pill), `.trophy-list` (max-height scroll), `.trophy-entry`, `.trophy-entry__icon/name/type`, `.trophy-milestone`.
+
+**Architecture decisions:**
+- T225 bonus is applied by rate delta (not multiplier) in recalcRates(). This means it stacks cleanly with all other rate modifiers and doesn't compound with the construction drive's ×1.20 multiplier.
+- T225 totalHeeded persists across season transitions by reading `state.forecast?.totalHeeded ?? 0` before replacing the forecast object. This gives a meaningful lifetime statistic.
+- T226 uses `list.unshift()` so the most recent trophy is always first — the UI shows newest-first order.
+- T226 LEGENDARY_CHANGED handler guards `action !== 'defeated'` to avoid awarding trophies on spawn/expire events.
+- T226 gold rate (+1 gold/s at 8 trophies) is intentionally placed in resources.js rather than as a state field, since it's a pure derived value from the trophy count. This avoids stale cache issues.
+- Save version bumped from 76 to 77. Both systems use lazy init with `?? null` fallback so old saves load cleanly.
+
+**Files modified:**
+  + game/src/systems/royalForecast.js (new)
+      initForecast(), heedForecast(), getForecastBonus()
+  + game/src/systems/warTrophies.js (new)
+      initTrophies(), getTrophyCount(), getTrophyAttackMult(), getTrophyGoldRate()
+  ~ game/src/core/events.js
+      FORECAST_CHANGED + TROPHY_EARNED events added
+  ~ game/src/core/state.js
+      forecast:null + trophies:null fields; initState resets both
+  ~ game/src/systems/resources.js
+      T225 forecast bonus block + T226 trophy gold rate block in recalcRates()
+  ~ game/src/systems/combat.js
+      import getTrophyAttackMult; T226 block in getAttackPreview() + attackTile()
+  ~ game/src/ui/buildingPanel.js
+      import heedForecast+FORECAST_GOLD_COST; FORECAST_CHANGED listener; _forecastSection(); heed-forecast click handler
+  ~ game/src/ui/militaryPanel.js
+      import 6 trophy exports; TROPHY_EARNED listener; _trophySection() after _pioneerSection()
+  ~ game/src/main.js
+      import+init+save/load initForecast+initTrophies; version 76→77
+  ~ game/styles/main.css
+      T225 forecast styles + T226 trophy section styles
+
+---
+
 ## 2026-05-06 — Session N+49
 
 **Tasks completed:** T215, T216

@@ -189,4 +189,6 @@ export const Events = Object.freeze({
   INTEL_REPORT:                 'intelReport',                  // T220: military intelligence report generated
   CONSTRUCTION_DRIVE_CHANGED:  'constructionDriveChanged',     // T221: construction drive started or ended
   PEACE_OVERTURE_CHANGED:      'peaceOvertureChanged',         // T222: peace overture sent (accepted or refused)
+  FORECAST_CHANGED:            'forecastChanged',              // T225: royal forecast generated or heeded
+  TROPHY_EARNED:               'trophyEarned',                 // T226: war trophy awarded
 });

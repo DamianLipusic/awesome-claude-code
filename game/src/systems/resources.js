@@ -724,6 +724,18 @@ export function recalcRates() {
     }
   }
 
+  // T225: Royal Forecast — seasonal rate bonus when heeded
+  if (state.forecast?.heeded && state.forecast.bonus) {
+    for (const [res, delta] of Object.entries(state.forecast.bonus)) {
+      if (rates[res] !== undefined) rates[res] += delta;
+    }
+  }
+
+  // T226: War Trophy Collection — +1 gold/s at 8 trophies
+  if ((state.trophies?.list?.length ?? 0) >= 8) {
+    rates.gold = (rates.gold ?? 0) + 1.0;
+  }
+
   Object.assign(state.rates, rates);
   Object.assign(state.caps, caps);
 }

@@ -137,6 +137,8 @@ import { initPropaganda, propagandaTick } from './systems/propaganda.js';       
 import { initMilitaryIntel, militaryIntelTick } from './systems/militaryIntel.js';                // T220
 import { initConstructionDrive, constructionDriveTick } from './systems/constructionDrive.js';     // T221
 import { initPeaceOvertures } from './systems/peaceOverture.js';                                   // T222
+import { initForecast } from './systems/royalForecast.js';                                         // T225
+import { initTrophies } from './systems/warTrophies.js';                                           // T226
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
@@ -335,6 +337,8 @@ function boot() {
   initMilitaryIntel();       // T220: military intelligence state init
   initConstructionDrive();   // T221: construction drive state init
   initPeaceOvertures();      // T222: peace overture state init
+  initForecast();            // T225: royal forecast state init + SEASON_CHANGED listener
+  initTrophies();            // T226: war trophy state init + victory event listeners
   // T176: monument init deferred — only activates when building is constructed
 
   // Init UI
@@ -596,7 +600,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 76, // T215: imperial codex; T216: legendary encounters
+      version: 77, // T225: royal forecast; T226: war trophies
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -743,6 +747,8 @@ function _save() {
         intel:               state.intel               ?? null,  // T220
         constructionDrive:   state.constructionDrive   ?? null,  // T221
         peaceOvertures:      state.peaceOvertures      ?? null,  // T222
+        forecast:            state.forecast            ?? null,  // T225
+        trophies:            state.trophies            ?? null,  // T226
         tick:          state.tick,
       }
     }));
@@ -923,6 +929,8 @@ function _applySave(save) {
   state.intel                = s.intel                ?? null; // T220
   state.constructionDrive    = s.constructionDrive    ?? null; // T221
   state.peaceOvertures       = s.peaceOvertures       ?? null; // T222
+  state.forecast             = s.forecast             ?? null; // T225
+  state.trophies             = s.trophies             ?? null; // T226
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };

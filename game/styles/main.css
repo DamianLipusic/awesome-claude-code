@@ -13729,3 +13729,132 @@ kbd {
   color: #f87171;
   font-weight: 700;
 }
+
+/* ── T225: Royal Forecast ───────────────────────────────────────────────── */
+.forecast-section {
+  background: rgba(139, 92, 246, 0.08);
+  border: 1px solid rgba(139, 92, 246, 0.30);
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-top: 8px;
+  font-size: 0.82rem;
+}
+.forecast-header {
+  color: #c4b5fd;
+  font-weight: 700;
+  font-size: 0.86rem;
+  margin-bottom: 4px;
+}
+.forecast-name {
+  color: #ddd6fe;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+.forecast-prediction {
+  color: #a78bfa;
+  font-style: italic;
+  margin-bottom: 5px;
+  line-height: 1.4;
+}
+.forecast-bonus-hint {
+  color: #c4b5fd;
+  margin-bottom: 6px;
+}
+.forecast-active {
+  color: #86efac;
+  font-weight: 600;
+  background: rgba(134, 239, 172, 0.10);
+  border: 1px solid rgba(134, 239, 172, 0.25);
+  border-radius: 4px;
+  padding: 4px 8px;
+  margin-bottom: 4px;
+}
+.forecast-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn--forecast {
+  background: linear-gradient(135deg, #7c3aed, #5b21b6);
+  color: #ede9fe;
+  font-size: 0.78rem;
+  padding: 4px 10px;
+}
+.btn--forecast:hover:not(.btn--disabled) {
+  background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+}
+.forecast-have {
+  color: #6b7280;
+  font-size: 0.74rem;
+}
+.forecast-total {
+  color: #6b7280;
+  font-size: 0.72rem;
+  margin-top: 4px;
+}
+
+/* ── T226: War Trophy Collection ────────────────────────────────────────── */
+.trophy-section {
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.28);
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-top: 8px;
+  font-size: 0.82rem;
+}
+.trophy-header {
+  color: #fcd34d;
+  font-weight: 700;
+  font-size: 0.86rem;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.trophy-count {
+  color: #f59e0b;
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+.trophy-bonuses {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+.trophy-bonus-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 0.71rem;
+  color: #fbbf24;
+  font-weight: 600;
+}
+.trophy-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  max-height: 90px;
+  overflow-y: auto;
+}
+.trophy-entry {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 4px;
+  border-radius: 3px;
+  background: rgba(245, 158, 11, 0.06);
+}
+.trophy-entry__icon { font-size: 0.85rem; }
+.trophy-entry__name { flex: 1; color: #e5e7eb; font-size: 0.75rem; }
+.trophy-entry__type { color: #9ca3af; font-size: 0.68rem; }
+.trophy-milestone {
+  color: #6b7280;
+  font-size: 0.72rem;
+  margin-top: 4px;
+  line-height: 1.4;
+}

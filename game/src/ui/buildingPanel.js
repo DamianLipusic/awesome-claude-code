@@ -11,6 +11,7 @@ import { communeWithRelics, getCommuneSecsLeft, getRelicCount } from '../systems
 import { GUILDS, GUILD_ORDER, GUILD_SLOTS, foundGuild, isGuildFounded, guildSecsLeft, activeGuildCount } from '../systems/artisanGuilds.js'; // T194
 import { launchConstructionDrive, isDriveActive, getDriveSecsLeft, getDriveCooldownSecs, DRIVE_STONE_COST, DRIVE_WOOD_COST } from '../systems/constructionDrive.js'; // T221
 import { getBuildingNetworks } from '../systems/resources.js'; // T223
+import { heedForecast, FORECAST_GOLD_COST } from '../systems/royalForecast.js'; // T225
 import { BUILDINGS } from '../data/buildings.js';
 import { SPECIALIZATIONS, SPECIALS_BY_BUILDING, ELIGIBLE_BUILDINGS } from '../data/buildingSpecials.js';
 import { CAPITAL_PLANS, CAPITAL_PLAN_ORDER } from '../data/capitalPlans.js';
@@ -45,6 +46,7 @@ export function initBuildingPanel() {
   on(Events.GUILD_EXPIRED,             renderBuildingPanel); // T194
   on(Events.GUILD_CHANGED,             renderBuildingPanel); // T194
   on(Events.CONSTRUCTION_DRIVE_CHANGED, renderBuildingPanel); // T221
+  on(Events.FORECAST_CHANGED,           renderBuildingPanel); // T225
   // Refresh guild timers and construction drive countdown every second via TICK
   let _guildTickCnt = 0;
   on(Events.TICK, () => {
@@ -158,6 +160,7 @@ function renderBuildingPanel() {
   html += _artisanGuildsSection();     // T194
   html += _buildingNetworksSection();  // T223
   html += _constructionDriveSection(); // T221
+  html += _forecastSection();          // T225
 
   panel.innerHTML = html;
 
@@ -231,6 +234,14 @@ function renderBuildingPanel() {
     }
     if (action === 'construction-drive') { // T221
       const result = launchConstructionDrive();
+      if (!result.ok) {
+        btn.classList.add('btn--shake');
+        btn.title = result.reason;
+        setTimeout(() => btn.classList.remove('btn--shake'), 400);
+      }
+    }
+    if (action === 'heed-forecast') { // T225
+      const result = heedForecast();
       if (!result.ok) {
         btn.classList.add('btn--shake');
         btn.title = result.reason;
@@ -798,6 +809,48 @@ function _constructionDriveSection() {
         </div>` : ''}
       ${state.constructionDrive?.totalDrives > 0
         ? `<div class="cdrive-total">Total drives: ${state.constructionDrive.totalDrives}</div>` : ''}
+    </div>`;
+}
+
+// ── T225: Royal Forecast section ─────────────────────────────────────────────
+
+function _forecastSection() {
+  const fc = state.forecast;
+  if (!fc) return '';
+
+  const gold      = state.resources?.gold ?? 0;
+  const canAfford = gold >= FORECAST_GOLD_COST;
+
+  if (fc.heeded) {
+    const bonusEntries = Object.entries(fc.bonus ?? {})
+      .map(([res, val]) => `+${val} ${res}/s`)
+      .join(', ');
+    return `
+      <div class="forecast-section">
+        <div class="forecast-header">🔭 Royal Forecast</div>
+        <div class="forecast-name">${fc.icon} ${fc.name}</div>
+        <div class="forecast-prediction">${fc.prediction}</div>
+        <div class="forecast-active">✅ Forecast heeded — ${bonusEntries} (expires next season)</div>
+        ${fc.totalHeeded > 0 ? `<div class="forecast-total">Total forecasts heeded: ${fc.totalHeeded}</div>` : ''}
+      </div>`;
+  }
+
+  return `
+    <div class="forecast-section">
+      <div class="forecast-header">🔭 Royal Forecast</div>
+      <div class="forecast-name">${fc.icon} ${fc.name}</div>
+      <div class="forecast-prediction">${fc.prediction}</div>
+      <div class="forecast-bonus-hint">Prepare your empire: <strong>${fc.bonusDesc}</strong></div>
+      <div class="forecast-actions">
+        <button class="btn btn--forecast ${canAfford ? '' : 'btn--disabled'}"
+                data-action="heed-forecast"
+                ${canAfford ? '' : 'disabled'}
+                title="${canAfford ? `Spend ${FORECAST_GOLD_COST} gold to heed the forecast` : `Need ${FORECAST_GOLD_COST} gold`}">
+          🔭 Heed Forecast (${FORECAST_GOLD_COST}🪙)
+        </button>
+        <span class="forecast-have">Have: ${Math.floor(gold)}🪙</span>
+      </div>
+      ${fc.totalHeeded > 0 ? `<div class="forecast-total">Total forecasts heeded: ${fc.totalHeeded}</div>` : ''}
     </div>`;
 }
 

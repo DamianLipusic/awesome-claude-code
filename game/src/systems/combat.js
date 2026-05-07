@@ -45,6 +45,7 @@ import { getSupplyPenalty } from './supplyLines.js';                            
 import { recordFactionCapture } from './counteroffensive.js';                          // T212
 import { getLegendaryDefenseBoost, defeatLegendary } from './legendaryEncounters.js';  // T216
 import { isPropagandaActive }                        from './propaganda.js';            // T219
+import { getTrophyAttackMult }                      from './warTrophies.js';            // T226
 
 // ── T224: Army Composition Synergies ─────────────────────────────────────────
 
@@ -426,6 +427,9 @@ export function getAttackPreview(x, y) {
   if (_compBonus.mult !== 1.0) attackPower *= _compBonus.mult;
   if (_compBonus.flat > 0)     attackPower += _compBonus.flat;
 
+  // T226: War Trophy Collection — +5% attack at 3+ trophies
+  attackPower *= getTrophyAttackMult();
+
   // T209: Supply line penalty — reduced attack when target is beyond supply range
   const supplyPenalty = getSupplyPenalty(x, y);
   if (supplyPenalty < 1.0) attackPower *= supplyPenalty;
@@ -700,6 +704,9 @@ export function attackTile(x, y) {
       addMessage(`⚔️ ${_compSyn.synergies.map(s => s.label).join(', ')}: army synergy bonus applied!`, 'info');
     }
   }
+
+  // T226: War Trophy Collection — +5% attack at 3+ trophies
+  attackPower *= getTrophyAttackMult();
 
   // T209: Supply line penalty — reduced attack when target is beyond supply range
   const _supplyPenalty = getSupplyPenalty(x, y);
