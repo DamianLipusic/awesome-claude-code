@@ -14235,3 +14235,155 @@ kbd {
   color: #ef4444;
   border-color: rgba(239, 68, 68, 0.40);
 }
+
+/* ── T231: Grand Library ───────────────────────────────────────────────── */
+.library-section {
+  background: rgba(120, 87, 30, 0.12);
+  border: 1px solid rgba(217, 170, 50, 0.35);
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-top: 10px;
+}
+.library-section--founded {
+  background: rgba(120, 87, 30, 0.18);
+  border-color: rgba(217, 170, 50, 0.55);
+}
+.library-header {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #fcd34d;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.library-scroll-count {
+  font-size: 0.75rem;
+  color: #d4a017;
+  font-weight: 500;
+}
+.library-desc {
+  color: #9ca3af;
+  font-size: 0.75rem;
+  line-height: 1.35;
+  margin-bottom: 6px;
+}
+.library-cost {
+  font-size: 0.78rem;
+  color: #d1d5db;
+  margin-bottom: 8px;
+}
+.library-have {
+  color: #9ca3af;
+  font-size: 0.75rem;
+}
+.library-have--short {
+  color: #ef4444;
+}
+.library-locked {
+  color: #6b7280;
+  font-size: 0.75rem;
+  font-style: italic;
+}
+.library-bonus {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 6px 0;
+  padding: 5px 8px;
+  border-radius: 4px;
+}
+.library-bonus--active {
+  background: rgba(217, 170, 50, 0.18);
+  border: 1px solid rgba(217, 170, 50, 0.40);
+}
+.library-bonus--pending {
+  color: #9ca3af;
+  font-size: 0.75rem;
+  font-style: italic;
+}
+.library-bonus__icon {
+  font-size: 1.1rem;
+}
+.library-bonus__label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #fcd34d;
+}
+.library-bonus__note {
+  font-size: 0.72rem;
+  color: #9ca3af;
+}
+.library-pool {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+  font-size: 0.72rem;
+  color: #9ca3af;
+}
+.library-pool-item {
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  line-height: 22px;
+  text-align: center;
+  border-radius: 3px;
+  border: 1px solid rgba(156, 163, 175, 0.25);
+  font-size: 0.9rem;
+  opacity: 0.5;
+}
+.library-pool-item--active {
+  opacity: 1;
+  border-color: rgba(252, 211, 77, 0.70);
+  background: rgba(217, 170, 50, 0.20);
+}
+.btn--library {
+  background: linear-gradient(135deg, #b45309, #92400e);
+  color: #fef3c7;
+  border: 1px solid rgba(217, 170, 50, 0.45);
+  border-radius: 4px;
+  padding: 5px 12px;
+  cursor: pointer;
+  font-size: 0.80rem;
+  font-weight: 600;
+  margin-top: 4px;
+}
+.btn--library:hover:not(.btn--disabled) {
+  background: linear-gradient(135deg, #d97706, #b45309);
+}
+
+/* ── T232: Market Price Surge ──────────────────────────────────────────── */
+.surge-banner {
+  background: linear-gradient(135deg, rgba(251, 146, 60, 0.25), rgba(239, 68, 68, 0.20));
+  border: 1px solid rgba(251, 146, 60, 0.60);
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.surge-banner__title {
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: #fb923c;
+  letter-spacing: 0.02em;
+}
+.surge-banner__desc {
+  font-size: 0.78rem;
+  color: #fca16c;
+}
+.surge-banner__timer {
+  font-size: 0.80rem;
+  color: #fdba74;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.surge-next {
+  font-size: 0.73rem;
+  color: #9ca3af;
+  font-style: italic;
+  margin-bottom: 6px;
+}

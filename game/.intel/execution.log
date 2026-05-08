@@ -4217,3 +4217,52 @@ T230: Ancient Pact System
     ~ src/ui/diplomacyPanel.js: import ancientPact exports; ANCIENT_PACT_CHANGED re-render; _ancientPactSection() + forge/dissolve click handlers; tick refresh when active
     ~ src/main.js: import+register+init+save/load ancientPact
     ~ src/styles/main.css: .anc-pact-section + .btn--anc-pact styles
+
+---
+
+## Session N+52 — 2026-05-08
+
+**Tasks completed:** T231 (Grand Library), T232 (Market Price Surge)
+
+**T231: Grand Library**
+A one-time Iron Age+ structure that accumulates scrolls from completed research and provides a rotating seasonal wisdom bonus.
+
+Changes:
+- `src/systems/library.js`: New file. LIBRARY_GOLD_COST=150, LIBRARY_STONE_COST=100, SCROLL_THRESHOLD=5. BONUS_POOL (6 entries). initLibrary() lazy-creates state.library, subscribes to TECH_CHANGED (fires on tech completion via techId payload check) and SEASON_CHANGED. _onTechChanged() rolls initial bonus when scroll count first hits threshold; _onSeasonChanged() rerolls bonus each new season when library is active. foundLibrary() validates age+cost, deducts resources, sets founded=true. Accessors: isLibraryFounded(), getLibraryScrollCount() (from Object.keys(state.techs)), getActiveLibraryBonus(), getLibraryAttackBonus().
+- `src/core/events.js`: LIBRARY_CHANGED + PRICE_SURGE_CHANGED added.
+- `src/core/state.js`: library:null + priceSurge:null fields + initState resets.
+- `src/systems/resources.js`: T231 block after T230 — inline bonus table (no circular import), applies rate/mult from activeBonusIdx; attack type deferred to combat.js.
+- `src/systems/combat.js`: import getLibraryAttackBonus; T231 flat attack bonus in getAttackPreview() and attackTile() after T229 block.
+- `src/ui/researchPanel.js`: import 7 library exports; on(LIBRARY_CHANGED) re-render; _librarySection() appended to innerHTML; click handler for data-action=found-library; _librarySection() renders locked/unfounded/founded states with scroll count, active bonus chip, and pool indicator icons.
+- `src/main.js`: import initLibrary; initLibrary() in boot+_newGame; save/load state.library; version 79→81.
+- `styles/main.css`: .library-section, .library-section--founded, .library-header, .library-scroll-count, .library-bonus variants, .library-pool, .library-pool-item, .btn--library (amber gradient).
+
+**T232: Market Price Surge**
+Every 12–15 minutes, all market sell orders yield 2× gold for 3 minutes, with an orange banner countdown in the Market panel.
+
+Changes:
+- `src/systems/priceSurge.js`: New file. SURGE_DURATION=720 ticks, SPAWN_MIN=2880, SPAWN_RANGE=720. priceSurgeTick() handles active expiry and new surge spawning (only when market≥1). Accessors: isPriceSurgeActive(), getPriceSurgeSecsLeft(), getPriceSurgeNextSecs().
+- `src/systems/market.js`: import isPriceSurgeActive; T232 block in sellResources() — earned*=2 when surge active; message appended with '📈 (×2 surge!)'.
+- `src/ui/marketPanel.js`: import 3 priceSurge exports; on(PRICE_SURGE_CHANGED) re-render; tick condition includes priceSurge.active; surgeHtml computed inline — active shows orange surge-banner with timer, inactive shows surge-next countdown; placed before seasonalNote in panel.innerHTML.
+- `src/main.js`: import initPriceSurge+priceSurgeTick; registerSystem(priceSurgeTick); init in boot+_newGame; save/load state.priceSurge.
+- `styles/main.css`: .surge-banner, .surge-banner__title/desc/timer, .surge-next.
+
+**Architecture decisions:**
+- Grand Library uses `Object.keys(state.techs).length` for scroll count — no separate counter needed. This naturally handles save/load and is always accurate.
+- T231 resource.js integration uses an inline bonus table instead of importing library.js to avoid a circular dependency (library.js imports resources.js for recalcRates).
+- TECH_CHANGED fires for cancel/start/complete research; the library only reacts when `data.techId` is present, which only happens on tech completion — no false triggers.
+- Price surge only spawns when `state.buildings.market >= 1`, so it doesn't queue up off-screen for players who haven't built a market yet.
+- sell message suffix appended conditionally — the surge banner already communicates the benefit, so the suffix is brief.
+
+**Files modified:**
+  + game/src/systems/library.js (new)
+  + game/src/systems/priceSurge.js (new)
+  ~ game/src/core/events.js: LIBRARY_CHANGED + PRICE_SURGE_CHANGED
+  ~ game/src/core/state.js: library + priceSurge fields + initState resets
+  ~ game/src/systems/resources.js: T231 block in recalcRates()
+  ~ game/src/systems/combat.js: import + T231 attack bonus in preview + attackTile
+  ~ game/src/systems/market.js: import isPriceSurgeActive + T232 2× sell block
+  ~ game/src/ui/researchPanel.js: import + LIBRARY_CHANGED + _librarySection() + click handler
+  ~ game/src/ui/marketPanel.js: import + PRICE_SURGE_CHANGED + surgeHtml + tick condition
+  ~ game/src/main.js: imports + registerSystem(priceSurgeTick) + init + save/load; version 79→81
+  ~ game/styles/main.css: T231 library styles + T232 surge styles

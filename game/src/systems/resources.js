@@ -758,6 +758,28 @@ export function recalcRates() {
     rates.mana += MANA_BY_TIER[tier] ?? 0;
   }
 
+  // T231: Grand Library — seasonal wisdom bonus (rate, mult, or attack type)
+  if (state.library?.founded) {
+    const _libScrolls = Object.keys(state.techs ?? {}).length;
+    const _libIdx     = state.library.activeBonusIdx;
+    if (_libScrolls >= 5 && _libIdx !== null && _libIdx !== undefined) {
+      // Inline bonus table to avoid circular import from library.js
+      const _LIB_BONUSES = [
+        { type: 'rate', res: 'food',  value: 0.4  },  // 0
+        { type: 'rate', res: 'mana',  value: 0.3  },  // 1
+        { type: 'rate', res: 'gold',  value: 0.4  },  // 2
+        { type: 'mult', res: 'wood',  value: 1.08 },  // 3
+        { type: 'mult', res: 'stone', value: 1.08 },  // 4
+        { type: 'attack'                           },  // 5 — applied in combat.js only
+      ];
+      const _lb = _LIB_BONUSES[_libIdx];
+      if (_lb) {
+        if (_lb.type === 'rate')  rates[_lb.res] += _lb.value;
+        if (_lb.type === 'mult' && rates[_lb.res] > 0) rates[_lb.res] *= _lb.value;
+      }
+    }
+  }
+
   Object.assign(state.rates, rates);
   Object.assign(state.caps, caps);
 }

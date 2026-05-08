@@ -14,6 +14,7 @@ import { anyEmbargoActive } from './diplomacy.js'; // T159
 import { getFairBuyMult, getFairSellMult, tradeFairTradeMade } from './tradeFair.js'; // T196
 import { getReputationSellBonus } from './reputation.js'; // T211
 import { isPropagandaActive }     from './propaganda.js';  // T219
+import { isPriceSurgeActive }     from './priceSurge.js';  // T232
 
 // Base gold value per 1 unit of each resource
 const BASE_PRICES = Object.freeze({
@@ -171,6 +172,8 @@ export function sellResources(resource, amount) {
   earned = Math.floor(earned * getReputationSellBonus());
   // T219: Economic Stimulus propaganda campaign — +20% sell prices while active
   if (isPropagandaActive('economic_stimulus')) earned = Math.floor(earned * 1.20);
+  // T232: Market Price Surge — 2× sell gold while surge is active
+  if (isPriceSurgeActive()) earned = Math.floor(earned * 2);
   state.resources[resource]  = available - actual;
   state.resources.gold = Math.min(state.caps.gold, (state.resources.gold ?? 0) + earned);
   state.market.totalTrades++;
@@ -178,7 +181,7 @@ export function sellResources(resource, amount) {
 
   emit(Events.RESOURCE_CHANGED, {});
   emit(Events.MARKET_CHANGED, {});
-  addMessage(`Sold ${actual} ${resource} for ${earned}g.`, 'market');
+  addMessage(`Sold ${actual} ${resource} for ${earned}g.${isPriceSurgeActive() ? ' 📈 (×2 surge!)' : ''}`, 'market');
   return { ok: true };
 }
 

@@ -642,6 +642,14 @@ export const state = {
   // { active: { empireId: string, startTick: tick, tier: 1|2|3 } | null,
   //   cooldownUntil: tick, totalPacts: number, moraleBonus: number } | null
   ancientPact: null,
+
+  // T231: Grand Library — research-powered seasonal wisdom bonus
+  // { founded: bool, activeBonusIdx: number|null } | null
+  library: null,
+
+  // T232: Market Price Surge — periodic 2× sell-price window
+  // { active: { expiresAt: tick } | null, nextSurgeTick: tick, totalSurges: number } | null
+  priceSurge: null,
 };
 
 /**
@@ -792,5 +800,7 @@ export function initState(empireName = 'My Empire') {
   state.rationing            = null; // T228: reset rationing state per game
   state.militia              = null; // T229: reset militia state per game
   state.ancientPact          = null; // T230: reset ancient pact state per game
+  state.library              = null; // T231: reset grand library per game
+  state.priceSurge           = null; // T232: reset price surge per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

@@ -195,4 +195,6 @@ export const Events = Object.freeze({
   RATIONING_CHANGED:           'rationingChanged',             // T228: wartime rationing declared or expired
   MILITIA_CHANGED:             'militiaChanged',               // T229: militia conscripted or disbanded
   ANCIENT_PACT_CHANGED:        'ancientPactChanged',           // T230: ancient pact forged, tiered, or dissolved
+  LIBRARY_CHANGED:             'libraryChanged',               // T231: grand library founded, scroll added, or bonus rerolled
+  PRICE_SURGE_CHANGED:         'priceSurgeChanged',            // T232: market price surge started or ended
 });

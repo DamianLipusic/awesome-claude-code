@@ -18,6 +18,7 @@ import { isMintActive, getMintInfo, performMintConversion, MINT_RATES, MINT_CONV
 import { isFairActive, getFairDeals, isDealUsed, useFairDeal, FAIR_PARTICIPATION_GOAL } from '../systems/tradeFair.js'; // T196
 import { getActiveTradeWind, getTradeWindHistory } from '../systems/tradeWinds.js'; // T198
 import { buySilkRoadGood, isSilkRoadOpen, getSilkRoadSecsLeft, getSilkRoadGoods, getSilkRoadBuysLeft, getSilkRoadNextSecs } from '../systems/silkRoad.js'; // T218
+import { isPriceSurgeActive, getPriceSurgeSecsLeft, getPriceSurgeNextSecs } from '../systems/priceSurge.js'; // T232
 import { fmtNum } from '../utils/fmt.js';
 
 const RESOURCE_ICONS = {
@@ -50,12 +51,14 @@ export function initMarketPanel() {
   on(Events.TRADE_FAIR_CHANGED,   _render);  // T196: fair started / deal used / ended
   on(Events.TRADE_WIND_CHANGED,   _render);  // T198: trade wind started or ended
   on(Events.SILK_ROAD_CHANGED,    _render);  // T218: silk road window opened / purchased / closed
+  on(Events.PRICE_SURGE_CHANGED,  _render);  // T232: price surge started or ended
 
-  // Refresh contract/merchant/auction/silk-road countdowns every ~4 ticks (~1 s)
+  // Refresh contract/merchant/auction/silk-road/surge countdowns every ~4 ticks (~1 s)
   let _contractTickCount = 0;
   on(Events.TICK, () => {
     if (++_contractTickCount % 4 !== 0) return;
-    if (state.contracts?.active || state.merchant?.offer || state.auction?.current || state.silkRoad?.current) _render();
+    if (state.contracts?.active || state.merchant?.offer || state.auction?.current
+        || state.silkRoad?.current || state.priceSurge?.active) _render();
   });
 
   _panel.addEventListener('click', _handleClick);
@@ -94,12 +97,37 @@ function _render() {
     ? `<div class="market-seasonal-note">🌟 Seasonal Premium: <strong>${seasonal.map(r => r.charAt(0).toUpperCase() + r.slice(1)).join(' &amp; ')}</strong> — sell for ×2 gold · buy at ×0.5 gold!</div>`
     : '';
 
+  // T232: Price surge banner
+  const surgeActive  = isPriceSurgeActive();
+  const surgeSecsLeft = getPriceSurgeSecsLeft();
+  const surgeNextSecs = getPriceSurgeNextSecs();
+  const surgeHtml = surgeActive
+    ? (() => {
+        const sm = Math.floor(surgeSecsLeft / 60), ss = surgeSecsLeft % 60;
+        const sStr = sm > 0 ? `${sm}m ${String(ss).padStart(2, '0')}s` : `${surgeSecsLeft}s`;
+        return `<div class="surge-banner">
+          <div>
+            <div class="surge-banner__title">📈 PRICE SURGE ACTIVE</div>
+            <div class="surge-banner__desc">All sell orders yield ×2 gold!</div>
+          </div>
+          <div class="surge-banner__timer">⏱ ${sStr} left</div>
+        </div>`;
+      })()
+    : surgeNextSecs > 0
+      ? (() => {
+          const nm = Math.floor(surgeNextSecs / 60), ns = surgeNextSecs % 60;
+          const nStr = nm > 0 ? `${nm}m ${String(ns).padStart(2, '0')}s` : `${surgeNextSecs}s`;
+          return `<div class="surge-next">📈 Next price surge in ${nStr}</div>`;
+        })()
+      : '';
+
   _panel.innerHTML = `
     <div class="market-header">
       <span class="market-title">🏪 Resource Market</span>
       <span class="market-trades">Total trades: ${state.market.totalTrades ?? 0}</span>
     </div>
     <div class="market-note">Prices update every 15 seconds. Buy price includes a 20% premium; sell price has a 20% discount.</div>
+    ${surgeHtml}
     ${seasonalNote}
     <div class="market-table">
       <div class="market-table__head">

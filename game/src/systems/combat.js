@@ -47,6 +47,7 @@ import { getLegendaryDefenseBoost, defeatLegendary } from './legendaryEncounters
 import { isPropagandaActive }                        from './propaganda.js';            // T219
 import { getTrophyAttackMult }                      from './warTrophies.js';            // T226
 import { getMilitiaAttackBonus }                    from './militia.js';                // T229
+import { getLibraryAttackBonus }                    from './library.js';                // T231
 
 // ── T224: Army Composition Synergies ─────────────────────────────────────────
 
@@ -435,6 +436,10 @@ export function getAttackPreview(x, y) {
   const _militiaBonus = getMilitiaAttackBonus();
   if (_militiaBonus > 0) attackPower += _militiaBonus;
 
+  // T231: Grand Library — flat attack bonus when attack wisdom bonus is active
+  const _libAtk = getLibraryAttackBonus();
+  if (_libAtk > 0) attackPower += _libAtk;
+
   // T209: Supply line penalty — reduced attack when target is beyond supply range
   const supplyPenalty = getSupplyPenalty(x, y);
   if (supplyPenalty < 1.0) attackPower *= supplyPenalty;
@@ -719,6 +724,10 @@ export function attackTile(x, y) {
     attackPower += _milBonus;
     addMessage(`🏘️ Militia support! +${_milBonus} flat attack power.`, 'info');
   }
+
+  // T231: Grand Library — flat attack bonus when attack wisdom bonus is active
+  const _libAtkBonus = getLibraryAttackBonus();
+  if (_libAtkBonus > 0) attackPower += _libAtkBonus;
 
   // T209: Supply line penalty — reduced attack when target is beyond supply range
   const _supplyPenalty = getSupplyPenalty(x, y);

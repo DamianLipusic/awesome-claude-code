@@ -25,6 +25,7 @@ import { SEASON_RESEARCH_AFFINITY, SEASON_AFFINITY_LABELS, SEASON_AFFINITY_DISCO
 import { getCodexInfo, CODEX_MILESTONES } from '../systems/imperialCodex.js'; // T215
 import { CAMPAIGN_DEFS, launchCampaign, getPropagandaInfo, getPropagandaSecsLeft, getPropagandaCooldownSecs } from '../systems/propaganda.js'; // T219
 import { acceptTransmutation, dismissTransmutation, isAlchemyUnlocked, getSuccessChance, getAlchemyPendingSecsLeft, getAlchemyNextSecs, ALCHEMY_IRON_COST, ALCHEMY_MANA_SUCCESS, ALCHEMY_MANA_FAIL } from '../systems/alchemy.js'; // T227
+import { foundLibrary, isLibraryFounded, getLibraryScrollCount, getActiveLibraryBonus, BONUS_POOL, LIBRARY_GOLD_COST, LIBRARY_STONE_COST, SCROLL_THRESHOLD } from '../systems/library.js'; // T231
 
 export function initResearchPanel() {
   const panel = document.getElementById('panel-research');
@@ -51,6 +52,7 @@ export function initResearchPanel() {
   on(Events.CODEX_MILESTONE,        renderResearchPanel);  // T215: re-render when codex fragment count changes
   on(Events.PROPAGANDA_LAUNCHED,   renderResearchPanel);  // T219: re-render when campaign starts/ends
   on(Events.ALCHEMY_CHANGED,       renderResearchPanel);  // T227: re-render on alchemy offer changes
+  on(Events.LIBRARY_CHANGED,       renderResearchPanel);  // T231: re-render when library state changes
   // Refresh countdown text every second while a festival, inspiration, wonder, campaign, or alchemy is active
   on(Events.TICK, _throttle(() => {
     const hasActivity = getActiveFestival() || getFestivalCooldownSecs() > 0
@@ -121,7 +123,7 @@ function renderResearchPanel() {
     </div>`;
   }).join('');
 
-  panel.innerHTML = _ageSection() + progressHtml + _inspirationCard() + `<div class="tech-grid">${techCards}</div>` + _masteriesSection() + _synergiesSection() + _policySection() + _festivalsSection() + _wondersSection() + _relicsSection() + _landmarksSection() + _ruinsSection() + _grandTheorySection() + _codexSection() + _propagandaSection() + _alchemySection();
+  panel.innerHTML = _ageSection() + progressHtml + _inspirationCard() + `<div class="tech-grid">${techCards}</div>` + _masteriesSection() + _synergiesSection() + _policySection() + _festivalsSection() + _wondersSection() + _relicsSection() + _landmarksSection() + _ruinsSection() + _grandTheorySection() + _codexSection() + _propagandaSection() + _alchemySection() + _librarySection();
 
   panel.onclick = (e) => {
     // T116: Research inspiration accept/dismiss
@@ -190,6 +192,15 @@ function renderResearchPanel() {
     }
     if (e.target.closest('[data-action="alchemy-dismiss"]')) {
       dismissTransmutation();
+      return;
+    }
+    // T231: Grand Library — found action
+    if (e.target.closest('[data-action="found-library"]')) {
+      const result = foundLibrary();
+      if (!result.ok) {
+        const btn = e.target.closest('[data-action="found-library"]');
+        if (btn) btn.title = result.reason;
+      }
       return;
     }
     const btn = e.target.closest('[data-tech]');
@@ -1071,6 +1082,80 @@ function _alchemySection() {
       <div class="alchemy-intro">Transmute iron into mana. Offer window: 3 min.</div>
       ${bodyHtml}
       ${statsHtml}
+    </div>`;
+}
+
+function _librarySection() {
+  const founded    = isLibraryFounded();
+  const scrolls    = getLibraryScrollCount();
+  const activeBonus = getActiveLibraryBonus();
+  const age        = state.age ?? 0;
+
+  if (!founded) {
+    const ironAge = age >= 2;
+    const goldOk  = (state.resources.gold ?? 0) >= LIBRARY_GOLD_COST;
+    const stoneOk = (state.resources.stone ?? 0) >= LIBRARY_STONE_COST;
+    const canAfford = goldOk && stoneOk;
+    const locked  = !ironAge;
+
+    if (locked) return `
+      <div class="library-section">
+        <div class="library-header">📚 Grand Library</div>
+        <div class="library-locked">Requires Iron Age to found.</div>
+      </div>`;
+
+    return `
+      <div class="library-section">
+        <div class="library-header">📚 Grand Library</div>
+        <div class="library-desc">A repository of your empire's accumulated wisdom.
+          Each researched technology adds a scroll. At ${SCROLL_THRESHOLD}+ scrolls,
+          a seasonal wisdom bonus activates — rerolled each new season.</div>
+        <div class="library-cost">
+          Cost: 💰${LIBRARY_GOLD_COST} gold · 🪨${LIBRARY_STONE_COST} stone
+          <span class="library-have ${goldOk ? '' : 'library-have--short'}">
+            (have 💰${Math.floor(state.resources.gold ?? 0)}
+            · 🪨${Math.floor(state.resources.stone ?? 0)})</span>
+        </div>
+        <button class="btn btn--library ${canAfford ? '' : 'btn--disabled'}"
+          data-action="found-library" ${canAfford ? '' : 'disabled'}>
+          📚 Found Grand Library
+        </button>
+      </div>`;
+  }
+
+  // Library founded
+  const remaining = Math.max(0, SCROLL_THRESHOLD - scrolls);
+  let bonusHtml;
+  if (activeBonus) {
+    bonusHtml = `
+      <div class="library-bonus library-bonus--active">
+        <span class="library-bonus__icon">${activeBonus.icon}</span>
+        <span class="library-bonus__label">${activeBonus.label}</span>
+        <span class="library-bonus__note">(seasonal — rerolls next season)</span>
+      </div>`;
+  } else if (remaining > 0) {
+    bonusHtml = `<div class="library-bonus library-bonus--pending">
+      Research ${remaining} more tech${remaining > 1 ? 's' : ''} to unlock seasonal wisdom.
+    </div>`;
+  } else {
+    bonusHtml = `<div class="library-bonus library-bonus--pending">Wisdom loading…</div>`;
+  }
+
+  // Show all 6 possible bonuses as reference
+  const poolHtml = BONUS_POOL.map((b, i) => {
+    const active = activeBonus && state.library?.activeBonusIdx === i;
+    return `<span class="library-pool-item ${active ? 'library-pool-item--active' : ''}"
+      title="${b.label}">${b.icon}</span>`;
+  }).join('');
+
+  return `
+    <div class="library-section library-section--founded">
+      <div class="library-header">
+        <span>📚 Grand Library</span>
+        <span class="library-scroll-count">📜 ${scrolls} scroll${scrolls !== 1 ? 's' : ''}</span>
+      </div>
+      ${bonusHtml}
+      <div class="library-pool">Wisdom pool: ${poolHtml}</div>
     </div>`;
 }
 

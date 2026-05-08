@@ -143,6 +143,8 @@ import { initAlchemy, alchemyTick } from './systems/alchemy.js';                
 import { initRationing, rationingTick } from './systems/rationing.js';                             // T228
 import { initMilitia, militiaTick } from './systems/militia.js';                                   // T229
 import { initAncientPact, ancientPactTick } from './systems/ancientPact.js';                       // T230
+import { initLibrary }                      from './systems/library.js';                            // T231
+import { initPriceSurge, priceSurgeTick }   from './systems/priceSurge.js';                        // T232
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
@@ -254,6 +256,7 @@ function boot() {
   registerSystem(rationingTick);         // T228: rationing expiry + morale drain
   registerSystem(militiaTick);           // T229: militia expiry check
   registerSystem(ancientPactTick);       // T230: ancient pact tier advancement
+  registerSystem(priceSurgeTick);        // T232: market price surge spawn/expiry
 
   // Init event-driven systems
   initRandomEvents();
@@ -351,6 +354,8 @@ function boot() {
   initRationing();           // T228: wartime rationing state init
   initMilitia();             // T229: peasant militia state init
   initAncientPact();         // T230: ancient pact state init
+  initLibrary();             // T231: grand library state init + event listeners
+  initPriceSurge();          // T232: market price surge state init
   // T176: monument init deferred — only activates when building is constructed
 
   // Init UI
@@ -612,7 +617,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 79, // T229: peasant militia; T230: ancient pact
+      version: 81, // T231: grand library; T232: market price surge
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -765,6 +770,8 @@ function _save() {
         rationing:           state.rationing           ?? null,  // T228
         militia:             state.militia             ?? null,  // T229
         ancientPact:         state.ancientPact         ?? null,  // T230
+        library:             state.library             ?? null,  // T231
+        priceSurge:          state.priceSurge          ?? null,  // T232
         tick:          state.tick,
       }
     }));
@@ -951,6 +958,8 @@ function _applySave(save) {
   state.rationing            = s.rationing            ?? null; // T228
   state.militia              = s.militia              ?? null; // T229
   state.ancientPact          = s.ancientPact          ?? null; // T230
+  state.library              = s.library              ?? null; // T231
+  state.priceSurge           = s.priceSurge           ?? null; // T232
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
@@ -1855,6 +1864,8 @@ function _newGame(opts = {}) {
   initRationing();           // T228: reset rationing state on new game
   initMilitia();             // T229: reset militia state on new game
   initAncientPact();         // T230: reset ancient pact state on new game
+  initLibrary();             // T231: reset grand library state on new game
+  initPriceSurge();          // T232: reset price surge state on new game
   _updateCelestialBanner(); // T153: hide banner on new game
   _updateRefugeeBanner();   // T217: hide refugee banner on new game
   recalcRates();
