@@ -153,6 +153,8 @@ import { initRoyalLoan, royalLoanTick }        from './systems/royalLoan.js';   
 import { initAncientVaultCache, ancientVaultCacheTick } from './systems/ancientVaultCache.js';       // T238
 import { initRecordsExchange }                          from './systems/recordsExchange.js';           // T239
 import { initNomadicTribe, nomadicTribeTick }           from './systems/nomadicTribe.js';              // T240
+import { initProphet, prophetTick }                     from './systems/wanderingProphet.js';           // T241
+import { initArtisanFair, artisanFairTick }             from './systems/artisanFair.js';                // T242
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
@@ -272,6 +274,8 @@ function boot() {
   registerSystem(royalLoanTick);       // T237: royal loan repayment check
   registerSystem(ancientVaultCacheTick); // T238: vault cache spawn/expiry
   registerSystem(nomadicTribeTick);      // T240: nomadic tribe encounter spawn/expiry
+  registerSystem(prophetTick);           // T241: wandering prophet spawn/expiry
+  registerSystem(artisanFairTick);       // T242: artisan fair spawn/expiry
 
   // Init event-driven systems
   initRandomEvents();
@@ -379,6 +383,8 @@ function boot() {
   initAncientVaultCache();   // T238: ancient vault cache state init
   initRecordsExchange();     // T239: imperial records exchange state init
   initNomadicTribe();        // T240: nomadic tribe encounter state init
+  initProphet();             // T241: wandering prophet state init
+  initArtisanFair();         // T242: artisan fair state init
   // T176: monument init deferred — only activates when building is constructed
 
   // Init UI
@@ -640,7 +646,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 86, // T239: imperial records exchange; T240: nomadic tribe encounter
+      version: 87, // T241: wandering prophet; T242: artisan fair
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -803,6 +809,8 @@ function _save() {
         ancientVaultCache:   state.ancientVaultCache   ?? null,  // T238
         recordsExchange:     state.recordsExchange     ?? null,  // T239
         nomadicTribe:        state.nomadicTribe        ?? null,  // T240
+        prophet:             state.prophet             ?? null,  // T241
+        artisanFair:         state.artisanFair         ?? null,  // T242
         tick:          state.tick,
       }
     }));
@@ -999,6 +1007,8 @@ function _applySave(save) {
   state.ancientVaultCache    = s.ancientVaultCache    ?? null; // T238
   state.recordsExchange      = s.recordsExchange      ?? null; // T239
   state.nomadicTribe         = s.nomadicTribe         ?? null; // T240
+  state.prophet              = s.prophet              ?? null; // T241
+  state.artisanFair          = s.artisanFair          ?? null; // T242
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
@@ -1913,6 +1923,8 @@ function _newGame(opts = {}) {
   initAncientVaultCache();   // T238: reset ancient vault cache state on new game
   initRecordsExchange();     // T239: reset records exchange state on new game
   initNomadicTribe();        // T240: reset nomadic tribe state on new game
+  initProphet();             // T241: reset wandering prophet state on new game
+  initArtisanFair();         // T242: reset artisan fair state on new game
   _updateCelestialBanner(); // T153: hide banner on new game
   _updateRefugeeBanner();   // T217: hide refugee banner on new game
   recalcRates();
