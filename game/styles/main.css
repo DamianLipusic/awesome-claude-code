@@ -14813,3 +14813,197 @@ kbd {
 .btn--tribe-refuse:hover {
   background: rgba(50, 50, 50, 0.65);
 }
+
+/* ── T241: Wandering Prophet ──────────────────────────────────────────────── */
+.prophet-section {
+  margin: 8px 0 4px;
+  padding: 10px 12px;
+  border: 1px solid rgba(139, 92, 246, 0.30);
+  border-radius: 6px;
+  background: rgba(20, 10, 35, 0.50);
+}
+.prophet-section--active {
+  animation: prophet-pulse 2s ease-in-out infinite;
+}
+@keyframes prophet-pulse {
+  0%, 100% { border-color: rgba(139, 92, 246, 0.30); }
+  50%       { border-color: rgba(139, 92, 246, 0.70); }
+}
+.prophet-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.prophet-icon {
+  font-size: 1.05rem;
+}
+.prophet-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #c4b5fd;
+  flex: 1;
+}
+.prophet-timer {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #a78bfa;
+}
+.prophet-timer--urgent {
+  color: #ef4444;
+  animation: urgent-pulse 0.6s ease-in-out infinite;
+}
+.prophet-desc {
+  font-size: 0.76rem;
+  color: #d1d5db;
+  margin-bottom: 8px;
+}
+.prophet-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.prophet-cost {
+  font-size: 0.70rem;
+  opacity: 0.80;
+  margin-left: 3px;
+}
+.btn--prophet-heed {
+  padding: 5px 10px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  border: 1px solid rgba(139, 92, 246, 0.40);
+  border-radius: 4px;
+  background: linear-gradient(135deg, #2e1065 0%, #7c3aed 100%);
+  color: #ede9fe;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.btn--prophet-heed:hover:not(:disabled) {
+  opacity: 0.85;
+}
+.btn--prophet-tribute {
+  padding: 5px 10px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  border: 1px solid rgba(251, 191, 36, 0.40);
+  border-radius: 4px;
+  background: linear-gradient(135deg, #451a03 0%, #d97706 100%);
+  color: #fef3c7;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.btn--prophet-tribute:hover:not(:disabled) {
+  opacity: 0.85;
+}
+.btn--prophet-dismiss {
+  padding: 5px 10px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  border: 1px solid rgba(107, 114, 128, 0.35);
+  border-radius: 4px;
+  background: rgba(30, 30, 30, 0.50);
+  color: #9ca3af;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn--prophet-dismiss:hover {
+  background: rgba(50, 50, 50, 0.65);
+}
+
+/* ── T242: Artisan Fair ───────────────────────────────────────────────────── */
+.fair-section {
+  margin: 8px 0 4px;
+  padding: 10px 12px;
+  border: 1px solid rgba(236, 72, 153, 0.30);
+  border-radius: 6px;
+  background: rgba(30, 10, 20, 0.50);
+}
+.fair-section--active {
+  animation: fair-pulse 2s ease-in-out infinite;
+}
+@keyframes fair-pulse {
+  0%, 100% { border-color: rgba(236, 72, 153, 0.30); }
+  50%       { border-color: rgba(236, 72, 153, 0.65); }
+}
+.fair-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.fair-icon {
+  font-size: 1.05rem;
+}
+.fair-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #f9a8d4;
+  flex: 1;
+}
+.fair-timer {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #ec4899;
+}
+.fair-timer--urgent {
+  color: #ef4444;
+  animation: urgent-pulse 0.6s ease-in-out infinite;
+}
+.fair-desc {
+  font-size: 0.76rem;
+  color: #d1d5db;
+  margin-bottom: 8px;
+}
+.fair-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.fair-cost {
+  font-size: 0.70rem;
+  opacity: 0.80;
+  margin-left: 3px;
+}
+.btn--fair-commission {
+  padding: 5px 10px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  border: 1px solid rgba(234, 179, 8, 0.40);
+  border-radius: 4px;
+  background: linear-gradient(135deg, #422006 0%, #ca8a04 100%);
+  color: #fef9c3;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.btn--fair-commission:hover:not(:disabled) {
+  opacity: 0.85;
+}
+.btn--fair-export {
+  padding: 5px 10px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  border: 1px solid rgba(34, 197, 94, 0.40);
+  border-radius: 4px;
+  background: linear-gradient(135deg, #14532d 0%, #15803d 100%);
+  color: #bbf7d0;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.btn--fair-export:hover:not(:disabled) {
+  opacity: 0.85;
+}
+.btn--fair-decline {
+  padding: 5px 10px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  border: 1px solid rgba(107, 114, 128, 0.35);
+  border-radius: 4px;
+  background: rgba(30, 30, 30, 0.50);
+  color: #9ca3af;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn--fair-decline:hover {
+  background: rgba(50, 50, 50, 0.65);
+}
