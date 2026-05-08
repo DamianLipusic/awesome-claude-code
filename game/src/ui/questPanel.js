@@ -19,6 +19,7 @@ import { getActiveOmen, getOmenSecsLeft, avertOmen, channelOmen } from '../syste
 import { EPIC_CHAINS, CHAIN_ORDER, getChainProgress } from '../systems/epicQuests.js'; // T202
 import { getRoyalHuntStatus, launchRoyalHunt, HUNT_GOLD_COST, HUNT_FOOD_COST } from '../systems/royalHunt.js'; // T214
 import { getActiveLegendary, getLegendarySecsLeft, getLegendaryHistory, LEGENDARY_TYPES } from '../systems/legendaryEncounters.js'; // T216
+import { collectHarvest, isHarvestAvailable, getHarvestSecsLeft, getCurrentHarvestReward } from '../systems/harvest.js'; // T234
 
 export function initQuestPanel() {
   const panel = document.getElementById('panel-quests');
@@ -40,6 +41,8 @@ export function initQuestPanel() {
     Events.EPIC_QUEST_PROGRESS,                         // T202: epic quest chain step/completion
     Events.HUNT_CHANGED,                                // T214: royal hunt state changes
     Events.LEGENDARY_CHANGED,                           // T216: legendary encounter spawned/defeated/expired
+    Events.SEASON_CHANGED,                              // T234: reset harvest on season change
+    Events.HARVEST_CHANGED,                             // T234: harvest window opened/collected/expired
   ];
   for (const ev of events) on(ev, render);
 
@@ -55,7 +58,8 @@ export function initQuestPanel() {
       const om = state.oracle?.activeOmen;
       const rh  = state.royalHunt?.pending || state.royalHunt?.active;
       const leg = state.legendary?.current;
-      if (ch || pe || bo || pl || pi || om || rh || leg) render();
+      const hv  = isHarvestAvailable();
+      if (ch || pe || bo || pl || pi || om || rh || leg || hv) render();
     }
   });
 
@@ -116,6 +120,14 @@ export function initQuestPanel() {
         if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
       }
     }
+    // Collect seasonal harvest (T234)
+    if (e.target.closest('[data-action="collect-harvest"]')) {
+      const r = collectHarvest();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="collect-harvest"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
   });
 
   setQuestPanelRenderer(render);
@@ -142,6 +154,7 @@ function render() {
     ${_bountySection()}
     ${_politicalEventSection()}
     ${_challengeSection()}
+    ${_harvestSection()}
     <div class="quest-header">
       <div class="quest-header__title">Quests &amp; Objectives</div>
       <div class="quest-header__meta">
@@ -784,6 +797,58 @@ function _questCard(q, completedTick) {
       </div>
       <div class="quest-card__desc">${q.desc}</div>
       <div class="quest-card__reward">Reward: <span class="quest-reward-text">${rewardStr}</span></div>
+    </div>
+  `;
+}
+
+// ── T234: Seasonal Harvest Window ─────────────────────────────────────────
+
+function _harvestSection() {
+  const available = isHarvestAvailable();
+  const reward    = getCurrentHarvestReward();
+  const collected = state.harvest?.collectedThisSeason ?? false;
+  const secsLeft  = getHarvestSecsLeft();
+
+  const rewardStr = Object.entries(reward.resources)
+    .map(([r, v]) => `+${v} ${r}`)
+    .join(', ') + `, +${reward.prestige} prestige`;
+
+  if (available) {
+    return `
+      <div class="harvest-section harvest-section--active">
+        <div class="harvest-header">
+          <span class="harvest-icon">${reward.icon}</span>
+          <span class="harvest-title">${reward.season} Harvest</span>
+          <span class="harvest-timer">${secsLeft}s</span>
+        </div>
+        <div class="harvest-rewards">${rewardStr}</div>
+        <button class="btn btn--harvest" data-action="collect-harvest">🌾 Collect Harvest</button>
+      </div>
+    `;
+  }
+
+  if (collected) {
+    return `
+      <div class="harvest-section harvest-section--done">
+        <div class="harvest-header">
+          <span class="harvest-icon">${reward.icon}</span>
+          <span class="harvest-title">${reward.season} Harvest</span>
+          <span class="harvest-badge harvest-badge--done">✓ Collected</span>
+        </div>
+        <div class="harvest-desc">Harvest collected. Next opens at 70% through the next season.</div>
+      </div>
+    `;
+  }
+
+  // Window not yet open this season
+  return `
+    <div class="harvest-section">
+      <div class="harvest-header">
+        <span class="harvest-icon">${reward.icon}</span>
+        <span class="harvest-title">${reward.season} Harvest</span>
+        <span class="harvest-badge">Pending</span>
+      </div>
+      <div class="harvest-desc">Opens at 70% through the season. Collect: ${rewardStr}</div>
     </div>
   `;
 }

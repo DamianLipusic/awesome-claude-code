@@ -32,6 +32,7 @@ import { isInFortificationNetwork } from '../systems/fortificationNetwork.js'; /
 import { dispatchScouts, getScoutInfo, getScoutCooldownSecs, canDispatchScouts, SCOUT_COST } from '../systems/scoutMissions.js'; // T207
 import { establishOutpost, getOutpostAt, getOutpostCount, OUTPOST_COST, MAX_OUTPOSTS, OUTPOST_MIN_AGE, SUPPLY_RANGE, OUTPOST_RANGE } from '../systems/supplyLines.js'; // T209
 import { getActiveLegendary, getLegendarySecsLeft, LEGENDARY_TYPES } from '../systems/legendaryEncounters.js'; // T216
+import { getLostExpeditionInfo, getLostExpeditionSecsLeft } from '../systems/lostExpedition.js'; // T233
 
 const TILE_PX   = 24;     // pixels per tile side
 const GRID_SIZE = 20;     // tiles per axis
@@ -73,6 +74,8 @@ const BATTLEFIELD_TINT    = 'rgba(180,100,220,0.32)';  // T156: ancient battlefi
 const BATTLEFIELD_BORDER  = '#b064dc';                  // T156: ancient battlefield border
 const SEASONAL_OBJ_TINT   = 'rgba(100,220,200,0.30)';  // T170: seasonal objective teal shimmer
 const SEASONAL_OBJ_BORDER = '#44d4c0';                  // T170: seasonal objective border
+const EXPEDITION_TINT     = 'rgba(0,210,180,0.35)';    // T233: lost expedition teal shimmer
+const EXPEDITION_BORDER   = '#00d4b4';                  // T233: lost expedition border
 const HOVER_ATTACK     = 'rgba(240,180,41,0.38)';
 const HOVER_NEUTRAL    = 'rgba(255,255,255,0.08)';
 const PLAYER_BORDER    = '#58a6ff';
@@ -244,6 +247,9 @@ export function initMapPanel() {
 
   // T170: re-render when seasonal objective spawns, is captured, or expires
   on(Events.SEASONAL_OBJECTIVE, _render);
+
+  // T233: re-render when lost expedition spawns, is rescued, or expires
+  on(Events.LOST_EXPEDITION_CHANGED, _render);
 
   // T179: update survey report when guild is built or survey fires
   on(Events.BUILDING_CHANGED,      _updateSurveyReport);
@@ -511,12 +517,21 @@ function _showTileTip(tile, x, y, mouseX, mouseY) {
        <div class="map-tt-row" style="font-size:0.7rem;color:var(--text-dim)">Click this tile to investigate!</div>`
     : '';
 
+  // T233: lost expedition hint
+  const _expInfo = getLostExpeditionInfo();
+  const expeditionHtml = (_expInfo && _expInfo.x === x && _expInfo.y === y)
+    ? `<div class="map-tt-row" style="color:#00d4b4;font-weight:600">🏴 Lost Expedition — ${getLostExpeditionSecsLeft()}s left!</div>
+       <div class="map-tt-row" style="font-size:0.7rem;color:var(--text-dim)">Capture to rescue: +100 gold, +60 food, +40 prestige</div>
+       <div class="map-tt-action">⚔️ Click to attack &amp; rescue</div>`
+    : '';
+
   _tileTipEl.innerHTML = `
     <div class="map-tt-title">${TERRAIN_NAME[tile.type] ?? tile.type}</div>
     <div class="map-tt-row">${ownerHtml}</div>
     ${capitalHtml}
     ${bountyHtml}
     ${seasonalObjHtml}
+    ${expeditionHtml}
     ${chokepointHtml}
     ${influenceHtml}
     ${discoveryHtml}
@@ -896,6 +911,21 @@ function _drawTile(tile, x, y, capital) {
     ctx.fillText('✨', px + TILE_PX / 2, py + TILE_PX / 2 + 1);
   }
 
+  // T233: lost expedition — teal tint + flag icon
+  const _exp = state.lostExpedition?.active;
+  if (_exp && _exp.x === x && _exp.y === y && tile.revealed) {
+    ctx.fillStyle = EXPEDITION_TINT;
+    ctx.fillRect(px, py, TILE_PX, TILE_PX);
+    ctx.strokeStyle = EXPEDITION_BORDER;
+    ctx.lineWidth   = 2;
+    ctx.strokeRect(px + 1, py + 1, TILE_PX - 2, TILE_PX - 2);
+    ctx.lineWidth   = 1;
+    ctx.font         = `${TILE_PX - 10}px sans-serif`;
+    ctx.textAlign    = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('🏴', px + TILE_PX / 2, py + TILE_PX / 2 + 1);
+  }
+
   // T138: combat odds overlay — tint + win% label on attackable tiles when odds mode active
   const _winChance = _oddsCache[`${x},${y}`];
   if (_winChance !== undefined) {
@@ -947,8 +977,10 @@ function _updateStats() {
     ? `  ·  🛒 Caravan: ${getCaravanSecsLeft()}s left` : '';
   const nodeCount  = activeNodeCount();
   const nodeStr    = nodeCount > 0 ? `  ·  ✦ Nodes: ${nodeCount}` : '';
+  const expStr     = state.lostExpedition?.active
+    ? `  ·  🏴 Expedition: ${getLostExpeditionSecsLeft()}s left` : '';
   el.textContent =
-    `Territory: ${playerTiles} tiles  ·  Enemy: ${enemyTiles} tiles${barbStr}  ·  Explored: ${revealedTiles}/${total}${caravanStr}${nodeStr}`;
+    `Territory: ${playerTiles} tiles  ·  Enemy: ${enemyTiles} tiles${barbStr}  ·  Explored: ${revealedTiles}/${total}${caravanStr}${nodeStr}${expStr}`;
 }
 
 // ── T179: Cartographer's Guild survey report ──────────────────────────────

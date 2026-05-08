@@ -2,6 +2,58 @@
 
 ---
 
+## 2026-05-08 — Session N+59
+
+**Tasks completed:** T233, T234
+
+**Summary:**
+All prior tasks (T001–T232) were complete. Created T233+T234 task specs in tasks.json then implemented two Phase 95 features: Lost Expedition Rescue (T233) and Seasonal Harvest Window (T234).
+
+**T233 — Lost Expedition Rescue:**
+- `src/systems/lostExpedition.js`: New file. SPAWN_MIN=4800 ticks (20 min), SPAWN_RANGE=1200 (5 min), RESCUE_WINDOW=1200 (5 min), RETRY=480 (2 min), MIN_PLAYER_TILES=6, MIN_AGE=1 (Bronze), MIN_DIST=4 tiles from capital. `initLostExpedition()` lazy-creates state.lostExpedition. `lostExpeditionTick()` expires active expedition (logs 'perished'), else checks Bronze Age+ + 6+ tiles, finds a neutral revealed tile ≥4 from capital via `_pickTarget()`, sets active window. `checkExpeditionRescue(x,y)` called by combat.js on tile capture — if coordinates match active expedition: awards +100 gold, +60 food, +40 prestige, runs revealAround() for bonus fog reveal. Accessors: `getLostExpeditionInfo()`, `getLostExpeditionSecsLeft()`.
+- `src/core/events.js`: LOST_EXPEDITION_CHANGED:'lostExpeditionChanged' added.
+- `src/core/state.js`: `lostExpedition:null` field + initState reset.
+- `src/systems/combat.js`: Import `checkExpeditionRescue`; T233 block in `_victory()` after legendary defeat check — calls `checkExpeditionRescue(x,y)` before `recalcRates()`.
+- `src/ui/mapPanel.js`: Import getLostExpeditionInfo+getLostExpeditionSecsLeft; EXPEDITION_TINT + EXPEDITION_BORDER constants; `on(LOST_EXPEDITION_CHANGED, _render)`; T233 block in `_drawTile()` — teal tint + 2px teal border + 🏴 icon when tile matches active expedition; `expeditionHtml` in `_showTileTip()` — rescue countdown, reward details, attack hint; `expStr` in `_updateStats()` — '🏴 Expedition: Ns left' appended to stats bar.
+- `src/main.js`: Import + registerSystem + init in boot+_newGame + save/load state.lostExpedition; version 81→83.
+
+**T234 — Seasonal Harvest Window:**
+- `src/systems/harvest.js`: New file. SEASON_DURATION=360 ticks, HARVEST_TRIGGER=252 (70%), HARVEST_WINDOW=108. SEASON_REWARDS[4] with Spring/Summer/Autumn/Winter rewards. `initHarvest()` lazy-creates state.harvest, subscribes SEASON_CHANGED → resets flags. `harvestTick()` closes expired window, opens window when season.tick≥252 (sets windowCloseAt=state.tick+remaining_ticks). `collectHarvest()` validates window open + not collected, grants resources (capped), awardPrestige, clears window. Accessors: `isHarvestAvailable()`, `getHarvestSecsLeft()`, `getCurrentHarvestReward()`.
+- `src/core/events.js`: HARVEST_CHANGED:'harvestChanged' added.
+- `src/core/state.js`: `harvest:null` field + initState reset.
+- `src/ui/questPanel.js`: Import 4 harvest exports; SEASON_CHANGED+HARVEST_CHANGED in event list; `isHarvestAvailable()` in tick refresh condition; collect-harvest click handler; `_harvestSection()` renders: active (green pulse animation, timer badge, Collect Harvest button), collected (dimmed done card), pending (shows upcoming rewards); `${_harvestSection()}` appended to panel.innerHTML after `_challengeSection()`.
+- `src/main.js`: Import initHarvest+harvestTick; registerSystem(harvestTick); init in boot+_newGame; save/load state.harvest; version 83.
+- `styles/main.css`: `.harvest-section` (green left-border), `.harvest-section--active` (pulse keyframe animation), `.harvest-section--done`, `.harvest-header`, `.harvest-icon`, `.harvest-title`, `.harvest-timer` (green), `.harvest-badge/--done`, `.harvest-rewards`, `.harvest-desc`, `.btn--harvest` (green gradient).
+
+**Architecture decisions:**
+- Lost expedition spawns only on neutral (owner===null) revealed tiles to ensure the player must fight for it, making combat the rescue mechanic rather than a passive interaction.
+- Expedition coordinates are stored in state, not on the tile itself, avoiding tile mutation and save-format changes beyond the state.lostExpedition field.
+- Harvest window uses `state.tick` (absolute, never resets) for `windowCloseAt` rather than tracking season ticks, so the window closes accurately even if the game is paused or speed changes.
+- The harvest window opens at 70% of the season (252/360 ticks) rather than exactly at a fixed tick to give ~27 seconds of real-time collection opportunity at 1× speed.
+- Save version bumped 81→83 (T233 = v82, T234 = v83, combined in one bump for efficiency).
+
+**Files modified:**
+  + game/src/systems/lostExpedition.js (new)
+      initLostExpedition(), lostExpeditionTick(), checkExpeditionRescue()
+  + game/src/systems/harvest.js (new)
+      initHarvest(), harvestTick(), collectHarvest(), isHarvestAvailable()
+  ~ game/src/core/events.js
+      LOST_EXPEDITION_CHANGED + HARVEST_CHANGED added
+  ~ game/src/core/state.js
+      lostExpedition:null + harvest:null fields; initState resets both
+  ~ game/src/systems/combat.js
+      import checkExpeditionRescue; T233 hook in _victory()
+  ~ game/src/ui/mapPanel.js
+      expedition tint/icon/tooltip/stats-bar
+  ~ game/src/ui/questPanel.js
+      harvest imports + event listeners + _harvestSection() + click handler
+  ~ game/src/main.js
+      imports + registerSystem × 2 + init × 2 in boot/newGame + save/load × 2 + version 83
+  ~ game/styles/main.css
+      T234 harvest CSS (harvest-section, harvest-section--active, btn--harvest)
+
+---
+
 ## 2026-05-07 — Session N+58
 
 **Tasks completed:** T227, T228

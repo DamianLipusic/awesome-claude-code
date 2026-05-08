@@ -14387,3 +14387,81 @@ kbd {
   font-style: italic;
   margin-bottom: 6px;
 }
+
+/* ── T234: Seasonal Harvest Window ───────────────────────────────────────── */
+.harvest-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-left: 3px solid #4ade80;
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+}
+.harvest-section--active {
+  border-left-color: #22c55e;
+  background: linear-gradient(135deg, rgba(34,197,94,0.10) 0%, var(--bg-card) 60%);
+  animation: harvest-pulse 2s ease-in-out infinite;
+}
+.harvest-section--done {
+  border-left-color: #374151;
+  opacity: 0.7;
+}
+@keyframes harvest-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
+  50%       { box-shadow: 0 0 8px 2px rgba(34,197,94,0.25); }
+}
+.harvest-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.harvest-icon { font-size: 1.1rem; }
+.harvest-title {
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: var(--text-primary);
+  flex: 1;
+}
+.harvest-timer {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #4ade80;
+  background: rgba(74,222,128,0.12);
+  border-radius: 4px;
+  padding: 1px 6px;
+}
+.harvest-badge {
+  font-size: 0.73rem;
+  color: #9ca3af;
+  background: rgba(156,163,175,0.12);
+  border-radius: 4px;
+  padding: 1px 6px;
+}
+.harvest-badge--done {
+  color: #4ade80;
+  background: rgba(74,222,128,0.12);
+}
+.harvest-rewards {
+  font-size: 0.78rem;
+  color: #86efac;
+  margin-bottom: 8px;
+}
+.harvest-desc {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+.btn--harvest {
+  background: linear-gradient(135deg, #166534 0%, #15803d 100%);
+  color: #bbf7d0;
+  border: 1px solid #16a34a;
+  border-radius: 5px;
+  padding: 5px 14px;
+  font-size: 0.80rem;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+}
+.btn--harvest:hover {
+  background: linear-gradient(135deg, #15803d 0%, #16a34a 100%);
+}

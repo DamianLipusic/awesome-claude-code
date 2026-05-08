@@ -145,6 +145,8 @@ import { initMilitia, militiaTick } from './systems/militia.js';                
 import { initAncientPact, ancientPactTick } from './systems/ancientPact.js';                       // T230
 import { initLibrary }                      from './systems/library.js';                            // T231
 import { initPriceSurge, priceSurgeTick }   from './systems/priceSurge.js';                        // T232
+import { initLostExpedition, lostExpeditionTick } from './systems/lostExpedition.js';               // T233
+import { initHarvest, harvestTick }         from './systems/harvest.js';                            // T234
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
@@ -257,6 +259,8 @@ function boot() {
   registerSystem(militiaTick);           // T229: militia expiry check
   registerSystem(ancientPactTick);       // T230: ancient pact tier advancement
   registerSystem(priceSurgeTick);        // T232: market price surge spawn/expiry
+  registerSystem(lostExpeditionTick);    // T233: lost expedition spawn/rescue/expiry
+  registerSystem(harvestTick);           // T234: seasonal harvest window
 
   // Init event-driven systems
   initRandomEvents();
@@ -356,6 +360,8 @@ function boot() {
   initAncientPact();         // T230: ancient pact state init
   initLibrary();             // T231: grand library state init + event listeners
   initPriceSurge();          // T232: market price surge state init
+  initLostExpedition();      // T233: lost expedition state init
+  initHarvest();             // T234: seasonal harvest window state init
   // T176: monument init deferred — only activates when building is constructed
 
   // Init UI
@@ -617,7 +623,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 81, // T231: grand library; T232: market price surge
+      version: 83, // T231: grand library; T232: market price surge; T233: lost expedition; T234: seasonal harvest
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -772,6 +778,8 @@ function _save() {
         ancientPact:         state.ancientPact         ?? null,  // T230
         library:             state.library             ?? null,  // T231
         priceSurge:          state.priceSurge          ?? null,  // T232
+        lostExpedition:      state.lostExpedition      ?? null,  // T233
+        harvest:             state.harvest             ?? null,  // T234
         tick:          state.tick,
       }
     }));
@@ -960,6 +968,8 @@ function _applySave(save) {
   state.ancientPact          = s.ancientPact          ?? null; // T230
   state.library              = s.library              ?? null; // T231
   state.priceSurge           = s.priceSurge           ?? null; // T232
+  state.lostExpedition       = s.lostExpedition       ?? null; // T233
+  state.harvest              = s.harvest              ?? null; // T234
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
@@ -1866,6 +1876,8 @@ function _newGame(opts = {}) {
   initAncientPact();         // T230: reset ancient pact state on new game
   initLibrary();             // T231: reset grand library state on new game
   initPriceSurge();          // T232: reset price surge state on new game
+  initLostExpedition();      // T233: reset lost expedition state on new game
+  initHarvest();             // T234: reset seasonal harvest state on new game
   _updateCelestialBanner(); // T153: hide banner on new game
   _updateRefugeeBanner();   // T217: hide refugee banner on new game
   recalcRates();

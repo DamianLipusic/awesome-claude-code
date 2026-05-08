@@ -197,4 +197,6 @@ export const Events = Object.freeze({
   ANCIENT_PACT_CHANGED:        'ancientPactChanged',           // T230: ancient pact forged, tiered, or dissolved
   LIBRARY_CHANGED:             'libraryChanged',               // T231: grand library founded, scroll added, or bonus rerolled
   PRICE_SURGE_CHANGED:         'priceSurgeChanged',            // T232: market price surge started or ended
+  LOST_EXPEDITION_CHANGED:     'lostExpeditionChanged',         // T233: expedition spawned / rescued / expired
+  HARVEST_CHANGED:             'harvestChanged',                // T234: harvest window opened / collected / closed
 });

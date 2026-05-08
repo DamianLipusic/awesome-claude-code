@@ -650,6 +650,14 @@ export const state = {
   // T232: Market Price Surge — periodic 2× sell-price window
   // { active: { expiresAt: tick } | null, nextSurgeTick: tick, totalSurges: number } | null
   priceSurge: null,
+
+  // T233: Lost Expedition Rescue — timed map rescue event
+  // { active: { x, y, expiresAt } | null, nextExpeditionTick: tick, totalRescued: number } | null
+  lostExpedition: null,
+
+  // T234: Seasonal Harvest Window — once-per-season resource collection
+  // { collectedThisSeason: bool, windowCloseAt: tick|null, totalHarvests: number } | null
+  harvest: null,
 };
 
 /**
@@ -802,5 +810,7 @@ export function initState(empireName = 'My Empire') {
   state.ancientPact          = null; // T230: reset ancient pact state per game
   state.library              = null; // T231: reset grand library per game
   state.priceSurge           = null; // T232: reset price surge per game
+  state.lostExpedition       = null; // T233: reset lost expedition per game
+  state.harvest              = null; // T234: reset seasonal harvest per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

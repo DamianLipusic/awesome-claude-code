@@ -48,6 +48,7 @@ import { isPropagandaActive }                        from './propaganda.js';    
 import { getTrophyAttackMult }                      from './warTrophies.js';            // T226
 import { getMilitiaAttackBonus }                    from './militia.js';                // T229
 import { getLibraryAttackBonus }                    from './library.js';                // T231
+import { checkExpeditionRescue }                    from './lostExpedition.js';         // T233
 
 // ── T224: Army Composition Synergies ─────────────────────────────────────────
 
@@ -1021,6 +1022,9 @@ function _victory(tile, x, y, attackPower, defense) {
 
   // T216: legendary encounter defeated — apply special rewards
   if (wasLegendary) defeatLegendary(x, y);
+
+  // T233: check if this capture rescues a lost expedition
+  checkExpeditionRescue(x, y);
 
   recalcRates();
   emit(Events.MAP_CHANGED, { x, y, outcome: 'win' });
