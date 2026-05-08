@@ -20,6 +20,7 @@ import { EPIC_CHAINS, CHAIN_ORDER, getChainProgress } from '../systems/epicQuest
 import { getRoyalHuntStatus, launchRoyalHunt, HUNT_GOLD_COST, HUNT_FOOD_COST } from '../systems/royalHunt.js'; // T214
 import { getActiveLegendary, getLegendarySecsLeft, getLegendaryHistory, LEGENDARY_TYPES } from '../systems/legendaryEncounters.js'; // T216
 import { collectHarvest, isHarvestAvailable, getHarvestSecsLeft, getCurrentHarvestReward } from '../systems/harvest.js'; // T234
+import { hostImperialGames, competeImperialGames, skipImperialGames, isImperialGamesPending, getImperialGamesSecsLeft } from '../systems/imperialGames.js'; // T236
 
 export function initQuestPanel() {
   const panel = document.getElementById('panel-quests');
@@ -43,6 +44,7 @@ export function initQuestPanel() {
     Events.LEGENDARY_CHANGED,                           // T216: legendary encounter spawned/defeated/expired
     Events.SEASON_CHANGED,                              // T234: reset harvest on season change
     Events.HARVEST_CHANGED,                             // T234: harvest window opened/collected/expired
+    Events.IMPERIAL_GAMES_CHANGED,                      // T236: imperial games announced/resolved/expired
   ];
   for (const ev of events) on(ev, render);
 
@@ -59,7 +61,8 @@ export function initQuestPanel() {
       const rh  = state.royalHunt?.pending || state.royalHunt?.active;
       const leg = state.legendary?.current;
       const hv  = isHarvestAvailable();
-      if (ch || pe || bo || pl || pi || om || rh || leg || hv) render();
+      const ig  = isImperialGamesPending();
+      if (ch || pe || bo || pl || pi || om || rh || leg || hv || ig) render();
     }
   });
 
@@ -128,6 +131,24 @@ export function initQuestPanel() {
         if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
       }
     }
+    // Imperial Games actions (T236)
+    if (e.target.closest('[data-action="games-host"]')) {
+      const r = hostImperialGames();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="games-host"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="games-compete"]')) {
+      const r = competeImperialGames();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="games-compete"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="games-skip"]')) {
+      skipImperialGames();
+    }
   });
 
   setQuestPanelRenderer(render);
@@ -154,6 +175,7 @@ function render() {
     ${_bountySection()}
     ${_politicalEventSection()}
     ${_challengeSection()}
+    ${_imperialGamesSection()}
     ${_harvestSection()}
     <div class="quest-header">
       <div class="quest-header__title">Quests &amp; Objectives</div>
@@ -797,6 +819,32 @@ function _questCard(q, completedTick) {
       </div>
       <div class="quest-card__desc">${q.desc}</div>
       <div class="quest-card__reward">Reward: <span class="quest-reward-text">${rewardStr}</span></div>
+    </div>
+  `;
+}
+
+// ── T236: Imperial Games ──────────────────────────────────────────────────
+
+function _imperialGamesSection() {
+  if (!isImperialGamesPending()) return '';
+  const secs = getImperialGamesSecsLeft();
+  return `
+    <div class="igames-section igames-section--active">
+      <div class="igames-header">
+        <span class="igames-icon">🏟️</span>
+        <span class="igames-title">Imperial Games</span>
+        <span class="igames-timer">${secs}s</span>
+      </div>
+      <div class="igames-desc">Once every 3 seasons, the world watches. Choose your role:</div>
+      <div class="igames-actions">
+        <button class="btn btn--games-host" data-action="games-host">
+          🏆 Host <span class="igames-cost">−100💰 −50🪨 → +60 prestige, +8 morale</span>
+        </button>
+        <button class="btn btn--games-compete" data-action="games-compete">
+          ⚔️ Compete <span class="igames-cost">−25 soldiers → +30 prestige, +4 morale</span>
+        </button>
+        <button class="btn btn--games-skip" data-action="games-skip">Skip</button>
+      </div>
     </div>
   `;
 }

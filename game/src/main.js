@@ -147,6 +147,8 @@ import { initLibrary }                      from './systems/library.js';        
 import { initPriceSurge, priceSurgeTick }   from './systems/priceSurge.js';                        // T232
 import { initLostExpedition, lostExpeditionTick } from './systems/lostExpedition.js';               // T233
 import { initHarvest, harvestTick }         from './systems/harvest.js';                            // T234
+import { initCityProsperity, cityProsperityTick } from './systems/cityProsperity.js';               // T235
+import { initImperialGames, imperialGamesTick } from './systems/imperialGames.js';                   // T236
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
@@ -261,6 +263,8 @@ function boot() {
   registerSystem(priceSurgeTick);        // T232: market price surge spawn/expiry
   registerSystem(lostExpeditionTick);    // T233: lost expedition spawn/rescue/expiry
   registerSystem(harvestTick);           // T234: seasonal harvest window
+  registerSystem(cityProsperityTick);   // T235: city prosperity windfall
+  registerSystem(imperialGamesTick);    // T236: imperial games expiry check
 
   // Init event-driven systems
   initRandomEvents();
@@ -362,6 +366,8 @@ function boot() {
   initPriceSurge();          // T232: market price surge state init
   initLostExpedition();      // T233: lost expedition state init
   initHarvest();             // T234: seasonal harvest window state init
+  initCityProsperity();      // T235: city prosperity windfall state init
+  initImperialGames();       // T236: imperial games state init + SEASON_CHANGED listener
   // T176: monument init deferred — only activates when building is constructed
 
   // Init UI
@@ -623,7 +629,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 83, // T231: grand library; T232: market price surge; T233: lost expedition; T234: seasonal harvest
+      version: 84, // T231: grand library; T232: market price surge; T233: lost expedition; T234: seasonal harvest; T235: city prosperity; T236: imperial games
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -780,6 +786,8 @@ function _save() {
         priceSurge:          state.priceSurge          ?? null,  // T232
         lostExpedition:      state.lostExpedition      ?? null,  // T233
         harvest:             state.harvest             ?? null,  // T234
+        cityProsperity:      state.cityProsperity      ?? null,  // T235
+        imperialGames:       state.imperialGames       ?? null,  // T236
         tick:          state.tick,
       }
     }));
@@ -970,6 +978,8 @@ function _applySave(save) {
   state.priceSurge           = s.priceSurge           ?? null; // T232
   state.lostExpedition       = s.lostExpedition       ?? null; // T233
   state.harvest              = s.harvest              ?? null; // T234
+  state.cityProsperity       = s.cityProsperity       ?? null; // T235
+  state.imperialGames        = s.imperialGames        ?? null; // T236
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
@@ -1878,6 +1888,8 @@ function _newGame(opts = {}) {
   initPriceSurge();          // T232: reset price surge state on new game
   initLostExpedition();      // T233: reset lost expedition state on new game
   initHarvest();             // T234: reset seasonal harvest state on new game
+  initCityProsperity();      // T235: reset city prosperity state on new game
+  initImperialGames();       // T236: reset imperial games state on new game
   _updateCelestialBanner(); // T153: hide banner on new game
   _updateRefugeeBanner();   // T217: hide refugee banner on new game
   recalcRates();

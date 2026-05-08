@@ -199,4 +199,6 @@ export const Events = Object.freeze({
   PRICE_SURGE_CHANGED:         'priceSurgeChanged',            // T232: market price surge started or ended
   LOST_EXPEDITION_CHANGED:     'lostExpeditionChanged',         // T233: expedition spawned / rescued / expired
   HARVEST_CHANGED:             'harvestChanged',                // T234: harvest window opened / collected / closed
+  CITY_PROSPERITY_EVENT:       'cityProsperityEvent',           // T235: city prosperity windfall fired
+  IMPERIAL_GAMES_CHANGED:      'imperialGamesChanged',          // T236: imperial games announced / resolved / expired
 });

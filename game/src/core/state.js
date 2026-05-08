@@ -658,6 +658,15 @@ export const state = {
   // T234: Seasonal Harvest Window — once-per-season resource collection
   // { collectedThisSeason: bool, windowCloseAt: tick|null, totalHarvests: number } | null
   harvest: null,
+
+  // T235: City Prosperity Windfall — terrain-based bonus from founded cities
+  // { nextWindfallTick: number, totalWindfalls: number } | null
+  cityProsperity: null,
+
+  // T236: Imperial Games — periodic prestige/morale event every 3 seasons
+  // { pending: { expiresAt: tick } | null, seasonsSinceLast: number,
+  //   totalHosted: number, totalCompeted: number } | null
+  imperialGames: null,
 };
 
 /**
@@ -812,5 +821,7 @@ export function initState(empireName = 'My Empire') {
   state.priceSurge           = null; // T232: reset price surge per game
   state.lostExpedition       = null; // T233: reset lost expedition per game
   state.harvest              = null; // T234: reset seasonal harvest per game
+  state.cityProsperity       = null; // T235: reset city prosperity per game
+  state.imperialGames        = null; // T236: reset imperial games per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

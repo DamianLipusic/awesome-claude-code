@@ -2,6 +2,54 @@
 
 ---
 
+## 2026-05-08 — Session N+60
+
+**Tasks completed:** T235, T236
+
+**Summary:**
+All prior tasks (T001–T234) were complete. Created T235+T236 task specs in tasks.json then implemented two Phase 96 features: City Prosperity Windfall (T235) and Imperial Games (T236).
+
+**T235 — City Prosperity Windfall:**
+- `src/systems/cityProsperity.js`: New file. SPAWN_MIN=2400 (10 min), SPAWN_RAND=480 (±2 min), PRESTIGE=15. TERRAIN_REWARDS maps tile.type → resource bonus (grass/capital: +50 food +25 gold; river: +60 gold +20 food; forest: +50 wood +20 gold; hills: +40 stone +20 iron; mountain: +35 iron +30 stone). `initCityProsperity()` lazy-creates state.cityProsperity={nextWindfallTick,totalWindfalls:0}. `cityProsperityTick()` guards Bronze Age+(age≥1) + ≥1 hasCity player tile, picks a random city tile, grants capped terrain rewards, calls awardPrestige(15), reschedules, emits CITY_PROSPERITY_EVENT+RESOURCE_CHANGED+windfall message.
+- `src/core/events.js`: CITY_PROSPERITY_EVENT:'cityProsperityEvent' added.
+- `src/core/state.js`: `cityProsperity:null` field + initState reset.
+- `src/main.js`: Import initCityProsperity+cityProsperityTick; registerSystem(cityProsperityTick); init in boot+_newGame; save/load state.cityProsperity; version 83→84.
+
+**T236 — Imperial Games:**
+- `src/systems/imperialGames.js`: New file. SEASONS_BETWEEN_GAMES=3, PENDING_WINDOW=720 (3 min). HOST_GOLD=100, HOST_STONE=50, HOST_PRESTIGE=60, HOST_MORALE=8. COMPETE_SOLDIERS=25, COMPETE_PRESTIGE=30, COMPETE_MORALE=4. `initImperialGames()` lazy-creates state.imperialGames, migrates missing fields, subscribes SEASON_CHANGED. `_onSeasonChanged()` increments seasonsSinceLast; when ≥3 and age≥1: resets counter, opens pending window (expiresAt=tick+720), emits+message. `imperialGamesTick()` expires the pending window. `hostImperialGames()` / `competeImperialGames()` / `skipImperialGames()` validate+execute actions. Accessors: `isImperialGamesPending()`, `getImperialGamesSecsLeft()`.
+- `src/core/events.js`: IMPERIAL_GAMES_CHANGED:'imperialGamesChanged' added.
+- `src/core/state.js`: `imperialGames:null` field + initState reset.
+- `src/ui/questPanel.js`: Import 5 imperialGames exports; IMPERIAL_GAMES_CHANGED in event list; isImperialGamesPending() in tick refresh; games-host/compete/skip click handlers; `_imperialGamesSection()` renders the 3-minute decision window (timer, Host/Compete/Skip buttons with costs shown inline); injected before `_harvestSection()` in panel.innerHTML.
+- `src/main.js`: Import initImperialGames+imperialGamesTick; registerSystem(imperialGamesTick); init in boot+_newGame; save/load state.imperialGames; version 83→84.
+- `styles/main.css`: `.igames-section`, `.igames-section--active` (purple pulse), `.igames-header`, `.igames-icon`, `.igames-title`, `.igames-timer` (purple), `.igames-desc`, `.igames-actions`, `.igames-cost`, `.btn--games-host` (purple gradient), `.btn--games-compete` (blue gradient), `.btn--games-skip` (muted).
+
+**Architecture decisions:**
+- City prosperity requires Bronze Age+ so the player has had time to found cities before first windfall; rewards use the existing state.caps[res] cap to avoid overflow without special-casing.
+- Terrain rewards mirror the city foundation lore (grass = food/gold, river = gold/food, forest = wood/gold, etc.) to reinforce spatial meaning without adding data complexity.
+- Imperial Games uses SEASON_CHANGED to count seasons rather than a tick timer, eliminating drift and making the 3-season cadence precise regardless of speed changes or pauses.
+- Games expire via imperialGamesTick() rather than a one-shot timeout so the remaining countdown is always queryable (needed for the per-second UI refresh).
+- Save version bumped 83→84 (T235 + T236 combined).
+
+**Files modified:**
+  + game/src/systems/cityProsperity.js (new)
+      initCityProsperity(), cityProsperityTick()
+  + game/src/systems/imperialGames.js (new)
+      initImperialGames(), imperialGamesTick(), hostImperialGames(),
+      competeImperialGames(), skipImperialGames(), isImperialGamesPending(),
+      getImperialGamesSecsLeft()
+  ~ game/src/core/events.js
+      CITY_PROSPERITY_EVENT, IMPERIAL_GAMES_CHANGED added
+  ~ game/src/core/state.js
+      cityProsperity, imperialGames fields + initState resets
+  ~ game/src/ui/questPanel.js
+      T236 import, event listeners, click handlers, _imperialGamesSection()
+  ~ game/src/main.js
+      imports, registerSystem x2, boot+_newGame init x2, save/load x2, version 83→84
+  ~ game/styles/main.css
+      igames-* and btn--games-* styles added
+
+---
+
 ## 2026-05-08 — Session N+59
 
 **Tasks completed:** T233, T234

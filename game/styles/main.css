@@ -14465,3 +14465,94 @@ kbd {
 .btn--harvest:hover {
   background: linear-gradient(135deg, #15803d 0%, #16a34a 100%);
 }
+
+/* ── T236: Imperial Games ─────────────────────────────────────────────── */
+.igames-section {
+  border-left: 3px solid #7c3aed;
+  background: rgba(124,58,237,0.07);
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+}
+.igames-section--active {
+  border-left-color: #a78bfa;
+  background: rgba(167,139,250,0.10);
+  animation: pulse-border 2s ease-in-out infinite;
+}
+.igames-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.igames-icon { font-size: 1.1rem; }
+.igames-title {
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: #c4b5fd;
+  flex: 1;
+}
+.igames-timer {
+  font-size: 0.80rem;
+  font-weight: 700;
+  color: #a78bfa;
+  background: rgba(167,139,250,0.15);
+  border-radius: 4px;
+  padding: 1px 6px;
+}
+.igames-desc {
+  font-size: 0.76rem;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+.igames-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.igames-cost {
+  font-size: 0.72rem;
+  font-weight: 400;
+  opacity: 0.8;
+  display: block;
+}
+.btn--games-host {
+  background: linear-gradient(135deg, #4c1d95 0%, #5b21b6 100%);
+  color: #e9d5ff;
+  border: 1px solid #7c3aed;
+  border-radius: 5px;
+  padding: 6px 14px;
+  font-size: 0.80rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+}
+.btn--games-host:hover {
+  background: linear-gradient(135deg, #5b21b6 0%, #6d28d9 100%);
+}
+.btn--games-compete {
+  background: linear-gradient(135deg, #1e3a5f 0%, #1d4ed8 100%);
+  color: #bfdbfe;
+  border: 1px solid #2563eb;
+  border-radius: 5px;
+  padding: 6px 14px;
+  font-size: 0.80rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+}
+.btn--games-compete:hover {
+  background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
+}
+.btn--games-skip {
+  background: transparent;
+  color: var(--text-dim);
+  border: 1px solid rgba(156,163,175,0.3);
+  border-radius: 5px;
+  padding: 4px 14px;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+.btn--games-skip:hover {
+  background: rgba(156,163,175,0.08);
+}
