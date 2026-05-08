@@ -2129,7 +2129,7 @@
   },
   {
     "id": "T239",
-    "title": "Imperial Records Exchange — once-per-age diplomatic knowledge transfer with allies",
+    "title": "Imperial Records Exchange \u2014 once-per-age diplomatic knowledge transfer with allies",
     "description": "In the Diplomacy panel (Iron Age+, 2+ allies), the player may initiate an Imperial Records Exchange once per age. Cost: 60 gold + 40 mana. Rewards: +50 prestige, +10 morale, +80 food, +60 wood (the allied tribes share crop knowledge and timber techniques). The action is greyed out if requirements are not met or already used this age. A small section renders below the Resource Exchange Pact. State: state.recordsExchange = { usedAtAge: -1, totalExchanges: 0 }. Event: RECORDS_EXCHANGE_CHANGED. New file: src/systems/recordsExchange.js.",
     "priority": 239,
     "status": "done",
@@ -2138,11 +2138,29 @@
   },
   {
     "id": "T240",
-    "title": "Nomadic Tribe Encounter — periodic Bronze Age+ random encounter with three player choices",
-    "description": "Every 15-18 minutes (Bronze Age+, 8+ player tiles), a Nomadic Tribe encounter appears in the Quest panel. The encounter expires in 90 seconds. Player choices: Accept (settle) — pay 50 food, receive +80 food +50 wood +5 morale (tribe shares supplies); Hire (mercenaries) — pay 60 gold, adds a +0.5 gold/s rate modifier for 4 minutes via randomEvents.activeModifiers; Refuse — no cost, no reward. State: state.nomadicTribe = { active:{expiresAt}|null, nextSpawnTick, totalEncounters, totalAccepted, totalHired }. Event: NOMADIC_TRIBE_CHANGED. New file: src/systems/nomadicTribe.js.",
+    "title": "Nomadic Tribe Encounter \u2014 periodic Bronze Age+ random encounter with three player choices",
+    "description": "Every 15-18 minutes (Bronze Age+, 8+ player tiles), a Nomadic Tribe encounter appears in the Quest panel. The encounter expires in 90 seconds. Player choices: Accept (settle) \u2014 pay 50 food, receive +80 food +50 wood +5 morale (tribe shares supplies); Hire (mercenaries) \u2014 pay 60 gold, adds a +0.5 gold/s rate modifier for 4 minutes via randomEvents.activeModifiers; Refuse \u2014 no cost, no reward. State: state.nomadicTribe = { active:{expiresAt}|null, nextSpawnTick, totalEncounters, totalAccepted, totalHired }. Event: NOMADIC_TRIBE_CHANGED. New file: src/systems/nomadicTribe.js.",
     "priority": 240,
     "status": "done",
     "phase": 98,
     "notes": "src/systems/nomadicTribe.js: New file. SPAWN_MIN=3600, SPAWN_RANGE=720, ENCOUNTER_WINDOW=360 ticks (90 sec), MIN_AGE=1, MIN_PLAYER_TILES=8. ACCEPT_FOOD_COST=50, ACCEPT_FOOD_REWARD=80, ACCEPT_WOOD_REWARD=50, ACCEPT_MORALE=5. HIRE_GOLD_COST=60, HIRE_GOLD_RATE_BONUS=0.5, HIRE_BONUS_DURATION=960 (4 min). initNomadicTribe() lazy-creates state.nomadicTribe. nomadicTribeTick() handles expiry (clear+reschedule+message) and spawn (check age+tiles+timing, set active.expiresAt). acceptTribe() deducts food, awards food+wood+morale (capped), emits NOMADIC_TRIBE_CHANGED+RESOURCE_CHANGED. hireTribe() deducts gold, pushes nomadicHire modifier to randomEvents.activeModifiers (+0.5 gold/s rateMult for 4 min), emits. refuseTribe() clears+reschedules. Accessors: getActiveTribeEncounter(), getTribeSecsLeft(). src/core/events.js: NOMADIC_TRIBE_CHANGED:'nomadicTribeChanged' added. src/core/state.js: nomadicTribe:null field + initState reset. src/ui/questPanel.js: import 6 exports from nomadicTribe.js; NOMADIC_TRIBE_CHANGED added to events list; nt check in tick refresh; tribe-accept/hire/refuse click handlers; _tribeSection() added before _imperialGamesSection() in render. src/main.js: import initNomadicTribe+nomadicTribeTick; registerSystem(nomadicTribeTick); init in boot+_newGame; save/load state.nomadicTribe; version 85->86. styles/main.css: .tribe-section/--active (amber pulse animation), .tribe-header, .tribe-icon, .tribe-title, .tribe-timer/--urgent, .tribe-desc, .tribe-actions, .tribe-cost, .btn--tribe-accept (green), .btn--tribe-hire (amber), .btn--tribe-refuse (muted)."
+  },
+  {
+    "id": "T241",
+    "title": "Wandering Prophet \u2014 periodic divine wisdom event with three choices",
+    "description": "Every 12-16 min (Bronze Age+, 6+ tiles), a wandering prophet appears at the empire gates with a 100-second response window. Player choices: Heed (pay 50 mana \u2192 +0.5 gold/s for 4 min via activeModifiers), Tribute (pay 60 gold \u2192 +80 prestige + 8 morale), Dismiss. State in state.prophet. Quest-panel card with timer.",
+    "priority": 241,
+    "status": "done",
+    "phase": 99,
+    "notes": "src/systems/wanderingProphet.js: New file. SPAWN_MIN=2880, SPAWN_RANGE=960, ENCOUNTER_WINDOW=400 ticks (100 sec), MIN_AGE=1, MIN_PLAYER_TILES=6. HEED_MANA_COST=50, HEED_GOLD_RATE_BONUS=0.5, HEED_BONUS_DURATION=960 (4 min). TRIBUTE_GOLD_COST=60, TRIBUTE_PRESTIGE=80, TRIBUTE_MORALE=8. initProphet() lazy-creates state.prophet={active:null,nextSpawnTick,totalVisits:0,totalHeeded:0,totalTributed:0}. prophetTick() handles expiry (clear+reschedule+message) and spawn (check age+tiles+timing). heedProphet() deducts mana, pushes prophetHeed modifier to randomEvents.activeModifiers (+0.5 gold/s rateMult for 4 min), emits PROPHET_CHANGED. tributeProphet() deducts gold, calls awardPrestige(80)+changeMorale(8), emits. dismissProphet() clears+reschedules. Accessors: getActiveProphetEncounter(), getProphetSecsLeft(). src/core/events.js: PROPHET_CHANGED added. src/core/state.js: prophet:null field + initState reset. src/ui/questPanel.js: import 6 exports from wanderingProphet.js; PROPHET_CHANGED added to events list; pr check in tick refresh; prophet-heed/tribute/dismiss click handlers; _prophetSection() added after _tribeSection() in render. src/main.js: import initProphet+prophetTick; registerSystem(prophetTick); initProphet() in boot+_newGame; save/load state.prophet; version 86->87. styles/main.css: .prophet-section/--active (purple pulse animation), .prophet-header, .prophet-icon, .prophet-title, .prophet-timer/--urgent, .prophet-desc, .prophet-actions, .prophet-cost, .btn--prophet-heed (purple gradient), .btn--prophet-tribute (amber gradient), .btn--prophet-dismiss (muted)."
+  },
+  {
+    "id": "T242",
+    "title": "Artisan Fair \u2014 periodic crafts event with commission / export / decline choices",
+    "description": "Every 16-20 min (Iron Age+, 10+ tiles), local artisans hold a fair with an 80-second window. Commission (pay 40 wood + 30 stone \u2192 +150 gold + 10 morale), Export crafts (pay 50 food \u2192 +100 wood + 80 stone + 30 prestige), Decline. State in state.artisanFair. Quest-panel card with timer.",
+    "priority": 242,
+    "status": "done",
+    "phase": 99,
+    "notes": "src/systems/artisanFair.js: New file. SPAWN_MIN=3840, SPAWN_RANGE=960, FAIR_WINDOW=320 ticks (80 sec), MIN_AGE=2 (Iron Age), MIN_PLAYER_TILES=10. COMMISSION_WOOD_COST=40, COMMISSION_STONE_COST=30, COMMISSION_GOLD_REWARD=150, COMMISSION_MORALE=10. EXPORT_FOOD_COST=50, EXPORT_WOOD_REWARD=100, EXPORT_STONE_REWARD=80, EXPORT_PRESTIGE=30. initArtisanFair() lazy-creates state.artisanFair. artisanFairTick() handles expiry and spawn. commissionArtisans() deducts wood+stone, awards gold (capped)+morale, emits ARTISAN_FAIR_CHANGED. exportCrafts() deducts food, awards wood+stone (capped)+prestige, emits. declineArtisanFair() clears+reschedules. Accessors: getActiveArtisanFair(), getArtisanFairSecsLeft(). src/core/events.js: ARTISAN_FAIR_CHANGED added. src/core/state.js: artisanFair:null field + initState reset. src/ui/questPanel.js: import 7 exports from artisanFair.js; ARTISAN_FAIR_CHANGED added to events list; af check in tick refresh; fair-commission/export/decline click handlers; _artisanFairSection() added after _prophetSection() in render. src/main.js: import initArtisanFair+artisanFairTick; registerSystem(artisanFairTick); initArtisanFair() in boot+_newGame; save/load state.artisanFair; version 86->87. styles/main.css: .fair-section/--active (pink pulse animation), .fair-header, .fair-icon, .fair-title, .fair-timer/--urgent, .fair-desc, .fair-actions, .fair-cost, .btn--fair-commission (gold gradient), .btn--fair-export (green gradient), .btn--fair-decline (muted)."
   }
 ]

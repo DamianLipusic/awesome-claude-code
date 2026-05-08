@@ -4447,3 +4447,37 @@ Changes:
 - Tribe hire uses the existing `randomEvents.activeModifiers` mechanism (rateMult on gold resource) rather than a new rate modifier system — zero new infrastructure needed.
 - Nomadic tribe expiry emits a message ("moved on") and reschedules — same UX pattern as wandering merchant and caravan systems.
 - No tick registration needed for T239 — all logic is action-driven with no background process.
+
+---
+
+## Session: T241 + T242 (2026-05-08)
+
+### T241: Wandering Prophet
+
+**Summary:** Periodic Bronze Age+ encounter (12-16 min, 6+ tiles, 100-second window). A wandering prophet appears in the Quest panel with three choices: Heed (−50 mana → +0.5 gold/s for 4 min via randomEvents.activeModifiers prophetHeed modifier), Tribute (−60 gold → +80 prestige + 8 morale via awardPrestige/changeMorale), Dismiss.
+
+**Files modified:**
+  + game/src/systems/wanderingProphet.js (new)
+  ~ game/src/core/events.js: PROPHET_CHANGED added
+  ~ game/src/core/state.js: prophet:null field + initState reset
+  ~ game/src/ui/questPanel.js: import + PROPHET_CHANGED + pr tick check + prophet-heed/tribute/dismiss click handlers + _prophetSection() after _tribeSection()
+  ~ game/src/main.js: import initProphet+prophetTick + registerSystem(prophetTick) + init in boot+_newGame + save/load state.prophet; version 86→87
+  ~ game/styles/main.css: T241 prophet styles (purple pulse)
+
+### T242: Artisan Fair
+
+**Summary:** Periodic Iron Age+ encounter (16-20 min, 10+ tiles, 80-second window). Local artisans hold a fair in the Quest panel with three choices: Commission (−40 wood −30 stone → +150 gold + 10 morale), Export crafts (−50 food → +100 wood + 80 stone + 30 prestige via awardPrestige), Decline.
+
+**Files modified:**
+  + game/src/systems/artisanFair.js (new)
+  ~ game/src/core/events.js: ARTISAN_FAIR_CHANGED added
+  ~ game/src/core/state.js: artisanFair:null field + initState reset
+  ~ game/src/ui/questPanel.js: import + ARTISAN_FAIR_CHANGED + af tick check + fair-commission/export/decline click handlers + _artisanFairSection() after _prophetSection()
+  ~ game/src/main.js: import initArtisanFair+artisanFairTick + registerSystem(artisanFairTick) + init in boot+_newGame + save/load state.artisanFair; version 86→87
+  ~ game/styles/main.css: T242 artisan fair styles (pink pulse)
+
+**Architecture decisions:**
+- Both systems follow the identical pattern from nomadicTribe.js: spawn timer, expiry check, three-choice API, same activeModifiers mechanism for rate bonuses.
+- Prophet's Heed action reuses the prophetHeed modifier id in randomEvents.activeModifiers (same pattern as nomadicHire from T240) — zero new infrastructure needed.
+- Artisan Fair requires Iron Age (age ≥ 2) vs Prophet's Bronze Age (age ≥ 1), providing a meaningful mid-game unlock feeling.
+- Both sections render inline in the Quest panel between _tribeSection() and _imperialGamesSection() preserving visual hierarchy of event cards.
