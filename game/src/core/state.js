@@ -677,6 +677,16 @@ export const state = {
   // { active: { x, y, type, expiresAt } | null,
   //   nextCacheTick: tick, totalFound: number, totalCaptured: number } | null
   ancientVaultCache: null,
+
+  // T239: Imperial Records Exchange — once-per-age diplomatic knowledge transfer
+  // { usedAtAge: number (-1 = never), totalExchanges: number } | null
+  recordsExchange: null,
+
+  // T240: Nomadic Tribe Encounter — periodic Bronze Age+ random encounter
+  // { active: { expiresAt: tick } | null,
+  //   nextSpawnTick: tick, totalEncounters: number,
+  //   totalAccepted: number, totalHired: number } | null
+  nomadicTribe: null,
 };
 
 /**
@@ -835,5 +845,7 @@ export function initState(empireName = 'My Empire') {
   state.imperialGames        = null; // T236: reset imperial games per game
   state.royalLoan            = null; // T237: reset royal loan per game
   state.ancientVaultCache    = null; // T238: reset ancient vault cache per game
+  state.recordsExchange      = null; // T239: reset records exchange per game
+  state.nomadicTribe         = null; // T240: reset nomadic tribe per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

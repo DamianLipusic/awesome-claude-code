@@ -14657,3 +14657,159 @@ kbd {
 
 /* ── T238: Ancient Vault Cache (map stats bar) ───────────────────────────── */
 /* Uses existing map tile color constants; no extra panel CSS needed */
+
+/* ── T239: Imperial Records Exchange (diplomacy panel) ──────────────────── */
+.records-section {
+  margin: 10px 0 4px;
+  padding: 10px 12px;
+  border: 1px solid rgba(139, 92, 246, 0.25);
+  border-radius: 6px;
+  background: rgba(20, 10, 40, 0.35);
+}
+.records-section--used {
+  opacity: 0.65;
+  border-color: rgba(139, 92, 246, 0.12);
+}
+.records-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.records-icon {
+  font-size: 1.05rem;
+}
+.records-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #c4b5fd;
+  flex: 1;
+}
+.records-badge {
+  font-size: 0.72rem;
+  padding: 2px 6px;
+  border-radius: 10px;
+  background: rgba(139, 92, 246, 0.18);
+  color: #a78bfa;
+}
+.records-badge--done {
+  background: rgba(34, 197, 94, 0.15);
+  color: #4ade80;
+}
+.records-desc {
+  font-size: 0.76rem;
+  color: #9ca3af;
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+.btn--records {
+  padding: 5px 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border: 1px solid rgba(139, 92, 246, 0.45);
+  border-radius: 5px;
+  background: linear-gradient(135deg, #3b0764 0%, #6d28d9 100%);
+  color: #e9d5ff;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.btn--records:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+/* ── T240: Nomadic Tribe Encounter (quest panel) ─────────────────────────── */
+.tribe-section {
+  margin: 8px 0 4px;
+  padding: 10px 12px;
+  border: 1px solid rgba(245, 158, 11, 0.30);
+  border-radius: 6px;
+  background: rgba(30, 20, 5, 0.45);
+}
+.tribe-section--active {
+  animation: tribe-pulse 2s ease-in-out infinite;
+}
+@keyframes tribe-pulse {
+  0%, 100% { border-color: rgba(245, 158, 11, 0.30); }
+  50%       { border-color: rgba(245, 158, 11, 0.65); }
+}
+.tribe-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.tribe-icon {
+  font-size: 1.05rem;
+}
+.tribe-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #fcd34d;
+  flex: 1;
+}
+.tribe-timer {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #f59e0b;
+}
+.tribe-timer--urgent {
+  color: #ef4444;
+  animation: urgent-pulse 0.6s ease-in-out infinite;
+}
+.tribe-desc {
+  font-size: 0.76rem;
+  color: #d1d5db;
+  margin-bottom: 8px;
+}
+.tribe-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.tribe-cost {
+  font-size: 0.70rem;
+  opacity: 0.80;
+  margin-left: 3px;
+}
+.btn--tribe-accept {
+  padding: 5px 10px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  border: 1px solid rgba(34, 197, 94, 0.40);
+  border-radius: 4px;
+  background: linear-gradient(135deg, #14532d 0%, #16a34a 100%);
+  color: #bbf7d0;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.btn--tribe-accept:hover:not(:disabled) {
+  opacity: 0.85;
+}
+.btn--tribe-hire {
+  padding: 5px 10px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  border: 1px solid rgba(245, 158, 11, 0.40);
+  border-radius: 4px;
+  background: linear-gradient(135deg, #451a03 0%, #b45309 100%);
+  color: #fde68a;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.btn--tribe-hire:hover:not(:disabled) {
+  opacity: 0.85;
+}
+.btn--tribe-refuse {
+  padding: 5px 10px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  border: 1px solid rgba(107, 114, 128, 0.35);
+  border-radius: 4px;
+  background: rgba(30, 30, 30, 0.50);
+  color: #9ca3af;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn--tribe-refuse:hover {
+  background: rgba(50, 50, 50, 0.65);
+}

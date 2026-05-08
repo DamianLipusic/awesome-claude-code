@@ -203,4 +203,6 @@ export const Events = Object.freeze({
   IMPERIAL_GAMES_CHANGED:      'imperialGamesChanged',          // T236: imperial games announced / resolved / expired
   LOAN_CHANGED:                'loanChanged',                   // T237: royal loan taken / repaid / defaulted
   VAULT_CACHE_CHANGED:         'vaultCacheChanged',             // T238: ancient vault cache spawned / captured / expired
+  RECORDS_EXCHANGE_CHANGED:    'recordsExchangeChanged',        // T239: imperial records exchange performed
+  NOMADIC_TRIBE_CHANGED:       'nomadicTribeChanged',           // T240: nomadic tribe spawned / accepted / hired / refused / expired
 });

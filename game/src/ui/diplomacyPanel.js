@@ -65,6 +65,12 @@ import {
   getPactCooldownSecs, getPactElapsedSecs, getPactNextTierSecs,
   PACT_PRESTIGE_COST, PACT_RATES, PACT_MORALE_BONUS,
 } from '../systems/ancientPact.js'; // T230
+import {
+  canExchange, performExchange, isExchangeUsedThisAge,
+  EXCHANGE_GOLD_COST, EXCHANGE_MANA_COST,
+  EXCHANGE_FOOD_REWARD, EXCHANGE_WOOD_REWARD, EXCHANGE_PRESTIGE, EXCHANGE_MORALE,
+  EXCHANGE_MIN_AGE, EXCHANGE_MIN_ALLIES,
+} from '../systems/recordsExchange.js'; // T239
 import { fmtNum } from '../utils/fmt.js';
 
 const PANEL_ID = 'panel-diplomacy';
@@ -106,6 +112,7 @@ export function initDiplomacyPanel() {
   on(Events.INTEL_REPORT,            () => _render(panel));  // T220
   on(Events.PEACE_OVERTURE_CHANGED,  () => _render(panel));  // T222
   on(Events.ANCIENT_PACT_CHANGED,   () => _render(panel));  // T230
+  on(Events.RECORDS_EXCHANGE_CHANGED, () => _render(panel)); // T239
   // Refresh cooldown countdown every second; also refresh ceasefire/gift/skirmish/aid timers when active
   on(Events.TICK, _throttle(() => {
     const cd = document.getElementById('espionage-cooldown');
@@ -166,6 +173,7 @@ function _render(panel) {
     ${_espionageSection()}
     ${_campaignSection()}
     ${_pactSection()}
+    ${_recordsExchangeSection()}
     ${_ancientPactSection()}
     ${_historySection()}
   `;
@@ -596,6 +604,42 @@ function _pactHistory(history) {
      </div>`
   ).join('');
   return `<div class="pact-history"><div class="pact-history__label">Past Pacts</div>${entries}</div>`;
+}
+
+// ── T239: Imperial Records Exchange section ───────────────────────────────
+
+function _recordsExchangeSection() {
+  if ((state.age ?? 0) < EXCHANGE_MIN_AGE) return '';  // Iron Age+
+
+  const check   = canExchange();
+  const used    = isExchangeUsedThisAge();
+  const canDo   = check.ok;
+  const reason  = check.reason ?? '';
+
+  const costStr   = `−${EXCHANGE_GOLD_COST}💰 −${EXCHANGE_MANA_COST}✨`;
+  const rewardStr = `+${EXCHANGE_FOOD_REWARD}🍞 +${EXCHANGE_WOOD_REWARD}🪵 +${EXCHANGE_PRESTIGE} prestige +${EXCHANGE_MORALE} morale`;
+
+  return `
+    <div class="records-section${used ? ' records-section--used' : ''}">
+      <div class="records-header">
+        <span class="records-icon">📜</span>
+        <span class="records-title">Imperial Records Exchange</span>
+        ${used ? '<span class="records-badge records-badge--done">✓ Used this age</span>' : ''}
+      </div>
+      <div class="records-desc">
+        Share accumulated historical knowledge with allied empires.
+        Requires ${EXCHANGE_MIN_ALLIES}+ allies · ${costStr} → ${rewardStr}
+      </div>
+      ${!used ? `
+        <button class="btn btn--records${canDo ? '' : ' btn--disabled'}"
+                data-action="perform-exchange"
+                ${canDo ? '' : 'disabled'}
+                title="${canDo ? 'Initiate the exchange' : reason}">
+          📜 ${canDo ? 'Exchange Records' : reason}
+        </button>
+      ` : ''}
+    </div>
+  `;
 }
 
 // ── T230: Ancient Pact section ────────────────────────────────────────────
@@ -1518,6 +1562,11 @@ function _onClick(e) {
     }
     case 'dissolve-ancient-pact': {  // T230
       dissolveAncientPact('manual');
+      break;
+    }
+    case 'perform-exchange': {  // T239
+      result = performExchange();
+      if (!result.ok) addMessageFallback(result.reason);
       break;
     }
   }

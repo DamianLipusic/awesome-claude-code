@@ -21,6 +21,7 @@ import { getRoyalHuntStatus, launchRoyalHunt, HUNT_GOLD_COST, HUNT_FOOD_COST } f
 import { getActiveLegendary, getLegendarySecsLeft, getLegendaryHistory, LEGENDARY_TYPES } from '../systems/legendaryEncounters.js'; // T216
 import { collectHarvest, isHarvestAvailable, getHarvestSecsLeft, getCurrentHarvestReward } from '../systems/harvest.js'; // T234
 import { hostImperialGames, competeImperialGames, skipImperialGames, isImperialGamesPending, getImperialGamesSecsLeft } from '../systems/imperialGames.js'; // T236
+import { acceptTribe, hireTribe, refuseTribe, getActiveTribeEncounter, getTribeSecsLeft, ACCEPT_FOOD_COST, HIRE_GOLD_COST } from '../systems/nomadicTribe.js'; // T240
 
 export function initQuestPanel() {
   const panel = document.getElementById('panel-quests');
@@ -45,6 +46,7 @@ export function initQuestPanel() {
     Events.SEASON_CHANGED,                              // T234: reset harvest on season change
     Events.HARVEST_CHANGED,                             // T234: harvest window opened/collected/expired
     Events.IMPERIAL_GAMES_CHANGED,                      // T236: imperial games announced/resolved/expired
+    Events.NOMADIC_TRIBE_CHANGED,                        // T240: nomadic tribe encounter
   ];
   for (const ev of events) on(ev, render);
 
@@ -62,7 +64,8 @@ export function initQuestPanel() {
       const leg = state.legendary?.current;
       const hv  = isHarvestAvailable();
       const ig  = isImperialGamesPending();
-      if (ch || pe || bo || pl || pi || om || rh || leg || hv || ig) render();
+      const nt  = !!getActiveTribeEncounter();
+      if (ch || pe || bo || pl || pi || om || rh || leg || hv || ig || nt) render();
     }
   });
 
@@ -149,6 +152,24 @@ export function initQuestPanel() {
     if (e.target.closest('[data-action="games-skip"]')) {
       skipImperialGames();
     }
+    // Nomadic tribe actions (T240)
+    if (e.target.closest('[data-action="tribe-accept"]')) {
+      const r = acceptTribe();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="tribe-accept"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="tribe-hire"]')) {
+      const r = hireTribe();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="tribe-hire"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="tribe-refuse"]')) {
+      refuseTribe();
+    }
   });
 
   setQuestPanelRenderer(render);
@@ -175,6 +196,7 @@ function render() {
     ${_bountySection()}
     ${_politicalEventSection()}
     ${_challengeSection()}
+    ${_tribeSection()}
     ${_imperialGamesSection()}
     ${_harvestSection()}
     <div class="quest-header">
@@ -897,6 +919,48 @@ function _harvestSection() {
         <span class="harvest-badge">Pending</span>
       </div>
       <div class="harvest-desc">Opens at 70% through the season. Collect: ${rewardStr}</div>
+    </div>
+  `;
+}
+
+// ── T240: Nomadic Tribe Encounter ─────────────────────────────────────────
+
+function _tribeSection() {
+  const encounter = getActiveTribeEncounter();
+  if (!encounter) return '';
+
+  const secs     = getTribeSecsLeft();
+  const urgent   = secs < 20;
+  const gold     = state.resources?.gold ?? 0;
+  const food     = state.resources?.food ?? 0;
+  const canAccept = food >= ACCEPT_FOOD_COST;
+  const canHire   = gold >= HIRE_GOLD_COST;
+
+  return `
+    <div class="tribe-section tribe-section--active">
+      <div class="tribe-header">
+        <span class="tribe-icon">🏕️</span>
+        <span class="tribe-title">Nomadic Tribe</span>
+        <span class="tribe-timer${urgent ? ' tribe-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="tribe-desc">A nomadic tribe arrives at your borders. How do you respond?</div>
+      <div class="tribe-actions">
+        <button class="btn btn--tribe-accept${canAccept ? '' : ' btn--disabled'}"
+                data-action="tribe-accept"
+                ${canAccept ? '' : 'disabled'}
+                title="${canAccept ? `Settle: −${ACCEPT_FOOD_COST} food → +80 food, +50 wood, +5 morale` : `Need ${ACCEPT_FOOD_COST} food`}">
+          🤝 Accept <span class="tribe-cost">−${ACCEPT_FOOD_COST}🍞</span>
+        </button>
+        <button class="btn btn--tribe-hire${canHire ? '' : ' btn--disabled'}"
+                data-action="tribe-hire"
+                ${canHire ? '' : 'disabled'}
+                title="${canHire ? `Hire: −${HIRE_GOLD_COST} gold → +0.5 gold/s for 4 min` : `Need ${HIRE_GOLD_COST} gold`}">
+          ⚔️ Hire <span class="tribe-cost">−${HIRE_GOLD_COST}💰</span>
+        </button>
+        <button class="btn btn--tribe-refuse" data-action="tribe-refuse">
+          ✕ Refuse
+        </button>
+      </div>
     </div>
   `;
 }

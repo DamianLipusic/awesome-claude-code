@@ -4413,3 +4413,37 @@ Changes:
   ~ game/src/ui/mapPanel.js: import + VAULT_CACHE_CHANGED + canvas tint + tooltip + stats bar
   ~ game/src/main.js: imports + registerSystem×2 + init×2 + save/load×2; version 84→85
   ~ game/styles/main.css: T237 loan styles
+
+---
+
+## Session: T239 + T240 (2026-05-08)
+
+### T239: Imperial Records Exchange
+
+**Summary:** Once-per-age diplomatic action in the Diplomacy panel. Iron Age+, requires 2+ allied empires. Costs 60 gold + 40 mana. Rewards: +50 prestige, +10 morale, +80 food, +60 wood. Greyed out when not available or already used this age.
+
+**Files modified:**
+  + game/src/systems/recordsExchange.js (new)
+  ~ game/src/core/events.js: RECORDS_EXCHANGE_CHANGED added
+  ~ game/src/core/state.js: recordsExchange:null field + initState reset
+  ~ game/src/ui/diplomacyPanel.js: import + RECORDS_EXCHANGE_CHANGED listener + _recordsExchangeSection() after _pactSection() + perform-exchange click case
+  ~ game/src/main.js: import initRecordsExchange + init in boot+_newGame + save/load state.recordsExchange; version 85→86
+  ~ game/styles/main.css: .records-section, .records-header, .records-title, .records-badge, .btn--records (purple)
+
+### T240: Nomadic Tribe Encounter
+
+**Summary:** Periodic Bronze Age+ random encounter (15-18 min, 8+ tiles). Appears in Quest panel with 90-second window. Three choices: Accept (−50 food → +80 food +50 wood +5 morale), Hire (−60 gold → +0.5 gold/s for 4 min via randomEvents.activeModifiers), Refuse.
+
+**Files modified:**
+  + game/src/systems/nomadicTribe.js (new)
+  ~ game/src/core/events.js: NOMADIC_TRIBE_CHANGED added
+  ~ game/src/core/state.js: nomadicTribe:null field + initState reset
+  ~ game/src/ui/questPanel.js: import + NOMADIC_TRIBE_CHANGED + tick refresh guard + tribe-accept/hire/refuse click handlers + _tribeSection() before _imperialGamesSection()
+  ~ game/src/main.js: import initNomadicTribe+nomadicTribeTick + registerSystem(nomadicTribeTick) + init in boot+_newGame + save/load state.nomadicTribe; version 85→86
+  ~ game/styles/main.css: .tribe-section/--active (amber pulse), tribe header/timer/actions, btn--tribe-accept/hire/refuse
+
+**Architecture decisions:**
+- Records Exchange uses a simple `usedAtAge` integer rather than a tick-based cooldown — cleaner semantics tied to age progression.
+- Tribe hire uses the existing `randomEvents.activeModifiers` mechanism (rateMult on gold resource) rather than a new rate modifier system — zero new infrastructure needed.
+- Nomadic tribe expiry emits a message ("moved on") and reschedules — same UX pattern as wandering merchant and caravan systems.
+- No tick registration needed for T239 — all logic is action-driven with no background process.
