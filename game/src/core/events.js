@@ -205,4 +205,6 @@ export const Events = Object.freeze({
   VAULT_CACHE_CHANGED:         'vaultCacheChanged',             // T238: ancient vault cache spawned / captured / expired
   RECORDS_EXCHANGE_CHANGED:    'recordsExchangeChanged',        // T239: imperial records exchange performed
   NOMADIC_TRIBE_CHANGED:       'nomadicTribeChanged',           // T240: nomadic tribe spawned / accepted / hired / refused / expired
+  PROPHET_CHANGED:             'prophetChanged',                // T241: wandering prophet spawned / heeded / tributed / dismissed / expired
+  ARTISAN_FAIR_CHANGED:        'artisanFairChanged',            // T242: artisan fair spawned / commissioned / exported / declined / expired
 });
