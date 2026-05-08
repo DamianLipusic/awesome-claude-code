@@ -49,6 +49,7 @@ import { getTrophyAttackMult }                      from './warTrophies.js';    
 import { getMilitiaAttackBonus }                    from './militia.js';                // T229
 import { getLibraryAttackBonus }                    from './library.js';                // T231
 import { checkExpeditionRescue }                    from './lostExpedition.js';         // T233
+import { checkVaultCapture }                        from './ancientVaultCache.js';      // T238
 
 // ── T224: Army Composition Synergies ─────────────────────────────────────────
 
@@ -1025,6 +1026,9 @@ function _victory(tile, x, y, attackPower, defense) {
 
   // T233: check if this capture rescues a lost expedition
   checkExpeditionRescue(x, y);
+
+  // T238: check if this capture uncovers an ancient vault cache
+  checkVaultCapture(x, y);
 
   recalcRates();
   emit(Events.MAP_CHANGED, { x, y, outcome: 'win' });

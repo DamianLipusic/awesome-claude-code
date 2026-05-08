@@ -149,6 +149,8 @@ import { initLostExpedition, lostExpeditionTick } from './systems/lostExpedition
 import { initHarvest, harvestTick }         from './systems/harvest.js';                            // T234
 import { initCityProsperity, cityProsperityTick } from './systems/cityProsperity.js';               // T235
 import { initImperialGames, imperialGamesTick } from './systems/imperialGames.js';                   // T236
+import { initRoyalLoan, royalLoanTick }        from './systems/royalLoan.js';                        // T237
+import { initAncientVaultCache, ancientVaultCacheTick } from './systems/ancientVaultCache.js';       // T238
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
@@ -265,6 +267,8 @@ function boot() {
   registerSystem(harvestTick);           // T234: seasonal harvest window
   registerSystem(cityProsperityTick);   // T235: city prosperity windfall
   registerSystem(imperialGamesTick);    // T236: imperial games expiry check
+  registerSystem(royalLoanTick);       // T237: royal loan repayment check
+  registerSystem(ancientVaultCacheTick); // T238: vault cache spawn/expiry
 
   // Init event-driven systems
   initRandomEvents();
@@ -368,6 +372,8 @@ function boot() {
   initHarvest();             // T234: seasonal harvest window state init
   initCityProsperity();      // T235: city prosperity windfall state init
   initImperialGames();       // T236: imperial games state init + SEASON_CHANGED listener
+  initRoyalLoan();           // T237: royal loan state init
+  initAncientVaultCache();   // T238: ancient vault cache state init
   // T176: monument init deferred — only activates when building is constructed
 
   // Init UI
@@ -629,7 +635,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 84, // T231: grand library; T232: market price surge; T233: lost expedition; T234: seasonal harvest; T235: city prosperity; T236: imperial games
+      version: 85, // T237: royal loan system; T238: ancient vault cache
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -788,6 +794,8 @@ function _save() {
         harvest:             state.harvest             ?? null,  // T234
         cityProsperity:      state.cityProsperity      ?? null,  // T235
         imperialGames:       state.imperialGames       ?? null,  // T236
+        royalLoan:           state.royalLoan           ?? null,  // T237
+        ancientVaultCache:   state.ancientVaultCache   ?? null,  // T238
         tick:          state.tick,
       }
     }));
@@ -980,6 +988,8 @@ function _applySave(save) {
   state.harvest              = s.harvest              ?? null; // T234
   state.cityProsperity       = s.cityProsperity       ?? null; // T235
   state.imperialGames        = s.imperialGames        ?? null; // T236
+  state.royalLoan            = s.royalLoan            ?? null; // T237
+  state.ancientVaultCache    = s.ancientVaultCache    ?? null; // T238
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
@@ -1890,6 +1900,8 @@ function _newGame(opts = {}) {
   initHarvest();             // T234: reset seasonal harvest state on new game
   initCityProsperity();      // T235: reset city prosperity state on new game
   initImperialGames();       // T236: reset imperial games state on new game
+  initRoyalLoan();           // T237: reset royal loan state on new game
+  initAncientVaultCache();   // T238: reset ancient vault cache state on new game
   _updateCelestialBanner(); // T153: hide banner on new game
   _updateRefugeeBanner();   // T217: hide refugee banner on new game
   recalcRates();

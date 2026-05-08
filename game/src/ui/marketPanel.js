@@ -19,6 +19,7 @@ import { isFairActive, getFairDeals, isDealUsed, useFairDeal, FAIR_PARTICIPATION
 import { getActiveTradeWind, getTradeWindHistory } from '../systems/tradeWinds.js'; // T198
 import { buySilkRoadGood, isSilkRoadOpen, getSilkRoadSecsLeft, getSilkRoadGoods, getSilkRoadBuysLeft, getSilkRoadNextSecs } from '../systems/silkRoad.js'; // T218
 import { isPriceSurgeActive, getPriceSurgeSecsLeft, getPriceSurgeNextSecs } from '../systems/priceSurge.js'; // T232
+import { takeLoan, getActiveLoan, getLoanSecsLeft, getLoanCooldownSecs, LOAN_TIERS } from '../systems/royalLoan.js'; // T237
 import { fmtNum } from '../utils/fmt.js';
 
 const RESOURCE_ICONS = {
@@ -52,13 +53,14 @@ export function initMarketPanel() {
   on(Events.TRADE_WIND_CHANGED,   _render);  // T198: trade wind started or ended
   on(Events.SILK_ROAD_CHANGED,    _render);  // T218: silk road window opened / purchased / closed
   on(Events.PRICE_SURGE_CHANGED,  _render);  // T232: price surge started or ended
+  on(Events.LOAN_CHANGED,         _render);  // T237: royal loan taken / repaid / defaulted
 
-  // Refresh contract/merchant/auction/silk-road/surge countdowns every ~4 ticks (~1 s)
+  // Refresh contract/merchant/auction/silk-road/surge/loan countdowns every ~4 ticks (~1 s)
   let _contractTickCount = 0;
   on(Events.TICK, () => {
     if (++_contractTickCount % 4 !== 0) return;
     if (state.contracts?.active || state.merchant?.offer || state.auction?.current
-        || state.silkRoad?.current || state.priceSurge?.active) _render();
+        || state.silkRoad?.current || state.priceSurge?.active || state.royalLoan?.active) _render();
   });
 
   _panel.addEventListener('click', _handleClick);
@@ -147,7 +149,8 @@ function _render() {
     ${_tradeGuildSection()}
     ${_mintSection()}
     ${_tradeWindSection()}
-    ${_silkRoadSection()}`;
+    ${_silkRoadSection()}
+    ${_royalLoanSection()}`;
 }
 
 function _row(res, seasonal = []) {
@@ -430,6 +433,9 @@ function _handleClick(e) {
   } else if (action === 'silk-road-buy') {
     // T218: purchase a Silk Road exotic good
     result = buySilkRoadGood(btn.dataset.silkGood);
+  } else if (action === 'take-loan') {
+    // T237: take a royal loan
+    result = takeLoan(btn.dataset.tier);
   }
 
   if (result && !result.ok) {
@@ -735,6 +741,77 @@ function _tradeWindSection() {
 // ---------------------------------------------------------------------------
 // Silk Road section (T218)
 // ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// T237: Royal Loan section
+// ---------------------------------------------------------------------------
+
+function _royalLoanSection() {
+  if ((state.buildings?.market ?? 0) < 1) return '';
+
+  const loan         = getActiveLoan();
+  const cooldownSecs = getLoanCooldownSecs();
+  const age          = state.age ?? 0;
+
+  if (loan) {
+    const secsLeft = getLoanSecsLeft();
+    const m        = Math.floor(secsLeft / 60);
+    const s        = String(secsLeft % 60).padStart(2, '0');
+    const timeStr  = m > 0 ? `${m}m ${s}s` : `${secsLeft}s`;
+    const tierDef  = LOAN_TIERS[loan.tier] ?? {};
+    const urgency  = secsLeft < 60 ? ' loan-due--urgent' : '';
+    return `
+      <div class="loan-section loan-section--active">
+        <div class="loan-header">
+          <span class="loan-title">🏦 Royal Loan — ${tierDef.icon ?? ''} ${tierDef.name ?? loan.tier}</span>
+          <span class="loan-badge">ACTIVE</span>
+        </div>
+        <div class="loan-info">
+          Borrowed: <strong>${loan.borrowed} gold</strong> · Repay: <strong>${loan.repayGold} gold</strong>
+        </div>
+        <div class="loan-due${urgency}">⏱ Due in ${timeStr}</div>
+      </div>`;
+  }
+
+  const tierOrder = ['bronze', 'silver', 'gold'];
+  const tierCards = tierOrder.map(tierId => {
+    const t          = LOAN_TIERS[tierId];
+    const locked     = age < t.minAge;
+    const onCooldown = cooldownSecs > 0;
+    const disabled   = locked || onCooldown;
+    let btnLabel;
+    if (locked) {
+      const ageNames = ['Stone', 'Bronze', 'Iron', 'Medieval'];
+      btnLabel = `🔒 ${ageNames[t.minAge]} Age`;
+    } else if (onCooldown) {
+      btnLabel = `⏳ ${cooldownSecs}s cooldown`;
+    } else {
+      btnLabel = `Borrow ${t.borrowed}💰`;
+    }
+    return `
+      <div class="loan-tier ${locked ? 'loan-tier--locked' : ''}">
+        <div class="loan-tier-name">${t.icon} ${t.name}</div>
+        <div class="loan-tier-desc">${t.desc}</div>
+        <button class="btn btn--sm btn--loan ${disabled ? 'btn--disabled' : ''}"
+          data-action="take-loan" data-tier="${tierId}"
+          ${disabled ? 'disabled' : ''}>${btnLabel}</button>
+      </div>`;
+  }).join('');
+
+  const statsStr = state.royalLoan
+    ? `${state.royalLoan.totalLoans} loans · ${state.royalLoan.defaults} defaults`
+    : '';
+
+  return `
+    <div class="loan-section">
+      <div class="loan-header">
+        <span class="loan-title">🏦 Royal Treasury Loans</span>
+        ${statsStr ? `<span class="loan-meta">${statsStr}</span>` : ''}
+      </div>
+      <div class="loan-note">Borrow gold now and repay more later. Default triggers a −12 morale penalty. Cooldown: 8 minutes after each loan.</div>
+      <div class="loan-tiers">${tierCards}</div>
+    </div>`;
+}
 
 function _silkRoadSection() {
   const age = state.age ?? 0;

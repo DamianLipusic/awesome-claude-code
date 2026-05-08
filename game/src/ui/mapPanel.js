@@ -33,6 +33,7 @@ import { dispatchScouts, getScoutInfo, getScoutCooldownSecs, canDispatchScouts, 
 import { establishOutpost, getOutpostAt, getOutpostCount, OUTPOST_COST, MAX_OUTPOSTS, OUTPOST_MIN_AGE, SUPPLY_RANGE, OUTPOST_RANGE } from '../systems/supplyLines.js'; // T209
 import { getActiveLegendary, getLegendarySecsLeft, LEGENDARY_TYPES } from '../systems/legendaryEncounters.js'; // T216
 import { getLostExpeditionInfo, getLostExpeditionSecsLeft } from '../systems/lostExpedition.js'; // T233
+import { getVaultCacheInfo, getVaultCacheSecsLeft } from '../systems/ancientVaultCache.js';        // T238
 
 const TILE_PX   = 24;     // pixels per tile side
 const GRID_SIZE = 20;     // tiles per axis
@@ -76,6 +77,8 @@ const SEASONAL_OBJ_TINT   = 'rgba(100,220,200,0.30)';  // T170: seasonal objecti
 const SEASONAL_OBJ_BORDER = '#44d4c0';                  // T170: seasonal objective border
 const EXPEDITION_TINT     = 'rgba(0,210,180,0.35)';    // T233: lost expedition teal shimmer
 const EXPEDITION_BORDER   = '#00d4b4';                  // T233: lost expedition border
+const VAULT_TINT          = 'rgba(255,200,80,0.38)';   // T238: ancient vault cache gold shimmer
+const VAULT_BORDER        = '#f5c842';                  // T238: vault cache border
 const HOVER_ATTACK     = 'rgba(240,180,41,0.38)';
 const HOVER_NEUTRAL    = 'rgba(255,255,255,0.08)';
 const PLAYER_BORDER    = '#58a6ff';
@@ -250,6 +253,9 @@ export function initMapPanel() {
 
   // T233: re-render when lost expedition spawns, is rescued, or expires
   on(Events.LOST_EXPEDITION_CHANGED, _render);
+
+  // T238: re-render when ancient vault cache spawns, is captured, or expires
+  on(Events.VAULT_CACHE_CHANGED, _render);
 
   // T179: update survey report when guild is built or survey fires
   on(Events.BUILDING_CHANGED,      _updateSurveyReport);
@@ -525,6 +531,14 @@ function _showTileTip(tile, x, y, mouseX, mouseY) {
        <div class="map-tt-action">⚔️ Click to attack &amp; rescue</div>`
     : '';
 
+  // T238: vault cache hint
+  const _vcInfo = getVaultCacheInfo();
+  const vaultHtml = (_vcInfo && _vcInfo.x === x && _vcInfo.y === y)
+    ? `<div class="map-tt-row" style="color:#f5c842;font-weight:600">🏺 Ancient Vault Cache — ${getVaultCacheSecsLeft()}s left!</div>
+       <div class="map-tt-row" style="font-size:0.7rem;color:var(--text-dim)">Capture to claim buried treasure</div>
+       <div class="map-tt-action">⚔️ Click to attack &amp; loot</div>`
+    : '';
+
   _tileTipEl.innerHTML = `
     <div class="map-tt-title">${TERRAIN_NAME[tile.type] ?? tile.type}</div>
     <div class="map-tt-row">${ownerHtml}</div>
@@ -532,6 +546,7 @@ function _showTileTip(tile, x, y, mouseX, mouseY) {
     ${bountyHtml}
     ${seasonalObjHtml}
     ${expeditionHtml}
+    ${vaultHtml}
     ${chokepointHtml}
     ${influenceHtml}
     ${discoveryHtml}
@@ -926,6 +941,21 @@ function _drawTile(tile, x, y, capital) {
     ctx.fillText('🏴', px + TILE_PX / 2, py + TILE_PX / 2 + 1);
   }
 
+  // T238: ancient vault cache — golden tint + pot icon
+  const _vc = state.ancientVaultCache?.active;
+  if (_vc && _vc.x === x && _vc.y === y && tile.revealed) {
+    ctx.fillStyle = VAULT_TINT;
+    ctx.fillRect(px, py, TILE_PX, TILE_PX);
+    ctx.strokeStyle = VAULT_BORDER;
+    ctx.lineWidth   = 2;
+    ctx.strokeRect(px + 1, py + 1, TILE_PX - 2, TILE_PX - 2);
+    ctx.lineWidth   = 1;
+    ctx.font         = `${TILE_PX - 10}px sans-serif`;
+    ctx.textAlign    = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('🏺', px + TILE_PX / 2, py + TILE_PX / 2 + 1);
+  }
+
   // T138: combat odds overlay — tint + win% label on attackable tiles when odds mode active
   const _winChance = _oddsCache[`${x},${y}`];
   if (_winChance !== undefined) {
@@ -979,8 +1009,10 @@ function _updateStats() {
   const nodeStr    = nodeCount > 0 ? `  ·  ✦ Nodes: ${nodeCount}` : '';
   const expStr     = state.lostExpedition?.active
     ? `  ·  🏴 Expedition: ${getLostExpeditionSecsLeft()}s left` : '';
+  const vaultStr   = state.ancientVaultCache?.active
+    ? `  ·  🏺 Vault: ${getVaultCacheSecsLeft()}s left` : '';
   el.textContent =
-    `Territory: ${playerTiles} tiles  ·  Enemy: ${enemyTiles} tiles${barbStr}  ·  Explored: ${revealedTiles}/${total}${caravanStr}${nodeStr}${expStr}`;
+    `Territory: ${playerTiles} tiles  ·  Enemy: ${enemyTiles} tiles${barbStr}  ·  Explored: ${revealedTiles}/${total}${caravanStr}${nodeStr}${expStr}${vaultStr}`;
 }
 
 // ── T179: Cartographer's Guild survey report ──────────────────────────────

@@ -14556,3 +14556,104 @@ kbd {
 .btn--games-skip:hover {
   background: rgba(156,163,175,0.08);
 }
+
+/* ── T237: Royal Loan System ────────────────────────────────────────────── */
+.loan-section {
+  border: 1px solid rgba(245,200,80,0.25);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-top: 12px;
+  background: rgba(245,200,80,0.04);
+}
+.loan-section--active {
+  border-color: rgba(245,200,80,0.50);
+  background: rgba(245,200,80,0.08);
+}
+.loan-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.loan-title {
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: #f5c842;
+}
+.loan-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #f5c842;
+  background: rgba(245,200,80,0.20);
+  border-radius: 4px;
+  padding: 1px 6px;
+  letter-spacing: 0.05em;
+}
+.loan-meta {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+.loan-note {
+  font-size: 0.74rem;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+.loan-info {
+  font-size: 0.82rem;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.loan-due {
+  font-size: 0.80rem;
+  font-weight: 600;
+  color: #fbbf24;
+}
+.loan-due--urgent {
+  color: #ef4444;
+  animation: pulse-border 1s ease-in-out infinite;
+}
+.loan-tiers {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.loan-tier {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 6px;
+  padding: 7px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.loan-tier--locked {
+  opacity: 0.50;
+}
+.loan-tier-name {
+  font-size: 0.80rem;
+  font-weight: 700;
+  color: #f5c842;
+  min-width: 90px;
+}
+.loan-tier-desc {
+  font-size: 0.74rem;
+  color: var(--text-dim);
+  flex: 1;
+}
+.btn--loan {
+  background: linear-gradient(135deg, #78350f 0%, #b45309 100%);
+  color: #fef3c7;
+  border: 1px solid #d97706;
+  border-radius: 5px;
+  padding: 4px 10px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn--loan:hover {
+  background: linear-gradient(135deg, #92400e 0%, #d97706 100%);
+}
+
+/* ── T238: Ancient Vault Cache (map stats bar) ───────────────────────────── */
+/* Uses existing map tile color constants; no extra panel CSS needed */

@@ -667,6 +667,16 @@ export const state = {
   // { pending: { expiresAt: tick } | null, seasonsSinceLast: number,
   //   totalHosted: number, totalCompeted: number } | null
   imperialGames: null,
+
+  // T237: Royal Loan System — borrow gold, repay with interest
+  // { active: { tier, borrowed, repayGold, dueAt } | null,
+  //   cooldownUntil: tick, totalLoans: number, defaults: number } | null
+  royalLoan: null,
+
+  // T238: Ancient Vault Cache — periodic buried treasure on neutral revealed tiles
+  // { active: { x, y, type, expiresAt } | null,
+  //   nextCacheTick: tick, totalFound: number, totalCaptured: number } | null
+  ancientVaultCache: null,
 };
 
 /**
@@ -823,5 +833,7 @@ export function initState(empireName = 'My Empire') {
   state.harvest              = null; // T234: reset seasonal harvest per game
   state.cityProsperity       = null; // T235: reset city prosperity per game
   state.imperialGames        = null; // T236: reset imperial games per game
+  state.royalLoan            = null; // T237: reset royal loan per game
+  state.ancientVaultCache    = null; // T238: reset ancient vault cache per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

@@ -4366,3 +4366,50 @@ Changes:
   ~ game/src/ui/marketPanel.js: import + PRICE_SURGE_CHANGED + surgeHtml + tick condition
   ~ game/src/main.js: imports + registerSystem(priceSurgeTick) + init + save/load; version 79→81
   ~ game/styles/main.css: T231 library styles + T232 surge styles
+
+---
+
+## Session N+53 — 2026-05-08
+
+**Tasks completed:** T237 (Royal Loan System), T238 (Ancient Vault Cache)
+
+**T237: Royal Loan System**
+A credit system in the Market panel — players borrow gold now and repay more later.
+
+Changes:
+- `src/systems/royalLoan.js`: New file. LOAN_COOLDOWN=1920 ticks (8 min). LOAN_TIERS frozen object: bronze (borrow 150g, repay 220g, 5 min, any age), silver (borrow 300g, repay 450g, 7 min, Bronze Age+), gold (borrow 600g, repay 900g, 10 min, Iron Age+). initRoyalLoan() lazy-creates state.royalLoan={active:null,cooldownUntil:0,totalLoans:0,defaults:0}, migrates missing fields. royalLoanTick() on due date: full repayment if gold>=repayGold → deduct+clear+cooldown; else default → zero gold+changeMorale(-12)+increment defaults+clear+cooldown. takeLoan(tierId) validates market>=1, age>=tier.minAge, no active loan, no cooldown; disburses borrowed gold capped at state.caps.gold; emits LOAN_CHANGED+RESOURCE_CHANGED. Accessors: getActiveLoan(), getLoanSecsLeft(), getLoanCooldownSecs().
+- `src/core/events.js`: LOAN_CHANGED:'loanChanged' added.
+- `src/core/state.js`: royalLoan:null field + initState reset.
+- `src/ui/marketPanel.js`: import 5 royalLoan exports; on(LOAN_CHANGED,_render); tick refresh condition includes state.royalLoan?.active; ${_royalLoanSection()} appended to innerHTML; take-loan click handler calls takeLoan(btn.dataset.tier); _royalLoanSection() shows active state (ACTIVE badge, amounts, countdown with urgency pulse when <60s) or idle state (3 tier cards with borrow/lock/cooldown buttons).
+- `src/main.js`: import initRoyalLoan+royalLoanTick; registerSystem(royalLoanTick); initRoyalLoan() in boot+_newGame; save/load state.royalLoan; version 84→85.
+- `styles/main.css`: .loan-section (gold border), .loan-section--active (brighter border), .loan-header, .loan-title (gold), .loan-badge, .loan-meta, .loan-note, .loan-info, .loan-due, .loan-due--urgent (red + pulse animation), .loan-tiers, .loan-tier, .loan-tier--locked (50% opacity), .loan-tier-name (gold), .loan-tier-desc, .btn--loan (amber gradient).
+
+**T238: Ancient Vault Cache**
+Periodic buried treasure on neutral revealed map tiles — incentivizes active military expansion.
+
+Changes:
+- `src/systems/ancientVaultCache.js`: New file. SPAWN_MIN=3600 (15 min), SPAWN_RANGE=720 (3 min jitter), CAPTURE_WINDOW=1200 (5 min), MIN_PLAYER_TILES=8, MIN_AGE=1 (Bronze Age), SPAWN_DIST_MIN=3, SPAWN_DIST_MAX=8. VAULT_TYPES: gem_vault (+100 gold, +20 prestige, minAge:0), supply_vault (+60 food, +50 wood, +30 stone, minAge:0), arsenal_vault (+45 iron, +50 gold, +15 prestige, minAge:0), arcane_vault (+60 mana, +25 gold, +20 prestige, minAge:2). initAncientVaultCache() lazy-creates state.ancientVaultCache={active:null,nextCacheTick,totalFound:0,totalCaptured:0}. ancientVaultCacheTick() handles active expiry (clear+reschedule+VAULT_CACHE_CHANGED+MAP_CHANGED); spawn check (age>=1, 8+ tiles, _pickTarget()); selects age-appropriate vault type; sets active; emits VAULT_CACHE_CHANGED+MAP_CHANGED+addMessage. checkVaultCapture(x,y): called from combat.js _victory() after checkExpeditionRescue; if coordinates match active vault and not expired: awards resources (capped) and prestige per vault type; VAULT_CACHE_CHANGED+RESOURCE_CHANGED. _pickTarget() finds neutral revealed tiles at Manhattan distance 3-8 from capital.
+- `src/core/events.js`: VAULT_CACHE_CHANGED:'vaultCacheChanged' added.
+- `src/core/state.js`: ancientVaultCache:null field + initState reset.
+- `src/systems/combat.js`: import checkVaultCapture from ancientVaultCache.js; T238 checkVaultCapture(x,y) called after checkExpeditionRescue(x,y) in _victory().
+- `src/ui/mapPanel.js`: import getVaultCacheInfo+getVaultCacheSecsLeft; VAULT_CACHE_CHANGED→_render listener; VAULT_TINT='rgba(255,200,80,0.38)'+VAULT_BORDER='#f5c842' constants; T238 canvas block in _drawTile() after expedition block (golden tint+border+🏺 icon when tile matches active vault); vaultHtml in _showTileTip() (gold-colored countdown+loot hint+attack action); vaultStr in _updateStats() appended when vault active.
+- `src/main.js`: import initAncientVaultCache+ancientVaultCacheTick; registerSystem(ancientVaultCacheTick); initAncientVaultCache() in boot+_newGame; save/load state.ancientVaultCache; version 84→85.
+- `styles/main.css`: CSS comment marker (all visual handled via canvas draw constants and existing map styles).
+
+**Architecture decisions:**
+- Loan repayment is fully automatic (tick-driven), not player-initiated, so players must manage gold flow actively.
+- Default penalty (-12 morale) is meaningful but not catastrophic — incentivizes careful use without punishing irrecoverably.
+- Vault cache uses Manhattan distance (not Euclidean) for simplicity and consistency with the grid map.
+- Vault arcane type is Iron Age+ gated to avoid mana appearing before players have the mana infrastructure.
+- checkVaultCapture() is called unconditionally in _victory() — guard clauses inside make it a no-op when no vault is active, following the same pattern as checkExpeditionRescue().
+
+**Files modified:**
+  + game/src/systems/royalLoan.js (new)
+  + game/src/systems/ancientVaultCache.js (new)
+  ~ game/src/core/events.js: LOAN_CHANGED + VAULT_CACHE_CHANGED
+  ~ game/src/core/state.js: royalLoan + ancientVaultCache fields + initState resets
+  ~ game/src/systems/combat.js: import checkVaultCapture + T238 call in _victory()
+  ~ game/src/ui/marketPanel.js: import + LOAN_CHANGED + _royalLoanSection() + click handler + tick refresh
+  ~ game/src/ui/mapPanel.js: import + VAULT_CACHE_CHANGED + canvas tint + tooltip + stats bar
+  ~ game/src/main.js: imports + registerSystem×2 + init×2 + save/load×2; version 84→85
+  ~ game/styles/main.css: T237 loan styles
