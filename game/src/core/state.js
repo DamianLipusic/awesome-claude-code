@@ -687,6 +687,18 @@ export const state = {
   //   nextSpawnTick: tick, totalEncounters: number,
   //   totalAccepted: number, totalHired: number } | null
   nomadicTribe: null,
+
+  // T241: Wandering Prophet — periodic Bronze Age+ divine wisdom encounter
+  // { active: { expiresAt: tick } | null,
+  //   nextSpawnTick: tick, totalVisits: number,
+  //   totalHeeded: number, totalTributed: number } | null
+  prophet: null,
+
+  // T242: Artisan Fair — periodic Iron Age+ crafts event
+  // { active: { expiresAt: tick } | null,
+  //   nextSpawnTick: tick, totalFairs: number,
+  //   totalCommissioned: number, totalExported: number } | null
+  artisanFair: null,
 };
 
 /**
@@ -847,5 +859,7 @@ export function initState(empireName = 'My Empire') {
   state.ancientVaultCache    = null; // T238: reset ancient vault cache per game
   state.recordsExchange      = null; // T239: reset records exchange per game
   state.nomadicTribe         = null; // T240: reset nomadic tribe per game
+  state.prophet              = null; // T241: reset wandering prophet per game
+  state.artisanFair          = null; // T242: reset artisan fair per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }
