@@ -22,6 +22,8 @@ import { getActiveLegendary, getLegendarySecsLeft, getLegendaryHistory, LEGENDAR
 import { collectHarvest, isHarvestAvailable, getHarvestSecsLeft, getCurrentHarvestReward } from '../systems/harvest.js'; // T234
 import { hostImperialGames, competeImperialGames, skipImperialGames, isImperialGamesPending, getImperialGamesSecsLeft } from '../systems/imperialGames.js'; // T236
 import { acceptTribe, hireTribe, refuseTribe, getActiveTribeEncounter, getTribeSecsLeft, ACCEPT_FOOD_COST, HIRE_GOLD_COST } from '../systems/nomadicTribe.js'; // T240
+import { heedProphet, tributeProphet, dismissProphet, getActiveProphetEncounter, getProphetSecsLeft, HEED_MANA_COST, TRIBUTE_GOLD_COST } from '../systems/wanderingProphet.js'; // T241
+import { commissionArtisans, exportCrafts, declineArtisanFair, getActiveArtisanFair, getArtisanFairSecsLeft, COMMISSION_WOOD_COST, COMMISSION_STONE_COST, EXPORT_FOOD_COST } from '../systems/artisanFair.js'; // T242
 
 export function initQuestPanel() {
   const panel = document.getElementById('panel-quests');
@@ -47,6 +49,8 @@ export function initQuestPanel() {
     Events.HARVEST_CHANGED,                             // T234: harvest window opened/collected/expired
     Events.IMPERIAL_GAMES_CHANGED,                      // T236: imperial games announced/resolved/expired
     Events.NOMADIC_TRIBE_CHANGED,                        // T240: nomadic tribe encounter
+    Events.PROPHET_CHANGED,                              // T241: wandering prophet encounter
+    Events.ARTISAN_FAIR_CHANGED,                         // T242: artisan fair encounter
   ];
   for (const ev of events) on(ev, render);
 
@@ -65,7 +69,9 @@ export function initQuestPanel() {
       const hv  = isHarvestAvailable();
       const ig  = isImperialGamesPending();
       const nt  = !!getActiveTribeEncounter();
-      if (ch || pe || bo || pl || pi || om || rh || leg || hv || ig || nt) render();
+      const pr  = !!getActiveProphetEncounter();
+      const af  = !!getActiveArtisanFair();
+      if (ch || pe || bo || pl || pi || om || rh || leg || hv || ig || nt || pr || af) render();
     }
   });
 
@@ -170,6 +176,42 @@ export function initQuestPanel() {
     if (e.target.closest('[data-action="tribe-refuse"]')) {
       refuseTribe();
     }
+    // Wandering prophet actions (T241)
+    if (e.target.closest('[data-action="prophet-heed"]')) {
+      const r = heedProphet();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="prophet-heed"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="prophet-tribute"]')) {
+      const r = tributeProphet();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="prophet-tribute"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="prophet-dismiss"]')) {
+      dismissProphet();
+    }
+    // Artisan fair actions (T242)
+    if (e.target.closest('[data-action="fair-commission"]')) {
+      const r = commissionArtisans();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="fair-commission"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="fair-export"]')) {
+      const r = exportCrafts();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="fair-export"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="fair-decline"]')) {
+      declineArtisanFair();
+    }
   });
 
   setQuestPanelRenderer(render);
@@ -197,6 +239,8 @@ function render() {
     ${_politicalEventSection()}
     ${_challengeSection()}
     ${_tribeSection()}
+    ${_prophetSection()}
+    ${_artisanFairSection()}
     ${_imperialGamesSection()}
     ${_harvestSection()}
     <div class="quest-header">
@@ -959,6 +1003,91 @@ function _tribeSection() {
         </button>
         <button class="btn btn--tribe-refuse" data-action="tribe-refuse">
           ✕ Refuse
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+// ── T241: Wandering Prophet ───────────────────────────────────────────────
+
+function _prophetSection() {
+  const encounter = getActiveProphetEncounter();
+  if (!encounter) return '';
+
+  const secs       = getProphetSecsLeft();
+  const urgent     = secs < 20;
+  const mana       = state.resources?.mana ?? 0;
+  const gold       = state.resources?.gold ?? 0;
+  const canHeed    = mana >= HEED_MANA_COST;
+  const canTribute = gold >= TRIBUTE_GOLD_COST;
+
+  return `
+    <div class="prophet-section prophet-section--active">
+      <div class="prophet-header">
+        <span class="prophet-icon">🔮</span>
+        <span class="prophet-title">Wandering Prophet</span>
+        <span class="prophet-timer${urgent ? ' prophet-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="prophet-desc">A wandering prophet stands at your gates bearing divine wisdom. How do you respond?</div>
+      <div class="prophet-actions">
+        <button class="btn btn--prophet-heed${canHeed ? '' : ' btn--disabled'}"
+                data-action="prophet-heed"
+                ${canHeed ? '' : 'disabled'}
+                title="${canHeed ? `Heed: −${HEED_MANA_COST} mana → +0.5 gold/s for 4 min` : `Need ${HEED_MANA_COST} mana`}">
+          🌟 Heed <span class="prophet-cost">−${HEED_MANA_COST}✨</span>
+        </button>
+        <button class="btn btn--prophet-tribute${canTribute ? '' : ' btn--disabled'}"
+                data-action="prophet-tribute"
+                ${canTribute ? '' : 'disabled'}
+                title="${canTribute ? `Tribute: −${TRIBUTE_GOLD_COST} gold → +80 prestige, +8 morale` : `Need ${TRIBUTE_GOLD_COST} gold`}">
+          🙏 Tribute <span class="prophet-cost">−${TRIBUTE_GOLD_COST}💰</span>
+        </button>
+        <button class="btn btn--prophet-dismiss" data-action="prophet-dismiss">
+          ✕ Dismiss
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+// ── T242: Artisan Fair ────────────────────────────────────────────────────
+
+function _artisanFairSection() {
+  const fair = getActiveArtisanFair();
+  if (!fair) return '';
+
+  const secs          = getArtisanFairSecsLeft();
+  const urgent        = secs < 20;
+  const wood          = state.resources?.wood  ?? 0;
+  const stone         = state.resources?.stone ?? 0;
+  const food          = state.resources?.food  ?? 0;
+  const canCommission = wood >= COMMISSION_WOOD_COST && stone >= COMMISSION_STONE_COST;
+  const canExport     = food >= EXPORT_FOOD_COST;
+
+  return `
+    <div class="fair-section fair-section--active">
+      <div class="fair-header">
+        <span class="fair-icon">🎪</span>
+        <span class="fair-title">Artisan Fair</span>
+        <span class="fair-timer${urgent ? ' fair-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="fair-desc">Local artisans display their crafts in your market square. How do you engage?</div>
+      <div class="fair-actions">
+        <button class="btn btn--fair-commission${canCommission ? '' : ' btn--disabled'}"
+                data-action="fair-commission"
+                ${canCommission ? '' : 'disabled'}
+                title="${canCommission ? `Commission: −${COMMISSION_WOOD_COST} wood −${COMMISSION_STONE_COST} stone → +150 gold, +10 morale` : `Need ${COMMISSION_WOOD_COST} wood + ${COMMISSION_STONE_COST} stone`}">
+          🏺 Commission <span class="fair-cost">−${COMMISSION_WOOD_COST}🪵−${COMMISSION_STONE_COST}🪨</span>
+        </button>
+        <button class="btn btn--fair-export${canExport ? '' : ' btn--disabled'}"
+                data-action="fair-export"
+                ${canExport ? '' : 'disabled'}
+                title="${canExport ? `Export: −${EXPORT_FOOD_COST} food → +100 wood, +80 stone, +30 prestige` : `Need ${EXPORT_FOOD_COST} food`}">
+          📦 Export <span class="fair-cost">−${EXPORT_FOOD_COST}🍞</span>
+        </button>
+        <button class="btn btn--fair-decline" data-action="fair-decline">
+          ✕ Decline
         </button>
       </div>
     </div>
