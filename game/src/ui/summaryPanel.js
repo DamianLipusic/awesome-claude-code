@@ -80,7 +80,7 @@ const RESOURCES = [
   { id: 'mana',  label: 'Mana',  icon: '✨' },
 ];
 
-// ── Public API ─────────────────────────────────────────────────────────────
+// ── Public API ───────────────────────────────────────────────────────────────────────────
 
 export function initSummaryPanel() {
   const panel = document.getElementById('panel-summary');
@@ -201,7 +201,7 @@ export function initSummaryPanel() {
   }
 }
 
-// ── Rendering ──────────────────────────────────────────────────────────────
+// ── Rendering ──────────────────────────────────────────────────────────────────
 
 function _render() {
   const panel = document.getElementById('panel-summary');
@@ -238,12 +238,16 @@ function _render() {
   `;
 }
 
-// ── Empire header ──────────────────────────────────────────────────────────
+// ── Empire header ──────────────────────────────────────────────────────────────
 
 function _empireHeader(age, season, timeStr) {
   const arch    = ARCHETYPES[state.archetype ?? 'none'];
   const archBadge = arch && arch.id !== 'none'
     ? `<span class="summary-empire-badge summary-empire-badge--arch">${arch.icon} ${arch.name}</span>`
+    : '';
+  const epithet = state.empire?.epithet;
+  const epithetBadge = epithet
+    ? `<span class="summary-empire-badge summary-empire-badge--epithet">🏷️ ${_escHtml(epithet)}</span>`
     : '';
   return `
     <div class="summary-empire-header">
@@ -252,6 +256,7 @@ function _empireHeader(age, season, timeStr) {
         <div class="summary-empire-meta">
           <span class="summary-empire-badge">${age?.icon ?? '🪨'} ${age?.name ?? 'Stone Age'}</span>
           <span class="summary-empire-badge">${season.icon} ${season.name}</span>
+          ${epithetBadge}
           ${archBadge}
           <span class="summary-empire-badge">⏱️ ${timeStr}</span>
         </div>
@@ -259,7 +264,7 @@ function _empireHeader(age, season, timeStr) {
     </div>`;
 }
 
-// ── Resources card ─────────────────────────────────────────────────────────
+// ── Resources card ───────────────────────────────────────────────────────────────────
 
 function _resourcesCard() {
   const rows = RESOURCES.map(r => {
@@ -279,7 +284,7 @@ function _resourcesCard() {
   return _card('💰 Resources', rows);
 }
 
-// ── Military card ──────────────────────────────────────────────────────────
+// ── Military card ────────────────────────────────────────────────────────────────────
 
 function _rankMult(id) {
   const rank = state.unitRanks?.[id];
@@ -345,7 +350,7 @@ function _militaryCard() {
   return _card('⚔️ Military', emptyRow + unitRows.join('') + heroRow + trainingRow + totalRow);
 }
 
-// ── Territory card ─────────────────────────────────────────────────────────
+// ── Territory card ────────────────────────────────────────────────────────────────────
 
 function _territoryCard() {
   let player = 0, enemy = 0, revealed = 0, total = 0;
@@ -380,7 +385,7 @@ function _territoryCard() {
   return _card('🗺️ Territory', rows);
 }
 
-// ── Diplomacy card ─────────────────────────────────────────────────────────
+// ── Diplomacy card ────────────────────────────────────────────────────────────────────
 
 function _diplomacyCard() {
   if (!state.diplomacy?.empires) {
@@ -407,7 +412,7 @@ function _diplomacyCard() {
   return _card('🤝 Diplomacy', rows);
 }
 
-// ── Progression card ───────────────────────────────────────────────────────
+// ── Progression card ───────────────────────────────────────────────────────────────────
 
 function _progressionCard() {
   const questsDone  = Object.keys(state.quests?.completed ?? {}).length;
@@ -433,7 +438,7 @@ function _progressionCard() {
         if (t.owner === 'player') playerTiles++;
   }
 
-  // ── T069: Three victory paths ─────────────────────────────────────────────
+  // ── T069: Three victory paths ────────────────────────────────────────────────────
   // Conquest Victory
   const vicAge       = (state.age ?? 0) >= VICTORY_AGE;
   const vicTerritory = playerTiles >= VICTORY_TERRITORY;
@@ -548,7 +553,7 @@ function _progressionCard() {
   return _card('🏆 Progression', rows);
 }
 
-// ── Empire score card (T046) ───────────────────────────────────────────────
+// ── Empire score card (T046) ───────────────────────────────────────────────────────────
 
 function _scoreCard() {
   const breakdown = getScoreBreakdown();
@@ -575,7 +580,7 @@ function _scoreCard() {
   return _card('⭐ Empire Score', `<div class="sum-score-rows">${rows}${totalRow}</div>`);
 }
 
-// ── Great Person card (T136) ───────────────────────────────────────────────
+// ── Great Person card (T136) ───────────────────────────────────────────────────────────────
 
 function _greatPersonCard() {
   const gp = state.greatPersons;
@@ -639,7 +644,7 @@ function _greatPersonCard() {
   `);
 }
 
-// ── Citizen Roles card (T096) ──────────────────────────────────────────────
+// ── Citizen Roles card (T096) ─────────────────────────────────────────────────────────────────
 
 function _citizenRolesCard() {
   const popCount = Math.floor(state.population?.count ?? 0);
@@ -677,7 +682,7 @@ function _citizenRolesCard() {
   return _card('👥 Citizen Roles', `${header}${roleRows}`);
 }
 
-// ── Terrain control card (T099) ────────────────────────────────────────────
+// ── Terrain control card (T099) ──────────────────────────────────────────────────────────────
 
 function _terrainControlCard() {
   const ctrl = getTerrainControl();
@@ -685,7 +690,7 @@ function _terrainControlCard() {
     { type: 'grass',    icon: '🌿', label: 'Grassland', res: 'food',  base5: 1.5 },
     { type: 'forest',   icon: '🌲', label: 'Forest',    res: 'wood',  base5: 1.5 },
     { type: 'hills',    icon: '⛰️', label: 'Hills',     res: 'stone', base5: 1.5 },
-    { type: 'river',    icon: '🏞️', label: 'River',     res: 'gold+food', base5: 1.0 },
+    { type: 'river',    icon: '🏖️', label: 'River',     res: 'gold+food', base5: 1.0 },
     { type: 'mountain', icon: '🏔️', label: 'Mountain',  res: 'iron',  base5: 1.5 },
   ];
   const rows = TERRAIN_ROWS.map(t => {
@@ -712,7 +717,7 @@ function _terrainControlCard() {
   return _card('🌍 Terrain Control', hint + rows);
 }
 
-// ── Lifetime stats card ────────────────────────────────────────────────────
+// ── Lifetime stats card ─────────────────────────────────────────────────────────────────
 
 function _statsCard(timeStr) {
   const goldEarned    = Math.round(state.stats?.goldEarned ?? 0);
@@ -746,7 +751,7 @@ function _statsCard(timeStr) {
   return _card('📈 Lifetime Stats', rows);
 }
 
-// ── Advisor card (T040) ────────────────────────────────────────────────────
+// ── Advisor card (T040) ────────────────────────────────────────────────────────────────────
 
 /**
  * Generates a list of prioritised advisor tips based on the current game state.
@@ -756,7 +761,7 @@ function _statsCard(timeStr) {
 function _generateTips() {
   const tips = [];
 
-  // ── Critical warnings ──────────────────────────────────────────────────
+  // ── Critical warnings ──────────────────────────────────────────────────────
   if ((state.rates?.food ?? 0) < -0.3) {
     tips.push({ icon: '⚠️', text: 'Food is depleting — build more Farms or reduce army size', level: 'warn' });
   }
@@ -764,13 +769,13 @@ function _generateTips() {
     tips.push({ icon: '💸', text: 'Gold reserves draining — check diplomacy costs and upkeep', level: 'warn' });
   }
 
-  // ── War overextension ──────────────────────────────────────────────────
+  // ── War overextension ──────────────────────────────────────────────────────
   const warCount = (state.diplomacy?.empires ?? []).filter(e => e.relations === 'war').length;
   if (warCount >= 2) {
     tips.push({ icon: '🤝', text: `At war with ${warCount} empires — propose peace to reduce raid damage`, level: 'warn' });
   }
 
-  // ── Age advance ready ──────────────────────────────────────────────────
+  // ── Age advance ready ──────────────────────────────────────────────────────
   const nextAge = AGES[(state.age ?? 0) + 1];
   if (nextAge) {
     let reqsMet = true;
@@ -799,7 +804,7 @@ function _generateTips() {
     }
   }
 
-  // ── No military ────────────────────────────────────────────────────────
+  // ── No military ────────────────────────────────────────────────────────────────────
   if ((state.tick ?? 0) > 120) {
     const totalUnits = Object.values(state.units ?? {}).reduce((a, b) => a + b, 0);
     if (totalUnits === 0) {
@@ -807,7 +812,7 @@ function _generateTips() {
     }
   }
 
-  // ── Research available ─────────────────────────────────────────────────
+  // ── Research available ─────────────────────────────────────────────────────────
   if (state.researchQueue?.length === 0) {
     const inQueue = new Set();
     for (const [id, def] of Object.entries(TECHS)) {
@@ -823,7 +828,7 @@ function _generateTips() {
     }
   }
 
-  // ── Resource near cap ──────────────────────────────────────────────────
+  // ── Resource near cap ─────────────────────────────────────────────────────────────
   const RES_LABELS = { gold: 'Gold', food: 'Food', wood: 'Wood', stone: 'Stone', iron: 'Iron', mana: 'Mana' };
   for (const [id, label] of Object.entries(RES_LABELS)) {
     const val = state.resources?.[id] ?? 0;
@@ -834,7 +839,7 @@ function _generateTips() {
     }
   }
 
-  // ── Territory small (late game) ────────────────────────────────────────
+  // ── Territory small (late game) ───────────────────────────────────────────────────────
   if ((state.tick ?? 0) > 480) {
     let playerTiles = 0;
     if (state.map) {
@@ -863,7 +868,7 @@ function _advisorCard() {
   return _card('💡 Advisor', body);
 }
 
-// ── Resource trend chart (T043) ────────────────────────────────────────────
+// ── Resource trend chart (T043) ──────────────────────────────────────────────────────────────────
 
 /**
  * Full-width card showing a 6-line SVG trend chart of all resources.
@@ -925,7 +930,7 @@ function _chartCard() {
   </div>`;
 }
 
-// ── Grand Vizier card (T195) ───────────────────────────────────────────────
+// ── Grand Vizier card (T195) ───────────────────────────────────────────────────────────────
 
 function _vizierCard() {
   const active    = getActiveVizier();
@@ -970,7 +975,7 @@ function _vizierCard() {
   return _card('👑 Grand Vizier', `${intro}<div class="vizier-list">${cards}</div>`);
 }
 
-// ── Imperial Tax Collector card (T199) ────────────────────────────────────
+// ── Imperial Tax Collector card (T199) ──────────────────────────────────────────────────
 
 function _taxCollectorCard() {
   const tc = getTaxInfo();
@@ -1011,7 +1016,7 @@ function _taxCollectorCard() {
   return _card('🏛️ Tax Collector', `${intro}${rateCards}${totalRow}`);
 }
 
-// ── T201: Province Council card ────────────────────────────────────────────
+// ── T201: Province Council card ────────────────────────────────────────────────────────────
 
 function _councilCard() {
   const c = state.council;
@@ -1052,7 +1057,7 @@ function _councilCard() {
   return _card('🏛️ Province Council', body);
 }
 
-// ── T203: Corruption Card ─────────────────────────────────────────────────
+// ── T203: Corruption Card ─────────────────────────────────────────────────────────────────
 
 function _corruptionCard() {
   const c = state.corruption;
@@ -1097,7 +1102,7 @@ function _corruptionCard() {
   return _card('🔴 Corruption', body);
 }
 
-// ── T206: Regional Governors card ─────────────────────────────────────────
+// ── T206: Regional Governors card ──────────────────────────────────────────────────────────
 
 function _governorsCard() {
   const gov      = state.governors ?? { active: 0, totalAppointed: 0 };
@@ -1153,7 +1158,7 @@ function _countPlayerTilesSummary() {
   return count;
 }
 
-// ── Helpers ────────────────────────────────────────────────────────────────
+// ── Helpers ───────────────────────────────────────────────────────────────────────────
 
 function _card(title, bodyHtml) {
   const [icon, ...rest] = title.split(' ');
