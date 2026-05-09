@@ -288,14 +288,17 @@ function _leaderboardSection() {
     </div>`;
   }
 
-  const rows = lb.scores.slice(0, 5).map((s, i) => {
-    const ageName  = AGE_NAMES[s.age] ?? 'Stone';
-    const gold     = Math.round(s.goldEarned).toLocaleString();
-    const scoreStr = s.score != null ? Number(s.score).toLocaleString() : '—';
+  const VT_ICONS = { conquest: '⚔️', diplomatic: '🤝', economic: '💰' };
+
+  const rows = lb.scores.slice(0, 10).map((s, i) => {
+    const ageName   = AGE_NAMES[s.age] ?? 'Stone';
+    const scoreStr  = s.score != null ? Number(s.score).toLocaleString() : '—';
+    const epithet   = s.epithet ? `<span class="lb-epithet">${_escHtml(s.epithet)}</span>` : '';
+    const vtIcon    = s.victoryType ? (VT_ICONS[s.victoryType] ?? '🏆') : '💀';
     return `<div class="lb-row ${i === 0 ? 'lb-row--gold' : ''}">
       <span class="lb-rank">#${i + 1}</span>
-      <span class="lb-name">${_escHtml(s.name)}</span>
-      <span class="lb-score">⭐ ${scoreStr}</span>
+      <span class="lb-name">${_escHtml(s.name)}${epithet}</span>
+      <span class="lb-score">${vtIcon} ${scoreStr}</span>
       <span class="lb-territory">🗺️ ${s.territory}</span>
       <span class="lb-age">${ageName}</span>
       <span class="lb-date">${_escHtml(s.date)}</span>
@@ -305,7 +308,7 @@ function _leaderboardSection() {
   return `<div class="settings-section">
     <div class="settings-section__title">🏆 Leaderboard</div>
     <div class="settings-section__desc">
-      Top sessions ranked by peak territory, then total gold earned.
+      Top 10 sessions ranked by final score. Victory icon: ⚔️ Conquest · 🤝 Diplomatic · 💰 Economic · 💀 Defeat.
       Score is saved when you start a New Game.
     </div>
     <div class="lb-table">
