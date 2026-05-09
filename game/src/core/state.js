@@ -8,6 +8,7 @@ export const state = {
   empire: {
     name: 'New Empire',
     founded: null,     // set on game start
+    epithet: null,     // T243: dynamic title derived from dominant playstyle
   },
 
   resources: {
@@ -707,6 +708,7 @@ export const state = {
 export function initState(empireName = 'My Empire') {
   state.empire.name    = empireName;
   state.empire.founded = new Date().toISOString();
+  state.empire.epithet = null;  // T243: reset epithet each game
 
   state.resources = { gold: 100, food: 50, wood: 50, stone: 0, iron: 0, mana: 0 };
   state.rates     = { gold: 1,  food: 1,  wood: 0,  stone: 0, iron: 0, mana: 0 };
