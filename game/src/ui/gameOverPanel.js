@@ -8,6 +8,7 @@ import { state }        from '../core/state.js';
 import { on, Events }   from '../core/events.js';
 import { fmtTime }      from '../utils/fmt.js';
 import { TICKS_PER_SECOND } from '../core/tick.js';
+import { calcScore }    from '../utils/score.js'; // T243: show final score
 
 const AGE_NAMES = ['Stone Age', 'Bronze Age', 'Iron Age', 'Medieval Age'];
 
@@ -39,6 +40,9 @@ function _render(overlay, outcome, reason, victoryType, onNewGame) {
   const timeStr    = fmtTime(secs);
   const goldEarned = Math.floor(state.stats?.goldEarned ?? 0).toLocaleString();
   const ageName    = AGE_NAMES[state.age ?? 0] ?? 'Stone Age';
+  const epithet    = state.empire?.epithet;
+  const fullName   = epithet ? `${state.empire?.name ?? ''} ${epithet}` : (state.empire?.name ?? 'My Empire');
+  const finalScore = calcScore().toLocaleString();
 
   // T069: Victory type badge
   const vt = isWin ? (VICTORY_TYPES[victoryType] ?? VICTORY_TYPES.conquest) : null;
@@ -51,9 +55,14 @@ function _render(overlay, outcome, reason, victoryType, onNewGame) {
       <div class="game-over-icon">${isWin ? (vt?.icon ?? '🏆') : '💀'}</div>
       <h2 class="game-over-title">${isWin ? 'VICTORY!' : 'DEFEAT'}</h2>
       ${victoryBadgeHtml}
+      <p class="game-over-empire-name">${fullName}</p>
       <p class="game-over-reason">${reason}</p>
 
       <div class="game-over-stats">
+        <div class="game-over-stat">
+          <span class="go-stat-label">Final Score</span>
+          <span class="go-stat-value go-stat-value--score">⭐ ${finalScore}</span>
+        </div>
         <div class="game-over-stat">
           <span class="go-stat-label">Age Reached</span>
           <span class="go-stat-value">${ageName}</span>
