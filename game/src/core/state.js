@@ -700,6 +700,12 @@ export const state = {
   //   nextSpawnTick: tick, totalFairs: number,
   //   totalCommissioned: number, totalExported: number } | null
   artisanFair: null,
+
+  // T244: Cosmic Alignment — periodic Iron Age+ celestial event (20-25 min, 80-sec window)
+  // { active: { id, icon, name, desc, expiresAt } | null,
+  //   nextSpawnTick: tick, totalAlignments: number,
+  //   totalObserved: number, totalRitualed: number } | null
+  cosmicAlignment: null,
 };
 
 /**
@@ -863,5 +869,6 @@ export function initState(empireName = 'My Empire') {
   state.nomadicTribe         = null; // T240: reset nomadic tribe per game
   state.prophet              = null; // T241: reset wandering prophet per game
   state.artisanFair          = null; // T242: reset artisan fair per game
+  state.cosmicAlignment      = null; // T244: reset cosmic alignment per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }
