@@ -19,6 +19,7 @@ import { isFairActive, getFairDeals, isDealUsed, useFairDeal, FAIR_PARTICIPATION
 import { getActiveTradeWind, getTradeWindHistory } from '../systems/tradeWinds.js'; // T198
 import { buySilkRoadGood, isSilkRoadOpen, getSilkRoadSecsLeft, getSilkRoadGoods, getSilkRoadBuysLeft, getSilkRoadNextSecs } from '../systems/silkRoad.js'; // T218
 import { isPriceSurgeActive, getPriceSurgeSecsLeft, getPriceSurgeNextSecs } from '../systems/priceSurge.js'; // T232
+import { getEconomyCyclePhase, getEconomyCycleSecsLeft, getEconomyCycleNextSecs, BOOM_SELL_MULT, BOOM_BUY_MULT, BUST_SELL_MULT, BUST_BUY_MULT } from '../systems/economyCycle.js'; // T245
 import { takeLoan, getActiveLoan, getLoanSecsLeft, getLoanCooldownSecs, LOAN_TIERS } from '../systems/royalLoan.js'; // T237
 import { fmtNum } from '../utils/fmt.js';
 
@@ -53,6 +54,7 @@ export function initMarketPanel() {
   on(Events.TRADE_WIND_CHANGED,   _render);  // T198: trade wind started or ended
   on(Events.SILK_ROAD_CHANGED,    _render);  // T218: silk road window opened / purchased / closed
   on(Events.PRICE_SURGE_CHANGED,  _render);  // T232: price surge started or ended
+  on(Events.ECONOMY_CYCLE_CHANGED, _render); // T245: economy cycle phase changed
   on(Events.LOAN_CHANGED,         _render);  // T237: royal loan taken / repaid / defaulted
 
   // Refresh contract/merchant/auction/silk-road/surge/loan countdowns every ~4 ticks (~1 s)
@@ -60,7 +62,8 @@ export function initMarketPanel() {
   on(Events.TICK, () => {
     if (++_contractTickCount % 4 !== 0) return;
     if (state.contracts?.active || state.merchant?.offer || state.auction?.current
-        || state.silkRoad?.current || state.priceSurge?.active || state.royalLoan?.active) _render();
+        || state.silkRoad?.current || state.priceSurge?.active || state.royalLoan?.active
+        || state.economyCycle?.phase) _render();
   });
 
   _panel.addEventListener('click', _handleClick);
@@ -99,6 +102,34 @@ function _render() {
     ? `<div class="market-seasonal-note">🌟 Seasonal Premium: <strong>${seasonal.map(r => r.charAt(0).toUpperCase() + r.slice(1)).join(' &amp; ')}</strong> — sell for ×2 gold · buy at ×0.5 gold!</div>`
     : '';
 
+  // T245: Economy cycle banner
+  const cyclePhase    = getEconomyCyclePhase();
+  const cycleSecsLeft = getEconomyCycleSecsLeft();
+  const cycleNextSecs = getEconomyCycleNextSecs();
+  const cycleHtml = cyclePhase
+    ? (() => {
+        const cm = Math.floor(cycleSecsLeft / 60), cs = cycleSecsLeft % 60;
+        const cStr = cm > 0 ? `${cm}m ${String(cs).padStart(2, '0')}s` : `${cycleSecsLeft}s`;
+        const isBoom = cyclePhase === 'boom';
+        return `<div class="cycle-banner cycle-banner--${cyclePhase}">
+          <div>
+            <div class="cycle-banner__title">${isBoom ? '📈 ECONOMIC BOOM' : '📉 MARKET DOWNTURN'}</div>
+            <div class="cycle-banner__desc">${isBoom
+              ? `Sell prices ×${BOOM_SELL_MULT} · Buy prices ×${BOOM_BUY_MULT}`
+              : `Sell prices ×${BUST_SELL_MULT} · Buy prices ×${BUST_BUY_MULT}`}</div>
+          </div>
+          <div class="cycle-banner__timer">⏱ ${cStr} left</div>
+        </div>`;
+      })()
+    : cycleNextSecs > 0
+      ? (() => {
+          const nm = Math.floor(cycleNextSecs / 60), ns = cycleNextSecs % 60;
+          const nStr = nm > 0 ? `${nm}m ${String(ns).padStart(2, '0')}s` : `${cycleNextSecs}s`;
+          const icon = state.economyCycle?.nextPhase === 'boom' ? '📈' : '📉';
+          return `<div class="cycle-next">${icon} Next market phase in ${nStr}</div>`;
+        })()
+      : '';
+
   // T232: Price surge banner
   const surgeActive  = isPriceSurgeActive();
   const surgeSecsLeft = getPriceSurgeSecsLeft();
@@ -129,6 +160,7 @@ function _render() {
       <span class="market-trades">Total trades: ${state.market.totalTrades ?? 0}</span>
     </div>
     <div class="market-note">Prices update every 15 seconds. Buy price includes a 20% premium; sell price has a 20% discount.</div>
+    ${cycleHtml}
     ${surgeHtml}
     ${seasonalNote}
     <div class="market-table">

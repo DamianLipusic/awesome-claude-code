@@ -25,6 +25,7 @@ import { acceptTribe, hireTribe, refuseTribe, getActiveTribeEncounter, getTribeS
 import { heedProphet, tributeProphet, dismissProphet, getActiveProphetEncounter, getProphetSecsLeft, HEED_MANA_COST, TRIBUTE_GOLD_COST } from '../systems/wanderingProphet.js'; // T241
 import { commissionArtisans, exportCrafts, declineArtisanFair, getActiveArtisanFair, getArtisanFairSecsLeft, COMMISSION_WOOD_COST, COMMISSION_STONE_COST, EXPORT_FOOD_COST } from '../systems/artisanFair.js'; // T242
 import { observeAlignment, performRitual, ignoreAlignment, getActiveAlignment, getAlignmentSecsLeft, RITUAL_MANA_COST, RITUAL_PRESTIGE, RITUAL_MORALE } from '../systems/cosmicAlignment.js'; // T244
+import { claimTribute, getActiveTributeCaravan, getTributeCaravanSecsLeft } from '../systems/tributeCaravan.js'; // T246
 
 export function initQuestPanel() {
   const panel = document.getElementById('panel-quests');
@@ -53,6 +54,7 @@ export function initQuestPanel() {
     Events.PROPHET_CHANGED,                              // T241: wandering prophet encounter
     Events.ARTISAN_FAIR_CHANGED,                         // T242: artisan fair encounter
     Events.COSMIC_ALIGNMENT_CHANGED,                     // T244: cosmic alignment encounter
+    Events.TRIBUTE_CARAVAN_CHANGED,                      // T246: tribute caravan spawned / claimed / expired
   ];
   for (const ev of events) on(ev, render);
 
@@ -74,7 +76,8 @@ export function initQuestPanel() {
       const pr  = !!getActiveProphetEncounter();
       const af  = !!getActiveArtisanFair();
       const ca  = !!getActiveAlignment();
-      if (ch || pe || bo || pl || pi || om || rh || leg || hv || ig || nt || pr || af || ca) render();
+      const tc  = !!getActiveTributeCaravan();
+      if (ch || pe || bo || pl || pi || om || rh || leg || hv || ig || nt || pr || af || ca || tc) render();
     }
   });
 
@@ -233,6 +236,16 @@ export function initQuestPanel() {
     if (e.target.closest('[data-action="align-ignore"]')) {
       ignoreAlignment();
     }
+    // Tribute caravan actions (T246)
+    const tcBtn = e.target.closest('[data-action="tribute-claim"]');
+    if (tcBtn) {
+      const idx = parseInt(tcBtn.dataset.idx, 10);
+      const r = claimTribute(idx);
+      if (!r.ok) {
+        tcBtn.textContent = r.reason;
+        setTimeout(() => render(), 1500);
+      }
+    }
   });
 
   setQuestPanelRenderer(render);
@@ -263,6 +276,7 @@ function render() {
     ${_prophetSection()}
     ${_artisanFairSection()}
     ${_cosmicAlignmentSection()}
+    ${_tributeCaravanSection()}
     ${_imperialGamesSection()}
     ${_harvestSection()}
     <div class="quest-header">
@@ -1153,4 +1167,37 @@ function _cosmicAlignmentSection() {
       </div>
     </div>
   `;
+}
+
+function _tributeCaravanSection() {
+  const caravan = getActiveTributeCaravan();
+  if (!caravan) return '';
+
+  const secs   = getTributeCaravanSecsLeft();
+  const urgent = secs < 20;
+
+  const optionCards = caravan.options.map((opt, idx) => {
+    const rewardStr = Object.entries(opt.reward)
+      .map(([r, a]) => `+${a} ${r}`)
+      .join(', ');
+    return `
+      <button class="btn btn--tribute-option" data-action="tribute-claim" data-idx="${idx}">
+        <span class="tribute-option__icon">${opt.icon}</span>
+        <span class="tribute-option__body">
+          <span class="tribute-option__title">${opt.title}</span>
+          <span class="tribute-option__reward">${rewardStr}</span>
+        </span>
+      </button>`;
+  }).join('');
+
+  return `
+    <div class="tribute-section tribute-section--active">
+      <div class="tribute-header">
+        <span class="tribute-icon">🐪</span>
+        <span class="tribute-title">Village Tribute Caravan</span>
+        <span class="tribute-timer${urgent ? ' tribute-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="tribute-desc">Villagers from the outer settlements have sent tribute to your capital. Choose one gift to accept.</div>
+      <div class="tribute-options">${optionCards}</div>
+    </div>`;
 }
