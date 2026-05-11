@@ -24,6 +24,7 @@ import { hostImperialGames, competeImperialGames, skipImperialGames, isImperialG
 import { acceptTribe, hireTribe, refuseTribe, getActiveTribeEncounter, getTribeSecsLeft, ACCEPT_FOOD_COST, HIRE_GOLD_COST } from '../systems/nomadicTribe.js'; // T240
 import { heedProphet, tributeProphet, dismissProphet, getActiveProphetEncounter, getProphetSecsLeft, HEED_MANA_COST, TRIBUTE_GOLD_COST } from '../systems/wanderingProphet.js'; // T241
 import { commissionArtisans, exportCrafts, declineArtisanFair, getActiveArtisanFair, getArtisanFairSecsLeft, COMMISSION_WOOD_COST, COMMISSION_STONE_COST, EXPORT_FOOD_COST } from '../systems/artisanFair.js'; // T242
+import { observeAlignment, performRitual, ignoreAlignment, getActiveAlignment, getAlignmentSecsLeft, RITUAL_MANA_COST, RITUAL_PRESTIGE, RITUAL_MORALE } from '../systems/cosmicAlignment.js'; // T244
 
 export function initQuestPanel() {
   const panel = document.getElementById('panel-quests');
@@ -51,6 +52,7 @@ export function initQuestPanel() {
     Events.NOMADIC_TRIBE_CHANGED,                        // T240: nomadic tribe encounter
     Events.PROPHET_CHANGED,                              // T241: wandering prophet encounter
     Events.ARTISAN_FAIR_CHANGED,                         // T242: artisan fair encounter
+    Events.COSMIC_ALIGNMENT_CHANGED,                     // T244: cosmic alignment encounter
   ];
   for (const ev of events) on(ev, render);
 
@@ -71,7 +73,8 @@ export function initQuestPanel() {
       const nt  = !!getActiveTribeEncounter();
       const pr  = !!getActiveProphetEncounter();
       const af  = !!getActiveArtisanFair();
-      if (ch || pe || bo || pl || pi || om || rh || leg || hv || ig || nt || pr || af) render();
+      const ca  = !!getActiveAlignment();
+      if (ch || pe || bo || pl || pi || om || rh || leg || hv || ig || nt || pr || af || ca) render();
     }
   });
 
@@ -212,6 +215,24 @@ export function initQuestPanel() {
     if (e.target.closest('[data-action="fair-decline"]')) {
       declineArtisanFair();
     }
+    // Cosmic alignment actions (T244)
+    if (e.target.closest('[data-action="align-observe"]')) {
+      const r = observeAlignment();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="align-observe"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="align-ritual"]')) {
+      const r = performRitual();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="align-ritual"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="align-ignore"]')) {
+      ignoreAlignment();
+    }
   });
 
   setQuestPanelRenderer(render);
@@ -241,6 +262,7 @@ function render() {
     ${_tribeSection()}
     ${_prophetSection()}
     ${_artisanFairSection()}
+    ${_cosmicAlignmentSection()}
     ${_imperialGamesSection()}
     ${_harvestSection()}
     <div class="quest-header">
@@ -1088,6 +1110,45 @@ function _artisanFairSection() {
         </button>
         <button class="btn btn--fair-decline" data-action="fair-decline">
           ✕ Decline
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+// ── T244: Cosmic Alignment ────────────────────────────────────────────────
+
+function _cosmicAlignmentSection() {
+  const alignment = getActiveAlignment();
+  if (!alignment) return '';
+
+  const secs       = getAlignmentSecsLeft();
+  const urgent     = secs < 20;
+  const mana       = state.resources?.mana ?? 0;
+  const canRitual  = mana >= RITUAL_MANA_COST;
+
+  return `
+    <div class="cosmic-section cosmic-section--active">
+      <div class="cosmic-header">
+        <span class="cosmic-icon">${alignment.icon}</span>
+        <span class="cosmic-title">${alignment.name}</span>
+        <span class="cosmic-timer${urgent ? ' cosmic-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="cosmic-desc">${alignment.desc}</div>
+      <div class="cosmic-actions">
+        <button class="btn btn--cosmic-observe"
+                data-action="align-observe"
+                title="Observe: free → +20 prestige, reveal 3 tiles">
+          🔭 Observe <span class="cosmic-cost">free → +20 prestige, 3 tiles</span>
+        </button>
+        <button class="btn btn--cosmic-ritual${canRitual ? '' : ' btn--disabled'}"
+                data-action="align-ritual"
+                ${canRitual ? '' : 'disabled'}
+                title="${canRitual ? `Ritual: −${RITUAL_MANA_COST} mana → +${RITUAL_PRESTIGE} prestige, +${RITUAL_MORALE} morale` : `Need ${RITUAL_MANA_COST} mana`}">
+          🕯️ Ritual <span class="cosmic-cost">−${RITUAL_MANA_COST}✨</span>
+        </button>
+        <button class="btn btn--cosmic-ignore" data-action="align-ignore">
+          ✕ Ignore
         </button>
       </div>
     </div>
