@@ -3,847 +3,930 @@
  * Wires together core engine, systems, and UI on DOMContentLoaded.
  */
 
-import { state, initState } from './core/state.js';
-import { emit, on, Events } from './core/events.js';
-import { registerSystem, startLoop, stopLoop } from './core/tick.js';
-import { resourceTick, recalcRates } from './systems/resources.js';
-import { researchTick } from './systems/research.js';
-import { questTick } from './systems/quests.js';
-import { buildingsTick } from './systems/buildings.js';
-import { unitsTick } from './systems/units.js';
-import { populationTick } from './systems/population.js';
-import { moraleTick } from './systems/morale.js';
-import { diplomacyTick } from './systems/diplomacy.js';
-import { challengesTick } from './systems/challenges.js';
-import { politicalEventsTick } from './systems/politicalEvents.js';
-import { bountyTick } from './systems/bounty.js';
-import { rebelsTick } from './systems/rebels.js'; // T151
-import { plagueTick } from './systems/plague.js'; // T161
-import { pilgrimageTick } from './systems/pilgrimages.js'; // T162
-import { seasonTick, initSeasons } from './systems/seasons.js'; // T165
-import { seasonalObjectivesTick } from './systems/seasonalObjectives.js'; // T170
-import { manaProducerTick } from './systems/mana.js'; // T175
-import { oracleTick, initOracle } from './systems/oracle.js'; // T193
-import { epicQuestsTick, initEpicQuests } from './systems/epicQuests.js'; // T202
-import { royalHuntTick } from './systems/royalHunt.js'; // T214
-import { legendaryTick } from './systems/legendaryEncounters.js'; // T216
-import { attritionTick } from './systems/attrition.js'; // T218
-import { npcCombatTick } from './systems/npcCombat.js'; // T220
-import { harvestTick } from './systems/harvest.js'; // T234
-import { imperialGamesTick } from './systems/imperialGames.js'; // T236
-import { tribeTick } from './systems/nomadicTribe.js'; // T240
-import { prophetTick } from './systems/wanderingProphet.js'; // T241 (no init needed)
-import { artisanFairTick } from './systems/artisanFair.js'; // T242
-import { initEpithet } from './systems/epithet.js'; // T243
+import { state, initState }              from './core/state.js';
+import { emit, on, off, Events }         from './core/events.js';
+import { registerSystem, startLoop, stopLoop, TICKS_PER_SECOND } from './core/tick.js';
+import { resourceTick, recalcRates }     from './systems/resources.js';
+import { researchTick }                  from './systems/research.js';
+import { buildingsTick }                 from './systems/buildings.js';
+import { populationTick }                from './systems/population.js';
+import { moraleTick }                    from './systems/morale.js';
+import { diplomacyTick, initDiplomacy }  from './systems/diplomacy.js';
+import { combatTick }                    from './systems/combat.js';
+import { randomEventTick }               from './systems/randomEvents.js';
+import { questTick }                     from './systems/quests.js';
+import { politicalEventTick }            from './systems/politicalEvents.js';
+import { bountyTick }                    from './systems/bounty.js';
+import { rebellionTick }                 from './systems/rebellion.js';
+import { plagueTick }                    from './systems/plague.js';
+import { pilgrimageTick }                from './systems/pilgrimages.js';
+import { seasonTick, initSeasons, getCurrentSeason } from './systems/seasons.js';
+import { weatherTick, initWeather }      from './systems/weather.js';
+import { siegeTick }                     from './systems/siege.js';
+import { tradeRouteTick }                from './systems/tradeRoutes.js';
+import { mapFeatureTick }                from './systems/mapFeatures.js';
+import { explorationTick }               from './systems/exploration.js';
+import { heroTick, initHero }            from './systems/hero.js';
+import { scholarTick }                   from './systems/scholars.js';
+import { nobleTick }                     from './systems/nobles.js';
+import { refugeeTick }                   from './systems/refugees.js';
+import { celestialTick }                 from './systems/celestials.js';
+import { ageChallengesTick }             from './systems/ageChallenges.js';
+import { legacyTick, initLegacy }        from './systems/legacy.js';
+import { spyTick }                       from './systems/spies.js';
+import { merchantTick }                  from './systems/merchants.js';
+import { alchemyTick }                   from './systems/alchemy.js';
+import { militaryTick }                  from './systems/military.js';
+import { siegeEngineTick }               from './systems/siegeEngines.js';
+import { oracleTick }                    from './systems/oracle.js';
+import { mythicCreatureTick }            from './systems/mythicCreatures.js';
+import { epicHeroTick }                  from './systems/epicHeroes.js';
+import { crisisTick, initCrisis }        from './systems/crisis.js';
+import { emergencyTick }                 from './systems/emergency.js';
+import { monumentTick }                  from './systems/monuments.js';
+import { wonderTick }                    from './systems/wonders.js';
+import { relicTick }                     from './systems/relics.js';
+import { governanceTick }                from './systems/governance.js';
+import { citizenRoleTick, initCitizenRoles } from './systems/citizenRoles.js';
+import { fleetTick }                     from './systems/fleet.js';
+import { academyTick }                   from './systems/academy.js';
+import { manaTick }                      from './systems/mana.js';
+import { spellTick }                     from './systems/spells.js';
+import { popMilestoneTick }              from './systems/popMilestones.js';
+import { inventoryTick }                 from './systems/inventory.js';
+import { seasonalCropTick }              from './systems/seasonalCrops.js';
+import { npcEmpireTick }                 from './systems/npcEmpires.js';
+import { reputationTick }                from './systems/reputation.js';
+import { fortuneTick }                   from './systems/fortune.js';
+import { resourceSurgeTick }             from './systems/resourceSurge.js';
+import { tributeTick }                   from './systems/tribute.js';
+import { caravanTick }                   from './systems/caravans.js';
+import { spyNetworkTick }                from './systems/spyNetwork.js';
+import { courtTick }                     from './systems/court.js';
+import { terrainBonusTick }              from './systems/terrainBonus.js';
+import { knowledgeTick }                 from './systems/knowledge.js';
+import { festivalTick }                  from './systems/festivals.js';
+import { natureTick }                    from './systems/nature.js';
+import { astronomyTick }                 from './systems/astronomy.js';
+import { allianceTick }                  from './systems/alliances.js';
+import { warfareTick }                   from './systems/warfare.js';
+import { ancientRuinsTick }              from './systems/ancientRuins.js';
+import { mercenaryTick }                 from './systems/mercenaries.js';
+import { banditTick }                    from './systems/bandits.js';
+import { npcRaidTick }                   from './systems/npcRaids.js';
+import { cityWallTick }                  from './systems/cityWalls.js';
+import { populationGrowthTick }          from './systems/populationGrowth.js';
+import { legendaryHeroTick }             from './systems/legendaryHeroes.js';
+import { populationEventTick }           from './systems/populationEvents.js';
+import { difficultyTick }                from './systems/difficulty.js';
+import { achievementTick }               from './systems/achievements.js';
+import { mapExpansionTick }              from './systems/mapExpansion.js';
+import { autoQueueTick, initAutoQueue }  from './systems/autoQueue.js';
+import { resourceCapTick }               from './systems/resourceCaps.js';
+import { cityProsperityTick, initCityProsperity } from './systems/cityProsperity.js'; // T235
+import { imperialGamesTick, initImperialGames }   from './systems/imperialGames.js'; // T236
+import { royalLoanTick, initRoyalLoan }           from './systems/royalLoan.js';     // T237
+import { ancientVaultCacheTick, initAncientVaultCache } from './systems/ancientVaultCache.js'; // T238
+import { initRecordsExchange }                    from './systems/recordsExchange.js'; // T239
+import { nomadicTribeTick, initNomadicTribe }     from './systems/nomadicTribe.js';  // T240
+import { prophetTick, initProphet }               from './systems/wanderingProphet.js'; // T241
+import { artisanFairTick, initArtisanFair }       from './systems/artisanFair.js';   // T242
+import { initEpithet }                            from './systems/epithet.js';        // T243
 import { initCosmicAlignment, cosmicAlignmentTick } from './systems/cosmicAlignment.js'; // T244
 
-import { initProphet } from './systems/wanderingProphet.js'; // T241
-import { initArtisanFair } from './systems/artisanFair.js'; // T242
+import { initMap }                       from './systems/mapInit.js';
+import { addMessage, initLog }           from './ui/log.js';
+import { initBuildPanel }                from './ui/buildPanel.js';
+import { initUnitsPanel }                from './ui/unitsPanel.js';
+import { initMapPanel }                  from './ui/mapPanel.js';
+import { initResearchPanel }             from './ui/researchPanel.js';
+import { initDiplomacyPanel }            from './ui/diplomacyPanel.js';
+import { initMarketPanel }               from './ui/marketPanel.js';
+import { initQuestPanel }                from './ui/questPanel.js';
+import { initStoryPanel }                from './ui/storyPanel.js';
+import { initSettingsPanel }             from './ui/settingsPanel.js';
+import { initSummaryPanel }              from './ui/summaryPanel.js';
+import { initAlmanacPanel }              from './ui/almanacPanel.js';
+import { switchTab }                     from './ui/tabSwitcher.js';
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
 
 // T097: Territorial expansion milestones — one-time rewards on tile-count thresholds
 const EXPANSION_MILESTONES = [
-  { tiles: 10,  gold: 50,  prestige: 20  },
-  { tiles: 25,  gold: 100, prestige: 50  },
-  { tiles: 50,  gold: 200, prestige: 100 },
-  { tiles: 100, gold: 400, prestige: 200 },
-  { tiles: 200, gold: 800, prestige: 400 },
+  { threshold: 10,  rewards: { gold: 100, food: 50 },               prestige: 25,  title: 'Expanding Borders'   },
+  { threshold: 25,  rewards: { gold: 200, wood: 100, stone: 100 },  prestige: 50,  title: 'Growing Empire'      },
+  { threshold: 50,  rewards: { gold: 100, iron: 150, mana: 80 },    prestige: 100, title: 'Territorial Power'   },
+  { threshold: 75,  rewards: { gold: 300, food: 200 },              prestige: 150, title: 'Continental Force'   },
+  { threshold: 100, rewards: { gold: 500, iron: 200, mana: 150 },   prestige: 250, title: 'World Conqueror'     },
 ];
 
-// T119: Resource cache milestones — one-time gold bonus when stored resources reach thresholds
-const RESOURCE_CACHE_MILESTONES = [
-  { resource: 'food',  threshold: 500,  gold: 30  },
-  { resource: 'food',  threshold: 2000, gold: 80  },
-  { resource: 'wood',  threshold: 500,  gold: 30  },
-  { resource: 'wood',  threshold: 2000, gold: 80  },
-  { resource: 'stone', threshold: 500,  gold: 30  },
-  { resource: 'stone', threshold: 2000, gold: 80  },
-];
+// Offline progress calculated during _applySave(); shown after UI is ready
+let _pendingOffline = null;
 
-// T120: Trade milestones — one-time prestige bonus when total trade income reaches thresholds
-const TRADE_MILESTONES = [
-  { income: 100,   prestige: 20  },
-  { income: 500,   prestige: 60  },
-  { income: 2000,  prestige: 150 },
-  { income: 10000, prestige: 400 },
-];
+// ── Boot sequence ─────────────────────────────────────────────────────
 
-// -- Age definitions (T037) ---------------------------------------------------
-const AGES = [
-  { name: 'Stone Age',   icon: '🪨', requiredTiles: 0,  requiredTechs: 0 },
-  { name: 'Bronze Age',  icon: '🛡️', requiredTiles: 3,  requiredTechs: 2 },
-  { name: 'Iron Age',    icon: '⚔️',  requiredTiles: 8,  requiredTechs: 4 },
-  { name: 'Classical',   icon: '🏛️', requiredTiles: 15, requiredTechs: 8 },
-  { name: 'Medieval',    icon: '🏰', requiredTiles: 30, requiredTechs: 14 },
-  { name: 'Renaissance', icon: '🔭', requiredTiles: 50, requiredTechs: 20 },
-];
+function boot() {
+  // Check for a saved game first
+  const saved = _loadSave();
+  if (saved) {
+    _applySave(saved);
+    // Generate fresh map if save predates map system
+    if (!state.map) initMap();
+    emit(Events.GAME_LOADED, {});
+  } else {
+    initState('My Empire');
+    _applyDifficultyStart();
+    _applyLegacyBonuses(); // T124: apply purchased legacy traits
+    initMap();
+    addMessage('Welcome to EmpireOS. Build your empire!', 'info');
+    addMessage('Start by constructing Farms and Lumber Mills.', 'info');
+    addMessage('Train soldiers and open the Map tab to expand your territory!', 'info');
+  }
 
-// ---- UI panels ---------------------------------------------------------------
-import { initResourcePanel } from './ui/resourcePanel.js';
-import { initMapPanel }      from './ui/mapPanel.js';
-import { initBuildPanel }    from './ui/buildPanel.js';
-import { initTechPanel }     from './ui/techPanel.js';
-import { initUnitsPanel }    from './ui/unitsPanel.js';
-import { initQuestPanel }    from './ui/questPanel.js';
-import { initDiplomacyPanel } from './ui/diplomacyPanel.js';
-import { initSummaryPanel }  from './ui/summaryPanel.js';
-import { initSettingsPanel } from './ui/settingsPanel.js';
-
-// ---- Entry point -------------------------------------------------------------
-document.addEventListener('DOMContentLoaded', () => {
-  _initGame();
-});
-
-function _initGame() {
-  // ---- Register all tick systems (order matters) ----------------------------
+  // Register tick systems (order matters)
   registerSystem(resourceTick);
   registerSystem(researchTick);
+  registerSystem(randomEventTick);
   registerSystem(questTick);
   registerSystem(buildingsTick);
-  registerSystem(unitsTick);
   registerSystem(populationTick);
   registerSystem(moraleTick);
   registerSystem(diplomacyTick);
-  registerSystem(challengesTick);
-  registerSystem(politicalEventsTick);
+  registerSystem(combatTick);
+  registerSystem(politicalEventTick);
   registerSystem(bountyTick);
-  registerSystem(rebelsTick);
+  registerSystem(rebellionTick);
   registerSystem(plagueTick);
   registerSystem(pilgrimageTick);
   registerSystem(seasonTick);
-  registerSystem(seasonalObjectivesTick);
-  registerSystem(manaProducerTick);
+  registerSystem(weatherTick);
+  registerSystem(siegeTick);
+  registerSystem(tradeRouteTick);
+  registerSystem(mapFeatureTick);
+  registerSystem(explorationTick);
+  registerSystem(heroTick);
+  registerSystem(scholarTick);
+  registerSystem(nobleTick);
+  registerSystem(refugeeTick);
+  registerSystem(celestialTick);
+  registerSystem(ageChallengesTick);
+  registerSystem(legacyTick);
+  registerSystem(spyTick);
+  registerSystem(merchantTick);
+  registerSystem(alchemyTick);
+  registerSystem(militaryTick);
+  registerSystem(siegeEngineTick);
   registerSystem(oracleTick);
-  registerSystem(epicQuestsTick);
-  registerSystem(royalHuntTick);
-  registerSystem(legendaryTick);
-  registerSystem(attritionTick);
-  registerSystem(npcCombatTick);
-  registerSystem(harvestTick);
-  registerSystem(imperialGamesTick);
-  registerSystem(tribeTick);
-  registerSystem(prophetTick);
-  registerSystem(artisanFairTick);
+  registerSystem(mythicCreatureTick);
+  registerSystem(epicHeroTick);
+  registerSystem(crisisTick);
+  registerSystem(emergencyTick);
+  registerSystem(monumentTick);
+  registerSystem(wonderTick);
+  registerSystem(relicTick);
+  registerSystem(governanceTick);
+  registerSystem(citizenRoleTick);
+  registerSystem(fleetTick);
+  registerSystem(academyTick);
+  registerSystem(manaTick);
+  registerSystem(spellTick);
+  registerSystem(popMilestoneTick);
+  registerSystem(inventoryTick);
+  registerSystem(seasonalCropTick);
+  registerSystem(npcEmpireTick);
+  registerSystem(reputationTick);
+  registerSystem(fortuneTick);
+  registerSystem(resourceSurgeTick);
+  registerSystem(tributeTick);
+  registerSystem(caravanTick);
+  registerSystem(spyNetworkTick);
+  registerSystem(courtTick);
+  registerSystem(terrainBonusTick);
+  registerSystem(knowledgeTick);
+  registerSystem(festivalTick);
+  registerSystem(natureTick);
+  registerSystem(astronomyTick);
+  registerSystem(allianceTick);
+  registerSystem(warfareTick);
+  registerSystem(ancientRuinsTick);
+  registerSystem(mercenaryTick);
+  registerSystem(banditTick);
+  registerSystem(npcRaidTick);
+  registerSystem(cityWallTick);
+  registerSystem(populationGrowthTick);
+  registerSystem(legendaryHeroTick);
+  registerSystem(populationEventTick);
+  registerSystem(difficultyTick);
+  registerSystem(achievementTick);
+  registerSystem(mapExpansionTick);
+  registerSystem(autoQueueTick);
+  registerSystem(resourceCapTick);
+  registerSystem(cityProsperityTick);    // T235: city prosperity
+  registerSystem(imperialGamesTick);     // T236: imperial games
+  registerSystem(royalLoanTick);         // T237: royal loan
+  registerSystem(ancientVaultCacheTick); // T238: vault cache spawn/expiry
+  registerSystem(nomadicTribeTick);      // T240: nomadic tribe encounter spawn/expiry
+  registerSystem(prophetTick);           // T241: wandering prophet spawn/expiry
+  registerSystem(artisanFairTick);       // T242: artisan fair spawn/expiry
   registerSystem(cosmicAlignmentTick);   // T244: cosmic alignment spawn/expiry
 
-  // ---- Init UI panels -------------------------------------------------------
-  initResourcePanel();
-  initMapPanel();
+  // Init UI
+  initLog();
   initBuildPanel();
-  initTechPanel();
   initUnitsPanel();
-  initQuestPanel();
+  initMapPanel();
+  initResearchPanel();
   initDiplomacyPanel();
-  initSummaryPanel();
+  initMarketPanel();
+  initQuestPanel();
+  initStoryPanel();
   initSettingsPanel();
+  initSummaryPanel();
+  initAlmanacPanel();
 
-  // ---- Wire tab switching ---------------------------------------------------
-  document.querySelectorAll('[data-tab]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const target = btn.dataset.tab;
-      document.querySelectorAll('[data-tab]').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-      btn.classList.add('active');
-      document.getElementById(`panel-${target}`)?.classList.add('active');
-    });
-  });
+  // Init systems that need post-boot setup
+  initDiplomacy();
+  initHero();
+  initLegacy();
+  initCrisis();
+  initCitizenRoles();
+  initAutoQueue();
+  initSeasons();
+  initWeather();
+  initCityProsperity();  // T235
+  initImperialGames();   // T236
+  initRoyalLoan();       // T237
+  initAncientVaultCache(); // T238
+  initRecordsExchange(); // T239
+  initNomadicTribe();    // T240
+  initProphet();         // T241
+  initArtisanFair();     // T242
+  initEpithet();         // T243: subscribe SEASON_CHANGED + initial calculation
+  initCosmicAlignment(); // T244: cosmic alignment state init
 
-  // ---- Event-driven milestone checks ----------------------------------------
-  on(Events.MAP_CHANGED,      _checkExpansionMilestones);
-  on(Events.RESOURCE_CHANGED, _checkResourceCacheMilestones);
-  on(Events.RESOURCE_CHANGED, _checkTradeMilestones);
-  on(Events.AGE_CHANGED,      _checkAgeMilestones);
+  // Wire events
+  on(Events.MAP_CHANGED,       _checkExpansionMilestones);
+  on(Events.POPULATION_CHANGED, _showPopMilestoneModal);
+  on(Events.TICK,              _maybeShowOfflineModal);
+  on(Events.GAME_LOADED,       () => { _bindKeyboard(); _updateAllBadges(); });
 
-  // ---- Age advancement check on relevant changes ----------------------------
-  on(Events.MAP_CHANGED,   _checkAgeAdvancement);
-  on(Events.TECH_CHANGED,  _checkAgeAdvancement);
+  _bindKeyboard();
+  _updateAllBadges();
 
-  // ---- Autosave every 30 seconds -------------------------------------------
-  on(Events.TICK, _autosave);
-
-  // ---- Load or start game --------------------------------------------------
-  if (!_loadGame()) {
-    _newGame();
+  // Show pending offline modal after a short delay
+  if (_pendingOffline) {
+    setTimeout(() => _showOfflineModal(_pendingOffline), 400);
+    _pendingOffline = null;
   }
 
-  // ---- Start the tick loop -------------------------------------------------
+  // Start tick loop
+  setInterval(_save, 60_000);
+
+  // Start the game loop
   startLoop();
+
+  emit(Events.GAME_STARTED, {});
 }
 
-// ---- Age advancement --------------------------------------------------------
+// ── Save / Load ─────────────────────────────────────────────────────
 
-function _checkAgeAdvancement() {
-  const current = state.age ?? 0;
-  const next    = current + 1;
-  if (next >= AGES.length) return; // Already at max age
+function _save() {
+  try {
+    localStorage.setItem('empireos-save', JSON.stringify({
+      version: 89, // T243: empire epithet system; T244: cosmic alignment
+      ts: Date.now(),
+      state: {
+        empire:        state.empire,
+        resources:     state.resources,
+        rates:         state.rates,
+        caps:          state.caps,
+        buildings:     state.buildings,
+        units:         state.units,
+        map:           state.map,
+        techs:         state.techs,
+        population:    state.population,
+        morale:        state.morale,
+        diplomacy:     state.diplomacy,
+        combat:        state.combat,
+        quests:        state.quests,
+        events:        state.events,
+        bounty:        state.bounty,
+        rebellion:     state.rebellion,
+        plague:        state.plague,
+        pilgrimages:   state.pilgrimages,
+        seasons:       state.seasons,
+        weather:       state.weather,
+        siege:         state.siege,
+        tradeRoutes:   state.tradeRoutes,
+        mapFeatures:   state.mapFeatures,
+        exploration:   state.exploration,
+        hero:          state.hero,
+        scholars:      state.scholars,
+        nobles:        state.nobles,
+        refugees:      state.refugees,
+        celestials:    state.celestials,
+        ageChallenges: state.ageChallenges,
+        legacy:        state.legacy,
+        spies:         state.spies,
+        merchants:     state.merchants,
+        alchemy:       state.alchemy,
+        military:      state.military,
+        siegeEngines:  state.siegeEngines,
+        oracle:        state.oracle,
+        mythicCreatures: state.mythicCreatures,
+        epicHeroes:    state.epicHeroes,
+        crisis:        state.crisis,
+        emergency:     state.emergency,
+        monuments:     state.monuments,
+        wonders:       state.wonders,
+        relics:        state.relics,
+        governance:    state.governance,
+        citizenRoles:  state.citizenRoles,
+        fleet:         state.fleet,
+        academy:       state.academy,
+        mana:          state.mana,
+        spells:        state.spells,
+        popMilestones: state.popMilestones,
+        inventory:     state.inventory,
+        seasonalCrops: state.seasonalCrops,
+        npcEmpires:    state.npcEmpires,
+        reputation:    state.reputation,
+        fortune:       state.fortune,
+        resourceSurge: state.resourceSurge,
+        tribute:       state.tribute,
+        caravans:      state.caravans,
+        spyNetwork:    state.spyNetwork,
+        court:         state.court,
+        knowledge:     state.knowledge,
+        festivals:     state.festivals,
+        nature:        state.nature,
+        astronomy:     state.astronomy,
+        alliances:     state.alliances,
+        warfare:       state.warfare,
+        ancientRuins:  state.ancientRuins,
+        mercenaries:   state.mercenaries,
+        bandits:       state.bandits,
+        npcRaids:      state.npcRaids,
+        cityWalls:     state.cityWalls,
+        populationGrowth: state.populationGrowth,
+        legendaryHeroes: state.legendaryHeroes,
+        populationEvents: state.populationEvents,
+        difficulty:    state.difficulty,
+        achievements:  state.achievements,
+        mapExpansion:  state.mapExpansion,
+        autoQueue:     state.autoQueue,
+        resourceCaps:  state.resourceCaps,
+        cityProsperity:    state.cityProsperity,      // T235
+        imperialGames:     state.imperialGames,       // T236
+        royalLoan:         state.royalLoan,           // T237
+        ancientVaultCache: state.ancientVaultCache,   // T238
+        recordsExchange:   state.recordsExchange,     // T239
+        nomadicTribe:      state.nomadicTribe,        // T240
+        prophet:           state.prophet,             // T241
+        artisanFair:       state.artisanFair,         // T242
+        cosmicAlignment:   state.cosmicAlignment,     // T244
+        tick:          state.tick,
+      }
+    }));
+    emit(Events.GAME_SAVED, {});
+  } catch (e) {
+    console.error('[save error]', e);
+  }
+}
 
-  const nextAge = AGES[next];
+function _loadSave() {
+  try {
+    const raw = localStorage.getItem('empireos-save');
+    if (!raw) return null;
+    const data = JSON.parse(raw);
+    if (!data?.version) return null;
+    return data;
+  } catch {
+    return null;
+  }
+}
 
-  // Count player tiles
+function _applySave(save) {
+  const s = save.state;
+  if (!s) return;
+
+  // Restore all state fields
+  state.empire              = s.empire              ?? state.empire;
+  state.resources           = s.resources           ?? state.resources;
+  state.rates               = s.rates               ?? state.rates;
+  state.caps                = s.caps                ?? state.caps;
+  state.buildings           = s.buildings           ?? state.buildings;
+  state.units               = s.units               ?? state.units;
+  state.map                 = s.map                 ?? state.map;
+  state.techs               = s.techs               ?? state.techs;
+  state.population          = s.population          ?? state.population;
+  state.morale              = s.morale              ?? state.morale;
+  state.diplomacy           = s.diplomacy           ?? state.diplomacy;
+  state.combat              = s.combat              ?? state.combat;
+  state.quests              = s.quests              ?? state.quests;
+  state.events              = s.events              ?? state.events;
+  state.bounty              = s.bounty              ?? state.bounty;
+  state.rebellion           = s.rebellion           ?? state.rebellion;
+  state.plague              = s.plague              ?? state.plague;
+  state.pilgrimages         = s.pilgrimages         ?? state.pilgrimages;
+  state.seasons             = s.seasons             ?? state.seasons;
+  state.weather             = s.weather             ?? state.weather;
+  state.siege               = s.siege               ?? state.siege;
+  state.tradeRoutes         = s.tradeRoutes         ?? state.tradeRoutes;
+  state.mapFeatures         = s.mapFeatures         ?? state.mapFeatures;
+  state.exploration         = s.exploration         ?? state.exploration;
+  state.hero                = s.hero                ?? state.hero;
+  state.scholars            = s.scholars            ?? state.scholars;
+  state.nobles              = s.nobles              ?? state.nobles;
+  state.refugees            = s.refugees            ?? state.refugees;
+  state.celestials          = s.celestials          ?? state.celestials;
+  state.ageChallenges       = s.ageChallenges       ?? state.ageChallenges;
+  state.legacy              = s.legacy              ?? state.legacy;
+  state.spies               = s.spies               ?? state.spies;
+  state.merchants           = s.merchants           ?? state.merchants;
+  state.alchemy             = s.alchemy             ?? state.alchemy;
+  state.military            = s.military            ?? state.military;
+  state.siegeEngines        = s.siegeEngines        ?? state.siegeEngines;
+  state.oracle              = s.oracle              ?? state.oracle;
+  state.mythicCreatures     = s.mythicCreatures     ?? state.mythicCreatures;
+  state.epicHeroes          = s.epicHeroes          ?? state.epicHeroes;
+  state.crisis              = s.crisis              ?? state.crisis;
+  state.emergency           = s.emergency           ?? state.emergency;
+  state.monuments           = s.monuments           ?? state.monuments;
+  state.wonders             = s.wonders             ?? state.wonders;
+  state.relics              = s.relics              ?? state.relics;
+  state.governance          = s.governance          ?? state.governance;
+  state.citizenRoles        = s.citizenRoles        ?? null;  // T096 (null = initialise on first use)
+  state.raiderFaction       = s.raiderFaction       ?? null;
+  state.fleet               = s.fleet               ?? state.fleet;
+  state.academy             = s.academy             ?? state.academy;
+  state.mana                = s.mana                ?? state.mana;
+  state.spells              = s.spells              ?? state.spells;
+  state.popMilestones       = s.popMilestones       ?? state.popMilestones;
+  state.inventory           = s.inventory           ?? state.inventory;
+  state.seasonalCrops       = s.seasonalCrops       ?? state.seasonalCrops;
+  state.npcEmpires          = s.npcEmpires          ?? state.npcEmpires;
+  state.reputation          = s.reputation          ?? state.reputation;
+  state.fortune             = s.fortune             ?? state.fortune;
+  state.resourceSurge       = s.resourceSurge       ?? state.resourceSurge;
+  state.tribute             = s.tribute             ?? state.tribute;
+  state.caravans            = s.caravans            ?? state.caravans;
+  state.spyNetwork          = s.spyNetwork          ?? state.spyNetwork;
+  state.court               = s.court               ?? state.court;
+  state.knowledge           = s.knowledge           ?? state.knowledge;
+  state.festivals           = s.festivals           ?? state.festivals;
+  state.nature              = s.nature              ?? state.nature;
+  state.astronomy           = s.astronomy           ?? state.astronomy;
+  state.alliances           = s.alliances           ?? state.alliances;
+  state.warfare             = s.warfare             ?? state.warfare;
+  state.ancientRuins        = s.ancientRuins        ?? state.ancientRuins;
+  state.mercenaries         = s.mercenaries         ?? state.mercenaries;
+  state.bandits             = s.bandits             ?? state.bandits;
+  state.npcRaids            = s.npcRaids            ?? state.npcRaids;
+  state.cityWalls           = s.cityWalls           ?? state.cityWalls;
+  state.populationGrowth    = s.populationGrowth    ?? state.populationGrowth;
+  state.legendaryHeroes     = s.legendaryHeroes     ?? state.legendaryHeroes;
+  state.populationEvents    = s.populationEvents    ?? state.populationEvents;
+  state.difficulty          = s.difficulty          ?? state.difficulty;
+  state.achievements        = s.achievements        ?? state.achievements;
+  state.mapExpansion        = s.mapExpansion        ?? state.mapExpansion;
+  state.autoQueue           = s.autoQueue           ?? state.autoQueue;
+  state.resourceCaps        = s.resourceCaps        ?? state.resourceCaps;
+  state.diplomacy      ?? null;
+  state.season         = s.season         ?? null;
+  state.hero           = s.hero           ?? null;
+  // T070: migrate hero from pre-skill-system saves
+  if (state.hero?.rec) {
+    delete state.hero.rec; // drop stale field from older saves
+  }
+  state.cityProsperity      = s.cityProsperity      ?? null; // T235
+  state.imperialGames       = s.imperialGames       ?? null; // T236
+  state.royalLoan           = s.royalLoan           ?? null; // T237
+  state.ancientVaultCache   = s.ancientVaultCache   ?? null; // T238
+  state.recordsExchange     = s.recordsExchange     ?? null; // T239
+  state.nomadicTribe        = s.nomadicTribe        ?? null; // T240
+  state.prophet             = s.prophet             ?? null; // T241
+  state.artisanFair         = s.artisanFair         ?? null; // T242
+  state.cosmicAlignment     = s.cosmicAlignment     ?? null; // T244
+  // T086: migrate older saves — ensure hero.expedition exists
+  if (state.hero?.recruited && !state.hero.expedition) {
+    state.hero.expedition = { active: false, endsAt: 0 };
+  }
+  state.tick             = s.tick             ?? 0;
+  recalcRates();
+
+  // Offline progress
+  const offlineTicks = Math.floor((Date.now() - (save.ts ?? Date.now())) / 250);
+  if (offlineTicks > 4 * 30) { // more than 30 seconds offline
+    const cap = 4 * 60 * 60; // max 1 hour offline
+    const ticks = Math.min(offlineTicks, cap);
+    _pendingOffline = { ticks, secs: Math.floor(ticks / 4) };
+  }
+}
+
+// ── New game helpers ──────────────────────────────────────────────────
+
+function _applyDifficultyStart() {
+  const d = state.difficulty?.level ?? 'normal';
+  if (d === 'easy') {
+    state.resources.gold  = (state.resources.gold  ?? 0) + 200;
+    state.resources.food  = (state.resources.food  ?? 0) + 100;
+    state.resources.wood  = (state.resources.wood  ?? 0) + 100;
+    state.resources.stone = (state.resources.stone ?? 0) + 100;
+  } else if (d === 'hard') {
+    state.resources.gold  = Math.max(0, (state.resources.gold  ?? 0) - 50);
+    state.resources.food  = Math.max(0, (state.resources.food  ?? 0) - 20);
+  }
+}
+
+function _applyLegacyBonuses() {
+  const traits = state.legacy?.purchasedTraits ?? [];
+  for (const id of traits) {
+    // Legacy trait application logic lives in legacy.js;
+    // here we just emit so legacy.js can react
+  }
+  if (traits.length > 0) emit(Events.LEGACY_APPLIED, { traits });
+}
+
+// ── Expansion milestones ──────────────────────────────────────────────
+
+function _checkExpansionMilestones() {
+  const reached = state.expansionMilestonesReached ?? (state.expansionMilestonesReached = {});
   let playerTiles = 0;
-  if (state.map) {
+  if (state.map?.tiles) {
     for (const row of state.map.tiles)
       for (const t of row)
         if (t.owner === 'player') playerTiles++;
   }
-
-  // Count researched techs
-  const techsDone = Object.keys(state.techs ?? {}).length;
-
-  if (playerTiles >= nextAge.requiredTiles && techsDone >= nextAge.requiredTechs) {
-    state.age = next;
-    emit(Events.AGE_CHANGED, { age: next, name: nextAge.name });
-  }
-}
-
-// ---- Milestone checks -------------------------------------------------------
-
-function _checkExpansionMilestones() {
-  if (!state.map) return;
-
-  let playerTiles = 0;
-  for (const row of state.map.tiles)
-    for (const t of row)
-      if (t.owner === 'player') playerTiles++;
-
-  const reached = state.expansionMilestonesReached ?? {};
-
   for (const m of EXPANSION_MILESTONES) {
-    if (!reached[m.tiles] && playerTiles >= m.tiles) {
-      reached[m.tiles] = true;
-      state.resources.gold     += m.gold;
-      state.resources.prestige = (state.resources.prestige ?? 0) + m.prestige;
-      emit(Events.RESOURCE_CHANGED);
-    }
-  }
-
-  state.expansionMilestonesReached = reached;
-}
-
-function _checkResourceCacheMilestones() {
-  const reached = state.resourceCacheMilestonesReached ?? {};
-
-  for (const m of RESOURCE_CACHE_MILESTONES) {
-    const key = `${m.resource}_${m.threshold}`;
-    if (!reached[key] && (state.resources[m.resource] ?? 0) >= m.threshold) {
-      reached[key] = true;
-      state.resources.gold += m.gold;
-      emit(Events.RESOURCE_CHANGED);
-    }
-  }
-
-  state.resourceCacheMilestonesReached = reached;
-}
-
-function _checkTradeMilestones() {
-  const reached = state.tradeMilestonesReached ?? {};
-  const income  = state.stats?.tradeIncome ?? 0;
-
-  for (const m of TRADE_MILESTONES) {
-    if (!reached[m.income] && income >= m.income) {
-      reached[m.income] = true;
-      state.resources.prestige = (state.resources.prestige ?? 0) + m.prestige;
-      emit(Events.RESOURCE_CHANGED);
-    }
-  }
-
-  state.tradeMilestonesReached = reached;
-}
-
-function _checkAgeMilestones() {
-  const age = state.age ?? 0;
-  const reached = state.ageMilestonesReached ?? {};
-  if (!reached[age]) {
-    reached[age] = true;
-    // Age advancement bonuses
-    const bonuses = [
-      { gold: 50,  prestige: 30  }, // Stone → Bronze
-      { gold: 100, prestige: 60  }, // Bronze → Iron
-      { gold: 200, prestige: 120 }, // Iron → Classical
-      { gold: 400, prestige: 250 }, // Classical → Medieval
-      { gold: 800, prestige: 500 }, // Medieval → Renaissance
-    ];
-    const b = bonuses[age - 1];
-    if (b) {
-      state.resources.gold     = (state.resources.gold     ?? 0) + b.gold;
-      state.resources.prestige = (state.resources.prestige ?? 0) + b.prestige;
-      emit(Events.RESOURCE_CHANGED);
-    }
-    state.ageMilestonesReached = reached;
-  }
-}
-
-// ---- Autosave ---------------------------------------------------------------
-
-let _autosaveTick = 0;
-function _autosave() {
-  if (++_autosaveTick % (4 * 30) !== 0) return; // every 30 seconds
-  _saveGame();
-}
-
-// ---- Save / Load ------------------------------------------------------------
-
-const SAVE_KEY = 'empireos-save';
-
-function _saveGame() {
-  try {
-    const save = {
-      version: 89, // T243: empire epithet system; T244: cosmic alignment
-      tick:    state.tick,
-      age:     state.age,
-      empire:  { ...state.empire },
-
-      resources: { ...state.resources },
-      rates:     { ...state.rates },
-
-      buildings: { ...state.buildings },
-      units:     { ...state.units },
-      map:       {
-        width:  state.map.width,
-        height: state.map.height,
-        tiles:  state.map.tiles.map(row => row.map(t => ({ ...t }))),
-      },
-      techs: { ...state.techs },
-
-      population: { ...state.population },
-      morale:     state.morale,
-      prestige:   state.resources.prestige,
-
-      diplomacy:  { ...state.diplomacy,
-        empires: state.diplomacy.empires.map(e => ({ ...e })),
-      },
-
-      quests:     { ...state.quests,
-        completed: { ...state.quests.completed },
-      },
-
-      challenges: state.challenges ? {
-        active:       state.challenges.active ? { ...state.challenges.active } : null,
-        completed:    [...(state.challenges.completed ?? [])],
-        nextGenTick:  state.challenges.nextGenTick,
-      } : null,
-
-      politicalEvents: state.politicalEvents ? {
-        pending:     state.politicalEvents.pending ? { ...state.politicalEvents.pending } : null,
-        log:         [...(state.politicalEvents.log ?? [])],
-        nextEventAt: state.politicalEvents.nextEventAt,
-      } : null,
-
-      bounty: state.bounty ? {
-        current:       state.bounty.current ? { ...state.bounty.current } : null,
-        nextBountyTick: state.bounty.nextBountyTick,
-        completed:     state.bounty.completed ?? 0,
-      } : null,
-
-      rebels: state.rebels ? {
-        tiles:         [...(state.rebels.tiles ?? [])].map(t => ({ ...t })),
-        nextCheckTick: state.rebels.nextCheckTick,
-      } : null,
-
-      plague: state.plague ? {
-        active:      state.plague.active,
-        startTick:   state.plague.startTick,
-        endTick:     state.plague.endTick,
-        nextCheckAt: state.plague.nextCheckAt,
-      } : null,
-
-      pilgrimages: state.pilgrimages ? {
-        pending:     state.pilgrimages.pending ? { ...state.pilgrimages.pending } : null,
-        activeBonus: state.pilgrimages.activeBonus ? { ...state.pilgrimages.activeBonus } : null,
-        nextAt:      state.pilgrimages.nextAt,
-      } : null,
-
-      seasons: state.seasons ? {
-        current:   state.seasons.current,
-        tickStart: state.seasons.tickStart,
-        index:     state.seasons.index,
-      } : null,
-
-      seasonalObjectives: state.seasonalObjectives ? {
-        current:    state.seasonalObjectives.current ? { ...state.seasonalObjectives.current } : null,
-        completed:  { ...(state.seasonalObjectives.completed ?? {}) },
-      } : null,
-
-      mana: state.resources.mana,
-
-      oracle: state.oracle ? {
-        activeOmen:  state.oracle.activeOmen ? { ...state.oracle.activeOmen } : null,
-        nextOmenAt:  state.oracle.nextOmenAt,
-        history:     [...(state.oracle.history ?? [])],
-      } : null,
-
-      epicQuests: state.epicQuests ? {
-        chains: Object.fromEntries(
-          Object.entries(state.epicQuests.chains).map(([k, v]) => [k, { ...v }])
-        ),
-      } : null,
-
-      royalHunt: state.royalHunt ? {
-        pending:        state.royalHunt.pending ? { ...state.royalHunt.pending } : null,
-        active:         state.royalHunt.active ? { ...state.royalHunt.active } : null,
-        nextHuntAt:     state.royalHunt.nextHuntAt,
-        totalLaunched:  state.royalHunt.totalLaunched ?? 0,
-      } : null,
-
-      legendary: state.legendary ? {
-        current:       state.legendary.current ? { ...state.legendary.current } : null,
-        nextSpawnAt:   state.legendary.nextSpawnAt,
-        history:       [...(state.legendary.history ?? [])],
-        totalDefeated: state.legendary.totalDefeated ?? 0,
-      } : null,
-
-      combatHistory: [...(state.combatHistory ?? [])],
-
-      stats: { ...state.stats },
-
-      harvest: state.harvest ? {
-        collectedThisSeason: state.harvest.collectedThisSeason ?? false,
-        lastCollectedSeason: state.harvest.lastCollectedSeason ?? -1,
-        windowOpen:          state.harvest.windowOpen ?? false,
-        windowOpenTick:      state.harvest.windowOpenTick ?? 0,
-      } : null,
-
-      imperialGames: state.imperialGames ? {
-        pending:     state.imperialGames.pending,
-        expiresAt:   state.imperialGames.expiresAt,
-        nextGamesAt: state.imperialGames.nextGamesAt,
-        seasonsSinceLastGames: state.imperialGames.seasonsSinceLastGames,
-      } : null,
-
-      nomadicTribe: state.nomadicTribe ? {
-        encounter:   state.nomadicTribe.encounter ? { ...state.nomadicTribe.encounter } : null,
-        nextAt:      state.nomadicTribe.nextAt,
-      } : null,
-
-      wanderingProphet: state.wanderingProphet ? {
-        encounter:   state.wanderingProphet.encounter ? { ...state.wanderingProphet.encounter } : null,
-        nextAt:      state.wanderingProphet.nextAt,
-      } : null,
-
-      artisanFair: state.artisanFair ? {
-        encounter:   state.artisanFair.encounter ? { ...state.artisanFair.encounter } : null,
-        nextAt:      state.artisanFair.nextAt,
-      } : null,
-
-      cosmicAlignment:     state.cosmicAlignment     ?? null,  // T244
-
-      expansionMilestonesReached:     state.expansionMilestonesReached     ?? {},
-      resourceCacheMilestonesReached: state.resourceCacheMilestonesReached ?? {},
-      tradeMilestonesReached:         state.tradeMilestonesReached         ?? {},
-      ageMilestonesReached:           state.ageMilestonesReached           ?? {},
-    };
-    localStorage.setItem(SAVE_KEY, JSON.stringify(save));
-  } catch (e) {
-    console.error('Save failed:', e);
-  }
-}
-
-function _loadGame() {
-  try {
-    const raw = localStorage.getItem(SAVE_KEY);
-    if (!raw) return false;
-
-    const s = JSON.parse(raw);
-    if (!s || typeof s.version !== 'number') return false;
-
-    // Version gate: incompatible saves
-    if (s.version < 50) {
-      console.warn('Save version too old, starting fresh.');
-      return false;
-    }
-
-    state.tick      = s.tick      ?? 0;
-    state.age       = s.age       ?? 0;
-    state.empire    = { ...state.empire, ...(s.empire ?? {}) };
-
-    state.resources = { ...state.resources, ...(s.resources ?? {}) };
-    state.rates     = { ...state.rates,     ...(s.rates     ?? {}) };
-
-    if (s.buildings) state.buildings = { ...state.buildings, ...s.buildings };
-    if (s.units)     state.units     = { ...state.units,     ...s.units     };
-
-    // Map
-    if (s.map) {
-      state.map = {
-        width:  s.map.width,
-        height: s.map.height,
-        tiles:  s.map.tiles.map(row => row.map(t => ({ ...t }))),
-      };
-    }
-
-    if (s.techs)      state.techs      = { ...s.techs };
-    if (s.population) state.population = { ...state.population, ...s.population };
-    if (s.morale !== undefined)   state.morale   = s.morale;
-    if (s.prestige !== undefined) state.resources.prestige = s.prestige;
-
-    // Diplomacy
-    if (s.diplomacy) {
-      state.diplomacy = {
-        ...state.diplomacy,
-        ...s.diplomacy,
-        empires: (s.diplomacy.empires ?? []).map(e => ({ ...e })),
-      };
-    }
-
-    // Quests
-    if (s.quests) {
-      state.quests = {
-        ...state.quests,
-        ...s.quests,
-        completed: { ...(s.quests.completed ?? {}) },
-      };
-    }
-
-    // Challenges
-    if (s.challenges) {
-      state.challenges = {
-        active:      s.challenges.active ? { ...s.challenges.active } : null,
-        completed:   [...(s.challenges.completed ?? [])],
-        nextGenTick: s.challenges.nextGenTick,
-      };
-    }
-
-    // Political events
-    if (s.politicalEvents) {
-      state.politicalEvents = {
-        pending:     s.politicalEvents.pending ? { ...s.politicalEvents.pending } : null,
-        log:         [...(s.politicalEvents.log ?? [])],
-        nextEventAt: s.politicalEvents.nextEventAt,
-      };
-    }
-
-    // Bounty
-    if (s.bounty) {
-      state.bounty = {
-        current:        s.bounty.current ? { ...s.bounty.current } : null,
-        nextBountyTick: s.bounty.nextBountyTick,
-        completed:      s.bounty.completed ?? 0,
-      };
-    }
-
-    // Rebels
-    if (s.rebels) {
-      state.rebels = {
-        tiles:         (s.rebels.tiles ?? []).map(t => ({ ...t })),
-        nextCheckTick: s.rebels.nextCheckTick,
-      };
-    }
-
-    // Plague
-    if (s.plague) {
-      state.plague = {
-        active:      s.plague.active      ?? false,
-        startTick:   s.plague.startTick   ?? 0,
-        endTick:     s.plague.endTick     ?? 0,
-        nextCheckAt: s.plague.nextCheckAt ?? 0,
-      };
-    }
-
-    // Pilgrimages
-    if (s.pilgrimages) {
-      state.pilgrimages = {
-        pending:     s.pilgrimages.pending     ? { ...s.pilgrimages.pending } : null,
-        activeBonus: s.pilgrimages.activeBonus ? { ...s.pilgrimages.activeBonus } : null,
-        nextAt:      s.pilgrimages.nextAt      ?? 0,
-      };
-    }
-
-    // Seasons
-    if (s.seasons) {
-      state.seasons = {
-        current:   s.seasons.current   ?? 0,
-        tickStart: s.seasons.tickStart ?? 0,
-        index:     s.seasons.index     ?? 0,
-      };
-    }
-
-    // Seasonal objectives
-    if (s.seasonalObjectives) {
-      state.seasonalObjectives = {
-        current:   s.seasonalObjectives.current ? { ...s.seasonalObjectives.current } : null,
-        completed: { ...(s.seasonalObjectives.completed ?? {}) },
-      };
-    }
-
-    // Mana
-    if (s.mana !== undefined) state.resources.mana = s.mana;
-
-    // Oracle
-    if (s.oracle) {
-      state.oracle = {
-        activeOmen: s.oracle.activeOmen ? { ...s.oracle.activeOmen } : null,
-        nextOmenAt: s.oracle.nextOmenAt ?? 0,
-        history:    [...(s.oracle.history ?? [])],
-      };
-    }
-
-    // Epic quests
-    if (s.epicQuests) {
-      initEpicQuests();
-      for (const [k, v] of Object.entries(s.epicQuests.chains ?? {})) {
-        if (state.epicQuests.chains[k]) {
-          state.epicQuests.chains[k] = { ...state.epicQuests.chains[k], ...v };
-        }
+    if (!reached[m.threshold] && playerTiles >= m.threshold) {
+      reached[m.threshold] = true;
+      for (const [res, amt] of Object.entries(m.rewards)) {
+        state.resources[res] = (state.resources[res] ?? 0) + amt;
       }
+      state.resources.prestige = (state.resources.prestige ?? 0) + m.prestige;
+      addMessage(`🏆 Milestone: ${m.title} — territory reached ${m.threshold} tiles!`, 'milestone');
+      emit(Events.RESOURCE_CHANGED);
     }
-
-    // Royal hunt
-    if (s.royalHunt) {
-      state.royalHunt = {
-        pending:       s.royalHunt.pending       ? { ...s.royalHunt.pending } : null,
-        active:        s.royalHunt.active        ? { ...s.royalHunt.active  } : null,
-        nextHuntAt:    s.royalHunt.nextHuntAt    ?? 0,
-        totalLaunched: s.royalHunt.totalLaunched ?? 0,
-      };
-    }
-
-    // Legendary
-    if (s.legendary) {
-      state.legendary = {
-        current:       s.legendary.current       ? { ...s.legendary.current } : null,
-        nextSpawnAt:   s.legendary.nextSpawnAt   ?? 0,
-        history:       [...(s.legendary.history  ?? [])],
-        totalDefeated: s.legendary.totalDefeated ?? 0,
-      };
-    }
-
-    // Combat history
-    if (s.combatHistory) state.combatHistory = [...s.combatHistory];
-
-    // Stats
-    if (s.stats) state.stats = { ...state.stats, ...s.stats };
-
-    // Harvest (T234)
-    if (s.harvest) {
-      state.harvest = {
-        collectedThisSeason: s.harvest.collectedThisSeason ?? false,
-        lastCollectedSeason: s.harvest.lastCollectedSeason ?? -1,
-        windowOpen:          s.harvest.windowOpen          ?? false,
-        windowOpenTick:      s.harvest.windowOpenTick      ?? 0,
-      };
-    }
-
-    // Imperial Games (T236)
-    if (s.imperialGames) {
-      state.imperialGames = {
-        pending:     s.imperialGames.pending     ?? false,
-        expiresAt:   s.imperialGames.expiresAt   ?? 0,
-        nextGamesAt: s.imperialGames.nextGamesAt ?? 0,
-        seasonsSinceLastGames: s.imperialGames.seasonsSinceLastGames ?? 0,
-      };
-    }
-
-    // Nomadic tribe (T240)
-    if (s.nomadicTribe) {
-      state.nomadicTribe = {
-        encounter: s.nomadicTribe.encounter ? { ...s.nomadicTribe.encounter } : null,
-        nextAt:    s.nomadicTribe.nextAt ?? 0,
-      };
-    }
-
-    // Wandering prophet (T241)
-    if (s.wanderingProphet) {
-      state.wanderingProphet = {
-        encounter: s.wanderingProphet.encounter ? { ...s.wanderingProphet.encounter } : null,
-        nextAt:    s.wanderingProphet.nextAt ?? 0,
-      };
-    }
-
-    // Artisan fair (T242)
-    if (s.artisanFair) {
-      state.artisanFair = {
-        encounter: s.artisanFair.encounter ? { ...s.artisanFair.encounter } : null,
-        nextAt:    s.artisanFair.nextAt ?? 0,
-      };
-    }
-
-    state.cosmicAlignment      = s.cosmicAlignment      ?? null; // T244
-
-    // Milestones
-    state.expansionMilestonesReached     = s.expansionMilestonesReached     ?? {};
-    state.resourceCacheMilestonesReached = s.resourceCacheMilestonesReached ?? {};
-    state.tradeMilestonesReached         = s.tradeMilestonesReached         ?? {};
-    state.ageMilestonesReached           = s.ageMilestonesReached           ?? {};
-
-    // Re-init systems that need post-load setup
-    recalcRates();
-    initSeasons();
-    initOracle();
-    initEpithet();             // T243: subscribe SEASON_CHANGED + initial calculation
-    initCosmicAlignment();     // T244: cosmic alignment state init
-
-    console.log(`Game loaded (v${s.version}, tick ${state.tick})`);
-    return true;
-  } catch (e) {
-    console.error('Load failed:', e);
-    return false;
   }
 }
 
-// ---- New Game ---------------------------------------------------------------
+on(Events.MAP_CHANGED, _checkExpansionMilestones);
 
-function _newGame() {
-  initState();
+// ── Population milestone modal ─────────────────────────────────────────
 
-  // Generate map
-  state.map = _generateMap(12, 12);
+const POP_MILESTONES = [100, 250, 500, 1000, 2500, 5000, 10000];
 
-  // Give player the center tile
-  const cx = Math.floor(state.map.width  / 2);
-  const cy = Math.floor(state.map.height / 2);
-  state.map.tiles[cy][cx].owner = 'player';
-
-  // Starting resources
-  state.resources.food  = 50;
-  state.resources.wood  = 30;
-  state.resources.stone = 20;
-  state.resources.gold  = 100;
-  state.resources.iron  = 0;
-  state.resources.mana  = 0;
-
-  recalcRates();
-  initSeasons();
-  initOracle();
-  initEpicQuests();
-  initEpithet();             // T243: recalculate epithet for new empire
-  initCosmicAlignment();     // T244: reset cosmic alignment state on new game
-  initProphet();
-  initArtisanFair();
+function _showPopMilestoneModal(threshold) {
+  const el = document.getElementById('pop-milestone-modal');
+  if (!el) return;
+  el.querySelector('.pop-milestone__threshold').textContent = threshold.toLocaleString();
+  el.classList.remove('modal--hidden');
 }
 
-// ---- Map generation ---------------------------------------------------------
-
-const TERRAIN_TYPES = [
-  { type: 'plains',   weight: 30, icon: '🌿', label: 'Plains',   foodBonus: 2, woodBonus: 0, stoneBonus: 0, goldBonus: 0, ironBonus: 0 },
-  { type: 'forest',   weight: 25, icon: '🌲', label: 'Forest',   foodBonus: 1, woodBonus: 3, stoneBonus: 0, goldBonus: 0, ironBonus: 0 },
-  { type: 'mountain', weight: 15, icon: '⛰️', label: 'Mountain', foodBonus: 0, woodBonus: 0, stoneBonus: 3, goldBonus: 1, ironBonus: 2 },
-  { type: 'river',    weight: 15, icon: '💧', label: 'River',    foodBonus: 3, woodBonus: 1, stoneBonus: 0, goldBonus: 1, ironBonus: 0 },
-  { type: 'desert',   weight: 10, icon: '🏜️', label: 'Desert',   foodBonus: 0, woodBonus: 0, stoneBonus: 1, goldBonus: 2, ironBonus: 1 },
-  { type: 'tundra',   weight:  5, icon: '❄️', label: 'Tundra',   foodBonus: 0, woodBonus: 1, stoneBonus: 2, goldBonus: 0, ironBonus: 1 },
-];
-
-function _generateMap(width, height) {
-  const totalWeight = TERRAIN_TYPES.reduce((s, t) => s + t.weight, 0);
-  const tiles = [];
-
-  for (let y = 0; y < height; y++) {
-    const row = [];
-    for (let x = 0; x < width; x++) {
-      let r = Math.random() * totalWeight;
-      let terrain = TERRAIN_TYPES[0];
-      for (const t of TERRAIN_TYPES) {
-        r -= t.weight;
-        if (r <= 0) { terrain = t; break; }
-      }
-      row.push({
-        x, y,
-        type:       terrain.type,
-        icon:       terrain.icon,
-        label:      terrain.label,
-        foodBonus:  terrain.foodBonus,
-        woodBonus:  terrain.woodBonus,
-        stoneBonus: terrain.stoneBonus,
-        goldBonus:  terrain.goldBonus,
-        ironBonus:  terrain.ironBonus,
-        owner:      'neutral',
-        npcOwner:   null,
-        def:        0,
-      });
-    }
-    tiles.push(row);
+function _applyPopMilestoneOption(option) {
+  const el = document.getElementById('pop-milestone-modal');
+  if (el) el.classList.add('modal--hidden');
+  if (option === 'grow') {
+    state.resources.food = (state.resources.food ?? 0) + 200;
+    addMessage('🍞 Population Growth Bonus: +200 food.', 'info');
+  } else if (option === 'culture') {
+    state.resources.prestige = (state.resources.prestige ?? 0) + 50;
+    addMessage('🎭 Population Culture Bonus: +50 prestige.', 'info');
+  } else if (option === 'military') {
+    state.units.soldiers = (state.units.soldiers ?? 0) + 10;
+    addMessage('⚔️ Population Military Bonus: +10 soldiers.', 'info');
   }
+  emit(Events.RESOURCE_CHANGED);
+}
 
-  // Seed NPC empires at tile edges
-  const empires = state.diplomacy?.empires ?? [];
-  const edgeTiles = [];
-  for (let x = 0; x < width; x++) { edgeTiles.push(tiles[0][x]); edgeTiles.push(tiles[height-1][x]); }
-  for (let y = 1; y < height-1; y++) { edgeTiles.push(tiles[y][0]); edgeTiles.push(tiles[y][width-1]); }
-
-  const shuffled = edgeTiles.sort(() => Math.random() - 0.5);
-  empires.forEach((emp, i) => {
-    if (shuffled[i]) {
-      shuffled[i].owner    = 'npc';
-      shuffled[i].npcOwner = emp.id;
-    }
+// Attach pop milestone modal buttons
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('[data-pop-option]').forEach(btn => {
+    btn.addEventListener('click', () => _applyPopMilestoneOption(btn.dataset.popOption));
   });
+});
 
-  return { width, height, tiles };
+// ── Offline progress modal ────────────────────────────────────────────
+
+function _showOfflineModal({ ticks, secs }) {
+  const el = document.getElementById('offline-modal');
+  if (!el) return;
+  el.querySelector('.offline-modal__time').textContent =
+    secs >= 3600 ? `${Math.floor(secs/3600)}h ${Math.floor((secs%3600)/60)}m`
+    : secs >= 60  ? `${Math.floor(secs/60)}m ${secs%60}s`
+    : `${secs}s`;
+  el.classList.remove('modal--hidden');
+
+  const btn = el.querySelector('[data-offline-dismiss]');
+  if (btn) btn.onclick = () => el.classList.add('modal--hidden');
+
+  // Apply offline ticks in background
+  _processOfflineTicks(ticks);
 }
 
-// ---- Leaderboard ------------------------------------------------------------
+let _maybeOfflineDone = false;
+function _maybeShowOfflineModal() {
+  if (_maybeOfflineDone) return;
+  _maybeOfflineDone = true;
+  if (_pendingOffline) {
+    _showOfflineModal(_pendingOffline);
+    _pendingOffline = null;
+  }
+}
 
-export function submitScore(empireData) {
-  try {
-    const lb = JSON.parse(localStorage.getItem(LB_KEY) ?? '[]');
-    lb.push({
-      name:     empireData.name,
-      score:    empireData.score,
-      age:      empireData.age,
-      tiles:    empireData.tiles,
-      ticks:    empireData.ticks,
-      date:     new Date().toISOString(),
+function _processOfflineTicks(ticks) {
+  // Run tick systems silently
+  const batch = Math.min(ticks, 4 * 60 * 60); // max 1h
+  let i = 0;
+  function step() {
+    const end = Math.min(i + 200, batch);
+    for (; i < end; i++) {
+      resourceTick();
+      researchTick();
+      populationTick();
+      moraleTick();
+      state.tick++;
+    }
+    if (i < batch) setTimeout(step, 0);
+    else { recalcRates(); emit(Events.RESOURCE_CHANGED); }
+  }
+  step();
+}
+
+// ── Auto-queue tick helper ───────────────────────────────────────────
+
+function _processAutoQueue() {
+  // Delegated to autoQueue system
+}
+
+// ── Badge / banner updates ───────────────────────────────────────────
+
+function _updateAllBadges() {
+  _updateAgeBadge();
+  _updateSeasonBadge();
+  _updateWeatherBadge();
+  _updateExhaustionBadge();
+  _updateSiegeBadge();
+  _updateCrisisBanner();
+  _updateScholarBanner();
+  _updateNobleBanner();
+  _updateRefugeeBanner();
+  _updateCelestialBanner();
+  _updateAgeChallengeBadge();
+  _updateEmergencyBtn();
+}
+
+on(Events.AGE_CHANGED,    _updateAgeBadge);
+on(Events.SEASON_CHANGED, _updateSeasonBadge);
+on(Events.TICK,           () => {
+  // Update badges every second (4 ticks)
+  if (state.tick % 4 === 0) _updateAllBadges();
+});
+
+function _updateAgeBadge() {
+  const el = document.getElementById('age-badge');
+  if (!el) return;
+  const AGES = ['Stone Age', 'Bronze Age', 'Iron Age', 'Classical', 'Medieval', 'Renaissance'];
+  const ICONS = ['🪨', '🛡️', '⚔️', '🏛️', '🏰', '🔭'];
+  const a = state.age ?? 0;
+  el.textContent = `${ICONS[a] ?? ''} ${AGES[a] ?? 'Unknown'}`;
+}
+
+function _updateSeasonBadge() {
+  const el = document.getElementById('season-badge');
+  if (!el) return;
+  const season = getCurrentSeason();
+  el.textContent = season ? `${season.icon} ${season.name}` : '';
+}
+
+function _updateWeatherBadge() {
+  const el = document.getElementById('weather-badge');
+  if (!el) return;
+  const w = state.weather?.current;
+  el.textContent = w ? `${w.icon} ${w.name}` : '';
+}
+
+function _updateExhaustionBadge() {
+  const el = document.getElementById('exhaustion-badge');
+  if (!el) return;
+  const ex = state.military?.exhaustion ?? 0;
+  el.classList.toggle('badge--hidden', ex < 20);
+  el.textContent = ex >= 20 ? `💤 ${ex}% Tired` : '';
+}
+
+function _updateSiegeBadge() {
+  const el = document.getElementById('siege-badge');
+  if (!el) return;
+  const s = state.siege?.active;
+  el.classList.toggle('badge--hidden', !s);
+  el.textContent = s ? `🏹 Siege Active` : '';
+}
+
+function _updateCrisisBanner() {
+  const el = document.getElementById('crisis-banner');
+  if (!el) return;
+  const c = state.crisis?.active;
+  el.classList.toggle('banner--hidden', !c);
+  if (c) el.querySelector('.crisis-banner__text').textContent = `⚠️ ${c.label}`;
+}
+
+function _updateScholarBanner() {
+  const el = document.getElementById('scholar-banner');
+  if (!el) return;
+  const s = state.scholars?.active;
+  el.classList.toggle('banner--hidden', !s);
+}
+
+function _updateNobleBanner() {
+  const el = document.getElementById('noble-banner');
+  if (!el) return;
+  const n = state.nobles?.unrest;
+  el.classList.toggle('banner--hidden', !n);
+}
+
+function _updateRefugeeBanner() {
+  const el = document.getElementById('refugee-banner');
+  if (!el) return;
+  const r = state.refugees?.wave;
+  el.classList.toggle('banner--hidden', !r);
+}
+
+function _updateCelestialBanner() {
+  const el = document.getElementById('celestial-banner');
+  if (!el) return;
+  const c = state.celestials?.active;
+  el.classList.toggle('banner--hidden', !c);
+  if (c) el.querySelector('.celestial-banner__text').textContent = `✨ ${c.name}`;
+}
+
+function _updateAgeChallengeBadge() {
+  const el = document.getElementById('age-challenge-badge');
+  if (!el) return;
+  const a = state.ageChallenges?.current;
+  el.classList.toggle('badge--hidden', !a);
+}
+
+function _updateEmergencyBtn() {
+  const el = document.getElementById('emergency-btn');
+  if (!el) return;
+  const e = state.emergency?.available;
+  el.classList.toggle('btn--hidden', !e);
+}
+
+function _applyEmergencyOption(option) {
+  emit(Events.EMERGENCY_CHOSEN, { option });
+}
+
+// Attach emergency button
+document.addEventListener('DOMContentLoaded', () => {
+  const btn = document.getElementById('emergency-btn');
+  if (btn) btn.addEventListener('click', () => {
+    const modal = document.getElementById('emergency-modal');
+    if (modal) modal.classList.remove('modal--hidden');
+  });
+  document.querySelectorAll('[data-emergency-option]').forEach(b => {
+    b.addEventListener('click', () => {
+      _applyEmergencyOption(b.dataset.emergencyOption);
+      document.getElementById('emergency-modal')?.classList.add('modal--hidden');
     });
-    lb.sort((a, b) => b.score - a.score);
-    localStorage.setItem(LB_KEY, JSON.stringify(lb.slice(0, 50)));
-    emit(Events.LEADERBOARD_UPDATED);
-  } catch (e) {
-    console.error('Leaderboard save failed:', e);
-  }
-}
+  });
+});
 
-export function getLeaderboard() {
-  try {
-    return JSON.parse(localStorage.getItem(LB_KEY) ?? '[]');
-  } catch {
-    return [];
-  }
-}
+// ── New Game (called from Settings panel) ──────────────────────────────
 
-export function clearLeaderboard() {
-  localStorage.removeItem(LB_KEY);
-  emit(Events.LEADERBOARD_UPDATED);
-}
-
-// ---- Manual save/load (for Settings panel) ----------------------------------
-
-export function manualSave() {
-  _saveGame();
-}
-
-export function manualLoad() {
+export function newGame(empireName = 'My Empire') {
   stopLoop();
-  if (_loadGame()) {
-    startLoop();
-    return true;
-  }
-  startLoop();
-  return false;
-}
+  localStorage.removeItem('empireos-save');
+  initState(empireName);
+  _applyDifficultyStart();
+  _applyLegacyBonuses();
+  initMap();
 
-export function deleteSave() {
-  localStorage.removeItem(SAVE_KEY);
-}
+  initDiplomacy();
+  initHero();
+  initLegacy();
+  initCrisis();
+  initCitizenRoles();
+  initAutoQueue();
+  initSeasons();
+  initWeather();
+  initCityProsperity();  // T235
+  initImperialGames();   // T236
+  initRoyalLoan();       // T237
+  initAncientVaultCache(); // T238
+  initRecordsExchange(); // T239
+  initNomadicTribe();    // T240: reset nomadic tribe state on new game
+  initProphet();         // T241: reset wandering prophet state on new game
+  initArtisanFair();     // T242: reset artisan fair state on new game
+  initEpithet();         // T243: recalculate epithet for new empire
+  initCosmicAlignment(); // T244: reset cosmic alignment state on new game
+  _updateCelestialBanner(); // T153: hide banner on new game
+  _updateRefugeeBanner();   // T217: hide refugee banner on new game
+  recalcRates();
+  startLoop();  // restart loop in case it was stopped by game-over
 
-export function hasSave() {
-  return !!localStorage.getItem(SAVE_KEY);
-}
-
-// ---- New game (for Settings panel) ------------------------------------------
-
-export function startNewGame() {
-  stopLoop();
-  localStorage.removeItem(SAVE_KEY);
-  _newGame();
-  startLoop();
-  // Re-render all UI
+  addMessage('New empire founded. Good luck!', 'info');
   emit(Events.RESOURCE_CHANGED);
   emit(Events.MAP_CHANGED);
-  emit(Events.BUILDING_CHANGED);
-  emit(Events.UNIT_CHANGED);
-  emit(Events.TECH_CHANGED);
-  emit(Events.AGE_CHANGED, { age: state.age, name: AGES[state.age]?.name ?? '' });
-  emit(Events.QUEST_COMPLETED);
-  emit(Events.DIPLOMACY_CHANGED);
+  emit(Events.AGE_CHANGED, { age: 0 });
+}
+
+// ── Pause / Resume ───────────────────────────────────────────────────
+
+let _paused = false;
+
+export function isPaused() { return _paused; }
+
+function _togglePause() {
+  _paused = !_paused;
+  if (_paused) stopLoop(); else startLoop();
+  _updatePauseUI();
+}
+
+function _updatePauseUI() {
+  const btn     = document.getElementById('pause-btn');
+  const overlay = document.getElementById('pause-overlay');
+  if (btn) {
+    btn.classList.toggle('btn--paused', _paused);
+  }
+  if (overlay) {
+    overlay.classList.toggle('pause-overlay--hidden', !_paused);
+    overlay.setAttribute('aria-hidden', String(!_paused));
+  }
+}
+
+// ── Keyboard shortcuts ────────────────────────────────────────────
+
+/**
+ * Map number/symbol keys to tab panel ids.
+ * Mirrors the tab order in index.html.
+ */
+const _TAB_KEYS = {
+  '1': 'summary',
+  '2': 'buildings',
+  '3': 'military',
+  '4': 'map',
+  '5': 'research',
+  '6': 'diplomacy',
+  '7': 'market',
+  '8': 'quests',
+  '9': 'story',
+  '0': 'settings',
+  '-': 'log',
+  '=': 'almanac',
+};
+
+function _bindKeyboard() {
+  document.addEventListener('keydown', (e) => {
+    // Never fire shortcuts when the user is typing in a form element
+    const tag = e.target.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || e.target.isContentEditable) return;
+
+    // Skip if any system modifier is held (keeps browser shortcuts intact)
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+    // Tab switching: 1-0 and -
+    if (_TAB_KEYS[e.key] !== undefined) {
+      e.preventDefault();
+      switchTab(_TAB_KEYS[e.key]);
+      return;
+    }
+
+    switch (e.key) {
+      // Pause / resume
+      case ' ':
+      case 'p':
+      case 'P':
+        e.preventDefault();
+        _togglePause();
+        break;
+
+      // Quick save
+      case 's':
+      case 'S':
+        e.preventDefault();
+        _save();
+        addMessage('💾 Game saved. [S]', 'info');
+        break;
+
+      // Close the save/export modal if open
+      case 'Escape': {
+        const modal = document.getElementById('save-modal');
+        if (modal && !modal.classList.contains('modal--hidden')) {
+          document.getElementById('save-modal-close')?.click();
+        }
+        break;
+      }
+    }
+  });
+}
+
+// ── Start ─────────────────────────────────────────────────────────────
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', boot);
+} else {
+  boot();
 }
