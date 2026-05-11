@@ -15007,3 +15007,110 @@ kbd {
 .btn--fair-decline:hover {
   background: rgba(50, 50, 50, 0.65);
 }
+
+/* T244: Cosmic Alignment Quest Panel section */
+.cosmic-section {
+  background: rgba(15, 15, 30, 0.70);
+  border: 1px solid rgba(99, 102, 241, 0.30);
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+.cosmic-section--active {
+  border-color: rgba(99, 102, 241, 0.70);
+  animation: cosmic-pulse 2.5s ease-in-out infinite;
+}
+@keyframes cosmic-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.00); }
+  50%       { box-shadow: 0 0 8px 2px rgba(99, 102, 241, 0.25); }
+}
+.cosmic-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 5px;
+}
+.cosmic-icon { font-size: 1.2rem; }
+.cosmic-title {
+  font-weight: 600;
+  color: #a5b4fc;
+  flex: 1;
+}
+.cosmic-timer {
+  font-size: 0.78rem;
+  color: #a5b4fc;
+  font-weight: 600;
+}
+.cosmic-timer--urgent {
+  color: #f87171;
+  animation: blink 0.8s step-end infinite;
+}
+.cosmic-desc {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+.cosmic-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.cosmic-cost {
+  font-size: 0.70rem;
+  opacity: 0.80;
+  margin-left: 3px;
+}
+.btn--cosmic-observe {
+  padding: 5px 10px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  border: 1px solid rgba(99, 102, 241, 0.40);
+  border-radius: 4px;
+  background: linear-gradient(135deg, #1e1b4b 0%, #4338ca 100%);
+  color: #e0e7ff;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.btn--cosmic-observe:hover:not(:disabled) { opacity: 0.85; }
+.btn--cosmic-ritual {
+  padding: 5px 10px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  border: 1px solid rgba(139, 92, 246, 0.40);
+  border-radius: 4px;
+  background: linear-gradient(135deg, #2e1065 0%, #7c3aed 100%);
+  color: #ede9fe;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.btn--cosmic-ritual:hover:not(:disabled) { opacity: 0.85; }
+.btn--cosmic-ignore {
+  padding: 5px 10px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  border: 1px solid rgba(107, 114, 128, 0.35);
+  border-radius: 4px;
+  background: rgba(30, 30, 30, 0.50);
+  color: #9ca3af;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn--cosmic-ignore:hover { background: rgba(50, 50, 50, 0.65); }
+
+/* T243: Empire Epithet badge */
+.summary-empire-badge--epithet {
+  background: rgba(139, 92, 246, 0.15);
+  border: 1px solid rgba(139, 92, 246, 0.50);
+  color: #c4b5fd;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+}
+.lb-epithet {
+  font-size: 11px;
+  color: #c4b5fd;
+  margin-left: 4px;
+  opacity: 0.85;
+}
