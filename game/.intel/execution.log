@@ -4517,3 +4517,47 @@ Changes:
 - Five flavour-text descriptions rotate randomly, keeping the event feeling fresh across multiple appearances per game.
 - Iron Age minimum (age ≥ 2) matches artisanFair.js — both are mid-game+ events requiring meaningful empire establishment.
 - Ritual gives higher prestige (60 vs 20) at a mana cost, creating a genuine resource-vs-reward tradeoff against the free Observe option.
+
+---
+
+## Session — T245 + T246 (2026-05-11)
+
+### T245: Market Economy Cycles
+
+**Files created:**
+- `src/systems/economyCycle.js` — new system file
+
+**Files modified:**
+- `src/systems/market.js` — import + cycle multiplier applied in buyPrice() and sellPrice()
+- `src/core/events.js` — ECONOMY_CYCLE_CHANGED added
+- `src/core/state.js` — economyCycle:null field + initState reset
+- `src/ui/marketPanel.js` — import 6 exports; ECONOMY_CYCLE_CHANGED listener; tick-refresh condition; cycleHtml banner; cycleNextSecs hint
+- `src/main.js` — import, registerSystem, init, save, load; version 89→90
+- `styles/main.css` — .cycle-banner/--boom/--bust/title/desc/timer, .cycle-next
+
+**Design:**
+- Phases gate on Market building presence — no boom/bust without a market
+- Alternating: each phase end sets nextPhase to the opposite, so boom→bust→boom→...
+- First nextPhase chosen randomly at init
+- Multipliers applied as a factor in the buyPrice/sellPrice multiplier chains — cleanly composable with T196 trade fair, T232 price surge, etc.
+- Boom green, Bust red in the UI; both show seconds-remaining countdown
+
+### T246: Village Tribute Caravan
+
+**Files created:**
+- `src/systems/tributeCaravan.js` — new system file
+
+**Files modified:**
+- `src/core/events.js` — TRIBUTE_CARAVAN_CHANGED added
+- `src/core/state.js` — tributeCaravan:null field + initState reset
+- `src/ui/questPanel.js` — import 3 exports; TRIBUTE_CARAVAN_CHANGED in events list; tc tick-refresh check; tribute-claim click handler; _tributeCaravanSection() after _cosmicAlignmentSection()
+- `src/main.js` — import, registerSystem, init, save, load
+- `styles/main.css` — .tribute-section/--active, .tribute-header/icon/title/timer/--urgent, .tribute-desc, .tribute-options, .btn--tribute-option, .tribute-option__icon/body/title/reward
+
+**Design:**
+- Bronze Age minimum (age ≥ 1) — earlier than Cosmic Alignment (Iron Age), fitting as a simpler gift from villages
+- Three options pre-generated at spawn time so the UI is stable during the 90-second window
+- Gold amounts randomised (80-120g, 120-150f) to keep the choice interesting each time
+- Resources capped via state.caps to avoid overflow
+- Amber colour scheme distinguishes from blue (artisan fair) and indigo (cosmic alignment) quest cards
+
