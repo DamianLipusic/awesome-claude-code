@@ -4481,3 +4481,39 @@ Changes:
 - Prophet's Heed action reuses the prophetHeed modifier id in randomEvents.activeModifiers (same pattern as nomadicHire from T240) — zero new infrastructure needed.
 - Artisan Fair requires Iron Age (age ≥ 2) vs Prophet's Bronze Age (age ≥ 1), providing a meaningful mid-game unlock feeling.
 - Both sections render inline in the Quest panel between _tribeSection() and _imperialGamesSection() preserving visual hierarchy of event cards.
+
+---
+
+## Session: T243 + T244 (2026-05-11)
+
+### T243: Empire Epithet System
+
+**Summary:** Wired up the pre-existing `src/systems/epithet.js` into the main boot sequence. The epithet system derives a dynamic title for the empire from the player's dominant accomplishment and is shown in the Summary panel header, Game-Over screen, and leaderboard. Recalculated every season and on game-over.
+
+**Files modified:**
+  + game/src/systems/epithet.js (pre-existing, no changes)
+  ~ game/src/main.js: import initEpithet; initEpithet() in boot+_newGame; version 87→88
+  ~ game/styles/main.css: .summary-empire-badge--epithet (purple pill badge), .lb-epithet (dim purple inline text)
+
+**Architecture decisions:**
+- epithet.js uses a priority-ordered rule list (first match wins) covering 17 conditions across 7 playstyle dimensions — zero hardcoded state, zero tick registration needed.
+- state.empire.epithet is already included in the serialised save payload (empire object is saved wholesale), so no new save/load key was required.
+- initEpithet() is idempotent (just subscribes events + runs initial calc), safe to call on both boot and _newGame().
+
+### T244: Cosmic Alignment
+
+**Summary:** Periodic Iron Age+ celestial event (20-25 min, 10+ tiles, 80-second window). Five alignment types appear randomly: Lunar Eclipse 🌕, Solar Halo 🌞, Meteor Shower ☄️, Aurora Borealis 🌌, Red Star Rising 🌟. Quest-panel card with three choices: Observe (free → +20 prestige + reveal 3 unrevealed tiles near capital), Ritual (−40 mana → +60 prestige + 8 morale), Ignore.
+
+**Files modified:**
+  + game/src/systems/cosmicAlignment.js (new)
+  ~ game/src/core/events.js: COSMIC_ALIGNMENT_CHANGED added
+  ~ game/src/core/state.js: cosmicAlignment:null field + initState reset
+  ~ game/src/ui/questPanel.js: import 8 exports from cosmicAlignment.js; COSMIC_ALIGNMENT_CHANGED added to events list; ca check in tick refresh; align-observe/ritual/ignore click handlers; _cosmicAlignmentSection() added after _artisanFairSection() in render
+  ~ game/src/main.js: import initCosmicAlignment+cosmicAlignmentTick; registerSystem(cosmicAlignmentTick); initCosmicAlignment() in boot+_newGame; save/load state.cosmicAlignment; version 88→89
+  ~ game/styles/main.css: .cosmic-section/--active (indigo pulse animation), .cosmic-header, .cosmic-icon, .cosmic-title, .cosmic-timer/--urgent, .cosmic-desc, .cosmic-actions, .cosmic-cost, .btn--cosmic-observe (indigo gradient), .btn--cosmic-ritual (violet gradient), .btn--cosmic-ignore (muted)
+
+**Architecture decisions:**
+- Observe's _revealTilesNearCapital(n) collects all unrevealed tiles within Euclidean distance 2-8 from capital (10, 10), shuffles them, and reveals the first n — same direct tile mutation + MAP_CHANGED emit pattern used by cartographersGuild, spells, and scoutMissions.
+- Five flavour-text descriptions rotate randomly, keeping the event feeling fresh across multiple appearances per game.
+- Iron Age minimum (age ≥ 2) matches artisanFair.js — both are mid-game+ events requiring meaningful empire establishment.
+- Ritual gives higher prestige (60 vs 20) at a mana cost, creating a genuine resource-vs-reward tradeoff against the free Observe option.
