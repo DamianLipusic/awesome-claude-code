@@ -157,6 +157,8 @@ import { initProphet, prophetTick }                     from './systems/wanderin
 import { initArtisanFair, artisanFairTick }             from './systems/artisanFair.js';                // T242
 import { initEpithet }                                  from './systems/epithet.js';                     // T243
 import { initCosmicAlignment, cosmicAlignmentTick }     from './systems/cosmicAlignment.js';              // T244
+import { initEconomyCycle, economyCycleTick }           from './systems/economyCycle.js';                  // T245
+import { initTributeCaravan, tributeCaravanTick }       from './systems/tributeCaravan.js';                // T246
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
@@ -279,6 +281,8 @@ function boot() {
   registerSystem(prophetTick);           // T241: wandering prophet spawn/expiry
   registerSystem(artisanFairTick);       // T242: artisan fair spawn/expiry
   registerSystem(cosmicAlignmentTick);   // T244: cosmic alignment spawn/expiry
+  registerSystem(economyCycleTick);      // T245: economy cycle phase transitions
+  registerSystem(tributeCaravanTick);    // T246: tribute caravan spawn/expiry
 
   // Init event-driven systems
   initRandomEvents();
@@ -390,6 +394,8 @@ function boot() {
   initArtisanFair();         // T242: artisan fair state init
   initEpithet();             // T243: subscribe SEASON_CHANGED + initial calculation
   initCosmicAlignment();     // T244: cosmic alignment state init
+  initEconomyCycle();        // T245: economy cycle state init
+  initTributeCaravan();      // T246: tribute caravan state init
   // T176: monument init deferred — only activates when building is constructed
 
   // Init UI
@@ -651,7 +657,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 89, // T243: empire epithet system; T244: cosmic alignment
+      version: 90, // T245: economy cycle; T246: village tribute caravan
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -817,6 +823,8 @@ function _save() {
         prophet:             state.prophet             ?? null,  // T241
         artisanFair:         state.artisanFair         ?? null,  // T242
         cosmicAlignment:     state.cosmicAlignment     ?? null,  // T244
+        economyCycle:        state.economyCycle        ?? null,  // T245
+        tributeCaravan:      state.tributeCaravan      ?? null,  // T246
         tick:          state.tick,
       }
     }));
@@ -1016,6 +1024,8 @@ function _applySave(save) {
   state.prophet              = s.prophet              ?? null; // T241
   state.artisanFair          = s.artisanFair          ?? null; // T242
   state.cosmicAlignment      = s.cosmicAlignment      ?? null; // T244
+  state.economyCycle         = s.economyCycle         ?? null; // T245
+  state.tributeCaravan       = s.tributeCaravan       ?? null; // T246
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
@@ -1934,6 +1944,8 @@ function _newGame(opts = {}) {
   initArtisanFair();         // T242: reset artisan fair state on new game
   initEpithet();             // T243: recalculate epithet for new empire
   initCosmicAlignment();     // T244: reset cosmic alignment state on new game
+  initEconomyCycle();        // T245: reset economy cycle state on new game
+  initTributeCaravan();      // T246: reset tribute caravan state on new game
   _updateCelestialBanner(); // T153: hide banner on new game
   _updateRefugeeBanner();   // T217: hide refugee banner on new game
   recalcRates();
