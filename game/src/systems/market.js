@@ -15,6 +15,7 @@ import { getFairBuyMult, getFairSellMult, tradeFairTradeMade } from './tradeFair
 import { getReputationSellBonus } from './reputation.js'; // T211
 import { isPropagandaActive }     from './propaganda.js';  // T219
 import { isPriceSurgeActive }     from './priceSurge.js';  // T232
+import { getEconomyCycleMults }   from './economyCycle.js'; // T245
 
 // Base gold value per 1 unit of each resource
 const BASE_PRICES = Object.freeze({
@@ -111,7 +112,8 @@ export function buyPrice(resource, amount = 1) {
   const mult     = state.market.prices[resource] ?? 1;
   const seasonal = getSeasonalCommodities().includes(resource) ? SEASONAL_BUY_MULT : 1.0;
   const fair     = getFairBuyMult(); // T196: trade fair discount
-  return Math.ceil(base * mult * seasonal * fair * (1 + SPREAD) * amount);
+  const cycle    = getEconomyCycleMults().buyMult; // T245: boom/bust cycle
+  return Math.ceil(base * mult * seasonal * fair * cycle * (1 + SPREAD) * amount);
 }
 
 /** Gold earned for selling `amount` units of `resource`. */
@@ -121,7 +123,8 @@ export function sellPrice(resource, amount = 1) {
   const mult     = state.market.prices[resource] ?? 1;
   const seasonal = getSeasonalCommodities().includes(resource) ? SEASONAL_SELL_MULT : 1.0;
   const fair     = getFairSellMult(); // T196: trade fair bonus
-  return Math.floor(base * mult * seasonal * fair * (1 - SPREAD) * amount);
+  const cycle    = getEconomyCycleMults().sellMult; // T245: boom/bust cycle
+  return Math.floor(base * mult * seasonal * fair * cycle * (1 - SPREAD) * amount);
 }
 
 // ---------------------------------------------------------------------------

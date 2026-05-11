@@ -208,4 +208,6 @@ export const Events = Object.freeze({
   PROPHET_CHANGED:             'prophetChanged',                // T241: wandering prophet spawned / heeded / tributed / dismissed / expired
   ARTISAN_FAIR_CHANGED:        'artisanFairChanged',            // T242: artisan fair spawned / commissioned / exported / declined / expired
   COSMIC_ALIGNMENT_CHANGED:   'cosmicAlignmentChanged',        // T244: cosmic alignment spawned / observed / ritualed / ignored / expired
+  ECONOMY_CYCLE_CHANGED:      'economyCycleChanged',            // T245: economy cycle phase started or ended
+  TRIBUTE_CARAVAN_CHANGED:    'tributeCaravanChanged',          // T246: tribute caravan spawned / claimed / expired
 });
