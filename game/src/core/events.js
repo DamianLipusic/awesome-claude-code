@@ -207,4 +207,5 @@ export const Events = Object.freeze({
   NOMADIC_TRIBE_CHANGED:       'nomadicTribeChanged',           // T240: nomadic tribe spawned / accepted / hired / refused / expired
   PROPHET_CHANGED:             'prophetChanged',                // T241: wandering prophet spawned / heeded / tributed / dismissed / expired
   ARTISAN_FAIR_CHANGED:        'artisanFairChanged',            // T242: artisan fair spawned / commissioned / exported / declined / expired
+  COSMIC_ALIGNMENT_CHANGED:   'cosmicAlignmentChanged',        // T244: cosmic alignment spawned / observed / ritualed / ignored / expired
 });
