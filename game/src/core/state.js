@@ -706,6 +706,16 @@ export const state = {
   //   nextSpawnTick: tick, totalAlignments: number,
   //   totalObserved: number, totalRitualed: number } | null
   cosmicAlignment: null,
+
+  // T245: Economy Cycle — alternating boom/bust market phases (5-8 min each, 2-3 min transition)
+  // { phase: 'boom'|'bust'|null, phaseEndsAt: tick, nextPhaseTick: tick,
+  //   nextPhase: 'boom'|'bust', totalCycles: number } | null
+  economyCycle: null,
+
+  // T246: Village Tribute Caravan — periodic Bronze Age+ resource gift event (10-14 min, 90-sec window)
+  // { active: { options: [...], expiresAt: tick } | null,
+  //   nextSpawnTick: tick, totalCaravans: number, totalClaimed: number } | null
+  tributeCaravan: null,
 };
 
 /**
@@ -870,5 +880,7 @@ export function initState(empireName = 'My Empire') {
   state.prophet              = null; // T241: reset wandering prophet per game
   state.artisanFair          = null; // T242: reset artisan fair per game
   state.cosmicAlignment      = null; // T244: reset cosmic alignment per game
+  state.economyCycle         = null; // T245: reset economy cycle per game
+  state.tributeCaravan       = null; // T246: reset tribute caravan per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }
