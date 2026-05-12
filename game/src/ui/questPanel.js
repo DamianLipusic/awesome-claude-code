@@ -28,6 +28,8 @@ import { observeAlignment, performRitual, ignoreAlignment, getActiveAlignment, g
 import { claimTribute, getActiveTributeCaravan, getTributeCaravanSecsLeft } from '../systems/tributeCaravan.js'; // T246
 import { mineOreVein, commissionOreVein, sealOreVein, getActiveOreVein, getOreVeinSecsLeft, MINE_IRON_REWARD, MINE_STONE_REWARD, MINE_MORALE_PENALTY, COMMISSION_GOLD_COST, COMMISSION_IRON_REWARD, COMMISSION_STONE_REWARD, COMMISSION_PRESTIGE } from '../systems/ancientOreVein.js'; // T247
 import { purchaseRemedies, learnHerbalTechniques, sendHerbalistAway, getActiveHerbalist, getHerbalistSecsLeft, PURCHASE_GOLD_COST, PURCHASE_FOOD_REWARD, PURCHASE_MORALE, LEARN_MANA_COST, LEARN_FOOD_RATE } from '../systems/wanderingHerbalist.js'; // T248
+import { circusWelcomeShow, circusRecruitPerformers, dismissCircus, getActiveCircus, getCircusSecsLeft, SHOW_GOLD_COST, SHOW_MORALE_REWARD, SHOW_PRESTIGE_REWARD, RECRUIT_GOLD_COST, RECRUIT_MORALE_REWARD, RECRUIT_FOOD_RATE } from '../systems/travelingCircus.js'; // T249
+import { blessSpringWaters, sellSpringWaterRights, protectSacredSpring, getActiveSacredSpring, getSacredSpringSecsLeft, BLESS_MANA_COST, BLESS_FOOD_REWARD, BLESS_MORALE_REWARD, BLESS_PRESTIGE_REWARD, SELL_PRESTIGE_COST, SELL_GOLD_REWARD, PROTECT_MORALE_REWARD, PROTECT_PRESTIGE_REWARD } from '../systems/sacredSpring.js'; // T250
 
 export function initQuestPanel() {
   const panel = document.getElementById('panel-quests');
@@ -59,6 +61,8 @@ export function initQuestPanel() {
     Events.TRIBUTE_CARAVAN_CHANGED,                      // T246: tribute caravan spawned / claimed / expired
     Events.ORE_VEIN_CHANGED,                             // T247: ore vein spawned / mined / commissioned / sealed / expired
     Events.HERBALIST_CHANGED,                            // T248: herbalist spawned / purchased / learned / dismissed / expired
+    Events.CIRCUS_CHANGED,                               // T249: circus spawned / welcomed / recruited / dismissed / expired
+    Events.SACRED_SPRING_CHANGED,                        // T250: sacred spring spawned / blessed / sold / protected / expired
   ];
   for (const ev of events) on(ev, render);
 
@@ -288,6 +292,38 @@ export function initQuestPanel() {
     if (e.target.closest('[data-action="herbalist-away"]')) {
       sendHerbalistAway();
     }
+    // Traveling circus actions (T249)
+    if (e.target.closest('[data-action="circus-show"]')) {
+      const r = circusWelcomeShow();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="circus-show"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="circus-recruit"]')) {
+      const r = circusRecruitPerformers();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="circus-recruit"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="circus-dismiss"]')) {
+      dismissCircus();
+    }
+    // Sacred spring actions (T250)
+    if (e.target.closest('[data-action="spring-bless"]')) {
+      const r = blessSpringWaters();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="spring-bless"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="spring-sell"]')) {
+      sellSpringWaterRights();
+    }
+    if (e.target.closest('[data-action="spring-protect"]')) {
+      protectSacredSpring();
+    }
   });
 
   setQuestPanelRenderer(render);
@@ -321,6 +357,8 @@ function render() {
     ${_tributeCaravanSection()}
     ${_oreVeinSection()}
     ${_herbalistSection()}
+    ${_circusSection()}
+    ${_sacredSpringSection()}
     ${_imperialGamesSection()}
     ${_harvestSection()}
     <div class="quest-header">
@@ -1318,6 +1356,85 @@ function _herbalistSection() {
         </button>
         <button class="btn btn--herb-away" data-action="herbalist-away">
           🚶 Send Away
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── Traveling Circus section (T249) ─────────────────────────────────────────
+
+function _circusSection() {
+  const circus = getActiveCircus();
+  if (!circus) return '';
+
+  const secs   = getCircusSecsLeft();
+  const urgent = secs < 20;
+
+  const canAffordShow    = (state.resources?.gold ?? 0) >= SHOW_GOLD_COST;
+  const canAffordRecruit = (state.resources?.gold ?? 0) >= RECRUIT_GOLD_COST;
+  const showClass    = canAffordShow    ? 'btn btn--circus-show'    : 'btn btn--circus-show btn--disabled';
+  const recruitClass = canAffordRecruit ? 'btn btn--circus-recruit' : 'btn btn--circus-recruit btn--disabled';
+
+  return `
+    <div class="circus-section circus-section--active">
+      <div class="circus-header">
+        <span class="circus-icon">🎪</span>
+        <span class="circus-title">Traveling Circus</span>
+        <span class="circus-timer${urgent ? ' circus-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="circus-desc">A colorful traveling circus has arrived at the empire gates with acrobats, exotic animals, and dazzling performers!</div>
+      <div class="circus-actions">
+        <button class="${showClass}" data-action="circus-show"
+                title="${canAffordShow ? `Welcome Show (${SHOW_GOLD_COST}💰)` : `Need ${SHOW_GOLD_COST} gold`}">
+          🎪 Welcome Show
+          <span class="circus-cost">${SHOW_GOLD_COST}💰 · +${SHOW_MORALE_REWARD} morale, +${SHOW_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="${recruitClass}" data-action="circus-recruit"
+                title="${canAffordRecruit ? `Recruit Performers (${RECRUIT_GOLD_COST}💰)` : `Need ${RECRUIT_GOLD_COST} gold`}">
+          🤹 Recruit Performers
+          <span class="circus-cost">${RECRUIT_GOLD_COST}💰 · +${RECRUIT_MORALE_REWARD} morale, +${RECRUIT_FOOD_RATE} food/s for 2 min</span>
+        </button>
+        <button class="btn btn--circus-dismiss" data-action="circus-dismiss">
+          👋 Dismiss Circus
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── Sacred Spring Discovery section (T250) ───────────────────────────────────
+
+function _sacredSpringSection() {
+  const spring = getActiveSacredSpring();
+  if (!spring) return '';
+
+  const secs   = getSacredSpringSecsLeft();
+  const urgent = secs < 20;
+
+  const canAffordBless = (state.resources?.mana ?? 0) >= BLESS_MANA_COST;
+  const blessClass = canAffordBless ? 'btn btn--spring-bless' : 'btn btn--spring-bless btn--disabled';
+
+  return `
+    <div class="spring-section spring-section--active">
+      <div class="spring-header">
+        <span class="spring-icon">🌊</span>
+        <span class="spring-title">Sacred Spring Discovery</span>
+        <span class="spring-timer${urgent ? ' spring-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="spring-desc">Scouts have discovered a sacred spring hidden within the empire's territory. Its waters are said to carry divine blessings from the gods.</div>
+      <div class="spring-actions">
+        <button class="${blessClass}" data-action="spring-bless"
+                title="${canAffordBless ? `Bless the Waters (${BLESS_MANA_COST}✨)` : `Need ${BLESS_MANA_COST} mana`}">
+          🌊 Bless the Waters
+          <span class="spring-cost">${BLESS_MANA_COST}✨ · +${BLESS_FOOD_REWARD} food, +${BLESS_MORALE_REWARD} morale, +${BLESS_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn btn--spring-sell" data-action="spring-sell"
+                title="Sell water rights to merchants (−${SELL_PRESTIGE_COST} prestige)">
+          💰 Sell Water Rights
+          <span class="spring-cost">−${SELL_PRESTIGE_COST} prestige · +${SELL_GOLD_REWARD} gold</span>
+        </button>
+        <button class="btn btn--spring-protect" data-action="spring-protect">
+          🌿 Protect the Spring
+          <span class="spring-cost">Free · +${PROTECT_MORALE_REWARD} morale, +${PROTECT_PRESTIGE_REWARD} prestige</span>
         </button>
       </div>
     </div>`;
