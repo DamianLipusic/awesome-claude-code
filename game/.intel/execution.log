@@ -2,6 +2,56 @@
 
 ---
 
+## 2026-05-12 — Session N+61
+
+**Tasks completed:** T247, T248
+
+**Summary:**
+All prior tasks (T001–T246) were complete. Created T247+T248 task specs in tasks.json then implemented two Phase 101 features: Ancient Ore Vein Discovery (T247) and Wandering Herbalist (T248).
+
+**T247 — Ancient Ore Vein Discovery:**
+- `src/systems/ancientOreVein.js`: New file. SPAWN_MIN=3360 (14 min), SPAWN_RANGE=960 (+0-4 min), WINDOW_TICKS=300 (75 sec), MIN_AGE=2 (Iron Age), MIN_PLAYER_TILES=12. mineOreVein() awards +90 iron, +50 stone, −8 morale (free). commissionOreVein() costs 60 gold, awards +140 iron, +80 stone, +10 prestige. sealOreVein() no-ops and reschedules. Accessors: getActiveOreVein(), getOreVeinSecsLeft().
+- `src/core/events.js`: ORE_VEIN_CHANGED:'oreVeinChanged' added.
+- `src/core/state.js`: `oreVein:null` field + initState reset.
+- `src/ui/questPanel.js`: Import 10 exports; ORE_VEIN_CHANGED in events list; ov check in tick-refresh; ore-mine/commission/seal click handlers; `_oreVeinSection()` after `_tributeCaravanSection()` in render.
+- `src/main.js`: import+registerSystem(oreVeinTick)+init in boot+_newGame+save/load; version 90→91.
+- `styles/main.css`: `.ore-section/--active` (amber-brown border+bg), `.ore-header`, `.ore-icon`, `.ore-title`, `.ore-timer/--urgent`, `.ore-desc`, `.ore-actions`, `.ore-cost`, `.btn--ore-mine` (amber), `.btn--ore-commission` (blue), `.btn--ore-seal` (muted).
+
+**T248 — Wandering Herbalist:**
+- `src/systems/wanderingHerbalist.js`: New file. SPAWN_MIN=2400 (10 min), SPAWN_RANGE=720 (+0-3 min), WINDOW_TICKS=320 (80 sec), MIN_AGE=1 (Bronze Age), MIN_PLAYER_TILES=6. purchaseRemedies() costs 40 gold, awards +50 food, +8 morale. learnHerbalTechniques() costs 20 mana, pushes herbalistLearn modifier (+0.4 food/s for 3 min) to randomEvents.activeModifiers. sendHerbalistAway() no-ops and reschedules.
+- `src/core/events.js`: HERBALIST_CHANGED:'herbalistChanged' added.
+- `src/core/state.js`: `herbalist:null` field + initState reset.
+- `src/ui/questPanel.js`: Import 9 exports; HERBALIST_CHANGED in events list; hb check in tick-refresh; herbalist-purchase/learn/away click handlers; `_herbalistSection()` after `_oreVeinSection()` in render.
+- `src/main.js`: import+registerSystem(herbalistTick)+init in boot+_newGame+save/load; version 90→91.
+- `styles/main.css`: `.herb-section/--active` (green border+bg), `.herb-header`, `.herb-icon`, `.herb-title`, `.herb-timer/--urgent`, `.herb-desc`, `.herb-actions`, `.herb-cost`, `.btn--herb-purchase` (green), `.btn--herb-learn` (purple), `.btn--herb-away` (muted).
+
+**Architecture decisions:**
+- Ore Vein requires Iron Age+ and 12+ tiles so the mining choice is meaningful only when the player actually needs iron/stone for late-game buildings and wonders.
+- The commission option uses a gold cost to offer a strictly better yield, creating a real tradeoff between spending gold vs. absorbing morale loss.
+- Herbalist spawns earlier (Bronze Age+, 6 tiles) because food problems are relevant throughout the game, not just the late-game.
+- Learn Techniques pushes to randomEvents.activeModifiers (the same mechanism used by nomadicTribe hireTribe and prophetHeed), ensuring the food rate bonus integrates cleanly with recalcRates() and auto-expires without a separate tick check.
+- Save version bumped 90→91 (T247 + T248 combined).
+
+**Files modified:**
+  + game/src/systems/ancientOreVein.js (new)
+      initOreVein(), oreVeinTick(), mineOreVein(), commissionOreVein(), sealOreVein(),
+      getActiveOreVein(), getOreVeinSecsLeft()
+  + game/src/systems/wanderingHerbalist.js (new)
+      initHerbalist(), herbalistTick(), purchaseRemedies(), learnHerbalTechniques(),
+      sendHerbalistAway(), getActiveHerbalist(), getHerbalistSecsLeft()
+  ~ game/src/core/events.js
+      ORE_VEIN_CHANGED, HERBALIST_CHANGED added
+  ~ game/src/core/state.js
+      oreVein:null + herbalist:null fields; initState resets both
+  ~ game/src/ui/questPanel.js
+      T247+T248 imports, event listeners, click handlers, _oreVeinSection(), _herbalistSection()
+  ~ game/src/main.js
+      imports × 2, registerSystem × 2, boot+_newGame init × 2, save/load × 2, version 90→91
+  ~ game/styles/main.css
+      ore-* and herb-* styles added
+
+---
+
 ## 2026-05-08 — Session N+60
 
 **Tasks completed:** T235, T236
