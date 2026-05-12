@@ -165,6 +165,8 @@ import { initCircus, circusTick }                       from './systems/travelin
 import { initSacredSpring, sacredSpringTick }           from './systems/sacredSpring.js';                     // T250
 import { initWanderingBard, wanderingBardTick }         from './systems/wanderingBard.js';                    // T251
 import { initMasterArtisan, masterArtisanTick }         from './systems/masterArtisan.js';                    // T252
+import { initMountainHermit, mountainHermitTick }       from './systems/mountainHermit.js';                   // T253
+import { initImperialJubilee, imperialJubileeTick }     from './systems/imperialJubilee.js';                  // T254
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
@@ -295,6 +297,8 @@ function boot() {
   registerSystem(sacredSpringTick);      // T250: sacred spring spawn/expiry
   registerSystem(wanderingBardTick);     // T251: wandering bard spawn/expiry
   registerSystem(masterArtisanTick);     // T252: master artisan spawn/expiry
+  registerSystem(mountainHermitTick);   // T253: mountain hermit spawn/expiry
+  registerSystem(imperialJubileeTick);  // T254: imperial jubilee spawn/expiry
 
   // Init event-driven systems
   initRandomEvents();
@@ -414,6 +418,8 @@ function boot() {
   initSacredSpring();        // T250: sacred spring state init
   initWanderingBard();       // T251: wandering bard state init
   initMasterArtisan();       // T252: master artisan state init
+  initMountainHermit();      // T253: mountain hermit state init
+  initImperialJubilee();     // T254: imperial jubilee state init
   // T176: monument init deferred — only activates when building is constructed
 
   // Init UI
@@ -675,7 +681,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 93, // T251: wandering bard; T252: master artisan visit
+      version: 95, // T253: mountain hermit; T254: imperial jubilee
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -849,6 +855,8 @@ function _save() {
         sacredSpring:        state.sacredSpring        ?? null,  // T250
         wanderingBard:       state.wanderingBard       ?? null,  // T251
         masterArtisan:       state.masterArtisan       ?? null,  // T252
+        mountainHermit:      state.mountainHermit      ?? null,  // T253
+        imperialJubilee:     state.imperialJubilee     ?? null,  // T254
         tick:          state.tick,
       }
     }));
@@ -1056,6 +1064,8 @@ function _applySave(save) {
   state.sacredSpring         = s.sacredSpring         ?? null; // T250
   state.wanderingBard        = s.wanderingBard        ?? null; // T251
   state.masterArtisan        = s.masterArtisan        ?? null; // T252
+  state.mountainHermit       = s.mountainHermit       ?? null; // T253
+  state.imperialJubilee      = s.imperialJubilee      ?? null; // T254
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
@@ -1982,6 +1992,8 @@ function _newGame(opts = {}) {
   initSacredSpring();        // T250: reset sacred spring state on new game
   initWanderingBard();       // T251: reset wandering bard state on new game
   initMasterArtisan();       // T252: reset master artisan state on new game
+  initMountainHermit();    // T253: reset mountain hermit state on new game
+  initImperialJubilee();   // T254: reset imperial jubilee state on new game
   _updateCelestialBanner(); // T153: hide banner on new game
   _updateRefugeeBanner();   // T217: hide refugee banner on new game
   recalcRates();
