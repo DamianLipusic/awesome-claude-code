@@ -2,6 +2,36 @@
 
 ---
 
+## 2026-05-12 — Session N+62
+
+**Tasks completed:** T251, T252
+
+**Summary:**
+All prior tasks (T001–T250) were complete. Created T251+T252 task specs in tasks.json then implemented two Phase 103 features: Wandering Bard (T251) and Master Artisan Visit (T252).
+
+**T251 — Wandering Bard:**
+- `src/systems/wanderingBard.js`: New file. SPAWN_MIN=2880 (12 min), SPAWN_RANGE=960 (+0-4 min), WINDOW_TICKS=320 (80 sec), MIN_AGE=1 (Bronze Age), MIN_PLAYER_TILES=6. commissionBardPerformance() costs 35 gold, awards +12 morale, +8 prestige, pushes bardCommission modifier (+0.1 food/s for 2 min) to randomEvents.activeModifiers. listenToBardStories() free, awards +5 morale, +6 prestige. sendBardAway() no-ops and reschedules.
+- `src/core/events.js`: WANDERING_BARD_CHANGED:'wanderingBardChanged' added.
+- `src/core/state.js`: `wanderingBard:null` field + initState reset.
+- `src/ui/questPanel.js`: Import 10 exports; WANDERING_BARD_CHANGED in events list; bd check in tick-refresh; bard-commission/listen/away click handlers; `_wanderingBardSection()` after `_sacredSpringSection()` in render.
+- `src/main.js`: import+registerSystem(wanderingBardTick)+init in boot+_newGame+save/load; version 92→93.
+- `styles/main.css`: `.bard-section/--active` (violet pulse), `.bard-header`, `.bard-icon`, `.bard-title`, `.bard-timer/--urgent`, `.bard-desc`, `.bard-actions`, `.bard-cost`, `.btn--bard-commission` (violet), `.btn--bard-listen` (blue), `.btn--bard-away` (muted).
+
+**T252 — Master Artisan Visit:**
+- `src/systems/masterArtisan.js`: New file. SPAWN_MIN=3360 (14 min), SPAWN_RANGE=1200 (+0-5 min), WINDOW_TICKS=340 (85 sec), MIN_AGE=2 (Iron Age), MIN_PLAYER_TILES=10. hireMasterArtisan() costs 70 gold, awards +60 prestige, pushes masterArtisanHire modifier (+0.15 iron/s for 3 min) to randomEvents.activeModifiers. commissionArtisanPieces() costs 40 wood + 20 stone, awards +80 gold (capped) +30 prestige. bidArtisanFarewell() no-ops and reschedules.
+- `src/core/events.js`: MASTER_ARTISAN_CHANGED:'masterArtisanChanged' added.
+- `src/core/state.js`: `masterArtisan:null` field + initState reset.
+- `src/ui/questPanel.js`: Import 8 exports; MASTER_ARTISAN_CHANGED in events list; ma check in tick-refresh; artisan-hire/commission/farewell click handlers; `_masterArtisanSection()` after `_wanderingBardSection()` in render.
+- `src/main.js`: import+registerSystem(masterArtisanTick)+init in boot+_newGame+save/load; version 92→93.
+- `styles/main.css`: `.artisan-section/--active` (amber-gold pulse), `.artisan-header`, `.artisan-icon`, `.artisan-title`, `.artisan-timer/--urgent`, `.artisan-desc`, `.artisan-actions`, `.artisan-cost`, `.btn--artisan-hire` (gold), `.btn--artisan-commission` (green), `.btn--artisan-farewell` (muted).
+
+**Architecture decisions:**
+- Wandering Bard targets Bronze Age+ (same as herbalist, circus, sacred spring) keeping early-game quest panel lively with entertainment-themed encounters.
+- Master Artisan requires Iron Age+ and 10+ tiles, positioning it as a mid-to-late encounter that offers a meaningful gold-sink (hire) vs. resource-to-gold conversion (commission) tradeoff.
+- Both systems reuse the randomEvents.activeModifiers pattern for temporary rate buffs, consistent with herbalist (food buff) and circus (food buff) implementations.
+
+---
+
 ## 2026-05-12 — Session N+61
 
 **Tasks completed:** T247, T248
