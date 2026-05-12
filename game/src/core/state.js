@@ -740,6 +740,18 @@ export const state = {
   //   nextSpawnTick: tick, totalVisits: number,
   //   totalBlessed: number, totalSold: number, totalProtected: number } | null
   sacredSpring: null,
+
+  // T251: Wandering Bard periodic encounter state.
+  // { active: { expiresAt: tick } | null,
+  //   nextSpawnTick: tick, totalVisits: number,
+  //   totalCommissioned: number, totalListened: number } | null
+  wanderingBard: null,
+
+  // T252: Master Artisan Visit periodic encounter state.
+  // { active: { expiresAt: tick } | null,
+  //   nextSpawnTick: tick, totalVisits: number,
+  //   totalHired: number, totalCommissioned: number } | null
+  masterArtisan: null,
 };
 
 /**
@@ -910,5 +922,7 @@ export function initState(empireName = 'My Empire') {
   state.herbalist            = null; // T248: reset herbalist per game
   state.circus               = null; // T249: reset traveling circus per game
   state.sacredSpring         = null; // T250: reset sacred spring per game
+  state.wanderingBard        = null; // T251: reset wandering bard per game
+  state.masterArtisan        = null; // T252: reset master artisan per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

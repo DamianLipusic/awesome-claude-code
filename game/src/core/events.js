@@ -214,4 +214,6 @@ export const Events = Object.freeze({
   HERBALIST_CHANGED:          'herbalistChanged',               // T248: wandering herbalist spawned / purchased / learned / dismissed / expired
   CIRCUS_CHANGED:             'circusChanged',                  // T249: traveling circus spawned / welcomed / recruited / dismissed / expired
   SACRED_SPRING_CHANGED:      'sacredSpringChanged',            // T250: sacred spring spawned / blessed / sold / protected / expired
+  WANDERING_BARD_CHANGED:     'wanderingBardChanged',           // T251: wandering bard spawned / commissioned / listened / dismissed / expired
+  MASTER_ARTISAN_CHANGED:     'masterArtisanChanged',           // T252: master artisan spawned / hired / commissioned / dismissed / expired
 });
