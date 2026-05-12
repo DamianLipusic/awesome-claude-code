@@ -30,6 +30,8 @@ import { mineOreVein, commissionOreVein, sealOreVein, getActiveOreVein, getOreVe
 import { purchaseRemedies, learnHerbalTechniques, sendHerbalistAway, getActiveHerbalist, getHerbalistSecsLeft, PURCHASE_GOLD_COST, PURCHASE_FOOD_REWARD, PURCHASE_MORALE, LEARN_MANA_COST, LEARN_FOOD_RATE } from '../systems/wanderingHerbalist.js'; // T248
 import { circusWelcomeShow, circusRecruitPerformers, dismissCircus, getActiveCircus, getCircusSecsLeft, SHOW_GOLD_COST, SHOW_MORALE_REWARD, SHOW_PRESTIGE_REWARD, RECRUIT_GOLD_COST, RECRUIT_MORALE_REWARD, RECRUIT_FOOD_RATE } from '../systems/travelingCircus.js'; // T249
 import { blessSpringWaters, sellSpringWaterRights, protectSacredSpring, getActiveSacredSpring, getSacredSpringSecsLeft, BLESS_MANA_COST, BLESS_FOOD_REWARD, BLESS_MORALE_REWARD, BLESS_PRESTIGE_REWARD, SELL_PRESTIGE_COST, SELL_GOLD_REWARD, PROTECT_MORALE_REWARD, PROTECT_PRESTIGE_REWARD } from '../systems/sacredSpring.js'; // T250
+import { commissionBardPerformance, listenToBardStories, sendBardAway, getActiveWanderingBard, getWanderingBardSecsLeft, COMMISSION_GOLD_COST as BARD_COMMISSION_GOLD_COST, COMMISSION_MORALE_REWARD as BARD_COMMISSION_MORALE, COMMISSION_PRESTIGE_REWARD as BARD_COMMISSION_PRESTIGE, COMMISSION_FOOD_RATE as BARD_COMMISSION_FOOD_RATE, LISTEN_MORALE_REWARD, LISTEN_PRESTIGE_REWARD } from '../systems/wanderingBard.js'; // T251
+import { hireMasterArtisan, commissionArtisanPieces, bidArtisanFarewell, getActiveMasterArtisan, getMasterArtisanSecsLeft, HIRE_GOLD_COST as ARTISAN_HIRE_GOLD_COST, HIRE_PRESTIGE_REWARD, HIRE_IRON_RATE, COMMISSION_WOOD_COST as ARTISAN_WOOD_COST, COMMISSION_STONE_COST as ARTISAN_STONE_COST, COMMISSION_GOLD_REWARD as ARTISAN_GOLD_REWARD, COMMISSION_PRESTIGE_REWARD as ARTISAN_PRESTIGE_REWARD } from '../systems/masterArtisan.js'; // T252
 
 export function initQuestPanel() {
   const panel = document.getElementById('panel-quests');
@@ -63,6 +65,8 @@ export function initQuestPanel() {
     Events.HERBALIST_CHANGED,                            // T248: herbalist spawned / purchased / learned / dismissed / expired
     Events.CIRCUS_CHANGED,                               // T249: circus spawned / welcomed / recruited / dismissed / expired
     Events.SACRED_SPRING_CHANGED,                        // T250: sacred spring spawned / blessed / sold / protected / expired
+    Events.WANDERING_BARD_CHANGED,                       // T251: bard spawned / commissioned / listened / dismissed / expired
+    Events.MASTER_ARTISAN_CHANGED,                       // T252: master artisan spawned / hired / commissioned / dismissed / expired
   ];
   for (const ev of events) on(ev, render);
 
@@ -87,7 +91,9 @@ export function initQuestPanel() {
       const tc  = !!getActiveTributeCaravan();
       const ov  = !!getActiveOreVein();
       const hb  = !!getActiveHerbalist();
-      if (ch || pe || bo || pl || pi || om || rh || leg || hv || ig || nt || pr || af || ca || tc || ov || hb) render();
+      const bd  = !!getActiveWanderingBard();
+      const ma  = !!getActiveMasterArtisan();
+      if (ch || pe || bo || pl || pi || om || rh || leg || hv || ig || nt || pr || af || ca || tc || ov || hb || bd || ma) render();
     }
   });
 
@@ -324,6 +330,38 @@ export function initQuestPanel() {
     if (e.target.closest('[data-action="spring-protect"]')) {
       protectSacredSpring();
     }
+    // Wandering bard actions (T251)
+    if (e.target.closest('[data-action="bard-commission"]')) {
+      const r = commissionBardPerformance();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="bard-commission"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="bard-listen"]')) {
+      listenToBardStories();
+    }
+    if (e.target.closest('[data-action="bard-away"]')) {
+      sendBardAway();
+    }
+    // Master artisan actions (T252)
+    if (e.target.closest('[data-action="artisan-hire"]')) {
+      const r = hireMasterArtisan();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="artisan-hire"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="artisan-commission"]')) {
+      const r = commissionArtisanPieces();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="artisan-commission"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="artisan-farewell"]')) {
+      bidArtisanFarewell();
+    }
   });
 
   setQuestPanelRenderer(render);
@@ -359,6 +397,8 @@ function render() {
     ${_herbalistSection()}
     ${_circusSection()}
     ${_sacredSpringSection()}
+    ${_wanderingBardSection()}
+    ${_masterArtisanSection()}
     ${_imperialGamesSection()}
     ${_harvestSection()}
     <div class="quest-header">
@@ -1435,6 +1475,84 @@ function _sacredSpringSection() {
         <button class="btn btn--spring-protect" data-action="spring-protect">
           🌿 Protect the Spring
           <span class="spring-cost">Free · +${PROTECT_MORALE_REWARD} morale, +${PROTECT_PRESTIGE_REWARD} prestige</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── Wandering Bard section (T251) ─────────────────────────────────────────────
+
+function _wanderingBardSection() {
+  const bard = getActiveWanderingBard();
+  if (!bard) return '';
+
+  const secs   = getWanderingBardSecsLeft();
+  const urgent = secs < 20;
+
+  const canAffordCommission = (state.resources?.gold ?? 0) >= BARD_COMMISSION_GOLD_COST;
+  const commissionClass = canAffordCommission ? 'btn btn--bard-commission' : 'btn btn--bard-commission btn--disabled';
+
+  return `
+    <div class="bard-section bard-section--active">
+      <div class="bard-header">
+        <span class="bard-icon">🎵</span>
+        <span class="bard-title">Wandering Bard</span>
+        <span class="bard-timer${urgent ? ' bard-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="bard-desc">A wandering bard has arrived at the empire gates, bearing epic tales and songs from distant lands. The people gather eagerly to listen.</div>
+      <div class="bard-actions">
+        <button class="${commissionClass}" data-action="bard-commission"
+                title="${canAffordCommission ? `Commission Performance (${BARD_COMMISSION_GOLD_COST}💰)` : `Need ${BARD_COMMISSION_GOLD_COST} gold`}">
+          🎵 Commission Performance
+          <span class="bard-cost">${BARD_COMMISSION_GOLD_COST}💰 · +${BARD_COMMISSION_MORALE} morale, +${BARD_COMMISSION_PRESTIGE} prestige, +${BARD_COMMISSION_FOOD_RATE} food/s for 2 min</span>
+        </button>
+        <button class="btn btn--bard-listen" data-action="bard-listen">
+          📖 Share Stories
+          <span class="bard-cost">Free · +${LISTEN_MORALE_REWARD} morale, +${LISTEN_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn btn--bard-away" data-action="bard-away">
+          🚪 Send Away
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── Master Artisan Visit section (T252) ───────────────────────────────────────
+
+function _masterArtisanSection() {
+  const artisan = getActiveMasterArtisan();
+  if (!artisan) return '';
+
+  const secs   = getMasterArtisanSecsLeft();
+  const urgent = secs < 20;
+
+  const canAffordHire       = (state.resources?.gold  ?? 0) >= ARTISAN_HIRE_GOLD_COST;
+  const canAffordCommission = (state.resources?.wood  ?? 0) >= ARTISAN_WOOD_COST &&
+                              (state.resources?.stone ?? 0) >= ARTISAN_STONE_COST;
+  const hireClass       = canAffordHire       ? 'btn btn--artisan-hire'       : 'btn btn--artisan-hire btn--disabled';
+  const commissionClass = canAffordCommission ? 'btn btn--artisan-commission' : 'btn btn--artisan-commission btn--disabled';
+
+  return `
+    <div class="artisan-section artisan-section--active">
+      <div class="artisan-header">
+        <span class="artisan-icon">🔨</span>
+        <span class="artisan-title">Master Artisan Visit</span>
+        <span class="artisan-timer${urgent ? ' artisan-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="artisan-desc">A renowned master artisan seeks imperial patronage, offering exceptional craft skills that could greatly benefit the empire's workshops.</div>
+      <div class="artisan-actions">
+        <button class="${hireClass}" data-action="artisan-hire"
+                title="${canAffordHire ? `Hire the Artisan (${ARTISAN_HIRE_GOLD_COST}💰)` : `Need ${ARTISAN_HIRE_GOLD_COST} gold`}">
+          🔨 Hire the Artisan
+          <span class="artisan-cost">${ARTISAN_HIRE_GOLD_COST}💰 · +${HIRE_PRESTIGE_REWARD} prestige, +${HIRE_IRON_RATE} iron/s for 3 min</span>
+        </button>
+        <button class="${commissionClass}" data-action="artisan-commission"
+                title="${canAffordCommission ? `Commission Pieces (${ARTISAN_WOOD_COST}🪵 + ${ARTISAN_STONE_COST}🪨)` : `Need ${ARTISAN_WOOD_COST} wood + ${ARTISAN_STONE_COST} stone`}">
+          🏺 Commission Pieces
+          <span class="artisan-cost">${ARTISAN_WOOD_COST}🪵+${ARTISAN_STONE_COST}🪨 · +${ARTISAN_GOLD_REWARD} gold, +${ARTISAN_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn btn--artisan-farewell" data-action="artisan-farewell">
+          👋 Bid Farewell
         </button>
       </div>
     </div>`;
