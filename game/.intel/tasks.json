@@ -2237,8 +2237,8 @@
   },
   {
     "id": "T251",
-    "title": "Wandering Bard — periodic Bronze Age+ entertainment encounter with three choices",
-    "description": "Every 12–16 min (Bronze Age+, 6+ tiles), a wandering bard arrives at the empire gates. 80s window. Choices: Commission Performance (pay 35 gold → +12 morale, +8 prestige, +0.1 food/s for 2 min), Share Stories (free → +5 morale, +6 prestige), Send Away.",
+    "title": "Wandering Bard \u2014 periodic Bronze Age+ entertainment encounter with three choices",
+    "description": "Every 12\u201316 min (Bronze Age+, 6+ tiles), a wandering bard arrives at the empire gates. 80s window. Choices: Commission Performance (pay 35 gold \u2192 +12 morale, +8 prestige, +0.1 food/s for 2 min), Share Stories (free \u2192 +5 morale, +6 prestige), Send Away.",
     "priority": 251,
     "status": "done",
     "phase": 103,
@@ -2246,11 +2246,47 @@
   },
   {
     "id": "T252",
-    "title": "Master Artisan Visit — periodic Iron Age+ craftsmanship encounter with three choices",
-    "description": "Every 14–19 min (Iron Age+, 10+ tiles), a renowned master artisan arrives seeking patronage. 85s window. Choices: Hire the Artisan (pay 70 gold → +60 prestige, +0.15 iron/s for 3 min), Commission Pieces (pay 40 wood + 20 stone → +80 gold, +30 prestige), Bid Farewell.",
+    "title": "Master Artisan Visit \u2014 periodic Iron Age+ craftsmanship encounter with three choices",
+    "description": "Every 14\u201319 min (Iron Age+, 10+ tiles), a renowned master artisan arrives seeking patronage. 85s window. Choices: Hire the Artisan (pay 70 gold \u2192 +60 prestige, +0.15 iron/s for 3 min), Commission Pieces (pay 40 wood + 20 stone \u2192 +80 gold, +30 prestige), Bid Farewell.",
     "priority": 252,
     "status": "done",
     "phase": 103,
     "notes": "src/systems/masterArtisan.js: New file. SPAWN_MIN=3360 (14 min), SPAWN_RANGE=1200 (+0-5 min), WINDOW_TICKS=340 (85 sec), MIN_AGE=2 (Iron Age), MIN_PLAYER_TILES=10. HIRE_GOLD_COST=70, HIRE_PRESTIGE_REWARD=60, HIRE_IRON_RATE=0.15, HIRE_DURATION_TICKS=720 (3 min). COMMISSION_WOOD_COST=40, COMMISSION_STONE_COST=20, COMMISSION_GOLD_REWARD=80, COMMISSION_PRESTIGE_REWARD=30. initMasterArtisan() lazy-creates state.masterArtisan={active:null,nextSpawnTick,totalVisits:0,totalHired:0,totalCommissioned:0}. masterArtisanTick() handles expiry (clear+reschedule+message) and spawn (check age+tiles+timing). hireMasterArtisan() deducts gold, awardPrestige(60), pushes masterArtisanHire modifier to randomEvents.activeModifiers (+0.15 iron/s rateMult for 3 min), clears+reschedules, emits MASTER_ARTISAN_CHANGED+RESOURCE_CHANGED. commissionArtisanPieces() deducts wood+stone, awards gold (capped)+awardPrestige(30), clears+reschedules, emits. bidArtisanFarewell() clears+reschedules, emits. Accessors: getActiveMasterArtisan(), getMasterArtisanSecsLeft(). src/core/events.js: MASTER_ARTISAN_CHANGED:'masterArtisanChanged' added. src/core/state.js: masterArtisan:null field + initState reset. src/ui/questPanel.js: import 8 exports; MASTER_ARTISAN_CHANGED in events list; ma check in tick refresh; artisan-hire/commission/farewell click handlers; _masterArtisanSection() after _wanderingBardSection() in render. src/main.js: import initMasterArtisan+masterArtisanTick; registerSystem(masterArtisanTick); initMasterArtisan() in boot+_newGame; save/load state.masterArtisan; version 92->93. styles/main.css: .artisan-section/--active (amber-gold pulse animation), .artisan-header, .artisan-icon, .artisan-title, .artisan-timer/--urgent, .artisan-desc, .artisan-actions, .artisan-cost, .btn--artisan-hire (gold gradient), .btn--artisan-commission (green gradient), .btn--artisan-farewell (muted)."
+  },
+  {
+    "id": "T253",
+    "title": "Mountain Hermit \u2014 periodic Iron Age+ wisdom encounter with three choices",
+    "status": "done",
+    "priority": 1,
+    "phase": 7,
+    "description": "Every 15-19 minutes (Iron Age+, 12+ player tiles), an ancient mountain hermit descends offering wisdom. 75-second window. Choices: Seek Counsel (free \u2192 +10 prestige, +0.1 mana/s for 2 min), Offer Tribute (25 gold \u2192 +25 prestige, +12 morale), Leave in Peace.",
+    "files": [
+      "src/systems/mountainHermit.js",
+      "src/core/state.js",
+      "src/core/events.js",
+      "src/main.js",
+      "src/ui/questPanel.js",
+      "styles/main.css"
+    ],
+    "completedAt": "2026-05-12T16:10:28Z",
+    "notes": "Implemented mountainHermit.js system (Iron Age+, 12+ tiles, 15-19 min spawn, 75s window). Three choices: Seek Counsel (free +10 prestige +0.1 mana/s 2min), Offer Tribute (25 gold +25 prestige +12 morale), Leave in Peace. Full questPanel UI with green/teal styling, event constant, state key, save/load wiring."
+  },
+  {
+    "id": "T254",
+    "title": "Imperial Jubilee \u2014 periodic Medieval Age+ celebration event with three choices",
+    "status": "done",
+    "priority": 2,
+    "phase": 7,
+    "description": "Every 18-23 minutes (Medieval Age+, 15+ player tiles), a grand imperial jubilee is declared celebrating the empire's glory. 85-second window. Choices: Grand Parade (60 gold \u2192 +25 morale, +30 prestige, +0.15 food/s and +0.1 gold/s for 3 min), Royal Feast (40 food \u2192 +20 morale, +20 prestige), Simple Ceremony (free \u2192 +8 morale, +12 prestige).",
+    "files": [
+      "src/systems/imperialJubilee.js",
+      "src/core/state.js",
+      "src/core/events.js",
+      "src/main.js",
+      "src/ui/questPanel.js",
+      "styles/main.css"
+    ],
+    "completedAt": "2026-05-12T16:10:28Z",
+    "notes": "Implemented imperialJubilee.js system (Medieval Age+, 15+ tiles, 18-23 min spawn, 85s window). Three choices: Grand Parade (60 gold +25 morale +30 prestige +0.15 food/s +0.1 gold/s 3min), Royal Feast (40 food +20 morale +20 prestige), Simple Ceremony (free +8 morale +12 prestige). Full questPanel UI with orange styling, event constant, state key, save/load wiring."
   }
 ]
