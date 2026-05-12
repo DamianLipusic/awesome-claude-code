@@ -764,6 +764,18 @@ export const state = {
   //   nextSpawnTick: tick, totalJubilees: number,
   //   totalParades: number, totalFeasts: number } | null
   imperialJubilee: null,
+
+  // T255: Exiled Prince — periodic Bronze Age+ refuge encounter (14-18 min, 80-sec window)
+  // { active: { expiresAt: tick } | null,
+  //   nextSpawnTick: tick, totalArrivals: number,
+  //   totalGranted: number, totalAdvisors: number } | null
+  exiledPrince: null,
+
+  // T256: Ancient Guardian Awakens — periodic Iron Age+ encounter (17-22 min, 75-sec window)
+  // { active: { expiresAt: tick } | null,
+  //   nextSpawnTick: tick, totalAwakenings: number,
+  //   totalTributed: number, totalRituals: number } | null
+  ancientGuardian: null,
 };
 
 /**
@@ -938,5 +950,7 @@ export function initState(empireName = 'My Empire') {
   state.masterArtisan        = null; // T252: reset master artisan per game
   state.mountainHermit       = null; // T253: reset mountain hermit per game
   state.imperialJubilee      = null; // T254: reset imperial jubilee per game
+  state.exiledPrince         = null; // T255: reset exiled prince per game
+  state.ancientGuardian      = null; // T256: reset ancient guardian per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

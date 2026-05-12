@@ -218,4 +218,6 @@ export const Events = Object.freeze({
   MASTER_ARTISAN_CHANGED:     'masterArtisanChanged',           // T252: master artisan spawned / hired / commissioned / dismissed / expired
   MOUNTAIN_HERMIT_CHANGED:    'mountainHermitChanged',           // T253: mountain hermit spawned / counseled / tributed / dismissed / expired
   IMPERIAL_JUBILEE_CHANGED:   'imperialJubileeChanged',          // T254: imperial jubilee spawned / parade / feast / ceremony / expired
+  EXILED_PRINCE_CHANGED:      'exiledPrinceChanged',             // T255: exiled prince spawned / granted / advisor / dismissed / expired
+  ANCIENT_GUARDIAN_CHANGED:   'ancientGuardianChanged',          // T256: guardian spawned / tributed / ritual / firm / expired
 });
