@@ -4681,3 +4681,33 @@ Changes:
 - Three choices span a resource/prestige tradeoff triangle: Bless (mana cost for max multi-resource reward), Sell (prestige cost for gold spike), Protect (free for moderate morale+prestige).
 - Sell Water Rights uses awardPrestige(-SELL_PRESTIGE_COST) via the existing prestige system, keeping the API consistent.
 - Cyan (#22d3ee) color scheme distinguishes from all other event card types in the quest panel.
+
+---
+session: 2026-05-12T16:10:38Z
+tasks: T253, T254
+
+T253 — Mountain Hermit
+  Created game/src/systems/mountainHermit.js
+  Iron Age+ (age >= 2), 12+ player tiles, 15–19 min spawn, 75-second decision window.
+  Choices:
+    - Seek Counsel (free): +10 prestige, +0.1 mana/s for 2 min via randomEvents modifier
+    - Offer Tribute (25 gold): +25 prestige, +12 morale
+    - Leave in Peace: no cost
+  Added MOUNTAIN_HERMIT_CHANGED event to events.js.
+  Added mountainHermit state key + initState reset to state.js.
+  Wired initMountainHermit() + mountainHermitTick() in main.js (import, register, init, save, load).
+  Added _mountainHermitSection() render function and click handlers to questPanel.js.
+  Added hermit-section CSS with green/teal pulse animation to main.css.
+
+T254 — Imperial Jubilee
+  Created game/src/systems/imperialJubilee.js
+  Medieval Age+ (age >= 3), 15+ player tiles, 18–23 min spawn, 85-second decision window.
+  Choices:
+    - Grand Parade (60 gold): +25 morale, +30 prestige, +0.15 food/s and +0.1 gold/s for 3 min via two randomEvents modifiers
+    - Royal Feast (40 food): +20 morale, +20 prestige
+    - Simple Ceremony (free): +8 morale, +12 prestige
+  Added IMPERIAL_JUBILEE_CHANGED event to events.js.
+  Added imperialJubilee state key + initState reset to state.js.
+  Wired initImperialJubilee() + imperialJubileeTick() in main.js (import, register, init, save, load).
+  Added _imperialJubileeSection() render function and click handlers to questPanel.js.
+  Added jubilee-section CSS with orange pulse animation to main.css.
