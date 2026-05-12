@@ -15242,3 +15242,209 @@ kbd {
   font-size: 0.75rem;
   color: #d1d5db;
 }
+
+/* ── Ancient Ore Vein (T247) ───────────────────────────────────────────── */
+.ore-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+}
+.ore-section--active {
+  border-color: rgba(161, 128, 62, 0.6);
+  background: linear-gradient(135deg, rgba(120, 90, 30, 0.10), rgba(92, 64, 16, 0.08));
+}
+.ore-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.ore-icon { font-size: 1.3rem; }
+.ore-title {
+  font-weight: 700;
+  font-size: 0.90rem;
+  color: #d4a843;
+  flex: 1;
+}
+.ore-timer {
+  font-size: 0.80rem;
+  font-weight: 600;
+  color: #d4a843;
+  background: rgba(212, 168, 67, 0.12);
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+.ore-timer--urgent {
+  color: #f87171;
+  background: rgba(239, 68, 68, 0.15);
+  animation: pulse 1s infinite;
+}
+.ore-desc {
+  font-size: 0.78rem;
+  color: #9ca3af;
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+.ore-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ore-cost {
+  display: block;
+  font-size: 0.72rem;
+  color: #9ca3af;
+  margin-top: 2px;
+}
+.btn--ore-mine {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 12px;
+  background: rgba(120, 90, 30, 0.15);
+  border: 1px solid rgba(212, 168, 67, 0.35);
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.82rem;
+  color: #e5c560;
+  transition: background 0.15s, border-color 0.15s;
+}
+.btn--ore-mine:hover {
+  background: rgba(120, 90, 30, 0.30);
+  border-color: rgba(212, 168, 67, 0.65);
+}
+.btn--ore-commission {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 12px;
+  background: rgba(59, 130, 246, 0.10);
+  border: 1px solid rgba(59, 130, 246, 0.30);
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.82rem;
+  color: #93c5fd;
+  transition: background 0.15s, border-color 0.15s;
+}
+.btn--ore-commission:hover:not(.btn--disabled) {
+  background: rgba(59, 130, 246, 0.22);
+  border-color: rgba(59, 130, 246, 0.60);
+}
+.btn--ore-seal {
+  padding: 6px 12px;
+  background: rgba(100, 100, 100, 0.12);
+  border: 1px solid rgba(100, 100, 100, 0.25);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.80rem;
+  color: #9ca3af;
+  transition: background 0.15s;
+}
+.btn--ore-seal:hover { background: rgba(100, 100, 100, 0.22); }
+
+/* ── Wandering Herbalist (T248) ─────────────────────────────────────────── */
+.herb-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+}
+.herb-section--active {
+  border-color: rgba(74, 160, 74, 0.55);
+  background: linear-gradient(135deg, rgba(40, 120, 40, 0.10), rgba(30, 100, 30, 0.07));
+}
+.herb-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.herb-icon { font-size: 1.3rem; }
+.herb-title {
+  font-weight: 700;
+  font-size: 0.90rem;
+  color: #6ee77b;
+  flex: 1;
+}
+.herb-timer {
+  font-size: 0.80rem;
+  font-weight: 600;
+  color: #86efac;
+  background: rgba(74, 160, 74, 0.12);
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+.herb-timer--urgent {
+  color: #f87171;
+  background: rgba(239, 68, 68, 0.15);
+  animation: pulse 1s infinite;
+}
+.herb-desc {
+  font-size: 0.78rem;
+  color: #9ca3af;
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+.herb-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.herb-cost {
+  display: block;
+  font-size: 0.72rem;
+  color: #9ca3af;
+  margin-top: 2px;
+}
+.btn--herb-purchase {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 12px;
+  background: rgba(74, 160, 74, 0.12);
+  border: 1px solid rgba(74, 160, 74, 0.35);
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.82rem;
+  color: #86efac;
+  transition: background 0.15s, border-color 0.15s;
+}
+.btn--herb-purchase:hover:not(.btn--disabled) {
+  background: rgba(74, 160, 74, 0.25);
+  border-color: rgba(74, 160, 74, 0.65);
+}
+.btn--herb-learn {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 12px;
+  background: rgba(139, 92, 246, 0.10);
+  border: 1px solid rgba(139, 92, 246, 0.30);
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.82rem;
+  color: #c4b5fd;
+  transition: background 0.15s, border-color 0.15s;
+}
+.btn--herb-learn:hover:not(.btn--disabled) {
+  background: rgba(139, 92, 246, 0.22);
+  border-color: rgba(139, 92, 246, 0.60);
+}
+.btn--herb-away {
+  padding: 6px 12px;
+  background: rgba(100, 100, 100, 0.12);
+  border: 1px solid rgba(100, 100, 100, 0.25);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.80rem;
+  color: #9ca3af;
+  transition: background 0.15s;
+}
+.btn--herb-away:hover { background: rgba(100, 100, 100, 0.22); }
