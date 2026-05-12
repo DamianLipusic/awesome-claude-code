@@ -161,6 +161,8 @@ import { initEconomyCycle, economyCycleTick }           from './systems/economyC
 import { initTributeCaravan, tributeCaravanTick }       from './systems/tributeCaravan.js';                // T246
 import { initOreVein, oreVeinTick }                     from './systems/ancientOreVein.js';                  // T247
 import { initHerbalist, herbalistTick }                 from './systems/wanderingHerbalist.js';              // T248
+import { initCircus, circusTick }                       from './systems/travelingCircus.js';                  // T249
+import { initSacredSpring, sacredSpringTick }           from './systems/sacredSpring.js';                     // T250
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
@@ -287,6 +289,8 @@ function boot() {
   registerSystem(tributeCaravanTick);    // T246: tribute caravan spawn/expiry
   registerSystem(oreVeinTick);           // T247: ore vein spawn/expiry
   registerSystem(herbalistTick);         // T248: herbalist spawn/expiry
+  registerSystem(circusTick);            // T249: traveling circus spawn/expiry
+  registerSystem(sacredSpringTick);      // T250: sacred spring spawn/expiry
 
   // Init event-driven systems
   initRandomEvents();
@@ -402,6 +406,8 @@ function boot() {
   initTributeCaravan();      // T246: tribute caravan state init
   initOreVein();             // T247: ore vein state init
   initHerbalist();           // T248: herbalist state init
+  initCircus();              // T249: traveling circus state init
+  initSacredSpring();        // T250: sacred spring state init
   // T176: monument init deferred — only activates when building is constructed
 
   // Init UI
@@ -663,7 +669,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 91, // T247: ancient ore vein; T248: wandering herbalist
+      version: 92, // T249: traveling circus; T250: sacred spring discovery
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -833,6 +839,8 @@ function _save() {
         tributeCaravan:      state.tributeCaravan      ?? null,  // T246
         oreVein:             state.oreVein             ?? null,  // T247
         herbalist:           state.herbalist           ?? null,  // T248
+        circus:              state.circus              ?? null,  // T249
+        sacredSpring:        state.sacredSpring        ?? null,  // T250
         tick:          state.tick,
       }
     }));
@@ -1036,6 +1044,8 @@ function _applySave(save) {
   state.tributeCaravan       = s.tributeCaravan       ?? null; // T246
   state.oreVein              = s.oreVein              ?? null; // T247
   state.herbalist            = s.herbalist            ?? null; // T248
+  state.circus               = s.circus               ?? null; // T249
+  state.sacredSpring         = s.sacredSpring         ?? null; // T250
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
@@ -1958,6 +1968,8 @@ function _newGame(opts = {}) {
   initTributeCaravan();      // T246: reset tribute caravan state on new game
   initOreVein();             // T247: reset ore vein state on new game
   initHerbalist();           // T248: reset herbalist state on new game
+  initCircus();              // T249: reset traveling circus state on new game
+  initSacredSpring();        // T250: reset sacred spring state on new game
   _updateCelestialBanner(); // T153: hide banner on new game
   _updateRefugeeBanner();   // T217: hide refugee banner on new game
   recalcRates();
