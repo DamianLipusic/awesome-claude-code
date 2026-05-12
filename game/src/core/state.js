@@ -272,7 +272,7 @@ export const state = {
   merchant: null,
 
   // T089: Discovered map landmarks — { captured: { [landmarkId]: tick } }
-  // null until first map with landmarks; landmarks are placed in map tiles as tile.landmark = id
+  // null until first map; landmarks are placed in map tiles as tile.landmark = id
   landmarks: null,
 
   // T090: Building specializations — { [buildingId]: specializationId }
@@ -700,6 +700,82 @@ export const state = {
   //   nextSpawnTick: tick, totalFairs: number,
   //   totalCommissioned: number, totalExported: number } | null
   artisanFair: null,
+
+  // T244: Cosmic Alignment — periodic Iron Age+ celestial event (20-25 min, 80-sec window)
+  // { active: { id, icon, name, desc, expiresAt } | null,
+  //   nextSpawnTick: tick, totalAlignments: number,
+  //   totalObserved: number, totalRitualed: number } | null
+  cosmicAlignment: null,
+
+  // T245: Economy Cycle — alternating boom/bust market phases (5-8 min each, 2-3 min transition)
+  // { phase: 'boom'|'bust'|null, phaseEndsAt: tick, nextPhaseTick: tick,
+  //   nextPhase: 'boom'|'bust', totalCycles: number } | null
+  economyCycle: null,
+
+  // T246: Village Tribute Caravan — periodic Bronze Age+ resource gift event (10-14 min, 90-sec window)
+  // { active: { options: [...], expiresAt: tick } | null,
+  //   nextSpawnTick: tick, totalCaravans: number, totalClaimed: number } | null
+  tributeCaravan: null,
+
+  // T247: Ancient Ore Vein Discovery — periodic Iron Age+ excavation event (14-18 min, 75-sec window)
+  // { active: { expiresAt: tick } | null,
+  //   nextSpawnTick: tick, totalDiscoveries: number,
+  //   totalMined: number, totalCommissioned: number } | null
+  oreVein: null,
+
+  // T248: Wandering Herbalist — periodic Bronze Age+ healing encounter (10-13 min, 80-sec window)
+  // { active: { expiresAt: tick } | null,
+  //   nextSpawnTick: tick, totalVisits: number,
+  //   totalPurchased: number, totalLearned: number } | null
+  herbalist: null,
+
+  // T249: Traveling Circus — periodic Bronze Age+ entertainment event (11-15 min, 80-sec window)
+  // { active: { expiresAt: tick } | null,
+  //   nextSpawnTick: tick, totalVisits: number,
+  //   totalWelcomed: number, totalRecruited: number } | null
+  circus: null,
+
+  // T250: Sacred Spring Discovery — periodic Bronze Age+ nature event (13-17 min, 80-sec window)
+  // { active: { expiresAt: tick } | null,
+  //   nextSpawnTick: tick, totalVisits: number,
+  //   totalBlessed: number, totalSold: number, totalProtected: number } | null
+  sacredSpring: null,
+
+  // T251: Wandering Bard periodic encounter state.
+  // { active: { expiresAt: tick } | null,
+  //   nextSpawnTick: tick, totalVisits: number,
+  //   totalCommissioned: number, totalListened: number } | null
+  wanderingBard: null,
+
+  // T252: Master Artisan Visit periodic encounter state.
+  // { active: { expiresAt: tick } | null,
+  //   nextSpawnTick: tick, totalVisits: number,
+  //   totalHired: number, totalCommissioned: number } | null
+  masterArtisan: null,
+
+  // T253: Mountain Hermit — periodic Iron Age+ wisdom encounter (15-19 min, 75-sec window)
+  // { active: { expiresAt: tick } | null,
+  //   nextSpawnTick: tick, totalVisits: number,
+  //   totalCounseled: number, totalTributed: number } | null
+  mountainHermit: null,
+
+  // T254: Imperial Jubilee — periodic Medieval Age+ celebration event (18-23 min, 85-sec window)
+  // { active: { expiresAt: tick } | null,
+  //   nextSpawnTick: tick, totalJubilees: number,
+  //   totalParades: number, totalFeasts: number } | null
+  imperialJubilee: null,
+
+  // T255: Exiled Prince — periodic Bronze Age+ refuge encounter (14-18 min, 80-sec window)
+  // { active: { expiresAt: tick } | null,
+  //   nextSpawnTick: tick, totalArrivals: number,
+  //   totalGranted: number, totalAdvisors: number } | null
+  exiledPrince: null,
+
+  // T256: Ancient Guardian Awakens — periodic Iron Age+ encounter (17-22 min, 75-sec window)
+  // { active: { expiresAt: tick } | null,
+  //   nextSpawnTick: tick, totalAwakenings: number,
+  //   totalTributed: number, totalRituals: number } | null
+  ancientGuardian: null,
 };
 
 /**
@@ -863,5 +939,18 @@ export function initState(empireName = 'My Empire') {
   state.nomadicTribe         = null; // T240: reset nomadic tribe per game
   state.prophet              = null; // T241: reset wandering prophet per game
   state.artisanFair          = null; // T242: reset artisan fair per game
+  state.cosmicAlignment      = null; // T244: reset cosmic alignment per game
+  state.economyCycle         = null; // T245: reset economy cycle per game
+  state.tributeCaravan       = null; // T246: reset tribute caravan per game
+  state.oreVein              = null; // T247: reset ore vein per game
+  state.herbalist            = null; // T248: reset herbalist per game
+  state.circus               = null; // T249: reset traveling circus per game
+  state.sacredSpring         = null; // T250: reset sacred spring per game
+  state.wanderingBard        = null; // T251: reset wandering bard per game
+  state.masterArtisan        = null; // T252: reset master artisan per game
+  state.mountainHermit       = null; // T253: reset mountain hermit per game
+  state.imperialJubilee      = null; // T254: reset imperial jubilee per game
+  state.exiledPrince         = null; // T255: reset exiled prince per game
+  state.ancientGuardian      = null; // T256: reset ancient guardian per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

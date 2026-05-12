@@ -24,6 +24,18 @@ import { hostImperialGames, competeImperialGames, skipImperialGames, isImperialG
 import { acceptTribe, hireTribe, refuseTribe, getActiveTribeEncounter, getTribeSecsLeft, ACCEPT_FOOD_COST, HIRE_GOLD_COST } from '../systems/nomadicTribe.js'; // T240
 import { heedProphet, tributeProphet, dismissProphet, getActiveProphetEncounter, getProphetSecsLeft, HEED_MANA_COST, TRIBUTE_GOLD_COST } from '../systems/wanderingProphet.js'; // T241
 import { commissionArtisans, exportCrafts, declineArtisanFair, getActiveArtisanFair, getArtisanFairSecsLeft, COMMISSION_WOOD_COST, COMMISSION_STONE_COST, EXPORT_FOOD_COST } from '../systems/artisanFair.js'; // T242
+import { observeAlignment, performRitual, ignoreAlignment, getActiveAlignment, getAlignmentSecsLeft, RITUAL_MANA_COST, RITUAL_PRESTIGE, RITUAL_MORALE } from '../systems/cosmicAlignment.js'; // T244
+import { claimTribute, getActiveTributeCaravan, getTributeCaravanSecsLeft } from '../systems/tributeCaravan.js'; // T246
+import { mineOreVein, commissionOreVein, sealOreVein, getActiveOreVein, getOreVeinSecsLeft, MINE_IRON_REWARD, MINE_STONE_REWARD, MINE_MORALE_PENALTY, COMMISSION_GOLD_COST, COMMISSION_IRON_REWARD, COMMISSION_STONE_REWARD, COMMISSION_PRESTIGE } from '../systems/ancientOreVein.js'; // T247
+import { purchaseRemedies, learnHerbalTechniques, sendHerbalistAway, getActiveHerbalist, getHerbalistSecsLeft, PURCHASE_GOLD_COST, PURCHASE_FOOD_REWARD, PURCHASE_MORALE, LEARN_MANA_COST, LEARN_FOOD_RATE } from '../systems/wanderingHerbalist.js'; // T248
+import { circusWelcomeShow, circusRecruitPerformers, dismissCircus, getActiveCircus, getCircusSecsLeft, SHOW_GOLD_COST, SHOW_MORALE_REWARD, SHOW_PRESTIGE_REWARD, RECRUIT_GOLD_COST, RECRUIT_MORALE_REWARD, RECRUIT_FOOD_RATE } from '../systems/travelingCircus.js'; // T249
+import { blessSpringWaters, sellSpringWaterRights, protectSacredSpring, getActiveSacredSpring, getSacredSpringSecsLeft, BLESS_MANA_COST, BLESS_FOOD_REWARD, BLESS_MORALE_REWARD, BLESS_PRESTIGE_REWARD, SELL_PRESTIGE_COST, SELL_GOLD_REWARD, PROTECT_MORALE_REWARD, PROTECT_PRESTIGE_REWARD } from '../systems/sacredSpring.js'; // T250
+import { commissionBardPerformance, listenToBardStories, sendBardAway, getActiveWanderingBard, getWanderingBardSecsLeft, COMMISSION_GOLD_COST as BARD_COMMISSION_GOLD_COST, COMMISSION_MORALE_REWARD as BARD_COMMISSION_MORALE, COMMISSION_PRESTIGE_REWARD as BARD_COMMISSION_PRESTIGE, COMMISSION_FOOD_RATE as BARD_COMMISSION_FOOD_RATE, LISTEN_MORALE_REWARD, LISTEN_PRESTIGE_REWARD } from '../systems/wanderingBard.js'; // T251
+import { hireMasterArtisan, commissionArtisanPieces, bidArtisanFarewell, getActiveMasterArtisan, getMasterArtisanSecsLeft, HIRE_GOLD_COST as ARTISAN_HIRE_GOLD_COST, HIRE_PRESTIGE_REWARD, HIRE_IRON_RATE, COMMISSION_WOOD_COST as ARTISAN_WOOD_COST, COMMISSION_STONE_COST as ARTISAN_STONE_COST, COMMISSION_GOLD_REWARD as ARTISAN_GOLD_REWARD, COMMISSION_PRESTIGE_REWARD as ARTISAN_PRESTIGE_REWARD } from '../systems/masterArtisan.js'; // T252
+import { seekHermitCounsel, offerHermitTribute, leaveHermitInPeace, getActiveMountainHermit, getMountainHermitSecsLeft, COUNSEL_PRESTIGE_REWARD, COUNSEL_MANA_RATE, TRIBUTE_GOLD_COST, TRIBUTE_PRESTIGE_REWARD, TRIBUTE_MORALE_REWARD } from '../systems/mountainHermit.js'; // T253
+import { declareGrandParade, declareRoyalFeast, declareSimpleCeremony, getActiveImperialJubilee, getImperialJubileeSecsLeft, PARADE_GOLD_COST, PARADE_MORALE_REWARD, PARADE_PRESTIGE_REWARD, PARADE_FOOD_RATE, PARADE_GOLD_RATE, FEAST_FOOD_COST, FEAST_MORALE_REWARD, FEAST_PRESTIGE_REWARD, CEREMONY_MORALE_REWARD, CEREMONY_PRESTIGE_REWARD } from '../systems/imperialJubilee.js'; // T254
+import { grantAsylum, acceptPrinceAdvisor, turnPrinceAway, getActiveExiledPrince, getExiledPrinceSecsLeft, ASYLUM_MORALE_REWARD, ASYLUM_PRESTIGE_REWARD, ASYLUM_GOLD_RATE, ADVISOR_GOLD_COST, ADVISOR_PRESTIGE_REWARD as PRINCE_ADVISOR_PRESTIGE, ADVISOR_MORALE_REWARD as PRINCE_ADVISOR_MORALE, ADVISOR_IRON_RATE } from '../systems/exiledPrince.js'; // T255
+import { offerGuardianTribute, conductGuardianRitual, standFirmGuardian, getActiveAncientGuardian, getAncientGuardianSecsLeft, TRIBUTE_FOOD_COST as GUARDIAN_FOOD_COST, TRIBUTE_MORALE_REWARD as GUARDIAN_TRIBUTE_MORALE, TRIBUTE_PRESTIGE_REWARD as GUARDIAN_TRIBUTE_PRESTIGE, TRIBUTE_STONE_RATE, RITUAL_MANA_COST as GUARDIAN_MANA_COST, RITUAL_PRESTIGE_REWARD as GUARDIAN_RITUAL_PRESTIGE, RITUAL_MANA_RATE, STANDFIRM_MORALE_REWARD, STANDFIRM_PRESTIGE_REWARD } from '../systems/ancientGuardian.js'; // T256
 
 export function initQuestPanel() {
   const panel = document.getElementById('panel-quests');
@@ -51,6 +63,18 @@ export function initQuestPanel() {
     Events.NOMADIC_TRIBE_CHANGED,                        // T240: nomadic tribe encounter
     Events.PROPHET_CHANGED,                              // T241: wandering prophet encounter
     Events.ARTISAN_FAIR_CHANGED,                         // T242: artisan fair encounter
+    Events.COSMIC_ALIGNMENT_CHANGED,                     // T244: cosmic alignment encounter
+    Events.TRIBUTE_CARAVAN_CHANGED,                      // T246: tribute caravan spawned / claimed / expired
+    Events.ORE_VEIN_CHANGED,                             // T247: ore vein spawned / mined / commissioned / sealed / expired
+    Events.HERBALIST_CHANGED,                            // T248: herbalist spawned / purchased / learned / dismissed / expired
+    Events.CIRCUS_CHANGED,                               // T249: circus spawned / welcomed / recruited / dismissed / expired
+    Events.SACRED_SPRING_CHANGED,                        // T250: sacred spring spawned / blessed / sold / protected / expired
+    Events.WANDERING_BARD_CHANGED,                       // T251: bard spawned / commissioned / listened / dismissed / expired
+    Events.MASTER_ARTISAN_CHANGED,                       // T252: master artisan spawned / hired / commissioned / dismissed / expired
+    Events.MOUNTAIN_HERMIT_CHANGED,                      // T253: mountain hermit spawned / counseled / tributed / dismissed / expired
+    Events.IMPERIAL_JUBILEE_CHANGED,                     // T254: imperial jubilee spawned / parade / feast / ceremony / expired
+    Events.EXILED_PRINCE_CHANGED,                        // T255: exiled prince spawned / granted / advisor / dismissed / expired
+    Events.ANCIENT_GUARDIAN_CHANGED,                     // T256: guardian spawned / tributed / ritual / firm / expired
   ];
   for (const ev of events) on(ev, render);
 
@@ -71,7 +95,15 @@ export function initQuestPanel() {
       const nt  = !!getActiveTribeEncounter();
       const pr  = !!getActiveProphetEncounter();
       const af  = !!getActiveArtisanFair();
-      if (ch || pe || bo || pl || pi || om || rh || leg || hv || ig || nt || pr || af) render();
+      const ca  = !!getActiveAlignment();
+      const tc  = !!getActiveTributeCaravan();
+      const ov  = !!getActiveOreVein();
+      const hb  = !!getActiveHerbalist();
+      const bd  = !!getActiveWanderingBard();
+      const ma  = !!getActiveMasterArtisan();
+      const ep  = !!getActiveExiledPrince();
+      const ag  = !!getActiveAncientGuardian();
+      if (ch || pe || bo || pl || pi || om || rh || leg || hv || ig || nt || pr || af || ca || tc || ov || hb || bd || ma || ep || ag) render();
     }
   });
 
@@ -212,6 +244,206 @@ export function initQuestPanel() {
     if (e.target.closest('[data-action="fair-decline"]')) {
       declineArtisanFair();
     }
+    // Cosmic alignment actions (T244)
+    if (e.target.closest('[data-action="align-observe"]')) {
+      const r = observeAlignment();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="align-observe"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="align-ritual"]')) {
+      const r = performRitual();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="align-ritual"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="align-ignore"]')) {
+      ignoreAlignment();
+    }
+    // Tribute caravan actions (T246)
+    const tcBtn = e.target.closest('[data-action="tribute-claim"]');
+    if (tcBtn) {
+      const idx = parseInt(tcBtn.dataset.idx, 10);
+      const r = claimTribute(idx);
+      if (!r.ok) {
+        tcBtn.textContent = r.reason;
+        setTimeout(() => render(), 1500);
+      }
+    }
+    // Ancient ore vein actions (T247)
+    if (e.target.closest('[data-action="ore-mine"]')) {
+      const r = mineOreVein();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="ore-mine"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="ore-commission"]')) {
+      const r = commissionOreVein();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="ore-commission"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="ore-seal"]')) {
+      sealOreVein();
+    }
+    // Wandering herbalist actions (T248)
+    if (e.target.closest('[data-action="herbalist-purchase"]')) {
+      const r = purchaseRemedies();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="herbalist-purchase"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="herbalist-learn"]')) {
+      const r = learnHerbalTechniques();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="herbalist-learn"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="herbalist-away"]')) {
+      sendHerbalistAway();
+    }
+    // Traveling circus actions (T249)
+    if (e.target.closest('[data-action="circus-show"]')) {
+      const r = circusWelcomeShow();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="circus-show"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="circus-recruit"]')) {
+      const r = circusRecruitPerformers();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="circus-recruit"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="circus-dismiss"]')) {
+      dismissCircus();
+    }
+    // Sacred spring actions (T250)
+    if (e.target.closest('[data-action="spring-bless"]')) {
+      const r = blessSpringWaters();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="spring-bless"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="spring-sell"]')) {
+      sellSpringWaterRights();
+    }
+    if (e.target.closest('[data-action="spring-protect"]')) {
+      protectSacredSpring();
+    }
+    // Wandering bard actions (T251)
+    if (e.target.closest('[data-action="bard-commission"]')) {
+      const r = commissionBardPerformance();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="bard-commission"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="bard-listen"]')) {
+      listenToBardStories();
+    }
+    if (e.target.closest('[data-action="bard-away"]')) {
+      sendBardAway();
+    }
+    // Master artisan actions (T252)
+    if (e.target.closest('[data-action="artisan-hire"]')) {
+      const r = hireMasterArtisan();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="artisan-hire"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="artisan-commission"]')) {
+      const r = commissionArtisanPieces();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="artisan-commission"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="artisan-farewell"]')) {
+      bidArtisanFarewell();
+    }
+    // Mountain hermit actions (T253)
+    if (e.target.closest('[data-action="hermit-counsel"]')) {
+      const r = seekHermitCounsel();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="hermit-counsel"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="hermit-tribute"]')) {
+      const r = offerHermitTribute();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="hermit-tribute"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="hermit-leave"]')) {
+      leaveHermitInPeace();
+    }
+    // Imperial jubilee actions (T254)
+    if (e.target.closest('[data-action="jubilee-parade"]')) {
+      const r = declareGrandParade();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="jubilee-parade"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="jubilee-feast"]')) {
+      const r = declareRoyalFeast();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="jubilee-feast"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="jubilee-ceremony"]')) {
+      declareSimpleCeremony();
+    }
+    // Exiled prince actions (T255)
+    if (e.target.closest('[data-action="prince-asylum"]')) {
+      const r = grantAsylum();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="prince-asylum"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="prince-advisor"]')) {
+      const r = acceptPrinceAdvisor();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="prince-advisor"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="prince-away"]')) {
+      turnPrinceAway();
+    }
+    // Ancient guardian actions (T256)
+    if (e.target.closest('[data-action="guardian-tribute"]')) {
+      const r = offerGuardianTribute();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="guardian-tribute"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="guardian-ritual"]')) {
+      const r = conductGuardianRitual();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="guardian-ritual"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="guardian-firm"]')) {
+      standFirmGuardian();
+    }
   });
 
   setQuestPanelRenderer(render);
@@ -241,6 +473,18 @@ function render() {
     ${_tribeSection()}
     ${_prophetSection()}
     ${_artisanFairSection()}
+    ${_cosmicAlignmentSection()}
+    ${_tributeCaravanSection()}
+    ${_oreVeinSection()}
+    ${_herbalistSection()}
+    ${_circusSection()}
+    ${_sacredSpringSection()}
+    ${_wanderingBardSection()}
+    ${_masterArtisanSection()}
+    ${_mountainHermitSection()}
+    ${_imperialJubileeSection()}
+    ${_exiledPrinceSection()}
+    ${_ancientGuardianSection()}
     ${_imperialGamesSection()}
     ${_harvestSection()}
     <div class="quest-header">
@@ -260,7 +504,7 @@ function render() {
   `;
 }
 
-// ── Oracle of Fate section (T193) ────────────────────────────────────────
+// ── Oracle of Fate section (T193) ────────────────────────────────────────────
 
 function _oracleSection() {
   if ((state.age ?? 0) < 1) return '';  // only from Bronze Age
@@ -297,12 +541,12 @@ function _oracleSection() {
     </div>`;
 }
 
-// ── Victory Progress section (T187) ──────────────────────────────────────
+// ── Victory Progress section (T187) ────────────────────────────────────────────
 
 function _victoryProgressSection() {
   if (!state.quests) return '';
 
-  // ── Conquest progress ──────────────────────────────────────────────────
+  // ── Conquest progress ───────────────────────────────────────────────────────
   let playerTiles = 0;
   if (state.map) {
     for (const row of state.map.tiles) for (const t of row) if (t.owner === 'player') playerTiles++;
@@ -314,11 +558,11 @@ function _victoryProgressSection() {
   const questPct     = Math.min(100, Math.round((questsDone  / WIN_QUESTS) * 100));
   const conquestPct  = Math.round((tilePct + agePct + questPct) / 3);
 
-  // ── Diplomatic progress ────────────────────────────────────────────────
+  // ── Diplomatic progress ──────────────────────────────────────────────────────
   const alliedCount  = state.diplomacy?.empires?.filter(e => e.relations === 'allied').length ?? 0;
   const diplomPct    = Math.min(100, Math.round((alliedCount / WIN_DIPLOMATIC_ALLIANCES) * 100));
 
-  // ── Economic progress ──────────────────────────────────────────────────
+  // ── Economic progress ──────────────────────────────────────────────────────
   const goldEarned   = state.stats?.goldEarned ?? 0;
   const hasTech      = !!state.techs?.economics;
   const goldPct      = Math.min(100, Math.round((goldEarned / WIN_ECONOMIC_GOLD) * 100));
@@ -377,7 +621,7 @@ function _victoryProgressSection() {
   `;
 }
 
-// ── Plague section (T161) ────────────────────────────────────────────────
+// ── Plague section (T161) ──────────────────────────────────────────────────────────────
 
 function _plagueSection() {
   if ((state.age ?? 0) < 1) return '';  // Bronze Age+ only
@@ -405,7 +649,7 @@ function _plagueSection() {
     </div>`;
 }
 
-// ── Pilgrimage section (T162) ─────────────────────────────────────────────
+// ── Pilgrimage section (T162) ─────────────────────────────────────────────────────────────────
 
 function _pilgrimageSection() {
   if ((state.age ?? 0) < 1) return '';  // Bronze Age+ only
@@ -449,7 +693,7 @@ function _pilgrimageSection() {
     </div>`;
 }
 
-// ── Legendary Encounter section (T216) ───────────────────────────────────
+// ── Legendary Encounter section (T216) ───────────────────────────────────────────────
 
 function _legendarySection() {
   const leg  = getActiveLegendary();
@@ -493,7 +737,7 @@ function _legendarySection() {
   return activeHtml + (histHtml ? `<div style="margin-top:6px">${histHtml}</div>` : '');
 }
 
-// ── Royal Hunt section (T214) ────────────────────────────────────────────
+// ── Royal Hunt section (T214) ────────────────────────────────────────────────────────────────
 
 function _royalHuntSection() {
   if ((state.age ?? 0) < 1) return '';  // Bronze Age+ only
@@ -504,7 +748,7 @@ function _royalHuntSection() {
   if (hs.active) {
     return `
       <div class="hunt-section hunt-section--active">
-        <div class="hunt-section__header">🦌 Royal Hunt Underway</div>
+        <div class="hunt-section__header">🦤 Royal Hunt Underway</div>
         <div class="hunt-section__desc">
           The hunting party is out in the field. Results in <strong>${hs.activeSecsLeft}s</strong>.
         </div>
@@ -522,7 +766,7 @@ function _royalHuntSection() {
 
   return `
     <div class="hunt-section hunt-section--pending">
-      <div class="hunt-section__header">🦌 Royal Hunt Called!</div>
+      <div class="hunt-section__header">🦤 Royal Hunt Called!</div>
       <div class="hunt-section__desc">
         A hunting season has begun. Success grants +15 morale, +5 prestige, and a chance at iron.
         Expires in <strong>${hs.pendingSecsLeft}s</strong>.
@@ -535,7 +779,7 @@ function _royalHuntSection() {
     </div>`;
 }
 
-// ── Rebel section (T151) ─────────────────────────────────────────────────
+// ── Rebel section (T151) ───────────────────────────────────────────────────────────────────
 
 function _rebelSection() {
   const rebels = getActiveRebels();
@@ -559,9 +803,9 @@ function _rebelSection() {
     </div>`;
 }
 
-// ── Bounty section (T135) ─────────────────────────────────────────────────
+// ── Bounty section (T135) ───────────────────────────────────────────────────────────────────
 
-// ── Seasonal Objective section (T170) ────────────────────────────────────────
+// ── Seasonal Objective section (T170) ────────────────────────────────────────────────────────────────
 
 function _seasonalObjectiveSection() {
   const obj = getActiveSeasonalObjective();
@@ -632,7 +876,7 @@ function _bountySection() {
     </div>`;
 }
 
-// ── Political event section ────────────────────────────────────────────────
+// ── Political event section ────────────────────────────────────────────────────────────────────
 
 function _politicalEventSection() {
   const pe = state.politicalEvents;
@@ -707,7 +951,7 @@ function _politicalEventSection() {
     </div>`;
 }
 
-// ── Challenge section ──────────────────────────────────────────────────────
+// ── Challenge section ────────────────────────────────────────────────────────────────────────
 
 function _challengeSection() {
   const ch = state.challenges;
@@ -822,9 +1066,9 @@ function _escHtml(str) {
   return (str ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-// ── Quest cards ────────────────────────────────────────────────────────────
+// ── Quest cards ────────────────────────────────────────────────────────────────────────────
 
-// ── T202: Epic Quest Chains section ────────────────────────────────────────
+// ── T202: Epic Quest Chains section ────────────────────────────────────────────────────────────────
 
 function _epicChainsSection() {
   if (!state.epicQuests) return '';
@@ -889,7 +1133,7 @@ function _questCard(q, completedTick) {
   `;
 }
 
-// ── T236: Imperial Games ──────────────────────────────────────────────────
+// ── T236: Imperial Games ────────────────────────────────────────────────────────────────────
 
 function _imperialGamesSection() {
   if (!isImperialGamesPending()) return '';
@@ -915,7 +1159,7 @@ function _imperialGamesSection() {
   `;
 }
 
-// ── T234: Seasonal Harvest Window ─────────────────────────────────────────
+// ── T234: Seasonal Harvest Window ─────────────────────────────────────────────────────────────────
 
 function _harvestSection() {
   const available = isHarvestAvailable();
@@ -967,7 +1211,7 @@ function _harvestSection() {
   `;
 }
 
-// ── T240: Nomadic Tribe Encounter ─────────────────────────────────────────
+// ── T240: Nomadic Tribe Encounter ─────────────────────────────────────────────────────────────────
 
 function _tribeSection() {
   const encounter = getActiveTribeEncounter();
@@ -1009,7 +1253,7 @@ function _tribeSection() {
   `;
 }
 
-// ── T241: Wandering Prophet ───────────────────────────────────────────────
+// ── T241: Wandering Prophet ───────────────────────────────────────────────────────────────────────
 
 function _prophetSection() {
   const encounter = getActiveProphetEncounter();
@@ -1051,7 +1295,7 @@ function _prophetSection() {
   `;
 }
 
-// ── T242: Artisan Fair ────────────────────────────────────────────────────
+// ── T242: Artisan Fair ────────────────────────────────────────────────────────────────────────────
 
 function _artisanFairSection() {
   const fair = getActiveArtisanFair();
@@ -1092,4 +1336,466 @@ function _artisanFairSection() {
       </div>
     </div>
   `;
+}
+
+// ── T244: Cosmic Alignment ──────────────────────────────────────────────────────────────────────────
+
+function _cosmicAlignmentSection() {
+  const alignment = getActiveAlignment();
+  if (!alignment) return '';
+
+  const secs       = getAlignmentSecsLeft();
+  const urgent     = secs < 20;
+  const mana       = state.resources?.mana ?? 0;
+  const canRitual  = mana >= RITUAL_MANA_COST;
+
+  return `
+    <div class="cosmic-section cosmic-section--active">
+      <div class="cosmic-header">
+        <span class="cosmic-icon">${alignment.icon}</span>
+        <span class="cosmic-title">${alignment.name}</span>
+        <span class="cosmic-timer${urgent ? ' cosmic-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="cosmic-desc">${alignment.desc}</div>
+      <div class="cosmic-actions">
+        <button class="btn btn--cosmic-observe"
+                data-action="align-observe"
+                title="Observe: free → +20 prestige, reveal 3 tiles">
+          🔭 Observe <span class="cosmic-cost">free → +20 prestige, 3 tiles</span>
+        </button>
+        <button class="btn btn--cosmic-ritual${canRitual ? '' : ' btn--disabled'}"
+                data-action="align-ritual"
+                ${canRitual ? '' : 'disabled'}
+                title="${canRitual ? `Ritual: −${RITUAL_MANA_COST} mana → +${RITUAL_PRESTIGE} prestige, +${RITUAL_MORALE} morale` : `Need ${RITUAL_MANA_COST} mana`}">
+          🕯️ Ritual <span class="cosmic-cost">−${RITUAL_MANA_COST}✨</span>
+        </button>
+        <button class="btn btn--cosmic-ignore" data-action="align-ignore">
+          ✕ Ignore
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function _tributeCaravanSection() {
+  const caravan = getActiveTributeCaravan();
+  if (!caravan) return '';
+
+  const secs   = getTributeCaravanSecsLeft();
+  const urgent = secs < 20;
+
+  const optionCards = caravan.options.map((opt, idx) => {
+    const rewardStr = Object.entries(opt.reward)
+      .map(([r, a]) => `+${a} ${r}`)
+      .join(', ');
+    return `
+      <button class="btn btn--tribute-option" data-action="tribute-claim" data-idx="${idx}">
+        <span class="tribute-option__icon">${opt.icon}</span>
+        <span class="tribute-option__body">
+          <span class="tribute-option__title">${opt.title}</span>
+          <span class="tribute-option__reward">${rewardStr}</span>
+        </span>
+      </button>`;
+  }).join('');
+
+  return `
+    <div class="tribute-section tribute-section--active">
+      <div class="tribute-header">
+        <span class="tribute-icon">🐪</span>
+        <span class="tribute-title">Village Tribute Caravan</span>
+        <span class="tribute-timer${urgent ? ' tribute-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="tribute-desc">Villagers from the outer settlements have sent tribute to your capital. Choose one gift to accept.</div>
+      <div class="tribute-options">${optionCards}</div>
+    </div>`;
+}
+
+// ── Ancient Ore Vein section (T247) ──────────────────────────────────────────────────────────────────
+
+function _oreVeinSection() {
+  const vein = getActiveOreVein();
+  if (!vein) return '';
+
+  const secs   = getOreVeinSecsLeft();
+  const urgent = secs < 20;
+
+  const canAffordCommission = (state.resources?.gold ?? 0) >= COMMISSION_GOLD_COST;
+  const commissionClass = canAffordCommission ? 'btn btn--ore-commission' : 'btn btn--ore-commission btn--disabled';
+
+  return `
+    <div class="ore-section ore-section--active">
+      <div class="ore-header">
+        <span class="ore-icon">⛏️</span>
+        <span class="ore-title">Ancient Ore Vein Discovered!</span>
+        <span class="ore-timer${urgent ? ' ore-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="ore-desc">Imperial miners have struck a rich ancient ore vein deep beneath your territory. How will you proceed?</div>
+      <div class="ore-actions">
+        <button class="btn btn--ore-mine" data-action="ore-mine">
+          ⛏️ Mine Intensively
+          <span class="ore-cost">Free · +${MINE_IRON_REWARD} iron, +${MINE_STONE_REWARD} stone, ${MINE_MORALE_PENALTY} morale</span>
+        </button>
+        <button class="${commissionClass}" data-action="ore-commission"
+                title="${canAffordCommission ? `Commission expert miners (${COMMISSION_GOLD_COST}💰)` : `Need ${COMMISSION_GOLD_COST} gold`}">
+          👷 Commission Miners
+          <span class="ore-cost">${COMMISSION_GOLD_COST}💰 · +${COMMISSION_IRON_REWARD} iron, +${COMMISSION_STONE_REWARD} stone, +${COMMISSION_PRESTIGE} prestige</span>
+        </button>
+        <button class="btn btn--ore-seal" data-action="ore-seal">
+          🚫 Seal It
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── Wandering Herbalist section (T248) ─────────────────────────────────────────────────────────────────────
+
+function _herbalistSection() {
+  const herbalist = getActiveHerbalist();
+  if (!herbalist) return '';
+
+  const secs   = getHerbalistSecsLeft();
+  const urgent = secs < 20;
+
+  const canAffordPurchase = (state.resources?.gold ?? 0) >= PURCHASE_GOLD_COST;
+  const canAffordLearn    = (state.resources?.mana ?? 0) >= LEARN_MANA_COST;
+  const purchaseClass = canAffordPurchase ? 'btn btn--herb-purchase' : 'btn btn--herb-purchase btn--disabled';
+  const learnClass    = canAffordLearn    ? 'btn btn--herb-learn'    : 'btn btn--herb-learn btn--disabled';
+
+  return `
+    <div class="herb-section herb-section--active">
+      <div class="herb-header">
+        <span class="herb-icon">🌿</span>
+        <span class="herb-title">Wandering Herbalist</span>
+        <span class="herb-timer${urgent ? ' herb-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="herb-desc">A wandering herbalist has arrived at the gates bearing natural remedies and ancient cultivation knowledge.</div>
+      <div class="herb-actions">
+        <button class="${purchaseClass}" data-action="herbalist-purchase"
+                title="${canAffordPurchase ? `Purchase remedies (${PURCHASE_GOLD_COST}💰)` : `Need ${PURCHASE_GOLD_COST} gold`}">
+          🌿 Purchase Remedies
+          <span class="herb-cost">${PURCHASE_GOLD_COST}💰 · +${PURCHASE_FOOD_REWARD} food, +${PURCHASE_MORALE} morale</span>
+        </button>
+        <button class="${learnClass}" data-action="herbalist-learn"
+                title="${canAffordLearn ? `Learn techniques (${LEARN_MANA_COST}✨)` : `Need ${LEARN_MANA_COST} mana`}">
+          📖 Learn Techniques
+          <span class="herb-cost">${LEARN_MANA_COST}✨ · +${LEARN_FOOD_RATE} food/s for 3 min</span>
+        </button>
+        <button class="btn btn--herb-away" data-action="herbalist-away">
+          🚶 Send Away
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── Traveling Circus section (T249) ─────────────────────────────────────────
+
+function _circusSection() {
+  const circus = getActiveCircus();
+  if (!circus) return '';
+
+  const secs   = getCircusSecsLeft();
+  const urgent = secs < 20;
+
+  const canAffordShow    = (state.resources?.gold ?? 0) >= SHOW_GOLD_COST;
+  const canAffordRecruit = (state.resources?.gold ?? 0) >= RECRUIT_GOLD_COST;
+  const showClass    = canAffordShow    ? 'btn btn--circus-show'    : 'btn btn--circus-show btn--disabled';
+  const recruitClass = canAffordRecruit ? 'btn btn--circus-recruit' : 'btn btn--circus-recruit btn--disabled';
+
+  return `
+    <div class="circus-section circus-section--active">
+      <div class="circus-header">
+        <span class="circus-icon">🎪</span>
+        <span class="circus-title">Traveling Circus</span>
+        <span class="circus-timer${urgent ? ' circus-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="circus-desc">A colorful traveling circus has arrived at the empire gates with acrobats, exotic animals, and dazzling performers!</div>
+      <div class="circus-actions">
+        <button class="${showClass}" data-action="circus-show"
+                title="${canAffordShow ? `Welcome Show (${SHOW_GOLD_COST}💰)` : `Need ${SHOW_GOLD_COST} gold`}">
+          🎪 Welcome Show
+          <span class="circus-cost">${SHOW_GOLD_COST}💰 · +${SHOW_MORALE_REWARD} morale, +${SHOW_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="${recruitClass}" data-action="circus-recruit"
+                title="${canAffordRecruit ? `Recruit Performers (${RECRUIT_GOLD_COST}💰)` : `Need ${RECRUIT_GOLD_COST} gold`}">
+          🤹 Recruit Performers
+          <span class="circus-cost">${RECRUIT_GOLD_COST}💰 · +${RECRUIT_MORALE_REWARD} morale, +${RECRUIT_FOOD_RATE} food/s for 2 min</span>
+        </button>
+        <button class="btn btn--circus-dismiss" data-action="circus-dismiss">
+          👋 Dismiss Circus
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── Sacred Spring Discovery section (T250) ───────────────────────────────────
+
+function _sacredSpringSection() {
+  const spring = getActiveSacredSpring();
+  if (!spring) return '';
+
+  const secs   = getSacredSpringSecsLeft();
+  const urgent = secs < 20;
+
+  const canAffordBless = (state.resources?.mana ?? 0) >= BLESS_MANA_COST;
+  const blessClass = canAffordBless ? 'btn btn--spring-bless' : 'btn btn--spring-bless btn--disabled';
+
+  return `
+    <div class="spring-section spring-section--active">
+      <div class="spring-header">
+        <span class="spring-icon">🌊</span>
+        <span class="spring-title">Sacred Spring Discovery</span>
+        <span class="spring-timer${urgent ? ' spring-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="spring-desc">Scouts have discovered a sacred spring hidden within the empire's territory. Its waters are said to carry divine blessings from the gods.</div>
+      <div class="spring-actions">
+        <button class="${blessClass}" data-action="spring-bless"
+                title="${canAffordBless ? `Bless the Waters (${BLESS_MANA_COST}✨)` : `Need ${BLESS_MANA_COST} mana`}">
+          🌊 Bless the Waters
+          <span class="spring-cost">${BLESS_MANA_COST}✨ · +${BLESS_FOOD_REWARD} food, +${BLESS_MORALE_REWARD} morale, +${BLESS_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn btn--spring-sell" data-action="spring-sell"
+                title="Sell water rights to merchants (−${SELL_PRESTIGE_COST} prestige)">
+          💰 Sell Water Rights
+          <span class="spring-cost">−${SELL_PRESTIGE_COST} prestige · +${SELL_GOLD_REWARD} gold</span>
+        </button>
+        <button class="btn btn--spring-protect" data-action="spring-protect">
+          🌿 Protect the Spring
+          <span class="spring-cost">Free · +${PROTECT_MORALE_REWARD} morale, +${PROTECT_PRESTIGE_REWARD} prestige</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── Wandering Bard section (T251) ─────────────────────────────────────────────
+
+function _wanderingBardSection() {
+  const bard = getActiveWanderingBard();
+  if (!bard) return '';
+
+  const secs   = getWanderingBardSecsLeft();
+  const urgent = secs < 20;
+
+  const canAffordCommission = (state.resources?.gold ?? 0) >= BARD_COMMISSION_GOLD_COST;
+  const commissionClass = canAffordCommission ? 'btn btn--bard-commission' : 'btn btn--bard-commission btn--disabled';
+
+  return `
+    <div class="bard-section bard-section--active">
+      <div class="bard-header">
+        <span class="bard-icon">🎵</span>
+        <span class="bard-title">Wandering Bard</span>
+        <span class="bard-timer${urgent ? ' bard-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="bard-desc">A wandering bard has arrived at the empire gates, bearing epic tales and songs from distant lands. The people gather eagerly to listen.</div>
+      <div class="bard-actions">
+        <button class="${commissionClass}" data-action="bard-commission"
+                title="${canAffordCommission ? `Commission Performance (${BARD_COMMISSION_GOLD_COST}💰)` : `Need ${BARD_COMMISSION_GOLD_COST} gold`}">
+          🎵 Commission Performance
+          <span class="bard-cost">${BARD_COMMISSION_GOLD_COST}💰 · +${BARD_COMMISSION_MORALE} morale, +${BARD_COMMISSION_PRESTIGE} prestige, +${BARD_COMMISSION_FOOD_RATE} food/s for 2 min</span>
+        </button>
+        <button class="btn btn--bard-listen" data-action="bard-listen">
+          📖 Share Stories
+          <span class="bard-cost">Free · +${LISTEN_MORALE_REWARD} morale, +${LISTEN_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn btn--bard-away" data-action="bard-away">
+          🚪 Send Away
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── Master Artisan Visit section (T252) ───────────────────────────────────────
+
+function _masterArtisanSection() {
+  const artisan = getActiveMasterArtisan();
+  if (!artisan) return '';
+
+  const secs   = getMasterArtisanSecsLeft();
+  const urgent = secs < 20;
+
+  const canAffordHire       = (state.resources?.gold  ?? 0) >= ARTISAN_HIRE_GOLD_COST;
+  const canAffordCommission = (state.resources?.wood  ?? 0) >= ARTISAN_WOOD_COST &&
+                              (state.resources?.stone ?? 0) >= ARTISAN_STONE_COST;
+  const hireClass       = canAffordHire       ? 'btn btn--artisan-hire'       : 'btn btn--artisan-hire btn--disabled';
+  const commissionClass = canAffordCommission ? 'btn btn--artisan-commission' : 'btn btn--artisan-commission btn--disabled';
+
+  return `
+    <div class="artisan-section artisan-section--active">
+      <div class="artisan-header">
+        <span class="artisan-icon">🔨</span>
+        <span class="artisan-title">Master Artisan Visit</span>
+        <span class="artisan-timer${urgent ? ' artisan-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="artisan-desc">A renowned master artisan seeks imperial patronage, offering exceptional craft skills that could greatly benefit the empire's workshops.</div>
+      <div class="artisan-actions">
+        <button class="${hireClass}" data-action="artisan-hire"
+                title="${canAffordHire ? `Hire the Artisan (${ARTISAN_HIRE_GOLD_COST}💰)` : `Need ${ARTISAN_HIRE_GOLD_COST} gold`}">
+          🔨 Hire the Artisan
+          <span class="artisan-cost">${ARTISAN_HIRE_GOLD_COST}💰 · +${HIRE_PRESTIGE_REWARD} prestige, +${HIRE_IRON_RATE} iron/s for 3 min</span>
+        </button>
+        <button class="${commissionClass}" data-action="artisan-commission"
+                title="${canAffordCommission ? `Commission Pieces (${ARTISAN_WOOD_COST}🪵 + ${ARTISAN_STONE_COST}🪨)` : `Need ${ARTISAN_WOOD_COST} wood + ${ARTISAN_STONE_COST} stone`}">
+          🏺 Commission Pieces
+          <span class="artisan-cost">${ARTISAN_WOOD_COST}🪵+${ARTISAN_STONE_COST}🪨 · +${ARTISAN_GOLD_REWARD} gold, +${ARTISAN_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn btn--artisan-farewell" data-action="artisan-farewell">
+          👋 Bid Farewell
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── Mountain Hermit section (T253) ────────────────────────────────────────
+
+function _mountainHermitSection() {
+  const hermit = getActiveMountainHermit();
+  if (!hermit) return '';
+
+  const secs   = getMountainHermitSecsLeft();
+  const urgent = secs < 20;
+
+  const canAffordTribute = (state.resources?.gold ?? 0) >= TRIBUTE_GOLD_COST;
+  const tributeClass = canAffordTribute ? 'btn btn--hermit-tribute' : 'btn btn--hermit-tribute btn--disabled';
+
+  return `
+    <div class="hermit-section hermit-section--active">
+      <div class="hermit-header">
+        <span class="hermit-icon">🧘</span>
+        <span class="hermit-title">Mountain Hermit</span>
+        <span class="hermit-timer${urgent ? ' hermit-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="hermit-desc">An ancient hermit has descended from the mountain peaks seeking to share profound wisdom with the empire. The sages urge you to respond.</div>
+      <div class="hermit-actions">
+        <button class="btn btn--hermit-counsel" data-action="hermit-counsel">
+          🧘 Seek Counsel
+          <span class="hermit-cost">Free · +${COUNSEL_PRESTIGE_REWARD} prestige, +${COUNSEL_MANA_RATE} mana/s for 2 min</span>
+        </button>
+        <button class="${tributeClass}" data-action="hermit-tribute"
+                title="${canAffordTribute ? `Offer Tribute (${TRIBUTE_GOLD_COST}💰)` : `Need ${TRIBUTE_GOLD_COST} gold`}">
+          💰 Offer Tribute
+          <span class="hermit-cost">${TRIBUTE_GOLD_COST}💰 · +${TRIBUTE_PRESTIGE_REWARD} prestige, +${TRIBUTE_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn btn--hermit-leave" data-action="hermit-leave">
+          🚶 Leave in Peace
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── Imperial Jubilee section (T254) ───────────────────────────────────────
+
+function _imperialJubileeSection() {
+  const jubilee = getActiveImperialJubilee();
+  if (!jubilee) return '';
+
+  const secs   = getImperialJubileeSecsLeft();
+  const urgent = secs < 20;
+
+  const canAffordParade = (state.resources?.gold ?? 0) >= PARADE_GOLD_COST;
+  const canAffordFeast  = (state.resources?.food ?? 0) >= FEAST_FOOD_COST;
+  const paradeClass = canAffordParade ? 'btn btn--jubilee-parade' : 'btn btn--jubilee-parade btn--disabled';
+  const feastClass  = canAffordFeast  ? 'btn btn--jubilee-feast'  : 'btn btn--jubilee-feast btn--disabled';
+
+  return `
+    <div class="jubilee-section jubilee-section--active">
+      <div class="jubilee-header">
+        <span class="jubilee-icon">🎺</span>
+        <span class="jubilee-title">Imperial Jubilee</span>
+        <span class="jubilee-timer${urgent ? ' jubilee-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="jubilee-desc">The court announces an Imperial Jubilee! Citizens pour into the streets. Declare your celebration within 85 seconds.</div>
+      <div class="jubilee-actions">
+        <button class="${paradeClass}" data-action="jubilee-parade"
+                title="${canAffordParade ? `Grand Parade (${PARADE_GOLD_COST}💰)` : `Need ${PARADE_GOLD_COST} gold`}">
+          🎺 Grand Parade
+          <span class="jubilee-cost">${PARADE_GOLD_COST}💰 · +${PARADE_MORALE_REWARD} morale, +${PARADE_PRESTIGE_REWARD} prestige, +${PARADE_FOOD_RATE} food/s &amp; +${PARADE_GOLD_RATE} gold/s for 3 min</span>
+        </button>
+        <button class="${feastClass}" data-action="jubilee-feast"
+                title="${canAffordFeast ? `Royal Feast (${FEAST_FOOD_COST}🌾)` : `Need ${FEAST_FOOD_COST} food`}">
+          🍽️ Royal Feast
+          <span class="jubilee-cost">${FEAST_FOOD_COST}🌾 · +${FEAST_MORALE_REWARD} morale, +${FEAST_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn btn--jubilee-ceremony" data-action="jubilee-ceremony">
+          🕯️ Simple Ceremony
+          <span class="jubilee-cost">Free · +${CEREMONY_MORALE_REWARD} morale, +${CEREMONY_PRESTIGE_REWARD} prestige</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── Exiled Prince section (T255) ──────────────────────────────────────────
+
+function _exiledPrinceSection() {
+  const prince = getActiveExiledPrince();
+  if (!prince) return '';
+
+  const secs   = getExiledPrinceSecsLeft();
+  const urgent = secs < 20;
+
+  const canAffordAdvisor = (state.resources?.gold ?? 0) >= ADVISOR_GOLD_COST;
+  const advisorClass = canAffordAdvisor ? 'btn btn--prince-advisor' : 'btn btn--prince-advisor btn--disabled';
+
+  return `
+    <div class="prince-section prince-section--active">
+      <div class="prince-header">
+        <span class="prince-icon">🏰</span>
+        <span class="prince-title">Exiled Prince</span>
+        <span class="prince-timer${urgent ? ' prince-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="prince-desc">A dispossessed prince from a fallen neighboring kingdom stands at the imperial gates, seeking refuge and a new purpose. How will you receive him?</div>
+      <div class="prince-actions">
+        <button class="btn btn--prince-asylum" data-action="prince-asylum">
+          🏰 Grant Asylum
+          <span class="prince-cost">Free · +${ASYLUM_MORALE_REWARD} morale, +${ASYLUM_PRESTIGE_REWARD} prestige, +${ASYLUM_GOLD_RATE} gold/s for 3 min</span>
+        </button>
+        <button class="${advisorClass}" data-action="prince-advisor"
+                title="${canAffordAdvisor ? `Accept as Advisor (${ADVISOR_GOLD_COST}💰)` : `Need ${ADVISOR_GOLD_COST} gold`}">
+          ⚔️ Accept as Advisor
+          <span class="prince-cost">${ADVISOR_GOLD_COST}💰 · +${PRINCE_ADVISOR_PRESTIGE} prestige, +${PRINCE_ADVISOR_MORALE} morale, +${ADVISOR_IRON_RATE} iron/s for 2 min</span>
+        </button>
+        <button class="btn btn--prince-away" data-action="prince-away">
+          🚪 Turn Away
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── Ancient Guardian section (T256) ──────────────────────────────────────
+
+function _ancientGuardianSection() {
+  const guardian = getActiveAncientGuardian();
+  if (!guardian) return '';
+
+  const secs   = getAncientGuardianSecsLeft();
+  const urgent = secs < 20;
+
+  const canAffordTribute = (state.resources?.food ?? 0) >= GUARDIAN_FOOD_COST;
+  const canAffordRitual  = (state.resources?.mana ?? 0) >= GUARDIAN_MANA_COST;
+  const tributeClass = canAffordTribute ? 'btn btn--guardian-tribute' : 'btn btn--guardian-tribute btn--disabled';
+  const ritualClass  = canAffordRitual  ? 'btn btn--guardian-ritual'  : 'btn btn--guardian-ritual btn--disabled';
+
+  return `
+    <div class="guardian-section guardian-section--active">
+      <div class="guardian-header">
+        <span class="guardian-icon">🗿</span>
+        <span class="guardian-title">Ancient Guardian Awakens</span>
+        <span class="guardian-timer${urgent ? ' guardian-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="guardian-desc">An ancient stone guardian stirs at the empire's borders, drawn by your growing power! Decide how to respond within 75 seconds.</div>
+      <div class="guardian-actions">
+        <button class="${tributeClass}" data-action="guardian-tribute"
+                title="${canAffordTribute ? `Offer Tribute (${GUARDIAN_FOOD_COST}🌾)` : `Need ${GUARDIAN_FOOD_COST} food`}">
+          🗿 Offer Tribute
+          <span class="guardian-cost">${GUARDIAN_FOOD_COST}🌾 · +${GUARDIAN_TRIBUTE_MORALE} morale, +${GUARDIAN_TRIBUTE_PRESTIGE} prestige, +${TRIBUTE_STONE_RATE} stone/s for 2 min</span>
+        </button>
+        <button class="${ritualClass}" data-action="guardian-ritual"
+                title="${canAffordRitual ? `Conduct Ritual (${GUARDIAN_MANA_COST}✨)` : `Need ${GUARDIAN_MANA_COST} mana`}">
+          🔮 Conduct Ritual
+          <span class="guardian-cost">${GUARDIAN_MANA_COST}✨ · +${GUARDIAN_RITUAL_PRESTIGE} prestige, +${RITUAL_MANA_RATE} mana/s for 3 min</span>
+        </button>
+        <button class="btn btn--guardian-firm" data-action="guardian-firm">
+          🛡️ Stand Firm
+          <span class="guardian-cost">Free · +${STANDFIRM_MORALE_REWARD} morale, +${STANDFIRM_PRESTIGE_REWARD} prestige</span>
+        </button>
+      </div>
+    </div>`;
 }

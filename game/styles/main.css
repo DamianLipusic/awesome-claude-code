@@ -15007,3 +15007,809 @@ kbd {
 .btn--fair-decline:hover {
   background: rgba(50, 50, 50, 0.65);
 }
+
+/* T244: Cosmic Alignment Quest Panel section */
+.cosmic-section {
+  background: rgba(15, 15, 30, 0.70);
+  border: 1px solid rgba(99, 102, 241, 0.30);
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+.cosmic-section--active {
+  border-color: rgba(99, 102, 241, 0.70);
+  animation: cosmic-pulse 2.5s ease-in-out infinite;
+}
+@keyframes cosmic-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.00); }
+  50%       { box-shadow: 0 0 8px 2px rgba(99, 102, 241, 0.25); }
+}
+.cosmic-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 5px;
+}
+.cosmic-icon { font-size: 1.2rem; }
+.cosmic-title {
+  font-weight: 600;
+  color: #a5b4fc;
+  flex: 1;
+}
+.cosmic-timer {
+  font-size: 0.78rem;
+  color: #a5b4fc;
+  font-weight: 600;
+}
+.cosmic-timer--urgent {
+  color: #f87171;
+  animation: blink 0.8s step-end infinite;
+}
+.cosmic-desc {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+.cosmic-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.cosmic-cost {
+  font-size: 0.70rem;
+  opacity: 0.80;
+  margin-left: 3px;
+}
+.btn--cosmic-observe {
+  padding: 5px 10px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  border: 1px solid rgba(99, 102, 241, 0.40);
+  border-radius: 4px;
+  background: linear-gradient(135deg, #1e1b4b 0%, #4338ca 100%);
+  color: #e0e7ff;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.btn--cosmic-observe:hover:not(:disabled) { opacity: 0.85; }
+.btn--cosmic-ritual {
+  padding: 5px 10px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  border: 1px solid rgba(139, 92, 246, 0.40);
+  border-radius: 4px;
+  background: linear-gradient(135deg, #2e1065 0%, #7c3aed 100%);
+  color: #ede9fe;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.btn--cosmic-ritual:hover:not(:disabled) { opacity: 0.85; }
+.btn--cosmic-ignore {
+  padding: 5px 10px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  border: 1px solid rgba(107, 114, 128, 0.35);
+  border-radius: 4px;
+  background: rgba(30, 30, 30, 0.50);
+  color: #9ca3af;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn--cosmic-ignore:hover { background: rgba(50, 50, 50, 0.65); }
+
+/* T243: Empire Epithet badge */
+.summary-empire-badge--epithet {
+  background: rgba(139, 92, 246, 0.15);
+  border: 1px solid rgba(139, 92, 246, 0.50);
+  color: #c4b5fd;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+}
+.lb-epithet {
+  font-size: 11px;
+  color: #c4b5fd;
+  margin-left: 4px;
+  opacity: 0.85;
+}
+
+/* ── T245: Market Economy Cycle ──────────────────────────────────────────── */
+.cycle-banner {
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.cycle-banner--boom {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.20), rgba(16, 185, 129, 0.15));
+  border: 1px solid rgba(34, 197, 94, 0.55);
+}
+.cycle-banner--bust {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.20), rgba(220, 38, 38, 0.15));
+  border: 1px solid rgba(239, 68, 68, 0.50);
+}
+.cycle-banner__title {
+  font-weight: 700;
+  font-size: 0.88rem;
+  letter-spacing: 0.02em;
+}
+.cycle-banner--boom .cycle-banner__title { color: #4ade80; }
+.cycle-banner--bust .cycle-banner__title { color: #f87171; }
+.cycle-banner__desc {
+  font-size: 0.78rem;
+  opacity: 0.80;
+}
+.cycle-banner--boom .cycle-banner__desc { color: #86efac; }
+.cycle-banner--bust .cycle-banner__desc { color: #fca5a5; }
+.cycle-banner__timer {
+  font-size: 0.80rem;
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: 0.85;
+}
+.cycle-banner--boom .cycle-banner__timer { color: #bbf7d0; }
+.cycle-banner--bust .cycle-banner__timer { color: #fecaca; }
+.cycle-next {
+  font-size: 0.73rem;
+  color: #9ca3af;
+  font-style: italic;
+  margin-bottom: 6px;
+}
+
+/* ── T246: Village Tribute Caravan ───────────────────────────────────────── */
+.tribute-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+}
+.tribute-section--active {
+  border-color: rgba(251, 191, 36, 0.55);
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.08), rgba(245, 158, 11, 0.06));
+}
+.tribute-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.tribute-icon { font-size: 1.3rem; }
+.tribute-title {
+  font-weight: 700;
+  font-size: 0.90rem;
+  color: #fbbf24;
+  flex: 1;
+}
+.tribute-timer {
+  font-size: 0.80rem;
+  font-weight: 600;
+  color: #fcd34d;
+  background: rgba(251, 191, 36, 0.12);
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+.tribute-timer--urgent {
+  color: #f87171;
+  background: rgba(239, 68, 68, 0.15);
+  animation: pulse 1s infinite;
+}
+.tribute-desc {
+  font-size: 0.78rem;
+  color: #9ca3af;
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+.tribute-options {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.btn--tribute-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: rgba(251, 191, 36, 0.10);
+  border: 1px solid rgba(251, 191, 36, 0.30);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  text-align: left;
+  width: 100%;
+}
+.btn--tribute-option:hover {
+  background: rgba(251, 191, 36, 0.20);
+  border-color: rgba(251, 191, 36, 0.55);
+}
+.tribute-option__icon { font-size: 1.2rem; flex-shrink: 0; }
+.tribute-option__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.tribute-option__title {
+  font-weight: 600;
+  font-size: 0.82rem;
+  color: #fcd34d;
+}
+.tribute-option__reward {
+  font-size: 0.75rem;
+  color: #d1d5db;
+}
+
+/* ── Ancient Ore Vein (T247) ───────────────────────────────────────────── */
+.ore-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+}
+.ore-section--active {
+  border-color: rgba(161, 128, 62, 0.6);
+  background: linear-gradient(135deg, rgba(120, 90, 30, 0.10), rgba(92, 64, 16, 0.08));
+}
+.ore-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.ore-icon { font-size: 1.3rem; }
+.ore-title {
+  font-weight: 700;
+  font-size: 0.90rem;
+  color: #d4a843;
+  flex: 1;
+}
+.ore-timer {
+  font-size: 0.80rem;
+  font-weight: 600;
+  color: #d4a843;
+  background: rgba(212, 168, 67, 0.12);
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+.ore-timer--urgent {
+  color: #f87171;
+  background: rgba(239, 68, 68, 0.15);
+  animation: pulse 1s infinite;
+}
+.ore-desc {
+  font-size: 0.78rem;
+  color: #9ca3af;
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+.ore-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ore-cost {
+  display: block;
+  font-size: 0.72rem;
+  color: #9ca3af;
+  margin-top: 2px;
+}
+.btn--ore-mine {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 12px;
+  background: rgba(120, 90, 30, 0.15);
+  border: 1px solid rgba(212, 168, 67, 0.35);
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.82rem;
+  color: #e5c560;
+  transition: background 0.15s, border-color 0.15s;
+}
+.btn--ore-mine:hover {
+  background: rgba(120, 90, 30, 0.30);
+  border-color: rgba(212, 168, 67, 0.65);
+}
+.btn--ore-commission {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 12px;
+  background: rgba(59, 130, 246, 0.10);
+  border: 1px solid rgba(59, 130, 246, 0.30);
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.82rem;
+  color: #93c5fd;
+  transition: background 0.15s, border-color 0.15s;
+}
+.btn--ore-commission:hover:not(.btn--disabled) {
+  background: rgba(59, 130, 246, 0.22);
+  border-color: rgba(59, 130, 246, 0.60);
+}
+.btn--ore-seal {
+  padding: 6px 12px;
+  background: rgba(100, 100, 100, 0.12);
+  border: 1px solid rgba(100, 100, 100, 0.25);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.80rem;
+  color: #9ca3af;
+  transition: background 0.15s;
+}
+.btn--ore-seal:hover { background: rgba(100, 100, 100, 0.22); }
+
+/* ── Wandering Herbalist (T248) ─────────────────────────────────────────── */
+.herb-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+}
+.herb-section--active {
+  border-color: rgba(74, 160, 74, 0.55);
+  background: linear-gradient(135deg, rgba(40, 120, 40, 0.10), rgba(30, 100, 30, 0.07));
+}
+.herb-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.herb-icon { font-size: 1.3rem; }
+.herb-title {
+  font-weight: 700;
+  font-size: 0.90rem;
+  color: #6ee77b;
+  flex: 1;
+}
+.herb-timer {
+  font-size: 0.80rem;
+  font-weight: 600;
+  color: #86efac;
+  background: rgba(74, 160, 74, 0.12);
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+.herb-timer--urgent {
+  color: #f87171;
+  background: rgba(239, 68, 68, 0.15);
+  animation: pulse 1s infinite;
+}
+.herb-desc {
+  font-size: 0.78rem;
+  color: #9ca3af;
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+.herb-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.herb-cost {
+  display: block;
+  font-size: 0.72rem;
+  color: #9ca3af;
+  margin-top: 2px;
+}
+.btn--herb-purchase {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 12px;
+  background: rgba(74, 160, 74, 0.12);
+  border: 1px solid rgba(74, 160, 74, 0.35);
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.82rem;
+  color: #86efac;
+  transition: background 0.15s, border-color 0.15s;
+}
+.btn--herb-purchase:hover:not(.btn--disabled) {
+  background: rgba(74, 160, 74, 0.25);
+  border-color: rgba(74, 160, 74, 0.65);
+}
+.btn--herb-learn {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 12px;
+  background: rgba(139, 92, 246, 0.10);
+  border: 1px solid rgba(139, 92, 246, 0.30);
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.82rem;
+  color: #c4b5fd;
+  transition: background 0.15s, border-color 0.15s;
+}
+.btn--herb-learn:hover:not(.btn--disabled) {
+  background: rgba(139, 92, 246, 0.22);
+  border-color: rgba(139, 92, 246, 0.60);
+}
+.btn--herb-away {
+  padding: 6px 12px;
+  background: rgba(100, 100, 100, 0.12);
+  border: 1px solid rgba(100, 100, 100, 0.25);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.80rem;
+  color: #9ca3af;
+  transition: background 0.15s;
+}
+.btn--herb-away:hover { background: rgba(100, 100, 100, 0.22); }
+
+/* ── T249: Traveling Circus ──────────────────────────────────────────────── */
+@keyframes circus-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(251, 146, 60, 0.0); }
+  50%       { box-shadow: 0 0 0 6px rgba(251, 146, 60, 0.25); }
+}
+.circus-section--active {
+  background: linear-gradient(135deg, rgba(251, 146, 60, 0.08), rgba(249, 115, 22, 0.04));
+  border: 1px solid rgba(251, 146, 60, 0.35);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  animation: circus-pulse 2.5s ease-in-out infinite;
+}
+.circus-header { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.circus-icon { font-size: 1.1rem; }
+.circus-title { flex: 1; font-weight: 600; font-size: 0.88rem; color: #fb923c; }
+.circus-timer { font-size: 0.78rem; color: #fb923c; font-variant-numeric: tabular-nums; }
+.circus-timer--urgent { color: #ef4444; animation: blink 0.8s step-start infinite; }
+.circus-desc { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; }
+.circus-actions { display: flex; flex-direction: column; gap: 5px; }
+.circus-cost { display: block; font-size: 0.70rem; color: #9ca3af; margin-top: 1px; }
+.btn--circus-show {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(251, 146, 60, 0.18), rgba(249, 115, 22, 0.12));
+  border: 1px solid rgba(251, 146, 60, 0.4);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #fb923c;
+  text-align: left; transition: background 0.15s;
+}
+.btn--circus-show:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(251, 146, 60, 0.28), rgba(249, 115, 22, 0.20)); }
+.btn--circus-recruit {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(234, 179, 8, 0.15), rgba(202, 138, 4, 0.10));
+  border: 1px solid rgba(234, 179, 8, 0.35);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #eab308;
+  text-align: left; transition: background 0.15s;
+}
+.btn--circus-recruit:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(234, 179, 8, 0.25), rgba(202, 138, 4, 0.18)); }
+.btn--circus-dismiss {
+  padding: 6px 12px; background: rgba(100,100,100,0.12); border: 1px solid rgba(100,100,100,0.25);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #9ca3af; transition: background 0.15s;
+}
+.btn--circus-dismiss:hover { background: rgba(100,100,100,0.22); }
+
+/* ── T250: Sacred Spring Discovery ──────────────────────────────────────── */
+@keyframes spring-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.0); }
+  50%       { box-shadow: 0 0 0 6px rgba(34, 211, 238, 0.22); }
+}
+.spring-section--active {
+  background: linear-gradient(135deg, rgba(34, 211, 238, 0.07), rgba(6, 182, 212, 0.04));
+  border: 1px solid rgba(34, 211, 238, 0.30);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  animation: spring-pulse 2.8s ease-in-out infinite;
+}
+.spring-header { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.spring-icon { font-size: 1.1rem; }
+.spring-title { flex: 1; font-weight: 600; font-size: 0.88rem; color: #22d3ee; }
+.spring-timer { font-size: 0.78rem; color: #22d3ee; font-variant-numeric: tabular-nums; }
+.spring-timer--urgent { color: #ef4444; animation: blink 0.8s step-start infinite; }
+.spring-desc { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; }
+.spring-actions { display: flex; flex-direction: column; gap: 5px; }
+.spring-cost { display: block; font-size: 0.70rem; color: #9ca3af; margin-top: 1px; }
+.btn--spring-bless {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(34, 211, 238, 0.15), rgba(6, 182, 212, 0.10));
+  border: 1px solid rgba(34, 211, 238, 0.35);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #22d3ee;
+  text-align: left; transition: background 0.15s;
+}
+.btn--spring-bless:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(34, 211, 238, 0.25), rgba(6, 182, 212, 0.18)); }
+.btn--spring-sell {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(234, 179, 8, 0.12), rgba(161, 123, 6, 0.08));
+  border: 1px solid rgba(234, 179, 8, 0.30);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #ca8a04;
+  text-align: left; transition: background 0.15s;
+}
+.btn--spring-sell:hover { background: linear-gradient(135deg, rgba(234, 179, 8, 0.20), rgba(161, 123, 6, 0.15)); }
+.btn--spring-protect {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(74, 222, 128, 0.12), rgba(34, 197, 94, 0.08));
+  border: 1px solid rgba(74, 222, 128, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #4ade80;
+  text-align: left; transition: background 0.15s;
+}
+.btn--spring-protect:hover { background: linear-gradient(135deg, rgba(74, 222, 128, 0.20), rgba(34, 197, 94, 0.15)); }
+
+/* ── T251: Wandering Bard ────────────────────────────────────────────────── */
+@keyframes bard-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(167, 139, 250, 0.0); }
+  50%       { box-shadow: 0 0 0 6px rgba(167, 139, 250, 0.22); }
+}
+.bard-section--active {
+  background: linear-gradient(135deg, rgba(167, 139, 250, 0.07), rgba(139, 92, 246, 0.04));
+  border: 1px solid rgba(167, 139, 250, 0.30);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  animation: bard-pulse 2.8s ease-in-out infinite;
+}
+.bard-header { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.bard-icon { font-size: 1.1rem; }
+.bard-title { flex: 1; font-weight: 600; font-size: 0.88rem; color: #a78bfa; }
+.bard-timer { font-size: 0.78rem; color: #a78bfa; font-variant-numeric: tabular-nums; }
+.bard-timer--urgent { color: #ef4444; animation: blink 0.8s step-start infinite; }
+.bard-desc { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; }
+.bard-actions { display: flex; flex-direction: column; gap: 5px; }
+.bard-cost { display: block; font-size: 0.70rem; color: #9ca3af; margin-top: 1px; }
+.btn--bard-commission {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(167, 139, 250, 0.15), rgba(139, 92, 246, 0.10));
+  border: 1px solid rgba(167, 139, 250, 0.35);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #a78bfa;
+  text-align: left; transition: background 0.15s;
+}
+.btn--bard-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(167, 139, 250, 0.25), rgba(139, 92, 246, 0.18)); }
+.btn--bard-listen {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(99, 179, 237, 0.12), rgba(66, 153, 225, 0.08));
+  border: 1px solid rgba(99, 179, 237, 0.30);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #63b3ed;
+  text-align: left; transition: background 0.15s;
+}
+.btn--bard-listen:hover { background: linear-gradient(135deg, rgba(99, 179, 237, 0.22), rgba(66, 153, 225, 0.15)); }
+.btn--bard-away {
+  padding: 6px 10px;
+  background: rgba(75, 75, 75, 0.12);
+  border: 1px solid rgba(120, 120, 120, 0.22);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #9ca3af;
+  text-align: left; transition: background 0.15s;
+}
+.btn--bard-away:hover { background: rgba(100,100,100,0.22); }
+
+/* ── T252: Master Artisan Visit ──────────────────────────────────────────── */
+@keyframes artisan-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.0); }
+  50%       { box-shadow: 0 0 0 6px rgba(251, 191, 36, 0.22); }
+}
+.artisan-section--active {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.07), rgba(245, 158, 11, 0.04));
+  border: 1px solid rgba(251, 191, 36, 0.30);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  animation: artisan-pulse 2.8s ease-in-out infinite;
+}
+.artisan-header { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.artisan-icon { font-size: 1.1rem; }
+.artisan-title { flex: 1; font-weight: 600; font-size: 0.88rem; color: #fbbf24; }
+.artisan-timer { font-size: 0.78rem; color: #fbbf24; font-variant-numeric: tabular-nums; }
+.artisan-timer--urgent { color: #ef4444; animation: blink 0.8s step-start infinite; }
+.artisan-desc { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; }
+.artisan-actions { display: flex; flex-direction: column; gap: 5px; }
+.artisan-cost { display: block; font-size: 0.70rem; color: #9ca3af; margin-top: 1px; }
+.btn--artisan-hire {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(245, 158, 11, 0.10));
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #fbbf24;
+  text-align: left; transition: background 0.15s;
+}
+.btn--artisan-hire:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(251, 191, 36, 0.25), rgba(245, 158, 11, 0.18)); }
+.btn--artisan-commission {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(134, 239, 172, 0.12), rgba(74, 222, 128, 0.08));
+  border: 1px solid rgba(134, 239, 172, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #86efac;
+  text-align: left; transition: background 0.15s;
+}
+.btn--artisan-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(134, 239, 172, 0.22), rgba(74, 222, 128, 0.15)); }
+.btn--artisan-farewell {
+  padding: 6px 10px;
+  background: rgba(75, 75, 75, 0.12);
+  border: 1px solid rgba(120, 120, 120, 0.22);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #9ca3af;
+  text-align: left; transition: background 0.15s;
+}
+.btn--artisan-farewell:hover { background: rgba(100,100,100,0.22); }
+
+/* ── T253: Mountain Hermit ───────────────────────────────────────────────── */
+@keyframes hermit-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.0); }
+  50%       { box-shadow: 0 0 0 6px rgba(52, 211, 153, 0.22); }
+}
+.hermit-section--active {
+  background: linear-gradient(135deg, rgba(52, 211, 153, 0.07), rgba(16, 185, 129, 0.04));
+  border: 1px solid rgba(52, 211, 153, 0.30);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  animation: hermit-pulse 2.8s ease-in-out infinite;
+}
+.hermit-header { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.hermit-icon { font-size: 1.1rem; }
+.hermit-title { flex: 1; font-weight: 600; font-size: 0.88rem; color: #34d399; }
+.hermit-timer { font-size: 0.78rem; color: #34d399; font-variant-numeric: tabular-nums; }
+.hermit-timer--urgent { color: #ef4444; animation: blink 0.8s step-start infinite; }
+.hermit-desc { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; }
+.hermit-actions { display: flex; flex-direction: column; gap: 5px; }
+.hermit-cost { display: block; font-size: 0.70rem; color: #9ca3af; margin-top: 1px; }
+.btn--hermit-counsel {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(52, 211, 153, 0.15), rgba(16, 185, 129, 0.10));
+  border: 1px solid rgba(52, 211, 153, 0.35);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #34d399;
+  text-align: left; transition: background 0.15s;
+}
+.btn--hermit-counsel:hover { background: linear-gradient(135deg, rgba(52, 211, 153, 0.25), rgba(16, 185, 129, 0.18)); }
+.btn--hermit-tribute {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.12), rgba(245, 158, 11, 0.08));
+  border: 1px solid rgba(251, 191, 36, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #fbbf24;
+  text-align: left; transition: background 0.15s;
+}
+.btn--hermit-tribute:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(251, 191, 36, 0.22), rgba(245, 158, 11, 0.15)); }
+.btn--hermit-leave {
+  padding: 6px 10px;
+  background: rgba(75, 75, 75, 0.12);
+  border: 1px solid rgba(120, 120, 120, 0.22);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #9ca3af;
+  text-align: left; transition: background 0.15s;
+}
+.btn--hermit-leave:hover { background: rgba(100,100,100,0.22); }
+
+/* ── T254: Imperial Jubilee ──────────────────────────────────────────────── */
+@keyframes jubilee-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.0); }
+  50%       { box-shadow: 0 0 0 6px rgba(249, 115, 22, 0.22); }
+}
+.jubilee-section--active {
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.07), rgba(234, 88, 12, 0.04));
+  border: 1px solid rgba(249, 115, 22, 0.30);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  animation: jubilee-pulse 2.8s ease-in-out infinite;
+}
+.jubilee-header { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.jubilee-icon { font-size: 1.1rem; }
+.jubilee-title { flex: 1; font-weight: 600; font-size: 0.88rem; color: #f97316; }
+.jubilee-timer { font-size: 0.78rem; color: #f97316; font-variant-numeric: tabular-nums; }
+.jubilee-timer--urgent { color: #ef4444; animation: blink 0.8s step-start infinite; }
+.jubilee-desc { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; }
+.jubilee-actions { display: flex; flex-direction: column; gap: 5px; }
+.jubilee-cost { display: block; font-size: 0.70rem; color: #9ca3af; margin-top: 1px; }
+.btn--jubilee-parade {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.15), rgba(234, 88, 12, 0.10));
+  border: 1px solid rgba(249, 115, 22, 0.35);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #f97316;
+  text-align: left; transition: background 0.15s;
+}
+.btn--jubilee-parade:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(249, 115, 22, 0.25), rgba(234, 88, 12, 0.18)); }
+.btn--jubilee-feast {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(134, 239, 172, 0.12), rgba(74, 222, 128, 0.08));
+  border: 1px solid rgba(134, 239, 172, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #86efac;
+  text-align: left; transition: background 0.15s;
+}
+.btn--jubilee-feast:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(134, 239, 172, 0.22), rgba(74, 222, 128, 0.15)); }
+.btn--jubilee-ceremony {
+  padding: 6px 10px;
+  background: rgba(75, 75, 75, 0.12);
+  border: 1px solid rgba(120, 120, 120, 0.22);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #9ca3af;
+  text-align: left; transition: background 0.15s;
+}
+.btn--jubilee-ceremony:hover { background: rgba(100,100,100,0.22); }
+
+/* ── T255: Exiled Prince ─────────────────────────────────────────────────── */
+@keyframes prince-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.0); }
+  50%       { box-shadow: 0 0 0 6px rgba(139, 92, 246, 0.22); }
+}
+.prince-section--active {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.07), rgba(109, 40, 217, 0.04));
+  border: 1px solid rgba(139, 92, 246, 0.30);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  animation: prince-pulse 2.8s ease-in-out infinite;
+}
+.prince-header { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.prince-icon { font-size: 1.1rem; }
+.prince-title { flex: 1; font-weight: 600; font-size: 0.88rem; color: #a78bfa; }
+.prince-timer { font-size: 0.78rem; color: #a78bfa; font-variant-numeric: tabular-nums; }
+.prince-timer--urgent { color: #ef4444; animation: blink 0.8s step-start infinite; }
+.prince-desc { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; }
+.prince-actions { display: flex; flex-direction: column; gap: 5px; }
+.prince-cost { display: block; font-size: 0.70rem; color: #9ca3af; margin-top: 1px; }
+.btn--prince-asylum {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(109, 40, 217, 0.10));
+  border: 1px solid rgba(139, 92, 246, 0.35);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #a78bfa;
+  text-align: left; transition: background 0.15s;
+}
+.btn--prince-asylum:hover { background: linear-gradient(135deg, rgba(139, 92, 246, 0.25), rgba(109, 40, 217, 0.18)); }
+.btn--prince-advisor {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.12), rgba(245, 158, 11, 0.08));
+  border: 1px solid rgba(251, 191, 36, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #fbbf24;
+  text-align: left; transition: background 0.15s;
+}
+.btn--prince-advisor:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(251, 191, 36, 0.22), rgba(245, 158, 11, 0.15)); }
+.btn--prince-away {
+  padding: 6px 10px;
+  background: rgba(75, 75, 75, 0.12);
+  border: 1px solid rgba(120, 120, 120, 0.22);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #9ca3af;
+  text-align: left; transition: background 0.15s;
+}
+.btn--prince-away:hover { background: rgba(100,100,100,0.22); }
+
+/* ── T256: Ancient Guardian ──────────────────────────────────────────────── */
+@keyframes guardian-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(107, 114, 128, 0.0); }
+  50%       { box-shadow: 0 0 0 6px rgba(107, 114, 128, 0.28); }
+}
+.guardian-section--active {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.09), rgba(75, 85, 99, 0.05));
+  border: 1px solid rgba(156, 163, 175, 0.32);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  animation: guardian-pulse 3.2s ease-in-out infinite;
+}
+.guardian-header { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.guardian-icon { font-size: 1.1rem; }
+.guardian-title { flex: 1; font-weight: 600; font-size: 0.88rem; color: #d1d5db; }
+.guardian-timer { font-size: 0.78rem; color: #d1d5db; font-variant-numeric: tabular-nums; }
+.guardian-timer--urgent { color: #ef4444; animation: blink 0.8s step-start infinite; }
+.guardian-desc { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; }
+.guardian-actions { display: flex; flex-direction: column; gap: 5px; }
+.guardian-cost { display: block; font-size: 0.70rem; color: #9ca3af; margin-top: 1px; }
+.btn--guardian-tribute {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(134, 239, 172, 0.12), rgba(74, 222, 128, 0.08));
+  border: 1px solid rgba(134, 239, 172, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #86efac;
+  text-align: left; transition: background 0.15s;
+}
+.btn--guardian-tribute:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(134, 239, 172, 0.22), rgba(74, 222, 128, 0.15)); }
+.btn--guardian-ritual {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.13), rgba(109, 40, 217, 0.09));
+  border: 1px solid rgba(139, 92, 246, 0.30);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #c4b5fd;
+  text-align: left; transition: background 0.15s;
+}
+.btn--guardian-ritual:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(139, 92, 246, 0.22), rgba(109, 40, 217, 0.16)); }
+.btn--guardian-firm {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(37, 99, 235, 0.08));
+  border: 1px solid rgba(59, 130, 246, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #93c5fd;
+  text-align: left; transition: background 0.15s;
+}
+.btn--guardian-firm:hover { background: linear-gradient(135deg, rgba(59, 130, 246, 0.22), rgba(37, 99, 235, 0.15)); }

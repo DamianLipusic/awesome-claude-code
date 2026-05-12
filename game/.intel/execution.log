@@ -2,6 +2,86 @@
 
 ---
 
+## 2026-05-12 — Session N+62
+
+**Tasks completed:** T251, T252
+
+**Summary:**
+All prior tasks (T001–T250) were complete. Created T251+T252 task specs in tasks.json then implemented two Phase 103 features: Wandering Bard (T251) and Master Artisan Visit (T252).
+
+**T251 — Wandering Bard:**
+- `src/systems/wanderingBard.js`: New file. SPAWN_MIN=2880 (12 min), SPAWN_RANGE=960 (+0-4 min), WINDOW_TICKS=320 (80 sec), MIN_AGE=1 (Bronze Age), MIN_PLAYER_TILES=6. commissionBardPerformance() costs 35 gold, awards +12 morale, +8 prestige, pushes bardCommission modifier (+0.1 food/s for 2 min) to randomEvents.activeModifiers. listenToBardStories() free, awards +5 morale, +6 prestige. sendBardAway() no-ops and reschedules.
+- `src/core/events.js`: WANDERING_BARD_CHANGED:'wanderingBardChanged' added.
+- `src/core/state.js`: `wanderingBard:null` field + initState reset.
+- `src/ui/questPanel.js`: Import 10 exports; WANDERING_BARD_CHANGED in events list; bd check in tick-refresh; bard-commission/listen/away click handlers; `_wanderingBardSection()` after `_sacredSpringSection()` in render.
+- `src/main.js`: import+registerSystem(wanderingBardTick)+init in boot+_newGame+save/load; version 92→93.
+- `styles/main.css`: `.bard-section/--active` (violet pulse), `.bard-header`, `.bard-icon`, `.bard-title`, `.bard-timer/--urgent`, `.bard-desc`, `.bard-actions`, `.bard-cost`, `.btn--bard-commission` (violet), `.btn--bard-listen` (blue), `.btn--bard-away` (muted).
+
+**T252 — Master Artisan Visit:**
+- `src/systems/masterArtisan.js`: New file. SPAWN_MIN=3360 (14 min), SPAWN_RANGE=1200 (+0-5 min), WINDOW_TICKS=340 (85 sec), MIN_AGE=2 (Iron Age), MIN_PLAYER_TILES=10. hireMasterArtisan() costs 70 gold, awards +60 prestige, pushes masterArtisanHire modifier (+0.15 iron/s for 3 min) to randomEvents.activeModifiers. commissionArtisanPieces() costs 40 wood + 20 stone, awards +80 gold (capped) +30 prestige. bidArtisanFarewell() no-ops and reschedules.
+- `src/core/events.js`: MASTER_ARTISAN_CHANGED:'masterArtisanChanged' added.
+- `src/core/state.js`: `masterArtisan:null` field + initState reset.
+- `src/ui/questPanel.js`: Import 8 exports; MASTER_ARTISAN_CHANGED in events list; ma check in tick-refresh; artisan-hire/commission/farewell click handlers; `_masterArtisanSection()` after `_wanderingBardSection()` in render.
+- `src/main.js`: import+registerSystem(masterArtisanTick)+init in boot+_newGame+save/load; version 92→93.
+- `styles/main.css`: `.artisan-section/--active` (amber-gold pulse), `.artisan-header`, `.artisan-icon`, `.artisan-title`, `.artisan-timer/--urgent`, `.artisan-desc`, `.artisan-actions`, `.artisan-cost`, `.btn--artisan-hire` (gold), `.btn--artisan-commission` (green), `.btn--artisan-farewell` (muted).
+
+**Architecture decisions:**
+- Wandering Bard targets Bronze Age+ (same as herbalist, circus, sacred spring) keeping early-game quest panel lively with entertainment-themed encounters.
+- Master Artisan requires Iron Age+ and 10+ tiles, positioning it as a mid-to-late encounter that offers a meaningful gold-sink (hire) vs. resource-to-gold conversion (commission) tradeoff.
+- Both systems reuse the randomEvents.activeModifiers pattern for temporary rate buffs, consistent with herbalist (food buff) and circus (food buff) implementations.
+
+---
+
+## 2026-05-12 — Session N+61
+
+**Tasks completed:** T247, T248
+
+**Summary:**
+All prior tasks (T001–T246) were complete. Created T247+T248 task specs in tasks.json then implemented two Phase 101 features: Ancient Ore Vein Discovery (T247) and Wandering Herbalist (T248).
+
+**T247 — Ancient Ore Vein Discovery:**
+- `src/systems/ancientOreVein.js`: New file. SPAWN_MIN=3360 (14 min), SPAWN_RANGE=960 (+0-4 min), WINDOW_TICKS=300 (75 sec), MIN_AGE=2 (Iron Age), MIN_PLAYER_TILES=12. mineOreVein() awards +90 iron, +50 stone, −8 morale (free). commissionOreVein() costs 60 gold, awards +140 iron, +80 stone, +10 prestige. sealOreVein() no-ops and reschedules. Accessors: getActiveOreVein(), getOreVeinSecsLeft().
+- `src/core/events.js`: ORE_VEIN_CHANGED:'oreVeinChanged' added.
+- `src/core/state.js`: `oreVein:null` field + initState reset.
+- `src/ui/questPanel.js`: Import 10 exports; ORE_VEIN_CHANGED in events list; ov check in tick-refresh; ore-mine/commission/seal click handlers; `_oreVeinSection()` after `_tributeCaravanSection()` in render.
+- `src/main.js`: import+registerSystem(oreVeinTick)+init in boot+_newGame+save/load; version 90→91.
+- `styles/main.css`: `.ore-section/--active` (amber-brown border+bg), `.ore-header`, `.ore-icon`, `.ore-title`, `.ore-timer/--urgent`, `.ore-desc`, `.ore-actions`, `.ore-cost`, `.btn--ore-mine` (amber), `.btn--ore-commission` (blue), `.btn--ore-seal` (muted).
+
+**T248 — Wandering Herbalist:**
+- `src/systems/wanderingHerbalist.js`: New file. SPAWN_MIN=2400 (10 min), SPAWN_RANGE=720 (+0-3 min), WINDOW_TICKS=320 (80 sec), MIN_AGE=1 (Bronze Age), MIN_PLAYER_TILES=6. purchaseRemedies() costs 40 gold, awards +50 food, +8 morale. learnHerbalTechniques() costs 20 mana, pushes herbalistLearn modifier (+0.4 food/s for 3 min) to randomEvents.activeModifiers. sendHerbalistAway() no-ops and reschedules.
+- `src/core/events.js`: HERBALIST_CHANGED:'herbalistChanged' added.
+- `src/core/state.js`: `herbalist:null` field + initState reset.
+- `src/ui/questPanel.js`: Import 9 exports; HERBALIST_CHANGED in events list; hb check in tick-refresh; herbalist-purchase/learn/away click handlers; `_herbalistSection()` after `_oreVeinSection()` in render.
+- `src/main.js`: import+registerSystem(herbalistTick)+init in boot+_newGame+save/load; version 90→91.
+- `styles/main.css`: `.herb-section/--active` (green border+bg), `.herb-header`, `.herb-icon`, `.herb-title`, `.herb-timer/--urgent`, `.herb-desc`, `.herb-actions`, `.herb-cost`, `.btn--herb-purchase` (green), `.btn--herb-learn` (purple), `.btn--herb-away` (muted).
+
+**Architecture decisions:**
+- Ore Vein requires Iron Age+ and 12+ tiles so the mining choice is meaningful only when the player actually needs iron/stone for late-game buildings and wonders.
+- The commission option uses a gold cost to offer a strictly better yield, creating a real tradeoff between spending gold vs. absorbing morale loss.
+- Herbalist spawns earlier (Bronze Age+, 6 tiles) because food problems are relevant throughout the game, not just the late-game.
+- Learn Techniques pushes to randomEvents.activeModifiers (the same mechanism used by nomadicTribe hireTribe and prophetHeed), ensuring the food rate bonus integrates cleanly with recalcRates() and auto-expires without a separate tick check.
+- Save version bumped 90→91 (T247 + T248 combined).
+
+**Files modified:**
+  + game/src/systems/ancientOreVein.js (new)
+      initOreVein(), oreVeinTick(), mineOreVein(), commissionOreVein(), sealOreVein(),
+      getActiveOreVein(), getOreVeinSecsLeft()
+  + game/src/systems/wanderingHerbalist.js (new)
+      initHerbalist(), herbalistTick(), purchaseRemedies(), learnHerbalTechniques(),
+      sendHerbalistAway(), getActiveHerbalist(), getHerbalistSecsLeft()
+  ~ game/src/core/events.js
+      ORE_VEIN_CHANGED, HERBALIST_CHANGED added
+  ~ game/src/core/state.js
+      oreVein:null + herbalist:null fields; initState resets both
+  ~ game/src/ui/questPanel.js
+      T247+T248 imports, event listeners, click handlers, _oreVeinSection(), _herbalistSection()
+  ~ game/src/main.js
+      imports × 2, registerSystem × 2, boot+_newGame init × 2, save/load × 2, version 90→91
+  ~ game/styles/main.css
+      ore-* and herb-* styles added
+
+---
+
 ## 2026-05-08 — Session N+60
 
 **Tasks completed:** T235, T236
@@ -4481,3 +4561,185 @@ Changes:
 - Prophet's Heed action reuses the prophetHeed modifier id in randomEvents.activeModifiers (same pattern as nomadicHire from T240) — zero new infrastructure needed.
 - Artisan Fair requires Iron Age (age ≥ 2) vs Prophet's Bronze Age (age ≥ 1), providing a meaningful mid-game unlock feeling.
 - Both sections render inline in the Quest panel between _tribeSection() and _imperialGamesSection() preserving visual hierarchy of event cards.
+
+---
+
+## Session: T243 + T244 (2026-05-11)
+
+### T243: Empire Epithet System
+
+**Summary:** Wired up the pre-existing `src/systems/epithet.js` into the main boot sequence. The epithet system derives a dynamic title for the empire from the player's dominant accomplishment and is shown in the Summary panel header, Game-Over screen, and leaderboard. Recalculated every season and on game-over.
+
+**Files modified:**
+  + game/src/systems/epithet.js (pre-existing, no changes)
+  ~ game/src/main.js: import initEpithet; initEpithet() in boot+_newGame; version 87→88
+  ~ game/styles/main.css: .summary-empire-badge--epithet (purple pill badge), .lb-epithet (dim purple inline text)
+
+**Architecture decisions:**
+- epithet.js uses a priority-ordered rule list (first match wins) covering 17 conditions across 7 playstyle dimensions — zero hardcoded state, zero tick registration needed.
+- state.empire.epithet is already included in the serialised save payload (empire object is saved wholesale), so no new save/load key was required.
+- initEpithet() is idempotent (just subscribes events + runs initial calc), safe to call on both boot and _newGame().
+
+### T244: Cosmic Alignment
+
+**Summary:** Periodic Iron Age+ celestial event (20-25 min, 10+ tiles, 80-second window). Five alignment types appear randomly: Lunar Eclipse 🌕, Solar Halo 🌞, Meteor Shower ☄️, Aurora Borealis 🌌, Red Star Rising 🌟. Quest-panel card with three choices: Observe (free → +20 prestige + reveal 3 unrevealed tiles near capital), Ritual (−40 mana → +60 prestige + 8 morale), Ignore.
+
+**Files modified:**
+  + game/src/systems/cosmicAlignment.js (new)
+  ~ game/src/core/events.js: COSMIC_ALIGNMENT_CHANGED added
+  ~ game/src/core/state.js: cosmicAlignment:null field + initState reset
+  ~ game/src/ui/questPanel.js: import 8 exports from cosmicAlignment.js; COSMIC_ALIGNMENT_CHANGED added to events list; ca check in tick refresh; align-observe/ritual/ignore click handlers; _cosmicAlignmentSection() added after _artisanFairSection() in render
+  ~ game/src/main.js: import initCosmicAlignment+cosmicAlignmentTick; registerSystem(cosmicAlignmentTick); initCosmicAlignment() in boot+_newGame; save/load state.cosmicAlignment; version 88→89
+  ~ game/styles/main.css: .cosmic-section/--active (indigo pulse animation), .cosmic-header, .cosmic-icon, .cosmic-title, .cosmic-timer/--urgent, .cosmic-desc, .cosmic-actions, .cosmic-cost, .btn--cosmic-observe (indigo gradient), .btn--cosmic-ritual (violet gradient), .btn--cosmic-ignore (muted)
+
+**Architecture decisions:**
+- Observe's _revealTilesNearCapital(n) collects all unrevealed tiles within Euclidean distance 2-8 from capital (10, 10), shuffles them, and reveals the first n — same direct tile mutation + MAP_CHANGED emit pattern used by cartographersGuild, spells, and scoutMissions.
+- Five flavour-text descriptions rotate randomly, keeping the event feeling fresh across multiple appearances per game.
+- Iron Age minimum (age ≥ 2) matches artisanFair.js — both are mid-game+ events requiring meaningful empire establishment.
+- Ritual gives higher prestige (60 vs 20) at a mana cost, creating a genuine resource-vs-reward tradeoff against the free Observe option.
+
+---
+
+## Session — T245 + T246 (2026-05-11)
+
+### T245: Market Economy Cycles
+
+**Files created:**
+- `src/systems/economyCycle.js` — new system file
+
+**Files modified:**
+- `src/systems/market.js` — import + cycle multiplier applied in buyPrice() and sellPrice()
+- `src/core/events.js` — ECONOMY_CYCLE_CHANGED added
+- `src/core/state.js` — economyCycle:null field + initState reset
+- `src/ui/marketPanel.js` — import 6 exports; ECONOMY_CYCLE_CHANGED listener; tick-refresh condition; cycleHtml banner; cycleNextSecs hint
+- `src/main.js` — import, registerSystem, init, save, load; version 89→90
+- `styles/main.css` — .cycle-banner/--boom/--bust/title/desc/timer, .cycle-next
+
+**Design:**
+- Phases gate on Market building presence — no boom/bust without a market
+- Alternating: each phase end sets nextPhase to the opposite, so boom→bust→boom→...
+- First nextPhase chosen randomly at init
+- Multipliers applied as a factor in the buyPrice/sellPrice multiplier chains — cleanly composable with T196 trade fair, T232 price surge, etc.
+- Boom green, Bust red in the UI; both show seconds-remaining countdown
+
+### T246: Village Tribute Caravan
+
+**Files created:**
+- `src/systems/tributeCaravan.js` — new system file
+
+**Files modified:**
+- `src/core/events.js` — TRIBUTE_CARAVAN_CHANGED added
+- `src/core/state.js` — tributeCaravan:null field + initState reset
+- `src/ui/questPanel.js` — import 3 exports; TRIBUTE_CARAVAN_CHANGED in events list; tc tick-refresh check; tribute-claim click handler; _tributeCaravanSection() after _cosmicAlignmentSection()
+- `src/main.js` — import, registerSystem, init, save, load
+- `styles/main.css` — .tribute-section/--active, .tribute-header/icon/title/timer/--urgent, .tribute-desc, .tribute-options, .btn--tribute-option, .tribute-option__icon/body/title/reward
+
+**Design:**
+- Bronze Age minimum (age ≥ 1) — earlier than Cosmic Alignment (Iron Age), fitting as a simpler gift from villages
+- Three options pre-generated at spawn time so the UI is stable during the 90-second window
+- Gold amounts randomised (80-120g, 120-150f) to keep the choice interesting each time
+- Resources capped via state.caps to avoid overflow
+- Amber colour scheme distinguishes from blue (artisan fair) and indigo (cosmic alignment) quest cards
+
+
+---
+
+## Session: T249 + T250 (2026-05-12)
+
+### T249: Traveling Circus
+
+**Summary:** Periodic Bronze Age+ entertainment event (11-15 min, 6+ tiles, 80-second window). A traveling circus arrives at the empire gates with acrobats, exotic animals, and performers. Quest-panel card with three choices: Welcome Show (−30 gold → +15 morale +10 prestige), Recruit Performers (−50 gold → +25 morale +0.2 food/s for 2 min via activeModifiers), Dismiss Circus.
+
+**Files modified:**
+  + game/src/systems/travelingCircus.js (new)
+  ~ game/src/core/events.js: CIRCUS_CHANGED added
+  ~ game/src/core/state.js: circus:null field + initState reset
+  ~ game/src/ui/questPanel.js: import 9 exports from travelingCircus.js; CIRCUS_CHANGED added to events list; circus-show/recruit/dismiss click handlers; _circusSection() added after _herbalistSection()
+  ~ game/src/main.js: import initCircus+circusTick; registerSystem(circusTick); initCircus() in boot+_newGame; save/load state.circus; version 91→92
+  ~ game/styles/main.css: T249 circus styles (orange pulse)
+
+**Architecture decisions:**
+- Follows identical pattern from wanderingHerbalist.js: spawn timer, expiry check, three-choice API, same activeModifiers mechanism for rate bonuses.
+- Recruit Performers reuses the randomEvents.activeModifiers pattern (id: 'circusRecruit') for the food rate bonus — zero new infrastructure.
+- Orange (#fb923c) color scheme distinguishes from herbalist (green), prophet (purple), and spring (cyan).
+- Bronze Age minimum (age ≥ 1) and 6-tile gate matches wanderingHerbalist.js for consistent mid-game unlock pacing.
+
+### T250: Sacred Spring Discovery
+
+**Summary:** Periodic Bronze Age+ nature event (13-17 min, 8+ tiles, 80-second window). Scouts discover a sacred spring with divine blessing lore. Quest-panel card with three choices: Bless the Waters (−20 mana → +35 food +12 morale +10 prestige), Sell Water Rights (−8 prestige → +100 gold commercial exploitation), Protect the Spring (free → +6 morale +4 prestige environmental choice).
+
+**Files modified:**
+  + game/src/systems/sacredSpring.js (new)
+  ~ game/src/core/events.js: SACRED_SPRING_CHANGED added
+  ~ game/src/core/state.js: sacredSpring:null field + initState reset
+  ~ game/src/ui/questPanel.js: import 12 exports from sacredSpring.js; SACRED_SPRING_CHANGED added to events list; spring-bless/sell/protect click handlers; _sacredSpringSection() added after _circusSection()
+  ~ game/src/main.js: import initSacredSpring+sacredSpringTick; registerSystem(sacredSpringTick); initSacredSpring() in boot+_newGame; save/load state.sacredSpring
+  ~ game/styles/main.css: T250 sacred spring styles (cyan pulse)
+
+**Architecture decisions:**
+- 8-tile minimum (vs 6 for circus) to add a slightly later unlock — spring discovery requires slightly more territorial expansion.
+- Three choices span a resource/prestige tradeoff triangle: Bless (mana cost for max multi-resource reward), Sell (prestige cost for gold spike), Protect (free for moderate morale+prestige).
+- Sell Water Rights uses awardPrestige(-SELL_PRESTIGE_COST) via the existing prestige system, keeping the API consistent.
+- Cyan (#22d3ee) color scheme distinguishes from all other event card types in the quest panel.
+
+---
+session: 2026-05-12T16:10:38Z
+tasks: T253, T254
+
+T253 — Mountain Hermit
+  Created game/src/systems/mountainHermit.js
+  Iron Age+ (age >= 2), 12+ player tiles, 15–19 min spawn, 75-second decision window.
+  Choices:
+    - Seek Counsel (free): +10 prestige, +0.1 mana/s for 2 min via randomEvents modifier
+    - Offer Tribute (25 gold): +25 prestige, +12 morale
+    - Leave in Peace: no cost
+  Added MOUNTAIN_HERMIT_CHANGED event to events.js.
+  Added mountainHermit state key + initState reset to state.js.
+  Wired initMountainHermit() + mountainHermitTick() in main.js (import, register, init, save, load).
+  Added _mountainHermitSection() render function and click handlers to questPanel.js.
+  Added hermit-section CSS with green/teal pulse animation to main.css.
+
+T254 — Imperial Jubilee
+  Created game/src/systems/imperialJubilee.js
+  Medieval Age+ (age >= 3), 15+ player tiles, 18–23 min spawn, 85-second decision window.
+  Choices:
+    - Grand Parade (60 gold): +25 morale, +30 prestige, +0.15 food/s and +0.1 gold/s for 3 min via two randomEvents modifiers
+    - Royal Feast (40 food): +20 morale, +20 prestige
+    - Simple Ceremony (free): +8 morale, +12 prestige
+  Added IMPERIAL_JUBILEE_CHANGED event to events.js.
+  Added imperialJubilee state key + initState reset to state.js.
+  Wired initImperialJubilee() + imperialJubileeTick() in main.js (import, register, init, save, load).
+  Added _imperialJubileeSection() render function and click handlers to questPanel.js.
+  Added jubilee-section CSS with orange pulse animation to main.css.
+
+---
+session: 2026-05-12T20:10:00Z
+tasks: T255, T256
+
+T255 — Exiled Prince
+  Created game/src/systems/exiledPrince.js
+  Bronze Age+ (age >= 1), 8+ player tiles, 14–18 min spawn, 80-second decision window.
+  Choices:
+    - Grant Asylum (free): +12 morale, +10 prestige, +0.12 gold/s for 3 min via randomEvents modifier
+    - Accept as Advisor (40 gold): +30 prestige, +15 morale, +0.1 iron/s for 2 min via modifier
+    - Turn Away: no cost
+  Added EXILED_PRINCE_CHANGED event to events.js.
+  Added exiledPrince state key + initState reset to state.js.
+  Wired initExiledPrince() + exiledPrinceTick() in main.js (import, register, init, save, load).
+  Added _exiledPrinceSection() render function and click handlers to questPanel.js.
+  Added prince-section CSS with violet pulse animation to main.css.
+
+T256 — Ancient Guardian Awakens
+  Created game/src/systems/ancientGuardian.js
+  Iron Age+ (age >= 2), 12+ player tiles, 17–22 min spawn, 75-second decision window.
+  Choices:
+    - Offer Tribute (40 food): +20 morale, +25 prestige, +0.2 stone/s for 2 min via modifier
+    - Conduct Ritual (25 mana): +35 prestige, +0.15 mana/s for 3 min via modifier
+    - Stand Firm (free): +8 morale, +6 prestige (no modifier)
+  Added ANCIENT_GUARDIAN_CHANGED event to events.js.
+  Added ancientGuardian state key + initState reset to state.js.
+  Wired initAncientGuardian() + ancientGuardianTick() in main.js (import, register, init, save, load).
+  Added _ancientGuardianSection() render function and click handlers to questPanel.js.
+  Added guardian-section CSS with stone-grey pulse animation to main.css.
+
+Save version bumped 95 → 96 in main.js _save().

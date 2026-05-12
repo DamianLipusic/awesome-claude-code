@@ -2162,5 +2162,167 @@
     "status": "done",
     "phase": 99,
     "notes": "src/systems/artisanFair.js: New file. SPAWN_MIN=3840, SPAWN_RANGE=960, FAIR_WINDOW=320 ticks (80 sec), MIN_AGE=2 (Iron Age), MIN_PLAYER_TILES=10. COMMISSION_WOOD_COST=40, COMMISSION_STONE_COST=30, COMMISSION_GOLD_REWARD=150, COMMISSION_MORALE=10. EXPORT_FOOD_COST=50, EXPORT_WOOD_REWARD=100, EXPORT_STONE_REWARD=80, EXPORT_PRESTIGE=30. initArtisanFair() lazy-creates state.artisanFair. artisanFairTick() handles expiry and spawn. commissionArtisans() deducts wood+stone, awards gold (capped)+morale, emits ARTISAN_FAIR_CHANGED. exportCrafts() deducts food, awards wood+stone (capped)+prestige, emits. declineArtisanFair() clears+reschedules. Accessors: getActiveArtisanFair(), getArtisanFairSecsLeft(). src/core/events.js: ARTISAN_FAIR_CHANGED added. src/core/state.js: artisanFair:null field + initState reset. src/ui/questPanel.js: import 7 exports from artisanFair.js; ARTISAN_FAIR_CHANGED added to events list; af check in tick refresh; fair-commission/export/decline click handlers; _artisanFairSection() added after _prophetSection() in render. src/main.js: import initArtisanFair+artisanFairTick; registerSystem(artisanFairTick); initArtisanFair() in boot+_newGame; save/load state.artisanFair; version 86->87. styles/main.css: .fair-section/--active (pink pulse animation), .fair-header, .fair-icon, .fair-title, .fair-timer/--urgent, .fair-desc, .fair-actions, .fair-cost, .btn--fair-commission (gold gradient), .btn--fair-export (green gradient), .btn--fair-decline (muted)."
+  },
+  {
+    "id": "T243",
+    "title": "Empire Epithet \u2014 dynamic title derived from dominant playstyle",
+    "description": "Derive a dynamic epithet for the empire from the player's dominant accomplishment (diplomacy, research, economy, military, construction, prestige, territory, longevity). Recalculated each SEASON_CHANGED and at GAME_OVER. Stored in state.empire.epithet and shown in Summary panel header, leaderboard entry, and Game-Over screen. New file: src/systems/epithet.js.",
+    "priority": 243,
+    "status": "done",
+    "phase": 100,
+    "notes": "src/systems/epithet.js: New file (pre-existing). EPITHET_RULES ordered list of 17 rules covering diplomatic (Peacemaker, Diplomat), research (Enlightened, Scholar), economic (Golden, Merchant), military (Conqueror, Warlord, Warrior), construction (Great Builder, Architect), prestige (Magnificent, Glorious, Renowned), territorial (Expansionist), longevity (Enduring, Steadfast), fallback (Young). calcEpithet() finds first matching rule. updateEpithet() writes to state.empire.epithet. initEpithet() subscribes SEASON_CHANGED+GAME_OVER, runs initial calc. src/core/state.js: empire.epithet:null field + initState reset (pre-existing). src/ui/summaryPanel.js: epithetBadge .summary-empire-badge--epithet rendered in empire header (pre-existing). src/ui/gameOverPanel.js: fullName includes epithet (pre-existing). src/ui/settingsPanel.js: lb-epithet span in leaderboard entry (pre-existing). src/main.js: import initEpithet; initEpithet() in boot+_newGame; version 87\u219288. styles/main.css: .summary-empire-badge--epithet (purple, pill), .lb-epithet (dim purple text)."
+  },
+  {
+    "id": "T244",
+    "title": "Cosmic Alignment \u2014 periodic Iron Age+ celestial event with observe / ritual / ignore choices",
+    "description": "Every 20-25 minutes (Iron Age+, 10+ player tiles), a rare cosmic alignment appears over the empire (Lunar Eclipse, Solar Halo, Meteor Shower, Aurora Borealis, Red Star Rising). The player has 80 seconds to respond in the Quest panel. Observe (free \u2192 +20 prestige + reveal 3 unrevealed tiles near capital), Ritual (pay 40 mana \u2192 +60 prestige + 8 morale), Ignore. State: state.cosmicAlignment = { active:{id,icon,name,desc,expiresAt}|null, nextSpawnTick, totalAlignments, totalObserved, totalRitualed }. Event: COSMIC_ALIGNMENT_CHANGED. New file: src/systems/cosmicAlignment.js.",
+    "priority": 244,
+    "status": "done",
+    "phase": 100,
+    "notes": "src/systems/cosmicAlignment.js: New file. SPAWN_MIN=4800 (20 min), SPAWN_RANGE=1200 (+0-5 min), ALIGN_WINDOW=320 ticks (80 sec), MIN_AGE=2 (Iron Age), MIN_PLAYER_TILES=10. OBSERVE_PRESTIGE=20, OBSERVE_REVEALS=3. RITUAL_MANA_COST=40, RITUAL_PRESTIGE=60, RITUAL_MORALE=8. ALIGNMENT_TYPES array: 5 types (lunar_eclipse, solar_halo, meteor_shower, aurora_borealis, red_star). initCosmicAlignment() lazy-creates state.cosmicAlignment. cosmicAlignmentTick() handles expiry (clear+reschedule+message) and spawn (check age+tiles+timing, pick random type). observeAlignment() free: awardPrestige(20)+_revealTilesNearCapital(3)+MAP_CHANGED. performRitual() deducts mana, awardPrestige(60)+changeMorale(8). ignoreAlignment() clears+reschedules. _revealTilesNearCapital(n) collects unrevealed tiles within distance 2-8 of capital, shuffles, reveals n, emits MAP_CHANGED. Accessors: getActiveAlignment(), getAlignmentSecsLeft(). src/core/events.js: COSMIC_ALIGNMENT_CHANGED:'cosmicAlignmentChanged' added. src/core/state.js: cosmicAlignment:null field + initState reset. src/ui/questPanel.js: import 8 exports; COSMIC_ALIGNMENT_CHANGED added to events list; ca check in tick refresh; align-observe/ritual/ignore click handlers; _cosmicAlignmentSection() added after _artisanFairSection() in render. src/main.js: import initCosmicAlignment+cosmicAlignmentTick; registerSystem(cosmicAlignmentTick); initCosmicAlignment() in boot+_newGame; save/load state.cosmicAlignment; version 88\u219289. styles/main.css: .cosmic-section/--active (indigo pulse animation), .cosmic-header, .cosmic-icon, .cosmic-title, .cosmic-timer/--urgent, .cosmic-desc, .cosmic-actions, .cosmic-cost, .btn--cosmic-observe (indigo gradient), .btn--cosmic-ritual (violet gradient), .btn--cosmic-ignore (muted)."
+  },
+  {
+    "id": "T245",
+    "title": "Market Economy Cycles \u2014 alternating boom/bust market phases",
+    "description": "The market periodically shifts between Boom (sell +15%, buy -15%) and Bust (sell -15%, buy +15%) phases lasting 5-8 minutes each, with 2-3 minute neutral transitions between phases. Phases alternate boom \u2192 bust \u2192 boom. A colour-coded banner appears at the top of the Market panel showing the current phase and countdown. Requires Market building. State: state.economyCycle. Event: ECONOMY_CYCLE_CHANGED. New file: src/systems/economyCycle.js.",
+    "priority": 245,
+    "status": "done",
+    "phase": 100,
+    "notes": "src/systems/economyCycle.js: New file. PHASE_MIN=1200 (5 min), PHASE_RANGE=720 (+0-3 min), TRANSITION_MIN=480 (2 min), TRANSITION_RANGE=240 (+0-1 min). BOOM_SELL_MULT=1.15, BOOM_BUY_MULT=0.85, BUST_SELL_MULT=0.85, BUST_BUY_MULT=1.15. State: {phase:'boom'|'bust'|null, phaseEndsAt, nextPhaseTick, nextPhase, totalCycles}. initEconomyCycle() lazy-creates state.economyCycle with random initial nextPhase. economyCycleTick() gates on Market building presence; expires active phase (clear+reschedule+alternate nextPhase+message); starts new phase when nextPhaseTick reached. Exports: getEconomyCyclePhase(), getEconomyCycleMults()\u2192{sellMult,buyMult}, getEconomyCycleSecsLeft(), getEconomyCycleNextSecs(). src/systems/market.js: import getEconomyCycleMults; applied cycle.buyMult to buyPrice() and cycle.sellMult to sellPrice() chains. src/core/events.js: ECONOMY_CYCLE_CHANGED:'economyCycleChanged' added. src/core/state.js: economyCycle:null field + initState reset. src/ui/marketPanel.js: import 6 exports; ECONOMY_CYCLE_CHANGED listener; economyCycle?.phase in tick-refresh condition; cycleHtml boom/bust banner with countdown; cycleNextSecs 'next phase' line; inserted above surgeHtml. src/main.js: import initEconomyCycle+economyCycleTick; registerSystem(economyCycleTick); initEconomyCycle() in boot+_newGame; save/load state.economyCycle; version 89\u219290. styles/main.css: .cycle-banner/--boom/--bust (green/red gradients), .cycle-banner__title/desc/timer, .cycle-next."
+  },
+  {
+    "id": "T246",
+    "title": "Village Tribute Caravan \u2014 periodic Bronze Age+ resource gift event",
+    "description": "Every 10-14 minutes (Bronze Age+, 10+ player tiles), neutral villages send a tribute caravan to the capital. The player has 90 seconds to choose one of three resource gift options shown in the Quest panel: Gold Tribute (80-120 gold), Food Tribute (120-150 food), Supply Tribute (50 wood + 40 stone + 30 iron). Free, no cost. Unclaimed caravans depart after the window. State: state.tributeCaravan. Event: TRIBUTE_CARAVAN_CHANGED. New file: src/systems/tributeCaravan.js.",
+    "priority": 246,
+    "status": "done",
+    "phase": 100,
+    "notes": "src/systems/tributeCaravan.js: New file. SPAWN_MIN=2400 (10 min), SPAWN_RANGE=960 (+0-4 min), WINDOW_TICKS=360 (90 sec), MIN_AGE=1 (Bronze Age), MIN_PLAYER_TILES=10. _buildOptions() generates 3 options: gold (80-120g), food (120-150f), supply (50w+40s+30i). State: {active:{options:[],expiresAt}|null, nextSpawnTick, totalCaravans, totalClaimed}. initTributeCaravan() lazy-creates state.tributeCaravan. tributeCaravanTick() handles expiry (clear+reschedule+message) and spawn (check age+tiles+timing). claimTribute(idx) validates active+not-expired, applies option.reward respecting caps, clears, reschedules, emits TRIBUTE_CARAVAN_CHANGED+RESOURCE_CHANGED, windfall message. Accessors: getActiveTributeCaravan(), getTributeCaravanSecsLeft(). src/core/events.js: TRIBUTE_CARAVAN_CHANGED:'tributeCaravanChanged' added. src/core/state.js: tributeCaravan:null field + initState reset. src/ui/questPanel.js: import 3 exports; TRIBUTE_CARAVAN_CHANGED in events list; tc check in tick refresh; tribute-claim click handler (data-idx); _tributeCaravanSection() after _cosmicAlignmentSection() in render. src/main.js: import initTributeCaravan+tributeCaravanTick; registerSystem(tributeCaravanTick); initTributeCaravan() in boot+_newGame; save/load state.tributeCaravan; version 89\u219290. styles/main.css: .tribute-section/--active (amber border+bg), .tribute-header, .tribute-icon, .tribute-title, .tribute-timer/--urgent, .tribute-desc, .tribute-options, .btn--tribute-option (amber hover), .tribute-option__icon/body/title/reward."
+  },
+  {
+    "id": "T247",
+    "title": "Ancient Ore Vein Discovery \u2014 periodic Iron Age+ excavation event with three choices",
+    "description": "Every 14-18 minutes (Iron Age+, 12+ player tiles), imperial miners discover a rich ancient ore vein deep beneath the empire. The player has 75 seconds to decide in the Quest panel: Mine Intensively (free \u2192 +90 iron, +50 stone, -8 morale), Commission Expert Miners (pay 60 gold \u2192 +140 iron, +80 stone, +10 prestige), Seal It (no cost). State: state.oreVein = { active: { expiresAt } | null, nextSpawnTick, totalDiscoveries, totalMined, totalCommissioned }. Event: ORE_VEIN_CHANGED. New file: src/systems/ancientOreVein.js.",
+    "priority": 247,
+    "status": "done",
+    "phase": 101,
+    "notes": "src/systems/ancientOreVein.js: New file. SPAWN_MIN=3360 (14 min), SPAWN_RANGE=960 (+0-4 min), WINDOW_TICKS=300 (75 sec), MIN_AGE=2 (Iron Age), MIN_PLAYER_TILES=12. Exports: MINE_IRON_REWARD=90, MINE_STONE_REWARD=50, MINE_MORALE_PENALTY=-8, COMMISSION_GOLD_COST=60, COMMISSION_IRON_REWARD=140, COMMISSION_STONE_REWARD=80, COMMISSION_PRESTIGE=10. initOreVein() lazy-creates state.oreVein={active:null,nextSpawnTick,totalDiscoveries:0,totalMined:0,totalCommissioned:0}. oreVeinTick() handles expiry (clear+reschedule+message) and spawn (check age+tiles+timing). mineOreVein() validates active, applies iron+stone rewards (capped), calls changeMorale(-8), clears+reschedules, emits ORE_VEIN_CHANGED+RESOURCE_CHANGED. commissionOreVein() validates active+gold, deducts gold, applies larger iron+stone rewards (capped), calls awardPrestige(10), clears+reschedules, emits. sealOreVein() clears+reschedules, emits. Accessors: getActiveOreVein(), getOreVeinSecsLeft(). src/core/events.js: ORE_VEIN_CHANGED:'oreVeinChanged' added. src/core/state.js: oreVein:null field + initState reset. src/ui/questPanel.js: import 10 exports from ancientOreVein.js; ORE_VEIN_CHANGED in events list; ov check in tick refresh; ore-mine/commission/seal click handlers; _oreVeinSection() after _tributeCaravanSection() in render. src/main.js: import initOreVein+oreVeinTick; registerSystem(oreVeinTick); initOreVein() in boot+_newGame; save/load state.oreVein; version 90->91. styles/main.css: .ore-section/--active (amber-brown border+bg), .ore-header, .ore-icon, .ore-title, .ore-timer/--urgent, .ore-desc, .ore-actions, .ore-cost, .btn--ore-mine (amber gradient), .btn--ore-commission (blue gradient), .btn--ore-seal (muted)."
+  },
+  {
+    "id": "T248",
+    "title": "Wandering Herbalist \u2014 periodic Bronze Age+ healing encounter with three choices",
+    "description": "Every 10-13 minutes (Bronze Age+, 6+ player tiles), a wandering herbalist passes through the empire. The player has 80 seconds to decide in the Quest panel: Purchase Remedies (pay 40 gold \u2192 +50 food, +8 morale), Learn Techniques (pay 20 mana \u2192 +0.4 food/s for 3 min via randomEvents.activeModifiers), Send Away (no cost). State: state.herbalist = { active: { expiresAt } | null, nextSpawnTick, totalVisits, totalPurchased, totalLearned }. Event: HERBALIST_CHANGED. New file: src/systems/wanderingHerbalist.js.",
+    "priority": 248,
+    "status": "done",
+    "phase": 101,
+    "notes": "src/systems/wanderingHerbalist.js: New file. SPAWN_MIN=2400 (10 min), SPAWN_RANGE=720 (+0-3 min), WINDOW_TICKS=320 (80 sec), MIN_AGE=1 (Bronze Age), MIN_PLAYER_TILES=6. Exports: PURCHASE_GOLD_COST=40, PURCHASE_FOOD_REWARD=50, PURCHASE_MORALE=8, LEARN_MANA_COST=20, LEARN_FOOD_RATE=0.4, LEARN_DURATION_TICKS=720 (3 min). initHerbalist() lazy-creates state.herbalist={active:null,nextSpawnTick,totalVisits:0,totalPurchased:0,totalLearned:0}. herbalistTick() handles expiry (clear+reschedule+message) and spawn (check age+tiles+timing). purchaseRemedies() validates active+gold, deducts gold, awards food (capped)+changeMorale(8), clears+reschedules, emits HERBALIST_CHANGED+RESOURCE_CHANGED. learnHerbalTechniques() validates active+mana, deducts mana, pushes herbalistLearn modifier to randomEvents.activeModifiers (+0.4 food/s rateMult for 3 min), clears+reschedules, emits. sendHerbalistAway() clears+reschedules, emits. Accessors: getActiveHerbalist(), getHerbalistSecsLeft(). src/core/events.js: HERBALIST_CHANGED:'herbalistChanged' added. src/core/state.js: herbalist:null field + initState reset. src/ui/questPanel.js: import 9 exports from wanderingHerbalist.js; HERBALIST_CHANGED in events list; hb check in tick refresh; herbalist-purchase/learn/away click handlers; _herbalistSection() after _oreVeinSection() in render. src/main.js: import initHerbalist+herbalistTick; registerSystem(herbalistTick); initHerbalist() in boot+_newGame; save/load state.herbalist; version 90->91. styles/main.css: .herb-section/--active (green border+bg), .herb-header, .herb-icon, .herb-title, .herb-timer/--urgent, .herb-desc, .herb-actions, .herb-cost, .btn--herb-purchase (green gradient), .btn--herb-learn (purple gradient), .btn--herb-away (muted)."
+  },
+  {
+    "id": "T249",
+    "title": "Traveling Circus \u2014 periodic Bronze Age+ entertainment event with three choices",
+    "description": "Every 11-15 min (Bronze Age+, 6+ tiles), a traveling circus arrives. 80s window. Choices: Welcome Show (-30 gold -> +15 morale +10 prestige), Recruit Performers (-50 gold -> +25 morale +0.2 food/s 2 min), Dismiss Circus.",
+    "priority": 249,
+    "status": "done",
+    "phase": 102,
+    "notes": "Created src/systems/travelingCircus.js; added CIRCUS_CHANGED to events.js; state.circus + reset in state.js; wired imports/registerSystem/init/save/load in main.js (version 91->92); added _circusSection() + click handlers in questPanel.js; added circus-section/header/icon/title/timer/desc/actions/cost CSS + btn--circus-show/recruit/dismiss styles in main.css."
+  },
+  {
+    "id": "T250",
+    "title": "Sacred Spring Discovery \u2014 periodic Bronze Age+ nature event with three choices",
+    "description": "Every 13-17 min (Bronze Age+, 8+ tiles), scouts discover a sacred spring. 80s window. Choices: Bless the Waters (-20 mana -> +35 food +12 morale +10 prestige), Sell Water Rights (-8 prestige -> +100 gold), Protect the Spring (free -> +6 morale +4 prestige).",
+    "priority": 250,
+    "status": "done",
+    "phase": 102,
+    "notes": "Created src/systems/sacredSpring.js; added SACRED_SPRING_CHANGED to events.js; state.sacredSpring + reset in state.js; wired imports/registerSystem/init/save/load in main.js; added _sacredSpringSection() + click handlers in questPanel.js; added spring-section/header/icon/title/timer/desc/actions/cost CSS + btn--spring-bless/sell/protect styles in main.css."
+  },
+  {
+    "id": "T251",
+    "title": "Wandering Bard \u2014 periodic Bronze Age+ entertainment encounter with three choices",
+    "description": "Every 12\u201316 min (Bronze Age+, 6+ tiles), a wandering bard arrives at the empire gates. 80s window. Choices: Commission Performance (pay 35 gold \u2192 +12 morale, +8 prestige, +0.1 food/s for 2 min), Share Stories (free \u2192 +5 morale, +6 prestige), Send Away.",
+    "priority": 251,
+    "status": "done",
+    "phase": 103,
+    "notes": "src/systems/wanderingBard.js: New file. SPAWN_MIN=2880 (12 min), SPAWN_RANGE=960 (+0-4 min), WINDOW_TICKS=320 (80 sec), MIN_AGE=1 (Bronze Age), MIN_PLAYER_TILES=6. COMMISSION_GOLD_COST=35, COMMISSION_MORALE_REWARD=12, COMMISSION_PRESTIGE_REWARD=8, COMMISSION_FOOD_RATE=0.1, COMMISSION_DURATION_TICKS=480 (2 min). LISTEN_MORALE_REWARD=5, LISTEN_PRESTIGE_REWARD=6. initWanderingBard() lazy-creates state.wanderingBard={active:null,nextSpawnTick,totalVisits:0,totalCommissioned:0,totalListened:0}. wanderingBardTick() handles expiry (clear+reschedule+message) and spawn (check age+tiles+timing). commissionBardPerformance() deducts gold, changeMorale(12)+awardPrestige(8), pushes bardCommission modifier to randomEvents.activeModifiers (+0.1 food/s rateMult for 2 min), clears+reschedules, emits WANDERING_BARD_CHANGED+RESOURCE_CHANGED. listenToBardStories() free: changeMorale(5)+awardPrestige(6), clears+reschedules, emits. sendBardAway() clears+reschedules, emits. Accessors: getActiveWanderingBard(), getWanderingBardSecsLeft(). src/core/events.js: WANDERING_BARD_CHANGED:'wanderingBardChanged' added. src/core/state.js: wanderingBard:null field + initState reset. src/ui/questPanel.js: import 10 exports; WANDERING_BARD_CHANGED in events list; bd check in tick refresh; bard-commission/listen/away click handlers; _wanderingBardSection() after _sacredSpringSection() in render. src/main.js: import initWanderingBard+wanderingBardTick; registerSystem(wanderingBardTick); initWanderingBard() in boot+_newGame; save/load state.wanderingBard; version 92->93. styles/main.css: .bard-section/--active (violet pulse animation), .bard-header, .bard-icon, .bard-title, .bard-timer/--urgent, .bard-desc, .bard-actions, .bard-cost, .btn--bard-commission (violet gradient), .btn--bard-listen (blue gradient), .btn--bard-away (muted)."
+  },
+  {
+    "id": "T252",
+    "title": "Master Artisan Visit \u2014 periodic Iron Age+ craftsmanship encounter with three choices",
+    "description": "Every 14\u201319 min (Iron Age+, 10+ tiles), a renowned master artisan arrives seeking patronage. 85s window. Choices: Hire the Artisan (pay 70 gold \u2192 +60 prestige, +0.15 iron/s for 3 min), Commission Pieces (pay 40 wood + 20 stone \u2192 +80 gold, +30 prestige), Bid Farewell.",
+    "priority": 252,
+    "status": "done",
+    "phase": 103,
+    "notes": "src/systems/masterArtisan.js: New file. SPAWN_MIN=3360 (14 min), SPAWN_RANGE=1200 (+0-5 min), WINDOW_TICKS=340 (85 sec), MIN_AGE=2 (Iron Age), MIN_PLAYER_TILES=10. HIRE_GOLD_COST=70, HIRE_PRESTIGE_REWARD=60, HIRE_IRON_RATE=0.15, HIRE_DURATION_TICKS=720 (3 min). COMMISSION_WOOD_COST=40, COMMISSION_STONE_COST=20, COMMISSION_GOLD_REWARD=80, COMMISSION_PRESTIGE_REWARD=30. initMasterArtisan() lazy-creates state.masterArtisan={active:null,nextSpawnTick,totalVisits:0,totalHired:0,totalCommissioned:0}. masterArtisanTick() handles expiry (clear+reschedule+message) and spawn (check age+tiles+timing). hireMasterArtisan() deducts gold, awardPrestige(60), pushes masterArtisanHire modifier to randomEvents.activeModifiers (+0.15 iron/s rateMult for 3 min), clears+reschedules, emits MASTER_ARTISAN_CHANGED+RESOURCE_CHANGED. commissionArtisanPieces() deducts wood+stone, awards gold (capped)+awardPrestige(30), clears+reschedules, emits. bidArtisanFarewell() clears+reschedules, emits. Accessors: getActiveMasterArtisan(), getMasterArtisanSecsLeft(). src/core/events.js: MASTER_ARTISAN_CHANGED:'masterArtisanChanged' added. src/core/state.js: masterArtisan:null field + initState reset. src/ui/questPanel.js: import 8 exports; MASTER_ARTISAN_CHANGED in events list; ma check in tick refresh; artisan-hire/commission/farewell click handlers; _masterArtisanSection() after _wanderingBardSection() in render. src/main.js: import initMasterArtisan+masterArtisanTick; registerSystem(masterArtisanTick); initMasterArtisan() in boot+_newGame; save/load state.masterArtisan; version 92->93. styles/main.css: .artisan-section/--active (amber-gold pulse animation), .artisan-header, .artisan-icon, .artisan-title, .artisan-timer/--urgent, .artisan-desc, .artisan-actions, .artisan-cost, .btn--artisan-hire (gold gradient), .btn--artisan-commission (green gradient), .btn--artisan-farewell (muted)."
+  },
+  {
+    "id": "T253",
+    "title": "Mountain Hermit \u2014 periodic Iron Age+ wisdom encounter with three choices",
+    "status": "done",
+    "priority": 1,
+    "phase": 7,
+    "description": "Every 15-19 minutes (Iron Age+, 12+ player tiles), an ancient mountain hermit descends offering wisdom. 75-second window. Choices: Seek Counsel (free \u2192 +10 prestige, +0.1 mana/s for 2 min), Offer Tribute (25 gold \u2192 +25 prestige, +12 morale), Leave in Peace.",
+    "files": [
+      "src/systems/mountainHermit.js",
+      "src/core/state.js",
+      "src/core/events.js",
+      "src/main.js",
+      "src/ui/questPanel.js",
+      "styles/main.css"
+    ],
+    "completedAt": "2026-05-12T16:10:28Z",
+    "notes": "Implemented mountainHermit.js system (Iron Age+, 12+ tiles, 15-19 min spawn, 75s window). Three choices: Seek Counsel (free +10 prestige +0.1 mana/s 2min), Offer Tribute (25 gold +25 prestige +12 morale), Leave in Peace. Full questPanel UI with green/teal styling, event constant, state key, save/load wiring."
+  },
+  {
+    "id": "T254",
+    "title": "Imperial Jubilee \u2014 periodic Medieval Age+ celebration event with three choices",
+    "status": "done",
+    "priority": 2,
+    "phase": 7,
+    "description": "Every 18-23 minutes (Medieval Age+, 15+ player tiles), a grand imperial jubilee is declared celebrating the empire's glory. 85-second window. Choices: Grand Parade (60 gold \u2192 +25 morale, +30 prestige, +0.15 food/s and +0.1 gold/s for 3 min), Royal Feast (40 food \u2192 +20 morale, +20 prestige), Simple Ceremony (free \u2192 +8 morale, +12 prestige).",
+    "files": [
+      "src/systems/imperialJubilee.js",
+      "src/core/state.js",
+      "src/core/events.js",
+      "src/main.js",
+      "src/ui/questPanel.js",
+      "styles/main.css"
+    ],
+    "completedAt": "2026-05-12T16:10:28Z",
+    "notes": "Implemented imperialJubilee.js system (Medieval Age+, 15+ tiles, 18-23 min spawn, 85s window). Three choices: Grand Parade (60 gold +25 morale +30 prestige +0.15 food/s +0.1 gold/s 3min), Royal Feast (40 food +20 morale +20 prestige), Simple Ceremony (free +8 morale +12 prestige). Full questPanel UI with orange styling, event constant, state key, save/load wiring."
+  },
+  {
+    "id": "T255",
+    "title": "Exiled Prince — periodic Bronze Age+ refuge encounter with three choices",
+    "status": "done",
+    "priority": 3,
+    "phase": 7,
+    "description": "Every 14-18 minutes (Bronze Age+, 8+ player tiles), a dispossessed prince from a fallen neighboring kingdom arrives seeking refuge. 80-second window. Choices: Grant Asylum (free → +12 morale, +10 prestige, +0.12 gold/s for 3 min), Accept as Advisor (40 gold → +30 prestige, +15 morale, +0.1 iron/s for 2 min), Turn Away (free).",
+    "files": [
+      "src/systems/exiledPrince.js",
+      "src/core/state.js",
+      "src/core/events.js",
+      "src/main.js",
+      "src/ui/questPanel.js",
+      "styles/main.css"
+    ],
+    "completedAt": "2026-05-12T20:10:00Z",
+    "notes": "src/systems/exiledPrince.js: New file. SPAWN_MIN=3360 (14 min), SPAWN_RANGE=960 (+0-4 min), WINDOW_TICKS=320 (80 sec), MIN_AGE=1 (Bronze Age), MIN_PLAYER_TILES=8. ASYLUM_MORALE_REWARD=12, ASYLUM_PRESTIGE_REWARD=10, ASYLUM_GOLD_RATE=0.12, ASYLUM_DURATION_TICKS=720 (3 min). ADVISOR_GOLD_COST=40, ADVISOR_PRESTIGE_REWARD=30, ADVISOR_MORALE_REWARD=15, ADVISOR_IRON_RATE=0.1, ADVISOR_DURATION_TICKS=480 (2 min). initExiledPrince() lazy-creates state.exiledPrince. exiledPrinceTick() handles expiry+spawn. grantAsylum() awards morale+prestige, pushes exiledPrinceAsylum gold modifier (+0.12 gold/s 3 min). acceptPrinceAdvisor() deducts gold, awards morale+prestige, pushes exiledPrinceAdvisor iron modifier (+0.1 iron/s 2 min). turnPrinceAway() clears. Accessors: getActiveExiledPrince(), getExiledPrinceSecsLeft(). events.js: EXILED_PRINCE_CHANGED added. state.js: exiledPrince:null field + initState reset. questPanel.js: imports 11 exports; EXILED_PRINCE_CHANGED in events list; ep check in tick refresh; prince-asylum/advisor/away click handlers; _exiledPrinceSection() after _imperialJubileeSection() in render. main.js: import initExiledPrince+exiledPrinceTick; registerSystem(exiledPrinceTick); initExiledPrince() in boot; save/load state.exiledPrince; version 95→96. styles/main.css: .prince-section/--active (violet pulse animation), .prince-header/icon/title/timer/--urgent/desc/actions/cost, .btn--prince-asylum (violet gradient), .btn--prince-advisor (amber gradient), .btn--prince-away (muted)."
+  },
+  {
+    "id": "T256",
+    "title": "Ancient Guardian Awakens — periodic Iron Age+ encounter with three choices",
+    "status": "done",
+    "priority": 4,
+    "phase": 7,
+    "description": "Every 17-22 minutes (Iron Age+, 12+ player tiles), an ancient stone guardian stirs at the empire's borders. 75-second window. Choices: Offer Tribute (40 food → +20 morale, +25 prestige, +0.2 stone/s for 2 min), Conduct Ritual (25 mana → +35 prestige, +0.15 mana/s for 3 min), Stand Firm (free → +8 morale, +6 prestige).",
+    "files": [
+      "src/systems/ancientGuardian.js",
+      "src/core/state.js",
+      "src/core/events.js",
+      "src/main.js",
+      "src/ui/questPanel.js",
+      "styles/main.css"
+    ],
+    "completedAt": "2026-05-12T20:10:00Z",
+    "notes": "src/systems/ancientGuardian.js: New file. SPAWN_MIN=4080 (17 min), SPAWN_RANGE=1200 (+0-5 min), WINDOW_TICKS=300 (75 sec), MIN_AGE=2 (Iron Age), MIN_PLAYER_TILES=12. TRIBUTE_FOOD_COST=40, TRIBUTE_MORALE_REWARD=20, TRIBUTE_PRESTIGE_REWARD=25, TRIBUTE_STONE_RATE=0.2, TRIBUTE_DURATION_TICKS=480 (2 min). RITUAL_MANA_COST=25, RITUAL_PRESTIGE_REWARD=35, RITUAL_MANA_RATE=0.15, RITUAL_DURATION_TICKS=720 (3 min). STANDFIRM_MORALE_REWARD=8, STANDFIRM_PRESTIGE_REWARD=6. initAncientGuardian() lazy-creates state.ancientGuardian. ancientGuardianTick() handles expiry+spawn. offerGuardianTribute() deducts food, changeMorale+awardPrestige, pushes guardianTribute stone modifier. conductGuardianRitual() deducts mana, awardPrestige, pushes guardianRitual mana modifier. standFirmGuardian() free changeMorale+awardPrestige, no modifier. Accessors: getActiveAncientGuardian(), getAncientGuardianSecsLeft(). events.js: ANCIENT_GUARDIAN_CHANGED added. state.js: ancientGuardian:null field + initState reset. questPanel.js: imports 11 exports; ANCIENT_GUARDIAN_CHANGED in events list; ag check in tick refresh; guardian-tribute/ritual/firm click handlers; _ancientGuardianSection() after _exiledPrinceSection() in render. main.js: import initAncientGuardian+ancientGuardianTick; registerSystem(ancientGuardianTick); initAncientGuardian() in boot; save/load state.ancientGuardian; version→96. styles/main.css: .guardian-section/--active (stone-grey pulse), .guardian-header/icon/title/timer/--urgent/desc/actions/cost, .btn--guardian-tribute (green gradient), .btn--guardian-ritual (violet gradient), .btn--guardian-firm (blue gradient)."
   }
 ]

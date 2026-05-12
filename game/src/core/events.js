@@ -207,4 +207,17 @@ export const Events = Object.freeze({
   NOMADIC_TRIBE_CHANGED:       'nomadicTribeChanged',           // T240: nomadic tribe spawned / accepted / hired / refused / expired
   PROPHET_CHANGED:             'prophetChanged',                // T241: wandering prophet spawned / heeded / tributed / dismissed / expired
   ARTISAN_FAIR_CHANGED:        'artisanFairChanged',            // T242: artisan fair spawned / commissioned / exported / declined / expired
+  COSMIC_ALIGNMENT_CHANGED:   'cosmicAlignmentChanged',        // T244: cosmic alignment spawned / observed / ritualed / ignored / expired
+  ECONOMY_CYCLE_CHANGED:      'economyCycleChanged',            // T245: economy cycle phase started or ended
+  TRIBUTE_CARAVAN_CHANGED:    'tributeCaravanChanged',          // T246: tribute caravan spawned / claimed / expired
+  ORE_VEIN_CHANGED:           'oreVeinChanged',                 // T247: ancient ore vein spawned / mined / commissioned / sealed / expired
+  HERBALIST_CHANGED:          'herbalistChanged',               // T248: wandering herbalist spawned / purchased / learned / dismissed / expired
+  CIRCUS_CHANGED:             'circusChanged',                  // T249: traveling circus spawned / welcomed / recruited / dismissed / expired
+  SACRED_SPRING_CHANGED:      'sacredSpringChanged',            // T250: sacred spring spawned / blessed / sold / protected / expired
+  WANDERING_BARD_CHANGED:     'wanderingBardChanged',           // T251: wandering bard spawned / commissioned / listened / dismissed / expired
+  MASTER_ARTISAN_CHANGED:     'masterArtisanChanged',           // T252: master artisan spawned / hired / commissioned / dismissed / expired
+  MOUNTAIN_HERMIT_CHANGED:    'mountainHermitChanged',           // T253: mountain hermit spawned / counseled / tributed / dismissed / expired
+  IMPERIAL_JUBILEE_CHANGED:   'imperialJubileeChanged',          // T254: imperial jubilee spawned / parade / feast / ceremony / expired
+  EXILED_PRINCE_CHANGED:      'exiledPrinceChanged',             // T255: exiled prince spawned / granted / advisor / dismissed / expired
+  ANCIENT_GUARDIAN_CHANGED:   'ancientGuardianChanged',          // T256: guardian spawned / tributed / ritual / firm / expired
 });
