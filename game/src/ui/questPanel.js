@@ -32,6 +32,8 @@ import { circusWelcomeShow, circusRecruitPerformers, dismissCircus, getActiveCir
 import { blessSpringWaters, sellSpringWaterRights, protectSacredSpring, getActiveSacredSpring, getSacredSpringSecsLeft, BLESS_MANA_COST, BLESS_FOOD_REWARD, BLESS_MORALE_REWARD, BLESS_PRESTIGE_REWARD, SELL_PRESTIGE_COST, SELL_GOLD_REWARD, PROTECT_MORALE_REWARD, PROTECT_PRESTIGE_REWARD } from '../systems/sacredSpring.js'; // T250
 import { commissionBardPerformance, listenToBardStories, sendBardAway, getActiveWanderingBard, getWanderingBardSecsLeft, COMMISSION_GOLD_COST as BARD_COMMISSION_GOLD_COST, COMMISSION_MORALE_REWARD as BARD_COMMISSION_MORALE, COMMISSION_PRESTIGE_REWARD as BARD_COMMISSION_PRESTIGE, COMMISSION_FOOD_RATE as BARD_COMMISSION_FOOD_RATE, LISTEN_MORALE_REWARD, LISTEN_PRESTIGE_REWARD } from '../systems/wanderingBard.js'; // T251
 import { hireMasterArtisan, commissionArtisanPieces, bidArtisanFarewell, getActiveMasterArtisan, getMasterArtisanSecsLeft, HIRE_GOLD_COST as ARTISAN_HIRE_GOLD_COST, HIRE_PRESTIGE_REWARD, HIRE_IRON_RATE, COMMISSION_WOOD_COST as ARTISAN_WOOD_COST, COMMISSION_STONE_COST as ARTISAN_STONE_COST, COMMISSION_GOLD_REWARD as ARTISAN_GOLD_REWARD, COMMISSION_PRESTIGE_REWARD as ARTISAN_PRESTIGE_REWARD } from '../systems/masterArtisan.js'; // T252
+import { seekHermitCounsel, offerHermitTribute, leaveHermitInPeace, getActiveMountainHermit, getMountainHermitSecsLeft, COUNSEL_PRESTIGE_REWARD, COUNSEL_MANA_RATE, TRIBUTE_GOLD_COST, TRIBUTE_PRESTIGE_REWARD, TRIBUTE_MORALE_REWARD } from '../systems/mountainHermit.js'; // T253
+import { declareGrandParade, declareRoyalFeast, declareSimpleCeremony, getActiveImperialJubilee, getImperialJubileeSecsLeft, PARADE_GOLD_COST, PARADE_MORALE_REWARD, PARADE_PRESTIGE_REWARD, PARADE_FOOD_RATE, PARADE_GOLD_RATE, FEAST_FOOD_COST, FEAST_MORALE_REWARD, FEAST_PRESTIGE_REWARD, CEREMONY_MORALE_REWARD, CEREMONY_PRESTIGE_REWARD } from '../systems/imperialJubilee.js'; // T254
 
 export function initQuestPanel() {
   const panel = document.getElementById('panel-quests');
@@ -67,6 +69,8 @@ export function initQuestPanel() {
     Events.SACRED_SPRING_CHANGED,                        // T250: sacred spring spawned / blessed / sold / protected / expired
     Events.WANDERING_BARD_CHANGED,                       // T251: bard spawned / commissioned / listened / dismissed / expired
     Events.MASTER_ARTISAN_CHANGED,                       // T252: master artisan spawned / hired / commissioned / dismissed / expired
+    Events.MOUNTAIN_HERMIT_CHANGED,                      // T253: mountain hermit spawned / counseled / tributed / dismissed / expired
+    Events.IMPERIAL_JUBILEE_CHANGED,                     // T254: imperial jubilee spawned / parade / feast / ceremony / expired
   ];
   for (const ev of events) on(ev, render);
 
@@ -362,6 +366,42 @@ export function initQuestPanel() {
     if (e.target.closest('[data-action="artisan-farewell"]')) {
       bidArtisanFarewell();
     }
+    // Mountain hermit actions (T253)
+    if (e.target.closest('[data-action="hermit-counsel"]')) {
+      const r = seekHermitCounsel();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="hermit-counsel"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="hermit-tribute"]')) {
+      const r = offerHermitTribute();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="hermit-tribute"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="hermit-leave"]')) {
+      leaveHermitInPeace();
+    }
+    // Imperial jubilee actions (T254)
+    if (e.target.closest('[data-action="jubilee-parade"]')) {
+      const r = declareGrandParade();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="jubilee-parade"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="jubilee-feast"]')) {
+      const r = declareRoyalFeast();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="jubilee-feast"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="jubilee-ceremony"]')) {
+      declareSimpleCeremony();
+    }
   });
 
   setQuestPanelRenderer(render);
@@ -399,6 +439,8 @@ function render() {
     ${_sacredSpringSection()}
     ${_wanderingBardSection()}
     ${_masterArtisanSection()}
+    ${_mountainHermitSection()}
+    ${_imperialJubileeSection()}
     ${_imperialGamesSection()}
     ${_harvestSection()}
     <div class="quest-header">
@@ -1553,6 +1595,84 @@ function _masterArtisanSection() {
         </button>
         <button class="btn btn--artisan-farewell" data-action="artisan-farewell">
           👋 Bid Farewell
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── Mountain Hermit section (T253) ────────────────────────────────────────
+
+function _mountainHermitSection() {
+  const hermit = getActiveMountainHermit();
+  if (!hermit) return '';
+
+  const secs   = getMountainHermitSecsLeft();
+  const urgent = secs < 20;
+
+  const canAffordTribute = (state.resources?.gold ?? 0) >= TRIBUTE_GOLD_COST;
+  const tributeClass = canAffordTribute ? 'btn btn--hermit-tribute' : 'btn btn--hermit-tribute btn--disabled';
+
+  return `
+    <div class="hermit-section hermit-section--active">
+      <div class="hermit-header">
+        <span class="hermit-icon">🧘</span>
+        <span class="hermit-title">Mountain Hermit</span>
+        <span class="hermit-timer${urgent ? ' hermit-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="hermit-desc">An ancient hermit has descended from the mountain peaks seeking to share profound wisdom with the empire. The sages urge you to respond.</div>
+      <div class="hermit-actions">
+        <button class="btn btn--hermit-counsel" data-action="hermit-counsel">
+          🧘 Seek Counsel
+          <span class="hermit-cost">Free · +${COUNSEL_PRESTIGE_REWARD} prestige, +${COUNSEL_MANA_RATE} mana/s for 2 min</span>
+        </button>
+        <button class="${tributeClass}" data-action="hermit-tribute"
+                title="${canAffordTribute ? `Offer Tribute (${TRIBUTE_GOLD_COST}💰)` : `Need ${TRIBUTE_GOLD_COST} gold`}">
+          💰 Offer Tribute
+          <span class="hermit-cost">${TRIBUTE_GOLD_COST}💰 · +${TRIBUTE_PRESTIGE_REWARD} prestige, +${TRIBUTE_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn btn--hermit-leave" data-action="hermit-leave">
+          🚶 Leave in Peace
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── Imperial Jubilee section (T254) ───────────────────────────────────────
+
+function _imperialJubileeSection() {
+  const jubilee = getActiveImperialJubilee();
+  if (!jubilee) return '';
+
+  const secs   = getImperialJubileeSecsLeft();
+  const urgent = secs < 20;
+
+  const canAffordParade = (state.resources?.gold ?? 0) >= PARADE_GOLD_COST;
+  const canAffordFeast  = (state.resources?.food ?? 0) >= FEAST_FOOD_COST;
+  const paradeClass = canAffordParade ? 'btn btn--jubilee-parade' : 'btn btn--jubilee-parade btn--disabled';
+  const feastClass  = canAffordFeast  ? 'btn btn--jubilee-feast'  : 'btn btn--jubilee-feast btn--disabled';
+
+  return `
+    <div class="jubilee-section jubilee-section--active">
+      <div class="jubilee-header">
+        <span class="jubilee-icon">🎺</span>
+        <span class="jubilee-title">Imperial Jubilee</span>
+        <span class="jubilee-timer${urgent ? ' jubilee-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="jubilee-desc">The court announces an Imperial Jubilee! Citizens pour into the streets. Declare your celebration within 85 seconds.</div>
+      <div class="jubilee-actions">
+        <button class="${paradeClass}" data-action="jubilee-parade"
+                title="${canAffordParade ? `Grand Parade (${PARADE_GOLD_COST}💰)` : `Need ${PARADE_GOLD_COST} gold`}">
+          🎺 Grand Parade
+          <span class="jubilee-cost">${PARADE_GOLD_COST}💰 · +${PARADE_MORALE_REWARD} morale, +${PARADE_PRESTIGE_REWARD} prestige, +${PARADE_FOOD_RATE} food/s &amp; +${PARADE_GOLD_RATE} gold/s for 3 min</span>
+        </button>
+        <button class="${feastClass}" data-action="jubilee-feast"
+                title="${canAffordFeast ? `Royal Feast (${FEAST_FOOD_COST}🌾)` : `Need ${FEAST_FOOD_COST} food`}">
+          🍽️ Royal Feast
+          <span class="jubilee-cost">${FEAST_FOOD_COST}🌾 · +${FEAST_MORALE_REWARD} morale, +${FEAST_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn btn--jubilee-ceremony" data-action="jubilee-ceremony">
+          🕯️ Simple Ceremony
+          <span class="jubilee-cost">Free · +${CEREMONY_MORALE_REWARD} morale, +${CEREMONY_PRESTIGE_REWARD} prestige</span>
         </button>
       </div>
     </div>`;
