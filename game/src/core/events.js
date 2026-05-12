@@ -210,4 +210,6 @@ export const Events = Object.freeze({
   COSMIC_ALIGNMENT_CHANGED:   'cosmicAlignmentChanged',        // T244: cosmic alignment spawned / observed / ritualed / ignored / expired
   ECONOMY_CYCLE_CHANGED:      'economyCycleChanged',            // T245: economy cycle phase started or ended
   TRIBUTE_CARAVAN_CHANGED:    'tributeCaravanChanged',          // T246: tribute caravan spawned / claimed / expired
+  ORE_VEIN_CHANGED:           'oreVeinChanged',                 // T247: ancient ore vein spawned / mined / commissioned / sealed / expired
+  HERBALIST_CHANGED:          'herbalistChanged',               // T248: wandering herbalist spawned / purchased / learned / dismissed / expired
 });
