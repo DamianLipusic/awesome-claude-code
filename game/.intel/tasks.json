@@ -2288,5 +2288,41 @@
     ],
     "completedAt": "2026-05-12T16:10:28Z",
     "notes": "Implemented imperialJubilee.js system (Medieval Age+, 15+ tiles, 18-23 min spawn, 85s window). Three choices: Grand Parade (60 gold +25 morale +30 prestige +0.15 food/s +0.1 gold/s 3min), Royal Feast (40 food +20 morale +20 prestige), Simple Ceremony (free +8 morale +12 prestige). Full questPanel UI with orange styling, event constant, state key, save/load wiring."
+  },
+  {
+    "id": "T255",
+    "title": "Exiled Prince — periodic Bronze Age+ refuge encounter with three choices",
+    "status": "done",
+    "priority": 3,
+    "phase": 7,
+    "description": "Every 14-18 minutes (Bronze Age+, 8+ player tiles), a dispossessed prince from a fallen neighboring kingdom arrives seeking refuge. 80-second window. Choices: Grant Asylum (free → +12 morale, +10 prestige, +0.12 gold/s for 3 min), Accept as Advisor (40 gold → +30 prestige, +15 morale, +0.1 iron/s for 2 min), Turn Away (free).",
+    "files": [
+      "src/systems/exiledPrince.js",
+      "src/core/state.js",
+      "src/core/events.js",
+      "src/main.js",
+      "src/ui/questPanel.js",
+      "styles/main.css"
+    ],
+    "completedAt": "2026-05-12T20:10:00Z",
+    "notes": "src/systems/exiledPrince.js: New file. SPAWN_MIN=3360 (14 min), SPAWN_RANGE=960 (+0-4 min), WINDOW_TICKS=320 (80 sec), MIN_AGE=1 (Bronze Age), MIN_PLAYER_TILES=8. ASYLUM_MORALE_REWARD=12, ASYLUM_PRESTIGE_REWARD=10, ASYLUM_GOLD_RATE=0.12, ASYLUM_DURATION_TICKS=720 (3 min). ADVISOR_GOLD_COST=40, ADVISOR_PRESTIGE_REWARD=30, ADVISOR_MORALE_REWARD=15, ADVISOR_IRON_RATE=0.1, ADVISOR_DURATION_TICKS=480 (2 min). initExiledPrince() lazy-creates state.exiledPrince. exiledPrinceTick() handles expiry+spawn. grantAsylum() awards morale+prestige, pushes exiledPrinceAsylum gold modifier (+0.12 gold/s 3 min). acceptPrinceAdvisor() deducts gold, awards morale+prestige, pushes exiledPrinceAdvisor iron modifier (+0.1 iron/s 2 min). turnPrinceAway() clears. Accessors: getActiveExiledPrince(), getExiledPrinceSecsLeft(). events.js: EXILED_PRINCE_CHANGED added. state.js: exiledPrince:null field + initState reset. questPanel.js: imports 11 exports; EXILED_PRINCE_CHANGED in events list; ep check in tick refresh; prince-asylum/advisor/away click handlers; _exiledPrinceSection() after _imperialJubileeSection() in render. main.js: import initExiledPrince+exiledPrinceTick; registerSystem(exiledPrinceTick); initExiledPrince() in boot; save/load state.exiledPrince; version 95→96. styles/main.css: .prince-section/--active (violet pulse animation), .prince-header/icon/title/timer/--urgent/desc/actions/cost, .btn--prince-asylum (violet gradient), .btn--prince-advisor (amber gradient), .btn--prince-away (muted)."
+  },
+  {
+    "id": "T256",
+    "title": "Ancient Guardian Awakens — periodic Iron Age+ encounter with three choices",
+    "status": "done",
+    "priority": 4,
+    "phase": 7,
+    "description": "Every 17-22 minutes (Iron Age+, 12+ player tiles), an ancient stone guardian stirs at the empire's borders. 75-second window. Choices: Offer Tribute (40 food → +20 morale, +25 prestige, +0.2 stone/s for 2 min), Conduct Ritual (25 mana → +35 prestige, +0.15 mana/s for 3 min), Stand Firm (free → +8 morale, +6 prestige).",
+    "files": [
+      "src/systems/ancientGuardian.js",
+      "src/core/state.js",
+      "src/core/events.js",
+      "src/main.js",
+      "src/ui/questPanel.js",
+      "styles/main.css"
+    ],
+    "completedAt": "2026-05-12T20:10:00Z",
+    "notes": "src/systems/ancientGuardian.js: New file. SPAWN_MIN=4080 (17 min), SPAWN_RANGE=1200 (+0-5 min), WINDOW_TICKS=300 (75 sec), MIN_AGE=2 (Iron Age), MIN_PLAYER_TILES=12. TRIBUTE_FOOD_COST=40, TRIBUTE_MORALE_REWARD=20, TRIBUTE_PRESTIGE_REWARD=25, TRIBUTE_STONE_RATE=0.2, TRIBUTE_DURATION_TICKS=480 (2 min). RITUAL_MANA_COST=25, RITUAL_PRESTIGE_REWARD=35, RITUAL_MANA_RATE=0.15, RITUAL_DURATION_TICKS=720 (3 min). STANDFIRM_MORALE_REWARD=8, STANDFIRM_PRESTIGE_REWARD=6. initAncientGuardian() lazy-creates state.ancientGuardian. ancientGuardianTick() handles expiry+spawn. offerGuardianTribute() deducts food, changeMorale+awardPrestige, pushes guardianTribute stone modifier. conductGuardianRitual() deducts mana, awardPrestige, pushes guardianRitual mana modifier. standFirmGuardian() free changeMorale+awardPrestige, no modifier. Accessors: getActiveAncientGuardian(), getAncientGuardianSecsLeft(). events.js: ANCIENT_GUARDIAN_CHANGED added. state.js: ancientGuardian:null field + initState reset. questPanel.js: imports 11 exports; ANCIENT_GUARDIAN_CHANGED in events list; ag check in tick refresh; guardian-tribute/ritual/firm click handlers; _ancientGuardianSection() after _exiledPrinceSection() in render. main.js: import initAncientGuardian+ancientGuardianTick; registerSystem(ancientGuardianTick); initAncientGuardian() in boot; save/load state.ancientGuardian; version→96. styles/main.css: .guardian-section/--active (stone-grey pulse), .guardian-header/icon/title/timer/--urgent/desc/actions/cost, .btn--guardian-tribute (green gradient), .btn--guardian-ritual (violet gradient), .btn--guardian-firm (blue gradient)."
   }
 ]

@@ -15721,3 +15721,95 @@ kbd {
   text-align: left; transition: background 0.15s;
 }
 .btn--jubilee-ceremony:hover { background: rgba(100,100,100,0.22); }
+
+/* ── T255: Exiled Prince ─────────────────────────────────────────────────── */
+@keyframes prince-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.0); }
+  50%       { box-shadow: 0 0 0 6px rgba(139, 92, 246, 0.22); }
+}
+.prince-section--active {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.07), rgba(109, 40, 217, 0.04));
+  border: 1px solid rgba(139, 92, 246, 0.30);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  animation: prince-pulse 2.8s ease-in-out infinite;
+}
+.prince-header { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.prince-icon { font-size: 1.1rem; }
+.prince-title { flex: 1; font-weight: 600; font-size: 0.88rem; color: #a78bfa; }
+.prince-timer { font-size: 0.78rem; color: #a78bfa; font-variant-numeric: tabular-nums; }
+.prince-timer--urgent { color: #ef4444; animation: blink 0.8s step-start infinite; }
+.prince-desc { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; }
+.prince-actions { display: flex; flex-direction: column; gap: 5px; }
+.prince-cost { display: block; font-size: 0.70rem; color: #9ca3af; margin-top: 1px; }
+.btn--prince-asylum {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(109, 40, 217, 0.10));
+  border: 1px solid rgba(139, 92, 246, 0.35);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #a78bfa;
+  text-align: left; transition: background 0.15s;
+}
+.btn--prince-asylum:hover { background: linear-gradient(135deg, rgba(139, 92, 246, 0.25), rgba(109, 40, 217, 0.18)); }
+.btn--prince-advisor {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.12), rgba(245, 158, 11, 0.08));
+  border: 1px solid rgba(251, 191, 36, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #fbbf24;
+  text-align: left; transition: background 0.15s;
+}
+.btn--prince-advisor:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(251, 191, 36, 0.22), rgba(245, 158, 11, 0.15)); }
+.btn--prince-away {
+  padding: 6px 10px;
+  background: rgba(75, 75, 75, 0.12);
+  border: 1px solid rgba(120, 120, 120, 0.22);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #9ca3af;
+  text-align: left; transition: background 0.15s;
+}
+.btn--prince-away:hover { background: rgba(100,100,100,0.22); }
+
+/* ── T256: Ancient Guardian ──────────────────────────────────────────────── */
+@keyframes guardian-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(107, 114, 128, 0.0); }
+  50%       { box-shadow: 0 0 0 6px rgba(107, 114, 128, 0.28); }
+}
+.guardian-section--active {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.09), rgba(75, 85, 99, 0.05));
+  border: 1px solid rgba(156, 163, 175, 0.32);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  animation: guardian-pulse 3.2s ease-in-out infinite;
+}
+.guardian-header { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.guardian-icon { font-size: 1.1rem; }
+.guardian-title { flex: 1; font-weight: 600; font-size: 0.88rem; color: #d1d5db; }
+.guardian-timer { font-size: 0.78rem; color: #d1d5db; font-variant-numeric: tabular-nums; }
+.guardian-timer--urgent { color: #ef4444; animation: blink 0.8s step-start infinite; }
+.guardian-desc { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; }
+.guardian-actions { display: flex; flex-direction: column; gap: 5px; }
+.guardian-cost { display: block; font-size: 0.70rem; color: #9ca3af; margin-top: 1px; }
+.btn--guardian-tribute {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(134, 239, 172, 0.12), rgba(74, 222, 128, 0.08));
+  border: 1px solid rgba(134, 239, 172, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #86efac;
+  text-align: left; transition: background 0.15s;
+}
+.btn--guardian-tribute:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(134, 239, 172, 0.22), rgba(74, 222, 128, 0.15)); }
+.btn--guardian-ritual {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.13), rgba(109, 40, 217, 0.09));
+  border: 1px solid rgba(139, 92, 246, 0.30);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #c4b5fd;
+  text-align: left; transition: background 0.15s;
+}
+.btn--guardian-ritual:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(139, 92, 246, 0.22), rgba(109, 40, 217, 0.16)); }
+.btn--guardian-firm {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(37, 99, 235, 0.08));
+  border: 1px solid rgba(59, 130, 246, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #93c5fd;
+  text-align: left; transition: background 0.15s;
+}
+.btn--guardian-firm:hover { background: linear-gradient(135deg, rgba(59, 130, 246, 0.22), rgba(37, 99, 235, 0.15)); }

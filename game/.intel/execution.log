@@ -4711,3 +4711,35 @@ T254 — Imperial Jubilee
   Wired initImperialJubilee() + imperialJubileeTick() in main.js (import, register, init, save, load).
   Added _imperialJubileeSection() render function and click handlers to questPanel.js.
   Added jubilee-section CSS with orange pulse animation to main.css.
+
+---
+session: 2026-05-12T20:10:00Z
+tasks: T255, T256
+
+T255 — Exiled Prince
+  Created game/src/systems/exiledPrince.js
+  Bronze Age+ (age >= 1), 8+ player tiles, 14–18 min spawn, 80-second decision window.
+  Choices:
+    - Grant Asylum (free): +12 morale, +10 prestige, +0.12 gold/s for 3 min via randomEvents modifier
+    - Accept as Advisor (40 gold): +30 prestige, +15 morale, +0.1 iron/s for 2 min via modifier
+    - Turn Away: no cost
+  Added EXILED_PRINCE_CHANGED event to events.js.
+  Added exiledPrince state key + initState reset to state.js.
+  Wired initExiledPrince() + exiledPrinceTick() in main.js (import, register, init, save, load).
+  Added _exiledPrinceSection() render function and click handlers to questPanel.js.
+  Added prince-section CSS with violet pulse animation to main.css.
+
+T256 — Ancient Guardian Awakens
+  Created game/src/systems/ancientGuardian.js
+  Iron Age+ (age >= 2), 12+ player tiles, 17–22 min spawn, 75-second decision window.
+  Choices:
+    - Offer Tribute (40 food): +20 morale, +25 prestige, +0.2 stone/s for 2 min via modifier
+    - Conduct Ritual (25 mana): +35 prestige, +0.15 mana/s for 3 min via modifier
+    - Stand Firm (free): +8 morale, +6 prestige (no modifier)
+  Added ANCIENT_GUARDIAN_CHANGED event to events.js.
+  Added ancientGuardian state key + initState reset to state.js.
+  Wired initAncientGuardian() + ancientGuardianTick() in main.js (import, register, init, save, load).
+  Added _ancientGuardianSection() render function and click handlers to questPanel.js.
+  Added guardian-section CSS with stone-grey pulse animation to main.css.
+
+Save version bumped 95 → 96 in main.js _save().
