@@ -26,6 +26,8 @@ import { heedProphet, tributeProphet, dismissProphet, getActiveProphetEncounter,
 import { commissionArtisans, exportCrafts, declineArtisanFair, getActiveArtisanFair, getArtisanFairSecsLeft, COMMISSION_WOOD_COST, COMMISSION_STONE_COST, EXPORT_FOOD_COST } from '../systems/artisanFair.js'; // T242
 import { observeAlignment, performRitual, ignoreAlignment, getActiveAlignment, getAlignmentSecsLeft, RITUAL_MANA_COST, RITUAL_PRESTIGE, RITUAL_MORALE } from '../systems/cosmicAlignment.js'; // T244
 import { claimTribute, getActiveTributeCaravan, getTributeCaravanSecsLeft } from '../systems/tributeCaravan.js'; // T246
+import { mineOreVein, commissionOreVein, sealOreVein, getActiveOreVein, getOreVeinSecsLeft, MINE_IRON_REWARD, MINE_STONE_REWARD, MINE_MORALE_PENALTY, COMMISSION_GOLD_COST, COMMISSION_IRON_REWARD, COMMISSION_STONE_REWARD, COMMISSION_PRESTIGE } from '../systems/ancientOreVein.js'; // T247
+import { purchaseRemedies, learnHerbalTechniques, sendHerbalistAway, getActiveHerbalist, getHerbalistSecsLeft, PURCHASE_GOLD_COST, PURCHASE_FOOD_REWARD, PURCHASE_MORALE, LEARN_MANA_COST, LEARN_FOOD_RATE } from '../systems/wanderingHerbalist.js'; // T248
 
 export function initQuestPanel() {
   const panel = document.getElementById('panel-quests');
@@ -55,6 +57,8 @@ export function initQuestPanel() {
     Events.ARTISAN_FAIR_CHANGED,                         // T242: artisan fair encounter
     Events.COSMIC_ALIGNMENT_CHANGED,                     // T244: cosmic alignment encounter
     Events.TRIBUTE_CARAVAN_CHANGED,                      // T246: tribute caravan spawned / claimed / expired
+    Events.ORE_VEIN_CHANGED,                             // T247: ore vein spawned / mined / commissioned / sealed / expired
+    Events.HERBALIST_CHANGED,                            // T248: herbalist spawned / purchased / learned / dismissed / expired
   ];
   for (const ev of events) on(ev, render);
 
@@ -77,7 +81,9 @@ export function initQuestPanel() {
       const af  = !!getActiveArtisanFair();
       const ca  = !!getActiveAlignment();
       const tc  = !!getActiveTributeCaravan();
-      if (ch || pe || bo || pl || pi || om || rh || leg || hv || ig || nt || pr || af || ca || tc) render();
+      const ov  = !!getActiveOreVein();
+      const hb  = !!getActiveHerbalist();
+      if (ch || pe || bo || pl || pi || om || rh || leg || hv || ig || nt || pr || af || ca || tc || ov || hb) render();
     }
   });
 
@@ -246,6 +252,42 @@ export function initQuestPanel() {
         setTimeout(() => render(), 1500);
       }
     }
+    // Ancient ore vein actions (T247)
+    if (e.target.closest('[data-action="ore-mine"]')) {
+      const r = mineOreVein();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="ore-mine"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="ore-commission"]')) {
+      const r = commissionOreVein();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="ore-commission"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="ore-seal"]')) {
+      sealOreVein();
+    }
+    // Wandering herbalist actions (T248)
+    if (e.target.closest('[data-action="herbalist-purchase"]')) {
+      const r = purchaseRemedies();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="herbalist-purchase"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="herbalist-learn"]')) {
+      const r = learnHerbalTechniques();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="herbalist-learn"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="herbalist-away"]')) {
+      sendHerbalistAway();
+    }
   });
 
   setQuestPanelRenderer(render);
@@ -277,6 +319,8 @@ function render() {
     ${_artisanFairSection()}
     ${_cosmicAlignmentSection()}
     ${_tributeCaravanSection()}
+    ${_oreVeinSection()}
+    ${_herbalistSection()}
     ${_imperialGamesSection()}
     ${_harvestSection()}
     <div class="quest-header">
@@ -296,7 +340,7 @@ function render() {
   `;
 }
 
-// ── Oracle of Fate section (T193) ────────────────────────────────────────
+// ── Oracle of Fate section (T193) ────────────────────────────────────────────
 
 function _oracleSection() {
   if ((state.age ?? 0) < 1) return '';  // only from Bronze Age
@@ -333,12 +377,12 @@ function _oracleSection() {
     </div>`;
 }
 
-// ── Victory Progress section (T187) ──────────────────────────────────────
+// ── Victory Progress section (T187) ────────────────────────────────────────────
 
 function _victoryProgressSection() {
   if (!state.quests) return '';
 
-  // ── Conquest progress ──────────────────────────────────────────────────
+  // ── Conquest progress ───────────────────────────────────────────────────────
   let playerTiles = 0;
   if (state.map) {
     for (const row of state.map.tiles) for (const t of row) if (t.owner === 'player') playerTiles++;
@@ -350,11 +394,11 @@ function _victoryProgressSection() {
   const questPct     = Math.min(100, Math.round((questsDone  / WIN_QUESTS) * 100));
   const conquestPct  = Math.round((tilePct + agePct + questPct) / 3);
 
-  // ── Diplomatic progress ────────────────────────────────────────────────
+  // ── Diplomatic progress ──────────────────────────────────────────────────────
   const alliedCount  = state.diplomacy?.empires?.filter(e => e.relations === 'allied').length ?? 0;
   const diplomPct    = Math.min(100, Math.round((alliedCount / WIN_DIPLOMATIC_ALLIANCES) * 100));
 
-  // ── Economic progress ──────────────────────────────────────────────────
+  // ── Economic progress ──────────────────────────────────────────────────────
   const goldEarned   = state.stats?.goldEarned ?? 0;
   const hasTech      = !!state.techs?.economics;
   const goldPct      = Math.min(100, Math.round((goldEarned / WIN_ECONOMIC_GOLD) * 100));
@@ -413,7 +457,7 @@ function _victoryProgressSection() {
   `;
 }
 
-// ── Plague section (T161) ────────────────────────────────────────────────
+// ── Plague section (T161) ──────────────────────────────────────────────────────────────
 
 function _plagueSection() {
   if ((state.age ?? 0) < 1) return '';  // Bronze Age+ only
@@ -441,7 +485,7 @@ function _plagueSection() {
     </div>`;
 }
 
-// ── Pilgrimage section (T162) ─────────────────────────────────────────────
+// ── Pilgrimage section (T162) ─────────────────────────────────────────────────────────────────
 
 function _pilgrimageSection() {
   if ((state.age ?? 0) < 1) return '';  // Bronze Age+ only
@@ -485,7 +529,7 @@ function _pilgrimageSection() {
     </div>`;
 }
 
-// ── Legendary Encounter section (T216) ───────────────────────────────────
+// ── Legendary Encounter section (T216) ───────────────────────────────────────────────
 
 function _legendarySection() {
   const leg  = getActiveLegendary();
@@ -529,7 +573,7 @@ function _legendarySection() {
   return activeHtml + (histHtml ? `<div style="margin-top:6px">${histHtml}</div>` : '');
 }
 
-// ── Royal Hunt section (T214) ────────────────────────────────────────────
+// ── Royal Hunt section (T214) ────────────────────────────────────────────────────────────────
 
 function _royalHuntSection() {
   if ((state.age ?? 0) < 1) return '';  // Bronze Age+ only
@@ -540,7 +584,7 @@ function _royalHuntSection() {
   if (hs.active) {
     return `
       <div class="hunt-section hunt-section--active">
-        <div class="hunt-section__header">🦌 Royal Hunt Underway</div>
+        <div class="hunt-section__header">🦤 Royal Hunt Underway</div>
         <div class="hunt-section__desc">
           The hunting party is out in the field. Results in <strong>${hs.activeSecsLeft}s</strong>.
         </div>
@@ -558,7 +602,7 @@ function _royalHuntSection() {
 
   return `
     <div class="hunt-section hunt-section--pending">
-      <div class="hunt-section__header">🦌 Royal Hunt Called!</div>
+      <div class="hunt-section__header">🦤 Royal Hunt Called!</div>
       <div class="hunt-section__desc">
         A hunting season has begun. Success grants +15 morale, +5 prestige, and a chance at iron.
         Expires in <strong>${hs.pendingSecsLeft}s</strong>.
@@ -571,7 +615,7 @@ function _royalHuntSection() {
     </div>`;
 }
 
-// ── Rebel section (T151) ─────────────────────────────────────────────────
+// ── Rebel section (T151) ───────────────────────────────────────────────────────────────────
 
 function _rebelSection() {
   const rebels = getActiveRebels();
@@ -595,9 +639,9 @@ function _rebelSection() {
     </div>`;
 }
 
-// ── Bounty section (T135) ─────────────────────────────────────────────────
+// ── Bounty section (T135) ───────────────────────────────────────────────────────────────────
 
-// ── Seasonal Objective section (T170) ────────────────────────────────────────
+// ── Seasonal Objective section (T170) ────────────────────────────────────────────────────────────────
 
 function _seasonalObjectiveSection() {
   const obj = getActiveSeasonalObjective();
@@ -668,7 +712,7 @@ function _bountySection() {
     </div>`;
 }
 
-// ── Political event section ────────────────────────────────────────────────
+// ── Political event section ────────────────────────────────────────────────────────────────────
 
 function _politicalEventSection() {
   const pe = state.politicalEvents;
@@ -743,7 +787,7 @@ function _politicalEventSection() {
     </div>`;
 }
 
-// ── Challenge section ──────────────────────────────────────────────────────
+// ── Challenge section ────────────────────────────────────────────────────────────────────────
 
 function _challengeSection() {
   const ch = state.challenges;
@@ -858,9 +902,9 @@ function _escHtml(str) {
   return (str ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-// ── Quest cards ────────────────────────────────────────────────────────────
+// ── Quest cards ────────────────────────────────────────────────────────────────────────────
 
-// ── T202: Epic Quest Chains section ────────────────────────────────────────
+// ── T202: Epic Quest Chains section ────────────────────────────────────────────────────────────────
 
 function _epicChainsSection() {
   if (!state.epicQuests) return '';
@@ -925,7 +969,7 @@ function _questCard(q, completedTick) {
   `;
 }
 
-// ── T236: Imperial Games ──────────────────────────────────────────────────
+// ── T236: Imperial Games ────────────────────────────────────────────────────────────────────
 
 function _imperialGamesSection() {
   if (!isImperialGamesPending()) return '';
@@ -951,7 +995,7 @@ function _imperialGamesSection() {
   `;
 }
 
-// ── T234: Seasonal Harvest Window ─────────────────────────────────────────
+// ── T234: Seasonal Harvest Window ─────────────────────────────────────────────────────────────────
 
 function _harvestSection() {
   const available = isHarvestAvailable();
@@ -1003,7 +1047,7 @@ function _harvestSection() {
   `;
 }
 
-// ── T240: Nomadic Tribe Encounter ─────────────────────────────────────────
+// ── T240: Nomadic Tribe Encounter ─────────────────────────────────────────────────────────────────
 
 function _tribeSection() {
   const encounter = getActiveTribeEncounter();
@@ -1045,7 +1089,7 @@ function _tribeSection() {
   `;
 }
 
-// ── T241: Wandering Prophet ───────────────────────────────────────────────
+// ── T241: Wandering Prophet ───────────────────────────────────────────────────────────────────────
 
 function _prophetSection() {
   const encounter = getActiveProphetEncounter();
@@ -1087,7 +1131,7 @@ function _prophetSection() {
   `;
 }
 
-// ── T242: Artisan Fair ────────────────────────────────────────────────────
+// ── T242: Artisan Fair ────────────────────────────────────────────────────────────────────────────
 
 function _artisanFairSection() {
   const fair = getActiveArtisanFair();
@@ -1130,7 +1174,7 @@ function _artisanFairSection() {
   `;
 }
 
-// ── T244: Cosmic Alignment ────────────────────────────────────────────────
+// ── T244: Cosmic Alignment ──────────────────────────────────────────────────────────────────────────
 
 function _cosmicAlignmentSection() {
   const alignment = getActiveAlignment();
@@ -1199,5 +1243,82 @@ function _tributeCaravanSection() {
       </div>
       <div class="tribute-desc">Villagers from the outer settlements have sent tribute to your capital. Choose one gift to accept.</div>
       <div class="tribute-options">${optionCards}</div>
+    </div>`;
+}
+
+// ── Ancient Ore Vein section (T247) ──────────────────────────────────────────────────────────────────
+
+function _oreVeinSection() {
+  const vein = getActiveOreVein();
+  if (!vein) return '';
+
+  const secs   = getOreVeinSecsLeft();
+  const urgent = secs < 20;
+
+  const canAffordCommission = (state.resources?.gold ?? 0) >= COMMISSION_GOLD_COST;
+  const commissionClass = canAffordCommission ? 'btn btn--ore-commission' : 'btn btn--ore-commission btn--disabled';
+
+  return `
+    <div class="ore-section ore-section--active">
+      <div class="ore-header">
+        <span class="ore-icon">⛏️</span>
+        <span class="ore-title">Ancient Ore Vein Discovered!</span>
+        <span class="ore-timer${urgent ? ' ore-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="ore-desc">Imperial miners have struck a rich ancient ore vein deep beneath your territory. How will you proceed?</div>
+      <div class="ore-actions">
+        <button class="btn btn--ore-mine" data-action="ore-mine">
+          ⛏️ Mine Intensively
+          <span class="ore-cost">Free · +${MINE_IRON_REWARD} iron, +${MINE_STONE_REWARD} stone, ${MINE_MORALE_PENALTY} morale</span>
+        </button>
+        <button class="${commissionClass}" data-action="ore-commission"
+                title="${canAffordCommission ? `Commission expert miners (${COMMISSION_GOLD_COST}💰)` : `Need ${COMMISSION_GOLD_COST} gold`}">
+          👷 Commission Miners
+          <span class="ore-cost">${COMMISSION_GOLD_COST}💰 · +${COMMISSION_IRON_REWARD} iron, +${COMMISSION_STONE_REWARD} stone, +${COMMISSION_PRESTIGE} prestige</span>
+        </button>
+        <button class="btn btn--ore-seal" data-action="ore-seal">
+          🚫 Seal It
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── Wandering Herbalist section (T248) ─────────────────────────────────────────────────────────────────────
+
+function _herbalistSection() {
+  const herbalist = getActiveHerbalist();
+  if (!herbalist) return '';
+
+  const secs   = getHerbalistSecsLeft();
+  const urgent = secs < 20;
+
+  const canAffordPurchase = (state.resources?.gold ?? 0) >= PURCHASE_GOLD_COST;
+  const canAffordLearn    = (state.resources?.mana ?? 0) >= LEARN_MANA_COST;
+  const purchaseClass = canAffordPurchase ? 'btn btn--herb-purchase' : 'btn btn--herb-purchase btn--disabled';
+  const learnClass    = canAffordLearn    ? 'btn btn--herb-learn'    : 'btn btn--herb-learn btn--disabled';
+
+  return `
+    <div class="herb-section herb-section--active">
+      <div class="herb-header">
+        <span class="herb-icon">🌿</span>
+        <span class="herb-title">Wandering Herbalist</span>
+        <span class="herb-timer${urgent ? ' herb-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="herb-desc">A wandering herbalist has arrived at the gates bearing natural remedies and ancient cultivation knowledge.</div>
+      <div class="herb-actions">
+        <button class="${purchaseClass}" data-action="herbalist-purchase"
+                title="${canAffordPurchase ? `Purchase remedies (${PURCHASE_GOLD_COST}💰)` : `Need ${PURCHASE_GOLD_COST} gold`}">
+          🌿 Purchase Remedies
+          <span class="herb-cost">${PURCHASE_GOLD_COST}💰 · +${PURCHASE_FOOD_REWARD} food, +${PURCHASE_MORALE} morale</span>
+        </button>
+        <button class="${learnClass}" data-action="herbalist-learn"
+                title="${canAffordLearn ? `Learn techniques (${LEARN_MANA_COST}✨)` : `Need ${LEARN_MANA_COST} mana`}">
+          📖 Learn Techniques
+          <span class="herb-cost">${LEARN_MANA_COST}✨ · +${LEARN_FOOD_RATE} food/s for 3 min</span>
+        </button>
+        <button class="btn btn--herb-away" data-action="herbalist-away">
+          🚶 Send Away
+        </button>
+      </div>
     </div>`;
 }
