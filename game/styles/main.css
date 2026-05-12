@@ -15629,3 +15629,95 @@ kbd {
   text-align: left; transition: background 0.15s;
 }
 .btn--artisan-farewell:hover { background: rgba(100,100,100,0.22); }
+
+/* ── T253: Mountain Hermit ───────────────────────────────────────────────── */
+@keyframes hermit-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.0); }
+  50%       { box-shadow: 0 0 0 6px rgba(52, 211, 153, 0.22); }
+}
+.hermit-section--active {
+  background: linear-gradient(135deg, rgba(52, 211, 153, 0.07), rgba(16, 185, 129, 0.04));
+  border: 1px solid rgba(52, 211, 153, 0.30);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  animation: hermit-pulse 2.8s ease-in-out infinite;
+}
+.hermit-header { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.hermit-icon { font-size: 1.1rem; }
+.hermit-title { flex: 1; font-weight: 600; font-size: 0.88rem; color: #34d399; }
+.hermit-timer { font-size: 0.78rem; color: #34d399; font-variant-numeric: tabular-nums; }
+.hermit-timer--urgent { color: #ef4444; animation: blink 0.8s step-start infinite; }
+.hermit-desc { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; }
+.hermit-actions { display: flex; flex-direction: column; gap: 5px; }
+.hermit-cost { display: block; font-size: 0.70rem; color: #9ca3af; margin-top: 1px; }
+.btn--hermit-counsel {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(52, 211, 153, 0.15), rgba(16, 185, 129, 0.10));
+  border: 1px solid rgba(52, 211, 153, 0.35);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #34d399;
+  text-align: left; transition: background 0.15s;
+}
+.btn--hermit-counsel:hover { background: linear-gradient(135deg, rgba(52, 211, 153, 0.25), rgba(16, 185, 129, 0.18)); }
+.btn--hermit-tribute {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.12), rgba(245, 158, 11, 0.08));
+  border: 1px solid rgba(251, 191, 36, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #fbbf24;
+  text-align: left; transition: background 0.15s;
+}
+.btn--hermit-tribute:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(251, 191, 36, 0.22), rgba(245, 158, 11, 0.15)); }
+.btn--hermit-leave {
+  padding: 6px 10px;
+  background: rgba(75, 75, 75, 0.12);
+  border: 1px solid rgba(120, 120, 120, 0.22);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #9ca3af;
+  text-align: left; transition: background 0.15s;
+}
+.btn--hermit-leave:hover { background: rgba(100,100,100,0.22); }
+
+/* ── T254: Imperial Jubilee ──────────────────────────────────────────────── */
+@keyframes jubilee-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.0); }
+  50%       { box-shadow: 0 0 0 6px rgba(249, 115, 22, 0.22); }
+}
+.jubilee-section--active {
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.07), rgba(234, 88, 12, 0.04));
+  border: 1px solid rgba(249, 115, 22, 0.30);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  animation: jubilee-pulse 2.8s ease-in-out infinite;
+}
+.jubilee-header { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.jubilee-icon { font-size: 1.1rem; }
+.jubilee-title { flex: 1; font-weight: 600; font-size: 0.88rem; color: #f97316; }
+.jubilee-timer { font-size: 0.78rem; color: #f97316; font-variant-numeric: tabular-nums; }
+.jubilee-timer--urgent { color: #ef4444; animation: blink 0.8s step-start infinite; }
+.jubilee-desc { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; }
+.jubilee-actions { display: flex; flex-direction: column; gap: 5px; }
+.jubilee-cost { display: block; font-size: 0.70rem; color: #9ca3af; margin-top: 1px; }
+.btn--jubilee-parade {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.15), rgba(234, 88, 12, 0.10));
+  border: 1px solid rgba(249, 115, 22, 0.35);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #f97316;
+  text-align: left; transition: background 0.15s;
+}
+.btn--jubilee-parade:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(249, 115, 22, 0.25), rgba(234, 88, 12, 0.18)); }
+.btn--jubilee-feast {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(134, 239, 172, 0.12), rgba(74, 222, 128, 0.08));
+  border: 1px solid rgba(134, 239, 172, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #86efac;
+  text-align: left; transition: background 0.15s;
+}
+.btn--jubilee-feast:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(134, 239, 172, 0.22), rgba(74, 222, 128, 0.15)); }
+.btn--jubilee-ceremony {
+  padding: 6px 10px;
+  background: rgba(75, 75, 75, 0.12);
+  border: 1px solid rgba(120, 120, 120, 0.22);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #9ca3af;
+  text-align: left; transition: background 0.15s;
+}
+.btn--jubilee-ceremony:hover { background: rgba(100,100,100,0.22); }
