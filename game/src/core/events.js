@@ -216,4 +216,6 @@ export const Events = Object.freeze({
   SACRED_SPRING_CHANGED:      'sacredSpringChanged',            // T250: sacred spring spawned / blessed / sold / protected / expired
   WANDERING_BARD_CHANGED:     'wanderingBardChanged',           // T251: wandering bard spawned / commissioned / listened / dismissed / expired
   MASTER_ARTISAN_CHANGED:     'masterArtisanChanged',           // T252: master artisan spawned / hired / commissioned / dismissed / expired
+  MOUNTAIN_HERMIT_CHANGED:    'mountainHermitChanged',           // T253: mountain hermit spawned / counseled / tributed / dismissed / expired
+  IMPERIAL_JUBILEE_CHANGED:   'imperialJubileeChanged',          // T254: imperial jubilee spawned / parade / feast / ceremony / expired
 });
