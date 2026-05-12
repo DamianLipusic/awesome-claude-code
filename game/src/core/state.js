@@ -752,6 +752,18 @@ export const state = {
   //   nextSpawnTick: tick, totalVisits: number,
   //   totalHired: number, totalCommissioned: number } | null
   masterArtisan: null,
+
+  // T253: Mountain Hermit — periodic Iron Age+ wisdom encounter (15-19 min, 75-sec window)
+  // { active: { expiresAt: tick } | null,
+  //   nextSpawnTick: tick, totalVisits: number,
+  //   totalCounseled: number, totalTributed: number } | null
+  mountainHermit: null,
+
+  // T254: Imperial Jubilee — periodic Medieval Age+ celebration event (18-23 min, 85-sec window)
+  // { active: { expiresAt: tick } | null,
+  //   nextSpawnTick: tick, totalJubilees: number,
+  //   totalParades: number, totalFeasts: number } | null
+  imperialJubilee: null,
 };
 
 /**
@@ -924,5 +936,7 @@ export function initState(empireName = 'My Empire') {
   state.sacredSpring         = null; // T250: reset sacred spring per game
   state.wanderingBard        = null; // T251: reset wandering bard per game
   state.masterArtisan        = null; // T252: reset master artisan per game
+  state.mountainHermit       = null; // T253: reset mountain hermit per game
+  state.imperialJubilee      = null; // T254: reset imperial jubilee per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }
