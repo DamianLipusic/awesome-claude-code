@@ -159,6 +159,8 @@ import { initEpithet }                                  from './systems/epithet.
 import { initCosmicAlignment, cosmicAlignmentTick }     from './systems/cosmicAlignment.js';              // T244
 import { initEconomyCycle, economyCycleTick }           from './systems/economyCycle.js';                  // T245
 import { initTributeCaravan, tributeCaravanTick }       from './systems/tributeCaravan.js';                // T246
+import { initOreVein, oreVeinTick }                     from './systems/ancientOreVein.js';                  // T247
+import { initHerbalist, herbalistTick }                 from './systems/wanderingHerbalist.js';              // T248
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
@@ -283,6 +285,8 @@ function boot() {
   registerSystem(cosmicAlignmentTick);   // T244: cosmic alignment spawn/expiry
   registerSystem(economyCycleTick);      // T245: economy cycle phase transitions
   registerSystem(tributeCaravanTick);    // T246: tribute caravan spawn/expiry
+  registerSystem(oreVeinTick);           // T247: ore vein spawn/expiry
+  registerSystem(herbalistTick);         // T248: herbalist spawn/expiry
 
   // Init event-driven systems
   initRandomEvents();
@@ -396,6 +400,8 @@ function boot() {
   initCosmicAlignment();     // T244: cosmic alignment state init
   initEconomyCycle();        // T245: economy cycle state init
   initTributeCaravan();      // T246: tribute caravan state init
+  initOreVein();             // T247: ore vein state init
+  initHerbalist();           // T248: herbalist state init
   // T176: monument init deferred — only activates when building is constructed
 
   // Init UI
@@ -657,7 +663,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 90, // T245: economy cycle; T246: village tribute caravan
+      version: 91, // T247: ancient ore vein; T248: wandering herbalist
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -825,6 +831,8 @@ function _save() {
         cosmicAlignment:     state.cosmicAlignment     ?? null,  // T244
         economyCycle:        state.economyCycle        ?? null,  // T245
         tributeCaravan:      state.tributeCaravan      ?? null,  // T246
+        oreVein:             state.oreVein             ?? null,  // T247
+        herbalist:           state.herbalist           ?? null,  // T248
         tick:          state.tick,
       }
     }));
@@ -1026,6 +1034,8 @@ function _applySave(save) {
   state.cosmicAlignment      = s.cosmicAlignment      ?? null; // T244
   state.economyCycle         = s.economyCycle         ?? null; // T245
   state.tributeCaravan       = s.tributeCaravan       ?? null; // T246
+  state.oreVein              = s.oreVein              ?? null; // T247
+  state.herbalist            = s.herbalist            ?? null; // T248
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
@@ -1946,6 +1956,8 @@ function _newGame(opts = {}) {
   initCosmicAlignment();     // T244: reset cosmic alignment state on new game
   initEconomyCycle();        // T245: reset economy cycle state on new game
   initTributeCaravan();      // T246: reset tribute caravan state on new game
+  initOreVein();             // T247: reset ore vein state on new game
+  initHerbalist();           // T248: reset herbalist state on new game
   _updateCelestialBanner(); // T153: hide banner on new game
   _updateRefugeeBanner();   // T217: hide refugee banner on new game
   recalcRates();
