@@ -212,4 +212,6 @@ export const Events = Object.freeze({
   TRIBUTE_CARAVAN_CHANGED:    'tributeCaravanChanged',          // T246: tribute caravan spawned / claimed / expired
   ORE_VEIN_CHANGED:           'oreVeinChanged',                 // T247: ancient ore vein spawned / mined / commissioned / sealed / expired
   HERBALIST_CHANGED:          'herbalistChanged',               // T248: wandering herbalist spawned / purchased / learned / dismissed / expired
+  CIRCUS_CHANGED:             'circusChanged',                  // T249: traveling circus spawned / welcomed / recruited / dismissed / expired
+  SACRED_SPRING_CHANGED:      'sacredSpringChanged',            // T250: sacred spring spawned / blessed / sold / protected / expired
 });

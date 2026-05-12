@@ -728,6 +728,18 @@ export const state = {
   //   nextSpawnTick: tick, totalVisits: number,
   //   totalPurchased: number, totalLearned: number } | null
   herbalist: null,
+
+  // T249: Traveling Circus — periodic Bronze Age+ entertainment event (11-15 min, 80-sec window)
+  // { active: { expiresAt: tick } | null,
+  //   nextSpawnTick: tick, totalVisits: number,
+  //   totalWelcomed: number, totalRecruited: number } | null
+  circus: null,
+
+  // T250: Sacred Spring Discovery — periodic Bronze Age+ nature event (13-17 min, 80-sec window)
+  // { active: { expiresAt: tick } | null,
+  //   nextSpawnTick: tick, totalVisits: number,
+  //   totalBlessed: number, totalSold: number, totalProtected: number } | null
+  sacredSpring: null,
 };
 
 /**
@@ -896,5 +908,7 @@ export function initState(empireName = 'My Empire') {
   state.tributeCaravan       = null; // T246: reset tribute caravan per game
   state.oreVein              = null; // T247: reset ore vein per game
   state.herbalist            = null; // T248: reset herbalist per game
+  state.circus               = null; // T249: reset traveling circus per game
+  state.sacredSpring         = null; // T250: reset sacred spring per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }
