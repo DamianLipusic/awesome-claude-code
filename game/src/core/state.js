@@ -272,7 +272,7 @@ export const state = {
   merchant: null,
 
   // T089: Discovered map landmarks — { captured: { [landmarkId]: tick } }
-  // null until first map with landmarks; landmarks are placed in map tiles as tile.landmark = id
+  // null until first map; landmarks are placed in map tiles as tile.landmark = id
   landmarks: null,
 
   // T090: Building specializations — { [buildingId]: specializationId }
@@ -716,6 +716,18 @@ export const state = {
   // { active: { options: [...], expiresAt: tick } | null,
   //   nextSpawnTick: tick, totalCaravans: number, totalClaimed: number } | null
   tributeCaravan: null,
+
+  // T247: Ancient Ore Vein Discovery — periodic Iron Age+ excavation event (14-18 min, 75-sec window)
+  // { active: { expiresAt: tick } | null,
+  //   nextSpawnTick: tick, totalDiscoveries: number,
+  //   totalMined: number, totalCommissioned: number } | null
+  oreVein: null,
+
+  // T248: Wandering Herbalist — periodic Bronze Age+ healing encounter (10-13 min, 80-sec window)
+  // { active: { expiresAt: tick } | null,
+  //   nextSpawnTick: tick, totalVisits: number,
+  //   totalPurchased: number, totalLearned: number } | null
+  herbalist: null,
 };
 
 /**
@@ -882,5 +894,7 @@ export function initState(empireName = 'My Empire') {
   state.cosmicAlignment      = null; // T244: reset cosmic alignment per game
   state.economyCycle         = null; // T245: reset economy cycle per game
   state.tributeCaravan       = null; // T246: reset tribute caravan per game
+  state.oreVein              = null; // T247: reset ore vein per game
+  state.herbalist            = null; // T248: reset herbalist per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }
