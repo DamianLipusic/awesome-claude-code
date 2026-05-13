@@ -38,6 +38,8 @@ import { grantAsylum, acceptPrinceAdvisor, turnPrinceAway, getActiveExiledPrince
 import { offerGuardianTribute, conductGuardianRitual, standFirmGuardian, getActiveAncientGuardian, getAncientGuardianSecsLeft, TRIBUTE_FOOD_COST as GUARDIAN_FOOD_COST, TRIBUTE_MORALE_REWARD as GUARDIAN_TRIBUTE_MORALE, TRIBUTE_PRESTIGE_REWARD as GUARDIAN_TRIBUTE_PRESTIGE, TRIBUTE_STONE_RATE, RITUAL_MANA_COST as GUARDIAN_MANA_COST, RITUAL_PRESTIGE_REWARD as GUARDIAN_RITUAL_PRESTIGE, RITUAL_MANA_RATE, STANDFIRM_MORALE_REWARD, STANDFIRM_PRESTIGE_REWARD } from '../systems/ancientGuardian.js'; // T256
 import { developOasisTradeStop, drawOasisWater, offerOasisSacrifice, getActiveDesertOasis, getDesertOasisSecsLeft, TRADE_GOLD_COST as OASIS_TRADE_GOLD, TRADE_GOLD_RATE as OASIS_TRADE_RATE, TRADE_PRESTIGE_REWARD as OASIS_TRADE_PRESTIGE, WATER_FOOD_REWARD as OASIS_WATER_FOOD, WATER_MORALE_REWARD as OASIS_WATER_MORALE, OFFERING_MANA_COST as OASIS_MANA_COST, OFFERING_PRESTIGE_REWARD as OASIS_OFFERING_PRESTIGE, OFFERING_FOOD_RATE as OASIS_FOOD_RATE } from '../systems/desertOasis.js'; // T257
 import { hostGrandReception, offerModestWelcome, presentDignitaryGifts, getActiveForeignDignitary, getForeignDignitarySecsLeft, RECEPTION_GOLD_COST, RECEPTION_PRESTIGE_REWARD, RECEPTION_GOLD_RATE, RECEPTION_MORALE_REWARD, WELCOME_PRESTIGE_REWARD, WELCOME_MORALE_REWARD, GIFT_FOOD_COST, GIFT_IRON_COST, GIFT_PRESTIGE_REWARD, GIFT_MORALE_REWARD } from '../systems/foreignDignitary.js'; // T258
+import { offerCaravanShelter, hireCaravanGuides, turnCaravanAway, getActiveLostCaravan, getLostCaravanSecsLeft, SHELTER_FOOD_COST, SHELTER_GOLD_RATE, SHELTER_MORALE_REWARD, SHELTER_PRESTIGE_REWARD, HIRE_GOLD_COST as CARAVAN_HIRE_GOLD, HIRE_IRON_REWARD, HIRE_PRESTIGE_REWARD as CARAVAN_HIRE_PRESTIGE, HIRE_MORALE_REWARD as CARAVAN_HIRE_MORALE } from '../systems/lostCaravan.js'; // T259
+import { commissionScholarStudies, purchaseScholarManuscripts, dismissScholarGracefully, getActiveNomadicScholar, getNomadicScholarSecsLeft, COMMISSION_MANA_COST, COMMISSION_IRON_RATE, COMMISSION_PRESTIGE, PURCHASE_GOLD_COST as SCHOLAR_PURCHASE_GOLD, PURCHASE_MANA_RATE, PURCHASE_PRESTIGE, DISMISS_MORALE_REWARD, DISMISS_PRESTIGE_REWARD } from '../systems/nomadicScholar.js'; // T260
 
 export function initQuestPanel() {
   const panel = document.getElementById('panel-quests');
@@ -79,6 +81,8 @@ export function initQuestPanel() {
     Events.ANCIENT_GUARDIAN_CHANGED,                     // T256: guardian spawned / tributed / ritual / firm / expired
     Events.DESERT_OASIS_CHANGED,                         // T257: oasis spawned / traded / watered / offered / expired
     Events.FOREIGN_DIGNITARY_CHANGED,                    // T258: dignitary spawned / reception / welcomed / gifted / expired
+    Events.LOST_CARAVAN_CHANGED,                         // T259: caravan spawned / sheltered / hired / turned away / expired
+    Events.NOMADIC_SCHOLAR_CHANGED,                      // T260: scholar spawned / commissioned / purchased / dismissed / expired
   ];
   for (const ev of events) on(ev, render);
 
@@ -109,7 +113,9 @@ export function initQuestPanel() {
       const ag  = !!getActiveAncientGuardian();
       const ao  = !!getActiveDesertOasis();
       const fd  = !!getActiveForeignDignitary();
-      if (ch || pe || bo || pl || pi || om || rh || leg || hv || ig || nt || pr || af || ca || tc || ov || hb || bd || ma || ep || ag || ao || fd) render();
+      const lc  = !!getActiveLostCaravan();
+      const ns  = !!getActiveNomadicScholar();
+      if (ch || pe || bo || pl || pi || om || rh || leg || hv || ig || nt || pr || af || ca || tc || ov || hb || bd || ma || ep || ag || ao || fd || lc || ns) render();
     }
   });
 
@@ -486,6 +492,42 @@ export function initQuestPanel() {
         if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
       }
     }
+    // Lost caravan actions (T259)
+    if (e.target.closest('[data-action="caravan-shelter"]')) {
+      const r = offerCaravanShelter();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="caravan-shelter"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="caravan-hire"]')) {
+      const r = hireCaravanGuides();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="caravan-hire"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="caravan-away"]')) {
+      turnCaravanAway();
+    }
+    // Nomadic scholar actions (T260)
+    if (e.target.closest('[data-action="scholar-commission"]')) {
+      const r = commissionScholarStudies();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="scholar-commission"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="scholar-purchase"]')) {
+      const r = purchaseScholarManuscripts();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="scholar-purchase"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="scholar-dismiss"]')) {
+      dismissScholarGracefully();
+    }
   });
 
   setQuestPanelRenderer(render);
@@ -529,6 +571,8 @@ function render() {
     ${_ancientGuardianSection()}
     ${_desertOasisSection()}
     ${_foreignDignitarySection()}
+    ${_lostCaravanSection()}
+    ${_nomadicScholarSection()}
     ${_imperialGamesSection()}
     ${_harvestSection()}
     <div class="quest-header">
@@ -1925,3 +1969,86 @@ function _foreignDignitarySection() {
       </div>
     </div>`;
 }
+
+// ── Lost Caravan section (T259) ───────────────────────────────────────────
+
+function _lostCaravanSection() {
+  const caravan = getActiveLostCaravan();
+  if (!caravan) return '';
+
+  const secs   = getLostCaravanSecsLeft();
+  const urgent = secs < 20;
+
+  const canAffordShelter = (state.resources?.food ?? 0) >= SHELTER_FOOD_COST;
+  const canAffordHire    = (state.resources?.gold ?? 0) >= CARAVAN_HIRE_GOLD;
+  const shelterClass = canAffordShelter ? 'btn btn--caravan-shelter' : 'btn btn--caravan-shelter btn--disabled';
+  const hireClass    = canAffordHire    ? 'btn btn--caravan-hire'    : 'btn btn--caravan-hire btn--disabled';
+
+  return `
+    <div class="caravan-section caravan-section--active">
+      <div class="caravan-header">
+        <span class="caravan-icon">🐪</span>
+        <span class="caravan-title">Lost Merchant Caravan</span>
+        <span class="caravan-timer${urgent ? ' caravan-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="caravan-desc">A merchant caravan has lost its way and seeks refuge within the empire's borders. How you respond will influence trade and the empire's reputation. Respond within 75 seconds.</div>
+      <div class="caravan-actions">
+        <button class="${shelterClass}" data-action="caravan-shelter"
+                title="${canAffordShelter ? `Offer Shelter (${SHELTER_FOOD_COST}🌾)` : `Need ${SHELTER_FOOD_COST} food`}">
+          🏕️ Offer Shelter
+          <span class="caravan-cost">${SHELTER_FOOD_COST}🌾 · +${SHELTER_GOLD_RATE} gold/s for 3 min, +${SHELTER_PRESTIGE_REWARD} prestige, +${SHELTER_MORALE_REWARD} morale</span>
+        </button>
+        <button class="${hireClass}" data-action="caravan-hire"
+                title="${canAffordHire ? `Hire as Guides (${CARAVAN_HIRE_GOLD}💰)` : `Need ${CARAVAN_HIRE_GOLD} gold`}">
+          🗺️ Hire as Guides
+          <span class="caravan-cost">${CARAVAN_HIRE_GOLD}💰 · +${HIRE_IRON_REWARD} iron, +${CARAVAN_HIRE_PRESTIGE} prestige, +${CARAVAN_HIRE_MORALE} morale</span>
+        </button>
+        <button class="btn btn--caravan-away" data-action="caravan-away">
+          👋 Turn Away
+          <span class="caravan-cost">Free · no reward</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── Nomadic Scholar section (T260) ────────────────────────────────────────
+
+function _nomadicScholarSection() {
+  const scholar = getActiveNomadicScholar();
+  if (!scholar) return '';
+
+  const secs   = getNomadicScholarSecsLeft();
+  const urgent = secs < 20;
+
+  const canAffordCommission = (state.resources?.mana ?? 0) >= COMMISSION_MANA_COST;
+  const canAffordPurchase   = (state.resources?.gold ?? 0) >= SCHOLAR_PURCHASE_GOLD;
+  const commissionClass = canAffordCommission ? 'btn btn--scholar-commission' : 'btn btn--scholar-commission btn--disabled';
+  const purchaseClass   = canAffordPurchase   ? 'btn btn--scholar-purchase'   : 'btn btn--scholar-purchase btn--disabled';
+
+  return `
+    <div class="scholar-section scholar-section--active">
+      <div class="scholar-header">
+        <span class="scholar-icon">📚</span>
+        <span class="scholar-title">Nomadic Scholar Arrives</span>
+        <span class="scholar-timer${urgent ? ' scholar-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="scholar-desc">A wandering scholar bearing ancient manuscripts has arrived at the imperial court seeking a patron. Their knowledge could prove invaluable to the empire. Respond within 80 seconds.</div>
+      <div class="scholar-actions">
+        <button class="${commissionClass}" data-action="scholar-commission"
+                title="${canAffordCommission ? `Commission Studies (${COMMISSION_MANA_COST}✨)` : `Need ${COMMISSION_MANA_COST} mana`}">
+          📚 Commission Studies
+          <span class="scholar-cost">${COMMISSION_MANA_COST}✨ · +${COMMISSION_IRON_RATE} iron/s for 2 min, +${COMMISSION_PRESTIGE} prestige</span>
+        </button>
+        <button class="${purchaseClass}" data-action="scholar-purchase"
+                title="${canAffordPurchase ? `Purchase Manuscripts (${SCHOLAR_PURCHASE_GOLD}💰)` : `Need ${SCHOLAR_PURCHASE_GOLD} gold`}">
+          📜 Purchase Manuscripts
+          <span class="scholar-cost">${SCHOLAR_PURCHASE_GOLD}💰 · +${PURCHASE_MANA_RATE} mana/s for 3 min, +${PURCHASE_PRESTIGE} prestige</span>
+        </button>
+        <button class="btn btn--scholar-dismiss" data-action="scholar-dismiss">
+          👋 Thank and Dismiss
+          <span class="scholar-cost">Free · +${DISMISS_MORALE_REWARD} morale, +${DISMISS_PRESTIGE_REWARD} prestige</span>
+        </button>
+      </div>
+    </div>`;
+}
+
