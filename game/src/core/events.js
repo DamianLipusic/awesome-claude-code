@@ -220,4 +220,6 @@ export const Events = Object.freeze({
   IMPERIAL_JUBILEE_CHANGED:   'imperialJubileeChanged',          // T254: imperial jubilee spawned / parade / feast / ceremony / expired
   EXILED_PRINCE_CHANGED:      'exiledPrinceChanged',             // T255: exiled prince spawned / granted / advisor / dismissed / expired
   ANCIENT_GUARDIAN_CHANGED:   'ancientGuardianChanged',          // T256: guardian spawned / tributed / ritual / firm / expired
+  DESERT_OASIS_CHANGED:       'desertOasisChanged',               // T257: oasis spawned / traded / watered / offered / expired
+  FOREIGN_DIGNITARY_CHANGED:  'foreignDignitaryChanged',          // T258: dignitary spawned / reception / welcomed / gifted / expired
 });
