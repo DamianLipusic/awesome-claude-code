@@ -15997,3 +15997,95 @@ kbd {
   text-align: left; transition: background 0.15s;
 }
 .btn--scholar-dismiss:hover { background: linear-gradient(135deg, rgba(52, 211, 153, 0.22), rgba(16, 185, 129, 0.15)); }
+
+/* ── Royal Feast section (T261) ───────────────────────────────────────── */
+@keyframes feast-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(251, 146, 60, 0.0); }
+  50%       { box-shadow: 0 0 0 6px rgba(251, 146, 60, 0.28); }
+}
+.feast-section--active {
+  background: linear-gradient(135deg, rgba(251, 146, 60, 0.09), rgba(234, 88, 12, 0.05));
+  border: 1px solid rgba(251, 146, 60, 0.32);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  animation: feast-pulse 3.2s ease-in-out infinite;
+}
+.feast-header { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.feast-icon { font-size: 1.1rem; }
+.feast-title { flex: 1; font-weight: 600; font-size: 0.88rem; color: #fdba74; }
+.feast-timer { font-size: 0.78rem; color: #fdba74; font-variant-numeric: tabular-nums; }
+.feast-timer--urgent { color: #ef4444; animation: blink 0.8s step-start infinite; }
+.feast-desc { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; }
+.feast-actions { display: flex; flex-direction: column; gap: 5px; }
+.feast-cost { display: block; font-size: 0.70rem; color: #9ca3af; margin-top: 1px; }
+.btn--feast-grand {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(251, 146, 60, 0.12), rgba(234, 88, 12, 0.08));
+  border: 1px solid rgba(251, 146, 60, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #fed7aa;
+  text-align: left; transition: background 0.15s;
+}
+.btn--feast-grand:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(251, 146, 60, 0.22), rgba(234, 88, 12, 0.15)); }
+.btn--feast-modest {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(167, 243, 208, 0.12), rgba(52, 211, 153, 0.08));
+  border: 1px solid rgba(167, 243, 208, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #a7f3d0;
+  text-align: left; transition: background 0.15s;
+}
+.btn--feast-modest:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(167, 243, 208, 0.22), rgba(52, 211, 153, 0.15)); }
+.btn--feast-holiday {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(196, 181, 253, 0.12), rgba(167, 139, 250, 0.08));
+  border: 1px solid rgba(196, 181, 253, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #ddd6fe;
+  text-align: left; transition: background 0.15s;
+}
+.btn--feast-holiday:hover { background: linear-gradient(135deg, rgba(196, 181, 253, 0.22), rgba(167, 139, 250, 0.15)); }
+
+/* ── Wandering Blacksmith section (T262) ──────────────────────────────── */
+@keyframes blacksmith-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(148, 163, 184, 0.0); }
+  50%       { box-shadow: 0 0 0 6px rgba(148, 163, 184, 0.28); }
+}
+.blacksmith-section--active {
+  background: linear-gradient(135deg, rgba(148, 163, 184, 0.09), rgba(100, 116, 139, 0.05));
+  border: 1px solid rgba(148, 163, 184, 0.32);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  animation: blacksmith-pulse 3.4s ease-in-out infinite;
+}
+.blacksmith-header { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.blacksmith-icon { font-size: 1.1rem; }
+.blacksmith-title { flex: 1; font-weight: 600; font-size: 0.88rem; color: #cbd5e1; }
+.blacksmith-timer { font-size: 0.78rem; color: #cbd5e1; font-variant-numeric: tabular-nums; }
+.blacksmith-timer--urgent { color: #ef4444; animation: blink 0.8s step-start infinite; }
+.blacksmith-desc { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; }
+.blacksmith-actions { display: flex; flex-direction: column; gap: 5px; }
+.blacksmith-cost { display: block; font-size: 0.70rem; color: #9ca3af; margin-top: 1px; }
+.btn--blacksmith-weapons {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(248, 113, 113, 0.12), rgba(239, 68, 68, 0.08));
+  border: 1px solid rgba(248, 113, 113, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #fca5a5;
+  text-align: left; transition: background 0.15s;
+}
+.btn--blacksmith-weapons:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(248, 113, 113, 0.22), rgba(239, 68, 68, 0.15)); }
+.btn--blacksmith-tools {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(148, 163, 184, 0.12), rgba(100, 116, 139, 0.08));
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #e2e8f0;
+  text-align: left; transition: background 0.15s;
+}
+.btn--blacksmith-tools:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(148, 163, 184, 0.22), rgba(100, 116, 139, 0.15)); }
+.btn--blacksmith-lodging {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(52, 211, 153, 0.12), rgba(16, 185, 129, 0.08));
+  border: 1px solid rgba(52, 211, 153, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #6ee7b7;
+  text-align: left; transition: background 0.15s;
+}
+.btn--blacksmith-lodging:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(52, 211, 153, 0.22), rgba(16, 185, 129, 0.15)); }
