@@ -40,6 +40,8 @@ import { developOasisTradeStop, drawOasisWater, offerOasisSacrifice, getActiveDe
 import { hostGrandReception, offerModestWelcome, presentDignitaryGifts, getActiveForeignDignitary, getForeignDignitarySecsLeft, RECEPTION_GOLD_COST, RECEPTION_PRESTIGE_REWARD, RECEPTION_GOLD_RATE, RECEPTION_MORALE_REWARD, WELCOME_PRESTIGE_REWARD, WELCOME_MORALE_REWARD, GIFT_FOOD_COST, GIFT_IRON_COST, GIFT_PRESTIGE_REWARD, GIFT_MORALE_REWARD } from '../systems/foreignDignitary.js'; // T258
 import { offerCaravanShelter, hireCaravanGuides, turnCaravanAway, getActiveLostCaravan, getLostCaravanSecsLeft, SHELTER_FOOD_COST, SHELTER_GOLD_RATE, SHELTER_MORALE_REWARD, SHELTER_PRESTIGE_REWARD, HIRE_GOLD_COST as CARAVAN_HIRE_GOLD, HIRE_IRON_REWARD, HIRE_PRESTIGE_REWARD as CARAVAN_HIRE_PRESTIGE, HIRE_MORALE_REWARD as CARAVAN_HIRE_MORALE } from '../systems/lostCaravan.js'; // T259
 import { commissionScholarStudies, purchaseScholarManuscripts, dismissScholarGracefully, getActiveNomadicScholar, getNomadicScholarSecsLeft, COMMISSION_MANA_COST, COMMISSION_IRON_RATE, COMMISSION_PRESTIGE, PURCHASE_GOLD_COST as SCHOLAR_PURCHASE_GOLD, PURCHASE_MANA_RATE, PURCHASE_PRESTIGE, DISMISS_MORALE_REWARD, DISMISS_PRESTIGE_REWARD } from '../systems/nomadicScholar.js'; // T260
+import { declareGrandBanquet, declareModestCelebration, declareHoliday, getActiveRoyalFeast, getRoyalFeastSecsLeft, BANQUET_FOOD_COST, BANQUET_GOLD_COST, BANQUET_FOOD_RATE, BANQUET_DURATION_TICKS, BANQUET_MORALE_REWARD, BANQUET_PRESTIGE_REWARD, MODEST_FOOD_COST, MODEST_MORALE_REWARD, MODEST_PRESTIGE_REWARD, HOLIDAY_MORALE_REWARD, HOLIDAY_PRESTIGE_REWARD } from '../systems/royalFeast.js'; // T261
+import { commissionEliteWeapons, forgeIronTools, offerBlacksmithLodging, getActiveWanderingBlacksmith, getBlacksmithSecsLeft, WEAPONS_IRON_COST, WEAPONS_IRON_RATE, WEAPONS_PRESTIGE_REWARD, TOOLS_IRON_COST, TOOLS_GOLD_COST, TOOLS_IRON_REWARD, TOOLS_PRESTIGE_REWARD, LODGING_FOOD_COST, LODGING_MORALE_REWARD, LODGING_PRESTIGE_REWARD } from '../systems/wanderingBlacksmith.js'; // T262
 
 export function initQuestPanel() {
   const panel = document.getElementById('panel-quests');
@@ -83,6 +85,8 @@ export function initQuestPanel() {
     Events.FOREIGN_DIGNITARY_CHANGED,                    // T258: dignitary spawned / reception / welcomed / gifted / expired
     Events.LOST_CARAVAN_CHANGED,                         // T259: caravan spawned / sheltered / hired / turned away / expired
     Events.NOMADIC_SCHOLAR_CHANGED,                      // T260: scholar spawned / commissioned / purchased / dismissed / expired
+    Events.ROYAL_FEAST_CHANGED,                          // T261: feast spawned / grand / modest / holiday / expired
+    Events.BLACKSMITH_CHANGED,                           // T262: blacksmith spawned / commissioned / forged / lodged / expired
   ];
   for (const ev of events) on(ev, render);
 
@@ -115,7 +119,9 @@ export function initQuestPanel() {
       const fd  = !!getActiveForeignDignitary();
       const lc  = !!getActiveLostCaravan();
       const ns  = !!getActiveNomadicScholar();
-      if (ch || pe || bo || pl || pi || om || rh || leg || hv || ig || nt || pr || af || ca || tc || ov || hb || bd || ma || ep || ag || ao || fd || lc || ns) render();
+      const rf  = !!getActiveRoyalFeast();
+      const wb  = !!getActiveWanderingBlacksmith();
+      if (ch || pe || bo || pl || pi || om || rh || leg || hv || ig || nt || pr || af || ca || tc || ov || hb || bd || ma || ep || ag || ao || fd || lc || ns || rf || wb) render();
     }
   });
 
@@ -528,6 +534,46 @@ export function initQuestPanel() {
     if (e.target.closest('[data-action="scholar-dismiss"]')) {
       dismissScholarGracefully();
     }
+    // Royal Feast actions (T261)
+    if (e.target.closest('[data-action="feast-grand"]')) {
+      const r = declareGrandBanquet();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="feast-grand"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="feast-modest"]')) {
+      const r = declareModestCelebration();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="feast-modest"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="feast-holiday"]')) {
+      declareHoliday();
+    }
+    // Wandering Blacksmith actions (T262)
+    if (e.target.closest('[data-action="blacksmith-weapons"]')) {
+      const r = commissionEliteWeapons();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="blacksmith-weapons"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="blacksmith-tools"]')) {
+      const r = forgeIronTools();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="blacksmith-tools"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
+    if (e.target.closest('[data-action="blacksmith-lodging"]')) {
+      const r = offerBlacksmithLodging();
+      if (!r.ok) {
+        const b = e.target.closest('[data-action="blacksmith-lodging"]');
+        if (b) { b.textContent = r.reason; setTimeout(() => render(), 1500); }
+      }
+    }
   });
 
   setQuestPanelRenderer(render);
@@ -573,6 +619,8 @@ function render() {
     ${_foreignDignitarySection()}
     ${_lostCaravanSection()}
     ${_nomadicScholarSection()}
+    ${_royalFeastSection()}
+    ${_wanderingBlacksmithSection()}
     ${_imperialGamesSection()}
     ${_harvestSection()}
     <div class="quest-header">
@@ -2047,6 +2095,92 @@ function _nomadicScholarSection() {
         <button class="btn btn--scholar-dismiss" data-action="scholar-dismiss">
           👋 Thank and Dismiss
           <span class="scholar-cost">Free · +${DISMISS_MORALE_REWARD} morale, +${DISMISS_PRESTIGE_REWARD} prestige</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── Royal Feast section (T261) ────────────────────────────────────────────
+
+function _royalFeastSection() {
+  const feast = getActiveRoyalFeast();
+  if (!feast) return '';
+
+  const secs   = getRoyalFeastSecsLeft();
+  const urgent = secs < 20;
+
+  const canAffordBanquet = (state.resources?.food ?? 0) >= BANQUET_FOOD_COST && (state.resources?.gold ?? 0) >= BANQUET_GOLD_COST;
+  const canAffordModest  = (state.resources?.food ?? 0) >= MODEST_FOOD_COST;
+  const banquetClass = canAffordBanquet ? 'btn btn--feast-grand'  : 'btn btn--feast-grand btn--disabled';
+  const modestClass  = canAffordModest  ? 'btn btn--feast-modest' : 'btn btn--feast-modest btn--disabled';
+  const banquetDurMin = Math.round(BANQUET_DURATION_TICKS / (60 * 4));
+
+  return `
+    <div class="feast-section feast-section--active">
+      <div class="feast-header">
+        <span class="feast-icon">🍖</span>
+        <span class="feast-title">Royal Feast Announced</span>
+        <span class="feast-timer${urgent ? ' feast-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="feast-desc">The imperial court announces a Royal Feast to celebrate the empire's prosperity and glory. How shall the sovereign host this occasion? Respond within 85 seconds.</div>
+      <div class="feast-actions">
+        <button class="${banquetClass}" data-action="feast-grand"
+                title="${canAffordBanquet ? `Grand Banquet (${BANQUET_FOOD_COST}🍖 + ${BANQUET_GOLD_COST}💰)` : `Need ${BANQUET_FOOD_COST} food + ${BANQUET_GOLD_COST} gold`}">
+          🍖 Grand Banquet
+          <span class="feast-cost">${BANQUET_FOOD_COST}🍖 + ${BANQUET_GOLD_COST}💰 · +${BANQUET_FOOD_RATE} food/s for ${banquetDurMin} min, +${BANQUET_MORALE_REWARD} morale, +${BANQUET_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="${modestClass}" data-action="feast-modest"
+                title="${canAffordModest ? `Modest Celebration (${MODEST_FOOD_COST}🍖)` : `Need ${MODEST_FOOD_COST} food`}">
+          🥂 Modest Celebration
+          <span class="feast-cost">${MODEST_FOOD_COST}🍖 · +${MODEST_MORALE_REWARD} morale, +${MODEST_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn btn--feast-holiday" data-action="feast-holiday">
+          🎭 Holiday Decree
+          <span class="feast-cost">Free · +${HOLIDAY_MORALE_REWARD} morale, +${HOLIDAY_PRESTIGE_REWARD} prestige</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── Wandering Blacksmith section (T262) ───────────────────────────────────
+
+function _wanderingBlacksmithSection() {
+  const bs = getActiveWanderingBlacksmith();
+  if (!bs) return '';
+
+  const secs   = getBlacksmithSecsLeft();
+  const urgent = secs < 20;
+
+  const canAffordWeapons = (state.resources?.iron ?? 0) >= WEAPONS_IRON_COST;
+  const canAffordTools   = (state.resources?.iron ?? 0) >= TOOLS_IRON_COST && (state.resources?.gold ?? 0) >= TOOLS_GOLD_COST;
+  const canAffordLodging = (state.resources?.food ?? 0) >= LODGING_FOOD_COST;
+  const weaponsClass = canAffordWeapons ? 'btn btn--blacksmith-weapons' : 'btn btn--blacksmith-weapons btn--disabled';
+  const toolsClass   = canAffordTools   ? 'btn btn--blacksmith-tools'   : 'btn btn--blacksmith-tools btn--disabled';
+  const lodgingClass = canAffordLodging ? 'btn btn--blacksmith-lodging' : 'btn btn--blacksmith-lodging btn--disabled';
+
+  return `
+    <div class="blacksmith-section blacksmith-section--active">
+      <div class="blacksmith-header">
+        <span class="blacksmith-icon">⚒️</span>
+        <span class="blacksmith-title">Wandering Blacksmith Arrives</span>
+        <span class="blacksmith-timer${urgent ? ' blacksmith-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="blacksmith-desc">A wandering master blacksmith of great renown has arrived at the imperial forge district seeking work. Their exceptional craft could greatly strengthen the empire. Respond within 75 seconds.</div>
+      <div class="blacksmith-actions">
+        <button class="${weaponsClass}" data-action="blacksmith-weapons"
+                title="${canAffordWeapons ? `Commission Elite Weapons (${WEAPONS_IRON_COST}⚙️ iron)` : `Need ${WEAPONS_IRON_COST} iron`}">
+          ⚔️ Commission Elite Weapons
+          <span class="blacksmith-cost">${WEAPONS_IRON_COST}⚙️ iron · +${WEAPONS_IRON_RATE} iron/s for 2 min, +${WEAPONS_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="${toolsClass}" data-action="blacksmith-tools"
+                title="${canAffordTools ? `Forge Iron Tools (${TOOLS_IRON_COST}⚙️ + ${TOOLS_GOLD_COST}💰)` : `Need ${TOOLS_IRON_COST} iron + ${TOOLS_GOLD_COST} gold`}">
+          🛡️ Forge Iron Tools
+          <span class="blacksmith-cost">${TOOLS_IRON_COST}⚙️ + ${TOOLS_GOLD_COST}💰 · +${TOOLS_IRON_REWARD} iron, +${TOOLS_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="${lodgingClass}" data-action="blacksmith-lodging"
+                title="${canAffordLodging ? `Offer Lodging (${LODGING_FOOD_COST}🍖)` : `Need ${LODGING_FOOD_COST} food`}">
+          🤝 Offer Lodging
+          <span class="blacksmith-cost">${LODGING_FOOD_COST}🍖 · +${LODGING_MORALE_REWARD} morale, +${LODGING_PRESTIGE_REWARD} prestige</span>
         </button>
       </div>
     </div>`;
