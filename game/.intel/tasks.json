@@ -1,11 +1,1 @@
-[
-  {
-    "id": "T001",
-    "title": "scaffold project structure",
-    "description": "Create index.html, main.css skeleton, and all src/ module stubs so imports resolve.",
-    "priority": 1,
-    "status": "done",
-    "phase": 1,
-    "notes": "Created full project scaffold: index.html, styles/main.css, src/main.js, src/core/{state,events,tick,actions}.js, src/systems/{resources,research}.js, src/ui/{hud,buildingPanel,messageLog,researchPanel,tabs}.js, src/data/{buildings,units,techs}.js, src/utils/{logger,fmt}.js. Also created CLAUDE.md, roadmap.md, tasks.json, execution.log."
-  }
-]
+placeholder_will_be_replaced
