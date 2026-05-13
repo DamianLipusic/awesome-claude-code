@@ -171,6 +171,8 @@ import { initExiledPrince, exiledPrinceTick }           from './systems/exiledPr
 import { initAncientGuardian, ancientGuardianTick }     from './systems/ancientGuardian.js';                  // T256
 import { initDesertOasis, desertOasisTick }             from './systems/desertOasis.js';                        // T257
 import { initForeignDignitary, foreignDignitaryTick }   from './systems/foreignDignitary.js';                   // T258
+import { initLostCaravan, lostCaravanTick }             from './systems/lostCaravan.js';                         // T259
+import { initNomadicScholar, nomadicScholarTick }       from './systems/nomadicScholar.js';                      // T260
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
@@ -307,6 +309,8 @@ function boot() {
   registerSystem(ancientGuardianTick);  // T256: ancient guardian spawn/expiry
   registerSystem(desertOasisTick);      // T257: desert oasis spawn/expiry
   registerSystem(foreignDignitaryTick); // T258: foreign dignitary spawn/expiry
+  registerSystem(lostCaravanTick);      // T259: lost caravan spawn/expiry
+  registerSystem(nomadicScholarTick);   // T260: nomadic scholar spawn/expiry
 
   // Init event-driven systems
   initRandomEvents();
@@ -432,6 +436,8 @@ function boot() {
   initAncientGuardian();     // T256: ancient guardian state init
   initDesertOasis();         // T257: desert oasis state init
   initForeignDignitary();    // T258: foreign dignitary state init
+  initLostCaravan();         // T259: lost caravan state init
+  initNomadicScholar();      // T260: nomadic scholar state init
   // T176: monument init deferred — only activates when building is constructed
 
   // Init UI
@@ -693,7 +699,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 97, // T257: desert oasis; T258: foreign dignitary
+      version: 98, // T259: lost caravan; T260: nomadic scholar
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -873,6 +879,8 @@ function _save() {
         ancientGuardian:     state.ancientGuardian     ?? null,  // T256
         desertOasis:         state.desertOasis         ?? null,  // T257
         foreignDignitary:    state.foreignDignitary    ?? null,  // T258
+        lostCaravan:         state.lostCaravan         ?? null,  // T259
+        nomadicScholar:      state.nomadicScholar      ?? null,  // T260
         tick:          state.tick,
       }
     }));
@@ -1086,6 +1094,8 @@ function _applySave(save) {
   state.ancientGuardian      = s.ancientGuardian      ?? null; // T256
   state.desertOasis          = s.desertOasis          ?? null; // T257
   state.foreignDignitary     = s.foreignDignitary     ?? null; // T258
+  state.lostCaravan          = s.lostCaravan          ?? null; // T259
+  state.nomadicScholar       = s.nomadicScholar       ?? null; // T260
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
