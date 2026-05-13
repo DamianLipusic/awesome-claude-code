@@ -222,4 +222,6 @@ export const Events = Object.freeze({
   ANCIENT_GUARDIAN_CHANGED:   'ancientGuardianChanged',          // T256: guardian spawned / tributed / ritual / firm / expired
   DESERT_OASIS_CHANGED:       'desertOasisChanged',               // T257: oasis spawned / traded / watered / offered / expired
   FOREIGN_DIGNITARY_CHANGED:  'foreignDignitaryChanged',          // T258: dignitary spawned / reception / welcomed / gifted / expired
+  LOST_CARAVAN_CHANGED:       'lostCaravanChanged',                // T259: caravan spawned / sheltered / hired / turned away / expired
+  NOMADIC_SCHOLAR_CHANGED:    'nomadicScholarChanged',             // T260: scholar spawned / commissioned / purchased / dismissed / expired
 });

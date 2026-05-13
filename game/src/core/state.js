@@ -788,6 +788,12 @@ export const state = {
   //   nextSpawnTick: tick, totalVisits: number,
   //   totalReceptions: number, totalWelcomed: number, totalGifted: number } | null
   foreignDignitary: null,
+
+  // T259: Lost Merchant Caravan — periodic Bronze Age+ trade encounter
+  lostCaravan: null,
+
+  // T260: Nomadic Scholar — periodic Iron Age+ knowledge encounter
+  nomadicScholar: null,
 };
 
 /**
@@ -966,5 +972,7 @@ export function initState(empireName = 'My Empire') {
   state.ancientGuardian      = null; // T256: reset ancient guardian per game
   state.desertOasis          = null; // T257: reset desert oasis per game
   state.foreignDignitary     = null; // T258: reset foreign dignitary per game
+  state.lostCaravan          = null; // T259: reset lost caravan per game
+  state.nomadicScholar       = null; // T260: reset nomadic scholar per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }
