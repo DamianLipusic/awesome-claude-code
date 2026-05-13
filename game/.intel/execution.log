@@ -4775,3 +4775,35 @@ T258 — Foreign Dignitary Visit
   Added dignitary-section CSS with violet pulse animation to main.css.
 
 Save version bumped 96 → 97 in main.js _save().
+
+---
+
+## Session: T259 + T260 — 2026-05-13
+
+### T259: Lost Merchant Caravan
+  Implemented periodic Bronze Age+ trade encounter event.
+  Created game/src/systems/lostCaravan.js:
+    - Bronze Age+ (age >= 1), 8+ player tiles, 13-18 min spawn, 75-second decision window.
+    - Offer Shelter: 30 food → +0.15 gold/s for 3 min via randomEvents.activeModifiers + 15 prestige + 15 morale.
+    - Hire as Guides: 25 gold → +12 iron + 20 prestige + 8 morale.
+    - Turn Away: free → no reward (timeout also scores as turned away).
+  Added LOST_CARAVAN_CHANGED event to events.js.
+  Added lostCaravan: null reset to state.js initState.
+  Wired initLostCaravan() + lostCaravanTick() in main.js (import, register, init, save, load).
+  Added _lostCaravanSection() render function and click handlers to questPanel.js.
+  Added caravan-section CSS with warm orange pulse animation to main.css.
+
+### T260: Nomadic Scholar
+  Implemented periodic Iron Age+ knowledge encounter event.
+  Created game/src/systems/nomadicScholar.js:
+    - Iron Age+ (age >= 2), 10+ player tiles, 15-20 min spawn, 80-second decision window.
+    - Commission Studies: 35 mana → +0.1 iron/s for 2 min via randomEvents.activeModifiers + 25 prestige.
+    - Purchase Manuscripts: 30 gold → +0.08 mana/s for 3 min via randomEvents.activeModifiers + 20 prestige.
+    - Thank and Dismiss: free → +8 morale + 5 prestige (timeout counts as dismissal).
+  Added NOMADIC_SCHOLAR_CHANGED event to events.js.
+  Added nomadicScholar: null reset to state.js initState.
+  Wired initNomadicScholar() + nomadicScholarTick() in main.js (import, register, init, save, load).
+  Added _nomadicScholarSection() render function and click handlers to questPanel.js.
+  Added scholar-section CSS with sky-blue pulse animation to main.css.
+
+Save version bumped 97 → 98 in main.js _save() (shared by T259 + T260).
