@@ -776,6 +776,18 @@ export const state = {
   //   nextSpawnTick: tick, totalAwakenings: number,
   //   totalTributed: number, totalRituals: number } | null
   ancientGuardian: null,
+
+  // T257: Desert Oasis Discovery — periodic Bronze Age+ resource event (12-16 min, 80-sec window)
+  // { active: { expiresAt: tick } | null,
+  //   nextSpawnTick: tick, totalOases: number,
+  //   totalTraded: number, totalWatered: number, totalOffered: number } | null
+  desertOasis: null,
+
+  // T258: Foreign Dignitary Visit — periodic Medieval Age+ diplomatic encounter (16-22 min, 85-sec window)
+  // { active: { expiresAt: tick } | null,
+  //   nextSpawnTick: tick, totalVisits: number,
+  //   totalReceptions: number, totalWelcomed: number, totalGifted: number } | null
+  foreignDignitary: null,
 };
 
 /**
@@ -952,5 +964,7 @@ export function initState(empireName = 'My Empire') {
   state.imperialJubilee      = null; // T254: reset imperial jubilee per game
   state.exiledPrince         = null; // T255: reset exiled prince per game
   state.ancientGuardian      = null; // T256: reset ancient guardian per game
+  state.desertOasis          = null; // T257: reset desert oasis per game
+  state.foreignDignitary     = null; // T258: reset foreign dignitary per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }
