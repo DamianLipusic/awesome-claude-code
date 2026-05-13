@@ -800,6 +800,18 @@ export const state = {
 
   // T262: Wandering Blacksmith — periodic Iron Age+ crafting encounter
   wanderingBlacksmith: null,
+
+  // T263: Traveling Astrologer — periodic Medieval Age+ celestial encounter (15-20 min, 80-sec window)
+  // { active: { expiresAt: tick } | null,
+  //   nextSpawnTick: tick, totalVisits: number,
+  //   totalCommissioned: number, totalConsulted: number, totalRefreshed: number } | null
+  travelingAstrologer: null,
+
+  // T264: Merchant Prince — periodic Bronze Age+ wealthy trade encounter (12-17 min, 75-sec window)
+  // { active: { expiresAt: tick } | null,
+  //   nextSpawnTick: tick, totalVisits: number,
+  //   totalDeals: number, totalExchanges: number, totalReceptions: number } | null
+  merchantPrince: null,
 };
 
 /**
@@ -982,5 +994,7 @@ export function initState(empireName = 'My Empire') {
   state.nomadicScholar       = null; // T260: reset nomadic scholar per game
   state.royalFeast           = null; // T261: reset royal feast per game
   state.wanderingBlacksmith  = null; // T262: reset wandering blacksmith per game
+  state.travelingAstrologer  = null; // T263: reset traveling astrologer per game
+  state.merchantPrince       = null; // T264: reset merchant prince per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }

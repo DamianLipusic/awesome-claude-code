@@ -205,4 +205,6 @@ export const Events = Object.freeze({
   NOMADIC_SCHOLAR_CHANGED:    'nomadicScholarChanged',             // T260: scholar spawned / commissioned / purchased / dismissed / expired
   ROYAL_FEAST_CHANGED:        'royalFeastChanged',                 // T261: feast spawned / grand / modest / holiday / expired
   BLACKSMITH_CHANGED:         'blacksmithChanged',                 // T262: blacksmith spawned / commissioned / forged / lodged / expired
+  ASTROLOGER_CHANGED:         'astrologerChanged',                 // T263: astrologer spawned / commissioned / consulted / refreshed / expired
+  MERCHANT_PRINCE_CHANGED:    'merchantPrinceChanged',             // T264: merchant prince spawned / deal / exchanged / reception / expired
 });
