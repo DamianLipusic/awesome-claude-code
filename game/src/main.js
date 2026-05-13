@@ -173,6 +173,8 @@ import { initDesertOasis, desertOasisTick }             from './systems/desertOa
 import { initForeignDignitary, foreignDignitaryTick }   from './systems/foreignDignitary.js';                   // T258
 import { initLostCaravan, lostCaravanTick }             from './systems/lostCaravan.js';                         // T259
 import { initNomadicScholar, nomadicScholarTick }       from './systems/nomadicScholar.js';                      // T260
+import { initRoyalFeast, royalFeastTick }               from './systems/royalFeast.js';                           // T261
+import { initWanderingBlacksmith, wanderingBlacksmithTick } from './systems/wanderingBlacksmith.js';              // T262
 
 // Leaderboard localStorage key (shared with settingsPanel.js)
 const LB_KEY = 'empireos-leaderboard';
@@ -311,6 +313,8 @@ function boot() {
   registerSystem(foreignDignitaryTick); // T258: foreign dignitary spawn/expiry
   registerSystem(lostCaravanTick);      // T259: lost caravan spawn/expiry
   registerSystem(nomadicScholarTick);   // T260: nomadic scholar spawn/expiry
+  registerSystem(royalFeastTick);       // T261: royal feast spawn/expiry
+  registerSystem(wanderingBlacksmithTick); // T262: wandering blacksmith spawn/expiry
 
   // Init event-driven systems
   initRandomEvents();
@@ -438,6 +442,8 @@ function boot() {
   initForeignDignitary();    // T258: foreign dignitary state init
   initLostCaravan();         // T259: lost caravan state init
   initNomadicScholar();      // T260: nomadic scholar state init
+  initRoyalFeast();          // T261: royal feast state init
+  initWanderingBlacksmith(); // T262: wandering blacksmith state init
   // T176: monument init deferred — only activates when building is constructed
 
   // Init UI
@@ -699,7 +705,7 @@ function boot() {
 function _save() {
   try {
     localStorage.setItem('empireos-save', JSON.stringify({
-      version: 98, // T259: lost caravan; T260: nomadic scholar
+      version: 99, // T261: royal feast; T262: wandering blacksmith
       ts: Date.now(),
       state: {
         empire:        state.empire,
@@ -881,6 +887,8 @@ function _save() {
         foreignDignitary:    state.foreignDignitary    ?? null,  // T258
         lostCaravan:         state.lostCaravan         ?? null,  // T259
         nomadicScholar:      state.nomadicScholar      ?? null,  // T260
+        royalFeast:          state.royalFeast          ?? null,  // T261
+        wanderingBlacksmith: state.wanderingBlacksmith ?? null,  // T262
         tick:          state.tick,
       }
     }));
@@ -1096,6 +1104,8 @@ function _applySave(save) {
   state.foreignDignitary     = s.foreignDignitary     ?? null; // T258
   state.lostCaravan          = s.lostCaravan          ?? null; // T259
   state.nomadicScholar       = s.nomadicScholar       ?? null; // T260
+  state.royalFeast           = s.royalFeast           ?? null; // T261
+  state.wanderingBlacksmith  = s.wanderingBlacksmith  ?? null; // T262
   // T086: migrate older saves — ensure hero.expedition exists
   if (state.hero?.recruited && !state.hero.expedition) {
     state.hero.expedition = { active: false, endsAt: 0 };
@@ -2023,7 +2033,9 @@ function _newGame(opts = {}) {
   initWanderingBard();       // T251: reset wandering bard state on new game
   initMasterArtisan();       // T252: reset master artisan state on new game
   initMountainHermit();    // T253: reset mountain hermit state on new game
-  initImperialJubilee();   // T254: reset imperial jubilee state on new game
+  initImperialJubilee();      // T254: reset imperial jubilee state on new game
+  initRoyalFeast();           // T261: reset royal feast state on new game
+  initWanderingBlacksmith();  // T262: reset wandering blacksmith state on new game
   _updateCelestialBanner(); // T153: hide banner on new game
   _updateRefugeeBanner();   // T217: hide refugee banner on new game
   recalcRates();
