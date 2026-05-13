@@ -522,7 +522,7 @@ function _tradeFairSection() {
   return `
     <div class="fair-section">
       <div class="fair-header">
-        <span class="fair-title">🎪 Annual Trade Fair</span>
+        <span class="fair-title">🎦 Annual Trade Fair</span>
         <span class="fair-badge">ACTIVE</span>
       </div>
       <div class="fair-benefits">Buy prices −20% · Sell prices +20%</div>
@@ -722,7 +722,7 @@ function _mintSection() {
     </div>`;
 }
 
-// ── Trade Wind section (T198) ────────────────────────────────────────────────
+// ── Trade Wind section (T198) ────────────────────────────────────────────
 
 function _tradeWindSection() {
   const wind    = getActiveTradeWind();
@@ -763,7 +763,7 @@ function _tradeWindSection() {
 
   return `
     <div class="trade-wind-section">
-      <div class="trade-wind-header">🌬️ Trade Winds</div>
+      <div class="trade-wind-header">🇯️ Trade Winds</div>
       <div class="trade-wind-note">Global trade environment shifts every 5–8 seasons, affecting resource rates for one season.</div>
       ${activeHtml}
       ${historyHtml}
