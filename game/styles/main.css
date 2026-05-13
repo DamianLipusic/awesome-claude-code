@@ -1,4 +1,4 @@
-/* ═══════════════════════════════════════════════════════════════════════════
+[Resource from github at repo://damianlipusic/awesome-claude-code/sha/0f4caaeefaf5e1a3c2cd0e70d75c6dac12d1f42d/contents/game/styles/main.css] /* ═══════════════════════════════════════════════════════════════════════════
    EmpireOS — Main Stylesheet
    ═══════════════════════════════════════════════════════════════════════════ */
 
@@ -15905,3 +15905,95 @@ kbd {
   text-align: left; transition: background 0.15s;
 }
 .btn--dignitary-gifts:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(249, 115, 22, 0.22), rgba(234, 88, 12, 0.15)); }
+
+/* ── Lost Caravan (T259) ─────────────────────────────────────────────────── */
+@keyframes caravan-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(251, 146, 60, 0.0); }
+  50%       { box-shadow: 0 0 0 6px rgba(251, 146, 60, 0.28); }
+}
+.caravan-section--active {
+  background: linear-gradient(135deg, rgba(234, 88, 12, 0.09), rgba(194, 65, 12, 0.05));
+  border: 1px solid rgba(251, 146, 60, 0.32);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  animation: caravan-pulse 3.2s ease-in-out infinite;
+}
+.caravan-header { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.caravan-icon { font-size: 1.1rem; }
+.caravan-title { flex: 1; font-weight: 600; font-size: 0.88rem; color: #fdba74; }
+.caravan-timer { font-size: 0.78rem; color: #fdba74; font-variant-numeric: tabular-nums; }
+.caravan-timer--urgent { color: #ef4444; animation: blink 0.8s step-start infinite; }
+.caravan-desc { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; }
+.caravan-actions { display: flex; flex-direction: column; gap: 5px; }
+.caravan-cost { display: block; font-size: 0.70rem; color: #9ca3af; margin-top: 1px; }
+.btn--caravan-shelter {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(251, 146, 60, 0.12), rgba(234, 88, 12, 0.08));
+  border: 1px solid rgba(251, 146, 60, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #fed7aa;
+  text-align: left; transition: background 0.15s;
+}
+.btn--caravan-shelter:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(251, 146, 60, 0.22), rgba(234, 88, 12, 0.15)); }
+.btn--caravan-hire {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(250, 204, 21, 0.12), rgba(234, 179, 8, 0.08));
+  border: 1px solid rgba(250, 204, 21, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #fde047;
+  text-align: left; transition: background 0.15s;
+}
+.btn--caravan-hire:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(250, 204, 21, 0.22), rgba(234, 179, 8, 0.15)); }
+.btn--caravan-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #d1d5db;
+  text-align: left; transition: background 0.15s;
+}
+.btn--caravan-away:hover { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── Nomadic Scholar (T260) ──────────────────────────────────────────────── */
+@keyframes scholar-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.0); }
+  50%       { box-shadow: 0 0 0 6px rgba(56, 189, 248, 0.28); }
+}
+.scholar-section--active {
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.09), rgba(2, 132, 199, 0.05));
+  border: 1px solid rgba(56, 189, 248, 0.32);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  animation: scholar-pulse 3.6s ease-in-out infinite;
+}
+.scholar-header { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.scholar-icon { font-size: 1.1rem; }
+.scholar-title { flex: 1; font-weight: 600; font-size: 0.88rem; color: #7dd3fc; }
+.scholar-timer { font-size: 0.78rem; color: #7dd3fc; font-variant-numeric: tabular-nums; }
+.scholar-timer--urgent { color: #ef4444; animation: blink 0.8s step-start infinite; }
+.scholar-desc { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; }
+.scholar-actions { display: flex; flex-direction: column; gap: 5px; }
+.scholar-cost { display: block; font-size: 0.70rem; color: #9ca3af; margin-top: 1px; }
+.btn--scholar-commission {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(14, 165, 233, 0.08));
+  border: 1px solid rgba(56, 189, 248, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #bae6fd;
+  text-align: left; transition: background 0.15s;
+}
+.btn--scholar-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(56, 189, 248, 0.22), rgba(14, 165, 233, 0.15)); }
+.btn--scholar-purchase {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(167, 139, 250, 0.12), rgba(139, 92, 246, 0.08));
+  border: 1px solid rgba(167, 139, 250, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #ddd6fe;
+  text-align: left; transition: background 0.15s;
+}
+.btn--scholar-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(167, 139, 250, 0.22), rgba(139, 92, 246, 0.15)); }
+.btn--scholar-dismiss {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(52, 211, 153, 0.12), rgba(16, 185, 129, 0.08));
+  border: 1px solid rgba(52, 211, 153, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #6ee7b7;
+  text-align: left; transition: background 0.15s;
+}
+.btn--scholar-dismiss:hover { background: linear-gradient(135deg, rgba(52, 211, 153, 0.22), rgba(16, 185, 129, 0.15)); }
