@@ -794,6 +794,12 @@ export const state = {
 
   // T260: Nomadic Scholar — periodic Iron Age+ knowledge encounter
   nomadicScholar: null,
+
+  // T261: Royal Feast — periodic Medieval Age+ social event
+  royalFeast: null,
+
+  // T262: Wandering Blacksmith — periodic Iron Age+ crafting encounter
+  wanderingBlacksmith: null,
 };
 
 /**
@@ -974,5 +980,7 @@ export function initState(empireName = 'My Empire') {
   state.foreignDignitary     = null; // T258: reset foreign dignitary per game
   state.lostCaravan          = null; // T259: reset lost caravan per game
   state.nomadicScholar       = null; // T260: reset nomadic scholar per game
+  state.royalFeast           = null; // T261: reset royal feast per game
+  state.wanderingBlacksmith  = null; // T262: reset wandering blacksmith per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }
