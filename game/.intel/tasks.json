@@ -2360,5 +2360,25 @@
     "status": "done",
     "phase": 6,
     "notes": "Created game/src/systems/nomadicScholar.js. Iron Age+ (age >= 2), 10+ player tiles, 15-20 min spawn, 80-second decision window. Choices: Commission Studies (35 mana) → +0.1 iron/s for 2 min via randomEvents modifier + 25 prestige; Purchase Manuscripts (30 gold) → +0.08 mana/s for 3 min via randomEvents modifier + 20 prestige; Thank and Dismiss (free) → +8 morale + 5 prestige. Added NOMADIC_SCHOLAR_CHANGED event to events.js. Added nomadicScholar state key + initState reset to state.js. Wired initNomadicScholar() + nomadicScholarTick() in main.js (import, register, init, save, load). Added _nomadicScholarSection() render function and click handlers to questPanel.js. Added scholar-section CSS with blue pulse animation to main.css. Save version bumped to 98 (shared with T259) in main.js _save()."
+  },
+  {
+    "id": "T261",
+    "title": "Royal Feast — periodic Medieval Age+ social event with three choices",
+    "description": "Medieval Age+ (age >= 3), 12+ player tiles, 14–19 min spawn, 85-second decision window. Choices: Grand Banquet (50 food + 30 gold) → +0.15 food/s for 3 min + 25 morale + 20 prestige; Modest Celebration (20 food) → +12 morale + 8 prestige; Holiday Decree (free) → +6 morale + 3 prestige.",
+    "priority": 261,
+    "status": "done",
+    "phase": 6,
+    "completedAt": "2026-05-13T00:00:00Z",
+    "notes": "Created game/src/systems/royalFeast.js. Medieval Age+ (age >= 3), 12+ player tiles, 14-19 min spawn, 85-second decision window. Choices: Grand Banquet (50 food + 30 gold) → +0.15 food/s for 3 min via randomEvents modifier + 25 morale + 20 prestige; Modest Celebration (20 food) → +12 morale + 8 prestige; Holiday Decree (free) → +6 morale + 3 prestige. SPAWN_MIN=3360 (14 min), SPAWN_RANGE=1200 (+0-5 min), WINDOW_TICKS=340 (85 sec), MIN_AGE=3 (Medieval Age), MIN_PLAYER_TILES=12. BANQUET_FOOD_COST=50, BANQUET_GOLD_COST=30, BANQUET_FOOD_RATE=0.15, BANQUET_DURATION_TICKS=720 (3 min), BANQUET_MORALE_REWARD=25, BANQUET_PRESTIGE_REWARD=20. MODEST_FOOD_COST=20, MODEST_MORALE_REWARD=12, MODEST_PRESTIGE_REWARD=8. HOLIDAY_MORALE_REWARD=6, HOLIDAY_PRESTIGE_REWARD=3. Added ROYAL_FEAST_CHANGED event to events.js. Added royalFeast state key + initState reset to state.js. Wired initRoyalFeast() + royalFeastTick() in main.js (import, register, init, save, load). Added _royalFeastSection() render function + click handlers (feast-grand/modest/holiday) to questPanel.js. Added feast-section CSS with orange pulse animation + 3 button styles to main.css. Save version bumped 98 → 99 in main.js _save()."
+  },
+  {
+    "id": "T262",
+    "title": "Wandering Blacksmith — periodic Iron Age+ crafting encounter with three choices",
+    "description": "Iron Age+ (age >= 2), 10+ player tiles, 11–16 min spawn, 75-second decision window. Choices: Commission Elite Weapons (40 iron) → +0.2 iron/s for 2 min + 20 prestige; Forge Iron Tools (20 iron + 15 gold) → +20 iron lump sum + 15 prestige; Offer Lodging (10 food) → +6 morale + 5 prestige.",
+    "priority": 262,
+    "status": "done",
+    "phase": 6,
+    "completedAt": "2026-05-13T00:00:00Z",
+    "notes": "Created game/src/systems/wanderingBlacksmith.js. Iron Age+ (age >= 2), 10+ player tiles, 11-16 min spawn, 75-second decision window. Choices: Commission Elite Weapons (40 iron) → +0.2 iron/s for 2 min via randomEvents modifier + 20 prestige; Forge Iron Tools (20 iron + 15 gold) → +20 iron lump sum + 15 prestige; Offer Lodging (10 food) → +6 morale + 5 prestige. SPAWN_MIN=2640 (11 min), SPAWN_RANGE=1200 (+0-5 min), WINDOW_TICKS=300 (75 sec), MIN_AGE=2 (Iron Age), MIN_PLAYER_TILES=10. WEAPONS_IRON_COST=40, WEAPONS_IRON_RATE=0.2, WEAPONS_DURATION_TICKS=480 (2 min), WEAPONS_PRESTIGE_REWARD=20. TOOLS_IRON_COST=20, TOOLS_GOLD_COST=15, TOOLS_IRON_REWARD=20, TOOLS_PRESTIGE_REWARD=15. LODGING_FOOD_COST=10, LODGING_MORALE_REWARD=6, LODGING_PRESTIGE_REWARD=5. Added BLACKSMITH_CHANGED event to events.js. Added wanderingBlacksmith state key + initState reset to state.js. Wired initWanderingBlacksmith() + wanderingBlacksmithTick() in main.js (import, register, init, save, load). Added _wanderingBlacksmithSection() render function + click handlers (blacksmith-weapons/tools/lodging) to questPanel.js. Added blacksmith-section CSS with slate-grey pulse animation + 3 button styles to main.css. Save version 99 (shared with T261)."
   }
 ]

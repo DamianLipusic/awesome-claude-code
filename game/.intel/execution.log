@@ -4807,3 +4807,31 @@ Save version bumped 96 → 97 in main.js _save().
   Added scholar-section CSS with sky-blue pulse animation to main.css.
 
 Save version bumped 97 → 98 in main.js _save() (shared by T259 + T260).
+
+### T261: Royal Feast
+  Implemented periodic Medieval Age+ social event encounter.
+  Created game/src/systems/royalFeast.js:
+    - Medieval Age+ (age >= 3), 12+ player tiles, 14-19 min spawn, 85-second decision window.
+    - Grand Banquet: 50 food + 30 gold → +0.15 food/s for 3 min via randomEvents.activeModifiers + 25 morale + 20 prestige.
+    - Modest Celebration: 20 food → +12 morale + 8 prestige.
+    - Holiday Decree: free → +6 morale + 3 prestige (timeout silently expires).
+  Added ROYAL_FEAST_CHANGED event to events.js.
+  Added royalFeast: null field + initState reset to state.js.
+  Wired initRoyalFeast() + royalFeastTick() in main.js (import, register, init, save, load, new game reset).
+  Added _royalFeastSection() render function and feast-grand/modest/holiday click handlers to questPanel.js.
+  Added feast-section CSS with amber-orange pulse animation + 3 button styles to main.css.
+
+### T262: Wandering Blacksmith
+  Implemented periodic Iron Age+ crafting encounter event.
+  Created game/src/systems/wanderingBlacksmith.js:
+    - Iron Age+ (age >= 2), 10+ player tiles, 11-16 min spawn, 75-second decision window.
+    - Commission Elite Weapons: 40 iron → +0.2 iron/s for 2 min via randomEvents.activeModifiers + 20 prestige.
+    - Forge Iron Tools: 20 iron + 15 gold → +20 iron lump sum + 15 prestige.
+    - Offer Lodging: 10 food → +6 morale + 5 prestige.
+  Added BLACKSMITH_CHANGED event to events.js.
+  Added wanderingBlacksmith: null field + initState reset to state.js.
+  Wired initWanderingBlacksmith() + wanderingBlacksmithTick() in main.js (import, register, init, save, load, new game reset).
+  Added _wanderingBlacksmithSection() render function and blacksmith-weapons/tools/lodging click handlers to questPanel.js.
+  Added blacksmith-section CSS with slate-grey pulse animation + 3 button styles to main.css.
+
+Save version bumped 98 → 99 in main.js _save() (shared by T261 + T262).
