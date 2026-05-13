@@ -115,96 +115,75 @@ export const Events = Object.freeze({
   GRAND_THEORY_CHOSEN:      'grandTheoryChosen',          // T150: player selected a grand theory specialization
   REBEL_UPRISING:           'rebelUprising',              // T151: rebels seize player tiles
   REBELS_SUPPRESSED:        'rebelsSuppressed',           // T151: rebel tile reclaimed
-  SUCCESSION_EVENT:         'successionEvent',            // T152: succession window opened
-  HEIR_CHOSEN:              'heirChosen',                 // T152: heir selected (player or auto)
-  CELESTIAL_WARNING:        'celestialWarning',           // T153: celestial event approaching (30s)
-  CELESTIAL_ACTIVE:         'celestialActive',            // T153: celestial event has started
-  CELESTIAL_CLEARED:        'celestialCleared',           // T153: celestial event has ended
-  CAMPAIGN_STARTED:         'campaignStarted',            // T154: conquest campaign launched
-  CAMPAIGN_WON:             'campaignWon',                // T154: campaign battle milestone reached
-  CAMPAIGN_ENDED:           'campaignEnded',              // T154: campaign concluded (won or expired)
-  BATTLEFIELD_CAPTURED:     'battlefieldCaptured',        // T156: player captured an ancient battlefield
-  SUPPLY_CHANGED:           'supplyChanged',              // T157: surge provisions activated or expired
-  WEATHER_ADAPTED:          'weatherAdapted',             // T158: empire adapted to a weather type
-  EMBARGO_CHANGED:          'embargoChanged',             // T159: trade embargo declared / lifted / expired
+  DYNASTY_SUCCESSION:       'dynastySuccession',          // T152: succession crisis appeared
+  DYNASTY_HEIR_CHOSEN:      'dynastyHeirChosen',          // T152: player chose their heir
+  CELESTIAL_EVENT:          'celestialEvent',             // T153: celestial event appeared / resolved
+  CELESTIAL_RESOLVED:       'celestialResolved',          // T153: celestial event resolved
+  CAMPAIGN_CHANGED:         'campaignChanged',            // T154: campaign assigned / progressed / completed
   PLAGUE_STARTED:           'plagueStarted',              // T161: plague outbreak began
-  PLAGUE_ENDED:             'plagueEnded',                // T161: plague ended (natural or quarantine)
-  PILGRIMAGE_ARRIVED:       'pilgrimageArrived',          // T162: pilgrims arrive
-  PILGRIMAGE_HOSTED:        'pilgrimageHosted',           // T162: player hosted pilgrims
-  CONVERSION_CHANGED:       'conversionChanged',          // T164: resource conversion performed
-  WARLORD_APPEARED:         'warlordAppeared',             // T165: roving warlord spawned
-  WARLORD_DEFEATED:         'warlordDefeated',             // T165: warlord tile captured by player
-  WARLORD_STRUCK:           'warlordStruck',               // T165: warlord timer expired, treasury raided
-  TRIBUTE_CHANGED:          'tributeChanged',              // T166: tribute demanded / payment made / fulfilled
-  BLACK_MARKET_CHANGED:     'blackMarketChanged',          // T167: black market deals refreshed / deal executed / seized
-  NOBLE_DEMAND:             'nobleDemand',                 // T168: noble demand spawned / satisfied / failed
-  ACADEMY_CHANGED:          'academyChanged',              // T169: battle drills activated / cooldown
-  SEASONAL_OBJECTIVE:       'seasonalObjective',           // T170: seasonal map objective spawned / captured / expired
-  CENSUS_COMPLETED:         'censusCompleted',             // T171: imperial census fired and gold awarded
-  MARRIAGE_PROPOSED:        'marriageProposed',            // T172: dynastic marriage finalized with an allied empire
-  VAULT_CHANGED:            'vaultChanged',                // T173: imperial vault deposit made / matured
-  SUMMIT_CALLED:            'summitCalled',                // T174: diplomatic summit called by player
-  WAR_EXHAUSTION_CHANGED:   'warExhaustionChanged',        // T175: war exhaustion level changed
-  MONUMENT_DEDICATION:      'monumentDedication',          // T176: ancient monument dedication ceremony fired
-  CARTOGRAPHER_SURVEYED:    'cartographerSurveyed',        // T179: cartographer survey report generated
-  RELIC_SHRINE_COMMUNE:     'relicShrineCommuned',         // T180: relic shrine communion performed
-  SURGE_USED:               'surgeUsed',                   // T182: combat surge activated
-  UNIT_IMMORTALIZED:        'unitImmortalized',            // T189: elite unit type immortalized
-  TRADE_GUILD_BOOSTED:      'tradeGuildBoosted',           // T190: trade route boost activated/expired
-  MINT_CONVERSION:          'mintConversion',              // T191: resource converted to gold at imperial mint
-  ENVOY_DISPATCHED:         'envoyDispatched',             // T192: diplomatic envoy dispatched
-  ENVOY_ARRIVED:            'envoyArrived',                // T192: envoy arrived and applied relation change
-  ENVOY_RECALLED:           'envoyRecalled',               // T192: envoy recalled before arrival
-  OMEN_APPEARED:            'omenAppeared',                // T193: oracle omen spawned
-  OMEN_AVERTED:             'omenAverted',                 // T193: player averted the omen
-  OMEN_CHANNELED:           'omenChanneled',               // T193: player channeled the omen
-  OMEN_FIRED:               'omenFired',                   // T193: omen expired — penalty applied
-  GUILD_FOUNDED:            'guildFounded',                // T194: artisan guild founded
-  GUILD_RENEWED:            'guildRenewed',                // T194: artisan guild renewed
-  GUILD_EXPIRED:            'guildExpired',                // T194: artisan guild disbanded
-  GUILD_CHANGED:            'guildChanged',                // T194: any artisan guild state change
-  VIZIER_CHANGED:           'vizierChanged',               // T195: grand vizier appointed or dismissed
-  TRADE_FAIR_CHANGED:       'tradeFairChanged',            // T196: trade fair started / deal used / ended
-  TRADE_WIND_CHANGED:       'tradeWindChanged',            // T198: trade wind event started or ended
-  TAX_COLLECTED:            'taxCollected',                // T199: imperial taxes collected for the season
-  WANDERING_ARMY_CHANGED:   'wanderingArmyChanged',        // T200: wandering army spawned / hired / dismissed / expired
-  COUNCIL_SESSION_CHANGED:  'councilSessionChanged',       // T201: province council session spawned / resolved / expired
-  EPIC_QUEST_PROGRESS:      'epicQuestProgress',           // T202: epic quest chain step advanced or chain completed
-  CORRUPTION_CHANGED:       'corruptionChanged',           // T203: corruption level changed (growth threshold or reform)
-  ARENA_CHANGED:            'arenaChanged',                // T204: arena event spawned / entered / skipped / expired
-  STANDARD_CHANGED:         'standardChanged',             // T205: battle standard assigned or transferred
-  GOVERNORS_CHANGED:        'governorsChanged',            // T206: regional governor appointed or dismissed
-  SCOUT_MISSION:            'scoutMission',                // T207: scout party dispatched and report returned
-  RESOURCE_PACT_CHANGED:    'resourcePactChanged',         // T208: pact proposed / season exchange / cancelled / completed
-  SUPPLY_LINE_CHANGED:      'supplyLineChanged',           // T209: supply outpost established
-  REPARATIONS_DEMANDED:     'reparationsDemanded',         // T210: war reparations demanded (paid or refused)
-  REPUTATION_CHANGED:       'reputationChanged',           // T211: reputation score changed
-  COUNTEROFFENSIVE:         'counteroffensive',            // T212: faction counteroffensive launched
-  HUNT_CHANGED:             'huntChanged',                 // T214: royal hunt spawned / launched / resolved / expired
-  CODEX_MILESTONE:          'codexMilestone',              // T215: imperial codex fragment count updated / milestone reached
-  LEGENDARY_CHANGED:        'legendaryChanged',            // T216: legendary creature spawned / defeated / expired
-  REFUGEE_CRISIS:           'refugeeCrisis',               // T217: refugee crisis spawned / accepted / integrated / declined / expired
-  SILK_ROAD_CHANGED:        'silkRoadChanged',             // T218: silk road window opened / purchased / closed
-  PROPAGANDA_LAUNCHED:      'propagandaLaunched',          // T219: propaganda campaign started or ended
-  INTEL_REPORT:                 'intelReport',                  // T220: military intelligence report generated
-  CONSTRUCTION_DRIVE_CHANGED:  'constructionDriveChanged',     // T221: construction drive started or ended
-  PEACE_OVERTURE_CHANGED:      'peaceOvertureChanged',         // T222: peace overture sent (accepted or refused)
-  FORECAST_CHANGED:            'forecastChanged',              // T225: royal forecast generated or heeded
-  TROPHY_EARNED:               'trophyEarned',                 // T226: war trophy awarded
-  ALCHEMY_CHANGED:             'alchemyChanged',               // T227: alchemy offer spawned/accepted/dismissed/expired
-  RATIONING_CHANGED:           'rationingChanged',             // T228: wartime rationing declared or expired
-  MILITIA_CHANGED:             'militiaChanged',               // T229: militia conscripted or disbanded
-  ANCIENT_PACT_CHANGED:        'ancientPactChanged',           // T230: ancient pact forged, tiered, or dissolved
-  LIBRARY_CHANGED:             'libraryChanged',               // T231: grand library founded, scroll added, or bonus rerolled
-  PRICE_SURGE_CHANGED:         'priceSurgeChanged',            // T232: market price surge started or ended
-  LOST_EXPEDITION_CHANGED:     'lostExpeditionChanged',         // T233: expedition spawned / rescued / expired
-  HARVEST_CHANGED:             'harvestChanged',                // T234: harvest window opened / collected / closed
-  CITY_PROSPERITY_EVENT:       'cityProsperityEvent',           // T235: city prosperity windfall fired
-  IMPERIAL_GAMES_CHANGED:      'imperialGamesChanged',          // T236: imperial games announced / resolved / expired
-  LOAN_CHANGED:                'loanChanged',                   // T237: royal loan taken / repaid / defaulted
-  VAULT_CACHE_CHANGED:         'vaultCacheChanged',             // T238: ancient vault cache spawned / captured / expired
-  RECORDS_EXCHANGE_CHANGED:    'recordsExchangeChanged',        // T239: imperial records exchange performed
-  NOMADIC_TRIBE_CHANGED:       'nomadicTribeChanged',           // T240: nomadic tribe spawned / accepted / hired / refused / expired
+  PLAGUE_ENDED:             'plagueEnded',                // T161: plague cured or expired
+  PILGRIMAGE_ARRIVED:       'pilgrimageArrived',          // T162: pilgrims arrived for hosting
+  PILGRIMAGE_HOSTED:        'pilgrimageHosted',           // T162: pilgrimage successfully hosted
+  WARLORD_ARRIVED:          'warlordArrived',             // T165: roving warlord appeared
+  WARLORD_DEPARTED:         'warlordDeparted',            // T165: warlord left
+  TRIBUTE_DEMANDED:         'tributeDemanded',            // T166: empire demanded tribute
+  TRIBUTE_PAID:             'tributePaid',                // T166: tribute paid
+  BLACK_MARKET_CHANGED:     'blackMarketChanged',         // T167: black market offer spawned/accepted/expired
+  NOBLE_DEMAND_CHANGED:     'nobleDemandChanged',         // T168: noble demand issued/satisfied/refused/expired
+  SEASONAL_OBJECTIVE:       'seasonalObjective',          // T170: seasonal objective assigned or completed
+  CENSUS_CHANGED:           'censusChanged',              // T171: census result published
+  VAULT_CHANGED:            'vaultChanged',               // T173: vault deposit/withdrawal/bonus
+  EXHAUSTION_CHANGED:       'exhaustionChanged',          // T175: war exhaustion level changed
+  MONUMENT_BUILT:           'monumentBuilt',              // T176: ancient monument construction started
+  MONUMENT_COMPLETED:       'monumentCompleted',          // T176: ancient monument completed
+  CARTOGRAPHER_CHANGED:     'cartographerChanged',        // T179: cartographer offer spawned/accepted/expired
+  RELIC_SHRINE_CHANGED:     'relicShrineChanged',         // T180: relic shrine offer spawned/accepted/expired
+  TRADE_GUILD_CHANGED:      'tradeGuildChanged',          // T190: trade guild boost applied
+  ENVOY_CHANGED:            'envoyChanged',               // T192: envoy dispatched/arrived/returned
+  GUILD_CHANGED:            'guildChanged',               // T194: artisan guild task assigned/completed
+  VIZIER_CHANGED:           'vizierChanged',               // T195: vizier advice event
+  TRADE_FAIR_CHANGED:       'tradeFairChanged',            // T196: trade fair season event
+  SEASON_PERFORMANCE:       'seasonPerformance',           // T197: end-of-season performance review
+  TRADE_WIND_CHANGED:       'tradeWindChanged',            // T198: trade wind started/ended
+  TAX_COLLECTION_CHANGED:   'taxCollectionChanged',        // T199: tax collection triggered/reset
+  WANDERING_ARMY_CHANGED:   'wanderingArmyChanged',        // T200: wandering army offer spawned/hired/negotiated/expired
+  COUNCIL_SESSION_CHANGED:  'councilSessionChanged',       // T201: province council session opened/closed
+  EPIC_QUEST_PROGRESS:      'epicQuestProgress',           // T202: epic quest chain step/completion
+  CORRUPTION_CHANGED:       'corruptionChanged',           // T203: corruption level changed
+  ARENA_CHANGED:            'arenaChanged',                // T204: grand arena event started/resolved
+  BATTLE_STANDARD_CHANGED:  'battleStandardChanged',       // T205: battle standard raised/expired
+  GOVERNORS_CHANGED:        'governorsChanged',            // T206: regional governor assignment changed
+  SCOUTS_CHANGED:           'scoutsChanged',               // T207: scout mission sent/completed
+  RESOURCE_PACT_CHANGED:    'resourcePactChanged',         // T208: resource pact signed/expired
+  SUPPLY_LINES_CHANGED:     'supplyLinesChanged',          // T209: supply line status changed
+  REPARATIONS_CHANGED:      'reparationsChanged',          // T210: war reparations paid/received
+  REPUTATION_CHANGED:       'reputationChanged',           // T211: empire reputation tier changed
+  COUNTEROFFENSIVE_CHANGED: 'counteroffensiveChanged',     // T212: counteroffensive launched/resolved
+  HUNT_CHANGED:             'huntChanged',                 // T214: royal hunt status changed
+  CODEX_CHANGED:            'codexChanged',                // T215: imperial codex entry unlocked
+  LEGENDARY_CHANGED:        'legendaryChanged',            // T216: legendary encounter spawned/defeated/expired
+  REFUGEE_CHANGED:          'refugeeChanged',              // T217: refugee crisis spawned/resolved
+  SILK_ROAD_CHANGED:        'silkRoadChanged',             // T218: silk road event spawned/expired
+  PROPAGANDA_CHANGED:       'propagandaChanged',           // T219: propaganda campaign launched/expired
+  MILITARY_INTEL_CHANGED:   'militaryIntelChanged',        // T220: military intel gathered
+  CONSTRUCTION_DRIVE_CHANGED: 'constructionDriveChanged',  // T221: construction drive started/completed
+  PEACE_OVERTURE_CHANGED:   'peaceOvertureChanged',        // T222: peace overture sent/accepted/rejected
+  FORECAST_CHANGED:         'forecastChanged',             // T225: royal forecast revealed
+  TROPHIES_CHANGED:         'trophiesChanged',             // T226: war trophy earned
+  ALCHEMY_CHANGED:          'alchemyChanged',              // T227: alchemy conversion performed
+  RATIONING_CHANGED:        'rationingChanged',            // T228: rationing policy changed
+  MILITIA_CHANGED:          'militiaChanged',              // T229: militia raised/disbanded
+  ANCIENT_PACT_CHANGED:     'ancientPactChanged',          // T230: ancient pact activated/expired
+  LIBRARY_CHANGED:          'libraryChanged',              // T231: library scroll acquired/used
+  PRICE_SURGE_CHANGED:      'priceSurgeChanged',           // T232: price surge spawned/expired
+  LOST_EXPEDITION_CHANGED:  'lostExpeditionChanged',       // T233: lost expedition found/resolved
+  HARVEST_CHANGED:          'harvestChanged',              // T234: seasonal harvest collected
+  CITY_PROSPERITY_CHANGED:  'cityProsperityChanged',       // T235: city prosperity tier changed
+  IMPERIAL_GAMES_CHANGED:   'imperialGamesChanged',        // T236: imperial games announced/resolved
+  ROYAL_LOAN_CHANGED:       'royalLoanChanged',            // T237: royal loan issued/repaid
+  VAULT_CACHE_CHANGED:      'vaultCacheChanged',           // T238: ancient vault cache discovered/claimed
+  RECORDS_EXCHANGE_CHANGED: 'recordsExchangeChanged',      // T239: records exchange bonus applied
+  NOMADIC_TRIBE_CHANGED:    'nomadicTribeChanged',         // T240: nomadic tribe encounter
   PROPHET_CHANGED:             'prophetChanged',                // T241: wandering prophet spawned / heeded / tributed / dismissed / expired
   ARTISAN_FAIR_CHANGED:        'artisanFairChanged',            // T242: artisan fair spawned / commissioned / exported / declined / expired
   COSMIC_ALIGNMENT_CHANGED:   'cosmicAlignmentChanged',        // T244: cosmic alignment spawned / observed / ritualed / ignored / expired
@@ -224,4 +203,6 @@ export const Events = Object.freeze({
   FOREIGN_DIGNITARY_CHANGED:  'foreignDignitaryChanged',          // T258: dignitary spawned / reception / welcomed / gifted / expired
   LOST_CARAVAN_CHANGED:       'lostCaravanChanged',                // T259: caravan spawned / sheltered / hired / turned away / expired
   NOMADIC_SCHOLAR_CHANGED:    'nomadicScholarChanged',             // T260: scholar spawned / commissioned / purchased / dismissed / expired
+  ROYAL_FEAST_CHANGED:        'royalFeastChanged',                 // T261: feast spawned / grand / modest / holiday / expired
+  BLACKSMITH_CHANGED:         'blacksmithChanged',                 // T262: blacksmith spawned / commissioned / forged / lodged / expired
 });
