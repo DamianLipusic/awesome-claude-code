@@ -265,7 +265,7 @@
       "priority": 268,
       "status": "done",
       "phase": 92,
-      "notes": "forestSpirit.js already existed. Wired into main.js: import initForestSpirit+forestSpiritTick, registerSystem, init x2, save/load fields (state.forestSpirit ?? null).\nAdded _forestSpiritSection() render + spirit-pact/spirit-wisdom/spirit-tribute handlers to questPanel.js (import * as Spirit). Events.FOREST_SPIRIT_CHANGED subscribed.\nAdded T268 spirit CSS: @keyframes spirit-pulse (teal/mint with glow), .spirit-section--active, .btn--spirit-pact (mint), .btn--spirit-wisdom (violet), .btn--spirit-tribute (rose).\nAlso added missing T266 sage CSS to main.css (was noted in execution log as done but was absent from file): sage-pulse, .sage-section--active, .btn--sage-edict (amber), .btn--sage-study (violet), .btn--sage-host (green). Session 43."
+      "notes": "forestSpirit.js already existed. Wired into main.js: import initForestSpirit+forestSpiritTick, registerSystem, initForestSpirit() in _startFreshGame+_startLoadedGame, save/load fields (state.forestSpirit ?? null).\nAdded _forestSpiritSection() render + spirit-pact/spirit-wisdom/spirit-tribute handlers to questPanel.js (import * as Spirit). Events.FOREST_SPIRIT_CHANGED subscribed.\nAdded T268 spirit CSS: @keyframes spirit-pulse (teal/mint with glow), .spirit-section--active, .btn--spirit-pact (mint), .btn--spirit-wisdom (violet), .btn--spirit-tribute (rose).\nAlso added missing T266 sage CSS to main.css (was noted in execution log as done but was absent from file): sage-pulse, .sage-section--active, .btn--sage-edict (amber), .btn--sage-study (violet), .btn--sage-host (green). Session 43."
     },
     {
       "id": "T269",
@@ -284,6 +284,24 @@
       "status": "done",
       "phase": 93,
       "notes": "Built seafaringExplorer.js. SEAFARING_EXPLORER_CHANGED event added to events.js. state.seafaringExplorer null field. Explorer section in questPanel.js (import * as Explorer). Events.SEAFARING_EXPLORER_CHANGED subscribed. CSS: @keyframes explorer-pulse (sky blue), .explorer-section--active, .btn--explorer-fund (sky), .btn--explorer-charts (green), .btn--explorer-provisions (rose). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T271",
+      "title": "Traveling Monk",
+      "description": "Stone Age+, 6+ tiles, 12-17 min spawn, 80s window. Seek Spiritual Guidance (free -> +10 prestige +8 morale +0.1 mana/s 2min), Make Generous Donation (30g -> +30 prestige +15 morale), Send on Their Way (dismiss).",
+      "priority": 271,
+      "status": "done",
+      "phase": 93,
+      "notes": "Built travelingMonk.js. TRAVELING_MONK_CHANGED event added to events.js. state.travelingMonk null field. Monk section in questPanel.js (import * as Monk). Events.TRAVELING_MONK_CHANGED subscribed. CSS: @keyframes monk-pulse (amber/gold), .monk-section--active, .btn--monk-guidance (amber), .btn--monk-donate (gold), .btn--monk-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T272",
+      "title": "Imperial Cartographer",
+      "description": "Bronze Age+, 10+ tiles, 14-19 min spawn, 80s window. Commission Survey (35g -> +0.15 stone/s 2.5min +20 prestige), Exchange Techniques (20 mana -> +25 prestige +10 morale), Bid Farewell (dismiss).",
+      "priority": 272,
+      "status": "done",
+      "phase": 93,
+      "notes": "Built imperialCartographer.js. IMPERIAL_CARTOGRAPHER_CHANGED event added to events.js. state.imperialCartographer null field. Cartographer section in questPanel.js (import * as ImpCarto). Events.IMPERIAL_CARTOGRAPHER_CHANGED subscribed. CSS: @keyframes carto-pulse (indigo/blue), .carto-section--active, .btn--carto-survey (indigo), .btn--carto-exchange (violet), .btn--carto-farewell (gray). Wired main.js: import, registerSystem, init x2, save/load."
     }
   ],
   "session_history": [
@@ -308,6 +326,7 @@
     "Session 19 (T156-T164): Ancient Guardian (T256), Desert Oasis (T257), Foreign Dignitary (T258), Lost Caravan (T259), Nomadic Scholar (T260), Royal Feast (T261), Wandering Blacksmith (T262), Traveling Astrologer (T263), Merchant Prince (T264)",
     "Session 20 (T165-T166): Quest Panel UI (T265), Wandering Sage (T266) — save version 100",
     "Session 21 (T167-T168): Master Forester (T267), Enchanted Forest Spirit (T268) — sage CSS hotfix",
-    "Session 22 (T169-T170): Wandering Alchemist (T269), Seafaring Explorer (T270)"
+    "Session 22 (T169-T170): Wandering Alchemist (T269), Seafaring Explorer (T270)",
+    "Session 23 (T171-T172): Traveling Monk (T271), Imperial Cartographer (T272)"
   ]
 }
