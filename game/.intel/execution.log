@@ -652,3 +652,17 @@ Built seafaringExplorer.js: fundExpedition (40g → +0.2 gold/s 2.5min +25 prest
 Wired in main.js: import initSeafaringExplorer+seafaringExplorerTick, registerSystem, initSeafaringExplorer() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _seafaringExplorerSection() render + explorer-fund/explorer-charts/explorer-provisions handlers to questPanel.js (import * as Explorer). Events.SEAFARING_EXPLORER_CHANGED subscribed.
 Added T270 explorer CSS: @keyframes explorer-pulse (sky blue), .explorer-section--active, .btn--explorer-fund (sky), .btn--explorer-charts (green), .btn--explorer-provisions (rose).
+
+Session 45 — T171–T172 (T271–T272): Traveling Monk, Imperial Cartographer.
+
+T171: Traveling Monk (T271) — Stone Age+, 6+ tiles, 12–17 min, 80s window.
+Built travelingMonk.js: seekSpiritualGuidance (free → +0.1 mana/s 2min +10 prestige +8 morale), makeGenerousDonation (30g → +30 prestige +15 morale), sendMonkAway (dismiss). Added TRAVELING_MONK_CHANGED event to events.js. state.travelingMonk null field.
+Wired in main.js: import initTravelingMonk+travelingMonkTick, registerSystem, initTravelingMonk() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _travelingMonkSection() render + monk-guidance/monk-donate/monk-away handlers to questPanel.js (import * as Monk). Events.TRAVELING_MONK_CHANGED subscribed.
+Added T271 monk CSS: @keyframes monk-pulse (amber/gold), .monk-section--active, .btn--monk-guidance (amber), .btn--monk-donate (gold), .btn--monk-away (gray).
+
+T172: Imperial Cartographer (T272) — Bronze Age+, 10+ tiles, 14–19 min, 80s window.
+Built imperialCartographer.js: commissionCartographerSurvey (35g → +0.15 stone/s 2.5min +20 prestige), exchangeCartographicTechniques (20 mana → +25 prestige +10 morale), bidCartographerFarewell (dismiss). Added IMPERIAL_CARTOGRAPHER_CHANGED event to events.js. state.imperialCartographer null field.
+Wired in main.js: import initImperialCartographer+imperialCartographerTick, registerSystem, initImperialCartographer() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _imperialCartographerSection() render + carto-survey/carto-exchange/carto-farewell handlers to questPanel.js (import * as ImpCarto). Events.IMPERIAL_CARTOGRAPHER_CHANGED subscribed.
+Added T272 cartographer CSS: @keyframes carto-pulse (indigo/blue), .carto-section--active, .btn--carto-survey (indigo), .btn--carto-exchange (violet), .btn--carto-farewell (gray).
