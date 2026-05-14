@@ -137,6 +137,7 @@ import { initRoyalFeast, royalFeastTick }               from './systems/royalFea
 import { initWanderingBlacksmith, wanderingBlacksmithTick } from './systems/wanderingBlacksmith.js';       // T262
 import { initTravelingAstrologer, travelingAstrologerTick } from './systems/travelingAstrologer.js'; // T263
 import { initMerchantPrince, merchantPrinceTick }           from './systems/merchantPrince.js';     // T264
+import { initWanderingSage, wanderingSageTick }             from './systems/wanderingSage.js';       // T266
 
 import { switchTab } from './ui/tabs.js';
 import { initSummaryPanel } from './ui/summaryPanel.js';
@@ -285,6 +286,7 @@ function boot() {
   registerSystem(wanderingBlacksmithTick); // T262
   registerSystem(travelingAstrologerTick); // T263
   registerSystem(merchantPrinceTick); // T264
+  registerSystem(wanderingSageTick);  // T266
 
   // ── Bind event listeners ─────────────────────────────────────────────────
   on(Events.TICK, () => {
@@ -479,6 +481,7 @@ function boot() {
       initWanderingBlacksmith(); // T262
       initTravelingAstrologer(); // T263
       initMerchantPrince(); // T264
+      initWanderingSage();  // T266
       _applySave(s);
       addMessage('Save loaded.', 'info');
     } catch (e) {
@@ -665,6 +668,7 @@ function _startFreshGame() {
   initWanderingBlacksmith(); // T262
   initTravelingAstrologer(); // T263
   initMerchantPrince(); // T264
+  initWanderingSage();  // T266
 }
 
 // ---------------------------------------------------------------------------
@@ -822,6 +826,7 @@ function _save() {
       wanderingBlacksmith: state.wanderingBlacksmith, // T262
       travelingAstrologer: state.travelingAstrologer, // T263
       merchantPrince:      state.merchantPrince,      // T264
+      wanderingSage:       state.wanderingSage,       // T266
     };
     localStorage.setItem('empireos-save', JSON.stringify(s));
   } catch (e) {
@@ -983,6 +988,7 @@ function _applySave(s) {
   state.wanderingBlacksmith  = s.wanderingBlacksmith  ?? null; // T262
   state.travelingAstrologer = s.travelingAstrologer ?? null; // T263
   state.merchantPrince      = s.merchantPrince      ?? null; // T264
+  state.wanderingSage       = s.wanderingSage       ?? null; // T266
 
   // Restore last-title-level sentinel so _checkTitle() doesn't re-fire old titles
   _lastTitleLevel = getCurrentTitle(state).level;

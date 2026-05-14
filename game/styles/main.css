@@ -16177,3 +16177,63 @@ kbd {
   text-align: left; transition: background 0.15s;
 }
 .btn--merchant-reception:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(252, 165, 165, 0.22), rgba(248, 113, 113, 0.15)); }
+
+/* ── T266: Wandering Sage Section ────────────────────────────────────────── */
+@keyframes sage-pulse {
+  0%, 100% { border-color: rgba(217, 119, 6, 0.30); }
+  50%       { border-color: rgba(217, 119, 6, 0.65); }
+}
+.sage-section--active {
+  background: linear-gradient(135deg, rgba(146, 64, 14, 0.10), rgba(120, 53, 15, 0.06));
+  border: 1px solid rgba(217, 119, 6, 0.30);
+  border-radius: 8px; padding: 10px 12px; margin-bottom: 10px;
+  animation: sage-pulse 3.8s ease-in-out infinite;
+}
+.sage-header { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.sage-icon { font-size: 1.1rem; }
+.sage-title { flex: 1; font-weight: 600; font-size: 0.88rem; color: #fbbf24; }
+.sage-timer { font-size: 0.78rem; color: #fbbf24; font-variant-numeric: tabular-nums; }
+.sage-timer--urgent { color: #ef4444; animation: blink 0.8s step-start infinite; }
+.sage-desc { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; }
+.sage-actions { display: flex; flex-direction: column; gap: 5px; }
+.sage-cost { display: block; font-size: 0.70rem; color: #9ca3af; margin-top: 1px; }
+.btn--sage-edict {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(217, 119, 6, 0.12), rgba(180, 83, 9, 0.08));
+  border: 1px solid rgba(217, 119, 6, 0.30);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #fbbf24;
+  text-align: left; transition: background 0.15s;
+}
+.btn--sage-edict:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(217, 119, 6, 0.22), rgba(180, 83, 9, 0.15)); }
+.btn--sage-study {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(167, 139, 250, 0.12), rgba(139, 92, 246, 0.08));
+  border: 1px solid rgba(167, 139, 250, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #c4b5fd;
+  text-align: left; transition: background 0.15s;
+}
+.btn--sage-study:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(167, 139, 250, 0.22), rgba(139, 92, 246, 0.15)); }
+.btn--sage-host {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(134, 239, 172, 0.12), rgba(74, 222, 128, 0.08));
+  border: 1px solid rgba(134, 239, 172, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #86efac;
+  text-align: left; transition: background 0.15s;
+}
+.btn--sage-host:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(134, 239, 172, 0.22), rgba(74, 222, 128, 0.15)); }
+
+/* ── Quest Panel wrapper (T265) ─────────────────────────────────────────── */
+.quest-panel-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.encounters-header {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--accent);
+  padding: 8px 0 4px;
+  border-bottom: 1px solid var(--border);
+  margin-top: 4px;
+}

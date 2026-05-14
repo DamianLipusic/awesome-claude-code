@@ -4873,3 +4873,30 @@ commit (dd74989) and completed the T263/T264 wiring that the corrupted session w
   Added merchant-section CSS with gold/amber pulse animation + 3 button styles to main.css.
 
 Save version bumped 99 → 100 in main.js _save() (shared by T263 + T264).
+
+---
+
+## Session: 2026-05-14 — T265 + T266
+
+### T265: Implement questPanel.js — quests + all T249–T264 encounter UI sections
+  questPanel.js existed as a template placeholder `{{game/src/ui/questPanel.js}}` (invalid JS), crashing the Quests tab. Rewrote as a complete module.
+  Exports initQuestPanel() which:
+    - Builds quest progress section from QUESTS array (quests.js): icon, title, description, reward, completion badge.
+    - Renders 16 active-encounter sections for T249–T264 using namespace imports (* as Circus/Spring/Bard/Artisan/Hermit/Jubilee/Prince/Guardian/Oasis/Dignitary/Caravan/Scholar/Feast/Blacksmith/Astrologer/Merchant) to avoid constant name collisions.
+    - Each encounter section: pulsing card with countdown timer (urgent <10s), description, 3 action buttons with affordability checks, costs shown below buttons, disabled state styling.
+    - Click delegation: single listener on panel, _HANDLERS map keyed by data-action attribute.
+    - Re-renders on 17 encounter events (CIRCUS_CHANGED … MERCHANT_PRINCE_CHANGED) + every 4 ticks for timer countdown.
+  Added .quest-panel-inner and .encounters-header CSS to main.css.
+
+### T266: Wandering Sage encounter system
+  Created game/src/systems/wanderingSage.js — new Medieval Age+ periodic encounter.
+    - Requirements: age >= 3 (Medieval Age+), 12+ player-owned tiles, 16–21 min between spawns, 80-second decision window.
+    - Commission Imperial Edict: costs 40 gold + 20 mana → +0.3 gold/s + 0.1 mana/s for 3 min via randomEvents.activeModifiers + 30 prestige.
+    - Study Ancient Texts: costs 30 mana → +0.5 mana/s for 2.5 min via randomEvents.activeModifiers + 20 prestige.
+    - Offer Humble Hospitality: costs 25 food → +10 morale + 12 prestige.
+    - Departure without choice: sage departs gracefully after 80s, schedules next visit.
+  Added WANDERING_SAGE_CHANGED event to core/events.js.
+  Added wanderingSage: null property to state.js + initState() reset.
+  Wired in main.js: import, registerSystem(wanderingSageTick), initWanderingSage() in boot + _startFreshGame(), save/load in _save()/_applySave().
+  Added _wanderingSageSection() render + sage-edict/sage-study/sage-host click handlers to questPanel.js (import * as Sage).
+  Added T266 sage CSS to main.css: @keyframes sage-pulse (amber), .sage-section--active, header/icon/title/timer/desc/actions/cost, .btn--sage-edict (amber), .btn--sage-study (violet), .btn--sage-host (green).
