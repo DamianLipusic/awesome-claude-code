@@ -35,6 +35,8 @@ import * as Forester  from '../systems/masterForester.js';      // T267
 import * as Spirit    from '../systems/forestSpirit.js';        // T268
 import * as Alchemist from '../systems/wanderingAlchemist.js';  // T269
 import * as Explorer  from '../systems/seafaringExplorer.js';   // T270
+import * as Monk         from '../systems/travelingMonk.js';         // T271
+import * as ImpCarto     from '../systems/imperialCartographer.js';   // T272
 
 let _panel = null;
 
@@ -98,6 +100,8 @@ function _encountersSection() {
     _forestSpiritSection(),
     _wanderingAlchemistSection(),
     _seafaringExplorerSection(),
+    _travelingMonkSection(),
+    _imperialCartographerSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -811,6 +815,72 @@ function _seafaringExplorerSection() {
     </div>`;
 }
 
+// ── T271 Traveling Monk ──────────────────────────────────────────────
+
+function _travelingMonkSection() {
+  if (!Monk.getActiveTravelingMonk()) return '';
+  const secs         = Monk.getMonkSecsLeft();
+  const gold         = Math.floor(state.resources.gold ?? 0);
+  const canDonate    = gold >= Monk.DONATION_GOLD_COST;
+  const urg = secs <= 15 ? ' monk-timer--urgent' : '';
+  return `
+    <div class="monk-section--active">
+      <div class="monk-header">
+        <span class="monk-title">🙏 Traveling Monk</span>
+        <span class="monk-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="monk-desc">A wandering monk has arrived at the imperial gates seeking shelter and offering spiritual counsel to the ruler and their court.</div>
+      <div class="monk-actions">
+        <button class="btn--monk-guidance" data-action="monk-guidance">
+          🙏 Seek Spiritual Guidance — free
+          <span class="monk-cost">→ +${Monk.GUIDANCE_MANA_RATE} mana/s (2 min) · +${Monk.GUIDANCE_PRESTIGE_REWARD} prestige · +${Monk.GUIDANCE_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--monk-donate${canDonate ? '' : ' btn--disabled'}" data-action="monk-donate" ${canDonate ? '' : 'disabled'}>
+          💰 Make Generous Donation — ${Monk.DONATION_GOLD_COST}\u{1F4B0}
+          <span class="monk-cost">→ +${Monk.DONATION_PRESTIGE_REWARD} prestige · +${Monk.DONATION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--monk-away" data-action="monk-away">
+          👋 Send on Their Way
+          <span class="monk-cost">→ Monk continues their pilgrimage</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T272 Imperial Cartographer ──────────────────────────────────────
+
+function _imperialCartographerSection() {
+  if (!ImpCarto.getActiveImperialCartographer()) return '';
+  const secs         = ImpCarto.getCartographerSecsLeft();
+  const gold         = Math.floor(state.resources.gold ?? 0);
+  const mana         = Math.floor(state.resources.mana ?? 0);
+  const canSurvey    = gold >= ImpCarto.SURVEY_GOLD_COST;
+  const canExchange  = mana >= ImpCarto.EXCHANGE_MANA_COST;
+  const urg = secs <= 15 ? ' carto-timer--urgent' : '';
+  return `
+    <div class="carto-section--active">
+      <div class="carto-header">
+        <span class="carto-title">🗺️ Imperial Cartographer</span>
+        <span class="carto-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="carto-desc">A renowned imperial cartographer arrives bearing precise survey instruments and maps of surrounding territories. Their geographic knowledge could prove invaluable.</div>
+      <div class="carto-actions">
+        <button class="btn--carto-survey${canSurvey ? '' : ' btn--disabled'}" data-action="carto-survey" ${canSurvey ? '' : 'disabled'}>
+          🗺️ Commission Survey — ${ImpCarto.SURVEY_GOLD_COST}\u{1F4B0}
+          <span class="carto-cost">→ +${ImpCarto.SURVEY_STONE_RATE} stone/s (2.5 min) · +${ImpCarto.SURVEY_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--carto-exchange${canExchange ? '' : ' btn--disabled'}" data-action="carto-exchange" ${canExchange ? '' : 'disabled'}>
+          📜 Exchange Techniques — ${ImpCarto.EXCHANGE_MANA_COST}✨
+          <span class="carto-cost">→ +${ImpCarto.EXCHANGE_PRESTIGE_REWARD} prestige · +${ImpCarto.EXCHANGE_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--carto-farewell" data-action="carto-farewell">
+          👋 Bid Farewell
+          <span class="carto-cost">→ Cartographer sets off to chart new lands</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -912,6 +982,14 @@ const _HANDLERS = {
   'explorer-fund':        () => Explorer.fundExpedition(),
   'explorer-charts':      () => Explorer.exchangeNavigationCharts(),
   'explorer-provisions':  () => Explorer.provideProvisions(),
+
+  'monk-guidance': () => Monk.seekSpiritualGuidance(),
+  'monk-donate':   () => Monk.makeGenerousDonation(),
+  'monk-away':     () => Monk.sendMonkAway(),
+
+  'carto-survey':   () => ImpCarto.commissionCartographerSurvey(),
+  'carto-exchange': () => ImpCarto.exchangeCartographicTechniques(),
+  'carto-farewell': () => ImpCarto.bidCartographerFarewell(),
 };
 
 function _handleClick(e) {
@@ -954,6 +1032,8 @@ export function initQuestPanel() {
     Events.FOREST_SPIRIT_CHANGED,
     Events.WANDERING_ALCHEMIST_CHANGED,
     Events.SEAFARING_EXPLORER_CHANGED,
+    Events.TRAVELING_MONK_CHANGED,
+    Events.IMPERIAL_CARTOGRAPHER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);
