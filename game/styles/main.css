@@ -1,1 +1,38 @@
-PLACEHOLDER_READ_FROM_FILE
+/* ═══════════════════════════════════════════════════════════════════════════
+   EmpireOS — Main Stylesheet
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Reset & base ────────────────────────────────────────────────────────── */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:          #0d1117;
+  --bg-panel:    #161b22;
+  --bg-card:     #1c2128;
+  --bg-card-h:   #252b34;
+  --border:      #30363d;
+  --border-h:    #58a6ff;
+  --text:        #e6edf3;
+  --text-dim:    #8b949e;
+  --accent:      #f0b429;
+  --accent-h:    #ffd166;
+  --green:       #3fb950;
+  --red:         #f85149;
+  --blue:        #58a6ff;
+  --purple:      #bc8cff;
+  --gold:        #f0b429;
+  --radius:      6px;
+  --radius-lg:   10px;
+  font-size: 14px;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
