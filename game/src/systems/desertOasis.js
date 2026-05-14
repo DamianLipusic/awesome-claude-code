@@ -50,7 +50,7 @@ export const OFFERING_PRESTIGE_REWARD = 30;
 export const OFFERING_FOOD_RATE      = 0.15; // +0.15 food/s
 export const OFFERING_DURATION_TICKS = 2 * 60 * TICKS_PER_SECOND; // 2 min
 
-// ── Init ──────────────────────────────────────────────────────────────────
+// ── Init ──────────────────────────────────────────────────────────────
 
 export function initDesertOasis() {
   if (!state.desertOasis) {
@@ -70,7 +70,7 @@ export function initDesertOasis() {
   if (state.desertOasis.totalOffered === undefined) state.desertOasis.totalOffered = 0;
 }
 
-// ── Tick ──────────────────────────────────────────────────────────────────
+// ── Tick ──────────────────────────────────────────────────────────────
 
 export function desertOasisTick() {
   const oa = state.desertOasis;
@@ -106,7 +106,7 @@ export function desertOasisTick() {
   addMessage('🌵 Scouts report a hidden oasis on the frontier! Fresh water and shade await. Respond within 80 seconds.', 'info');
 }
 
-// ── Public API ─────────────────────────────────────────────────────────────
+// ── Public API ──────────────────────────────────────────────────────────
 
 export function getActiveDesertOasis() {
   return state.desertOasis?.active ?? null;
@@ -212,7 +212,7 @@ export function offerOasisSacrifice() {
   return { ok: true };
 }
 
-// ── Internal helpers ──────────────────────────────────────────────────────
+// ── Internal helpers ────────────────────────────────────────────────
 
 function _nextSpawnTick() {
   return state.tick + SPAWN_MIN + Math.floor(Math.random() * SPAWN_RANGE);

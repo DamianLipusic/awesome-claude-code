@@ -36,7 +36,7 @@ export const BOOM_BUY_MULT  = 0.85;
 export const BUST_SELL_MULT = 0.85;
 export const BUST_BUY_MULT  = 1.15;
 
-// ── Init ──────────────────────────────────────────────────────────────────
+// ── Init ──────────────────────────────────────────────────────────────
 
 export function initEconomyCycle() {
   if (!state.economyCycle) {
@@ -53,7 +53,7 @@ export function initEconomyCycle() {
   if (state.economyCycle.totalCycles   === undefined) state.economyCycle.totalCycles   = 0;
 }
 
-// ── Tick ──────────────────────────────────────────────────────────────────
+// ── Tick ──────────────────────────────────────────────────────────────
 
 export function economyCycleTick() {
   const ec = state.economyCycle;
@@ -89,7 +89,7 @@ export function economyCycleTick() {
   }
 }
 
-// ── Public API ─────────────────────────────────────────────────────────────
+// ── Public API ──────────────────────────────────────────────────────────
 
 /** Returns 'boom', 'bust', or null. */
 export function getEconomyCyclePhase() {
@@ -121,7 +121,7 @@ export function getEconomyCycleNextSecs() {
   return Math.max(0, Math.ceil((ec.nextPhaseTick - state.tick) / TICKS_PER_SECOND));
 }
 
-// ── Internal helpers ──────────────────────────────────────────────────────
+// ── Internal helpers ────────────────────────────────────────────────
 
 function _nextTransitionTick() {
   return state.tick + TRANSITION_MIN + Math.floor(Math.random() * TRANSITION_RANGE);
