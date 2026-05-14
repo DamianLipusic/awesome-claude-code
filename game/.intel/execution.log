@@ -638,3 +638,17 @@ Wired forestSpirit.js into main.js: import initForestSpirit+forestSpiritTick, re
 Added _forestSpiritSection() render + spirit-pact/spirit-wisdom/spirit-tribute handlers to questPanel.js (import * as Spirit). Events.FOREST_SPIRIT_CHANGED subscribed.
 Added T268 spirit CSS: @keyframes spirit-pulse (teal/mint with glow), .spirit-section--active, .btn--spirit-pact (mint), .btn--spirit-wisdom (violet), .btn--spirit-tribute (rose).
 Also added missing T266 sage CSS to main.css (was noted in execution log as done but was absent from file): sage-pulse, .sage-section--active, .btn--sage-edict (amber), .btn--sage-study (violet), .btn--sage-host (green).
+
+Session 44 — T169–T170 (T269–T270): Wandering Alchemist, Seafaring Explorer.
+
+T169: Wandering Alchemist (T269) — Iron Age+, 10+ tiles, 14–18 min, 80s window.
+Built wanderingAlchemist.js: commissionTransmutation (30 iron + 20 stone → +80 gold +25 prestige), learnAlchemicalArts (25 mana → +0.15 mana/s 2.5min +15 prestige), offerLaboratorySpace (20 food → +10 morale +8 prestige). Added WANDERING_ALCHEMIST_CHANGED event to events.js. state.wanderingAlchemist null field.
+Wired in main.js: import initWanderingAlchemist+wanderingAlchemistTick, registerSystem, initWanderingAlchemist() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingAlchemistSection() render + alchemist-transmute/alchemist-arts/alchemist-lab handlers to questPanel.js (import * as Alchemist). Events.WANDERING_ALCHEMIST_CHANGED subscribed.
+Added T269 alchemist CSS: @keyframes alchemist-pulse (violet/purple), .alchemist-section--active, .btn--alchemist-transmute (violet), .btn--alchemist-arts (amber), .btn--alchemist-lab (teal).
+
+T170: Seafaring Explorer (T270) — Bronze Age+, 10+ tiles, 13–18 min, 75s window.
+Built seafaringExplorer.js: fundExpedition (40g → +0.2 gold/s 2.5min +25 prestige +8 morale), exchangeNavigationCharts (20 wood → +0.15 wood/s 2min +15 prestige), provideProvisions (20 food → +6 morale +5 prestige). Added SEAFARING_EXPLORER_CHANGED event to events.js. state.seafaringExplorer null field.
+Wired in main.js: import initSeafaringExplorer+seafaringExplorerTick, registerSystem, initSeafaringExplorer() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _seafaringExplorerSection() render + explorer-fund/explorer-charts/explorer-provisions handlers to questPanel.js (import * as Explorer). Events.SEAFARING_EXPLORER_CHANGED subscribed.
+Added T270 explorer CSS: @keyframes explorer-pulse (sky blue), .explorer-section--active, .btn--explorer-fund (sky), .btn--explorer-charts (green), .btn--explorer-provisions (rose).

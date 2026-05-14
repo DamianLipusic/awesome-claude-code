@@ -16307,3 +16307,89 @@ kbd {
   text-align: left; transition: background 0.15s;
 }
 .btn--spirit-tribute:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(252, 165, 165, 0.22), rgba(248, 113, 113, 0.15)); }
+
+/* ── T269: Wandering Alchemist Section ──────────────────────────────────── */
+@keyframes alchemist-pulse {
+  0%, 100% { border-color: rgba(196, 181, 253, 0.25); box-shadow: 0 0 6px rgba(196, 181, 253, 0.10); }
+  50%       { border-color: rgba(196, 181, 253, 0.55); box-shadow: 0 0 12px rgba(196, 181, 253, 0.22); }
+}
+.alchemist-section--active {
+  background: linear-gradient(135deg, rgba(46, 16, 101, 0.14), rgba(76, 29, 149, 0.08));
+  border: 1px solid rgba(196, 181, 253, 0.25);
+  border-radius: 8px; padding: 10px 12px; margin-bottom: 10px;
+  animation: alchemist-pulse 3.8s ease-in-out infinite;
+}
+.alchemist-header { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.alchemist-title { flex: 1; font-weight: 600; font-size: 0.88rem; color: #c4b5fd; }
+.alchemist-timer { font-size: 0.78rem; color: #c4b5fd; font-variant-numeric: tabular-nums; }
+.alchemist-timer--urgent { color: #ef4444; animation: blink 0.8s step-start infinite; }
+.alchemist-desc { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; }
+.alchemist-actions { display: flex; flex-direction: column; gap: 5px; }
+.alchemist-cost { display: block; font-size: 0.70rem; color: #9ca3af; margin-top: 1px; }
+.btn--alchemist-transmute {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(196, 181, 253, 0.12), rgba(167, 139, 250, 0.08));
+  border: 1px solid rgba(196, 181, 253, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #c4b5fd;
+  text-align: left; transition: background 0.15s;
+}
+.btn--alchemist-transmute:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(196, 181, 253, 0.22), rgba(167, 139, 250, 0.15)); }
+.btn--alchemist-arts {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.12), rgba(245, 158, 11, 0.08));
+  border: 1px solid rgba(251, 191, 36, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #fde68a;
+  text-align: left; transition: background 0.15s;
+}
+.btn--alchemist-arts:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(251, 191, 36, 0.22), rgba(245, 158, 11, 0.15)); }
+.btn--alchemist-lab {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(110, 231, 183, 0.12), rgba(52, 211, 153, 0.08));
+  border: 1px solid rgba(110, 231, 183, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #6ee7b7;
+  text-align: left; transition: background 0.15s;
+}
+.btn--alchemist-lab:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(110, 231, 183, 0.22), rgba(52, 211, 153, 0.15)); }
+
+/* ── T270: Seafaring Explorer Section ───────────────────────────────────── */
+@keyframes explorer-pulse {
+  0%, 100% { border-color: rgba(125, 211, 252, 0.25); box-shadow: 0 0 6px rgba(125, 211, 252, 0.10); }
+  50%       { border-color: rgba(125, 211, 252, 0.55); box-shadow: 0 0 12px rgba(125, 211, 252, 0.22); }
+}
+.explorer-section--active {
+  background: linear-gradient(135deg, rgba(7, 89, 133, 0.14), rgba(3, 105, 161, 0.08));
+  border: 1px solid rgba(125, 211, 252, 0.25);
+  border-radius: 8px; padding: 10px 12px; margin-bottom: 10px;
+  animation: explorer-pulse 3.6s ease-in-out infinite;
+}
+.explorer-header { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.explorer-title { flex: 1; font-weight: 600; font-size: 0.88rem; color: #7dd3fc; }
+.explorer-timer { font-size: 0.78rem; color: #7dd3fc; font-variant-numeric: tabular-nums; }
+.explorer-timer--urgent { color: #ef4444; animation: blink 0.8s step-start infinite; }
+.explorer-desc { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; }
+.explorer-actions { display: flex; flex-direction: column; gap: 5px; }
+.explorer-cost { display: block; font-size: 0.70rem; color: #9ca3af; margin-top: 1px; }
+.btn--explorer-fund {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(125, 211, 252, 0.12), rgba(56, 189, 248, 0.08));
+  border: 1px solid rgba(125, 211, 252, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #7dd3fc;
+  text-align: left; transition: background 0.15s;
+}
+.btn--explorer-fund:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(125, 211, 252, 0.22), rgba(56, 189, 248, 0.15)); }
+.btn--explorer-charts {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(74, 222, 128, 0.12), rgba(34, 197, 94, 0.08));
+  border: 1px solid rgba(74, 222, 128, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #86efac;
+  text-align: left; transition: background 0.15s;
+}
+.btn--explorer-charts:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(74, 222, 128, 0.22), rgba(34, 197, 94, 0.15)); }
+.btn--explorer-provisions {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(252, 165, 165, 0.12), rgba(248, 113, 113, 0.08));
+  border: 1px solid rgba(252, 165, 165, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #fca5a5;
+  text-align: left; transition: background 0.15s;
+}
+.btn--explorer-provisions:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(252, 165, 165, 0.22), rgba(248, 113, 113, 0.15)); }

@@ -210,6 +210,8 @@ import { initMerchantPrince, merchantPrinceTick } from './systems/merchantPrince
 import { initWanderingSage, wanderingSageTick } from './systems/wanderingSage.js';       // T266
 import { initMasterForester, masterForesterTick } from './systems/masterForester.js'; // T267
 import { initForestSpirit, forestSpiritTick }   from './systems/forestSpirit.js';     // T268
+import { initWanderingAlchemist, wanderingAlchemistTick } from './systems/wanderingAlchemist.js'; // T269
+import { initSeafaringExplorer, seafaringExplorerTick }   from './systems/seafaringExplorer.js';  // T270
 
 // ─── UI panels ────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -423,9 +425,11 @@ function _registerAllSystems() {
   registerSystem(wanderingBlacksmithTick);
   registerSystem(travelingAstrologerTick);
   registerSystem(merchantPrinceTick);
-  registerSystem(wanderingSageTick);    // T266
-  registerSystem(masterForesterTick);  // T267
-  registerSystem(forestSpiritTick);    // T268
+  registerSystem(wanderingSageTick);         // T266
+  registerSystem(masterForesterTick);       // T267
+  registerSystem(forestSpiritTick);         // T268
+  registerSystem(wanderingAlchemistTick);   // T269
+  registerSystem(seafaringExplorerTick);    // T270
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -624,9 +628,11 @@ function _save() {
     wanderingBlacksmith:  state.wanderingBlacksmith,
     travelingAstrologer:  state.travelingAstrologer,
     merchantPrince:       state.merchantPrince,
-    wanderingSage:        state.wanderingSage,       // T266
-    masterForester:       state.masterForester,     // T267
-    forestSpirit:         state.forestSpirit,       // T268
+    wanderingSage:        state.wanderingSage,           // T266
+    masterForester:       state.masterForester,         // T267
+    forestSpirit:         state.forestSpirit,           // T268
+    wanderingAlchemist:   state.wanderingAlchemist,     // T269
+    seafaringExplorer:    state.seafaringExplorer,      // T270
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -830,9 +836,11 @@ function _applySave(s) {
   state.wanderingBlacksmith   = s.wanderingBlacksmith   ?? state.wanderingBlacksmith;
   state.travelingAstrologer   = s.travelingAstrologer   ?? state.travelingAstrologer;
   state.merchantPrince        = s.merchantPrince        ?? state.merchantPrince;
-  state.wanderingSage         = s.wanderingSage ?? null;       // T266
-  state.masterForester        = s.masterForester ?? null;     // T267
-  state.forestSpirit          = s.forestSpirit ?? null;       // T268
+  state.wanderingSage         = s.wanderingSage ?? null;         // T266
+  state.masterForester        = s.masterForester ?? null;       // T267
+  state.forestSpirit          = s.forestSpirit ?? null;         // T268
+  state.wanderingAlchemist    = s.wanderingAlchemist ?? null;   // T269
+  state.seafaringExplorer     = s.seafaringExplorer ?? null;    // T270
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -1042,9 +1050,11 @@ function _startFreshGame() {
   initWanderingBlacksmith();
   initTravelingAstrologer();
   initMerchantPrince();
-  initWanderingSage();    // T266
-  initMasterForester();  // T267
-  initForestSpirit();    // T268
+  initWanderingSage();           // T266
+  initMasterForester();         // T267
+  initForestSpirit();           // T268
+  initWanderingAlchemist();     // T269
+  initSeafaringExplorer();      // T270
   initAchievements();
   initLeaderboard();
 }
@@ -1237,9 +1247,11 @@ function _startLoadedGame(savedData) {
   initWanderingBlacksmith();
   initTravelingAstrologer();
   initMerchantPrince();
-  initWanderingSage();    // T266
-  initMasterForester();  // T267
-  initForestSpirit();    // T268
+  initWanderingSage();           // T266
+  initMasterForester();         // T267
+  initForestSpirit();           // T268
+  initWanderingAlchemist();     // T269
+  initSeafaringExplorer();      // T270
   initAchievements();
   initLeaderboard();
 }

@@ -210,4 +210,6 @@ export const Events = Object.freeze({
   WANDERING_SAGE_CHANGED:     'wanderingSageChanged',              // T266: wandering sage spawned / edict / studied / hosted / expired
   MASTER_FORESTER_CHANGED:    'masterForesterChanged',             // T267: master forester spawned / commissioned / learned / lodged / expired
   FOREST_SPIRIT_CHANGED:      'forestSpiritChanged',               // T268: forest spirit spawned / pact / wisdom / tribute / expired
+  WANDERING_ALCHEMIST_CHANGED: 'wanderingAlchemistChanged',        // T269: alchemist spawned / transmuted / arts / lab / expired
+  SEAFARING_EXPLORER_CHANGED:  'seafaringExplorerChanged',         // T270: explorer spawned / funded / charts / provisioned / expired
 });

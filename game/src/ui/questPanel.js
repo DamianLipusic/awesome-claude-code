@@ -31,8 +31,10 @@ import * as Blacksmith from '../systems/wanderingBlacksmith.js'; // T262
 import * as Astrologer from '../systems/travelingAstrologer.js'; // T263
 import * as Merchant   from '../systems/merchantPrince.js';      // T264
 import * as Sage      from '../systems/wanderingSage.js';       // T266
-import * as Forester  from '../systems/masterForester.js';    // T267
-import * as Spirit    from '../systems/forestSpirit.js';      // T268
+import * as Forester  from '../systems/masterForester.js';      // T267
+import * as Spirit    from '../systems/forestSpirit.js';        // T268
+import * as Alchemist from '../systems/wanderingAlchemist.js';  // T269
+import * as Explorer  from '../systems/seafaringExplorer.js';   // T270
 
 let _panel = null;
 
@@ -94,6 +96,8 @@ function _encountersSection() {
     _wanderingSageSection(),
     _masterForesterSection(),
     _forestSpiritSection(),
+    _wanderingAlchemistSection(),
+    _seafaringExplorerSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -734,6 +738,79 @@ function _forestSpiritSection() {
     </div>`;
 }
 
+// ── T269 Wandering Alchemist ─────────────────────────────────────────────────
+
+function _wanderingAlchemistSection() {
+  if (!Alchemist.getActiveWanderingAlchemist()) return '';
+  const secs         = Alchemist.getAlchemistSecsLeft();
+  const iron         = Math.floor(state.resources.iron  ?? 0);
+  const stone        = Math.floor(state.resources.stone ?? 0);
+  const mana         = Math.floor(state.resources.mana  ?? 0);
+  const food         = Math.floor(state.resources.food  ?? 0);
+  const canTransmute = iron >= Alchemist.TRANSMUTE_IRON_COST && stone >= Alchemist.TRANSMUTE_STONE_COST;
+  const canArts      = mana >= Alchemist.ARTS_MANA_COST;
+  const canLab       = food >= Alchemist.LAB_FOOD_COST;
+  const urg = secs <= 15 ? ' alchemist-timer--urgent' : '';
+  return `
+    <div class="alchemist-section--active">
+      <div class="alchemist-header">
+        <span class="alchemist-title">⚗️ Wandering Alchemist</span>
+        <span class="alchemist-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="alchemist-desc">A wandering alchemist renowned for transmutation and arcane chemistry has arrived at the imperial gates. Their secrets could unlock great wealth.</div>
+      <div class="alchemist-actions">
+        <button class="btn--alchemist-transmute${canTransmute ? '' : ' btn--disabled'}" data-action="alchemist-transmute" ${canTransmute ? '' : 'disabled'}>
+          ⚗️ Commission Transmutation — ${Alchemist.TRANSMUTE_IRON_COST}⚙️ + ${Alchemist.TRANSMUTE_STONE_COST}\u{1FAA8}
+          <span class="alchemist-cost">→ +${Alchemist.TRANSMUTE_GOLD_REWARD} gold · +${Alchemist.TRANSMUTE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--alchemist-arts${canArts ? '' : ' btn--disabled'}" data-action="alchemist-arts" ${canArts ? '' : 'disabled'}>
+          🔮 Learn Alchemical Arts — ${Alchemist.ARTS_MANA_COST}✨
+          <span class="alchemist-cost">→ +${Alchemist.ARTS_MANA_RATE} mana/s (2.5 min) · +${Alchemist.ARTS_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--alchemist-lab${canLab ? '' : ' btn--disabled'}" data-action="alchemist-lab" ${canLab ? '' : 'disabled'}>
+          🏠 Offer Laboratory Space — ${Alchemist.LAB_FOOD_COST}\u{1F33E}
+          <span class="alchemist-cost">→ +${Alchemist.LAB_MORALE_REWARD} morale · +${Alchemist.LAB_PRESTIGE_REWARD} prestige</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T270 Seafaring Explorer ──────────────────────────────────────────────────
+
+function _seafaringExplorerSection() {
+  if (!Explorer.getActiveSeafaringExplorer()) return '';
+  const secs        = Explorer.getExplorerSecsLeft();
+  const gold        = Math.floor(state.resources.gold ?? 0);
+  const wood        = Math.floor(state.resources.wood ?? 0);
+  const food        = Math.floor(state.resources.food ?? 0);
+  const canFund     = gold >= Explorer.FUND_GOLD_COST;
+  const canCharts   = wood >= Explorer.CHARTS_WOOD_COST;
+  const canProvide  = food >= Explorer.PROVISIONS_FOOD_COST;
+  const urg = secs <= 15 ? ' explorer-timer--urgent' : '';
+  return `
+    <div class="explorer-section--active">
+      <div class="explorer-header">
+        <span class="explorer-title">⛵ Seafaring Explorer</span>
+        <span class="explorer-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="explorer-desc">A legendary seafaring explorer seeks imperial sponsorship for their next great voyage. They carry charts of uncharted waters and tales of distant riches.</div>
+      <div class="explorer-actions">
+        <button class="btn--explorer-fund${canFund ? '' : ' btn--disabled'}" data-action="explorer-fund" ${canFund ? '' : 'disabled'}>
+          ⛵ Fund Expedition — ${Explorer.FUND_GOLD_COST}\u{1F4B0}
+          <span class="explorer-cost">→ +${Explorer.FUND_GOLD_RATE} gold/s (2.5 min) · +${Explorer.FUND_PRESTIGE_REWARD} prestige · +${Explorer.FUND_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--explorer-charts${canCharts ? '' : ' btn--disabled'}" data-action="explorer-charts" ${canCharts ? '' : 'disabled'}>
+          🗺️ Exchange Navigation Charts — ${Explorer.CHARTS_WOOD_COST}\u{1FAB5}
+          <span class="explorer-cost">→ +${Explorer.CHARTS_WOOD_RATE} wood/s (2 min) · +${Explorer.CHARTS_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--explorer-provisions${canProvide ? '' : ' btn--disabled'}" data-action="explorer-provisions" ${canProvide ? '' : 'disabled'}>
+          🍖 Provide Provisions — ${Explorer.PROVISIONS_FOOD_COST}\u{1F33E}
+          <span class="explorer-cost">→ +${Explorer.PROVISIONS_MORALE_REWARD} morale · +${Explorer.PROVISIONS_PRESTIGE_REWARD} prestige</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -827,6 +904,14 @@ const _HANDLERS = {
   'spirit-pact':    () => Spirit.forgeForestPact(),
   'spirit-wisdom':  () => Spirit.requestAncientWisdom(),
   'spirit-tribute': () => Spirit.offerNaturesTribute(),
+
+  'alchemist-transmute': () => Alchemist.commissionTransmutation(),
+  'alchemist-arts':      () => Alchemist.learnAlchemicalArts(),
+  'alchemist-lab':       () => Alchemist.offerLaboratorySpace(),
+
+  'explorer-fund':        () => Explorer.fundExpedition(),
+  'explorer-charts':      () => Explorer.exchangeNavigationCharts(),
+  'explorer-provisions':  () => Explorer.provideProvisions(),
 };
 
 function _handleClick(e) {
@@ -867,6 +952,8 @@ export function initQuestPanel() {
     Events.WANDERING_SAGE_CHANGED,
     Events.MASTER_FORESTER_CHANGED,
     Events.FOREST_SPIRIT_CHANGED,
+    Events.WANDERING_ALCHEMIST_CHANGED,
+    Events.SEAFARING_EXPLORER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);
