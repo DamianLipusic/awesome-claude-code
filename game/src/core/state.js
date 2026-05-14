@@ -812,6 +812,12 @@ export const state = {
   //   nextSpawnTick: tick, totalVisits: number,
   //   totalDeals: number, totalExchanges: number, totalReceptions: number } | null
   merchantPrince: null,
+
+  // T266: Wandering Sage — periodic Medieval Age+ knowledge encounter (16-21 min, 80-sec window)
+  // { active: { expiresAt: tick } | null,
+  //   nextSpawnTick: tick, totalVisits: number,
+  //   totalEdicts: number, totalStudied: number, totalHosted: number } | null
+  wanderingSage: null,
 };
 
 /**
@@ -996,5 +1002,6 @@ export function initState(empireName = 'My Empire') {
   state.wanderingBlacksmith  = null; // T262: reset wandering blacksmith per game
   state.travelingAstrologer  = null; // T263: reset traveling astrologer per game
   state.merchantPrince       = null; // T264: reset merchant prince per game
+  state.wanderingSage        = null; // T266: reset wandering sage per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }
