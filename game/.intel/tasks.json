@@ -248,6 +248,24 @@
       "status": "done",
       "phase": 91,
       "notes": "Built wanderingSage.js. WANDERING_SAGE_CHANGED event. state.wanderingSage null field. Sage section added to questPanel.js. Sage CSS: sage-pulse animation, .sage-section--active, .btn--sage-edict (amber), .btn--sage-study (violet), .btn--sage-host (green). Save version: 100."
+    },
+    {
+      "id": "T267",
+      "title": "Master Forester",
+      "description": "Bronze Age+, 8+ tiles, 12-16 min spawn, 80s window. Commission Timber Works (30g -> +0.3 wood/s 2.5min +15 prestige), Learn Forest Techniques (20 food -> +0.2 wood/s 2min +10 morale), Offer Seasonal Lodging (free -> +8 morale +5 prestige).",
+      "priority": 267,
+      "status": "done",
+      "phase": 92,
+      "notes": "Built masterForester.js. MASTER_FORESTER_CHANGED event added to events.js. state.masterForester null field. Forester section in questPanel.js. Forester CSS (green theme). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T268",
+      "title": "Enchanted Forest Spirit",
+      "description": "Bronze Age+, 8+ tiles, 15-20 min spawn, 75s window. Forge Forest Pact (30 food + 20 mana -> +0.2 food/s 3min +20 prestige +8 morale), Request Ancient Wisdom (15 mana -> +0.1 mana/s 2min +12 prestige), Offer Nature's Tribute (20 food -> +12 morale +8 prestige). System file exists; wire into main.js + questPanel.js + CSS.",
+      "priority": 268,
+      "status": "done",
+      "phase": 92,
+      "notes": "forestSpirit.js already existed. Wired into main.js: import initForestSpirit+forestSpiritTick, registerSystem, init x2, save/load fields (state.forestSpirit ?? null).\nAdded _forestSpiritSection() render + spirit-pact/spirit-wisdom/spirit-tribute handlers to questPanel.js (import * as Spirit). Events.FOREST_SPIRIT_CHANGED subscribed.\nAdded T268 spirit CSS: @keyframes spirit-pulse (teal/mint with glow), .spirit-section--active, .btn--spirit-pact (mint), .btn--spirit-wisdom (violet), .btn--spirit-tribute (rose).\nAlso added missing T266 sage CSS to main.css (was noted in execution log as done but was absent from file): sage-pulse, .sage-section--active, .btn--sage-edict (amber), .btn--sage-study (violet), .btn--sage-host (green). Session 43."
     }
   ],
   "session_history": [
@@ -270,6 +288,7 @@
     "Session 17 (T145-T148): Economy Cycle (T245), Tribute Caravan (T246), Ancient Ore Vein (T247), Wandering Herbalist (T248)",
     "Session 18 (T149-T155): Traveling Circus (T249), Sacred Spring (T250), Wandering Bard (T251), Master Artisan (T252), Mountain Hermit (T253), Imperial Jubilee (T254), Exiled Prince (T255)",
     "Session 19 (T156-T164): Ancient Guardian (T256), Desert Oasis (T257), Foreign Dignitary (T258), Lost Caravan (T259), Nomadic Scholar (T260), Royal Feast (T261), Wandering Blacksmith (T262), Traveling Astrologer (T263), Merchant Prince (T264)",
-    "Session 20 (T165-T166): Quest Panel UI (T265), Wandering Sage (T266) — save version 100"
+    "Session 20 (T165-T166): Quest Panel UI (T265), Wandering Sage (T266) — save version 100",
+    "Session 21 (T167-T168): Master Forester (T267), Enchanted Forest Spirit (T268) — sage CSS hotfix"
   ]
 }
