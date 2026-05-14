@@ -16479,3 +16479,89 @@ kbd {
   text-align: left; transition: background 0.15s;
 }
 .btn--carto-farewell:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T273: Wandering Oracle Section ──────────────────────────────────────── */
+@keyframes oracle-pulse {
+  0%, 100% { border-color: rgba(216, 180, 254, 0.25); box-shadow: 0 0 6px rgba(216, 180, 254, 0.10); }
+  50%       { border-color: rgba(216, 180, 254, 0.60); box-shadow: 0 0 14px rgba(216, 180, 254, 0.28); }
+}
+.oracle-section--active {
+  background: linear-gradient(135deg, rgba(59, 7, 100, 0.14), rgba(88, 28, 135, 0.08));
+  border: 1px solid rgba(216, 180, 254, 0.25);
+  border-radius: 8px; padding: 10px 12px; margin-bottom: 10px;
+  animation: oracle-pulse 3.8s ease-in-out infinite;
+}
+.oracle-header { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.oracle-title { flex: 1; font-weight: 600; font-size: 0.88rem; color: #e9d5ff; }
+.oracle-timer { font-size: 0.78rem; color: #e9d5ff; font-variant-numeric: tabular-nums; }
+.oracle-timer--urgent { color: #ef4444; animation: blink 0.8s step-start infinite; }
+.oracle-desc { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; }
+.oracle-actions { display: flex; flex-direction: column; gap: 5px; }
+.oracle-cost { display: block; font-size: 0.70rem; color: #9ca3af; margin-top: 1px; }
+.btn--oracle-consult {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(216, 180, 254, 0.12), rgba(192, 132, 252, 0.08));
+  border: 1px solid rgba(216, 180, 254, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #e9d5ff;
+  text-align: left; transition: background 0.15s;
+}
+.btn--oracle-consult:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(216, 180, 254, 0.22), rgba(192, 132, 252, 0.15)); }
+.btn--oracle-prophecy {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(253, 230, 138, 0.12), rgba(252, 211, 77, 0.08));
+  border: 1px solid rgba(253, 230, 138, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #fde68a;
+  text-align: left; transition: background 0.15s;
+}
+.btn--oracle-prophecy:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(253, 230, 138, 0.22), rgba(252, 211, 77, 0.15)); }
+.btn--oracle-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #9ca3af;
+  text-align: left; transition: background 0.15s;
+}
+.btn--oracle-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T274: Royal Emissary Section ────────────────────────────────────────── */
+@keyframes emissary-pulse {
+  0%, 100% { border-color: rgba(134, 239, 172, 0.25); box-shadow: 0 0 6px rgba(134, 239, 172, 0.10); }
+  50%       { border-color: rgba(134, 239, 172, 0.55); box-shadow: 0 0 12px rgba(134, 239, 172, 0.22); }
+}
+.emissary-section--active {
+  background: linear-gradient(135deg, rgba(2, 44, 34, 0.14), rgba(6, 78, 59, 0.08));
+  border: 1px solid rgba(134, 239, 172, 0.25);
+  border-radius: 8px; padding: 10px 12px; margin-bottom: 10px;
+  animation: emissary-pulse 4.1s ease-in-out infinite;
+}
+.emissary-header { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.emissary-title { flex: 1; font-weight: 600; font-size: 0.88rem; color: #bbf7d0; }
+.emissary-timer { font-size: 0.78rem; color: #bbf7d0; font-variant-numeric: tabular-nums; }
+.emissary-timer--urgent { color: #ef4444; animation: blink 0.8s step-start infinite; }
+.emissary-desc { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; }
+.emissary-actions { display: flex; flex-direction: column; gap: 5px; }
+.emissary-cost { display: block; font-size: 0.70rem; color: #9ca3af; margin-top: 1px; }
+.btn--emissary-receive {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(134, 239, 172, 0.12), rgba(74, 222, 128, 0.08));
+  border: 1px solid rgba(134, 239, 172, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #bbf7d0;
+  text-align: left; transition: background 0.15s;
+}
+.btn--emissary-receive:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(134, 239, 172, 0.22), rgba(74, 222, 128, 0.15)); }
+.btn--emissary-exchange {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(253, 230, 138, 0.12), rgba(252, 211, 77, 0.08));
+  border: 1px solid rgba(253, 230, 138, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #fde68a;
+  text-align: left; transition: background 0.15s;
+}
+.btn--emissary-exchange:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(253, 230, 138, 0.22), rgba(252, 211, 77, 0.15)); }
+.btn--emissary-decline {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #9ca3af;
+  text-align: left; transition: background 0.15s;
+}
+.btn--emissary-decline:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

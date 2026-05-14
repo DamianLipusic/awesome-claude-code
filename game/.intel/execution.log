@@ -666,3 +666,17 @@ Built imperialCartographer.js: commissionCartographerSurvey (35g → +0.15 stone
 Wired in main.js: import initImperialCartographer+imperialCartographerTick, registerSystem, initImperialCartographer() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _imperialCartographerSection() render + carto-survey/carto-exchange/carto-farewell handlers to questPanel.js (import * as ImpCarto). Events.IMPERIAL_CARTOGRAPHER_CHANGED subscribed.
 Added T272 cartographer CSS: @keyframes carto-pulse (indigo/blue), .carto-section--active, .btn--carto-survey (indigo), .btn--carto-exchange (violet), .btn--carto-farewell (gray).
+
+Session 46 — T173–T174 (T273–T274): Wandering Oracle, Royal Emissary.
+
+T173: Wandering Oracle (T273) — Medieval Age+, 10+ tiles, 15–20 min, 80s window.
+Built wanderingOracle.js: consultOracleVision (25 mana → +0.25 mana/s 2.5min +20 prestige +12 morale), purchaseOracleProphecy (40g → +30 prestige +0.15 gold/s 2min), sendOracleAway (dismiss). Added WANDERING_ORACLE_CHANGED event to events.js. state.wanderingOracle null field.
+Wired in main.js: import initWanderingOracle+wanderingOracleTick, registerSystem, initWanderingOracle() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingOracleSection() render + oracle-consult/oracle-prophecy/oracle-away handlers to questPanel.js (import * as Oracle). Events.WANDERING_ORACLE_CHANGED subscribed.
+Added T273 oracle CSS: @keyframes oracle-pulse (purple/violet with glow), .oracle-section--active, .btn--oracle-consult (violet), .btn--oracle-prophecy (amber), .btn--oracle-away (gray).
+
+T174: Royal Emissary (T274) — Bronze Age+, 8+ tiles, 13–18 min, 80s window.
+Built royalEmissary.js: receiveEmissaryDelegation (free → +15 prestige +10 morale +0.1 gold/s 2min), exchangeEmissaryTreaties (30g → +25 prestige +15 morale +0.12 iron/s 2.5min), declineRoyalEmissary (dismiss). Added ROYAL_EMISSARY_CHANGED event to events.js. state.royalEmissary null field.
+Wired in main.js: import initRoyalEmissary+royalEmissaryTick, registerSystem, initRoyalEmissary() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _royalEmissarySection() render + emissary-receive/emissary-exchange/emissary-decline handlers to questPanel.js (import * as Emissary). Events.ROYAL_EMISSARY_CHANGED subscribed.
+Added T274 emissary CSS: @keyframes emissary-pulse (green/emerald), .emissary-section--active, .btn--emissary-receive (green), .btn--emissary-exchange (amber), .btn--emissary-decline (gray).

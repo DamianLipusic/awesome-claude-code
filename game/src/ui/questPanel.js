@@ -37,6 +37,8 @@ import * as Alchemist from '../systems/wanderingAlchemist.js';  // T269
 import * as Explorer  from '../systems/seafaringExplorer.js';   // T270
 import * as Monk         from '../systems/travelingMonk.js';         // T271
 import * as ImpCarto     from '../systems/imperialCartographer.js';   // T272
+import * as Oracle       from '../systems/wanderingOracle.js';        // T273
+import * as Emissary     from '../systems/royalEmissary.js';          // T274
 
 let _panel = null;
 
@@ -102,6 +104,8 @@ function _encountersSection() {
     _seafaringExplorerSection(),
     _travelingMonkSection(),
     _imperialCartographerSection(),
+    _wanderingOracleSection(),
+    _royalEmissarySection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -881,6 +885,72 @@ function _imperialCartographerSection() {
     </div>`;
 }
 
+// ── T273 Wandering Oracle ────────────────────────────────────────────
+
+function _wanderingOracleSection() {
+  if (!Oracle.getActiveWanderingOracle()) return '';
+  const secs        = Oracle.getOracleSecsLeft();
+  const mana        = Math.floor(state.resources.mana ?? 0);
+  const gold        = Math.floor(state.resources.gold ?? 0);
+  const canConsult  = mana >= Oracle.CONSULT_MANA_COST;
+  const canProphecy = gold >= Oracle.PROPHECY_GOLD_COST;
+  const urg = secs <= 15 ? ' oracle-timer--urgent' : '';
+  return `
+    <div class="oracle-section--active">
+      <div class="oracle-header">
+        <span class="oracle-title">🔮 Wandering Oracle</span>
+        <span class="oracle-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="oracle-desc">A mysterious oracle cloaked in starlight has appeared at the imperial gates, offering visions and prophecies from beyond the veil.</div>
+      <div class="oracle-actions">
+        <button class="btn--oracle-consult${canConsult ? '' : ' btn--disabled'}" data-action="oracle-consult" ${canConsult ? '' : 'disabled'}>
+          🔮 Consult Vision — ${Oracle.CONSULT_MANA_COST}✨
+          <span class="oracle-cost">→ +${Oracle.CONSULT_MANA_RATE} mana/s (2.5 min) · +${Oracle.CONSULT_PRESTIGE_REWARD} prestige · +${Oracle.CONSULT_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--oracle-prophecy${canProphecy ? '' : ' btn--disabled'}" data-action="oracle-prophecy" ${canProphecy ? '' : 'disabled'}>
+          📜 Purchase Prophecy — ${Oracle.PROPHECY_GOLD_COST}💰
+          <span class="oracle-cost">→ +${Oracle.PROPHECY_PRESTIGE_REWARD} prestige · +${Oracle.PROPHECY_GOLD_RATE} gold/s (2 min)</span>
+        </button>
+        <button class="btn--oracle-away" data-action="oracle-away">
+          👋 Send Away
+          <span class="oracle-cost">→ Oracle dissolves into the morning mist</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T274 Royal Emissary ──────────────────────────────────────────────
+
+function _royalEmissarySection() {
+  if (!Emissary.getActiveRoyalEmissary()) return '';
+  const secs         = Emissary.getEmissarySecsLeft();
+  const gold         = Math.floor(state.resources.gold ?? 0);
+  const canExchange  = gold >= Emissary.EXCHANGE_GOLD_COST;
+  const urg = secs <= 15 ? ' emissary-timer--urgent' : '';
+  return `
+    <div class="emissary-section--active">
+      <div class="emissary-header">
+        <span class="emissary-title">🤝 Royal Emissary</span>
+        <span class="emissary-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="emissary-desc">A royal emissary bearing the seal of a distant realm arrives with letters of goodwill and diplomatic overtures for your empire.</div>
+      <div class="emissary-actions">
+        <button class="btn--emissary-receive" data-action="emissary-receive">
+          🤝 Receive Delegation — free
+          <span class="emissary-cost">→ +${Emissary.RECEIVE_PRESTIGE_REWARD} prestige · +${Emissary.RECEIVE_MORALE_REWARD} morale · +${Emissary.RECEIVE_GOLD_RATE} gold/s (2 min)</span>
+        </button>
+        <button class="btn--emissary-exchange${canExchange ? '' : ' btn--disabled'}" data-action="emissary-exchange" ${canExchange ? '' : 'disabled'}>
+          📋 Exchange Treaties — ${Emissary.EXCHANGE_GOLD_COST}💰
+          <span class="emissary-cost">→ +${Emissary.EXCHANGE_PRESTIGE_REWARD} prestige · +${Emissary.EXCHANGE_MORALE_REWARD} morale · +${Emissary.EXCHANGE_IRON_RATE} iron/s (2.5 min)</span>
+        </button>
+        <button class="btn--emissary-decline" data-action="emissary-decline">
+          👋 Politely Decline
+          <span class="emissary-cost">→ Emissary departs with diplomatic grace</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -990,6 +1060,14 @@ const _HANDLERS = {
   'carto-survey':   () => ImpCarto.commissionCartographerSurvey(),
   'carto-exchange': () => ImpCarto.exchangeCartographicTechniques(),
   'carto-farewell': () => ImpCarto.bidCartographerFarewell(),
+
+  'oracle-consult':  () => Oracle.consultOracleVision(),
+  'oracle-prophecy': () => Oracle.purchaseOracleProphecy(),
+  'oracle-away':     () => Oracle.sendOracleAway(),
+
+  'emissary-receive':  () => Emissary.receiveEmissaryDelegation(),
+  'emissary-exchange': () => Emissary.exchangeEmissaryTreaties(),
+  'emissary-decline':  () => Emissary.declineRoyalEmissary(),
 };
 
 function _handleClick(e) {
@@ -1034,6 +1112,8 @@ export function initQuestPanel() {
     Events.SEAFARING_EXPLORER_CHANGED,
     Events.TRAVELING_MONK_CHANGED,
     Events.IMPERIAL_CARTOGRAPHER_CHANGED,
+    Events.WANDERING_ORACLE_CHANGED,
+    Events.ROYAL_EMISSARY_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

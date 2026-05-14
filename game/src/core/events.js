@@ -214,4 +214,6 @@ export const Events = Object.freeze({
   SEAFARING_EXPLORER_CHANGED:  'seafaringExplorerChanged',         // T270: explorer spawned / funded / charts / provisioned / expired
   TRAVELING_MONK_CHANGED:      'travelingMonkChanged',             // T271: monk spawned / guidance / donated / dismissed / expired
   IMPERIAL_CARTOGRAPHER_CHANGED: 'imperialCartographerChanged',   // T272: cartographer spawned / surveyed / exchanged / dismissed / expired
+  WANDERING_ORACLE_CHANGED:      'wanderingOracleChanged',         // T273: oracle spawned / consulted / purchased / dismissed / expired
+  ROYAL_EMISSARY_CHANGED:        'royalEmissaryChanged',           // T274: emissary spawned / received / exchanged / dismissed / expired
 });

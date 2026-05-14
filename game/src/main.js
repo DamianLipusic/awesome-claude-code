@@ -214,6 +214,8 @@ import { initWanderingAlchemist, wanderingAlchemistTick } from './systems/wander
 import { initSeafaringExplorer, seafaringExplorerTick }   from './systems/seafaringExplorer.js';  // T270
 import { initTravelingMonk, travelingMonkTick }           from './systems/travelingMonk.js';        // T271
 import { initImperialCartographer, imperialCartographerTick } from './systems/imperialCartographer.js'; // T272
+import { initWanderingOracle, wanderingOracleTick }         from './systems/wanderingOracle.js';        // T273
+import { initRoyalEmissary, royalEmissaryTick }             from './systems/royalEmissary.js';          // T274
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -434,6 +436,8 @@ function _registerAllSystems() {
   registerSystem(seafaringExplorerTick);    // T270
   registerSystem(travelingMonkTick);        // T271
   registerSystem(imperialCartographerTick); // T272
+  registerSystem(wanderingOracleTick);     // T273
+  registerSystem(royalEmissaryTick);       // T274
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -639,6 +643,8 @@ function _save() {
     seafaringExplorer:    state.seafaringExplorer,      // T270
     travelingMonk:        state.travelingMonk,          // T271
     imperialCartographer: state.imperialCartographer,   // T272
+    wanderingOracle:      state.wanderingOracle,        // T273
+    royalEmissary:        state.royalEmissary,          // T274
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -849,6 +855,8 @@ function _applySave(s) {
   state.seafaringExplorer     = s.seafaringExplorer ?? null;    // T270
   state.travelingMonk         = s.travelingMonk ?? null;        // T271
   state.imperialCartographer  = s.imperialCartographer ?? null; // T272
+  state.wanderingOracle       = s.wanderingOracle ?? null;      // T273
+  state.royalEmissary         = s.royalEmissary ?? null;        // T274
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -1065,6 +1073,8 @@ function _startFreshGame() {
   initSeafaringExplorer();      // T270
   initTravelingMonk();          // T271
   initImperialCartographer();   // T272
+  initWanderingOracle();        // T273
+  initRoyalEmissary();          // T274
   initAchievements();
   initLeaderboard();
 }
@@ -1264,6 +1274,8 @@ function _startLoadedGame(savedData) {
   initSeafaringExplorer();      // T270
   initTravelingMonk();          // T271
   initImperialCartographer();   // T272
+  initWanderingOracle();        // T273
+  initRoyalEmissary();          // T274
   initAchievements();
   initLeaderboard();
 }

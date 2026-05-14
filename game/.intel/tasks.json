@@ -302,6 +302,24 @@
       "status": "done",
       "phase": 93,
       "notes": "Built imperialCartographer.js. IMPERIAL_CARTOGRAPHER_CHANGED event added to events.js. state.imperialCartographer null field. Cartographer section in questPanel.js (import * as ImpCarto). Events.IMPERIAL_CARTOGRAPHER_CHANGED subscribed. CSS: @keyframes carto-pulse (indigo/blue), .carto-section--active, .btn--carto-survey (indigo), .btn--carto-exchange (violet), .btn--carto-farewell (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T273",
+      "title": "Wandering Oracle",
+      "description": "Medieval Age+, 10+ tiles, 15-20 min spawn, 80s window. Consult Vision (25 mana -> +0.25 mana/s 2.5min +20 prestige +12 morale), Purchase Prophecy (40g -> +30 prestige +0.15 gold/s 2min), Send Away (dismiss).",
+      "priority": 273,
+      "status": "done",
+      "phase": 94,
+      "notes": "Built wanderingOracle.js. WANDERING_ORACLE_CHANGED event added to events.js. state.wanderingOracle null field. Oracle section in questPanel.js (import * as Oracle). Events.WANDERING_ORACLE_CHANGED subscribed. CSS: @keyframes oracle-pulse (purple/violet), .oracle-section--active, .btn--oracle-consult (violet), .btn--oracle-prophecy (amber), .btn--oracle-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T274",
+      "title": "Royal Emissary",
+      "description": "Bronze Age+, 8+ tiles, 13-18 min spawn, 80s window. Receive Delegation (free -> +15 prestige +10 morale +0.1 gold/s 2min), Exchange Treaties (30g -> +25 prestige +15 morale +0.12 iron/s 2.5min), Politely Decline (dismiss).",
+      "priority": 274,
+      "status": "done",
+      "phase": 94,
+      "notes": "Built royalEmissary.js. ROYAL_EMISSARY_CHANGED event added to events.js. state.royalEmissary null field. Emissary section in questPanel.js (import * as Emissary). Events.ROYAL_EMISSARY_CHANGED subscribed. CSS: @keyframes emissary-pulse (green/emerald), .emissary-section--active, .btn--emissary-receive (green), .btn--emissary-exchange (amber), .btn--emissary-decline (gray). Wired main.js: import, registerSystem, init x2, save/load."
     }
   ],
   "session_history": [
@@ -327,6 +345,7 @@
     "Session 20 (T165-T166): Quest Panel UI (T265), Wandering Sage (T266) — save version 100",
     "Session 21 (T167-T168): Master Forester (T267), Enchanted Forest Spirit (T268) — sage CSS hotfix",
     "Session 22 (T169-T170): Wandering Alchemist (T269), Seafaring Explorer (T270)",
-    "Session 23 (T171-T172): Traveling Monk (T271), Imperial Cartographer (T272)"
+    "Session 23 (T171-T172): Traveling Monk (T271), Imperial Cartographer (T272)",
+    "Session 24 (T173-T174): Wandering Oracle (T273), Royal Emissary (T274)"
   ]
 }
