@@ -320,6 +320,24 @@
       "status": "done",
       "phase": 94,
       "notes": "Built royalEmissary.js. ROYAL_EMISSARY_CHANGED event added to events.js. state.royalEmissary null field. Emissary section in questPanel.js (import * as Emissary). Events.ROYAL_EMISSARY_CHANGED subscribed. CSS: @keyframes emissary-pulse (green/emerald), .emissary-section--active, .btn--emissary-receive (green), .btn--emissary-exchange (amber), .btn--emissary-decline (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T275",
+      "title": "Wandering Tinker",
+      "description": "Iron Age+, 10+ tiles, 11-16 min spawn, 75s window. Commission Repairs (25 iron + 10 wood -> +0.15 iron/s 2.5min +18 prestige +8 morale), Purchase Crafted Tools (20g -> +15 iron +10 prestige), Send Away.",
+      "priority": 275,
+      "status": "done",
+      "phase": 95,
+      "notes": "Built wanderingTinker.js. WANDERING_TINKER_CHANGED event added to events.js. state.wanderingTinker null field. Tinker section in questPanel.js (import * as Tinker). Events.WANDERING_TINKER_CHANGED subscribed. CSS: @keyframes tinker-pulse (orange), .tinker-section--active, .btn--tinker-commission (orange), .btn--tinker-purchase (yellow), .btn--tinker-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T276",
+      "title": "Wandering Physician",
+      "description": "Bronze Age+, 8+ tiles, 13-18 min spawn, 80s window. Commission Treatments (35 food -> +20 morale +15 prestige +0.15 food/s 2.5min), Learn Medical Lore (20 mana -> +12 morale +8 prestige +0.1 mana/s 2min), Send Away.",
+      "priority": 276,
+      "status": "done",
+      "phase": 95,
+      "notes": "Built wanderingPhysician.js. WANDERING_PHYSICIAN_CHANGED event added to events.js. state.wanderingPhysician null field. Physician section in questPanel.js (import * as Physician). Events.WANDERING_PHYSICIAN_CHANGED subscribed. CSS: @keyframes physician-pulse (rose/red), .physician-section--active, .btn--physician-treat (rose), .btn--physician-learn (violet), .btn--physician-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     }
   ],
   "session_history": [
@@ -346,6 +364,7 @@
     "Session 21 (T167-T168): Master Forester (T267), Enchanted Forest Spirit (T268) — sage CSS hotfix",
     "Session 22 (T169-T170): Wandering Alchemist (T269), Seafaring Explorer (T270)",
     "Session 23 (T171-T172): Traveling Monk (T271), Imperial Cartographer (T272)",
-    "Session 24 (T173-T174): Wandering Oracle (T273), Royal Emissary (T274)"
+    "Session 24 (T173-T174): Wandering Oracle (T273), Royal Emissary (T274)",
+    "Session 25 (T175-T176): Wandering Tinker (T275), Wandering Physician (T276)"
   ]
 }

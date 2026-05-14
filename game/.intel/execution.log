@@ -680,3 +680,17 @@ Built royalEmissary.js: receiveEmissaryDelegation (free → +15 prestige +10 mor
 Wired in main.js: import initRoyalEmissary+royalEmissaryTick, registerSystem, initRoyalEmissary() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _royalEmissarySection() render + emissary-receive/emissary-exchange/emissary-decline handlers to questPanel.js (import * as Emissary). Events.ROYAL_EMISSARY_CHANGED subscribed.
 Added T274 emissary CSS: @keyframes emissary-pulse (green/emerald), .emissary-section--active, .btn--emissary-receive (green), .btn--emissary-exchange (amber), .btn--emissary-decline (gray).
+
+Session 47 — T175–T176 (T275–T276): Wandering Tinker, Wandering Physician.
+
+T175: Wandering Tinker (T275) — Iron Age+, 10+ tiles, 11–16 min, 75s window.
+Built wanderingTinker.js: commissionTinkerRepairs (25 iron + 10 wood → +0.15 iron/s 2.5min +18 prestige +8 morale), purchaseTinkerTools (20g → +15 iron +10 prestige), sendTinkerAway (dismiss). Added WANDERING_TINKER_CHANGED event to events.js. state.wanderingTinker null field.
+Wired in main.js: import initWanderingTinker+wanderingTinkerTick, registerSystem, initWanderingTinker() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingTinkerSection() render + tinker-commission/tinker-purchase/tinker-away handlers to questPanel.js (import * as Tinker). Events.WANDERING_TINKER_CHANGED subscribed.
+Added T275 tinker CSS: @keyframes tinker-pulse (orange), .tinker-section--active, .btn--tinker-commission (orange), .btn--tinker-purchase (yellow), .btn--tinker-away (gray).
+
+T176: Wandering Physician (T276) — Bronze Age+, 8+ tiles, 13–18 min, 80s window.
+Built wanderingPhysician.js: commissionPhysicianTreatments (35 food → +20 morale +15 prestige +0.15 food/s 2.5min), learnPhysicianLore (20 mana → +12 morale +8 prestige +0.1 mana/s 2min), sendPhysicianAway (dismiss). Added WANDERING_PHYSICIAN_CHANGED event to events.js. state.wanderingPhysician null field.
+Wired in main.js: import initWanderingPhysician+wanderingPhysicianTick, registerSystem, initWanderingPhysician() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingPhysicianSection() render + physician-treat/physician-learn/physician-away handlers to questPanel.js (import * as Physician). Events.WANDERING_PHYSICIAN_CHANGED subscribed.
+Added T276 physician CSS: @keyframes physician-pulse (rose/red), .physician-section--active, .btn--physician-treat (rose), .btn--physician-learn (violet), .btn--physician-away (gray).

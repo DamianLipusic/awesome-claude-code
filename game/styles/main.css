@@ -16565,3 +16565,89 @@ kbd {
   text-align: left; transition: background 0.15s;
 }
 .btn--emissary-decline:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T275 Wandering Tinker ─────────────────────────────────────────── */
+@keyframes tinker-pulse {
+  0%, 100% { border-color: rgba(251, 146, 60, 0.25); box-shadow: 0 0 6px rgba(251, 146, 60, 0.10); }
+  50%       { border-color: rgba(251, 146, 60, 0.55); box-shadow: 0 0 12px rgba(251, 146, 60, 0.22); }
+}
+.tinker-section--active {
+  background: linear-gradient(135deg, rgba(67, 20, 7, 0.14), rgba(124, 45, 18, 0.08));
+  border: 1px solid rgba(251, 146, 60, 0.25);
+  border-radius: 8px; padding: 10px 12px; margin-bottom: 10px;
+  animation: tinker-pulse 3.9s ease-in-out infinite;
+}
+.tinker-header { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.tinker-title { flex: 1; font-weight: 600; font-size: 0.88rem; color: #fed7aa; }
+.tinker-timer { font-size: 0.78rem; color: #fed7aa; font-variant-numeric: tabular-nums; }
+.tinker-timer--urgent { color: #ef4444; animation: blink 0.8s step-start infinite; }
+.tinker-desc { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; }
+.tinker-actions { display: flex; flex-direction: column; gap: 5px; }
+.tinker-cost { display: block; font-size: 0.70rem; color: #9ca3af; margin-top: 1px; }
+.btn--tinker-commission {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(251, 146, 60, 0.12), rgba(234, 88, 12, 0.08));
+  border: 1px solid rgba(251, 146, 60, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #fed7aa;
+  text-align: left; transition: background 0.15s;
+}
+.btn--tinker-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(251, 146, 60, 0.22), rgba(234, 88, 12, 0.15)); }
+.btn--tinker-purchase {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(253, 224, 71, 0.12), rgba(234, 179, 8, 0.08));
+  border: 1px solid rgba(253, 224, 71, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #fef08a;
+  text-align: left; transition: background 0.15s;
+}
+.btn--tinker-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(253, 224, 71, 0.22), rgba(234, 179, 8, 0.15)); }
+.btn--tinker-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #9ca3af;
+  text-align: left; transition: background 0.15s;
+}
+.btn--tinker-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T276 Wandering Physician ──────────────────────────────────────── */
+@keyframes physician-pulse {
+  0%, 100% { border-color: rgba(248, 113, 113, 0.25); box-shadow: 0 0 6px rgba(248, 113, 113, 0.10); }
+  50%       { border-color: rgba(248, 113, 113, 0.55); box-shadow: 0 0 12px rgba(248, 113, 113, 0.22); }
+}
+.physician-section--active {
+  background: linear-gradient(135deg, rgba(69, 10, 10, 0.14), rgba(127, 29, 29, 0.08));
+  border: 1px solid rgba(248, 113, 113, 0.25);
+  border-radius: 8px; padding: 10px 12px; margin-bottom: 10px;
+  animation: physician-pulse 4.0s ease-in-out infinite;
+}
+.physician-header { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.physician-title { flex: 1; font-weight: 600; font-size: 0.88rem; color: #fecaca; }
+.physician-timer { font-size: 0.78rem; color: #fecaca; font-variant-numeric: tabular-nums; }
+.physician-timer--urgent { color: #ef4444; animation: blink 0.8s step-start infinite; }
+.physician-desc { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; }
+.physician-actions { display: flex; flex-direction: column; gap: 5px; }
+.physician-cost { display: block; font-size: 0.70rem; color: #9ca3af; margin-top: 1px; }
+.btn--physician-treat {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(248, 113, 113, 0.12), rgba(220, 38, 38, 0.08));
+  border: 1px solid rgba(248, 113, 113, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #fecaca;
+  text-align: left; transition: background 0.15s;
+}
+.btn--physician-treat:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(248, 113, 113, 0.22), rgba(220, 38, 38, 0.15)); }
+.btn--physician-learn {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(167, 139, 250, 0.12), rgba(139, 92, 246, 0.08));
+  border: 1px solid rgba(167, 139, 250, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #ddd6fe;
+  text-align: left; transition: background 0.15s;
+}
+.btn--physician-learn:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(167, 139, 250, 0.22), rgba(139, 92, 246, 0.15)); }
+.btn--physician-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #9ca3af;
+  text-align: left; transition: background 0.15s;
+}
+.btn--physician-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

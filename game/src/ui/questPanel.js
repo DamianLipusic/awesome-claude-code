@@ -39,6 +39,8 @@ import * as Monk         from '../systems/travelingMonk.js';         // T271
 import * as ImpCarto     from '../systems/imperialCartographer.js';   // T272
 import * as Oracle       from '../systems/wanderingOracle.js';        // T273
 import * as Emissary     from '../systems/royalEmissary.js';          // T274
+import * as Tinker       from '../systems/wanderingTinker.js';        // T275
+import * as Physician    from '../systems/wanderingPhysician.js';     // T276
 
 let _panel = null;
 
@@ -106,6 +108,8 @@ function _encountersSection() {
     _imperialCartographerSection(),
     _wanderingOracleSection(),
     _royalEmissarySection(),
+    _wanderingTinkerSection(),
+    _wanderingPhysicianSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -951,6 +955,75 @@ function _royalEmissarySection() {
     </div>`;
 }
 
+// ── T275 Wandering Tinker ────────────────────────────────────────────
+
+function _wanderingTinkerSection() {
+  if (!Tinker.getActiveWanderingTinker()) return '';
+  const secs           = Tinker.getTinkerSecsLeft();
+  const iron           = Math.floor(state.resources.iron ?? 0);
+  const wood           = Math.floor(state.resources.wood ?? 0);
+  const gold           = Math.floor(state.resources.gold ?? 0);
+  const canCommission  = iron >= Tinker.COMMISSION_IRON_COST && wood >= Tinker.COMMISSION_WOOD_COST;
+  const canPurchase    = gold >= Tinker.PURCHASE_GOLD_COST;
+  const urg = secs <= 15 ? ' tinker-timer--urgent' : '';
+  return `
+    <div class="tinker-section--active">
+      <div class="tinker-header">
+        <span class="tinker-title">🔧 Wandering Tinker</span>
+        <span class="tinker-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="tinker-desc">A wandering tinker renowned for metalwork and craftsmanship arrives with a cart full of tools and spare parts, offering their expert services.</div>
+      <div class="tinker-actions">
+        <button class="btn--tinker-commission${canCommission ? '' : ' btn--disabled'}" data-action="tinker-commission" ${canCommission ? '' : 'disabled'}>
+          🔧 Commission Repairs — ${Tinker.COMMISSION_IRON_COST}⚙️ + ${Tinker.COMMISSION_WOOD_COST}🪵
+          <span class="tinker-cost">→ +${Tinker.COMMISSION_IRON_RATE} iron/s (2.5 min) · +${Tinker.COMMISSION_PRESTIGE_REWARD} prestige · +${Tinker.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--tinker-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="tinker-purchase" ${canPurchase ? '' : 'disabled'}>
+          🛠️ Purchase Crafted Tools — ${Tinker.PURCHASE_GOLD_COST}💰
+          <span class="tinker-cost">→ +${Tinker.PURCHASE_IRON_REWARD} iron · +${Tinker.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--tinker-away" data-action="tinker-away">
+          👋 Send Away
+          <span class="tinker-cost">→ Tinker moves on to the next settlement</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T276 Wandering Physician ──────────────────────────────────────────
+
+function _wanderingPhysicianSection() {
+  if (!Physician.getActiveWanderingPhysician()) return '';
+  const secs        = Physician.getPhysicianSecsLeft();
+  const food        = Math.floor(state.resources.food ?? 0);
+  const mana        = Math.floor(state.resources.mana ?? 0);
+  const canTreat    = food >= Physician.TREAT_FOOD_COST;
+  const canLearn    = mana >= Physician.LEARN_MANA_COST;
+  const urg = secs <= 15 ? ' physician-timer--urgent' : '';
+  return `
+    <div class="physician-section--active">
+      <div class="physician-header">
+        <span class="physician-title">💊 Wandering Physician</span>
+        <span class="physician-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="physician-desc">A wandering physician carrying medicinal herbs and ancient healing texts arrives at your capital, offering their medical expertise to your people.</div>
+      <div class="physician-actions">
+        <button class="btn--physician-treat${canTreat ? '' : ' btn--disabled'}" data-action="physician-treat" ${canTreat ? '' : 'disabled'}>
+          💊 Commission Treatments — ${Physician.TREAT_FOOD_COST}🌾
+          <span class="physician-cost">→ +${Physician.TREAT_MORALE_REWARD} morale · +${Physician.TREAT_PRESTIGE_REWARD} prestige · +${Physician.TREAT_FOOD_RATE} food/s (2.5 min)</span>
+        </button>
+        <button class="btn--physician-learn${canLearn ? '' : ' btn--disabled'}" data-action="physician-learn" ${canLearn ? '' : 'disabled'}>
+          📖 Learn Medical Lore — ${Physician.LEARN_MANA_COST}✨
+          <span class="physician-cost">→ +${Physician.LEARN_MORALE_REWARD} morale · +${Physician.LEARN_PRESTIGE_REWARD} prestige · +${Physician.LEARN_MANA_RATE} mana/s (2 min)</span>
+        </button>
+        <button class="btn--physician-away" data-action="physician-away">
+          👋 Send Away
+          <span class="physician-cost">→ Physician departs to help other settlements</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -1068,6 +1141,14 @@ const _HANDLERS = {
   'emissary-receive':  () => Emissary.receiveEmissaryDelegation(),
   'emissary-exchange': () => Emissary.exchangeEmissaryTreaties(),
   'emissary-decline':  () => Emissary.declineRoyalEmissary(),
+
+  'tinker-commission': () => Tinker.commissionTinkerRepairs(),
+  'tinker-purchase':   () => Tinker.purchaseTinkerTools(),
+  'tinker-away':       () => Tinker.sendTinkerAway(),
+
+  'physician-treat': () => Physician.commissionPhysicianTreatments(),
+  'physician-learn': () => Physician.learnPhysicianLore(),
+  'physician-away':  () => Physician.sendPhysicianAway(),
 };
 
 function _handleClick(e) {
@@ -1114,6 +1195,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_CARTOGRAPHER_CHANGED,
     Events.WANDERING_ORACLE_CHANGED,
     Events.ROYAL_EMISSARY_CHANGED,
+    Events.WANDERING_TINKER_CHANGED,
+    Events.WANDERING_PHYSICIAN_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);
