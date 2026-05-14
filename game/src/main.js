@@ -3,12 +3,12 @@
  * Wires together core engine, systems, and UI.
  */
 
-// ─── Core engine ─────────────────────────────────────────────────────────────
+// ─── Core engine ───────────────────────────────────────────────────────────────────────────────
 import { state, updateState }                  from './state.js';
 import { initEngine, tick, registerSystem }    from './engine.js';
 import { initUI, renderAll }                   from './ui.js';
 
-// ─── Utility / shared ────────────────────────────────────────────────────────
+// ─── Utility / shared ────────────────────────────────────────────────────────────────────────────
 import { logMessage }                          from './systems/messageLog.js';
 import { updateHUD }                           from './ui/hud.js';
 import { openTab, getActiveTab }               from './ui/tabs.js';
@@ -18,7 +18,7 @@ import { applyTheme, initSettings }            from './systems/settings.js';
 import { initMapCanvas, renderMap }            from './ui/mapCanvas.js';
 import { initMinimap }                         from './ui/minimap.js';
 
-// ─── Systems ──────────────────────────────────────────────────────────────────
+// ─── Systems ───────────────────────────────────────────────────────────────────────────────
 import { initResources, resourceTick }         from './systems/resources.js';
 import { initBuildings, buildingsTick }        from './systems/buildings.js';
 import { initResearch, researchTick }          from './systems/research.js';
@@ -212,8 +212,10 @@ import { initMasterForester, masterForesterTick } from './systems/masterForester
 import { initForestSpirit, forestSpiritTick }   from './systems/forestSpirit.js';     // T268
 import { initWanderingAlchemist, wanderingAlchemistTick } from './systems/wanderingAlchemist.js'; // T269
 import { initSeafaringExplorer, seafaringExplorerTick }   from './systems/seafaringExplorer.js';  // T270
+import { initTravelingMonk, travelingMonkTick }           from './systems/travelingMonk.js';        // T271
+import { initImperialCartographer, imperialCartographerTick } from './systems/imperialCartographer.js'; // T272
 
-// ─── UI panels ────────────────────────────────────────────────────────────────
+// ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
 import { renderResearchPanel }                 from './ui/researchPanel.js';
 import { renderMilitaryPanel }                 from './ui/militaryPanel.js';
@@ -227,18 +229,18 @@ import { renderSettingsPanel }                 from './ui/settingsPanel.js';
 import { renderLeaderboardPanel }              from './ui/leaderboardPanel.js';
 import { renderEmpireSummaryPanel }            from './ui/empireSummaryPanel.js';
 
-// ─── Constants ────────────────────────────────────────────────────────────────
+// ─── Constants ───────────────────────────────────────────────────────────────────────────────
 const TICK_MS          = 1000;
 const AUTOSAVE_TICKS   = 60;
 
-// ─── Module-level refs ───────────────────────────────────────────────────────
+// ─── Module-level refs ───────────────────────────────────────────────────────────────────────────
 let _tickInterval   = null;
 let _tickCount      = 0;
 let _paused         = false;
 let _gameOver       = false;
 let _saveSlot       = 'empireOS_save';
 
-// ─── System registration ─────────────────────────────────────────────────────
+// ─── System registration ───────────────────────────────────────────────────────────────────────────
 function _registerAllSystems() {
   registerSystem(resourceTick);
   registerSystem(buildingsTick);
@@ -430,11 +432,13 @@ function _registerAllSystems() {
   registerSystem(forestSpiritTick);         // T268
   registerSystem(wanderingAlchemistTick);   // T269
   registerSystem(seafaringExplorerTick);    // T270
+  registerSystem(travelingMonkTick);        // T271
+  registerSystem(imperialCartographerTick); // T272
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
 
-// ─── Save / Load ──────────────────────────────────────────────────────────────
+// ─── Save / Load ──────────────────────────────────────────────────────────────────────────────
 function _save() {
   const s = {
     version:              2,
@@ -633,6 +637,8 @@ function _save() {
     forestSpirit:         state.forestSpirit,           // T268
     wanderingAlchemist:   state.wanderingAlchemist,     // T269
     seafaringExplorer:    state.seafaringExplorer,      // T270
+    travelingMonk:        state.travelingMonk,          // T271
+    imperialCartographer: state.imperialCartographer,   // T272
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -841,6 +847,8 @@ function _applySave(s) {
   state.forestSpirit          = s.forestSpirit ?? null;         // T268
   state.wanderingAlchemist    = s.wanderingAlchemist ?? null;   // T269
   state.seafaringExplorer     = s.seafaringExplorer ?? null;    // T270
+  state.travelingMonk         = s.travelingMonk ?? null;        // T271
+  state.imperialCartographer  = s.imperialCartographer ?? null; // T272
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -862,7 +870,7 @@ function _loadSave() {
   }
 }
 
-// ─── Game lifecycle ───────────────────────────────────────────────────────────
+// ─── Game lifecycle ──────────────────────────────────────────────────────────────────────────────
 function _startFreshGame() {
   // Reset state to defaults handled by each system's init.
   initResources();
@@ -1055,6 +1063,8 @@ function _startFreshGame() {
   initForestSpirit();           // T268
   initWanderingAlchemist();     // T269
   initSeafaringExplorer();      // T270
+  initTravelingMonk();          // T271
+  initImperialCartographer();   // T272
   initAchievements();
   initLeaderboard();
 }
@@ -1252,11 +1262,13 @@ function _startLoadedGame(savedData) {
   initForestSpirit();           // T268
   initWanderingAlchemist();     // T269
   initSeafaringExplorer();      // T270
+  initTravelingMonk();          // T271
+  initImperialCartographer();   // T272
   initAchievements();
   initLeaderboard();
 }
 
-// ─── Tick loop ────────────────────────────────────────────────────────────────
+// ─── Tick loop ───────────────────────────────────────────────────────────────────────────────
 function _tickLoop() {
   if (_paused || _gameOver) return;
 
@@ -1270,7 +1282,7 @@ function _tickLoop() {
   }
 }
 
-// ─── Pause / Resume ───────────────────────────────────────────────────────────
+// ─── Pause / Resume ──────────────────────────────────────────────────────────────────────────────
 function _setPaused(paused) {
   _paused = paused;
   document.getElementById('pause-overlay')?.classList.toggle('hidden', !paused);
@@ -1280,7 +1292,7 @@ export function pauseGame()  { _setPaused(true);  }
 export function resumeGame() { _setPaused(false); }
 export function isPaused()   { return _paused; }
 
-// ─── Game Over ────────────────────────────────────────────────────────────────
+// ─── Game Over ───────────────────────────────────────────────────────────────────────────────
 export function triggerGameOver(reason = 'Your empire has fallen.') {
   if (_gameOver) return;
   _gameOver = true;
@@ -1294,7 +1306,7 @@ export function triggerGameOver(reason = 'Your empire has fallen.') {
   logMessage(`GAME OVER: ${reason}`, 'error');
 }
 
-// ─── New Game wizard ──────────────────────────────────────────────────────────
+// ─── New Game wizard ──────────────────────────────────────────────────────────────────────────────
 function _showNewGameWizard() {
   const wizard = document.getElementById('new-game-wizard');
   if (wizard) wizard.classList.remove('hidden');
@@ -1314,7 +1326,7 @@ export function startNewGame({ empireName, rulerName, difficulty }) {
   logMessage(`Welcome, ${rulerName}! Your empire of ${empireName} begins.`, 'success');
 }
 
-// ─── Continue from save ───────────────────────────────────────────────────────
+// ─── Continue from save ─────────────────────────────────────────────────────────────────────────────
 export function continueSave() {
   const raw = localStorage.getItem(_saveSlot);
   if (!raw) return;
@@ -1330,7 +1342,7 @@ export function continueSave() {
   }
 }
 
-// ─── Manual save / load UI helpers ───────────────────────────────────────────
+// ─── Manual save / load UI helpers ─────────────────────────────────────────────────────────────────────────
 export function manualSave() {
   _save();
   showToast('Game saved!');
@@ -1341,7 +1353,7 @@ export function deleteSave() {
   showToast('Save deleted. Refresh to start over.');
 }
 
-// ─── Settings ─────────────────────────────────────────────────────────────────
+// ─── Settings ────────────────────────────────────────────────────────────────────────────────────
 export function applySettings(settings) {
   applyTheme(settings.theme);
   // speed setting
@@ -1352,13 +1364,13 @@ export function applySettings(settings) {
   }
 }
 
-// ─── Tab navigation ───────────────────────────────────────────────────────────
+// ─── Tab navigation ───────────────────────────────────────────────────────────────────────────────
 export function navigateTo(tabId) {
   openTab(tabId);
   renderAll();
 }
 
-// ─── Boot ─────────────────────────────────────────────────────────────────────
+// ─── Boot ──────────────────────────────────────────────────────────────────────────────────────
 function boot() {
   // 1. Apply persisted settings (theme, etc.) before anything renders
   initSettings();
@@ -1407,7 +1419,7 @@ function boot() {
   updateHUD();
 }
 
-// ─── Entry point ──────────────────────────────────────────────────────────────
+// ─── Entry point ────────────────────────────────────────────────────────────────────────────────────
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', boot);
 } else {
