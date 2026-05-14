@@ -59,7 +59,7 @@ const ALIGNMENT_TYPES = [
   { id: 'red_star',         icon: '🌟', name: 'Red Star Rising',   desc: 'A brilliant red star appears in an unexpected quarter of the sky, unseen for generations.' },
 ];
 
-// ── Init ──────────────────────────────────────────────────────────────────
+// ── Init ──────────────────────────────────────────────────────────────
 
 export function initCosmicAlignment() {
   if (!state.cosmicAlignment) {
@@ -77,7 +77,7 @@ export function initCosmicAlignment() {
   if (state.cosmicAlignment.totalRitualed    === undefined) state.cosmicAlignment.totalRitualed    = 0;
 }
 
-// ── Tick ──────────────────────────────────────────────────────────────────
+// ── Tick ──────────────────────────────────────────────────────────────
 
 export function cosmicAlignmentTick() {
   const ca = state.cosmicAlignment;
@@ -131,7 +131,7 @@ export function cosmicAlignmentTick() {
   );
 }
 
-// ── Public API ─────────────────────────────────────────────────────────────
+// ── Public API ──────────────────────────────────────────────────────────
 
 /**
  * Observe the alignment — free; +20 prestige, reveal 3 tiles near capital.
@@ -224,7 +224,7 @@ export function getAlignmentSecsLeft() {
   return Math.max(0, Math.ceil((a.expiresAt - state.tick) / TICKS_PER_SECOND));
 }
 
-// ── Internal helpers ──────────────────────────────────────────────────────
+// ── Internal helpers ────────────────────────────────────────────────
 
 function _nextSpawnTick() {
   return state.tick + SPAWN_MIN + Math.floor(Math.random() * SPAWN_RANGE);

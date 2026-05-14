@@ -43,7 +43,7 @@ export const COMMISSION_IRON_REWARD  = 140;
 export const COMMISSION_STONE_REWARD = 80;
 export const COMMISSION_PRESTIGE     = 10;
 
-// ── Init ──────────────────────────────────────────────────────────────────
+// ── Init ──────────────────────────────────────────────────────────────
 
 export function initOreVein() {
   if (!state.oreVein) {
@@ -61,7 +61,7 @@ export function initOreVein() {
   if (state.oreVein.totalCommissioned === undefined) state.oreVein.totalCommissioned = 0;
 }
 
-// ── Tick ──────────────────────────────────────────────────────────────────
+// ── Tick ──────────────────────────────────────────────────────────────
 
 export function oreVeinTick() {
   const ov = state.oreVein;
@@ -97,7 +97,7 @@ export function oreVeinTick() {
   addMessage('⛏️ Imperial miners have struck an ancient ore vein! Decide how to proceed — 75 seconds.', 'info');
 }
 
-// ── Public API ─────────────────────────────────────────────────────────────
+// ── Public API ──────────────────────────────────────────────────────────
 
 export function getActiveOreVein() {
   return state.oreVein?.active ?? null;
@@ -176,7 +176,7 @@ export function sealOreVein() {
   return { ok: true };
 }
 
-// ── Internal helpers ──────────────────────────────────────────────────────
+// ── Internal helpers ────────────────────────────────────────────────
 
 function _nextSpawnTick() {
   return state.tick + SPAWN_MIN + Math.floor(Math.random() * SPAWN_RANGE);

@@ -51,7 +51,7 @@ export const RITUAL_DURATION_TICKS   = 3 * 60 * TICKS_PER_SECOND; // 3 min
 export const STANDFIRM_MORALE_REWARD   = 8;
 export const STANDFIRM_PRESTIGE_REWARD = 6;
 
-// ── Init ──────────────────────────────────────────────────────────────────
+// ── Init ──────────────────────────────────────────────────────────────
 
 export function initAncientGuardian() {
   if (!state.ancientGuardian) {
@@ -69,7 +69,7 @@ export function initAncientGuardian() {
   if (state.ancientGuardian.totalRituals    === undefined) state.ancientGuardian.totalRituals    = 0;
 }
 
-// ── Tick ──────────────────────────────────────────────────────────────────
+// ── Tick ──────────────────────────────────────────────────────────────
 
 export function ancientGuardianTick() {
   const ag = state.ancientGuardian;
@@ -105,7 +105,7 @@ export function ancientGuardianTick() {
   addMessage('🗿 An ancient stone guardian stirs at the empire\'s borders, awakened by your growing power! Respond within 75 seconds.', 'info');
 }
 
-// ── Public API ─────────────────────────────────────────────────────────────
+// ── Public API ──────────────────────────────────────────────────────────
 
 export function getActiveAncientGuardian() {
   return state.ancientGuardian?.active ?? null;
@@ -207,7 +207,7 @@ export function standFirmGuardian() {
   return { ok: true };
 }
 
-// ── Internal helpers ──────────────────────────────────────────────────────
+// ── Internal helpers ────────────────────────────────────────────────
 
 function _nextSpawnTick() {
   return state.tick + SPAWN_MIN + Math.floor(Math.random() * SPAWN_RANGE);
