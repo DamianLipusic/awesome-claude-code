@@ -212,4 +212,6 @@ export const Events = Object.freeze({
   FOREST_SPIRIT_CHANGED:      'forestSpiritChanged',               // T268: forest spirit spawned / pact / wisdom / tribute / expired
   WANDERING_ALCHEMIST_CHANGED: 'wanderingAlchemistChanged',        // T269: alchemist spawned / transmuted / arts / lab / expired
   SEAFARING_EXPLORER_CHANGED:  'seafaringExplorerChanged',         // T270: explorer spawned / funded / charts / provisioned / expired
+  TRAVELING_MONK_CHANGED:      'travelingMonkChanged',             // T271: monk spawned / guidance / donated / dismissed / expired
+  IMPERIAL_CARTOGRAPHER_CHANGED: 'imperialCartographerChanged',   // T272: cartographer spawned / surveyed / exchanged / dismissed / expired
 });
