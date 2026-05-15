@@ -356,6 +356,24 @@
       "status": "done",
       "phase": 96,
       "notes": "Built villageElderVisit.js. VILLAGE_ELDER_VISIT_CHANGED event added to events.js. state.villageElderVisit null field. Elder section in questPanel.js (import * as Elder). Events.VILLAGE_ELDER_VISIT_CHANGED subscribed. CSS: @keyframes elder-pulse (warm gold), .elder-section--active, .btn--elder-wisdom (gold), .btn--elder-hospitality (green), .btn--elder-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T279",
+      "title": "Wandering Scribe",
+      "description": "Medieval Age+, 10+ tiles, 14-19 min spawn, 80s window. Commission Imperial Codex (35 mana -> +0.15 mana/s 3min +22 prestige +8 morale), Purchase Rare Manuscripts (30g -> +0.12 gold/s 2.5min +18 prestige), Send Away.",
+      "priority": 279,
+      "status": "done",
+      "phase": 97,
+      "notes": "Built wanderingScribe.js. WANDERING_SCRIBE_CHANGED event added to events.js. state.wanderingScribe null field. Scribe section in questPanel.js (import * as Scribe). Events.WANDERING_SCRIBE_CHANGED subscribed. CSS: @keyframes scribe-pulse (blue), .scribe-section--active, .btn--scribe-codex (blue), .btn--scribe-manuscripts (teal), .btn--scribe-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T280",
+      "title": "Desert Trader",
+      "description": "Bronze Age+, 8+ tiles, 12-17 min spawn, 75s window. Arrange Caravan Deal (45g -> +0.25 gold/s 2.5min +20 prestige +10 morale), Exchange Exotic Goods (25 food + 15 wood -> +60 gold +15 prestige), Send Away.",
+      "priority": 280,
+      "status": "done",
+      "phase": 97,
+      "notes": "Built desertTrader.js. DESERT_TRADER_CHANGED event added to events.js. state.desertTrader null field. Trader section in questPanel.js (import * as DTrader). Events.DESERT_TRADER_CHANGED subscribed. CSS: @keyframes trader-pulse (amber/gold), .trader-section--active, .btn--trader-deal (amber), .btn--trader-exchange (rose), .btn--trader-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     }
   ],
   "session_history": [
@@ -384,6 +402,7 @@
     "Session 23 (T171-T172): Traveling Monk (T271), Imperial Cartographer (T272)",
     "Session 24 (T173-T174): Wandering Oracle (T273), Royal Emissary (T274)",
     "Session 25 (T175-T176): Wandering Tinker (T275), Wandering Physician (T276)",
-    "Session 26 (T177-T178): Wandering Cartomancer (T277), Village Elder Visit (T278)"
+    "Session 26 (T177-T178): Wandering Cartomancer (T277), Village Elder Visit (T278)",
+    "Session 27 (T179-T180): Wandering Scribe (T279), Desert Trader (T280)"
   ]
 }

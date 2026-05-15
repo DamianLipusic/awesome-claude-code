@@ -220,6 +220,8 @@ import { initWanderingTinker, wanderingTinkerTick }         from './systems/wand
 import { initWanderingPhysician, wanderingPhysicianTick }   from './systems/wanderingPhysician.js';      // T276
 import { initWanderingCartomancer, wanderingCartomancerTick } from './systems/wanderingCartomancer.js';  // T277
 import { initVillageElderVisit, villageElderVisitTick }       from './systems/villageElderVisit.js';     // T278
+import { initWanderingScribe, wanderingScribeTick }           from './systems/wanderingScribe.js';        // T279
+import { initDesertTrader, desertTraderTick }                 from './systems/desertTrader.js';           // T280
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -446,6 +448,8 @@ function _registerAllSystems() {
   registerSystem(wanderingPhysicianTick);    // T276
   registerSystem(wanderingCartomancerTick);  // T277
   registerSystem(villageElderVisitTick);     // T278
+  registerSystem(wanderingScribeTick);       // T279
+  registerSystem(desertTraderTick);          // T280
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -657,6 +661,8 @@ function _save() {
     wanderingPhysician:    state.wanderingPhysician,       // T276
     wanderingCartomancer:  state.wanderingCartomancer,     // T277
     villageElderVisit:     state.villageElderVisit,        // T278
+    wanderingScribe:       state.wanderingScribe,          // T279
+    desertTrader:          state.desertTrader,             // T280
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -873,6 +879,8 @@ function _applySave(s) {
   state.wanderingPhysician     = s.wanderingPhysician ?? null;       // T276
   state.wanderingCartomancer   = s.wanderingCartomancer ?? null;     // T277
   state.villageElderVisit      = s.villageElderVisit ?? null;        // T278
+  state.wanderingScribe        = s.wanderingScribe ?? null;          // T279
+  state.desertTrader           = s.desertTrader ?? null;             // T280
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -1095,6 +1103,8 @@ function _startFreshGame() {
   initWanderingPhysician();       // T276
   initWanderingCartomancer();     // T277
   initVillageElderVisit();        // T278
+  initWanderingScribe();          // T279
+  initDesertTrader();             // T280
   initAchievements();
   initLeaderboard();
 }
@@ -1300,6 +1310,8 @@ function _startLoadedGame(savedData) {
   initWanderingPhysician();       // T276
   initWanderingCartomancer();     // T277
   initVillageElderVisit();        // T278
+  initWanderingScribe();          // T279
+  initDesertTrader();             // T280
   initAchievements();
   initLeaderboard();
 }

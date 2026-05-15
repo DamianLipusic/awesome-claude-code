@@ -220,4 +220,6 @@ export const Events = Object.freeze({
   WANDERING_PHYSICIAN_CHANGED:   'wanderingPhysicianChanged',       // T276: physician spawned / treated / learned / dismissed / expired
   WANDERING_CARTOMANCER_CHANGED: 'wanderingCartomancerChanged',     // T277: cartomancer spawned / mapped / exchanged / dismissed / expired
   VILLAGE_ELDER_VISIT_CHANGED:   'villageElderVisitChanged',        // T278: elder spawned / wisdom / hospitality / dismissed / expired
+  WANDERING_SCRIBE_CHANGED:      'wanderingScribeChanged',           // T279: scribe spawned / codex / manuscripts / dismissed / expired
+  DESERT_TRADER_CHANGED:         'desertTraderChanged',              // T280: trader spawned / deal / exchanged / dismissed / expired
 });

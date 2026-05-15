@@ -708,3 +708,17 @@ Built villageElderVisit.js: seekElderWisdom (free → +8 morale +6 prestige +0.0
 Wired in main.js: import initVillageElderVisit+villageElderVisitTick, registerSystem, initVillageElderVisit() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _villageElderVisitSection() render + elder-wisdom/elder-hospitality/elder-away handlers to questPanel.js (import * as Elder). Events.VILLAGE_ELDER_VISIT_CHANGED subscribed.
 Added T278 elder CSS: @keyframes elder-pulse (warm gold/ochre), .elder-section--active, .btn--elder-wisdom (gold), .btn--elder-hospitality (green), .btn--elder-away (gray).
+
+Session 49 — T179–T180 (T279–T280): Wandering Scribe, Desert Trader.
+
+T179: Wandering Scribe (T279) — Medieval Age+, 10+ tiles, 14–19 min, 80s window.
+Built wanderingScribe.js: commissionImperialCodex (35 mana → +0.15 mana/s 3min +22 prestige +8 morale), purchaseRareManuscripts (30g → +0.12 gold/s 2.5min +18 prestige), sendScribeAway (dismiss). Added WANDERING_SCRIBE_CHANGED event to events.js. state.wanderingScribe null field.
+Wired in main.js: import initWanderingScribe+wanderingScribeTick, registerSystem, initWanderingScribe() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingScribeSection() render + scribe-codex/scribe-manuscripts/scribe-away handlers to questPanel.js (import * as Scribe). Events.WANDERING_SCRIBE_CHANGED subscribed.
+Added T279 scribe CSS: @keyframes scribe-pulse (blue), .scribe-section--active, .btn--scribe-codex (blue), .btn--scribe-manuscripts (teal/green), .btn--scribe-away (gray).
+
+T180: Desert Trader (T280) — Bronze Age+, 8+ tiles, 12–17 min, 75s window.
+Built desertTrader.js: arrangeCaravanDeal (45g → +0.25 gold/s 2.5min +20 prestige +10 morale), exchangeExoticGoods (25 food + 15 wood → +60 gold +15 prestige), sendDesertTraderAway (dismiss). Added DESERT_TRADER_CHANGED event to events.js. state.desertTrader null field.
+Wired in main.js: import initDesertTrader+desertTraderTick, registerSystem, initDesertTrader() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _desertTraderSection() render + trader-deal/trader-exchange/trader-away handlers to questPanel.js (import * as DTrader). Events.DESERT_TRADER_CHANGED subscribed.
+Added T280 trader CSS: @keyframes trader-pulse (amber/gold), .trader-section--active, .btn--trader-deal (amber), .btn--trader-exchange (rose/pink), .btn--trader-away (gray).

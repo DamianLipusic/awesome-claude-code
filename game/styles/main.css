@@ -16737,3 +16737,89 @@ kbd {
   text-align: left; transition: background 0.15s;
 }
 .btn--elder-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T279 Wandering Scribe ───────────────────────────────────────────── */
+@keyframes scribe-pulse {
+  0%, 100% { border-color: rgba(96, 165, 250, 0.25); box-shadow: 0 0 6px rgba(96, 165, 250, 0.10); }
+  50%       { border-color: rgba(96, 165, 250, 0.55); box-shadow: 0 0 12px rgba(96, 165, 250, 0.22); }
+}
+.scribe-section--active {
+  background: linear-gradient(135deg, rgba(15, 30, 60, 0.18), rgba(30, 58, 138, 0.10));
+  border: 1px solid rgba(96, 165, 250, 0.25);
+  border-radius: 8px; padding: 10px 12px; margin-bottom: 10px;
+  animation: scribe-pulse 3.6s ease-in-out infinite;
+}
+.scribe-header { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.scribe-title { flex: 1; font-weight: 600; font-size: 0.88rem; color: #bfdbfe; }
+.scribe-timer { font-size: 0.78rem; color: #bfdbfe; font-variant-numeric: tabular-nums; }
+.scribe-timer--urgent { color: #ef4444; animation: blink 0.8s step-start infinite; }
+.scribe-desc { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; }
+.scribe-actions { display: flex; flex-direction: column; gap: 5px; }
+.scribe-cost { display: block; font-size: 0.70rem; color: #9ca3af; margin-top: 1px; }
+.btn--scribe-codex {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(96, 165, 250, 0.12), rgba(59, 130, 246, 0.08));
+  border: 1px solid rgba(96, 165, 250, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #bfdbfe;
+  text-align: left; transition: background 0.15s;
+}
+.btn--scribe-codex:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(96, 165, 250, 0.22), rgba(59, 130, 246, 0.15)); }
+.btn--scribe-manuscripts {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(167, 243, 208, 0.12), rgba(52, 211, 153, 0.08));
+  border: 1px solid rgba(167, 243, 208, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #a7f3d0;
+  text-align: left; transition: background 0.15s;
+}
+.btn--scribe-manuscripts:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(167, 243, 208, 0.22), rgba(52, 211, 153, 0.15)); }
+.btn--scribe-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #9ca3af;
+  text-align: left; transition: background 0.15s;
+}
+.btn--scribe-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T280 Desert Trader ──────────────────────────────────────────────── */
+@keyframes trader-pulse {
+  0%, 100% { border-color: rgba(251, 191, 36, 0.25); box-shadow: 0 0 6px rgba(251, 191, 36, 0.10); }
+  50%       { border-color: rgba(251, 191, 36, 0.55); box-shadow: 0 0 12px rgba(251, 191, 36, 0.22); }
+}
+.trader-section--active {
+  background: linear-gradient(135deg, rgba(60, 40, 10, 0.18), rgba(120, 78, 10, 0.10));
+  border: 1px solid rgba(251, 191, 36, 0.25);
+  border-radius: 8px; padding: 10px 12px; margin-bottom: 10px;
+  animation: trader-pulse 3.4s ease-in-out infinite;
+}
+.trader-header { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.trader-title { flex: 1; font-weight: 600; font-size: 0.88rem; color: #fde68a; }
+.trader-timer { font-size: 0.78rem; color: #fde68a; font-variant-numeric: tabular-nums; }
+.trader-timer--urgent { color: #ef4444; animation: blink 0.8s step-start infinite; }
+.trader-desc { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; }
+.trader-actions { display: flex; flex-direction: column; gap: 5px; }
+.trader-cost { display: block; font-size: 0.70rem; color: #9ca3af; margin-top: 1px; }
+.btn--trader-deal {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.12), rgba(217, 119, 6, 0.08));
+  border: 1px solid rgba(251, 191, 36, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #fde68a;
+  text-align: left; transition: background 0.15s;
+}
+.btn--trader-deal:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(251, 191, 36, 0.22), rgba(217, 119, 6, 0.15)); }
+.btn--trader-exchange {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(249, 168, 212, 0.12), rgba(236, 72, 153, 0.08));
+  border: 1px solid rgba(249, 168, 212, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #fbcfe8;
+  text-align: left; transition: background 0.15s;
+}
+.btn--trader-exchange:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(249, 168, 212, 0.22), rgba(236, 72, 153, 0.15)); }
+.btn--trader-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #9ca3af;
+  text-align: left; transition: background 0.15s;
+}
+.btn--trader-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

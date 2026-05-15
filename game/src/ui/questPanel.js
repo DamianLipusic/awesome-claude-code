@@ -43,6 +43,8 @@ import * as Tinker       from '../systems/wanderingTinker.js';         // T275
 import * as Physician    from '../systems/wanderingPhysician.js';      // T276
 import * as Cartomancer  from '../systems/wanderingCartomancer.js';    // T277
 import * as Elder        from '../systems/villageElderVisit.js';       // T278
+import * as Scribe       from '../systems/wanderingScribe.js';         // T279
+import * as DTrader      from '../systems/desertTrader.js';            // T280
 
 let _panel = null;
 
@@ -114,6 +116,8 @@ function _encountersSection() {
     _wanderingPhysicianSection(),
     _wanderingCartomancerSection(),
     _villageElderVisitSection(),
+    _wanderingScribeSection(),
+    _desertTraderSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -1094,6 +1098,75 @@ function _villageElderVisitSection() {
     </div>`;
 }
 
+// ── T279 Wandering Scribe ────────────────────────────────────────────────
+
+function _wanderingScribeSection() {
+  if (!Scribe.getActiveWanderingScribe()) return '';
+  const secs           = Scribe.getScribeSecsLeft();
+  const mana           = Math.floor(state.resources.mana ?? 0);
+  const gold           = Math.floor(state.resources.gold ?? 0);
+  const canCodex       = mana >= Scribe.CODEX_MANA_COST;
+  const canManuscripts = gold >= Scribe.MANUSCRIPTS_GOLD_COST;
+  const urg = secs <= 15 ? ' scribe-timer--urgent' : '';
+  return `
+    <div class="scribe-section--active">
+      <div class="scribe-header">
+        <span class="scribe-title">🖋️ Wandering Scribe</span>
+        <span class="scribe-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="scribe-desc">A wandering scribe bearing illuminated manuscripts and rare historical chronicles has arrived, their scholarly knowledge coveted by emperors across the known world.</div>
+      <div class="scribe-actions">
+        <button class="btn--scribe-codex${canCodex ? '' : ' btn--disabled'}" data-action="scribe-codex" ${canCodex ? '' : 'disabled'}>
+          🖋️ Commission Imperial Codex — ${Scribe.CODEX_MANA_COST}✨
+          <span class="scribe-cost">→ +${Scribe.CODEX_MANA_RATE} mana/s (3 min) · +${Scribe.CODEX_PRESTIGE_REWARD} prestige · +${Scribe.CODEX_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--scribe-manuscripts${canManuscripts ? '' : ' btn--disabled'}" data-action="scribe-manuscripts" ${canManuscripts ? '' : 'disabled'}>
+          📜 Purchase Rare Manuscripts — ${Scribe.MANUSCRIPTS_GOLD_COST}💰
+          <span class="scribe-cost">→ +${Scribe.MANUSCRIPTS_GOLD_RATE} gold/s (2.5 min) · +${Scribe.MANUSCRIPTS_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--scribe-away" data-action="scribe-away">
+          👋 Send Away
+          <span class="scribe-cost">→ Scribe continues to the next great library</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T280 Desert Trader ───────────────────────────────────────────────────
+
+function _desertTraderSection() {
+  if (!DTrader.getActiveDesertTrader()) return '';
+  const secs        = DTrader.getDesertTraderSecsLeft();
+  const gold        = Math.floor(state.resources.gold ?? 0);
+  const food        = Math.floor(state.resources.food ?? 0);
+  const wood        = Math.floor(state.resources.wood ?? 0);
+  const canDeal     = gold >= DTrader.DEAL_GOLD_COST;
+  const canExchange = food >= DTrader.EXCHANGE_FOOD_COST && wood >= DTrader.EXCHANGE_WOOD_COST;
+  const urg = secs <= 15 ? ' trader-timer--urgent' : '';
+  return `
+    <div class="trader-section--active">
+      <div class="trader-header">
+        <span class="trader-title">🐪 Desert Trader</span>
+        <span class="trader-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="trader-desc">A desert trader leading a magnificent camel caravan laden with exotic spices, silks, and rare goods from distant desert kingdoms has arrived at the imperial gates.</div>
+      <div class="trader-actions">
+        <button class="btn--trader-deal${canDeal ? '' : ' btn--disabled'}" data-action="trader-deal" ${canDeal ? '' : 'disabled'}>
+          🐪 Arrange Caravan Deal — ${DTrader.DEAL_GOLD_COST}💰
+          <span class="trader-cost">→ +${DTrader.DEAL_GOLD_RATE} gold/s (2.5 min) · +${DTrader.DEAL_PRESTIGE_REWARD} prestige · +${DTrader.DEAL_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--trader-exchange${canExchange ? '' : ' btn--disabled'}" data-action="trader-exchange" ${canExchange ? '' : 'disabled'}>
+          🏺 Exchange Exotic Goods — ${DTrader.EXCHANGE_FOOD_COST}🌾 + ${DTrader.EXCHANGE_WOOD_COST}🪵
+          <span class="trader-cost">→ +${DTrader.EXCHANGE_GOLD_REWARD} gold · +${DTrader.EXCHANGE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--trader-away" data-action="trader-away">
+          👋 Send Away
+          <span class="trader-cost">→ Trader leads their caravan onward</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -1227,6 +1300,14 @@ const _HANDLERS = {
   'elder-wisdom':      () => Elder.seekElderWisdom(),
   'elder-hospitality': () => Elder.offerElderHospitality(),
   'elder-away':        () => Elder.sendElderAway(),
+
+  'scribe-codex':       () => Scribe.commissionImperialCodex(),
+  'scribe-manuscripts': () => Scribe.purchaseRareManuscripts(),
+  'scribe-away':        () => Scribe.sendScribeAway(),
+
+  'trader-deal':     () => DTrader.arrangeCaravanDeal(),
+  'trader-exchange': () => DTrader.exchangeExoticGoods(),
+  'trader-away':     () => DTrader.sendDesertTraderAway(),
 };
 
 function _handleClick(e) {
@@ -1277,6 +1358,8 @@ export function initQuestPanel() {
     Events.WANDERING_PHYSICIAN_CHANGED,
     Events.WANDERING_CARTOMANCER_CHANGED,
     Events.VILLAGE_ELDER_VISIT_CHANGED,
+    Events.WANDERING_SCRIBE_CHANGED,
+    Events.DESERT_TRADER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);
