@@ -224,4 +224,6 @@ export const Events = Object.freeze({
   DESERT_TRADER_CHANGED:         'desertTraderChanged',              // T280: trader spawned / deal / exchanged / dismissed / expired
   WANDERING_GEMCUTTER_CHANGED:   'wanderingGemcutterChanged',        // T281: gemcutter spawned / commissioned / purchased / dismissed / expired
   FOREST_WARDEN_CHANGED:         'forestWardenChanged',              // T282: warden spawned / stewardship / lore / dismissed / expired
+  WANDERING_BEEKEEPER_CHANGED:   'wanderingBeekeeperChanged',         // T283: beekeeper spawned / apiary / traded / dismissed / expired
+  STONE_CARVER_CHANGED:          'stoneCarverChanged',                // T284: carver spawned / commission / exchange / dismissed / expired
 });

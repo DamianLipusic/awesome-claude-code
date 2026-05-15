@@ -736,3 +736,17 @@ Built forestWarden.js: grantForestStewardship (20 food → +0.25 wood/s 2.5min +
 Wired in main.js: import initForestWarden+forestWardenTick, registerSystem, initForestWarden() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _forestWardenSection() render + warden-steward/warden-lore/warden-away handlers to questPanel.js (import * as FWarden). Events.FOREST_WARDEN_CHANGED subscribed.
 Added T282 warden CSS: @keyframes warden-pulse (emerald green), .warden-section--active, .btn--warden-steward (emerald), .btn--warden-lore (light green), .btn--warden-away (gray).
+
+Session 51 — T183–T184 (T283–T284): Wandering Beekeeper, Stone Carver.
+
+T183: Wandering Beekeeper (T283) — Bronze Age+, 8+ tiles, 12–17 min, 80s window.
+Built wanderingBeekeeper.js: establishRoyalApiary (25 food → +0.2 food/s 2.5min +15 prestige +8 morale), tradeHoneyBeeswax (15g → +30 food +10 prestige), sendBeekeeperAway (dismiss). Added WANDERING_BEEKEEPER_CHANGED event to events.js. state.wanderingBeekeeper null field.
+Wired in main.js: import initWanderingBeekeeper+wanderingBeekeeperTick, registerSystem, initWanderingBeekeeper() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingBeekeeperSection() render + beekeeper-apiary/beekeeper-trade/beekeeper-away handlers to questPanel.js (import * as Beekeeper). Events.WANDERING_BEEKEEPER_CHANGED subscribed.
+Added T283 beekeeper CSS: @keyframes beekeeper-pulse (amber/yellow), .beekeeper-section--active, .btn--beekeeper-apiary (amber), .btn--beekeeper-trade (yellow), .btn--beekeeper-away (gray).
+
+T184: Stone Carver (T284) — Iron Age+, 10+ tiles, 14–19 min, 75s window.
+Built stoneCarver.js: commissionImperialReliefs (30 stone + 20g → +0.15 stone/s 2.5min +28 prestige +10 morale), exchangeCarvingTechniques (15 iron → +0.12 iron/s 2min +18 prestige), sendStoneCarverAway (dismiss). Added STONE_CARVER_CHANGED event to events.js. state.stoneCarver null field.
+Wired in main.js: import initStoneCarver+stoneCarverTick, registerSystem, initStoneCarver() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _stoneCarverSection() render + carver-commission/carver-exchange/carver-away handlers to questPanel.js (import * as SCarver). Events.STONE_CARVER_CHANGED subscribed.
+Added T284 carver CSS: @keyframes carver-pulse (violet/purple), .carver-section--active, .btn--carver-commission (violet), .btn--carver-exchange (light purple), .btn--carver-away (gray).

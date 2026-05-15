@@ -47,6 +47,8 @@ import * as Scribe       from '../systems/wanderingScribe.js';         // T279
 import * as DTrader      from '../systems/desertTrader.js';            // T280
 import * as Gemcutter    from '../systems/wanderingGemcutter.js';      // T281
 import * as FWarden      from '../systems/forestWarden.js';            // T282
+import * as Beekeeper   from '../systems/wanderingBeekeeper.js';      // T283
+import * as SCarver     from '../systems/stoneCarver.js';             // T284
 
 let _panel = null;
 
@@ -122,6 +124,8 @@ function _encountersSection() {
     _desertTraderSection(),
     _wanderingGemcutterSection(),
     _forestWardenSection(),
+    _wanderingBeekeeperSection(),
+    _stoneCarverSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -1240,6 +1244,75 @@ function _forestWardenSection() {
     </div>`;
 }
 
+// ── T283 Wandering Beekeeper ──────────────────────────────────────────────────
+
+function _wanderingBeekeeperSection() {
+  if (!Beekeeper.getActiveWanderingBeekeeper()) return '';
+  const secs       = Beekeeper.getBeekeeperSecsLeft();
+  const food       = Math.floor(state.resources.food ?? 0);
+  const gold       = Math.floor(state.resources.gold ?? 0);
+  const canApiary  = food >= Beekeeper.APIARY_FOOD_COST;
+  const canTrade   = gold >= Beekeeper.TRADE_GOLD_COST;
+  const urg = secs <= 15 ? ' beekeeper-timer--urgent' : '';
+  return `
+    <div class="beekeeper-section--active">
+      <div class="beekeeper-header">
+        <span class="beekeeper-title">🍯 Wandering Beekeeper</span>
+        <span class="beekeeper-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="beekeeper-desc">A wandering beekeeper arrives bearing fragrant honeycomb and knowledge of the ancient art of apiculture, offering to share the secrets of the hive with the empire.</div>
+      <div class="beekeeper-actions">
+        <button class="btn--beekeeper-apiary${canApiary ? '' : ' btn--disabled'}" data-action="beekeeper-apiary" ${canApiary ? '' : 'disabled'}>
+          🍯 Establish Royal Apiary — ${Beekeeper.APIARY_FOOD_COST}🌾
+          <span class="beekeeper-cost">→ +${Beekeeper.APIARY_FOOD_RATE} food/s (2.5 min) · +${Beekeeper.APIARY_PRESTIGE_REWARD} prestige · +${Beekeeper.APIARY_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--beekeeper-trade${canTrade ? '' : ' btn--disabled'}" data-action="beekeeper-trade" ${canTrade ? '' : 'disabled'}>
+          🌸 Trade Honey & Beeswax — ${Beekeeper.TRADE_GOLD_COST}💰
+          <span class="beekeeper-cost">→ +${Beekeeper.TRADE_FOOD_REWARD} food · +${Beekeeper.TRADE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--beekeeper-away" data-action="beekeeper-away">
+          👋 Send Away
+          <span class="beekeeper-cost">→ Beekeeper moves on to the next settlement</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T284 Stone Carver ─────────────────────────────────────────────────────────
+
+function _stoneCarverSection() {
+  if (!SCarver.getActiveStoneCarver()) return '';
+  const secs            = SCarver.getCarverSecsLeft();
+  const stone           = Math.floor(state.resources.stone ?? 0);
+  const gold            = Math.floor(state.resources.gold  ?? 0);
+  const iron            = Math.floor(state.resources.iron  ?? 0);
+  const canCommission   = stone >= SCarver.COMMISSION_STONE_COST && gold >= SCarver.COMMISSION_GOLD_COST;
+  const canExchange     = iron >= SCarver.EXCHANGE_IRON_COST;
+  const urg = secs <= 15 ? ' carver-timer--urgent' : '';
+  return `
+    <div class="carver-section--active">
+      <div class="carver-header">
+        <span class="carver-title">🗿 Stone Carver</span>
+        <span class="carver-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="carver-desc">A master stone carver renowned for imperial reliefs and decorative stonework has arrived, offering to immortalize the empire's glory in enduring stone.</div>
+      <div class="carver-actions">
+        <button class="btn--carver-commission${canCommission ? '' : ' btn--disabled'}" data-action="carver-commission" ${canCommission ? '' : 'disabled'}>
+          🗿 Commission Imperial Reliefs — ${SCarver.COMMISSION_STONE_COST}🪨 + ${SCarver.COMMISSION_GOLD_COST}💰
+          <span class="carver-cost">→ +${SCarver.COMMISSION_STONE_RATE} stone/s (2.5 min) · +${SCarver.COMMISSION_PRESTIGE_REWARD} prestige · +${SCarver.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--carver-exchange${canExchange ? '' : ' btn--disabled'}" data-action="carver-exchange" ${canExchange ? '' : 'disabled'}>
+          ⛏️ Exchange Carving Techniques — ${SCarver.EXCHANGE_IRON_COST}⚙️
+          <span class="carver-cost">→ +${SCarver.EXCHANGE_IRON_RATE} iron/s (2 min) · +${SCarver.EXCHANGE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--carver-away" data-action="carver-away">
+          👋 Send Away
+          <span class="carver-cost">→ Carver departs to seek worthy commissions elsewhere</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -1389,6 +1462,14 @@ const _HANDLERS = {
   'warden-steward': () => FWarden.grantForestStewardship(),
   'warden-lore':    () => FWarden.exchangeWoodlandLore(),
   'warden-away':    () => FWarden.sendForestWardenAway(),
+
+  'beekeeper-apiary': () => Beekeeper.establishRoyalApiary(),
+  'beekeeper-trade':  () => Beekeeper.tradeHoneyBeeswax(),
+  'beekeeper-away':   () => Beekeeper.sendBeekeeperAway(),
+
+  'carver-commission': () => SCarver.commissionImperialReliefs(),
+  'carver-exchange':   () => SCarver.exchangeCarvingTechniques(),
+  'carver-away':       () => SCarver.sendStoneCarverAway(),
 };
 
 function _handleClick(e) {
@@ -1443,6 +1524,8 @@ export function initQuestPanel() {
     Events.DESERT_TRADER_CHANGED,
     Events.WANDERING_GEMCUTTER_CHANGED,
     Events.FOREST_WARDEN_CHANGED,
+    Events.WANDERING_BEEKEEPER_CHANGED,
+    Events.STONE_CARVER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

@@ -16903,3 +16903,83 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--warden-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T283 Wandering Beekeeper ───────────────────────────────── */
+@keyframes beekeeper-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0); border-color: rgba(251, 191, 36, 0.35); }
+  50%       { box-shadow: 0 0 14px 3px rgba(251, 191, 36, 0.22); border-color: rgba(251, 191, 36, 0.62); }
+}
+.beekeeper-section--active {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.08), rgba(245, 158, 11, 0.06));
+  border: 1px solid rgba(251, 191, 36, 0.35); border-radius: 8px;
+  padding: 12px; margin-bottom: 10px;
+  animation: beekeeper-pulse 3.5s ease-in-out infinite;
+}
+.beekeeper-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.beekeeper-title  { font-size: 0.92rem; font-weight: 600; color: #fcd34d; }
+.beekeeper-timer  { font-size: 0.78rem; color: #fbbf24; background: rgba(251, 191, 36, 0.12); padding: 2px 7px; border-radius: 10px; }
+.beekeeper-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.15); }
+.beekeeper-desc   { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.beekeeper-actions { display: flex; flex-direction: column; gap: 6px; }
+.beekeeper-cost   { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--beekeeper-apiary {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.12), rgba(245, 158, 11, 0.08));
+  border: 1px solid rgba(251, 191, 36, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fcd34d; text-align: left; transition: background 0.15s;
+}
+.btn--beekeeper-apiary:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(251, 191, 36, 0.22), rgba(245, 158, 11, 0.15)); }
+.btn--beekeeper-trade {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(252, 211, 77, 0.12), rgba(217, 119, 6, 0.08));
+  border: 1px solid rgba(252, 211, 77, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fde68a; text-align: left; transition: background 0.15s;
+}
+.btn--beekeeper-trade:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(252, 211, 77, 0.22), rgba(217, 119, 6, 0.15)); }
+.btn--beekeeper-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--beekeeper-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T284 Stone Carver ──────────────────────────────────────── */
+@keyframes carver-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(167, 139, 250, 0); border-color: rgba(167, 139, 250, 0.35); }
+  50%       { box-shadow: 0 0 14px 3px rgba(167, 139, 250, 0.22); border-color: rgba(167, 139, 250, 0.62); }
+}
+.carver-section--active {
+  background: linear-gradient(135deg, rgba(167, 139, 250, 0.08), rgba(139, 92, 246, 0.06));
+  border: 1px solid rgba(167, 139, 250, 0.35); border-radius: 8px;
+  padding: 12px; margin-bottom: 10px;
+  animation: carver-pulse 3.5s ease-in-out infinite;
+}
+.carver-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.carver-title  { font-size: 0.92rem; font-weight: 600; color: #c4b5fd; }
+.carver-timer  { font-size: 0.78rem; color: #a78bfa; background: rgba(167, 139, 250, 0.12); padding: 2px 7px; border-radius: 10px; }
+.carver-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.15); }
+.carver-desc   { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.carver-actions { display: flex; flex-direction: column; gap: 6px; }
+.carver-cost   { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--carver-commission {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(167, 139, 250, 0.12), rgba(139, 92, 246, 0.08));
+  border: 1px solid rgba(167, 139, 250, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #c4b5fd; text-align: left; transition: background 0.15s;
+}
+.btn--carver-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(167, 139, 250, 0.22), rgba(139, 92, 246, 0.15)); }
+.btn--carver-exchange {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(196, 181, 253, 0.12), rgba(124, 58, 237, 0.08));
+  border: 1px solid rgba(196, 181, 253, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #ddd6fe; text-align: left; transition: background 0.15s;
+}
+.btn--carver-exchange:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(196, 181, 253, 0.22), rgba(124, 58, 237, 0.15)); }
+.btn--carver-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--carver-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
