@@ -694,3 +694,17 @@ Built wanderingPhysician.js: commissionPhysicianTreatments (35 food → +20 mora
 Wired in main.js: import initWanderingPhysician+wanderingPhysicianTick, registerSystem, initWanderingPhysician() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _wanderingPhysicianSection() render + physician-treat/physician-learn/physician-away handlers to questPanel.js (import * as Physician). Events.WANDERING_PHYSICIAN_CHANGED subscribed.
 Added T276 physician CSS: @keyframes physician-pulse (rose/red), .physician-section--active, .btn--physician-treat (rose), .btn--physician-learn (violet), .btn--physician-away (gray).
+
+Session 48 — T177–T178 (T277–T278): Wandering Cartomancer, Village Elder Visit.
+
+T177: Wandering Cartomancer (T277) — Medieval Age+, 10+ tiles, 14–19 min, 80s window.
+Built wanderingCartomancer.js: commissionCelestialMap (30 mana → +0.25 mana/s 2.5min +25 prestige), exchangeStellarKnowledge (20g → +0.15 gold/s 2min +18 prestige), sendCartomancerAway (dismiss). Added WANDERING_CARTOMANCER_CHANGED event to events.js. state.wanderingCartomancer null field.
+Wired in main.js: import initWanderingCartomancer+wanderingCartomancerTick, registerSystem, initWanderingCartomancer() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingCartomancerSection() render + carto2-map/carto2-exchange/carto2-away handlers to questPanel.js (import * as Cartomancer). Events.WANDERING_CARTOMANCER_CHANGED subscribed.
+Added T277 cartomancer CSS: @keyframes carto2-pulse (indigo/deep blue), .carto2-section--active, .btn--carto2-map (indigo), .btn--carto2-exchange (amber), .btn--carto2-away (gray).
+
+T178: Village Elder Visit (T278) — Stone Age+, 6+ tiles, 11–15 min, 80s window.
+Built villageElderVisit.js: seekElderWisdom (free → +8 morale +6 prestige +0.08 mana/s 2min), offerElderHospitality (25 food → +20 morale +15 prestige), sendElderAway (dismiss). Added VILLAGE_ELDER_VISIT_CHANGED event to events.js. state.villageElderVisit null field.
+Wired in main.js: import initVillageElderVisit+villageElderVisitTick, registerSystem, initVillageElderVisit() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _villageElderVisitSection() render + elder-wisdom/elder-hospitality/elder-away handlers to questPanel.js (import * as Elder). Events.VILLAGE_ELDER_VISIT_CHANGED subscribed.
+Added T278 elder CSS: @keyframes elder-pulse (warm gold/ochre), .elder-section--active, .btn--elder-wisdom (gold), .btn--elder-hospitality (green), .btn--elder-away (gray).

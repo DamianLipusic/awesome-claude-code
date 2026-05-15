@@ -218,4 +218,6 @@ export const Events = Object.freeze({
   ROYAL_EMISSARY_CHANGED:        'royalEmissaryChanged',           // T274: emissary spawned / received / exchanged / dismissed / expired
   WANDERING_TINKER_CHANGED:      'wanderingTinkerChanged',          // T275: tinker spawned / commissioned / purchased / dismissed / expired
   WANDERING_PHYSICIAN_CHANGED:   'wanderingPhysicianChanged',       // T276: physician spawned / treated / learned / dismissed / expired
+  WANDERING_CARTOMANCER_CHANGED: 'wanderingCartomancerChanged',     // T277: cartomancer spawned / mapped / exchanged / dismissed / expired
+  VILLAGE_ELDER_VISIT_CHANGED:   'villageElderVisitChanged',        // T278: elder spawned / wisdom / hospitality / dismissed / expired
 });

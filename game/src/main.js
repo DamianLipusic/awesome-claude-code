@@ -218,6 +218,8 @@ import { initWanderingOracle, wanderingOracleTick }         from './systems/wand
 import { initRoyalEmissary, royalEmissaryTick }             from './systems/royalEmissary.js';          // T274
 import { initWanderingTinker, wanderingTinkerTick }         from './systems/wanderingTinker.js';         // T275
 import { initWanderingPhysician, wanderingPhysicianTick }   from './systems/wanderingPhysician.js';      // T276
+import { initWanderingCartomancer, wanderingCartomancerTick } from './systems/wanderingCartomancer.js';  // T277
+import { initVillageElderVisit, villageElderVisitTick }       from './systems/villageElderVisit.js';     // T278
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -440,8 +442,10 @@ function _registerAllSystems() {
   registerSystem(imperialCartographerTick); // T272
   registerSystem(wanderingOracleTick);     // T273
   registerSystem(royalEmissaryTick);       // T274
-  registerSystem(wanderingTinkerTick);    // T275
-  registerSystem(wanderingPhysicianTick); // T276
+  registerSystem(wanderingTinkerTick);       // T275
+  registerSystem(wanderingPhysicianTick);    // T276
+  registerSystem(wanderingCartomancerTick);  // T277
+  registerSystem(villageElderVisitTick);     // T278
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -649,8 +653,10 @@ function _save() {
     imperialCartographer: state.imperialCartographer,   // T272
     wanderingOracle:      state.wanderingOracle,        // T273
     royalEmissary:        state.royalEmissary,          // T274
-    wanderingTinker:      state.wanderingTinker,        // T275
-    wanderingPhysician:   state.wanderingPhysician,     // T276
+    wanderingTinker:       state.wanderingTinker,          // T275
+    wanderingPhysician:    state.wanderingPhysician,       // T276
+    wanderingCartomancer:  state.wanderingCartomancer,     // T277
+    villageElderVisit:     state.villageElderVisit,        // T278
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -863,8 +869,10 @@ function _applySave(s) {
   state.imperialCartographer  = s.imperialCartographer ?? null; // T272
   state.wanderingOracle       = s.wanderingOracle ?? null;      // T273
   state.royalEmissary         = s.royalEmissary ?? null;        // T274
-  state.wanderingTinker       = s.wanderingTinker ?? null;      // T275
-  state.wanderingPhysician    = s.wanderingPhysician ?? null;   // T276
+  state.wanderingTinker        = s.wanderingTinker ?? null;          // T275
+  state.wanderingPhysician     = s.wanderingPhysician ?? null;       // T276
+  state.wanderingCartomancer   = s.wanderingCartomancer ?? null;     // T277
+  state.villageElderVisit      = s.villageElderVisit ?? null;        // T278
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -1083,8 +1091,10 @@ function _startFreshGame() {
   initImperialCartographer();   // T272
   initWanderingOracle();        // T273
   initRoyalEmissary();          // T274
-  initWanderingTinker();        // T275
-  initWanderingPhysician();     // T276
+  initWanderingTinker();          // T275
+  initWanderingPhysician();       // T276
+  initWanderingCartomancer();     // T277
+  initVillageElderVisit();        // T278
   initAchievements();
   initLeaderboard();
 }
@@ -1286,8 +1296,10 @@ function _startLoadedGame(savedData) {
   initImperialCartographer();   // T272
   initWanderingOracle();        // T273
   initRoyalEmissary();          // T274
-  initWanderingTinker();        // T275
-  initWanderingPhysician();     // T276
+  initWanderingTinker();          // T275
+  initWanderingPhysician();       // T276
+  initWanderingCartomancer();     // T277
+  initVillageElderVisit();        // T278
   initAchievements();
   initLeaderboard();
 }

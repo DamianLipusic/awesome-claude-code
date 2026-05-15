@@ -338,6 +338,24 @@
       "status": "done",
       "phase": 95,
       "notes": "Built wanderingPhysician.js. WANDERING_PHYSICIAN_CHANGED event added to events.js. state.wanderingPhysician null field. Physician section in questPanel.js (import * as Physician). Events.WANDERING_PHYSICIAN_CHANGED subscribed. CSS: @keyframes physician-pulse (rose/red), .physician-section--active, .btn--physician-treat (rose), .btn--physician-learn (violet), .btn--physician-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T277",
+      "title": "Wandering Cartomancer",
+      "description": "Medieval Age+, 10+ tiles, 14-19 min spawn, 80s window. Commission Celestial Map (30 mana -> +0.25 mana/s 2.5min +25 prestige), Exchange Stellar Knowledge (20g -> +0.15 gold/s 2min +18 prestige), Send Away.",
+      "priority": 277,
+      "status": "done",
+      "phase": 96,
+      "notes": "Built wanderingCartomancer.js. WANDERING_CARTOMANCER_CHANGED event added to events.js. state.wanderingCartomancer null field. Cartomancer section (carto2-* CSS namespace) in questPanel.js (import * as Cartomancer). Events.WANDERING_CARTOMANCER_CHANGED subscribed. CSS: @keyframes carto2-pulse (indigo), .carto2-section--active, .btn--carto2-map (indigo), .btn--carto2-exchange (amber), .btn--carto2-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T278",
+      "title": "Village Elder Visit",
+      "description": "Stone Age+, 6+ tiles, 11-15 min spawn, 80s window. Seek Ancient Wisdom (free -> +8 morale +6 prestige +0.08 mana/s 2min), Offer Generous Hospitality (25 food -> +20 morale +15 prestige), Send Them Off.",
+      "priority": 278,
+      "status": "done",
+      "phase": 96,
+      "notes": "Built villageElderVisit.js. VILLAGE_ELDER_VISIT_CHANGED event added to events.js. state.villageElderVisit null field. Elder section in questPanel.js (import * as Elder). Events.VILLAGE_ELDER_VISIT_CHANGED subscribed. CSS: @keyframes elder-pulse (warm gold), .elder-section--active, .btn--elder-wisdom (gold), .btn--elder-hospitality (green), .btn--elder-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     }
   ],
   "session_history": [
@@ -365,6 +383,7 @@
     "Session 22 (T169-T170): Wandering Alchemist (T269), Seafaring Explorer (T270)",
     "Session 23 (T171-T172): Traveling Monk (T271), Imperial Cartographer (T272)",
     "Session 24 (T173-T174): Wandering Oracle (T273), Royal Emissary (T274)",
-    "Session 25 (T175-T176): Wandering Tinker (T275), Wandering Physician (T276)"
+    "Session 25 (T175-T176): Wandering Tinker (T275), Wandering Physician (T276)",
+    "Session 26 (T177-T178): Wandering Cartomancer (T277), Village Elder Visit (T278)"
   ]
 }

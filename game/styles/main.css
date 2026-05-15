@@ -16651,3 +16651,89 @@ kbd {
   text-align: left; transition: background 0.15s;
 }
 .btn--physician-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T277 Wandering Cartomancer ──────────────────────────────────────── */
+@keyframes carto2-pulse {
+  0%, 100% { border-color: rgba(99, 102, 241, 0.25); box-shadow: 0 0 6px rgba(99, 102, 241, 0.10); }
+  50%       { border-color: rgba(99, 102, 241, 0.55); box-shadow: 0 0 14px rgba(99, 102, 241, 0.25); }
+}
+.carto2-section--active {
+  background: linear-gradient(135deg, rgba(30, 27, 75, 0.14), rgba(49, 46, 129, 0.08));
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  border-radius: 8px; padding: 10px 12px; margin-bottom: 10px;
+  animation: carto2-pulse 4.1s ease-in-out infinite;
+}
+.carto2-header { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.carto2-title { flex: 1; font-weight: 600; font-size: 0.88rem; color: #c7d2fe; }
+.carto2-timer { font-size: 0.78rem; color: #c7d2fe; font-variant-numeric: tabular-nums; }
+.carto2-timer--urgent { color: #ef4444; animation: blink 0.8s step-start infinite; }
+.carto2-desc { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; }
+.carto2-actions { display: flex; flex-direction: column; gap: 5px; }
+.carto2-cost { display: block; font-size: 0.70rem; color: #9ca3af; margin-top: 1px; }
+.btn--carto2-map {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(79, 70, 229, 0.08));
+  border: 1px solid rgba(99, 102, 241, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #c7d2fe;
+  text-align: left; transition: background 0.15s;
+}
+.btn--carto2-map:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(99, 102, 241, 0.22), rgba(79, 70, 229, 0.15)); }
+.btn--carto2-exchange {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.12), rgba(217, 119, 6, 0.08));
+  border: 1px solid rgba(251, 191, 36, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #fde68a;
+  text-align: left; transition: background 0.15s;
+}
+.btn--carto2-exchange:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(251, 191, 36, 0.22), rgba(217, 119, 6, 0.15)); }
+.btn--carto2-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #9ca3af;
+  text-align: left; transition: background 0.15s;
+}
+.btn--carto2-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T278 Village Elder Visit ────────────────────────────────────────── */
+@keyframes elder-pulse {
+  0%, 100% { border-color: rgba(161, 140, 76, 0.25); box-shadow: 0 0 6px rgba(161, 140, 76, 0.10); }
+  50%       { border-color: rgba(161, 140, 76, 0.55); box-shadow: 0 0 12px rgba(161, 140, 76, 0.22); }
+}
+.elder-section--active {
+  background: linear-gradient(135deg, rgba(55, 46, 18, 0.14), rgba(92, 74, 26, 0.08));
+  border: 1px solid rgba(161, 140, 76, 0.25);
+  border-radius: 8px; padding: 10px 12px; margin-bottom: 10px;
+  animation: elder-pulse 3.8s ease-in-out infinite;
+}
+.elder-header { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.elder-title { flex: 1; font-weight: 600; font-size: 0.88rem; color: #fef3c7; }
+.elder-timer { font-size: 0.78rem; color: #fef3c7; font-variant-numeric: tabular-nums; }
+.elder-timer--urgent { color: #ef4444; animation: blink 0.8s step-start infinite; }
+.elder-desc { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; }
+.elder-actions { display: flex; flex-direction: column; gap: 5px; }
+.elder-cost { display: block; font-size: 0.70rem; color: #9ca3af; margin-top: 1px; }
+.btn--elder-wisdom {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(161, 140, 76, 0.12), rgba(120, 100, 40, 0.08));
+  border: 1px solid rgba(161, 140, 76, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #fef3c7;
+  text-align: left; transition: background 0.15s;
+}
+.btn--elder-wisdom:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(161, 140, 76, 0.22), rgba(120, 100, 40, 0.15)); }
+.btn--elder-hospitality {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(134, 239, 172, 0.12), rgba(22, 163, 74, 0.08));
+  border: 1px solid rgba(134, 239, 172, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #bbf7d0;
+  text-align: left; transition: background 0.15s;
+}
+.btn--elder-hospitality:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(134, 239, 172, 0.22), rgba(22, 163, 74, 0.15)); }
+.btn--elder-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28);
+  border-radius: 6px; cursor: pointer; font-size: 0.80rem; color: #9ca3af;
+  text-align: left; transition: background 0.15s;
+}
+.btn--elder-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

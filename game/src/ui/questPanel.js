@@ -39,8 +39,10 @@ import * as Monk         from '../systems/travelingMonk.js';         // T271
 import * as ImpCarto     from '../systems/imperialCartographer.js';   // T272
 import * as Oracle       from '../systems/wanderingOracle.js';        // T273
 import * as Emissary     from '../systems/royalEmissary.js';          // T274
-import * as Tinker       from '../systems/wanderingTinker.js';        // T275
-import * as Physician    from '../systems/wanderingPhysician.js';     // T276
+import * as Tinker       from '../systems/wanderingTinker.js';         // T275
+import * as Physician    from '../systems/wanderingPhysician.js';      // T276
+import * as Cartomancer  from '../systems/wanderingCartomancer.js';    // T277
+import * as Elder        from '../systems/villageElderVisit.js';       // T278
 
 let _panel = null;
 
@@ -110,6 +112,8 @@ function _encountersSection() {
     _royalEmissarySection(),
     _wanderingTinkerSection(),
     _wanderingPhysicianSection(),
+    _wanderingCartomancerSection(),
+    _villageElderVisitSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -1024,6 +1028,72 @@ function _wanderingPhysicianSection() {
     </div>`;
 }
 
+// ── T277 Wandering Cartomancer ──────────────────────────────────────────
+
+function _wanderingCartomancerSection() {
+  if (!Cartomancer.getActiveWanderingCartomancer()) return '';
+  const secs       = Cartomancer.getCartomancerSecsLeft();
+  const mana       = Math.floor(state.resources.mana ?? 0);
+  const gold       = Math.floor(state.resources.gold ?? 0);
+  const canMap     = mana >= Cartomancer.MAP_MANA_COST;
+  const canExchange = gold >= Cartomancer.EXCHANGE_GOLD_COST;
+  const urg = secs <= 15 ? ' carto2-timer--urgent' : '';
+  return `
+    <div class="carto2-section--active">
+      <div class="carto2-header">
+        <span class="carto2-title">🗺️ Wandering Cartomancer</span>
+        <span class="carto2-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="carto2-desc">A skilled cartomancer bearing celestial charts and star-maps arrives, their astronomical knowledge famed across the known world.</div>
+      <div class="carto2-actions">
+        <button class="btn--carto2-map${canMap ? '' : ' btn--disabled'}" data-action="carto2-map" ${canMap ? '' : 'disabled'}>
+          🗺️ Commission Celestial Map — ${Cartomancer.MAP_MANA_COST}✨
+          <span class="carto2-cost">→ +${Cartomancer.MAP_MANA_RATE} mana/s (2.5 min) · +${Cartomancer.MAP_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--carto2-exchange${canExchange ? '' : ' btn--disabled'}" data-action="carto2-exchange" ${canExchange ? '' : 'disabled'}>
+          ⭐ Exchange Stellar Knowledge — ${Cartomancer.EXCHANGE_GOLD_COST}💰
+          <span class="carto2-cost">→ +${Cartomancer.EXCHANGE_GOLD_RATE} gold/s (2 min) · +${Cartomancer.EXCHANGE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--carto2-away" data-action="carto2-away">
+          👋 Send Away
+          <span class="carto2-cost">→ Cartomancer departs for the next horizon</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T278 Village Elder Visit ────────────────────────────────────────────
+
+function _villageElderVisitSection() {
+  if (!Elder.getActiveVillageElderVisit()) return '';
+  const secs         = Elder.getElderSecsLeft();
+  const food         = Math.floor(state.resources.food ?? 0);
+  const canHospitality = food >= Elder.HOSPITALITY_FOOD_COST;
+  const urg = secs <= 15 ? ' elder-timer--urgent' : '';
+  return `
+    <div class="elder-section--active">
+      <div class="elder-header">
+        <span class="elder-title">🧙 Village Elder Visit</span>
+        <span class="elder-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="elder-desc">A venerable village elder bearing accumulated tribal wisdom arrives seeking an audience with your empire's ruler.</div>
+      <div class="elder-actions">
+        <button class="btn--elder-wisdom" data-action="elder-wisdom">
+          🧙 Seek Ancient Wisdom — Free
+          <span class="elder-cost">→ +${Elder.WISDOM_MORALE_REWARD} morale · +${Elder.WISDOM_PRESTIGE_REWARD} prestige · +${Elder.WISDOM_MANA_RATE} mana/s (2 min)</span>
+        </button>
+        <button class="btn--elder-hospitality${canHospitality ? '' : ' btn--disabled'}" data-action="elder-hospitality" ${canHospitality ? '' : 'disabled'}>
+          🍖 Offer Generous Hospitality — ${Elder.HOSPITALITY_FOOD_COST}🌾
+          <span class="elder-cost">→ +${Elder.HOSPITALITY_MORALE_REWARD} morale · +${Elder.HOSPITALITY_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--elder-away" data-action="elder-away">
+          👋 Send Them Off
+          <span class="elder-cost">→ Elder is politely thanked and departs</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -1149,6 +1219,14 @@ const _HANDLERS = {
   'physician-treat': () => Physician.commissionPhysicianTreatments(),
   'physician-learn': () => Physician.learnPhysicianLore(),
   'physician-away':  () => Physician.sendPhysicianAway(),
+
+  'carto2-map':      () => Cartomancer.commissionCelestialMap(),
+  'carto2-exchange': () => Cartomancer.exchangeStellarKnowledge(),
+  'carto2-away':     () => Cartomancer.sendCartomancerAway(),
+
+  'elder-wisdom':      () => Elder.seekElderWisdom(),
+  'elder-hospitality': () => Elder.offerElderHospitality(),
+  'elder-away':        () => Elder.sendElderAway(),
 };
 
 function _handleClick(e) {
@@ -1197,6 +1275,8 @@ export function initQuestPanel() {
     Events.ROYAL_EMISSARY_CHANGED,
     Events.WANDERING_TINKER_CHANGED,
     Events.WANDERING_PHYSICIAN_CHANGED,
+    Events.WANDERING_CARTOMANCER_CHANGED,
+    Events.VILLAGE_ELDER_VISIT_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);
