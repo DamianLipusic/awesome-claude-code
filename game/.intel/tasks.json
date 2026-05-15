@@ -410,6 +410,24 @@
       "status": "done",
       "phase": 99,
       "notes": "Built stoneCarver.js. STONE_CARVER_CHANGED event added to events.js. state.stoneCarver null field. Stone carver section in questPanel.js (import * as SCarver). Events.STONE_CARVER_CHANGED subscribed. CSS: @keyframes carver-pulse (violet/purple), .carver-section--active, .btn--carver-commission (violet), .btn--carver-exchange (light purple), .btn--carver-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T285",
+      "title": "Wandering Glassblower",
+      "description": "Iron Age+, 10+ tiles, 12-17 min spawn, 80s window. Commission Crystal Vessels (25 iron + 20 stone -> +0.15 iron/s 2min +20 prestige +8 morale), Learn Glassblowing Arts (20g -> +0.12 stone/s 2.5min +15 prestige), Send Away.",
+      "priority": 285,
+      "status": "done",
+      "phase": 100,
+      "notes": "Built wanderingGlassblower.js. WANDERING_GLASSBLOWER_CHANGED event added to events.js. state.wanderingGlassblower null field. Glassblower section in questPanel.js (import * as Glassblower). Events.WANDERING_GLASSBLOWER_CHANGED subscribed. CSS: @keyframes glass-pulse (cyan/teal), .glass-section--active, .btn--glass-commission (cyan), .btn--glass-learn (sky blue), .btn--glass-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T286",
+      "title": "Royal Astronomer",
+      "description": "Medieval Age+, 12+ tiles, 16-21 min spawn, 80s window. Commission Sky Survey (35 mana -> +0.3 mana/s 2.5min +25 prestige), Purchase Star Almanac (30g -> +0.15 gold/s 2min +20 prestige), Send Away.",
+      "priority": 286,
+      "status": "done",
+      "phase": 100,
+      "notes": "Built royalAstronomer.js. ROYAL_ASTRONOMER_CHANGED event added to events.js. state.royalAstronomer null field. Astronomer section in questPanel.js (import * as RAstronomer). Events.ROYAL_ASTRONOMER_CHANGED subscribed. CSS: @keyframes astronomer-pulse (indigo/blue), .astronomer-section--active, .btn--astronomer-survey (indigo), .btn--astronomer-almanac (amber/gold), .btn--astronomer-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     }
   ],
   "session_history": [
@@ -441,6 +459,7 @@
     "Session 26 (T177-T178): Wandering Cartomancer (T277), Village Elder Visit (T278)",
     "Session 27 (T179-T180): Wandering Scribe (T279), Desert Trader (T280)",
     "Session 28 (T181-T182): Wandering Gemcutter (T281), Forest Warden (T282)",
-    "Session 29 (T183-T184): Wandering Beekeeper (T283), Stone Carver (T284)"
+    "Session 29 (T183-T184): Wandering Beekeeper (T283), Stone Carver (T284)",
+    "Session 30 (T185-T186): Wandering Glassblower (T285), Royal Astronomer (T286)"
   ]
 }

@@ -49,6 +49,8 @@ import * as Gemcutter    from '../systems/wanderingGemcutter.js';      // T281
 import * as FWarden      from '../systems/forestWarden.js';            // T282
 import * as Beekeeper   from '../systems/wanderingBeekeeper.js';      // T283
 import * as SCarver     from '../systems/stoneCarver.js';             // T284
+import * as Glassblower from '../systems/wanderingGlassblower.js';    // T285
+import * as RAstronomer from '../systems/royalAstronomer.js';         // T286
 
 let _panel = null;
 
@@ -126,6 +128,8 @@ function _encountersSection() {
     _forestWardenSection(),
     _wanderingBeekeeperSection(),
     _stoneCarverSection(),
+    _wanderingGlassblowerSection(),
+    _royalAstronomerSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -1313,6 +1317,75 @@ function _stoneCarverSection() {
     </div>`;
 }
 
+// ── T285 Wandering Glassblower ────────────────────────────────────────────────
+
+function _wanderingGlassblowerSection() {
+  if (!Glassblower.getActiveWanderingGlassblower()) return '';
+  const secs           = Glassblower.getGlassblowerSecsLeft();
+  const iron           = Math.floor(state.resources.iron  ?? 0);
+  const stone          = Math.floor(state.resources.stone ?? 0);
+  const gold           = Math.floor(state.resources.gold  ?? 0);
+  const canCommission  = iron >= Glassblower.COMMISSION_IRON_COST && stone >= Glassblower.COMMISSION_STONE_COST;
+  const canLearn       = gold >= Glassblower.LEARN_GOLD_COST;
+  const urg = secs <= 15 ? ' glass-timer--urgent' : '';
+  return `
+    <div class="glass-section--active">
+      <div class="glass-header">
+        <span class="glass-title">🔮 Wandering Glassblower</span>
+        <span class="glass-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="glass-desc">A wandering glassblower arrives at the imperial court, their cart laden with shimmering crystal vessels and delicate glasswork of rare beauty.</div>
+      <div class="glass-actions">
+        <button class="btn--glass-commission${canCommission ? '' : ' btn--disabled'}" data-action="glass-commission" ${canCommission ? '' : 'disabled'}>
+          🔮 Commission Crystal Vessels — ${Glassblower.COMMISSION_IRON_COST}⚙️ + ${Glassblower.COMMISSION_STONE_COST}🪨
+          <span class="glass-cost">→ +${Glassblower.COMMISSION_IRON_RATE} iron/s (2 min) · +${Glassblower.COMMISSION_PRESTIGE_REWARD} prestige · +${Glassblower.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--glass-learn${canLearn ? '' : ' btn--disabled'}" data-action="glass-learn" ${canLearn ? '' : 'disabled'}>
+          🌊 Learn Glassblowing Arts — ${Glassblower.LEARN_GOLD_COST}💰
+          <span class="glass-cost">→ +${Glassblower.LEARN_STONE_RATE} stone/s (2.5 min) · +${Glassblower.LEARN_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--glass-away" data-action="glass-away">
+          👋 Send Away
+          <span class="glass-cost">→ Glassblower continues their journey</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T286 Royal Astronomer ─────────────────────────────────────────────────────
+
+function _royalAstronomerSection() {
+  if (!RAstronomer.getActiveRoyalAstronomer()) return '';
+  const secs       = RAstronomer.getAstronomerSecsLeft();
+  const mana       = Math.floor(state.resources.mana ?? 0);
+  const gold       = Math.floor(state.resources.gold ?? 0);
+  const canSurvey  = mana >= RAstronomer.SURVEY_MANA_COST;
+  const canAlmanac = gold >= RAstronomer.ALMANAC_GOLD_COST;
+  const urg = secs <= 15 ? ' astronomer-timer--urgent' : '';
+  return `
+    <div class="astronomer-section--active">
+      <div class="astronomer-header">
+        <span class="astronomer-title">🔭 Royal Astronomer</span>
+        <span class="astronomer-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="astronomer-desc">A celebrated royal astronomer arrives bearing gilded telescopes and meticulously charted star maps, offering the wisdom of the heavens to guide your empire's fate.</div>
+      <div class="astronomer-actions">
+        <button class="btn--astronomer-survey${canSurvey ? '' : ' btn--disabled'}" data-action="astronomer-survey" ${canSurvey ? '' : 'disabled'}>
+          🔭 Commission Sky Survey — ${RAstronomer.SURVEY_MANA_COST}✨
+          <span class="astronomer-cost">→ +${RAstronomer.SURVEY_MANA_RATE} mana/s (2.5 min) · +${RAstronomer.SURVEY_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--astronomer-almanac${canAlmanac ? '' : ' btn--disabled'}" data-action="astronomer-almanac" ${canAlmanac ? '' : 'disabled'}>
+          📚 Purchase Star Almanac — ${RAstronomer.ALMANAC_GOLD_COST}💰
+          <span class="astronomer-cost">→ +${RAstronomer.ALMANAC_GOLD_RATE} gold/s (2 min) · +${RAstronomer.ALMANAC_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--astronomer-away" data-action="astronomer-away">
+          👋 Send Away
+          <span class="astronomer-cost">→ Astronomer sets off to chart the skies elsewhere</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -1470,6 +1543,14 @@ const _HANDLERS = {
   'carver-commission': () => SCarver.commissionImperialReliefs(),
   'carver-exchange':   () => SCarver.exchangeCarvingTechniques(),
   'carver-away':       () => SCarver.sendStoneCarverAway(),
+
+  'glass-commission': () => Glassblower.commissionCrystalVessels(),
+  'glass-learn':      () => Glassblower.learnGlassblowingArts(),
+  'glass-away':       () => Glassblower.sendGlassblowerAway(),
+
+  'astronomer-survey':  () => RAstronomer.commissionSkySurvey(),
+  'astronomer-almanac': () => RAstronomer.purchaseStarAlmanac(),
+  'astronomer-away':    () => RAstronomer.sendAstronomerAway(),
 };
 
 function _handleClick(e) {
@@ -1526,6 +1607,8 @@ export function initQuestPanel() {
     Events.FOREST_WARDEN_CHANGED,
     Events.WANDERING_BEEKEEPER_CHANGED,
     Events.STONE_CARVER_CHANGED,
+    Events.WANDERING_GLASSBLOWER_CHANGED,
+    Events.ROYAL_ASTRONOMER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

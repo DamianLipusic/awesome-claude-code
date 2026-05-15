@@ -16983,3 +16983,83 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--carver-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T285 Wandering Glassblower ─────────────────────────────── */
+@keyframes glass-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(103, 232, 249, 0); border-color: rgba(103, 232, 249, 0.35); }
+  50%       { box-shadow: 0 0 14px 3px rgba(103, 232, 249, 0.22); border-color: rgba(103, 232, 249, 0.62); }
+}
+.glass-section--active {
+  background: linear-gradient(135deg, rgba(103, 232, 249, 0.08), rgba(6, 182, 212, 0.06));
+  border: 1px solid rgba(103, 232, 249, 0.35); border-radius: 8px;
+  padding: 12px; margin-bottom: 10px;
+  animation: glass-pulse 3.5s ease-in-out infinite;
+}
+.glass-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.glass-title  { font-size: 0.92rem; font-weight: 600; color: #67e8f9; }
+.glass-timer  { font-size: 0.78rem; color: #22d3ee; background: rgba(103, 232, 249, 0.12); padding: 2px 7px; border-radius: 10px; }
+.glass-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.15); }
+.glass-desc   { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.glass-actions { display: flex; flex-direction: column; gap: 6px; }
+.glass-cost   { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--glass-commission {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(103, 232, 249, 0.12), rgba(6, 182, 212, 0.08));
+  border: 1px solid rgba(103, 232, 249, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #67e8f9; text-align: left; transition: background 0.15s;
+}
+.btn--glass-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(103, 232, 249, 0.22), rgba(6, 182, 212, 0.15)); }
+.btn--glass-learn {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(14, 165, 233, 0.08));
+  border: 1px solid rgba(56, 189, 248, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #7dd3fc; text-align: left; transition: background 0.15s;
+}
+.btn--glass-learn:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(56, 189, 248, 0.22), rgba(14, 165, 233, 0.15)); }
+.btn--glass-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--glass-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T286 Royal Astronomer ──────────────────────────────────── */
+@keyframes astronomer-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); border-color: rgba(99, 102, 241, 0.35); }
+  50%       { box-shadow: 0 0 14px 3px rgba(99, 102, 241, 0.22); border-color: rgba(99, 102, 241, 0.62); }
+}
+.astronomer-section--active {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(67, 56, 202, 0.06));
+  border: 1px solid rgba(99, 102, 241, 0.35); border-radius: 8px;
+  padding: 12px; margin-bottom: 10px;
+  animation: astronomer-pulse 3.5s ease-in-out infinite;
+}
+.astronomer-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.astronomer-title  { font-size: 0.92rem; font-weight: 600; color: #a5b4fc; }
+.astronomer-timer  { font-size: 0.78rem; color: #818cf8; background: rgba(99, 102, 241, 0.12); padding: 2px 7px; border-radius: 10px; }
+.astronomer-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.15); }
+.astronomer-desc   { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.astronomer-actions { display: flex; flex-direction: column; gap: 6px; }
+.astronomer-cost   { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--astronomer-survey {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(67, 56, 202, 0.08));
+  border: 1px solid rgba(99, 102, 241, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #a5b4fc; text-align: left; transition: background 0.15s;
+}
+.btn--astronomer-survey:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(99, 102, 241, 0.22), rgba(67, 56, 202, 0.15)); }
+.btn--astronomer-almanac {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.12), rgba(217, 119, 6, 0.08));
+  border: 1px solid rgba(251, 191, 36, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fcd34d; text-align: left; transition: background 0.15s;
+}
+.btn--astronomer-almanac:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(251, 191, 36, 0.22), rgba(217, 119, 6, 0.15)); }
+.btn--astronomer-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--astronomer-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

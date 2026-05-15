@@ -750,3 +750,17 @@ Built stoneCarver.js: commissionImperialReliefs (30 stone + 20g → +0.15 stone/
 Wired in main.js: import initStoneCarver+stoneCarverTick, registerSystem, initStoneCarver() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _stoneCarverSection() render + carver-commission/carver-exchange/carver-away handlers to questPanel.js (import * as SCarver). Events.STONE_CARVER_CHANGED subscribed.
 Added T284 carver CSS: @keyframes carver-pulse (violet/purple), .carver-section--active, .btn--carver-commission (violet), .btn--carver-exchange (light purple), .btn--carver-away (gray).
+
+Session 52 — T185–T186 (T285–T286): Wandering Glassblower, Royal Astronomer.
+
+T185: Wandering Glassblower (T285) — Iron Age+, 10+ tiles, 12–17 min, 80s window.
+Built wanderingGlassblower.js: commissionCrystalVessels (25 iron + 20 stone → +0.15 iron/s 2min +20 prestige +8 morale), learnGlassblowingArts (20g → +0.12 stone/s 2.5min +15 prestige), sendGlassblowerAway (dismiss). Added WANDERING_GLASSBLOWER_CHANGED event to events.js. state.wanderingGlassblower null field.
+Wired in main.js: import initWanderingGlassblower+wanderingGlassblowerTick, registerSystem, initWanderingGlassblower() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingGlassblowerSection() render + glass-commission/glass-learn/glass-away handlers to questPanel.js (import * as Glassblower). Events.WANDERING_GLASSBLOWER_CHANGED subscribed.
+Added T285 glassblower CSS: @keyframes glass-pulse (cyan/teal), .glass-section--active, .btn--glass-commission (cyan), .btn--glass-learn (sky blue), .btn--glass-away (gray).
+
+T186: Royal Astronomer (T286) — Medieval Age+, 12+ tiles, 16–21 min, 80s window.
+Built royalAstronomer.js: commissionSkySurvey (35 mana → +0.3 mana/s 2.5min +25 prestige), purchaseStarAlmanac (30g → +0.15 gold/s 2min +20 prestige), sendAstronomerAway (dismiss). Added ROYAL_ASTRONOMER_CHANGED event to events.js. state.royalAstronomer null field.
+Wired in main.js: import initRoyalAstronomer+royalAstronomerTick, registerSystem, initRoyalAstronomer() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _royalAstronomerSection() render + astronomer-survey/astronomer-almanac/astronomer-away handlers to questPanel.js (import * as RAstronomer). Events.ROYAL_ASTRONOMER_CHANGED subscribed.
+Added T286 astronomer CSS: @keyframes astronomer-pulse (indigo/deep blue), .astronomer-section--active, .btn--astronomer-survey (indigo), .btn--astronomer-almanac (amber/gold), .btn--astronomer-away (gray).
