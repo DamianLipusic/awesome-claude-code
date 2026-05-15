@@ -428,6 +428,24 @@
       "status": "done",
       "phase": 100,
       "notes": "Built royalAstronomer.js. ROYAL_ASTRONOMER_CHANGED event added to events.js. state.royalAstronomer null field. Astronomer section in questPanel.js (import * as RAstronomer). Events.ROYAL_ASTRONOMER_CHANGED subscribed. CSS: @keyframes astronomer-pulse (indigo/blue), .astronomer-section--active, .btn--astronomer-survey (indigo), .btn--astronomer-almanac (amber/gold), .btn--astronomer-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T287",
+      "title": "Imperial Herald",
+      "description": "Medieval Age+, 10+ tiles, 15-19 min spawn, 80s window. Proclaim Imperial Victory (40g -> +0.2 gold/s 2.5min +28 prestige +10 morale), Announce Royal Decree (free -> +15 prestige +10 morale), Send Away.",
+      "priority": 287,
+      "status": "done",
+      "phase": 101,
+      "notes": "Built imperialHerald.js. IMPERIAL_HERALD_CHANGED event added to events.js. state.imperialHerald null field. Herald section in questPanel.js (import * as IHerald). Events.IMPERIAL_HERALD_CHANGED subscribed. CSS: @keyframes herald-pulse (amber/gold), .herald-section--active, .btn--herald-proclaim (amber), .btn--herald-announce (yellow), .btn--herald-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T288",
+      "title": "Traveling Potter",
+      "description": "Bronze Age+, 8+ tiles, 12-17 min spawn, 80s window. Commission Fine Pottery (20 stone + 15 food -> +0.15 stone/s 2.5min +20 prestige +8 morale), Learn Potter's Craft (15g -> +0.12 food/s 2min +12 prestige), Send Away.",
+      "priority": 288,
+      "status": "done",
+      "phase": 101,
+      "notes": "Built travelingPotter.js. TRAVELING_POTTER_CHANGED event added to events.js. state.travelingPotter null field. Potter section in questPanel.js (import * as TPotter). Events.TRAVELING_POTTER_CHANGED subscribed. CSS: @keyframes potter-pulse (terracotta/orange), .potter-section--active, .btn--potter-commission (orange), .btn--potter-learn (light orange), .btn--potter-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     }
   ],
   "session_history": [
@@ -460,6 +478,7 @@
     "Session 27 (T179-T180): Wandering Scribe (T279), Desert Trader (T280)",
     "Session 28 (T181-T182): Wandering Gemcutter (T281), Forest Warden (T282)",
     "Session 29 (T183-T184): Wandering Beekeeper (T283), Stone Carver (T284)",
-    "Session 30 (T185-T186): Wandering Glassblower (T285), Royal Astronomer (T286)"
+    "Session 30 (T185-T186): Wandering Glassblower (T285), Royal Astronomer (T286)",
+    "Session 31 (T187-T188): Imperial Herald (T287), Traveling Potter (T288)"
   ]
 }

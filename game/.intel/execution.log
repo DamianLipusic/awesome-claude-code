@@ -764,3 +764,17 @@ Built royalAstronomer.js: commissionSkySurvey (35 mana → +0.3 mana/s 2.5min +2
 Wired in main.js: import initRoyalAstronomer+royalAstronomerTick, registerSystem, initRoyalAstronomer() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _royalAstronomerSection() render + astronomer-survey/astronomer-almanac/astronomer-away handlers to questPanel.js (import * as RAstronomer). Events.ROYAL_ASTRONOMER_CHANGED subscribed.
 Added T286 astronomer CSS: @keyframes astronomer-pulse (indigo/deep blue), .astronomer-section--active, .btn--astronomer-survey (indigo), .btn--astronomer-almanac (amber/gold), .btn--astronomer-away (gray).
+
+Session 53 — T187–T188 (T287–T288): Imperial Herald, Traveling Potter.
+
+T187: Imperial Herald (T287) — Medieval Age+, 10+ tiles, 15–19 min, 80s window.
+Built imperialHerald.js: proclaimImperialVictory (40g → +0.2 gold/s 2.5min +28 prestige +10 morale), announceRoyalDecree (free → +15 prestige +10 morale), sendHeraldAway (dismiss). Added IMPERIAL_HERALD_CHANGED event to events.js. state.imperialHerald null field.
+Wired in main.js: import initImperialHerald+imperialHeraldTick, registerSystem, initImperialHerald() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _imperialHeraldSection() render + herald-proclaim/herald-announce/herald-away handlers to questPanel.js (import * as IHerald). Events.IMPERIAL_HERALD_CHANGED subscribed.
+Added T287 herald CSS: @keyframes herald-pulse (amber/gold), .herald-section--active, .btn--herald-proclaim (amber), .btn--herald-announce (yellow), .btn--herald-away (gray).
+
+T188: Traveling Potter (T288) — Bronze Age+, 8+ tiles, 12–17 min, 80s window.
+Built travelingPotter.js: commissionFinePottery (20 stone + 15 food → +0.15 stone/s 2.5min +20 prestige +8 morale), learnPottersCraft (15g → +0.12 food/s 2min +12 prestige), sendPotterAway (dismiss). Added TRAVELING_POTTER_CHANGED event to events.js. state.travelingPotter null field.
+Wired in main.js: import initTravelingPotter+travelingPotterTick, registerSystem, initTravelingPotter() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _travelingPotterSection() render + potter-commission/potter-learn/potter-away handlers to questPanel.js (import * as TPotter). Events.TRAVELING_POTTER_CHANGED subscribed.
+Added T288 potter CSS: @keyframes potter-pulse (terracotta/orange), .potter-section--active, .btn--potter-commission (orange), .btn--potter-learn (light orange), .btn--potter-away (gray).

@@ -228,6 +228,8 @@ import { initWanderingBeekeeper, wanderingBeekeeperTick }     from './systems/wa
 import { initStoneCarver, stoneCarverTick }                   from './systems/stoneCarver.js';             // T284
 import { initWanderingGlassblower, wanderingGlassblowerTick } from './systems/wanderingGlassblower.js';     // T285
 import { initRoyalAstronomer, royalAstronomerTick }           from './systems/royalAstronomer.js';          // T286
+import { initImperialHerald, imperialHeraldTick }             from './systems/imperialHerald.js';            // T287
+import { initTravelingPotter, travelingPotterTick }           from './systems/travelingPotter.js';           // T288
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -462,6 +464,8 @@ function _registerAllSystems() {
   registerSystem(stoneCarverTick);           // T284
   registerSystem(wanderingGlassblowerTick); // T285
   registerSystem(royalAstronomerTick);      // T286
+  registerSystem(imperialHeraldTick);       // T287
+  registerSystem(travelingPotterTick);      // T288
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -681,6 +685,8 @@ function _save() {
     stoneCarver:           state.stoneCarver,              // T284
     wanderingGlassblower:  state.wanderingGlassblower,     // T285
     royalAstronomer:       state.royalAstronomer,          // T286
+    imperialHerald:        state.imperialHerald,           // T287
+    travelingPotter:       state.travelingPotter,          // T288
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -905,6 +911,8 @@ function _applySave(s) {
   state.stoneCarver            = s.stoneCarver ?? null;              // T284
   state.wanderingGlassblower   = s.wanderingGlassblower ?? null;    // T285
   state.royalAstronomer        = s.royalAstronomer ?? null;         // T286
+  state.imperialHerald         = s.imperialHerald ?? null;          // T287
+  state.travelingPotter        = s.travelingPotter ?? null;         // T288
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -1135,6 +1143,8 @@ function _startFreshGame() {
   initStoneCarver();              // T284
   initWanderingGlassblower();     // T285
   initRoyalAstronomer();          // T286
+  initImperialHerald();           // T287
+  initTravelingPotter();          // T288
   initAchievements();
   initLeaderboard();
 }
@@ -1348,6 +1358,8 @@ function _startLoadedGame(savedData) {
   initStoneCarver();              // T284
   initWanderingGlassblower();     // T285
   initRoyalAstronomer();          // T286
+  initImperialHerald();           // T287
+  initTravelingPotter();          // T288
   initAchievements();
   initLeaderboard();
 }

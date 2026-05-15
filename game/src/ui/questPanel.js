@@ -51,6 +51,8 @@ import * as Beekeeper   from '../systems/wanderingBeekeeper.js';      // T283
 import * as SCarver     from '../systems/stoneCarver.js';             // T284
 import * as Glassblower from '../systems/wanderingGlassblower.js';    // T285
 import * as RAstronomer from '../systems/royalAstronomer.js';         // T286
+import * as IHerald     from '../systems/imperialHerald.js';          // T287
+import * as TPotter     from '../systems/travelingPotter.js';         // T288
 
 let _panel = null;
 
@@ -130,6 +132,8 @@ function _encountersSection() {
     _stoneCarverSection(),
     _wanderingGlassblowerSection(),
     _royalAstronomerSection(),
+    _imperialHeraldSection(),
+    _travelingPotterSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -1386,6 +1390,73 @@ function _royalAstronomerSection() {
     </div>`;
 }
 
+// ── T287 Imperial Herald ──────────────────────────────────────────────────────
+
+function _imperialHeraldSection() {
+  if (!IHerald.getActiveImperialHerald()) return '';
+  const secs       = IHerald.getHeraldSecsLeft();
+  const gold       = Math.floor(state.resources.gold ?? 0);
+  const canProclaim = gold >= IHerald.PROCLAIM_GOLD_COST;
+  const urg = secs <= 15 ? ' herald-timer--urgent' : '';
+  return `
+    <div class="herald-section--active">
+      <div class="herald-header">
+        <span class="herald-title">📯 Imperial Herald</span>
+        <span class="herald-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="herald-desc">A resplendent imperial herald arrives at the imperial gates, golden trumpets gleaming, bearing proclamations of imperial glory to spread throughout the realm.</div>
+      <div class="herald-actions">
+        <button class="btn--herald-proclaim${canProclaim ? '' : ' btn--disabled'}" data-action="herald-proclaim" ${canProclaim ? '' : 'disabled'}>
+          📯 Proclaim Imperial Victory — ${IHerald.PROCLAIM_GOLD_COST}💰
+          <span class="herald-cost">→ +${IHerald.PROCLAIM_GOLD_RATE} gold/s (2.5 min) · +${IHerald.PROCLAIM_PRESTIGE_REWARD} prestige · +${IHerald.PROCLAIM_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--herald-announce" data-action="herald-announce">
+          📜 Announce Royal Decree — Free
+          <span class="herald-cost">→ +${IHerald.ANNOUNCE_PRESTIGE_REWARD} prestige · +${IHerald.ANNOUNCE_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--herald-away" data-action="herald-away">
+          👋 Send Away
+          <span class="herald-cost">→ Herald rides onward to the distant provinces</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T288 Traveling Potter ─────────────────────────────────────────────────────
+
+function _travelingPotterSection() {
+  if (!TPotter.getActiveTravelingPotter()) return '';
+  const secs         = TPotter.getPotterSecsLeft();
+  const stone        = Math.floor(state.resources.stone ?? 0);
+  const food         = Math.floor(state.resources.food  ?? 0);
+  const gold         = Math.floor(state.resources.gold  ?? 0);
+  const canCommission = stone >= TPotter.COMMISSION_STONE_COST && food >= TPotter.COMMISSION_FOOD_COST;
+  const canLearn      = gold >= TPotter.LEARN_GOLD_COST;
+  const urg = secs <= 15 ? ' potter-timer--urgent' : '';
+  return `
+    <div class="potter-section--active">
+      <div class="potter-header">
+        <span class="potter-title">🏺 Traveling Potter</span>
+        <span class="potter-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="potter-desc">A skilled traveling potter arrives with a cart full of fine earthenware and ancient clay-working knowledge, offering their craft to the empire.</div>
+      <div class="potter-actions">
+        <button class="btn--potter-commission${canCommission ? '' : ' btn--disabled'}" data-action="potter-commission" ${canCommission ? '' : 'disabled'}>
+          🏺 Commission Fine Pottery — ${TPotter.COMMISSION_STONE_COST}🪨 + ${TPotter.COMMISSION_FOOD_COST}🌾
+          <span class="potter-cost">→ +${TPotter.COMMISSION_STONE_RATE} stone/s (2.5 min) · +${TPotter.COMMISSION_PRESTIGE_REWARD} prestige · +${TPotter.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--potter-learn${canLearn ? '' : ' btn--disabled'}" data-action="potter-learn" ${canLearn ? '' : 'disabled'}>
+          🎨 Learn Potter's Craft — ${TPotter.LEARN_GOLD_COST}💰
+          <span class="potter-cost">→ +${TPotter.LEARN_FOOD_RATE} food/s (2 min) · +${TPotter.LEARN_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--potter-away" data-action="potter-away">
+          👋 Send Away
+          <span class="potter-cost">→ Potter rolls their cart onward down the imperial road</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -1551,6 +1622,14 @@ const _HANDLERS = {
   'astronomer-survey':  () => RAstronomer.commissionSkySurvey(),
   'astronomer-almanac': () => RAstronomer.purchaseStarAlmanac(),
   'astronomer-away':    () => RAstronomer.sendAstronomerAway(),
+
+  'herald-proclaim':  () => IHerald.proclaimImperialVictory(),
+  'herald-announce':  () => IHerald.announceRoyalDecree(),
+  'herald-away':      () => IHerald.sendHeraldAway(),
+
+  'potter-commission': () => TPotter.commissionFinePottery(),
+  'potter-learn':      () => TPotter.learnPottersCraft(),
+  'potter-away':       () => TPotter.sendPotterAway(),
 };
 
 function _handleClick(e) {
@@ -1609,6 +1688,8 @@ export function initQuestPanel() {
     Events.STONE_CARVER_CHANGED,
     Events.WANDERING_GLASSBLOWER_CHANGED,
     Events.ROYAL_ASTRONOMER_CHANGED,
+    Events.IMPERIAL_HERALD_CHANGED,
+    Events.TRAVELING_POTTER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

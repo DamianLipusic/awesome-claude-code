@@ -228,4 +228,6 @@ export const Events = Object.freeze({
   STONE_CARVER_CHANGED:          'stoneCarverChanged',                // T284: carver spawned / commission / exchange / dismissed / expired
   WANDERING_GLASSBLOWER_CHANGED: 'wanderingGlassblowerChanged',       // T285: glassblower spawned / commissioned / learned / dismissed / expired
   ROYAL_ASTRONOMER_CHANGED:      'royalAstronomerChanged',            // T286: astronomer spawned / survey / almanac / dismissed / expired
+  IMPERIAL_HERALD_CHANGED:       'imperialHeraldChanged',             // T287: herald spawned / proclaimed / announced / dismissed / expired
+  TRAVELING_POTTER_CHANGED:      'travelingPotterChanged',            // T288: potter spawned / commissioned / learned / dismissed / expired
 });
