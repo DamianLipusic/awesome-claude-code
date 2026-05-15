@@ -16823,3 +16823,83 @@ kbd {
   text-align: left; transition: background 0.15s;
 }
 .btn--trader-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T281 Wandering Gemcutter ─────────────────────────────────────────────── */
+@keyframes gemcutter-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(167, 139, 250, 0); border-color: rgba(167, 139, 250, 0.35); }
+  50%       { box-shadow: 0 0 14px 3px rgba(167, 139, 250, 0.25); border-color: rgba(167, 139, 250, 0.65); }
+}
+.gemcutter-section--active {
+  background: linear-gradient(135deg, rgba(167, 139, 250, 0.08), rgba(109, 40, 217, 0.06));
+  border: 1px solid rgba(167, 139, 250, 0.35); border-radius: 8px;
+  padding: 12px; margin-bottom: 10px;
+  animation: gemcutter-pulse 3.2s ease-in-out infinite;
+}
+.gemcutter-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.gemcutter-title  { font-size: 0.92rem; font-weight: 600; color: #c4b5fd; }
+.gemcutter-timer  { font-size: 0.78rem; color: #a78bfa; background: rgba(167, 139, 250, 0.12); padding: 2px 7px; border-radius: 10px; }
+.gemcutter-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.15); }
+.gemcutter-desc   { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.gemcutter-actions { display: flex; flex-direction: column; gap: 6px; }
+.gemcutter-cost   { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--gemcut-commission {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(167, 139, 250, 0.12), rgba(109, 40, 217, 0.08));
+  border: 1px solid rgba(167, 139, 250, 0.30); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #c4b5fd; text-align: left; transition: background 0.15s;
+}
+.btn--gemcut-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(167, 139, 250, 0.22), rgba(109, 40, 217, 0.15)); }
+.btn--gemcut-arts {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(216, 180, 254, 0.12), rgba(147, 51, 234, 0.08));
+  border: 1px solid rgba(216, 180, 254, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #e9d5ff; text-align: left; transition: background 0.15s;
+}
+.btn--gemcut-arts:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(216, 180, 254, 0.22), rgba(147, 51, 234, 0.15)); }
+.btn--gemcut-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--gemcut-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T282 Forest Warden ───────────────────────────────────────────────────── */
+@keyframes warden-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); border-color: rgba(52, 211, 153, 0.35); }
+  50%       { box-shadow: 0 0 14px 3px rgba(52, 211, 153, 0.22); border-color: rgba(52, 211, 153, 0.62); }
+}
+.warden-section--active {
+  background: linear-gradient(135deg, rgba(52, 211, 153, 0.08), rgba(16, 185, 129, 0.06));
+  border: 1px solid rgba(52, 211, 153, 0.35); border-radius: 8px;
+  padding: 12px; margin-bottom: 10px;
+  animation: warden-pulse 3.5s ease-in-out infinite;
+}
+.warden-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.warden-title  { font-size: 0.92rem; font-weight: 600; color: #6ee7b7; }
+.warden-timer  { font-size: 0.78rem; color: #34d399; background: rgba(52, 211, 153, 0.12); padding: 2px 7px; border-radius: 10px; }
+.warden-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.15); }
+.warden-desc   { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.warden-actions { display: flex; flex-direction: column; gap: 6px; }
+.warden-cost   { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--warden-steward {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(52, 211, 153, 0.12), rgba(16, 185, 129, 0.08));
+  border: 1px solid rgba(52, 211, 153, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #6ee7b7; text-align: left; transition: background 0.15s;
+}
+.btn--warden-steward:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(52, 211, 153, 0.22), rgba(16, 185, 129, 0.15)); }
+.btn--warden-lore {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(134, 239, 172, 0.12), rgba(22, 163, 74, 0.08));
+  border: 1px solid rgba(134, 239, 172, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #bbf7d0; text-align: left; transition: background 0.15s;
+}
+.btn--warden-lore:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(134, 239, 172, 0.22), rgba(22, 163, 74, 0.15)); }
+.btn--warden-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--warden-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

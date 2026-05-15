@@ -45,6 +45,8 @@ import * as Cartomancer  from '../systems/wanderingCartomancer.js';    // T277
 import * as Elder        from '../systems/villageElderVisit.js';       // T278
 import * as Scribe       from '../systems/wanderingScribe.js';         // T279
 import * as DTrader      from '../systems/desertTrader.js';            // T280
+import * as Gemcutter    from '../systems/wanderingGemcutter.js';      // T281
+import * as FWarden      from '../systems/forestWarden.js';            // T282
 
 let _panel = null;
 
@@ -118,6 +120,8 @@ function _encountersSection() {
     _villageElderVisitSection(),
     _wanderingScribeSection(),
     _desertTraderSection(),
+    _wanderingGemcutterSection(),
+    _forestWardenSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -1167,6 +1171,75 @@ function _desertTraderSection() {
     </div>`;
 }
 
+// ── T281 Wandering Gemcutter ──────────────────────────────────────────────────
+
+function _wanderingGemcutterSection() {
+  if (!Gemcutter.getActiveWanderingGemcutter()) return '';
+  const secs              = Gemcutter.getGemcutterSecsLeft();
+  const stone             = Math.floor(state.resources.stone ?? 0);
+  const iron              = Math.floor(state.resources.iron  ?? 0);
+  const gold              = Math.floor(state.resources.gold  ?? 0);
+  const canCommission     = stone >= Gemcutter.COMMISSION_STONE_COST && iron >= Gemcutter.COMMISSION_IRON_COST;
+  const canPurchase       = gold  >= Gemcutter.PURCHASE_GOLD_COST;
+  const urg = secs <= 15 ? ' gemcutter-timer--urgent' : '';
+  return `
+    <div class="gemcutter-section--active">
+      <div class="gemcutter-header">
+        <span class="gemcutter-title">💎 Wandering Gemcutter</span>
+        <span class="gemcutter-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="gemcutter-desc">A wandering gemcutter bearing a chest of dazzling raw gemstones and precision cutting tools has arrived, their exquisite gem-setting skills renowned throughout the empire and beyond.</div>
+      <div class="gemcutter-actions">
+        <button class="btn--gemcut-commission${canCommission ? '' : ' btn--disabled'}" data-action="gemcut-commission" ${canCommission ? '' : 'disabled'}>
+          💎 Commission Gem Setting — ${Gemcutter.COMMISSION_STONE_COST}🪨 + ${Gemcutter.COMMISSION_IRON_COST}⚙️
+          <span class="gemcutter-cost">→ +${Gemcutter.COMMISSION_IRON_RATE} iron/s (2.5 min) · +${Gemcutter.COMMISSION_PRESTIGE_REWARD} prestige · +${Gemcutter.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--gemcut-arts${canPurchase ? '' : ' btn--disabled'}" data-action="gemcut-arts" ${canPurchase ? '' : 'disabled'}>
+          🔮 Purchase Gemstone Arts — ${Gemcutter.PURCHASE_GOLD_COST}💰
+          <span class="gemcutter-cost">→ +${Gemcutter.PURCHASE_STONE_RATE} stone/s (2 min) · +${Gemcutter.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--gemcut-away" data-action="gemcut-away">
+          👋 Send Away
+          <span class="gemcutter-cost">→ Gemcutter continues to distant gem markets</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T282 Forest Warden ────────────────────────────────────────────────────────
+
+function _forestWardenSection() {
+  if (!FWarden.getActiveForestWarden()) return '';
+  const secs         = FWarden.getForestWardenSecsLeft();
+  const food         = Math.floor(state.resources.food ?? 0);
+  const mana         = Math.floor(state.resources.mana ?? 0);
+  const canSteward   = food >= FWarden.STEWARDSHIP_FOOD_COST;
+  const canLore      = mana >= FWarden.LORE_MANA_COST;
+  const urg = secs <= 15 ? ' warden-timer--urgent' : '';
+  return `
+    <div class="warden-section--active">
+      <div class="warden-header">
+        <span class="warden-title">🌲 Forest Warden</span>
+        <span class="warden-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="warden-desc">A forest warden bearing ancient knowledge of woodland stewardship and deep nature lore has arrived at the imperial court, seeking to share their timeless wisdom with the empire.</div>
+      <div class="warden-actions">
+        <button class="btn--warden-steward${canSteward ? '' : ' btn--disabled'}" data-action="warden-steward" ${canSteward ? '' : 'disabled'}>
+          🌲 Grant Forest Stewardship — ${FWarden.STEWARDSHIP_FOOD_COST}🌾
+          <span class="warden-cost">→ +${FWarden.STEWARDSHIP_WOOD_RATE} wood/s (2.5 min) · +${FWarden.STEWARDSHIP_PRESTIGE_REWARD} prestige · +${FWarden.STEWARDSHIP_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--warden-lore${canLore ? '' : ' btn--disabled'}" data-action="warden-lore" ${canLore ? '' : 'disabled'}>
+          🍃 Exchange Woodland Lore — ${FWarden.LORE_MANA_COST}✨
+          <span class="warden-cost">→ +${FWarden.LORE_MORALE_REWARD} morale · +${FWarden.LORE_PRESTIGE_REWARD} prestige · +${FWarden.LORE_FOOD_RATE} food/s (2 min)</span>
+        </button>
+        <button class="btn--warden-away" data-action="warden-away">
+          👋 Send Away
+          <span class="warden-cost">→ Warden returns to the ancient woodland groves</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -1308,6 +1381,14 @@ const _HANDLERS = {
   'trader-deal':     () => DTrader.arrangeCaravanDeal(),
   'trader-exchange': () => DTrader.exchangeExoticGoods(),
   'trader-away':     () => DTrader.sendDesertTraderAway(),
+
+  'gemcut-commission': () => Gemcutter.commissionGemSetting(),
+  'gemcut-arts':       () => Gemcutter.purchaseGemstoneArts(),
+  'gemcut-away':       () => Gemcutter.sendGemcutterAway(),
+
+  'warden-steward': () => FWarden.grantForestStewardship(),
+  'warden-lore':    () => FWarden.exchangeWoodlandLore(),
+  'warden-away':    () => FWarden.sendForestWardenAway(),
 };
 
 function _handleClick(e) {
@@ -1360,6 +1441,8 @@ export function initQuestPanel() {
     Events.VILLAGE_ELDER_VISIT_CHANGED,
     Events.WANDERING_SCRIBE_CHANGED,
     Events.DESERT_TRADER_CHANGED,
+    Events.WANDERING_GEMCUTTER_CHANGED,
+    Events.FOREST_WARDEN_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

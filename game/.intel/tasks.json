@@ -374,6 +374,24 @@
       "status": "done",
       "phase": 97,
       "notes": "Built desertTrader.js. DESERT_TRADER_CHANGED event added to events.js. state.desertTrader null field. Trader section in questPanel.js (import * as DTrader). Events.DESERT_TRADER_CHANGED subscribed. CSS: @keyframes trader-pulse (amber/gold), .trader-section--active, .btn--trader-deal (amber), .btn--trader-exchange (rose), .btn--trader-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T281",
+      "title": "Wandering Gemcutter",
+      "description": "Iron Age+, 10+ tiles, 13-18 min spawn, 80s window. Commission Gem Setting (20 stone + 15 iron -> +0.15 iron/s 2.5min +25 prestige +10 morale), Purchase Gemstone Arts (35g -> +0.1 stone/s 2min +20 prestige), Send Away.",
+      "priority": 281,
+      "status": "done",
+      "phase": 98,
+      "notes": "Built wanderingGemcutter.js. WANDERING_GEMCUTTER_CHANGED event added to events.js. state.wanderingGemcutter null field. Gemcutter section in questPanel.js (import * as Gemcutter). Events.WANDERING_GEMCUTTER_CHANGED subscribed. CSS: @keyframes gemcutter-pulse (violet/purple), .gemcutter-section--active, .btn--gemcut-commission (violet), .btn--gemcut-arts (light purple), .btn--gemcut-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T282",
+      "title": "Forest Warden",
+      "description": "Bronze Age+, 8+ tiles, 12-17 min spawn, 80s window. Grant Forest Stewardship (20 food -> +0.25 wood/s 2.5min +15 prestige +8 morale), Exchange Woodland Lore (15 mana -> +12 morale +10 prestige +0.1 food/s 2min), Send Away.",
+      "priority": 282,
+      "status": "done",
+      "phase": 98,
+      "notes": "Built forestWarden.js. FOREST_WARDEN_CHANGED event added to events.js. state.forestWarden null field. Forest warden section in questPanel.js (import * as FWarden). Events.FOREST_WARDEN_CHANGED subscribed. CSS: @keyframes warden-pulse (emerald green), .warden-section--active, .btn--warden-steward (emerald), .btn--warden-lore (light green), .btn--warden-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     }
   ],
   "session_history": [
@@ -403,6 +421,7 @@
     "Session 24 (T173-T174): Wandering Oracle (T273), Royal Emissary (T274)",
     "Session 25 (T175-T176): Wandering Tinker (T275), Wandering Physician (T276)",
     "Session 26 (T177-T178): Wandering Cartomancer (T277), Village Elder Visit (T278)",
-    "Session 27 (T179-T180): Wandering Scribe (T279), Desert Trader (T280)"
+    "Session 27 (T179-T180): Wandering Scribe (T279), Desert Trader (T280)",
+    "Session 28 (T181-T182): Wandering Gemcutter (T281), Forest Warden (T282)"
   ]
 }

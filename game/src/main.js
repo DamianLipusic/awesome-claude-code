@@ -222,6 +222,8 @@ import { initWanderingCartomancer, wanderingCartomancerTick } from './systems/wa
 import { initVillageElderVisit, villageElderVisitTick }       from './systems/villageElderVisit.js';     // T278
 import { initWanderingScribe, wanderingScribeTick }           from './systems/wanderingScribe.js';        // T279
 import { initDesertTrader, desertTraderTick }                 from './systems/desertTrader.js';           // T280
+import { initWanderingGemcutter, wanderingGemcutterTick }     from './systems/wanderingGemcutter.js';     // T281
+import { initForestWarden, forestWardenTick }                 from './systems/forestWarden.js';           // T282
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -450,6 +452,8 @@ function _registerAllSystems() {
   registerSystem(villageElderVisitTick);     // T278
   registerSystem(wanderingScribeTick);       // T279
   registerSystem(desertTraderTick);          // T280
+  registerSystem(wanderingGemcutterTick);    // T281
+  registerSystem(forestWardenTick);          // T282
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -663,6 +667,8 @@ function _save() {
     villageElderVisit:     state.villageElderVisit,        // T278
     wanderingScribe:       state.wanderingScribe,          // T279
     desertTrader:          state.desertTrader,             // T280
+    wanderingGemcutter:    state.wanderingGemcutter,       // T281
+    forestWarden:          state.forestWarden,             // T282
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -881,6 +887,8 @@ function _applySave(s) {
   state.villageElderVisit      = s.villageElderVisit ?? null;        // T278
   state.wanderingScribe        = s.wanderingScribe ?? null;          // T279
   state.desertTrader           = s.desertTrader ?? null;             // T280
+  state.wanderingGemcutter     = s.wanderingGemcutter ?? null;       // T281
+  state.forestWarden           = s.forestWarden ?? null;             // T282
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -1105,6 +1113,8 @@ function _startFreshGame() {
   initVillageElderVisit();        // T278
   initWanderingScribe();          // T279
   initDesertTrader();             // T280
+  initWanderingGemcutter();       // T281
+  initForestWarden();             // T282
   initAchievements();
   initLeaderboard();
 }
@@ -1312,6 +1322,8 @@ function _startLoadedGame(savedData) {
   initVillageElderVisit();        // T278
   initWanderingScribe();          // T279
   initDesertTrader();             // T280
+  initWanderingGemcutter();       // T281
+  initForestWarden();             // T282
   initAchievements();
   initLeaderboard();
 }

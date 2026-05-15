@@ -222,4 +222,6 @@ export const Events = Object.freeze({
   VILLAGE_ELDER_VISIT_CHANGED:   'villageElderVisitChanged',        // T278: elder spawned / wisdom / hospitality / dismissed / expired
   WANDERING_SCRIBE_CHANGED:      'wanderingScribeChanged',           // T279: scribe spawned / codex / manuscripts / dismissed / expired
   DESERT_TRADER_CHANGED:         'desertTraderChanged',              // T280: trader spawned / deal / exchanged / dismissed / expired
+  WANDERING_GEMCUTTER_CHANGED:   'wanderingGemcutterChanged',        // T281: gemcutter spawned / commissioned / purchased / dismissed / expired
+  FOREST_WARDEN_CHANGED:         'forestWardenChanged',              // T282: warden spawned / stewardship / lore / dismissed / expired
 });
