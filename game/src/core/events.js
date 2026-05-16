@@ -240,4 +240,6 @@ export const Events = Object.freeze({
   TRAVELING_ARCHITECT_CHANGED:      'travelingArchitectChanged',         // T296: architect spawned / blueprint / design / dismissed / expired
   WANDERING_FALCONER_CHANGED:       'wanderingFalconerChanged',          // T297: falconer spawned / hunt / falconry / dismissed / expired
   ROAMING_BOTANIST_CHANGED:         'roamingBotanistChanged',            // T298: botanist spawned / garden / lore / dismissed / expired
+  WANDERING_JEWELER_CHANGED:        'wanderingJewelerChanged',           // T299: jeweler spawned / regalia / gems / dismissed / expired
+  DESERT_NOMAD_CHIEF_CHANGED:       'desertNomadChiefChanged',           // T300: chief spawned / alliance / trade / dismissed / expired
 });

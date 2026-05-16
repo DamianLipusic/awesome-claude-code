@@ -837,3 +837,17 @@ Built roamingBotanist.js: establishRoyalGarden (20 food + 15 mana → +0.2 food/
 Wired in main.js: import initRoamingBotanist+roamingBotanistTick, registerSystem, initRoamingBotanist() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _roamingBotanistSection() render + botanist-garden/botanist-lore/botanist-away handlers to questPanel.js (import * as Botanist). Events.ROAMING_BOTANIST_CHANGED subscribed.
 Added T298 botanist CSS: @keyframes botanist-pulse (spring green), .botanist-section--active, .btn--botanist-garden (green), .btn--botanist-lore (violet/purple), .btn--botanist-away (gray).
+
+Session 59 — T199–T200 (T299–T300): Wandering Jeweler, Desert Nomad Chief.
+
+T199: Wandering Jeweler (T299) — Iron Age+, 10+ tiles, 13–18 min, 80s window.
+Built wanderingJeweler.js: commissionRoyalRegalia (25 iron + 20 stone → +0.2 iron/s 2.5min +22 prestige +10 morale), purchaseRareGems (30g → +0.15 stone/s 2min +18 prestige), sendJewelerAway (dismiss). Added WANDERING_JEWELER_CHANGED event to events.js. state.wanderingJeweler null field.
+Wired in main.js: import initWanderingJeweler+wanderingJewelerTick, registerSystem, initWanderingJeweler() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingJewelerSection() render + jeweler-regalia/jeweler-gems/jeweler-away handlers to questPanel.js (import * as Jeweler). Events.WANDERING_JEWELER_CHANGED subscribed.
+Added T299 jeweler CSS: @keyframes jeweler-pulse (violet/purple), .jeweler-section--active, .btn--jeweler-regalia (violet), .btn--jeweler-gems (amber/gold), .btn--jeweler-away (gray).
+
+T200: Desert Nomad Chief (T300) — Bronze Age+, 8+ tiles, 14–19 min, 80s window.
+Built desertNomadChief.js: forgeNomadAlliance (20 food + 20g → +0.2 food/s 2.5min +20 prestige +12 morale), exchangeTradeGoods (30 wood → +0.18 gold/s 2min +15 prestige), declineNomadMeeting (dismiss). Added DESERT_NOMAD_CHIEF_CHANGED event to events.js. state.desertNomadChief null field.
+Wired in main.js: import initDesertNomadChief+desertNomadChiefTick, registerSystem, initDesertNomadChief() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _desertNomadChiefSection() render + nomad-alliance/nomad-trade/nomad-decline handlers to questPanel.js (import * as NomadChief). Events.DESERT_NOMAD_CHIEF_CHANGED subscribed.
+Added T300 nomad CSS: @keyframes nomad-pulse (orange/desert), .nomad-section--active, .btn--nomad-alliance (orange), .btn--nomad-trade (amber), .btn--nomad-decline (gray).

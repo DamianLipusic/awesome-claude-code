@@ -63,6 +63,8 @@ import * as Weaver      from '../systems/wanderingWeaver.js';          // T295
 import * as Architect   from '../systems/travelingArchitect.js';       // T296
 import * as Falconer   from '../systems/wanderingFalconer.js';         // T297
 import * as Botanist   from '../systems/roamingBotanist.js';           // T298
+import * as Jeweler    from '../systems/wanderingJeweler.js';          // T299
+import * as NomadChief from '../systems/desertNomadChief.js';          // T300
 
 let _panel = null;
 
@@ -154,6 +156,8 @@ function _encountersSection() {
     _travelingArchitectSection(),
     _wanderingFalconerSection(),
     _roamingBotanistSection(),
+    _wanderingJewelerSection(),
+    _desertNomadChiefSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -1824,6 +1828,76 @@ function _roamingBotanistSection() {
     </div>`;
 }
 
+// ── T299 Wandering Jeweler ───────────────────────────────────────────────────
+
+function _wanderingJewelerSection() {
+  if (!Jeweler.getActiveJeweler()) return '';
+  const secs      = Jeweler.getJewelerSecsLeft();
+  const iron      = Math.floor(state.resources.iron  ?? 0);
+  const stone     = Math.floor(state.resources.stone ?? 0);
+  const gold      = Math.floor(state.resources.gold  ?? 0);
+  const canRegalia = iron >= Jeweler.REGALIA_IRON_COST && stone >= Jeweler.REGALIA_STONE_COST;
+  const canGems    = gold >= Jeweler.GEMS_GOLD_COST;
+  const urg = secs <= 15 ? ' jeweler-timer--urgent' : '';
+  return `
+    <div class="jeweler-section--active">
+      <div class="jeweler-header">
+        <span class="jeweler-title">💎 Wandering Jeweler</span>
+        <span class="jeweler-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="jeweler-desc">A master wandering jeweler arrives carrying rare gemstones and the knowledge to craft regal regalia fit for an emperor, their padded cases gleaming with treasures gathered across distant kingdoms.</div>
+      <div class="jeweler-actions">
+        <button class="btn--jeweler-regalia${canRegalia ? '' : ' btn--disabled'}" data-action="jeweler-regalia" ${canRegalia ? '' : 'disabled'}>
+          💎 Commission Royal Regalia — ${Jeweler.REGALIA_IRON_COST}⚙️ + ${Jeweler.REGALIA_STONE_COST}🪨
+          <span class="jeweler-cost">→ +${Jeweler.REGALIA_IRON_RATE} iron/s (2.5 min) · +${Jeweler.REGALIA_PRESTIGE_REWARD} prestige · +${Jeweler.REGALIA_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--jeweler-gems${canGems ? '' : ' btn--disabled'}" data-action="jeweler-gems" ${canGems ? '' : 'disabled'}>
+          💍 Purchase Rare Gems — ${Jeweler.GEMS_GOLD_COST}💰
+          <span class="jeweler-cost">→ +${Jeweler.GEMS_STONE_RATE} stone/s (2 min) · +${Jeweler.GEMS_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--jeweler-away" data-action="jeweler-away">
+          👋 Send Away
+          <span class="jeweler-cost">→ Jeweler sets off to craft treasures for distant kingdoms</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T300 Desert Nomad Chief ──────────────────────────────────────────────────
+
+function _desertNomadChiefSection() {
+  if (!NomadChief.getActiveNomadChief()) return '';
+  const secs      = NomadChief.getNomadChiefSecsLeft();
+  const food      = Math.floor(state.resources.food ?? 0);
+  const gold      = Math.floor(state.resources.gold ?? 0);
+  const wood      = Math.floor(state.resources.wood ?? 0);
+  const canAlliance = food >= NomadChief.ALLIANCE_FOOD_COST && gold >= NomadChief.ALLIANCE_GOLD_COST;
+  const canTrade    = wood >= NomadChief.TRADE_WOOD_COST;
+  const urg = secs <= 15 ? ' nomad-timer--urgent' : '';
+  return `
+    <div class="nomad-section--active">
+      <div class="nomad-header">
+        <span class="nomad-title">🏜️ Desert Nomad Chief</span>
+        <span class="nomad-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="nomad-desc">A powerful desert nomad chief arrives leading a delegation of warriors, traders, and desert scouts from the vast sand kingdoms beyond the horizon, seeking diplomacy and profitable exchange.</div>
+      <div class="nomad-actions">
+        <button class="btn--nomad-alliance${canAlliance ? '' : ' btn--disabled'}" data-action="nomad-alliance" ${canAlliance ? '' : 'disabled'}>
+          🏜️ Forge Alliance — ${NomadChief.ALLIANCE_FOOD_COST}🌾 + ${NomadChief.ALLIANCE_GOLD_COST}💰
+          <span class="nomad-cost">→ +${NomadChief.ALLIANCE_FOOD_RATE} food/s (2.5 min) · +${NomadChief.ALLIANCE_PRESTIGE_REWARD} prestige · +${NomadChief.ALLIANCE_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--nomad-trade${canTrade ? '' : ' btn--disabled'}" data-action="nomad-trade" ${canTrade ? '' : 'disabled'}>
+          🐪 Exchange Trade Goods — ${NomadChief.TRADE_WOOD_COST}🪵
+          <span class="nomad-cost">→ +${NomadChief.TRADE_GOLD_RATE} gold/s (2 min) · +${NomadChief.TRADE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--nomad-decline" data-action="nomad-decline">
+          🚫 Decline Meeting
+          <span class="nomad-cost">→ Chief departs with proud dignity back to the desert sands</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -2037,6 +2111,14 @@ const _HANDLERS = {
   'botanist-garden': () => Botanist.establishRoyalGarden(),
   'botanist-lore':   () => Botanist.purchasePlantLore(),
   'botanist-away':   () => Botanist.sendBotanistAway(),
+
+  'jeweler-regalia': () => Jeweler.commissionRoyalRegalia(),
+  'jeweler-gems':    () => Jeweler.purchaseRareGems(),
+  'jeweler-away':    () => Jeweler.sendJewelerAway(),
+
+  'nomad-alliance':  () => NomadChief.forgeNomadAlliance(),
+  'nomad-trade':     () => NomadChief.exchangeTradeGoods(),
+  'nomad-decline':   () => NomadChief.declineNomadMeeting(),
 };
 
 function _handleClick(e) {
@@ -2107,6 +2189,8 @@ export function initQuestPanel() {
     Events.TRAVELING_ARCHITECT_CHANGED,
     Events.WANDERING_FALCONER_CHANGED,
     Events.ROAMING_BOTANIST_CHANGED,
+    Events.WANDERING_JEWELER_CHANGED,
+    Events.DESERT_NOMAD_CHIEF_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

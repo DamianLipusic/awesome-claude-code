@@ -536,6 +536,24 @@
       "status": "done",
       "phase": 106,
       "notes": "Built roamingBotanist.js. ROAMING_BOTANIST_CHANGED event added to events.js. state.roamingBotanist null field. Botanist section in questPanel.js (import * as Botanist). Events.ROAMING_BOTANIST_CHANGED subscribed. CSS: @keyframes botanist-pulse (spring green), .botanist-section--active, .btn--botanist-garden (green), .btn--botanist-lore (violet/purple), .btn--botanist-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T299",
+      "title": "Wandering Jeweler",
+      "description": "Iron Age+, 10+ tiles, 13-18 min spawn, 80s window. Commission Royal Regalia (25 iron + 20 stone -> +0.2 iron/s 2.5min +22 prestige +10 morale), Purchase Rare Gems (30g -> +0.15 stone/s 2min +18 prestige), Send Away.",
+      "priority": 299,
+      "status": "done",
+      "phase": 107,
+      "notes": "Built wanderingJeweler.js. WANDERING_JEWELER_CHANGED event added to events.js. state.wanderingJeweler null field. Jeweler section in questPanel.js (import * as Jeweler). Events.WANDERING_JEWELER_CHANGED subscribed. CSS: @keyframes jeweler-pulse (violet/purple), .jeweler-section--active, .btn--jeweler-regalia (violet), .btn--jeweler-gems (amber/gold), .btn--jeweler-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T300",
+      "title": "Desert Nomad Chief",
+      "description": "Bronze Age+, 8+ tiles, 14-19 min spawn, 80s window. Forge Alliance (20 food + 20g -> +0.2 food/s 2.5min +20 prestige +12 morale), Exchange Trade Goods (30 wood -> +0.18 gold/s 2min +15 prestige), Decline Meeting.",
+      "priority": 300,
+      "status": "done",
+      "phase": 107,
+      "notes": "Built desertNomadChief.js. DESERT_NOMAD_CHIEF_CHANGED event added to events.js. state.desertNomadChief null field. Nomad chief section in questPanel.js (import * as NomadChief). Events.DESERT_NOMAD_CHIEF_CHANGED subscribed. CSS: @keyframes nomad-pulse (orange/desert), .nomad-section--active, .btn--nomad-alliance (orange), .btn--nomad-trade (amber), .btn--nomad-decline (gray). Wired main.js: import, registerSystem, init x2, save/load."
     }
   ],
   "session_history": [
@@ -574,6 +592,7 @@
     "Session 55 (T191-T192): Wandering Shipwright (T291), Master Brewer (T292)",
     "Session 56 (T193-T194): Ancient Manuscript Trader (T293), Imperial Siege Engineer (T294)",
     "Session 57 (T195-T196): Wandering Weaver (T295), Traveling Architect (T296)",
-    "Session 58 (T197-T198): Wandering Falconer (T297), Roaming Botanist (T298)"
+    "Session 58 (T197-T198): Wandering Falconer (T297), Roaming Botanist (T298)",
+    "Session 59 (T199-T200): Wandering Jeweler (T299), Desert Nomad Chief (T300)"
   ]
 }

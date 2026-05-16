@@ -240,6 +240,8 @@ import { initWanderingWeaver, wanderingWeaverTick }                 from './syst
 import { initTravelingArchitect, travelingArchitectTick }           from './systems/travelingArchitect.js';      // T296
 import { initWanderingFalconer, wanderingFalconerTick }             from './systems/wanderingFalconer.js';       // T297
 import { initRoamingBotanist, roamingBotanistTick }                 from './systems/roamingBotanist.js';         // T298
+import { initWanderingJeweler, wanderingJewelerTick }               from './systems/wanderingJeweler.js';        // T299
+import { initDesertNomadChief, desertNomadChiefTick }               from './systems/desertNomadChief.js';        // T300
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -486,6 +488,8 @@ function _registerAllSystems() {
   registerSystem(travelingArchitectTick);             // T296
   registerSystem(wanderingFalconerTick);              // T297
   registerSystem(roamingBotanistTick);                // T298
+  registerSystem(wanderingJewelerTick);               // T299
+  registerSystem(desertNomadChiefTick);               // T300
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -717,6 +721,8 @@ function _save() {
     travelingArchitect:         state.travelingArchitect,         // T296
     wanderingFalconer:          state.wanderingFalconer,          // T297
     roamingBotanist:            state.roamingBotanist,            // T298
+    wanderingJeweler:           state.wanderingJeweler,           // T299
+    desertNomadChief:           state.desertNomadChief,           // T300
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -953,6 +959,8 @@ function _applySave(s) {
   state.travelingArchitect         = s.travelingArchitect ?? null;         // T296
   state.wanderingFalconer          = s.wanderingFalconer ?? null;          // T297
   state.roamingBotanist            = s.roamingBotanist ?? null;            // T298
+  state.wanderingJeweler           = s.wanderingJeweler ?? null;           // T299
+  state.desertNomadChief           = s.desertNomadChief ?? null;           // T300
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -1195,6 +1203,8 @@ function _startFreshGame() {
   initTravelingArchitect();             // T296
   initWanderingFalconer();              // T297
   initRoamingBotanist();                // T298
+  initWanderingJeweler();               // T299
+  initDesertNomadChief();               // T300
   initAchievements();
   initLeaderboard();
 }
@@ -1420,6 +1430,8 @@ function _startLoadedGame(savedData) {
   initTravelingArchitect();             // T296
   initWanderingFalconer();              // T297
   initRoamingBotanist();                // T298
+  initWanderingJeweler();               // T299
+  initDesertNomadChief();               // T300
   initAchievements();
   initLeaderboard();
 }
