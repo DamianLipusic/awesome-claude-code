@@ -233,5 +233,7 @@ export const Events = Object.freeze({
   WANDERING_DYER_CHANGED:        'wanderingDyerChanged',              // T289: dyer spawned / dyed / learned / dismissed / expired
   FRONTIER_SCOUT_CHANGED:        'frontierScoutChanged',              // T290: scout spawned / commissioned / exchanged / dismissed / expired
   WANDERING_SHIPWRIGHT_CHANGED:  'wanderingShipwrightChanged',        // T291: shipwright spawned / commissioned / purchased / dismissed / expired
-  MASTER_BREWER_CHANGED:         'masterBrewerChanged',               // T292: brewer spawned / commissioned / learned / dismissed / expired
+  MASTER_BREWER_CHANGED:              'masterBrewerChanged',               // T292: brewer spawned / commissioned / learned / dismissed / expired
+  ANCIENT_MANUSCRIPT_TRADER_CHANGED: 'ancientManuscriptTraderChanged',    // T293: trader spawned / codex / secrets / dismissed / expired
+  IMPERIAL_SIEGE_ENGINEER_CHANGED:   'imperialSiegeEngineerChanged',      // T294: engineer spawned / fortified / designed / dismissed / expired
 });

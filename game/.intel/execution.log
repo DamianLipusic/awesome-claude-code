@@ -795,3 +795,17 @@ Built frontierScout.js: commissionScoutingReport (30 iron → +0.18 iron/s 2.5mi
 Wired in main.js: import initFrontierScout+frontierScoutTick, registerSystem, initFrontierScout() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _frontierScoutSection() render + scout-commission/scout-exchange/scout-away handlers to questPanel.js (import * as FScout). Events.FRONTIER_SCOUT_CHANGED subscribed.
 Added T290 scout CSS: @keyframes scout-pulse (lime/yellow-green), .scout-section--active, .btn--scout-commission (lime), .btn--scout-exchange (violet), .btn--scout-away (gray).
+
+Session 56 — T193–T194 (T293–T294): Ancient Manuscript Trader, Imperial Siege Engineer.
+
+T193: Ancient Manuscript Trader (T293) — Medieval Age+, 10+ tiles, 15–19 min, 80s window.
+Built ancientManuscriptTrader.js: purchaseIlluminatedCodex (35 mana → +0.25 mana/s 2.5min +22 prestige), acquireTradeSecrets (30g → +0.18 gold/s 2min +18 prestige +8 morale), sendManuscriptTraderAway (dismiss). Added ANCIENT_MANUSCRIPT_TRADER_CHANGED event to events.js. state.ancientManuscriptTrader null field.
+Wired in main.js: import initAncientManuscriptTrader+ancientManuscriptTraderTick, registerSystem, initAncientManuscriptTrader() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _ancientManuscriptTraderSection() render + manuscript-codex/manuscript-secrets/manuscript-away handlers to questPanel.js (import * as ManTrader). Events.ANCIENT_MANUSCRIPT_TRADER_CHANGED subscribed.
+Added T293 manuscript CSS: @keyframes manuscript-pulse (indigo/violet), .manuscript-section--active, .btn--manuscript-codex (indigo), .btn--manuscript-secrets (amber), .btn--manuscript-away (gray).
+
+T194: Imperial Siege Engineer (T294) — Iron Age+, 12+ tiles, 14–18 min, 75s window.
+Built imperialSiegeEngineer.js: commissionBattleFortifications (30 iron + 20 stone → +0.2 stone/s 2.5min +25 prestige +10 morale), studyEngineeringDesigns (20g → +0.15 iron/s 2min +15 prestige), sendSiegeEngineerAway (dismiss). Added IMPERIAL_SIEGE_ENGINEER_CHANGED event to events.js. state.imperialSiegeEngineer null field.
+Wired in main.js: import initImperialSiegeEngineer+imperialSiegeEngineerTick, registerSystem, initImperialSiegeEngineer() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _imperialSiegeEngineerSection() render + engineer-fortify/engineer-designs/engineer-away handlers to questPanel.js (import * as SiegeEng). Events.IMPERIAL_SIEGE_ENGINEER_CHANGED subscribed.
+Added T294 engineer CSS: @keyframes engineer-pulse (orange/rust), .engineer-section--active, .btn--engineer-fortify (orange), .btn--engineer-designs (slate), .btn--engineer-away (gray).

@@ -17303,3 +17303,83 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--brewer-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T293 Ancient Manuscript Trader ──────────────────────────────────────── */
+@keyframes manuscript-pulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(99, 102, 241, 0.25); }
+  50%       { box-shadow: 0 0 18px rgba(99, 102, 241, 0.55), 0 0 6px rgba(139, 92, 246, 0.35); }
+}
+.manuscript-section--active {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(67, 56, 202, 0.05));
+  border: 1px solid rgba(99, 102, 241, 0.30); border-radius: 8px;
+  padding: 12px; margin-bottom: 10px;
+  animation: manuscript-pulse 3.5s ease-in-out infinite;
+}
+.manuscript-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.manuscript-title  { font-size: 0.92rem; font-weight: 600; color: #a5b4fc; }
+.manuscript-timer  { font-size: 0.78rem; color: #818cf8; background: rgba(99, 102, 241, 0.12); padding: 2px 7px; border-radius: 10px; }
+.manuscript-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.15); }
+.manuscript-desc   { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.manuscript-actions { display: flex; flex-direction: column; gap: 6px; }
+.manuscript-cost   { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--manuscript-codex {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(67, 56, 202, 0.08));
+  border: 1px solid rgba(99, 102, 241, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #a5b4fc; text-align: left; transition: background 0.15s;
+}
+.btn--manuscript-codex:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(99, 102, 241, 0.22), rgba(67, 56, 202, 0.15)); }
+.btn--manuscript-secrets {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(234, 179, 8, 0.12), rgba(161, 98, 7, 0.08));
+  border: 1px solid rgba(234, 179, 8, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fde68a; text-align: left; transition: background 0.15s;
+}
+.btn--manuscript-secrets:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(234, 179, 8, 0.22), rgba(161, 98, 7, 0.15)); }
+.btn--manuscript-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--manuscript-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T294 Imperial Siege Engineer ────────────────────────────────────────── */
+@keyframes engineer-pulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(249, 115, 22, 0.25); }
+  50%       { box-shadow: 0 0 18px rgba(249, 115, 22, 0.55), 0 0 6px rgba(234, 88, 12, 0.35); }
+}
+.engineer-section--active {
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.08), rgba(194, 65, 12, 0.05));
+  border: 1px solid rgba(249, 115, 22, 0.30); border-radius: 8px;
+  padding: 12px; margin-bottom: 10px;
+  animation: engineer-pulse 3.5s ease-in-out infinite;
+}
+.engineer-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.engineer-title  { font-size: 0.92rem; font-weight: 600; color: #fdba74; }
+.engineer-timer  { font-size: 0.78rem; color: #fb923c; background: rgba(249, 115, 22, 0.12); padding: 2px 7px; border-radius: 10px; }
+.engineer-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.15); }
+.engineer-desc   { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.engineer-actions { display: flex; flex-direction: column; gap: 6px; }
+.engineer-cost   { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--engineer-fortify {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.12), rgba(194, 65, 12, 0.08));
+  border: 1px solid rgba(249, 115, 22, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fdba74; text-align: left; transition: background 0.15s;
+}
+.btn--engineer-fortify:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(249, 115, 22, 0.22), rgba(194, 65, 12, 0.15)); }
+.btn--engineer-designs {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(100, 116, 139, 0.12), rgba(71, 85, 105, 0.08));
+  border: 1px solid rgba(100, 116, 139, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #94a3b8; text-align: left; transition: background 0.15s;
+}
+.btn--engineer-designs:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(100, 116, 139, 0.22), rgba(71, 85, 105, 0.15)); }
+.btn--engineer-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--engineer-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

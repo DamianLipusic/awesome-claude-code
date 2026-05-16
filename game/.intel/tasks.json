@@ -482,6 +482,24 @@
       "status": "done",
       "phase": 103,
       "notes": "Built masterBrewer.js. MASTER_BREWER_CHANGED event added to events.js. state.masterBrewer null field. Brewer section in questPanel.js (import * as MBrewer). Events.MASTER_BREWER_CHANGED subscribed. CSS: @keyframes brewer-pulse (amber/gold), .brewer-section--active, .btn--brewer-commission (amber), .btn--brewer-learn (green), .btn--brewer-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T293",
+      "title": "Ancient Manuscript Trader",
+      "description": "Medieval Age+, 10+ tiles, 15-19 min spawn, 80s window. Purchase Illuminated Codex (35 mana -> +0.25 mana/s 2.5min +22 prestige), Acquire Trade Secrets (30g -> +0.18 gold/s 2min +18 prestige +8 morale), Send Away.",
+      "priority": 293,
+      "status": "done",
+      "phase": 104,
+      "notes": "Built ancientManuscriptTrader.js. ANCIENT_MANUSCRIPT_TRADER_CHANGED event added to events.js. state.ancientManuscriptTrader null field. Manuscript trader section in questPanel.js (import * as ManTrader). Events.ANCIENT_MANUSCRIPT_TRADER_CHANGED subscribed. CSS: @keyframes manuscript-pulse (indigo/violet), .manuscript-section--active, .btn--manuscript-codex (indigo), .btn--manuscript-secrets (amber), .btn--manuscript-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T294",
+      "title": "Imperial Siege Engineer",
+      "description": "Iron Age+, 12+ tiles, 14-18 min spawn, 75s window. Commission Battle Fortifications (30 iron + 20 stone -> +0.2 stone/s 2.5min +25 prestige +10 morale), Study Engineering Designs (20g -> +0.15 iron/s 2min +15 prestige), Send Away.",
+      "priority": 294,
+      "status": "done",
+      "phase": 104,
+      "notes": "Built imperialSiegeEngineer.js. IMPERIAL_SIEGE_ENGINEER_CHANGED event added to events.js. state.imperialSiegeEngineer null field. Siege engineer section in questPanel.js (import * as SiegeEng). Events.IMPERIAL_SIEGE_ENGINEER_CHANGED subscribed. CSS: @keyframes engineer-pulse (orange/rust), .engineer-section--active, .btn--engineer-fortify (orange), .btn--engineer-designs (slate), .btn--engineer-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     }
   ],
   "session_history": [
@@ -517,6 +535,7 @@
     "Session 30 (T185-T186): Wandering Glassblower (T285), Royal Astronomer (T286)",
     "Session 31 (T187-T188): Imperial Herald (T287), Traveling Potter (T288)",
     "Session 54 (T189-T190): Wandering Dyer (T289), Frontier Scout (T290)",
-    "Session 55 (T191-T192): Wandering Shipwright (T291), Master Brewer (T292)"
+    "Session 55 (T191-T192): Wandering Shipwright (T291), Master Brewer (T292)",
+    "Session 56 (T193-T194): Ancient Manuscript Trader (T293), Imperial Siege Engineer (T294)"
   ]
 }

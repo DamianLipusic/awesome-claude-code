@@ -57,6 +57,8 @@ import * as WDyer       from '../systems/wanderingDyer.js';           // T289
 import * as FScout      from '../systems/frontierScout.js';           // T290
 import * as Shipwright  from '../systems/wanderingShipwright.js';    // T291
 import * as MBrewer     from '../systems/masterBrewer.js';           // T292
+import * as ManTrader   from '../systems/ancientManuscriptTrader.js'; // T293
+import * as SiegeEng    from '../systems/imperialSiegeEngineer.js';   // T294
 
 let _panel = null;
 
@@ -142,6 +144,8 @@ function _encountersSection() {
     _frontierScoutSection(),
     _wanderingShipwrightSection(),
     _masterBrewerSection(),
+    _ancientManuscriptTraderSection(),
+    _imperialSiegeEngineerSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -1604,6 +1608,75 @@ function _masterBrewerSection() {
     </div>`;
 }
 
+// ── T293 Ancient Manuscript Trader ───────────────────────────────────────
+
+function _ancientManuscriptTraderSection() {
+  if (!ManTrader.getActiveManuscriptTrader()) return '';
+  const secs        = ManTrader.getManuscriptTraderSecsLeft();
+  const mana        = Math.floor(state.resources.mana ?? 0);
+  const gold        = Math.floor(state.resources.gold ?? 0);
+  const canCodex    = mana >= ManTrader.CODEX_MANA_COST;
+  const canSecrets  = gold >= ManTrader.SECRETS_GOLD_COST;
+  const urg = secs <= 15 ? ' manuscript-timer--urgent' : '';
+  return `
+    <div class="manuscript-section--active">
+      <div class="manuscript-header">
+        <span class="manuscript-title">📜 Ancient Manuscript Trader</span>
+        <span class="manuscript-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="manuscript-desc">A secretive trader arrives with illuminated codices, ancient star charts, and the lost records of vanished civilisations — knowledge that could reshape your empire's destiny.</div>
+      <div class="manuscript-actions">
+        <button class="btn--manuscript-codex${canCodex ? '' : ' btn--disabled'}" data-action="manuscript-codex" ${canCodex ? '' : 'disabled'}>
+          📜 Purchase Illuminated Codex — ${ManTrader.CODEX_MANA_COST}✨
+          <span class="manuscript-cost">→ +${ManTrader.CODEX_MANA_RATE} mana/s (2.5 min) · +${ManTrader.CODEX_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--manuscript-secrets${canSecrets ? '' : ' btn--disabled'}" data-action="manuscript-secrets" ${canSecrets ? '' : 'disabled'}>
+          🪙 Acquire Trade Secrets — ${ManTrader.SECRETS_GOLD_COST}💰
+          <span class="manuscript-cost">→ +${ManTrader.SECRETS_GOLD_RATE} gold/s (2 min) · +${ManTrader.SECRETS_PRESTIGE_REWARD} prestige · +${ManTrader.SECRETS_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--manuscript-away" data-action="manuscript-away">
+          👋 Send Away
+          <span class="manuscript-cost">→ Trader departs through the imperial gates</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T294 Imperial Siege Engineer ─────────────────────────────────────────
+
+function _imperialSiegeEngineerSection() {
+  if (!SiegeEng.getActiveSiegeEngineer()) return '';
+  const secs         = SiegeEng.getSiegeEngineerSecsLeft();
+  const iron         = Math.floor(state.resources.iron ?? 0);
+  const stone        = Math.floor(state.resources.stone ?? 0);
+  const gold         = Math.floor(state.resources.gold ?? 0);
+  const canFortify   = iron >= SiegeEng.FORTIFY_IRON_COST && stone >= SiegeEng.FORTIFY_STONE_COST;
+  const canDesigns   = gold >= SiegeEng.DESIGNS_GOLD_COST;
+  const urg = secs <= 15 ? ' engineer-timer--urgent' : '';
+  return `
+    <div class="engineer-section--active">
+      <div class="engineer-header">
+        <span class="engineer-title">🏰 Imperial Siege Engineer</span>
+        <span class="engineer-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="engineer-desc">A master siege engineer arrives bearing trebuchet blueprints, battle-tested fortification designs, and the siege warfare secrets forged across a dozen campaigns.</div>
+      <div class="engineer-actions">
+        <button class="btn--engineer-fortify${canFortify ? '' : ' btn--disabled'}" data-action="engineer-fortify" ${canFortify ? '' : 'disabled'}>
+          🏰 Commission Battle Fortifications — ${SiegeEng.FORTIFY_IRON_COST}⚙️ + ${SiegeEng.FORTIFY_STONE_COST}🪨
+          <span class="engineer-cost">→ +${SiegeEng.FORTIFY_STONE_RATE} stone/s (2.5 min) · +${SiegeEng.FORTIFY_PRESTIGE_REWARD} prestige · +${SiegeEng.FORTIFY_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--engineer-designs${canDesigns ? '' : ' btn--disabled'}" data-action="engineer-designs" ${canDesigns ? '' : 'disabled'}>
+          📐 Study Engineering Designs — ${SiegeEng.DESIGNS_GOLD_COST}💰
+          <span class="engineer-cost">→ +${SiegeEng.DESIGNS_IRON_RATE} iron/s (2 min) · +${SiegeEng.DESIGNS_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--engineer-away" data-action="engineer-away">
+          👋 Send Away
+          <span class="engineer-cost">→ Engineer departs to seek another patron</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -1793,6 +1866,14 @@ const _HANDLERS = {
   'brewer-commission': () => MBrewer.commissionImperialAle(),
   'brewer-learn':      () => MBrewer.learnBrewingTechniques(),
   'brewer-away':       () => MBrewer.sendBrewerAway(),
+
+  'manuscript-codex':   () => ManTrader.purchaseIlluminatedCodex(),
+  'manuscript-secrets': () => ManTrader.acquireTradeSecrets(),
+  'manuscript-away':    () => ManTrader.sendManuscriptTraderAway(),
+
+  'engineer-fortify':  () => SiegeEng.commissionBattleFortifications(),
+  'engineer-designs':  () => SiegeEng.studyEngineeringDesigns(),
+  'engineer-away':     () => SiegeEng.sendSiegeEngineerAway(),
 };
 
 function _handleClick(e) {
@@ -1857,6 +1938,8 @@ export function initQuestPanel() {
     Events.FRONTIER_SCOUT_CHANGED,
     Events.WANDERING_SHIPWRIGHT_CHANGED,
     Events.MASTER_BREWER_CHANGED,
+    Events.ANCIENT_MANUSCRIPT_TRADER_CHANGED,
+    Events.IMPERIAL_SIEGE_ENGINEER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);
