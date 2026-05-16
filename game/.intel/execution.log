@@ -778,3 +778,17 @@ Built travelingPotter.js: commissionFinePottery (20 stone + 15 food → +0.15 st
 Wired in main.js: import initTravelingPotter+travelingPotterTick, registerSystem, initTravelingPotter() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _travelingPotterSection() render + potter-commission/potter-learn/potter-away handlers to questPanel.js (import * as TPotter). Events.TRAVELING_POTTER_CHANGED subscribed.
 Added T288 potter CSS: @keyframes potter-pulse (terracotta/orange), .potter-section--active, .btn--potter-commission (orange), .btn--potter-learn (light orange), .btn--potter-away (gray).
+
+Session 54 — T189–T190 (T289–T290): Wandering Dyer, Frontier Scout.
+
+T189: Wandering Dyer (T289) — Bronze Age+, 8+ tiles, 11–15 min, 80s window.
+Built wanderingDyer.js: dyeImperialBanners (25 wood + 15 food → +0.22 wood/s 2.5min +18 prestige +8 morale), learnNaturalDyes (18g → +0.15 food/s 2min +12 prestige), sendDyerAway (dismiss). Added WANDERING_DYER_CHANGED event to events.js. state.wanderingDyer null field.
+Wired in main.js: import initWanderingDyer+wanderingDyerTick, registerSystem, initWanderingDyer() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingDyerSection() render + dyer-banners/dyer-learn/dyer-away handlers to questPanel.js (import * as WDyer). Events.WANDERING_DYER_CHANGED subscribed.
+Added T289 dyer CSS: @keyframes dyer-pulse (rose/pink), .dyer-section--active, .btn--dyer-banners (rose), .btn--dyer-learn (green), .btn--dyer-away (gray).
+
+T190: Frontier Scout (T290) — Iron Age+, 10+ tiles, 14–19 min, 80s window.
+Built frontierScout.js: commissionScoutingReport (30 iron → +0.18 iron/s 2.5min +22 prestige +8 morale), exchangeIntelligenceMaps (25 mana → +0.2 mana/s 2min +18 prestige), sendScoutAway (dismiss). Added FRONTIER_SCOUT_CHANGED event to events.js. state.frontierScout null field.
+Wired in main.js: import initFrontierScout+frontierScoutTick, registerSystem, initFrontierScout() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _frontierScoutSection() render + scout-commission/scout-exchange/scout-away handlers to questPanel.js (import * as FScout). Events.FRONTIER_SCOUT_CHANGED subscribed.
+Added T290 scout CSS: @keyframes scout-pulse (lime/yellow-green), .scout-section--active, .btn--scout-commission (lime), .btn--scout-exchange (violet), .btn--scout-away (gray).

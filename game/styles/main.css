@@ -17143,3 +17143,83 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--potter-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T289 Wandering Dyer ────────────────────────────────────── */
+@keyframes dyer-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0); border-color: rgba(236, 72, 153, 0.35); }
+  50%       { box-shadow: 0 0 14px 3px rgba(236, 72, 153, 0.22); border-color: rgba(236, 72, 153, 0.62); }
+}
+.dyer-section--active {
+  background: linear-gradient(135deg, rgba(236, 72, 153, 0.08), rgba(190, 24, 93, 0.06));
+  border: 1px solid rgba(236, 72, 153, 0.35); border-radius: 8px;
+  padding: 12px; margin-bottom: 10px;
+  animation: dyer-pulse 3.5s ease-in-out infinite;
+}
+.dyer-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.dyer-title  { font-size: 0.92rem; font-weight: 600; color: #f472b6; }
+.dyer-timer  { font-size: 0.78rem; color: #ec4899; background: rgba(236, 72, 153, 0.12); padding: 2px 7px; border-radius: 10px; }
+.dyer-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.15); }
+.dyer-desc   { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.dyer-actions { display: flex; flex-direction: column; gap: 6px; }
+.dyer-cost   { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--dyer-banners {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(236, 72, 153, 0.12), rgba(190, 24, 93, 0.08));
+  border: 1px solid rgba(236, 72, 153, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #f472b6; text-align: left; transition: background 0.15s;
+}
+.btn--dyer-banners:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(236, 72, 153, 0.22), rgba(190, 24, 93, 0.15)); }
+.btn--dyer-learn {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(74, 222, 128, 0.12), rgba(21, 128, 61, 0.08));
+  border: 1px solid rgba(74, 222, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #86efac; text-align: left; transition: background 0.15s;
+}
+.btn--dyer-learn:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(74, 222, 128, 0.22), rgba(21, 128, 61, 0.15)); }
+.btn--dyer-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--dyer-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T290 Frontier Scout ────────────────────────────────────── */
+@keyframes scout-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(132, 204, 22, 0); border-color: rgba(132, 204, 22, 0.35); }
+  50%       { box-shadow: 0 0 14px 3px rgba(132, 204, 22, 0.22); border-color: rgba(132, 204, 22, 0.62); }
+}
+.scout-section--active {
+  background: linear-gradient(135deg, rgba(132, 204, 22, 0.08), rgba(77, 124, 15, 0.06));
+  border: 1px solid rgba(132, 204, 22, 0.35); border-radius: 8px;
+  padding: 12px; margin-bottom: 10px;
+  animation: scout-pulse 3.5s ease-in-out infinite;
+}
+.scout-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.scout-title  { font-size: 0.92rem; font-weight: 600; color: #bef264; }
+.scout-timer  { font-size: 0.78rem; color: #a3e635; background: rgba(132, 204, 22, 0.12); padding: 2px 7px; border-radius: 10px; }
+.scout-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.15); }
+.scout-desc   { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.scout-actions { display: flex; flex-direction: column; gap: 6px; }
+.scout-cost   { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--scout-commission {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(132, 204, 22, 0.12), rgba(77, 124, 15, 0.08));
+  border: 1px solid rgba(132, 204, 22, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #bef264; text-align: left; transition: background 0.15s;
+}
+.btn--scout-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(132, 204, 22, 0.22), rgba(77, 124, 15, 0.15)); }
+.btn--scout-exchange {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(167, 139, 250, 0.12), rgba(109, 40, 217, 0.08));
+  border: 1px solid rgba(167, 139, 250, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #c4b5fd; text-align: left; transition: background 0.15s;
+}
+.btn--scout-exchange:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(167, 139, 250, 0.22), rgba(109, 40, 217, 0.15)); }
+.btn--scout-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--scout-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

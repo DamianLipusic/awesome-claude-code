@@ -446,6 +446,24 @@
       "status": "done",
       "phase": 101,
       "notes": "Built travelingPotter.js. TRAVELING_POTTER_CHANGED event added to events.js. state.travelingPotter null field. Potter section in questPanel.js (import * as TPotter). Events.TRAVELING_POTTER_CHANGED subscribed. CSS: @keyframes potter-pulse (terracotta/orange), .potter-section--active, .btn--potter-commission (orange), .btn--potter-learn (light orange), .btn--potter-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T289",
+      "title": "Wandering Dyer",
+      "description": "Bronze Age+, 8+ tiles, 11-15 min spawn, 80s window. Dye Imperial Banners (25 wood + 15 food -> +0.22 wood/s 2.5min +18 prestige +8 morale), Learn Natural Dyes (18g -> +0.15 food/s 2min +12 prestige), Send Away.",
+      "priority": 289,
+      "status": "done",
+      "phase": 102,
+      "notes": "Built wanderingDyer.js. WANDERING_DYER_CHANGED event added to events.js. state.wanderingDyer null field. Dyer section in questPanel.js (import * as WDyer). Events.WANDERING_DYER_CHANGED subscribed. CSS: @keyframes dyer-pulse (rose/pink), .dyer-section--active, .btn--dyer-banners (rose), .btn--dyer-learn (green), .btn--dyer-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T290",
+      "title": "Frontier Scout",
+      "description": "Iron Age+, 10+ tiles, 14-19 min spawn, 80s window. Commission Scouting Report (30 iron -> +0.18 iron/s 2.5min +22 prestige +8 morale), Exchange Intelligence Maps (25 mana -> +0.2 mana/s 2min +18 prestige), Send Away.",
+      "priority": 290,
+      "status": "done",
+      "phase": 102,
+      "notes": "Built frontierScout.js. FRONTIER_SCOUT_CHANGED event added to events.js. state.frontierScout null field. Scout section in questPanel.js (import * as FScout). Events.FRONTIER_SCOUT_CHANGED subscribed. CSS: @keyframes scout-pulse (lime/yellow-green), .scout-section--active, .btn--scout-commission (lime), .btn--scout-exchange (violet), .btn--scout-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     }
   ],
   "session_history": [
@@ -479,6 +497,7 @@
     "Session 28 (T181-T182): Wandering Gemcutter (T281), Forest Warden (T282)",
     "Session 29 (T183-T184): Wandering Beekeeper (T283), Stone Carver (T284)",
     "Session 30 (T185-T186): Wandering Glassblower (T285), Royal Astronomer (T286)",
-    "Session 31 (T187-T188): Imperial Herald (T287), Traveling Potter (T288)"
+    "Session 31 (T187-T188): Imperial Herald (T287), Traveling Potter (T288)",
+    "Session 54 (T189-T190): Wandering Dyer (T289), Frontier Scout (T290)"
   ]
 }

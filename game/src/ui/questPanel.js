@@ -53,6 +53,8 @@ import * as Glassblower from '../systems/wanderingGlassblower.js';    // T285
 import * as RAstronomer from '../systems/royalAstronomer.js';         // T286
 import * as IHerald     from '../systems/imperialHerald.js';          // T287
 import * as TPotter     from '../systems/travelingPotter.js';         // T288
+import * as WDyer       from '../systems/wanderingDyer.js';           // T289
+import * as FScout      from '../systems/frontierScout.js';           // T290
 
 let _panel = null;
 
@@ -134,6 +136,8 @@ function _encountersSection() {
     _royalAstronomerSection(),
     _imperialHeraldSection(),
     _travelingPotterSection(),
+    _wanderingDyerSection(),
+    _frontierScoutSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -1457,6 +1461,75 @@ function _travelingPotterSection() {
     </div>`;
 }
 
+// ── T289 Wandering Dyer ───────────────────────────────────────────────────────
+
+function _wanderingDyerSection() {
+  if (!WDyer.getActiveWanderingDyer()) return '';
+  const secs      = WDyer.getDyerSecsLeft();
+  const wood      = Math.floor(state.resources.wood ?? 0);
+  const food      = Math.floor(state.resources.food ?? 0);
+  const gold      = Math.floor(state.resources.gold ?? 0);
+  const canDye    = wood >= WDyer.DYE_WOOD_COST && food >= WDyer.DYE_FOOD_COST;
+  const canLearn  = gold >= WDyer.LEARN_GOLD_COST;
+  const urg = secs <= 15 ? ' dyer-timer--urgent' : '';
+  return `
+    <div class="dyer-section--active">
+      <div class="dyer-header">
+        <span class="dyer-title">🎨 Wandering Dyer</span>
+        <span class="dyer-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="dyer-desc">A wandering master dyer arrives with vibrant pigments, rare mordants, and bolts of brilliantly colored cloth, offering to transform the empire's textiles into resplendent banners and livery.</div>
+      <div class="dyer-actions">
+        <button class="btn--dyer-banners${canDye ? '' : ' btn--disabled'}" data-action="dyer-banners" ${canDye ? '' : 'disabled'}>
+          🎨 Dye Imperial Banners — ${WDyer.DYE_WOOD_COST}🪵 + ${WDyer.DYE_FOOD_COST}🌾
+          <span class="dyer-cost">→ +${WDyer.DYE_WOOD_RATE} wood/s (2.5 min) · +${WDyer.DYE_PRESTIGE_REWARD} prestige · +${WDyer.DYE_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--dyer-learn${canLearn ? '' : ' btn--disabled'}" data-action="dyer-learn" ${canLearn ? '' : 'disabled'}>
+          🌿 Learn Natural Dyes — ${WDyer.LEARN_GOLD_COST}💰
+          <span class="dyer-cost">→ +${WDyer.LEARN_FOOD_RATE} food/s (2 min) · +${WDyer.LEARN_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--dyer-away" data-action="dyer-away">
+          👋 Send Away
+          <span class="dyer-cost">→ Dyer rolls their colorful cart onward to the next settlement</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T290 Frontier Scout ───────────────────────────────────────────────────────
+
+function _frontierScoutSection() {
+  if (!FScout.getActiveFrontierScout()) return '';
+  const secs            = FScout.getScoutSecsLeft();
+  const iron            = Math.floor(state.resources.iron ?? 0);
+  const mana            = Math.floor(state.resources.mana ?? 0);
+  const canCommission   = iron >= FScout.COMMISSION_IRON_COST;
+  const canExchange     = mana >= FScout.EXCHANGE_MANA_COST;
+  const urg = secs <= 15 ? ' scout-timer--urgent' : '';
+  return `
+    <div class="scout-section--active">
+      <div class="scout-header">
+        <span class="scout-title">🗺️ Frontier Scout</span>
+        <span class="scout-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="scout-desc">A weathered frontier scout emerges from the wilderness, bearing detailed maps of enemy positions, resource deposits, and treacherous terrain that could prove invaluable to the empire's campaigns.</div>
+      <div class="scout-actions">
+        <button class="btn--scout-commission${canCommission ? '' : ' btn--disabled'}" data-action="scout-commission" ${canCommission ? '' : 'disabled'}>
+          🗺️ Commission Scouting Report — ${FScout.COMMISSION_IRON_COST}⚙️
+          <span class="scout-cost">→ +${FScout.COMMISSION_IRON_RATE} iron/s (2.5 min) · +${FScout.COMMISSION_PRESTIGE_REWARD} prestige · +${FScout.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--scout-exchange${canExchange ? '' : ' btn--disabled'}" data-action="scout-exchange" ${canExchange ? '' : 'disabled'}>
+          📜 Exchange Intelligence Maps — ${FScout.EXCHANGE_MANA_COST}✨
+          <span class="scout-cost">→ +${FScout.EXCHANGE_MANA_RATE} mana/s (2 min) · +${FScout.EXCHANGE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--scout-away" data-action="scout-away">
+          👋 Send Away
+          <span class="scout-cost">→ Scout vanishes back into the wilderness from whence they came</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -1630,6 +1703,14 @@ const _HANDLERS = {
   'potter-commission': () => TPotter.commissionFinePottery(),
   'potter-learn':      () => TPotter.learnPottersCraft(),
   'potter-away':       () => TPotter.sendPotterAway(),
+
+  'dyer-banners': () => WDyer.dyeImperialBanners(),
+  'dyer-learn':   () => WDyer.learnNaturalDyes(),
+  'dyer-away':    () => WDyer.sendDyerAway(),
+
+  'scout-commission': () => FScout.commissionScoutingReport(),
+  'scout-exchange':   () => FScout.exchangeIntelligenceMaps(),
+  'scout-away':       () => FScout.sendScoutAway(),
 };
 
 function _handleClick(e) {
@@ -1690,6 +1771,8 @@ export function initQuestPanel() {
     Events.ROYAL_ASTRONOMER_CHANGED,
     Events.IMPERIAL_HERALD_CHANGED,
     Events.TRAVELING_POTTER_CHANGED,
+    Events.WANDERING_DYER_CHANGED,
+    Events.FRONTIER_SCOUT_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);
