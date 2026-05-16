@@ -236,4 +236,6 @@ export const Events = Object.freeze({
   MASTER_BREWER_CHANGED:              'masterBrewerChanged',               // T292: brewer spawned / commissioned / learned / dismissed / expired
   ANCIENT_MANUSCRIPT_TRADER_CHANGED: 'ancientManuscriptTraderChanged',    // T293: trader spawned / codex / secrets / dismissed / expired
   IMPERIAL_SIEGE_ENGINEER_CHANGED:   'imperialSiegeEngineerChanged',      // T294: engineer spawned / fortified / designed / dismissed / expired
+  WANDERING_WEAVER_CHANGED:         'wanderingWeaverChanged',            // T295: weaver spawned / tapestry / patterns / dismissed / expired
+  TRAVELING_ARCHITECT_CHANGED:      'travelingArchitectChanged',         // T296: architect spawned / blueprint / design / dismissed / expired
 });

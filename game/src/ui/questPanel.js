@@ -59,6 +59,8 @@ import * as Shipwright  from '../systems/wanderingShipwright.js';    // T291
 import * as MBrewer     from '../systems/masterBrewer.js';           // T292
 import * as ManTrader   from '../systems/ancientManuscriptTrader.js'; // T293
 import * as SiegeEng    from '../systems/imperialSiegeEngineer.js';   // T294
+import * as Weaver      from '../systems/wanderingWeaver.js';          // T295
+import * as Architect   from '../systems/travelingArchitect.js';       // T296
 
 let _panel = null;
 
@@ -146,6 +148,8 @@ function _encountersSection() {
     _masterBrewerSection(),
     _ancientManuscriptTraderSection(),
     _imperialSiegeEngineerSection(),
+    _wanderingWeaverSection(),
+    _travelingArchitectSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -1677,6 +1681,76 @@ function _imperialSiegeEngineerSection() {
     </div>`;
 }
 
+// ── T295 Wandering Weaver ────────────────────────────────────────────
+
+function _wanderingWeaverSection() {
+  if (!Weaver.getActiveWeaver()) return '';
+  const secs         = Weaver.getWeaverSecsLeft();
+  const wood         = Math.floor(state.resources.wood ?? 0);
+  const food         = Math.floor(state.resources.food ?? 0);
+  const gold         = Math.floor(state.resources.gold ?? 0);
+  const canTapestry  = wood >= Weaver.TAPESTRY_WOOD_COST && food >= Weaver.TAPESTRY_FOOD_COST;
+  const canPatterns  = gold >= Weaver.PATTERNS_GOLD_COST;
+  const urg = secs <= 15 ? ' weaver-timer--urgent' : '';
+  return `
+    <div class="weaver-section--active">
+      <div class="weaver-header">
+        <span class="weaver-title">🧵 Wandering Weaver</span>
+        <span class="weaver-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="weaver-desc">A wandering weaver arrives with rare silks, golden thread, and intricate loom patterns passed down through generations of master craftspeople.</div>
+      <div class="weaver-actions">
+        <button class="btn--weaver-tapestry${canTapestry ? '' : ' btn--disabled'}" data-action="weaver-tapestry" ${canTapestry ? '' : 'disabled'}>
+          🧵 Commission Royal Tapestries — ${Weaver.TAPESTRY_WOOD_COST}🪵 + ${Weaver.TAPESTRY_FOOD_COST}🌾
+          <span class="weaver-cost">→ +${Weaver.TAPESTRY_WOOD_RATE} wood/s (2.5 min) · +${Weaver.TAPESTRY_PRESTIGE_REWARD} prestige · +${Weaver.TAPESTRY_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--weaver-patterns${canPatterns ? '' : ' btn--disabled'}" data-action="weaver-patterns" ${canPatterns ? '' : 'disabled'}>
+          🪡 Learn Weaving Patterns — ${Weaver.PATTERNS_GOLD_COST}💰
+          <span class="weaver-cost">→ +${Weaver.PATTERNS_FOOD_RATE} food/s (2 min) · +${Weaver.PATTERNS_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--weaver-away" data-action="weaver-away">
+          👋 Send Away
+          <span class="weaver-cost">→ Weaver departs to distant markets</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T296 Traveling Architect ─────────────────────────────────────────
+
+function _travelingArchitectSection() {
+  if (!Architect.getActiveArchitect()) return '';
+  const secs         = Architect.getArchitectSecsLeft();
+  const gold         = Math.floor(state.resources.gold ?? 0);
+  const stone        = Math.floor(state.resources.stone ?? 0);
+  const mana         = Math.floor(state.resources.mana ?? 0);
+  const canBlueprint = gold >= Architect.BLUEPRINT_GOLD_COST && stone >= Architect.BLUEPRINT_STONE_COST;
+  const canDesign    = mana >= Architect.DESIGN_MANA_COST;
+  const urg = secs <= 15 ? ' architect-timer--urgent' : '';
+  return `
+    <div class="architect-section--active">
+      <div class="architect-header">
+        <span class="architect-title">🏛️ Traveling Architect</span>
+        <span class="architect-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="architect-desc">A celebrated architect arrives with ambitious blueprints for aqueducts, amphitheaters, and soaring stone towers inspired by the mightiest civilizations of the known world.</div>
+      <div class="architect-actions">
+        <button class="btn--architect-blueprint${canBlueprint ? '' : ' btn--disabled'}" data-action="architect-blueprint" ${canBlueprint ? '' : 'disabled'}>
+          🏛️ Commission Imperial Blueprint — ${Architect.BLUEPRINT_GOLD_COST}💰 + ${Architect.BLUEPRINT_STONE_COST}🪨
+          <span class="architect-cost">→ +${Architect.BLUEPRINT_STONE_RATE} stone/s (2.5 min) · +${Architect.BLUEPRINT_PRESTIGE_REWARD} prestige · +${Architect.BLUEPRINT_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--architect-design${canDesign ? '' : ' btn--disabled'}" data-action="architect-design" ${canDesign ? '' : 'disabled'}>
+          📏 Study Design Principles — ${Architect.DESIGN_MANA_COST}✨
+          <span class="architect-cost">→ +${Architect.DESIGN_IRON_RATE} iron/s (2 min) · +${Architect.DESIGN_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--architect-away" data-action="architect-away">
+          👋 Send Away
+          <span class="architect-cost">→ Architect departs to seek a grander patron</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -1874,6 +1948,14 @@ const _HANDLERS = {
   'engineer-fortify':  () => SiegeEng.commissionBattleFortifications(),
   'engineer-designs':  () => SiegeEng.studyEngineeringDesigns(),
   'engineer-away':     () => SiegeEng.sendSiegeEngineerAway(),
+
+  'weaver-tapestry': () => Weaver.commissionRoyalTapestries(),
+  'weaver-patterns': () => Weaver.learnWeavingPatterns(),
+  'weaver-away':     () => Weaver.sendWeaverAway(),
+
+  'architect-blueprint': () => Architect.commissionImperialBlueprint(),
+  'architect-design':    () => Architect.studyDesignPrinciples(),
+  'architect-away':      () => Architect.sendArchitectAway(),
 };
 
 function _handleClick(e) {
@@ -1940,6 +2022,8 @@ export function initQuestPanel() {
     Events.MASTER_BREWER_CHANGED,
     Events.ANCIENT_MANUSCRIPT_TRADER_CHANGED,
     Events.IMPERIAL_SIEGE_ENGINEER_CHANGED,
+    Events.WANDERING_WEAVER_CHANGED,
+    Events.TRAVELING_ARCHITECT_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

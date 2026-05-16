@@ -809,3 +809,17 @@ Built imperialSiegeEngineer.js: commissionBattleFortifications (30 iron + 20 sto
 Wired in main.js: import initImperialSiegeEngineer+imperialSiegeEngineerTick, registerSystem, initImperialSiegeEngineer() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _imperialSiegeEngineerSection() render + engineer-fortify/engineer-designs/engineer-away handlers to questPanel.js (import * as SiegeEng). Events.IMPERIAL_SIEGE_ENGINEER_CHANGED subscribed.
 Added T294 engineer CSS: @keyframes engineer-pulse (orange/rust), .engineer-section--active, .btn--engineer-fortify (orange), .btn--engineer-designs (slate), .btn--engineer-away (gray).
+
+Session 57 — T195–T196 (T295–T296): Wandering Weaver, Traveling Architect.
+
+T195: Wandering Weaver (T295) — Bronze Age+, 8+ tiles, 12–17 min, 80s window.
+Built wanderingWeaver.js: commissionRoyalTapestries (25 wood + 15 food → +0.22 wood/s 2.5min +20 prestige +8 morale), learnWeavingPatterns (18g → +0.15 food/s 2min +12 prestige), sendWeaverAway (dismiss). Added WANDERING_WEAVER_CHANGED event to events.js. state.wanderingWeaver null field.
+Wired in main.js: import initWanderingWeaver+wanderingWeaverTick, registerSystem, initWanderingWeaver() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingWeaverSection() render + weaver-tapestry/weaver-patterns/weaver-away handlers to questPanel.js (import * as Weaver). Events.WANDERING_WEAVER_CHANGED subscribed.
+Added T295 weaver CSS: @keyframes weaver-pulse (pink/rose), .weaver-section--active, .btn--weaver-tapestry (pink), .btn--weaver-patterns (mint green), .btn--weaver-away (gray).
+
+T196: Traveling Architect (T296) — Iron Age+, 12+ tiles, 15–20 min, 80s window.
+Built travelingArchitect.js: commissionImperialBlueprint (35g + 20 stone → +0.2 stone/s 2.5min +28 prestige +10 morale), studyDesignPrinciples (15 mana → +0.12 iron/s 2min +15 prestige), sendArchitectAway (dismiss). Added TRAVELING_ARCHITECT_CHANGED event to events.js. state.travelingArchitect null field.
+Wired in main.js: import initTravelingArchitect+travelingArchitectTick, registerSystem, initTravelingArchitect() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _travelingArchitectSection() render + architect-blueprint/architect-design/architect-away handlers to questPanel.js (import * as Architect). Events.TRAVELING_ARCHITECT_CHANGED subscribed.
+Added T296 architect CSS: @keyframes architect-pulse (slate/teal), .architect-section--active, .btn--architect-blueprint (slate), .btn--architect-design (teal), .btn--architect-away (gray).

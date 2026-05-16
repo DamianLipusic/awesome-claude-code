@@ -500,6 +500,24 @@
       "status": "done",
       "phase": 104,
       "notes": "Built imperialSiegeEngineer.js. IMPERIAL_SIEGE_ENGINEER_CHANGED event added to events.js. state.imperialSiegeEngineer null field. Siege engineer section in questPanel.js (import * as SiegeEng). Events.IMPERIAL_SIEGE_ENGINEER_CHANGED subscribed. CSS: @keyframes engineer-pulse (orange/rust), .engineer-section--active, .btn--engineer-fortify (orange), .btn--engineer-designs (slate), .btn--engineer-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T295",
+      "title": "Wandering Weaver",
+      "description": "Bronze Age+, 8+ tiles, 12-17 min spawn, 80s window. Commission Royal Tapestries (25 wood + 15 food -> +0.22 wood/s 2.5min +20 prestige +8 morale), Learn Weaving Patterns (18g -> +0.15 food/s 2min +12 prestige), Send Away.",
+      "priority": 295,
+      "status": "done",
+      "phase": 105,
+      "notes": "Built wanderingWeaver.js. WANDERING_WEAVER_CHANGED event added to events.js. state.wanderingWeaver null field. Weaver section in questPanel.js (import * as Weaver). Events.WANDERING_WEAVER_CHANGED subscribed. CSS: @keyframes weaver-pulse (pink/rose), .weaver-section--active, .btn--weaver-tapestry (pink), .btn--weaver-patterns (mint green), .btn--weaver-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T296",
+      "title": "Traveling Architect",
+      "description": "Iron Age+, 12+ tiles, 15-20 min spawn, 80s window. Commission Imperial Blueprint (35g + 20 stone -> +0.2 stone/s 2.5min +28 prestige +10 morale), Study Design Principles (15 mana -> +0.12 iron/s 2min +15 prestige), Send Away.",
+      "priority": 296,
+      "status": "done",
+      "phase": 105,
+      "notes": "Built travelingArchitect.js. TRAVELING_ARCHITECT_CHANGED event added to events.js. state.travelingArchitect null field. Architect section in questPanel.js (import * as Architect). Events.TRAVELING_ARCHITECT_CHANGED subscribed. CSS: @keyframes architect-pulse (slate/teal), .architect-section--active, .btn--architect-blueprint (slate), .btn--architect-design (teal), .btn--architect-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     }
   ],
   "session_history": [
@@ -536,6 +554,7 @@
     "Session 31 (T187-T188): Imperial Herald (T287), Traveling Potter (T288)",
     "Session 54 (T189-T190): Wandering Dyer (T289), Frontier Scout (T290)",
     "Session 55 (T191-T192): Wandering Shipwright (T291), Master Brewer (T292)",
-    "Session 56 (T193-T194): Ancient Manuscript Trader (T293), Imperial Siege Engineer (T294)"
+    "Session 56 (T193-T194): Ancient Manuscript Trader (T293), Imperial Siege Engineer (T294)",
+    "Session 57 (T195-T196): Wandering Weaver (T295), Traveling Architect (T296)"
   ]
 }

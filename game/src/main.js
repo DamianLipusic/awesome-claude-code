@@ -236,6 +236,8 @@ import { initWanderingShipwright, wanderingShipwrightTick }   from './systems/wa
 import { initMasterBrewer, masterBrewerTick }                 from './systems/masterBrewer.js';               // T292
 import { initAncientManuscriptTrader, ancientManuscriptTraderTick } from './systems/ancientManuscriptTrader.js'; // T293
 import { initImperialSiegeEngineer, imperialSiegeEngineerTick }     from './systems/imperialSiegeEngineer.js';   // T294
+import { initWanderingWeaver, wanderingWeaverTick }                 from './systems/wanderingWeaver.js';         // T295
+import { initTravelingArchitect, travelingArchitectTick }           from './systems/travelingArchitect.js';      // T296
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -478,6 +480,8 @@ function _registerAllSystems() {
   registerSystem(masterBrewerTick);                    // T292
   registerSystem(ancientManuscriptTraderTick);        // T293
   registerSystem(imperialSiegeEngineerTick);          // T294
+  registerSystem(wanderingWeaverTick);                // T295
+  registerSystem(travelingArchitectTick);             // T296
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -705,6 +709,8 @@ function _save() {
     masterBrewer:               state.masterBrewer,               // T292
     ancientManuscriptTrader:    state.ancientManuscriptTrader,    // T293
     imperialSiegeEngineer:      state.imperialSiegeEngineer,      // T294
+    wanderingWeaver:            state.wanderingWeaver,            // T295
+    travelingArchitect:         state.travelingArchitect,         // T296
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -937,6 +943,8 @@ function _applySave(s) {
   state.masterBrewer               = s.masterBrewer ?? null;               // T292
   state.ancientManuscriptTrader    = s.ancientManuscriptTrader ?? null;    // T293
   state.imperialSiegeEngineer      = s.imperialSiegeEngineer ?? null;      // T294
+  state.wanderingWeaver            = s.wanderingWeaver ?? null;            // T295
+  state.travelingArchitect         = s.travelingArchitect ?? null;         // T296
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -1175,6 +1183,8 @@ function _startFreshGame() {
   initMasterBrewer();                    // T292
   initAncientManuscriptTrader();        // T293
   initImperialSiegeEngineer();          // T294
+  initWanderingWeaver();                // T295
+  initTravelingArchitect();             // T296
   initAchievements();
   initLeaderboard();
 }
@@ -1396,6 +1406,8 @@ function _startLoadedGame(savedData) {
   initMasterBrewer();                    // T292
   initAncientManuscriptTrader();        // T293
   initImperialSiegeEngineer();          // T294
+  initWanderingWeaver();                // T295
+  initTravelingArchitect();             // T296
   initAchievements();
   initLeaderboard();
 }

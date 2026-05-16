@@ -17383,3 +17383,83 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--engineer-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T295 Wandering Weaver ───────────────────────────────────────────── */
+@keyframes weaver-pulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(244, 114, 182, 0.25); }
+  50%       { box-shadow: 0 0 18px rgba(244, 114, 182, 0.55), 0 0 6px rgba(236, 72, 153, 0.35); }
+}
+.weaver-section--active {
+  background: linear-gradient(135deg, rgba(244, 114, 182, 0.08), rgba(219, 39, 119, 0.05));
+  border: 1px solid rgba(244, 114, 182, 0.30); border-radius: 8px;
+  padding: 12px; margin-bottom: 10px;
+  animation: weaver-pulse 3.5s ease-in-out infinite;
+}
+.weaver-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.weaver-title   { font-size: 0.92rem; font-weight: 600; color: #f9a8d4; }
+.weaver-timer   { font-size: 0.78rem; color: #f472b6; background: rgba(244, 114, 182, 0.12); padding: 2px 7px; border-radius: 10px; }
+.weaver-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.15); }
+.weaver-desc    { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.weaver-actions { display: flex; flex-direction: column; gap: 6px; }
+.weaver-cost    { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--weaver-tapestry {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(244, 114, 182, 0.12), rgba(219, 39, 119, 0.08));
+  border: 1px solid rgba(244, 114, 182, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #f9a8d4; text-align: left; transition: background 0.15s;
+}
+.btn--weaver-tapestry:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(244, 114, 182, 0.22), rgba(219, 39, 119, 0.15)); }
+.btn--weaver-patterns {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(167, 243, 208, 0.12), rgba(52, 211, 153, 0.08));
+  border: 1px solid rgba(167, 243, 208, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #6ee7b7; text-align: left; transition: background 0.15s;
+}
+.btn--weaver-patterns:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(167, 243, 208, 0.22), rgba(52, 211, 153, 0.15)); }
+.btn--weaver-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--weaver-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T296 Traveling Architect ────────────────────────────────────────── */
+@keyframes architect-pulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(148, 163, 184, 0.25); }
+  50%       { box-shadow: 0 0 18px rgba(148, 163, 184, 0.55), 0 0 6px rgba(20, 184, 166, 0.35); }
+}
+.architect-section--active {
+  background: linear-gradient(135deg, rgba(148, 163, 184, 0.08), rgba(100, 116, 139, 0.05));
+  border: 1px solid rgba(148, 163, 184, 0.30); border-radius: 8px;
+  padding: 12px; margin-bottom: 10px;
+  animation: architect-pulse 3.5s ease-in-out infinite;
+}
+.architect-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.architect-title   { font-size: 0.92rem; font-weight: 600; color: #cbd5e1; }
+.architect-timer   { font-size: 0.78rem; color: #94a3b8; background: rgba(148, 163, 184, 0.12); padding: 2px 7px; border-radius: 10px; }
+.architect-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.15); }
+.architect-desc    { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.architect-actions { display: flex; flex-direction: column; gap: 6px; }
+.architect-cost    { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--architect-blueprint {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(148, 163, 184, 0.12), rgba(100, 116, 139, 0.08));
+  border: 1px solid rgba(148, 163, 184, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #cbd5e1; text-align: left; transition: background 0.15s;
+}
+.btn--architect-blueprint:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(148, 163, 184, 0.22), rgba(100, 116, 139, 0.15)); }
+.btn--architect-design {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.12), rgba(13, 148, 136, 0.08));
+  border: 1px solid rgba(20, 184, 166, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #5eead4; text-align: left; transition: background 0.15s;
+}
+.btn--architect-design:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(20, 184, 166, 0.22), rgba(13, 148, 136, 0.15)); }
+.btn--architect-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--architect-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
