@@ -232,4 +232,6 @@ export const Events = Object.freeze({
   TRAVELING_POTTER_CHANGED:      'travelingPotterChanged',            // T288: potter spawned / commissioned / learned / dismissed / expired
   WANDERING_DYER_CHANGED:        'wanderingDyerChanged',              // T289: dyer spawned / dyed / learned / dismissed / expired
   FRONTIER_SCOUT_CHANGED:        'frontierScoutChanged',              // T290: scout spawned / commissioned / exchanged / dismissed / expired
+  WANDERING_SHIPWRIGHT_CHANGED:  'wanderingShipwrightChanged',        // T291: shipwright spawned / commissioned / purchased / dismissed / expired
+  MASTER_BREWER_CHANGED:         'masterBrewerChanged',               // T292: brewer spawned / commissioned / learned / dismissed / expired
 });

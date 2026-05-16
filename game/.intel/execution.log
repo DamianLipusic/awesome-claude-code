@@ -124,6 +124,9 @@ Scholar commission/purchase/dismiss, feast grand/modest/holiday, blacksmith weap
 Session 42 — T407–T416: Merchant prince, wandering sage, quest panel UI.
 Merchant deal/exchange/reception, sage edict/study/host, questPanel.js with all 17 encounter sections, full CSS styling for all encounters.
 
+Session 55 — T291–T292: Wandering Shipwright, Master Brewer.
+Shipwright: Iron Age+, 10+ tiles, 13-18 min spawn, 80s window. Commission War Galleys (30 wood + 20 iron → +0.22 wood/s 2.5min), Purchase Naval Expertise (25g → +0.15 iron/s 2min). Sky-blue pulse CSS. Brewer: Bronze Age+, 8+ tiles, 12-16 min spawn, 80s window. Commission Imperial Ale (25 food + 15 wood → +0.2 food/s 2.5min), Learn Brewing Techniques (18g → +0.15 wood/s 2min). Amber/gold pulse CSS. Both fully wired into main.js (import, registerSystem, init x2, save/load) and questPanel.js (import, section render, handlers, ENCOUNTER_EVENTS). Events added to events.js.
+
 T001: Basic resource tick engine — gold/food/wood rates, HUD display, 4 ticks/second loop.
 Built tick.js (TICKS_PER_SECOND=4, gameTick counter), resources.js (rates object, applyRates each tick), hud.js (DOM update for gold/food/wood), main.js boot sequence.
 

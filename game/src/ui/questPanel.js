@@ -55,6 +55,8 @@ import * as IHerald     from '../systems/imperialHerald.js';          // T287
 import * as TPotter     from '../systems/travelingPotter.js';         // T288
 import * as WDyer       from '../systems/wanderingDyer.js';           // T289
 import * as FScout      from '../systems/frontierScout.js';           // T290
+import * as Shipwright  from '../systems/wanderingShipwright.js';    // T291
+import * as MBrewer     from '../systems/masterBrewer.js';           // T292
 
 let _panel = null;
 
@@ -138,6 +140,8 @@ function _encountersSection() {
     _travelingPotterSection(),
     _wanderingDyerSection(),
     _frontierScoutSection(),
+    _wanderingShipwrightSection(),
+    _masterBrewerSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -1530,6 +1534,76 @@ function _frontierScoutSection() {
     </div>`;
 }
 
+// ── T291 Wandering Shipwright ─────────────────────────────────────────────────
+
+function _wanderingShipwrightSection() {
+  if (!Shipwright.getActiveWanderingShipwright()) return '';
+  const secs          = Shipwright.getShipwrightSecsLeft();
+  const wood          = Math.floor(state.resources.wood ?? 0);
+  const iron          = Math.floor(state.resources.iron ?? 0);
+  const gold          = Math.floor(state.resources.gold ?? 0);
+  const canCommission = wood >= Shipwright.COMMISSION_WOOD_COST && iron >= Shipwright.COMMISSION_IRON_COST;
+  const canPurchase   = gold >= Shipwright.PURCHASE_GOLD_COST;
+  const urg = secs <= 15 ? ' shipwright-timer--urgent' : '';
+  return `
+    <div class="shipwright-section--active">
+      <div class="shipwright-header">
+        <span class="shipwright-title">⚓ Wandering Shipwright</span>
+        <span class="shipwright-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="shipwright-desc">A seasoned wandering shipwright arrives at the imperial docks, bearing advanced hull designs and maritime engineering secrets that could transform the empire's naval power.</div>
+      <div class="shipwright-actions">
+        <button class="btn--shipwright-commission${canCommission ? '' : ' btn--disabled'}" data-action="shipwright-commission" ${canCommission ? '' : 'disabled'}>
+          ⚓ Commission War Galleys — ${Shipwright.COMMISSION_WOOD_COST}🪵 + ${Shipwright.COMMISSION_IRON_COST}⚙️
+          <span class="shipwright-cost">→ +${Shipwright.COMMISSION_WOOD_RATE} wood/s (2.5 min) · +${Shipwright.COMMISSION_PRESTIGE_REWARD} prestige · +${Shipwright.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--shipwright-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="shipwright-purchase" ${canPurchase ? '' : 'disabled'}>
+          📜 Purchase Naval Expertise — ${Shipwright.PURCHASE_GOLD_COST}💰
+          <span class="shipwright-cost">→ +${Shipwright.PURCHASE_IRON_RATE} iron/s (2 min) · +${Shipwright.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--shipwright-away" data-action="shipwright-away">
+          👋 Send Away
+          <span class="shipwright-cost">→ Shipwright sails off to distant shores</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T292 Master Brewer ────────────────────────────────────────────────────────
+
+function _masterBrewerSection() {
+  if (!MBrewer.getActiveMasterBrewer()) return '';
+  const secs          = MBrewer.getBrewerSecsLeft();
+  const food          = Math.floor(state.resources.food ?? 0);
+  const wood          = Math.floor(state.resources.wood ?? 0);
+  const gold          = Math.floor(state.resources.gold ?? 0);
+  const canCommission = food >= MBrewer.COMMISSION_FOOD_COST && wood >= MBrewer.COMMISSION_WOOD_COST;
+  const canLearn      = gold >= MBrewer.LEARN_GOLD_COST;
+  const urg = secs <= 15 ? ' brewer-timer--urgent' : '';
+  return `
+    <div class="brewer-section--active">
+      <div class="brewer-header">
+        <span class="brewer-title">🍺 Master Brewer</span>
+        <span class="brewer-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="brewer-desc">A renowned master brewer arrives with ancient fermentation crocks, exotic hops, and the jealously guarded secrets of imperial ale-making. Their craft could lift the spirits of the entire empire.</div>
+      <div class="brewer-actions">
+        <button class="btn--brewer-commission${canCommission ? '' : ' btn--disabled'}" data-action="brewer-commission" ${canCommission ? '' : 'disabled'}>
+          🍺 Commission Imperial Ale — ${MBrewer.COMMISSION_FOOD_COST}🌾 + ${MBrewer.COMMISSION_WOOD_COST}🪵
+          <span class="brewer-cost">→ +${MBrewer.COMMISSION_FOOD_RATE} food/s (2.5 min) · +${MBrewer.COMMISSION_PRESTIGE_REWARD} prestige · +${MBrewer.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--brewer-learn${canLearn ? '' : ' btn--disabled'}" data-action="brewer-learn" ${canLearn ? '' : 'disabled'}>
+          📖 Learn Brewing Techniques — ${MBrewer.LEARN_GOLD_COST}💰
+          <span class="brewer-cost">→ +${MBrewer.LEARN_WOOD_RATE} wood/s (2 min) · +${MBrewer.LEARN_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--brewer-away" data-action="brewer-away">
+          👋 Send Away
+          <span class="brewer-cost">→ Brewer continues down the imperial road</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -1711,6 +1785,14 @@ const _HANDLERS = {
   'scout-commission': () => FScout.commissionScoutingReport(),
   'scout-exchange':   () => FScout.exchangeIntelligenceMaps(),
   'scout-away':       () => FScout.sendScoutAway(),
+
+  'shipwright-commission': () => Shipwright.commissionWarGalleys(),
+  'shipwright-purchase':   () => Shipwright.purchaseNavalExpertise(),
+  'shipwright-away':       () => Shipwright.sendShipwrightAway(),
+
+  'brewer-commission': () => MBrewer.commissionImperialAle(),
+  'brewer-learn':      () => MBrewer.learnBrewingTechniques(),
+  'brewer-away':       () => MBrewer.sendBrewerAway(),
 };
 
 function _handleClick(e) {
@@ -1773,6 +1855,8 @@ export function initQuestPanel() {
     Events.TRAVELING_POTTER_CHANGED,
     Events.WANDERING_DYER_CHANGED,
     Events.FRONTIER_SCOUT_CHANGED,
+    Events.WANDERING_SHIPWRIGHT_CHANGED,
+    Events.MASTER_BREWER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

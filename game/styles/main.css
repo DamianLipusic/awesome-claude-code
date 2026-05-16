@@ -17223,3 +17223,83 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--scout-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T291 Wandering Shipwright ─────────────────────────────────────────────── */
+@keyframes shipwright-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(14, 165, 233, 0); border-color: rgba(14, 165, 233, 0.35); }
+  50%       { box-shadow: 0 0 14px 3px rgba(14, 165, 233, 0.22); border-color: rgba(14, 165, 233, 0.62); }
+}
+.shipwright-section--active {
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.08), rgba(2, 132, 199, 0.06));
+  border: 1px solid rgba(14, 165, 233, 0.35); border-radius: 8px;
+  padding: 12px; margin-bottom: 10px;
+  animation: shipwright-pulse 3.5s ease-in-out infinite;
+}
+.shipwright-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.shipwright-title  { font-size: 0.92rem; font-weight: 600; color: #7dd3fc; }
+.shipwright-timer  { font-size: 0.78rem; color: #38bdf8; background: rgba(14, 165, 233, 0.12); padding: 2px 7px; border-radius: 10px; }
+.shipwright-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.15); }
+.shipwright-desc   { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.shipwright-actions { display: flex; flex-direction: column; gap: 6px; }
+.shipwright-cost   { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--shipwright-commission {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.12), rgba(2, 132, 199, 0.08));
+  border: 1px solid rgba(14, 165, 233, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #7dd3fc; text-align: left; transition: background 0.15s;
+}
+.btn--shipwright-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(14, 165, 233, 0.22), rgba(2, 132, 199, 0.15)); }
+.btn--shipwright-purchase {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.12), rgba(217, 119, 6, 0.08));
+  border: 1px solid rgba(251, 191, 36, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fcd34d; text-align: left; transition: background 0.15s;
+}
+.btn--shipwright-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(251, 191, 36, 0.22), rgba(217, 119, 6, 0.15)); }
+.btn--shipwright-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--shipwright-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T292 Master Brewer ───────────────────────────────────────────────────── */
+@keyframes brewer-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0); border-color: rgba(234, 179, 8, 0.35); }
+  50%       { box-shadow: 0 0 14px 3px rgba(234, 179, 8, 0.22); border-color: rgba(234, 179, 8, 0.62); }
+}
+.brewer-section--active {
+  background: linear-gradient(135deg, rgba(234, 179, 8, 0.08), rgba(161, 98, 7, 0.06));
+  border: 1px solid rgba(234, 179, 8, 0.35); border-radius: 8px;
+  padding: 12px; margin-bottom: 10px;
+  animation: brewer-pulse 3.5s ease-in-out infinite;
+}
+.brewer-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.brewer-title  { font-size: 0.92rem; font-weight: 600; color: #fde68a; }
+.brewer-timer  { font-size: 0.78rem; color: #fbbf24; background: rgba(234, 179, 8, 0.12); padding: 2px 7px; border-radius: 10px; }
+.brewer-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.15); }
+.brewer-desc   { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.brewer-actions { display: flex; flex-direction: column; gap: 6px; }
+.brewer-cost   { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--brewer-commission {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(234, 179, 8, 0.12), rgba(161, 98, 7, 0.08));
+  border: 1px solid rgba(234, 179, 8, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fde68a; text-align: left; transition: background 0.15s;
+}
+.btn--brewer-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(234, 179, 8, 0.22), rgba(161, 98, 7, 0.15)); }
+.btn--brewer-learn {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(4, 120, 87, 0.08));
+  border: 1px solid rgba(16, 185, 129, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #6ee7b7; text-align: left; transition: background 0.15s;
+}
+.btn--brewer-learn:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(16, 185, 129, 0.22), rgba(4, 120, 87, 0.15)); }
+.btn--brewer-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--brewer-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
