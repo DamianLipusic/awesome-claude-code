@@ -823,3 +823,17 @@ Built travelingArchitect.js: commissionImperialBlueprint (35g + 20 stone → +0.
 Wired in main.js: import initTravelingArchitect+travelingArchitectTick, registerSystem, initTravelingArchitect() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _travelingArchitectSection() render + architect-blueprint/architect-design/architect-away handlers to questPanel.js (import * as Architect). Events.TRAVELING_ARCHITECT_CHANGED subscribed.
 Added T296 architect CSS: @keyframes architect-pulse (slate/teal), .architect-section--active, .btn--architect-blueprint (slate), .btn--architect-design (teal), .btn--architect-away (gray).
+
+Session 58 — T197–T198 (T297–T298): Wandering Falconer, Roaming Botanist.
+
+T197: Wandering Falconer (T297) — Medieval Age+, 12+ tiles, 15–20 min, 80s window.
+Built wanderingFalconer.js: hostRoyalHunt (25g → +0.18 gold/s 2.5min +20 prestige +15 morale), learnFalconryArts (20 food → +0.15 food/s 2min +12 prestige), sendFalconerAway (dismiss). Added WANDERING_FALCONER_CHANGED event to events.js. state.wanderingFalconer null field.
+Wired in main.js: import initWanderingFalconer+wanderingFalconerTick, registerSystem, initWanderingFalconer() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingFalconerSection() render + falconer-hunt/falconer-learn/falconer-away handlers to questPanel.js (import * as Falconer). Events.WANDERING_FALCONER_CHANGED subscribed.
+Added T297 falconer CSS: @keyframes falconer-pulse (amber/gold), .falconer-section--active, .btn--falconer-hunt (amber), .btn--falconer-learn (green), .btn--falconer-away (gray).
+
+T198: Roaming Botanist (T298) — Bronze Age+, 8+ tiles, 12–17 min, 80s window.
+Built roamingBotanist.js: establishRoyalGarden (20 food + 15 mana → +0.2 food/s 2.5min +18 prestige +8 morale), purchasePlantLore (18g → +0.12 mana/s 2min +12 prestige), sendBotanistAway (dismiss). Added ROAMING_BOTANIST_CHANGED event to events.js. state.roamingBotanist null field.
+Wired in main.js: import initRoamingBotanist+roamingBotanistTick, registerSystem, initRoamingBotanist() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _roamingBotanistSection() render + botanist-garden/botanist-lore/botanist-away handlers to questPanel.js (import * as Botanist). Events.ROAMING_BOTANIST_CHANGED subscribed.
+Added T298 botanist CSS: @keyframes botanist-pulse (spring green), .botanist-section--active, .btn--botanist-garden (green), .btn--botanist-lore (violet/purple), .btn--botanist-away (gray).

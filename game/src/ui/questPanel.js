@@ -61,6 +61,8 @@ import * as ManTrader   from '../systems/ancientManuscriptTrader.js'; // T293
 import * as SiegeEng    from '../systems/imperialSiegeEngineer.js';   // T294
 import * as Weaver      from '../systems/wanderingWeaver.js';          // T295
 import * as Architect   from '../systems/travelingArchitect.js';       // T296
+import * as Falconer   from '../systems/wanderingFalconer.js';         // T297
+import * as Botanist   from '../systems/roamingBotanist.js';           // T298
 
 let _panel = null;
 
@@ -150,6 +152,8 @@ function _encountersSection() {
     _imperialSiegeEngineerSection(),
     _wanderingWeaverSection(),
     _travelingArchitectSection(),
+    _wanderingFalconerSection(),
+    _roamingBotanistSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -1751,6 +1755,75 @@ function _travelingArchitectSection() {
     </div>`;
 }
 
+// ── T297 Wandering Falconer ───────────────────────────────────────────────────
+
+function _wanderingFalconerSection() {
+  if (!Falconer.getActiveFalconer()) return '';
+  const secs     = Falconer.getFalconerSecsLeft();
+  const gold     = Math.floor(state.resources.gold ?? 0);
+  const food     = Math.floor(state.resources.food ?? 0);
+  const canHunt  = gold >= Falconer.HUNT_GOLD_COST;
+  const canLearn = food >= Falconer.FALCONRY_FOOD_COST;
+  const urg = secs <= 15 ? ' falconer-timer--urgent' : '';
+  return `
+    <div class="falconer-section--active">
+      <div class="falconer-header">
+        <span class="falconer-title">🦅 Wandering Falconer</span>
+        <span class="falconer-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="falconer-desc">A masterful wandering falconer arrives at court with trained gyrfalcons and golden eagles, carrying the ancient hunting traditions of desert nomads and mountain kingdoms.</div>
+      <div class="falconer-actions">
+        <button class="btn--falconer-hunt${canHunt ? '' : ' btn--disabled'}" data-action="falconer-hunt" ${canHunt ? '' : 'disabled'}>
+          🦅 Host Royal Hunt — ${Falconer.HUNT_GOLD_COST}💰
+          <span class="falconer-cost">→ +${Falconer.HUNT_GOLD_RATE} gold/s (2.5 min) · +${Falconer.HUNT_PRESTIGE_REWARD} prestige · +${Falconer.HUNT_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--falconer-learn${canLearn ? '' : ' btn--disabled'}" data-action="falconer-learn" ${canLearn ? '' : 'disabled'}>
+          🪶 Learn Falconry Arts — ${Falconer.FALCONRY_FOOD_COST}🌾
+          <span class="falconer-cost">→ +${Falconer.FALCONRY_FOOD_RATE} food/s (2 min) · +${Falconer.FALCONRY_PRESTIGE} prestige</span>
+        </button>
+        <button class="btn--falconer-away" data-action="falconer-away">
+          👋 Send Away
+          <span class="falconer-cost">→ Falconer rides onward with hooded birds to distant courts</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T298 Roaming Botanist ────────────────────────────────────────────────────
+
+function _roamingBotanistSection() {
+  if (!Botanist.getActiveBotanist()) return '';
+  const secs       = Botanist.getBotanistSecsLeft();
+  const food       = Math.floor(state.resources.food ?? 0);
+  const mana       = Math.floor(state.resources.mana ?? 0);
+  const gold       = Math.floor(state.resources.gold ?? 0);
+  const canGarden  = food >= Botanist.GARDEN_FOOD_COST && mana >= Botanist.GARDEN_MANA_COST;
+  const canLore    = gold >= Botanist.LORE_GOLD_COST;
+  const urg = secs <= 15 ? ' botanist-timer--urgent' : '';
+  return `
+    <div class="botanist-section--active">
+      <div class="botanist-header">
+        <span class="botanist-title">🌿 Roaming Botanist</span>
+        <span class="botanist-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="botanist-desc">A learned roaming botanist arrives with rare seeds, pressed herbaria, and volumes of plant wisdom accumulated across a lifetime of exploration in distant kingdoms.</div>
+      <div class="botanist-actions">
+        <button class="btn--botanist-garden${canGarden ? '' : ' btn--disabled'}" data-action="botanist-garden" ${canGarden ? '' : 'disabled'}>
+          🌿 Establish Royal Garden — ${Botanist.GARDEN_FOOD_COST}🌾 + ${Botanist.GARDEN_MANA_COST}✨
+          <span class="botanist-cost">→ +${Botanist.GARDEN_FOOD_RATE} food/s (2.5 min) · +${Botanist.GARDEN_PRESTIGE_REWARD} prestige · +${Botanist.GARDEN_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--botanist-lore${canLore ? '' : ' btn--disabled'}" data-action="botanist-lore" ${canLore ? '' : 'disabled'}>
+          🌺 Purchase Plant Lore — ${Botanist.LORE_GOLD_COST}💰
+          <span class="botanist-cost">→ +${Botanist.LORE_MANA_RATE} mana/s (2 min) · +${Botanist.LORE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--botanist-away" data-action="botanist-away">
+          👋 Send Away
+          <span class="botanist-cost">→ Botanist sets off to catalogue flora in distant lands</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -1956,6 +2029,14 @@ const _HANDLERS = {
   'architect-blueprint': () => Architect.commissionImperialBlueprint(),
   'architect-design':    () => Architect.studyDesignPrinciples(),
   'architect-away':      () => Architect.sendArchitectAway(),
+
+  'falconer-hunt':  () => Falconer.hostRoyalHunt(),
+  'falconer-learn': () => Falconer.learnFalconryArts(),
+  'falconer-away':  () => Falconer.sendFalconerAway(),
+
+  'botanist-garden': () => Botanist.establishRoyalGarden(),
+  'botanist-lore':   () => Botanist.purchasePlantLore(),
+  'botanist-away':   () => Botanist.sendBotanistAway(),
 };
 
 function _handleClick(e) {
@@ -2024,6 +2105,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_SIEGE_ENGINEER_CHANGED,
     Events.WANDERING_WEAVER_CHANGED,
     Events.TRAVELING_ARCHITECT_CHANGED,
+    Events.WANDERING_FALCONER_CHANGED,
+    Events.ROAMING_BOTANIST_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

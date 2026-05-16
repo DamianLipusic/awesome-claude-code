@@ -238,6 +238,8 @@ import { initAncientManuscriptTrader, ancientManuscriptTraderTick } from './syst
 import { initImperialSiegeEngineer, imperialSiegeEngineerTick }     from './systems/imperialSiegeEngineer.js';   // T294
 import { initWanderingWeaver, wanderingWeaverTick }                 from './systems/wanderingWeaver.js';         // T295
 import { initTravelingArchitect, travelingArchitectTick }           from './systems/travelingArchitect.js';      // T296
+import { initWanderingFalconer, wanderingFalconerTick }             from './systems/wanderingFalconer.js';       // T297
+import { initRoamingBotanist, roamingBotanistTick }                 from './systems/roamingBotanist.js';         // T298
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -482,6 +484,8 @@ function _registerAllSystems() {
   registerSystem(imperialSiegeEngineerTick);          // T294
   registerSystem(wanderingWeaverTick);                // T295
   registerSystem(travelingArchitectTick);             // T296
+  registerSystem(wanderingFalconerTick);              // T297
+  registerSystem(roamingBotanistTick);                // T298
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -711,6 +715,8 @@ function _save() {
     imperialSiegeEngineer:      state.imperialSiegeEngineer,      // T294
     wanderingWeaver:            state.wanderingWeaver,            // T295
     travelingArchitect:         state.travelingArchitect,         // T296
+    wanderingFalconer:          state.wanderingFalconer,          // T297
+    roamingBotanist:            state.roamingBotanist,            // T298
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -945,6 +951,8 @@ function _applySave(s) {
   state.imperialSiegeEngineer      = s.imperialSiegeEngineer ?? null;      // T294
   state.wanderingWeaver            = s.wanderingWeaver ?? null;            // T295
   state.travelingArchitect         = s.travelingArchitect ?? null;         // T296
+  state.wanderingFalconer          = s.wanderingFalconer ?? null;          // T297
+  state.roamingBotanist            = s.roamingBotanist ?? null;            // T298
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -1185,6 +1193,8 @@ function _startFreshGame() {
   initImperialSiegeEngineer();          // T294
   initWanderingWeaver();                // T295
   initTravelingArchitect();             // T296
+  initWanderingFalconer();              // T297
+  initRoamingBotanist();                // T298
   initAchievements();
   initLeaderboard();
 }
@@ -1408,6 +1418,8 @@ function _startLoadedGame(savedData) {
   initImperialSiegeEngineer();          // T294
   initWanderingWeaver();                // T295
   initTravelingArchitect();             // T296
+  initWanderingFalconer();              // T297
+  initRoamingBotanist();                // T298
   initAchievements();
   initLeaderboard();
 }

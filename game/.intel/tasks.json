@@ -518,6 +518,24 @@
       "status": "done",
       "phase": 105,
       "notes": "Built travelingArchitect.js. TRAVELING_ARCHITECT_CHANGED event added to events.js. state.travelingArchitect null field. Architect section in questPanel.js (import * as Architect). Events.TRAVELING_ARCHITECT_CHANGED subscribed. CSS: @keyframes architect-pulse (slate/teal), .architect-section--active, .btn--architect-blueprint (slate), .btn--architect-design (teal), .btn--architect-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T297",
+      "title": "Wandering Falconer",
+      "description": "Medieval Age+, 12+ tiles, 15-20 min spawn, 80s window. Host Royal Hunt (25g -> +0.18 gold/s 2.5min +20 prestige +15 morale), Learn Falconry Arts (20 food -> +0.15 food/s 2min +12 prestige), Send Away.",
+      "priority": 297,
+      "status": "done",
+      "phase": 106,
+      "notes": "Built wanderingFalconer.js. WANDERING_FALCONER_CHANGED event added to events.js. state.wanderingFalconer null field. Falconer section in questPanel.js (import * as Falconer). Events.WANDERING_FALCONER_CHANGED subscribed. CSS: @keyframes falconer-pulse (amber/gold), .falconer-section--active, .btn--falconer-hunt (amber), .btn--falconer-learn (green), .btn--falconer-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T298",
+      "title": "Roaming Botanist",
+      "description": "Bronze Age+, 8+ tiles, 12-17 min spawn, 80s window. Establish Royal Garden (20 food + 15 mana -> +0.2 food/s 2.5min +18 prestige +8 morale), Purchase Plant Lore (18g -> +0.12 mana/s 2min +12 prestige), Send Away.",
+      "priority": 298,
+      "status": "done",
+      "phase": 106,
+      "notes": "Built roamingBotanist.js. ROAMING_BOTANIST_CHANGED event added to events.js. state.roamingBotanist null field. Botanist section in questPanel.js (import * as Botanist). Events.ROAMING_BOTANIST_CHANGED subscribed. CSS: @keyframes botanist-pulse (spring green), .botanist-section--active, .btn--botanist-garden (green), .btn--botanist-lore (violet/purple), .btn--botanist-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     }
   ],
   "session_history": [
@@ -555,6 +573,7 @@
     "Session 54 (T189-T190): Wandering Dyer (T289), Frontier Scout (T290)",
     "Session 55 (T191-T192): Wandering Shipwright (T291), Master Brewer (T292)",
     "Session 56 (T193-T194): Ancient Manuscript Trader (T293), Imperial Siege Engineer (T294)",
-    "Session 57 (T195-T196): Wandering Weaver (T295), Traveling Architect (T296)"
+    "Session 57 (T195-T196): Wandering Weaver (T295), Traveling Architect (T296)",
+    "Session 58 (T197-T198): Wandering Falconer (T297), Roaming Botanist (T298)"
   ]
 }

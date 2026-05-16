@@ -17463,3 +17463,83 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--architect-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T297 Wandering Falconer ─────────────────────────────────────────── */
+@keyframes falconer-pulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(217, 119, 6, 0.25); }
+  50%       { box-shadow: 0 0 18px rgba(217, 119, 6, 0.55), 0 0 6px rgba(180, 83, 9, 0.35); }
+}
+.falconer-section--active {
+  background: linear-gradient(135deg, rgba(217, 119, 6, 0.08), rgba(180, 83, 9, 0.05));
+  border: 1px solid rgba(217, 119, 6, 0.30); border-radius: 8px;
+  padding: 12px; margin-bottom: 10px;
+  animation: falconer-pulse 3.5s ease-in-out infinite;
+}
+.falconer-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.falconer-title   { font-size: 0.92rem; font-weight: 600; color: #fcd34d; }
+.falconer-timer   { font-size: 0.78rem; color: #f59e0b; background: rgba(217, 119, 6, 0.12); padding: 2px 7px; border-radius: 10px; }
+.falconer-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.15); }
+.falconer-desc    { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.falconer-actions { display: flex; flex-direction: column; gap: 6px; }
+.falconer-cost    { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--falconer-hunt {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(217, 119, 6, 0.12), rgba(180, 83, 9, 0.08));
+  border: 1px solid rgba(217, 119, 6, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fcd34d; text-align: left; transition: background 0.15s;
+}
+.btn--falconer-hunt:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(217, 119, 6, 0.22), rgba(180, 83, 9, 0.15)); }
+.btn--falconer-learn {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(134, 239, 172, 0.12), rgba(74, 222, 128, 0.08));
+  border: 1px solid rgba(134, 239, 172, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #86efac; text-align: left; transition: background 0.15s;
+}
+.btn--falconer-learn:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(134, 239, 172, 0.22), rgba(74, 222, 128, 0.15)); }
+.btn--falconer-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--falconer-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T298 Roaming Botanist ───────────────────────────────────────────── */
+@keyframes botanist-pulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(74, 222, 128, 0.25); }
+  50%       { box-shadow: 0 0 18px rgba(74, 222, 128, 0.55), 0 0 6px rgba(134, 239, 172, 0.35); }
+}
+.botanist-section--active {
+  background: linear-gradient(135deg, rgba(74, 222, 128, 0.08), rgba(34, 197, 94, 0.05));
+  border: 1px solid rgba(74, 222, 128, 0.30); border-radius: 8px;
+  padding: 12px; margin-bottom: 10px;
+  animation: botanist-pulse 3.5s ease-in-out infinite;
+}
+.botanist-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.botanist-title   { font-size: 0.92rem; font-weight: 600; color: #bbf7d0; }
+.botanist-timer   { font-size: 0.78rem; color: #4ade80; background: rgba(74, 222, 128, 0.12); padding: 2px 7px; border-radius: 10px; }
+.botanist-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.15); }
+.botanist-desc    { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.botanist-actions { display: flex; flex-direction: column; gap: 6px; }
+.botanist-cost    { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--botanist-garden {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(74, 222, 128, 0.12), rgba(34, 197, 94, 0.08));
+  border: 1px solid rgba(74, 222, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #bbf7d0; text-align: left; transition: background 0.15s;
+}
+.btn--botanist-garden:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(74, 222, 128, 0.22), rgba(34, 197, 94, 0.15)); }
+.btn--botanist-lore {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(196, 181, 253, 0.12), rgba(167, 139, 250, 0.08));
+  border: 1px solid rgba(196, 181, 253, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #c4b5fd; text-align: left; transition: background 0.15s;
+}
+.btn--botanist-lore:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(196, 181, 253, 0.22), rgba(167, 139, 250, 0.15)); }
+.btn--botanist-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--botanist-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
