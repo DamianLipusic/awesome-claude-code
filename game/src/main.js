@@ -248,6 +248,8 @@ import { initWanderingMapmaker, wanderingMapmakerTick }             from './syst
 import { initRoyalPerfumer, royalPerfumerTick }                     from './systems/royalPerfumer.js';           // T304
 import { initWanderingSilversmith, wanderingSilversmithTick }       from './systems/wanderingSilversmith.js';     // T305
 import { initImperialSpiceMerchant, imperialSpiceMerchantTick }     from './systems/imperialSpiceMerchant.js';   // T306
+import { initCourtMusician, courtMusicianTick }                     from './systems/courtMusician.js';           // T307
+import { initAncientLibraryKeeper, ancientLibraryKeeperTick }       from './systems/ancientLibraryKeeper.js';    // T308
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -502,6 +504,8 @@ function _registerAllSystems() {
   registerSystem(royalPerfumerTick);                  // T304
   registerSystem(wanderingSilversmithTick);           // T305
   registerSystem(imperialSpiceMerchantTick);          // T306
+  registerSystem(courtMusicianTick);                  // T307
+  registerSystem(ancientLibraryKeeperTick);           // T308
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -741,6 +745,8 @@ function _save() {
     royalPerfumer:              state.royalPerfumer,              // T304
     wanderingSilversmith:       state.wanderingSilversmith,       // T305
     imperialSpiceMerchant:      state.imperialSpiceMerchant,      // T306
+    courtMusician:              state.courtMusician,              // T307
+    ancientLibraryKeeper:       state.ancientLibraryKeeper,       // T308
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -985,6 +991,8 @@ function _applySave(s) {
   state.royalPerfumer              = s.royalPerfumer ?? null;              // T304
   state.wanderingSilversmith       = s.wanderingSilversmith ?? null;       // T305
   state.imperialSpiceMerchant      = s.imperialSpiceMerchant ?? null;      // T306
+  state.courtMusician              = s.courtMusician ?? null;              // T307
+  state.ancientLibraryKeeper       = s.ancientLibraryKeeper ?? null;       // T308
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -1235,6 +1243,8 @@ function _startFreshGame() {
   initRoyalPerfumer();                  // T304
   initWanderingSilversmith();           // T305
   initImperialSpiceMerchant();          // T306
+  initCourtMusician();                  // T307
+  initAncientLibraryKeeper();           // T308
   initAchievements();
   initLeaderboard();
 }
@@ -1468,6 +1478,8 @@ function _startLoadedGame(savedData) {
   initRoyalPerfumer();                  // T304
   initWanderingSilversmith();           // T305
   initImperialSpiceMerchant();          // T306
+  initCourtMusician();                  // T307
+  initAncientLibraryKeeper();           // T308
   initAchievements();
   initLeaderboard();
 }

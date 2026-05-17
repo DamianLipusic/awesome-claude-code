@@ -882,3 +882,17 @@ Built imperialSpiceMerchant.js: arrangeSpiceTrade (30 food + 20g → +0.25 food/
 Wired in main.js: import initImperialSpiceMerchant+imperialSpiceMerchantTick, registerSystem, initImperialSpiceMerchant() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _imperialSpiceMerchantSection() render + spice-trade/spice-purchase/spice-away handlers to questPanel.js (import * as SpiceMerchant). Events.IMPERIAL_SPICE_MERCHANT_CHANGED subscribed.
 Added T306 spice CSS: @keyframes spice-pulse (orange/amber), .spice-section--active, .btn--spice-trade (orange), .btn--spice-purchase (amber), .btn--spice-away (gray).
+
+Session 62 — T307–T308: Court Musician, Ancient Library Keeper.
+
+T205: Court Musician (T307) — Bronze Age+, 6+ tiles, 11–16 min, 80s window.
+Built courtMusician.js: commissionGrandSymphony (20g → +0.18 gold/s 2.5min +18 prestige +12 morale), requestFolkPerformance (free → +8 morale +6 prestige), sendCourtMusicianAway (dismiss). Added COURT_MUSICIAN_CHANGED event to events.js. state.courtMusician null field.
+Wired in main.js: import initCourtMusician+courtMusicianTick, registerSystem, initCourtMusician() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _courtMusicianSection() render + musician-commission/musician-performance/musician-away handlers to questPanel.js (import * as Musician). Events.COURT_MUSICIAN_CHANGED subscribed.
+Added T307 musician CSS: @keyframes musician-pulse (teal), .musician-section--active, .btn--musician-commission (teal), .btn--musician-performance (green), .btn--musician-away (gray).
+
+T206: Ancient Library Keeper (T308) — Medieval Age+, 10+ tiles, 15–20 min, 80s window.
+Built ancientLibraryKeeper.js: accessForbiddenArchives (30 mana → +0.3 mana/s 2.5min +25 prestige +8 morale), purchaseRareManuscripts (35g → +0.2 gold/s 2min +20 prestige), sendLibraryKeeperAway (dismiss). Added ANCIENT_LIBRARY_KEEPER_CHANGED event to events.js. state.ancientLibraryKeeper null field.
+Wired in main.js: import initAncientLibraryKeeper+ancientLibraryKeeperTick, registerSystem, initAncientLibraryKeeper() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _ancientLibraryKeeperSection() render + libkeeper-archive/libkeeper-manuscripts/libkeeper-away handlers to questPanel.js (import * as LibKeeper). Events.ANCIENT_LIBRARY_KEEPER_CHANGED subscribed.
+Added T308 libkeeper CSS: @keyframes libkeeper-pulse (indigo/violet), .libkeeper-section--active, .btn--libkeeper-archive (indigo), .btn--libkeeper-manuscripts (amber/gold), .btn--libkeeper-away (gray).

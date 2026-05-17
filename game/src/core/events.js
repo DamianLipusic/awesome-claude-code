@@ -248,4 +248,6 @@ export const Events = Object.freeze({
   ROYAL_PERFUMER_CHANGED:           'royalPerfumerChanged',               // T304: perfumer spawned / fragrance / herbs / dismissed / expired
   WANDERING_SILVERSMITH_CHANGED:    'wanderingSilversmithChanged',         // T305: silversmith spawned / artifacts / jewelry / dismissed / expired
   IMPERIAL_SPICE_MERCHANT_CHANGED:  'imperialSpiceMerchantChanged',        // T306: spice merchant spawned / trade / purchase / dismissed / expired
+  COURT_MUSICIAN_CHANGED:           'courtMusicianChanged',                 // T307: musician spawned / commission / performance / dismissed / expired
+  ANCIENT_LIBRARY_KEEPER_CHANGED:   'ancientLibraryKeeperChanged',          // T308: keeper spawned / archive / manuscripts / dismissed / expired
 });

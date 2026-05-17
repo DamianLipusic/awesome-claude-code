@@ -608,6 +608,24 @@
       "status": "done",
       "phase": 109,
       "notes": "Built imperialSpiceMerchant.js. IMPERIAL_SPICE_MERCHANT_CHANGED event added to events.js. state.imperialSpiceMerchant null field. Spice merchant section in questPanel.js (import * as SpiceMerchant). Events.IMPERIAL_SPICE_MERCHANT_CHANGED subscribed. CSS: @keyframes spice-pulse (orange/amber), .spice-section--active, .btn--spice-trade (orange), .btn--spice-purchase (amber), .btn--spice-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T307",
+      "title": "Court Musician",
+      "description": "Bronze Age+, 6+ tiles, 11-16 min spawn, 80s window. Commission Grand Symphony (20g → +0.18 gold/s 2.5min · +18 prestige · +12 morale), Request Folk Performance (free → +8 morale · +6 prestige), Send Away.",
+      "priority": 307,
+      "status": "done",
+      "phase": 110,
+      "notes": "Built courtMusician.js. COURT_MUSICIAN_CHANGED event added to events.js. state.courtMusician null field. Musician section in questPanel.js (import * as Musician). Events.COURT_MUSICIAN_CHANGED subscribed. CSS: @keyframes musician-pulse (teal), .musician-section--active, .btn--musician-commission (teal), .btn--musician-performance (green), .btn--musician-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T308",
+      "title": "Ancient Library Keeper",
+      "description": "Medieval Age+, 10+ tiles, 15-20 min spawn, 80s window. Access Forbidden Archives (30 mana → +0.3 mana/s 2.5min · +25 prestige · +8 morale), Purchase Rare Manuscripts (35g → +0.2 gold/s 2min · +20 prestige), Send Away.",
+      "priority": 308,
+      "status": "done",
+      "phase": 110,
+      "notes": "Built ancientLibraryKeeper.js. ANCIENT_LIBRARY_KEEPER_CHANGED event added to events.js. state.ancientLibraryKeeper null field. Library keeper section in questPanel.js (import * as LibKeeper). Events.ANCIENT_LIBRARY_KEEPER_CHANGED subscribed. CSS: @keyframes libkeeper-pulse (indigo/violet), .libkeeper-section--active, .btn--libkeeper-archive (indigo), .btn--libkeeper-manuscripts (amber/gold), .btn--libkeeper-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     }
   ],
   "session_history": [
@@ -649,6 +667,7 @@
     "Session 58 (T197-T198): Wandering Falconer (T297), Roaming Botanist (T298)",
     "Session 59 (T199-T200): Wandering Jeweler (T299), Desert Nomad Chief (T300)",
     "Session 60 (T201-T202): Wandering Mapmaker (T303), Royal Perfumer (T304)",
-    "Session 61 (T203-T204): Wandering Silversmith (T305), Imperial Spice Merchant (T306)"
+    "Session 61 (T203-T204): Wandering Silversmith (T305), Imperial Spice Merchant (T306)",
+    "Session 62 (T205-T206): Court Musician (T307), Ancient Library Keeper (T308)"
   ]
 }

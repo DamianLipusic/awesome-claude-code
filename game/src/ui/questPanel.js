@@ -71,6 +71,8 @@ import * as Mapmaker  from '../systems/wanderingMapmaker.js';          // T303
 import * as Perfumer      from '../systems/royalPerfumer.js';              // T304
 import * as Silversmith  from '../systems/wanderingSilversmith.js';       // T305
 import * as SpiceMerchant from '../systems/imperialSpiceMerchant.js';    // T306
+import * as Musician     from '../systems/courtMusician.js';             // T307
+import * as LibKeeper    from '../systems/ancientLibraryKeeper.js';      // T308
 
 let _panel = null;
 
@@ -170,6 +172,8 @@ function _encountersSection() {
     _royalPerfumerSection(),
     _wanderingSilversmithSection(),
     _imperialSpiceMerchantSection(),
+    _courtMusicianSection(),
+    _ancientLibraryKeeperSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -2112,6 +2116,72 @@ function _imperialSpiceMerchantSection() {
     </div>`;
 }
 
+// ── T307 Court Musician ────────────────────────────────────────────────────
+
+function _courtMusicianSection() {
+  if (!Musician.getActiveCourtMusician()) return '';
+  const secs          = Musician.getCourtMusicianSecsLeft();
+  const gold          = Math.floor(state.resources.gold ?? 0);
+  const canCommission = gold >= Musician.COMMISSION_GOLD_COST;
+  const urg = secs <= 15 ? ' musician-timer--urgent' : '';
+  return `
+    <div class="musician-section--active">
+      <div class="musician-header">
+        <span class="musician-title">🎵 Court Musician</span>
+        <span class="musician-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="musician-desc">A renowned court musician arrives at the imperial palace, bearing a lute inlaid with silver and a reputation for composing symphonies that move emperors to tears.</div>
+      <div class="musician-actions">
+        <button class="btn--musician-commission${canCommission ? '' : ' btn--disabled'}" data-action="musician-commission" ${canCommission ? '' : 'disabled'}>
+          🎵 Commission Grand Symphony — ${Musician.COMMISSION_GOLD_COST}💰
+          <span class="musician-cost">→ +${Musician.COMMISSION_GOLD_RATE} gold/s (2.5 min) · +${Musician.COMMISSION_PRESTIGE_REWARD} prestige · +${Musician.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--musician-performance" data-action="musician-performance">
+          🎶 Request Folk Performance — free
+          <span class="musician-cost">→ +${Musician.PERFORMANCE_MORALE_REWARD} morale · +${Musician.PERFORMANCE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--musician-away" data-action="musician-away">
+          🚶 Send Away
+          <span class="musician-cost">→ Musician departs to seek another patron</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T308 Ancient Library Keeper ───────────────────────────────────────────
+
+function _ancientLibraryKeeperSection() {
+  if (!LibKeeper.getActiveLibraryKeeper()) return '';
+  const secs         = LibKeeper.getLibraryKeeperSecsLeft();
+  const mana         = Math.floor(state.resources.mana ?? 0);
+  const gold         = Math.floor(state.resources.gold ?? 0);
+  const canArchive   = mana >= LibKeeper.ARCHIVE_MANA_COST;
+  const canManuscripts = gold >= LibKeeper.MANUSCRIPTS_GOLD_COST;
+  const urg = secs <= 15 ? ' libkeeper-timer--urgent' : '';
+  return `
+    <div class="libkeeper-section--active">
+      <div class="libkeeper-header">
+        <span class="libkeeper-title">📚 Ancient Library Keeper</span>
+        <span class="libkeeper-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="libkeeper-desc">An ancient library keeper emerges from a hidden archive, bearing a lantern and a tome of extraordinary rarity from civilisations long forgotten.</div>
+      <div class="libkeeper-actions">
+        <button class="btn--libkeeper-archive${canArchive ? '' : ' btn--disabled'}" data-action="libkeeper-archive" ${canArchive ? '' : 'disabled'}>
+          📚 Access Forbidden Archives — ${LibKeeper.ARCHIVE_MANA_COST}✨
+          <span class="libkeeper-cost">→ +${LibKeeper.ARCHIVE_MANA_RATE} mana/s (2.5 min) · +${LibKeeper.ARCHIVE_PRESTIGE_REWARD} prestige · +${LibKeeper.ARCHIVE_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--libkeeper-manuscripts${canManuscripts ? '' : ' btn--disabled'}" data-action="libkeeper-manuscripts" ${canManuscripts ? '' : 'disabled'}>
+          📜 Purchase Rare Manuscripts — ${LibKeeper.MANUSCRIPTS_GOLD_COST}💰
+          <span class="libkeeper-cost">→ +${LibKeeper.MANUSCRIPTS_GOLD_RATE} gold/s (2 min) · +${LibKeeper.MANUSCRIPTS_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--libkeeper-away" data-action="libkeeper-away">
+          🚶 Send Away
+          <span class="libkeeper-cost">→ Keeper vanishes back into the hidden archives</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -2357,6 +2427,14 @@ const _HANDLERS = {
   'spice-trade':    () => SpiceMerchant.arrangeSpiceTrade(),
   'spice-purchase': () => SpiceMerchant.purchaseExoticSpices(),
   'spice-away':     () => SpiceMerchant.sendSpiceMerchantAway(),
+
+  'musician-commission':  () => Musician.commissionGrandSymphony(),
+  'musician-performance': () => Musician.requestFolkPerformance(),
+  'musician-away':        () => Musician.sendCourtMusicianAway(),
+
+  'libkeeper-archive':     () => LibKeeper.accessForbiddenArchives(),
+  'libkeeper-manuscripts': () => LibKeeper.purchaseRareManuscripts(),
+  'libkeeper-away':        () => LibKeeper.sendLibraryKeeperAway(),
 };
 
 function _handleClick(e) {
@@ -2435,6 +2513,8 @@ export function initQuestPanel() {
     Events.ROYAL_PERFUMER_CHANGED,
     Events.WANDERING_SILVERSMITH_CHANGED,
     Events.IMPERIAL_SPICE_MERCHANT_CHANGED,
+    Events.COURT_MUSICIAN_CHANGED,
+    Events.ANCIENT_LIBRARY_KEEPER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

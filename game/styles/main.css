@@ -17857,3 +17857,81 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--spice-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T307: Court Musician ────────────────────────────────────────── */
+@keyframes musician-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(20, 184, 166, 0); }
+  50%       { box-shadow: 0 0 8px 2px rgba(20, 184, 166, 0.20); }
+}
+.musician-section--active {
+  background: linear-gradient(135deg, rgba(13, 148, 136, 0.18), rgba(20, 184, 166, 0.10));
+  border: 1px solid rgba(20, 184, 166, 0.30); border-radius: 8px; padding: 10px 12px; margin-bottom: 10px;
+  animation: musician-pulse 3.5s ease-in-out infinite;
+}
+.musician-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.musician-title   { font-size: 0.92rem; font-weight: 600; color: #5eead4; }
+.musician-timer   { font-size: 0.78rem; color: #2dd4bf; background: rgba(20, 184, 166, 0.12); padding: 2px 7px; border-radius: 10px; }
+.musician-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.15); }
+.musician-desc    { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.musician-actions { display: flex; flex-direction: column; gap: 6px; }
+.musician-cost    { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--musician-commission {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.12), rgba(13, 148, 136, 0.08));
+  border: 1px solid rgba(20, 184, 166, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #5eead4; text-align: left; transition: background 0.15s;
+}
+.btn--musician-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(20, 184, 166, 0.22), rgba(13, 148, 136, 0.15)); }
+.btn--musician-performance {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.12), rgba(22, 163, 74, 0.08));
+  border: 1px solid rgba(34, 197, 94, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #86efac; text-align: left; transition: background 0.15s;
+}
+.btn--musician-performance:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(34, 197, 94, 0.22), rgba(22, 163, 74, 0.15)); }
+.btn--musician-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--musician-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T308: Ancient Library Keeper ────────────────────────────────── */
+@keyframes libkeeper-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+  50%       { box-shadow: 0 0 8px 2px rgba(99, 102, 241, 0.20); }
+}
+.libkeeper-section--active {
+  background: linear-gradient(135deg, rgba(67, 56, 202, 0.18), rgba(99, 102, 241, 0.10));
+  border: 1px solid rgba(99, 102, 241, 0.30); border-radius: 8px; padding: 10px 12px; margin-bottom: 10px;
+  animation: libkeeper-pulse 3.5s ease-in-out infinite;
+}
+.libkeeper-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.libkeeper-title   { font-size: 0.92rem; font-weight: 600; color: #a5b4fc; }
+.libkeeper-timer   { font-size: 0.78rem; color: #818cf8; background: rgba(99, 102, 241, 0.12); padding: 2px 7px; border-radius: 10px; }
+.libkeeper-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.15); }
+.libkeeper-desc    { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.libkeeper-actions { display: flex; flex-direction: column; gap: 6px; }
+.libkeeper-cost    { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--libkeeper-archive {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(67, 56, 202, 0.08));
+  border: 1px solid rgba(99, 102, 241, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #a5b4fc; text-align: left; transition: background 0.15s;
+}
+.btn--libkeeper-archive:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(99, 102, 241, 0.22), rgba(67, 56, 202, 0.15)); }
+.btn--libkeeper-manuscripts {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(250, 204, 21, 0.12), rgba(202, 138, 4, 0.08));
+  border: 1px solid rgba(250, 204, 21, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fde68a; text-align: left; transition: background 0.15s;
+}
+.btn--libkeeper-manuscripts:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(250, 204, 21, 0.22), rgba(202, 138, 4, 0.15)); }
+.btn--libkeeper-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--libkeeper-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
