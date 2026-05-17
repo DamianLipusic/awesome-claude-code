@@ -252,4 +252,6 @@ export const Events = Object.freeze({
   ANCIENT_LIBRARY_KEEPER_CHANGED:   'ancientLibraryKeeperChanged',          // T308: keeper spawned / archive / manuscripts / dismissed / expired
   WANDERING_CLOCKMAKER_CHANGED:     'wanderingClockmakerChanged',            // T309: clockmaker spawned / clock / timepiece / dismissed / expired
   IMPERIAL_WEAPONSMITH_CHANGED:     'imperialWeaponsmithChanged',            // T310: weaponsmith spawned / armory / techniques / dismissed / expired
+  WANDERING_STONEMASON_CHANGED:     'wanderingStonemasonChanged',            // T311: stonemason spawned / stoneworks / techniques / dismissed / expired
+  IMPERIAL_DYE_MASTER_CHANGED:      'imperialDyeMasterChanged',              // T312: dye master spawned / dyeWorks / formulas / dismissed / expired
 });

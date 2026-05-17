@@ -910,3 +910,17 @@ Built imperialWeaponsmith.js: commissionEliteArmory (35 iron + 20 stone → +0.2
 Wired in main.js: import initImperialWeaponsmith+imperialWeaponsmithTick, registerSystem, initImperialWeaponsmith() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _imperialWeaponsmithSection() render + weaponsmith-armory/weaponsmith-techniques/weaponsmith-away handlers to questPanel.js (import * as Weaponsmith). Events.IMPERIAL_WEAPONSMITH_CHANGED subscribed.
 Added T310 weaponsmith CSS: @keyframes weaponsmith-pulse (red/crimson), .weaponsmith-section--active, .btn--weaponsmith-armory (red), .btn--weaponsmith-techniques (slate), .btn--weaponsmith-away (gray).
+
+Session 64 — T209–T210 (T311–T312): Wandering Stonemason, Imperial Dye Master.
+
+T209: Wandering Stonemason (T311) — Iron Age+, 10+ tiles, 13–18 min, 75s window.
+Built wanderingStonemason.js: commissionGrandStoneworks (30 stone + 20 iron → +0.2 stone/s 2.5min +22 prestige +10 morale), exchangeMasterTechniques (25g → +0.15 iron/s 2min +18 prestige), sendStonemasonAway (dismiss). Added WANDERING_STONEMASON_CHANGED event to events.js. state.wanderingStonemason null field.
+Wired in main.js: import initWanderingStonemason+wanderingStonemasonTick, registerSystem, initWanderingStonemason() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingStonemasonSection() render + stonemason-stoneworks/stonemason-techniques/stonemason-away handlers to questPanel.js (import * as Stonemason). Events.WANDERING_STONEMASON_CHANGED subscribed.
+Added T311 stonemason CSS: @keyframes stonemason-pulse (slate/gray), .stonemason-section--active, .btn--stonemason-stoneworks (slate), .btn--stonemason-techniques (amber), .btn--stonemason-away (gray).
+
+T210: Imperial Dye Master (T312) — Bronze Age+, 8+ tiles, 12–17 min, 80s window.
+Built imperialDyeMaster.js: establishRoyalDyeWorks (25 wood + 15 food → +0.25 wood/s 2.5min +20 prestige +8 morale), purchaseRareDyeFormulas (22g → +0.18 food/s 2min +12 prestige), sendDyeMasterAway (dismiss). Added IMPERIAL_DYE_MASTER_CHANGED event to events.js. state.imperialDyeMaster null field.
+Wired in main.js: import initImperialDyeMaster+imperialDyeMasterTick, registerSystem, initImperialDyeMaster() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _imperialDyeMasterSection() render + dyemaster-works/dyemaster-formulas/dyemaster-away handlers to questPanel.js (import * as DyeMaster). Events.IMPERIAL_DYE_MASTER_CHANGED subscribed.
+Added T312 dye master CSS: @keyframes dyemaster-pulse (violet/purple), .dyemaster-section--active, .btn--dyemaster-works (violet), .btn--dyemaster-formulas (green), .btn--dyemaster-away (gray).

@@ -18013,3 +18013,81 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--weaponsmith-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T311: Wandering Stonemason ──────────────────────────────────── */
+@keyframes stonemason-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(148, 163, 184, 0); }
+  50%       { box-shadow: 0 0 8px 2px rgba(148, 163, 184, 0.20); }
+}
+.stonemason-section--active {
+  background: linear-gradient(135deg, rgba(71, 85, 105, 0.18), rgba(148, 163, 184, 0.10));
+  border: 1px solid rgba(148, 163, 184, 0.30); border-radius: 8px; padding: 10px 12px; margin-bottom: 10px;
+  animation: stonemason-pulse 3.5s ease-in-out infinite;
+}
+.stonemason-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.stonemason-title   { font-size: 0.92rem; font-weight: 600; color: #cbd5e1; }
+.stonemason-timer   { font-size: 0.78rem; color: #94a3b8; background: rgba(148, 163, 184, 0.12); padding: 2px 7px; border-radius: 10px; }
+.stonemason-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.25); }
+.stonemason-desc    { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.stonemason-actions { display: flex; flex-direction: column; gap: 6px; }
+.stonemason-cost    { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--stonemason-stoneworks {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(100, 116, 139, 0.12), rgba(71, 85, 105, 0.08));
+  border: 1px solid rgba(148, 163, 184, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #cbd5e1; text-align: left; transition: background 0.15s;
+}
+.btn--stonemason-stoneworks:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(100, 116, 139, 0.22), rgba(71, 85, 105, 0.15)); }
+.btn--stonemason-techniques {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(217, 119, 6, 0.12), rgba(180, 83, 9, 0.08));
+  border: 1px solid rgba(217, 119, 6, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fcd34d; text-align: left; transition: background 0.15s;
+}
+.btn--stonemason-techniques:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(217, 119, 6, 0.22), rgba(180, 83, 9, 0.15)); }
+.btn--stonemason-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--stonemason-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T312: Imperial Dye Master ───────────────────────────────────── */
+@keyframes dyemaster-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(168, 85, 247, 0); }
+  50%       { box-shadow: 0 0 8px 2px rgba(168, 85, 247, 0.20); }
+}
+.dyemaster-section--active {
+  background: linear-gradient(135deg, rgba(88, 28, 135, 0.18), rgba(168, 85, 247, 0.10));
+  border: 1px solid rgba(168, 85, 247, 0.30); border-radius: 8px; padding: 10px 12px; margin-bottom: 10px;
+  animation: dyemaster-pulse 3.5s ease-in-out infinite;
+}
+.dyemaster-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.dyemaster-title   { font-size: 0.92rem; font-weight: 600; color: #d8b4fe; }
+.dyemaster-timer   { font-size: 0.78rem; color: #c084fc; background: rgba(168, 85, 247, 0.12); padding: 2px 7px; border-radius: 10px; }
+.dyemaster-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.25); }
+.dyemaster-desc    { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.dyemaster-actions { display: flex; flex-direction: column; gap: 6px; }
+.dyemaster-cost    { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--dyemaster-works {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(109, 40, 217, 0.08));
+  border: 1px solid rgba(168, 85, 247, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #d8b4fe; text-align: left; transition: background 0.15s;
+}
+.btn--dyemaster-works:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(139, 92, 246, 0.22), rgba(109, 40, 217, 0.15)); }
+.btn--dyemaster-formulas {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(22, 163, 74, 0.12), rgba(15, 118, 55, 0.08));
+  border: 1px solid rgba(22, 163, 74, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #86efac; text-align: left; transition: background 0.15s;
+}
+.btn--dyemaster-formulas:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(22, 163, 74, 0.22), rgba(15, 118, 55, 0.15)); }
+.btn--dyemaster-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--dyemaster-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

@@ -75,6 +75,8 @@ import * as Musician     from '../systems/courtMusician.js';             // T307
 import * as LibKeeper    from '../systems/ancientLibraryKeeper.js';      // T308
 import * as Clockmaker   from '../systems/wanderingClockmaker.js';       // T309
 import * as Weaponsmith  from '../systems/imperialWeaponsmith.js';       // T310
+import * as Stonemason  from '../systems/wanderingStonemason.js';       // T311
+import * as DyeMaster   from '../systems/imperialDyeMaster.js';         // T312
 
 let _panel = null;
 
@@ -178,6 +180,8 @@ function _encountersSection() {
     _ancientLibraryKeeperSection(),
     _wanderingClockmakerSection(),
     _imperialWeaponsmithSection(),
+    _wanderingStonemasonSection(),
+    _imperialDyeMasterSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -2255,6 +2259,78 @@ function _imperialWeaponsmithSection() {
     </div>`;
 }
 
+
+// ── T311 Wandering Stonemason ────────────────────────────────────────
+
+function _wanderingStonemasonSection() {
+  if (!Stonemason.getActiveStonemason()) return '';
+  const secs         = Stonemason.getStonemasonSecsLeft();
+  const stone        = Math.floor(state.resources.stone ?? 0);
+  const iron         = Math.floor(state.resources.iron  ?? 0);
+  const gold         = Math.floor(state.resources.gold  ?? 0);
+  const canStoneworks = stone >= Stonemason.STONEWORKS_STONE_COST && iron >= Stonemason.STONEWORKS_IRON_COST;
+  const canTech       = gold  >= Stonemason.TECHNIQUES_GOLD_COST;
+  const urg = secs <= 15 ? ' stonemason-timer--urgent' : '';
+  return `
+    <div class="stonemason-section--active">
+      <div class="stonemason-header">
+        <span class="stonemason-title">🏛️ Wandering Stonemason</span>
+        <span class="stonemason-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="stonemason-desc">A master stonemason arrives seeking imperial commissions, their hands bearing the marks of a lifetime shaping stone into enduring monuments and fortifications.</div>
+      <div class="stonemason-actions">
+        <button class="btn--stonemason-stoneworks${canStoneworks ? '' : ' btn--disabled'}" data-action="stonemason-stoneworks" ${canStoneworks ? '' : 'disabled'}>
+          🏛️ Commission Grand Stoneworks — ${Stonemason.STONEWORKS_STONE_COST}🪨 + ${Stonemason.STONEWORKS_IRON_COST}⚙️
+          <span class="stonemason-cost">→ +${Stonemason.STONEWORKS_STONE_RATE} stone/s (2.5 min) · +${Stonemason.STONEWORKS_PRESTIGE_REWARD} prestige · +${Stonemason.STONEWORKS_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--stonemason-techniques${canTech ? '' : ' btn--disabled'}" data-action="stonemason-techniques" ${canTech ? '' : 'disabled'}>
+          🔨 Exchange Master Techniques — ${Stonemason.TECHNIQUES_GOLD_COST}💰
+          <span class="stonemason-cost">→ +${Stonemason.TECHNIQUES_IRON_RATE} iron/s (2 min) · +${Stonemason.TECHNIQUES_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--stonemason-away" data-action="stonemason-away">
+          🚶 Send Away
+          <span class="stonemason-cost">→ Stonemason continues their journey</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+
+// ── T312 Imperial Dye Master ─────────────────────────────────────────
+
+function _imperialDyeMasterSection() {
+  if (!DyeMaster.getActiveDyeMaster()) return '';
+  const secs      = DyeMaster.getDyeMasterSecsLeft();
+  const wood      = Math.floor(state.resources.wood ?? 0);
+  const food      = Math.floor(state.resources.food ?? 0);
+  const gold      = Math.floor(state.resources.gold ?? 0);
+  const canWorks  = wood >= DyeMaster.DYE_WORKS_WOOD_COST && food >= DyeMaster.DYE_WORKS_FOOD_COST;
+  const canFormulas = gold >= DyeMaster.FORMULAS_GOLD_COST;
+  const urg = secs <= 15 ? ' dyemaster-timer--urgent' : '';
+  return `
+    <div class="dyemaster-section--active">
+      <div class="dyemaster-header">
+        <span class="dyemaster-title">🎨 Imperial Dye Master</span>
+        <span class="dyemaster-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="dyemaster-desc">A renowned dye master arrives bearing exotic pigments from distant lands, their robes stained with the brilliant hues of indigo, crimson madder, and royal purple.</div>
+      <div class="dyemaster-actions">
+        <button class="btn--dyemaster-works${canWorks ? '' : ' btn--disabled'}" data-action="dyemaster-works" ${canWorks ? '' : 'disabled'}>
+          🎨 Establish Royal Dye Works — ${DyeMaster.DYE_WORKS_WOOD_COST}🪵 + ${DyeMaster.DYE_WORKS_FOOD_COST}🌾
+          <span class="dyemaster-cost">→ +${DyeMaster.DYE_WORKS_WOOD_RATE} wood/s (2.5 min) · +${DyeMaster.DYE_WORKS_PRESTIGE_REWARD} prestige · +${DyeMaster.DYE_WORKS_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--dyemaster-formulas${canFormulas ? '' : ' btn--disabled'}" data-action="dyemaster-formulas" ${canFormulas ? '' : 'disabled'}>
+          🌿 Purchase Rare Dye Formulas — ${DyeMaster.FORMULAS_GOLD_COST}💰
+          <span class="dyemaster-cost">→ +${DyeMaster.FORMULAS_FOOD_RATE} food/s (2 min) · +${DyeMaster.FORMULAS_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--dyemaster-away" data-action="dyemaster-away">
+          🚶 Send Away
+          <span class="dyemaster-cost">→ Dye master departs for another empire</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -2516,6 +2592,14 @@ const _HANDLERS = {
   'weaponsmith-armory':      () => Weaponsmith.commissionEliteArmory(),
   'weaponsmith-techniques':  () => Weaponsmith.purchaseCombatTechniques(),
   'weaponsmith-away':        () => Weaponsmith.sendWeaponsmithAway(),
+
+  'stonemason-stoneworks':   () => Stonemason.commissionGrandStoneworks(),
+  'stonemason-techniques':   () => Stonemason.exchangeMasterTechniques(),
+  'stonemason-away':         () => Stonemason.sendStonemasonAway(),
+
+  'dyemaster-works':         () => DyeMaster.establishRoyalDyeWorks(),
+  'dyemaster-formulas':      () => DyeMaster.purchaseRareDyeFormulas(),
+  'dyemaster-away':          () => DyeMaster.sendDyeMasterAway(),
 };
 
 function _handleClick(e) {
@@ -2598,6 +2682,8 @@ export function initQuestPanel() {
     Events.ANCIENT_LIBRARY_KEEPER_CHANGED,
     Events.WANDERING_CLOCKMAKER_CHANGED,
     Events.IMPERIAL_WEAPONSMITH_CHANGED,
+    Events.WANDERING_STONEMASON_CHANGED,
+    Events.IMPERIAL_DYE_MASTER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

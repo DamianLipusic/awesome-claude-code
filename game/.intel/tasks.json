@@ -644,6 +644,24 @@
       "status": "done",
       "phase": 111,
       "notes": "Built imperialWeaponsmith.js. IMPERIAL_WEAPONSMITH_CHANGED event added to events.js. state.imperialWeaponsmith null field. Weaponsmith section in questPanel.js (import * as Weaponsmith). Events.IMPERIAL_WEAPONSMITH_CHANGED subscribed. CSS: @keyframes weaponsmith-pulse (red/crimson), .weaponsmith-section--active, .btn--weaponsmith-armory (red), .btn--weaponsmith-techniques (slate), .btn--weaponsmith-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T311",
+      "title": "Wandering Stonemason",
+      "description": "Iron Age+, 10+ tiles, 13-18 min spawn, 75s window. Commission Grand Stoneworks (30 stone + 20 iron → +0.2 stone/s 2.5min · +22 prestige · +10 morale), Exchange Master Techniques (25g → +0.15 iron/s 2min · +18 prestige), Send Away.",
+      "priority": 311,
+      "status": "done",
+      "phase": 112,
+      "notes": "Built wanderingStonemason.js. WANDERING_STONEMASON_CHANGED event added to events.js. state.wanderingStonemason null field. Stonemason section in questPanel.js (import * as Stonemason). Events.WANDERING_STONEMASON_CHANGED subscribed. CSS: @keyframes stonemason-pulse (slate/gray), .stonemason-section--active, .btn--stonemason-stoneworks (slate), .btn--stonemason-techniques (amber), .btn--stonemason-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T312",
+      "title": "Imperial Dye Master",
+      "description": "Bronze Age+, 8+ tiles, 12-17 min spawn, 80s window. Establish Royal Dye Works (25 wood + 15 food → +0.25 wood/s 2.5min · +20 prestige · +8 morale), Purchase Rare Dye Formulas (22g → +0.18 food/s 2min · +12 prestige), Send Away.",
+      "priority": 312,
+      "status": "done",
+      "phase": 112,
+      "notes": "Built imperialDyeMaster.js. IMPERIAL_DYE_MASTER_CHANGED event added to events.js. state.imperialDyeMaster null field. Dye master section in questPanel.js (import * as DyeMaster). Events.IMPERIAL_DYE_MASTER_CHANGED subscribed. CSS: @keyframes dyemaster-pulse (violet/purple), .dyemaster-section--active, .btn--dyemaster-works (violet), .btn--dyemaster-formulas (green), .btn--dyemaster-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     }
   ],
   "session_history": [
@@ -687,6 +705,7 @@
     "Session 60 (T201-T202): Wandering Mapmaker (T303), Royal Perfumer (T304)",
     "Session 61 (T203-T204): Wandering Silversmith (T305), Imperial Spice Merchant (T306)",
     "Session 62 (T205-T206): Court Musician (T307), Ancient Library Keeper (T308)",
-    "Session 63 (T207-T208): Wandering Clockmaker (T309), Imperial Weaponsmith (T310)"
+    "Session 63 (T207-T208): Wandering Clockmaker (T309), Imperial Weaponsmith (T310)",
+    "Session 64 (T209-T210): Wandering Stonemason (T311), Imperial Dye Master (T312)"
   ]
 }
