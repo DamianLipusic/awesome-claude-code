@@ -68,7 +68,9 @@ import * as NomadChief from '../systems/desertNomadChief.js';          // T300
 import * as Sculptor   from '../systems/wanderingSculptor.js';         // T301
 import * as Vintner    from '../systems/royalVintner.js';              // T302
 import * as Mapmaker  from '../systems/wanderingMapmaker.js';          // T303
-import * as Perfumer  from '../systems/royalPerfumer.js';              // T304
+import * as Perfumer      from '../systems/royalPerfumer.js';              // T304
+import * as Silversmith  from '../systems/wanderingSilversmith.js';       // T305
+import * as SpiceMerchant from '../systems/imperialSpiceMerchant.js';    // T306
 
 let _panel = null;
 
@@ -166,6 +168,8 @@ function _encountersSection() {
     _royalVintnerSection(),
     _wanderingMapmakerSection(),
     _royalPerfumerSection(),
+    _wanderingSilversmithSection(),
+    _imperialSpiceMerchantSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -2039,6 +2043,75 @@ function _royalPerfumerSection() {
     </div>`;
 }
 
+// ── T305 Wandering Silversmith ────────────────────────────────────────────────
+
+function _wanderingSilversmithSection() {
+  if (!Silversmith.getActiveSilversmith()) return '';
+  const secs         = Silversmith.getSilversmithSecsLeft();
+  const iron         = state.resources.iron  ?? 0;
+  const stone        = state.resources.stone ?? 0;
+  const gold         = state.resources.gold  ?? 0;
+  const canArtifacts = iron >= Silversmith.ARTIFACTS_IRON_COST && stone >= Silversmith.ARTIFACTS_STONE_COST;
+  const canJewelry   = gold >= Silversmith.JEWELRY_GOLD_COST;
+  const urg = secs <= 15 ? ' silversmith-timer--urgent' : '';
+  return `
+    <div class="silversmith-section--active">
+      <div class="silversmith-header">
+        <span class="silversmith-title">🥈 Wandering Silversmith</span>
+        <span class="silversmith-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="silversmith-desc">A renowned wandering silversmith arrives with masterwork silver pieces and refined forging tools acquired across many kingdoms, offering their craft to the empire.</div>
+      <div class="silversmith-actions">
+        <button class="btn--silversmith-artifacts${canArtifacts ? '' : ' btn--disabled'}" data-action="silversmith-artifacts" ${canArtifacts ? '' : 'disabled'}>
+          🥈 Commission Silver Artifacts — ${Silversmith.ARTIFACTS_IRON_COST}⚙️ + ${Silversmith.ARTIFACTS_STONE_COST}🪨
+          <span class="silversmith-cost">→ +${Silversmith.ARTIFACTS_IRON_RATE} iron/s (2.5 min) · +${Silversmith.ARTIFACTS_PRESTIGE_REWARD} prestige · +${Silversmith.ARTIFACTS_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--silversmith-jewelry${canJewelry ? '' : ' btn--disabled'}" data-action="silversmith-jewelry" ${canJewelry ? '' : 'disabled'}>
+          💎 Purchase Silver Jewelry — ${Silversmith.JEWELRY_GOLD_COST}💰
+          <span class="silversmith-cost">→ +${Silversmith.JEWELRY_GOLD_RATE} gold/s (2 min) · +${Silversmith.JEWELRY_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--silversmith-away" data-action="silversmith-away">
+          🚶 Send Away
+          <span class="silversmith-cost">→ Silversmith departs with their masterwork samples</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T306 Imperial Spice Merchant ──────────────────────────────────────────────
+
+function _imperialSpiceMerchantSection() {
+  if (!SpiceMerchant.getActiveSpiceMerchant()) return '';
+  const secs       = SpiceMerchant.getSpiceMerchantSecsLeft();
+  const food       = state.resources.food ?? 0;
+  const gold       = state.resources.gold ?? 0;
+  const canTrade   = food >= SpiceMerchant.TRADE_FOOD_COST && gold >= SpiceMerchant.TRADE_GOLD_COST;
+  const canPurchase = food >= SpiceMerchant.PURCHASE_FOOD_COST;
+  const urg = secs <= 15 ? ' spice-timer--urgent' : '';
+  return `
+    <div class="spice-section--active">
+      <div class="spice-header">
+        <span class="spice-title">🌶 Imperial Spice Merchant</span>
+        <span class="spice-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="spice-desc">An imperial spice merchant arrives with great caravans laden with saffron, cinnamon, pepper, and rare aromatics sourced from the farthest reaches of the known world.</div>
+      <div class="spice-actions">
+        <button class="btn--spice-trade${canTrade ? '' : ' btn--disabled'}" data-action="spice-trade" ${canTrade ? '' : 'disabled'}>
+          🌶 Arrange Spice Trade — ${SpiceMerchant.TRADE_FOOD_COST}🌾 + ${SpiceMerchant.TRADE_GOLD_COST}💰
+          <span class="spice-cost">→ +${SpiceMerchant.TRADE_FOOD_RATE} food/s (2.5 min) · +${SpiceMerchant.TRADE_PRESTIGE_REWARD} prestige · +${SpiceMerchant.TRADE_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--spice-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="spice-purchase" ${canPurchase ? '' : 'disabled'}>
+          🧂 Purchase Exotic Spices — ${SpiceMerchant.PURCHASE_FOOD_COST}🌾
+          <span class="spice-cost">→ +${SpiceMerchant.PURCHASE_FOOD_RATE} food/s (2 min) · +${SpiceMerchant.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--spice-away" data-action="spice-away">
+          🚶 Send Away
+          <span class="spice-cost">→ Merchant departs with their aromatic cargo</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -2276,6 +2349,14 @@ const _HANDLERS = {
   'perfumer-fragrance': () => Perfumer.createImperialFragrance(),
   'perfumer-herbs':     () => Perfumer.purchaseAromaticHerbs(),
   'perfumer-away':      () => Perfumer.sendPerfumerAway(),
+
+  'silversmith-artifacts': () => Silversmith.commissionSilverArtifacts(),
+  'silversmith-jewelry':   () => Silversmith.purchaseSilverJewelry(),
+  'silversmith-away':      () => Silversmith.sendSilversmithAway(),
+
+  'spice-trade':    () => SpiceMerchant.arrangeSpiceTrade(),
+  'spice-purchase': () => SpiceMerchant.purchaseExoticSpices(),
+  'spice-away':     () => SpiceMerchant.sendSpiceMerchantAway(),
 };
 
 function _handleClick(e) {
@@ -2352,6 +2433,8 @@ export function initQuestPanel() {
     Events.ROYAL_VINTNER_CHANGED,
     Events.WANDERING_MAPMAKER_CHANGED,
     Events.ROYAL_PERFUMER_CHANGED,
+    Events.WANDERING_SILVERSMITH_CHANGED,
+    Events.IMPERIAL_SPICE_MERCHANT_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

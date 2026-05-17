@@ -17779,3 +17779,81 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--perfumer-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T305: Wandering Silversmith ─────────────────────────────────── */
+@keyframes silversmith-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(148, 163, 184, 0); }
+  50%       { box-shadow: 0 0 8px 2px rgba(148, 163, 184, 0.20); }
+}
+.silversmith-section--active {
+  background: linear-gradient(135deg, rgba(71, 85, 105, 0.18), rgba(100, 116, 139, 0.10));
+  border: 1px solid rgba(148, 163, 184, 0.30); border-radius: 8px; padding: 10px 12px; margin-bottom: 10px;
+  animation: silversmith-pulse 3.5s ease-in-out infinite;
+}
+.silversmith-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.silversmith-title   { font-size: 0.92rem; font-weight: 600; color: #e2e8f0; }
+.silversmith-timer   { font-size: 0.78rem; color: #cbd5e1; background: rgba(148, 163, 184, 0.12); padding: 2px 7px; border-radius: 10px; }
+.silversmith-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.15); }
+.silversmith-desc    { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.silversmith-actions { display: flex; flex-direction: column; gap: 6px; }
+.silversmith-cost    { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--silversmith-artifacts {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(148, 163, 184, 0.12), rgba(100, 116, 139, 0.08));
+  border: 1px solid rgba(148, 163, 184, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #e2e8f0; text-align: left; transition: background 0.15s;
+}
+.btn--silversmith-artifacts:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(148, 163, 184, 0.22), rgba(100, 116, 139, 0.15)); }
+.btn--silversmith-jewelry {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(250, 204, 21, 0.12), rgba(202, 138, 4, 0.08));
+  border: 1px solid rgba(250, 204, 21, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fde68a; text-align: left; transition: background 0.15s;
+}
+.btn--silversmith-jewelry:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(250, 204, 21, 0.22), rgba(202, 138, 4, 0.15)); }
+.btn--silversmith-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--silversmith-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T306: Imperial Spice Merchant ───────────────────────────────── */
+@keyframes spice-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(234, 88, 12, 0); }
+  50%       { box-shadow: 0 0 8px 2px rgba(234, 88, 12, 0.18); }
+}
+.spice-section--active {
+  background: linear-gradient(135deg, rgba(154, 52, 18, 0.18), rgba(194, 65, 12, 0.10));
+  border: 1px solid rgba(234, 88, 12, 0.30); border-radius: 8px; padding: 10px 12px; margin-bottom: 10px;
+  animation: spice-pulse 3.5s ease-in-out infinite;
+}
+.spice-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.spice-title   { font-size: 0.92rem; font-weight: 600; color: #fed7aa; }
+.spice-timer   { font-size: 0.78rem; color: #fb923c; background: rgba(234, 88, 12, 0.12); padding: 2px 7px; border-radius: 10px; }
+.spice-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.15); }
+.spice-desc    { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.spice-actions { display: flex; flex-direction: column; gap: 6px; }
+.spice-cost    { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--spice-trade {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(234, 88, 12, 0.12), rgba(194, 65, 12, 0.08));
+  border: 1px solid rgba(234, 88, 12, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fed7aa; text-align: left; transition: background 0.15s;
+}
+.btn--spice-trade:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(234, 88, 12, 0.22), rgba(194, 65, 12, 0.15)); }
+.btn--spice-purchase {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(217, 119, 6, 0.08));
+  border: 1px solid rgba(245, 158, 11, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fde68a; text-align: left; transition: background 0.15s;
+}
+.btn--spice-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(245, 158, 11, 0.22), rgba(217, 119, 6, 0.15)); }
+.btn--spice-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--spice-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

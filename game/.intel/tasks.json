@@ -590,6 +590,24 @@
       "status": "done",
       "phase": 108,
       "notes": "Built royalPerfumer.js. ROYAL_PERFUMER_CHANGED event added to events.js. state.royalPerfumer null field. Perfumer section in questPanel.js (import * as Perfumer). Events.ROYAL_PERFUMER_CHANGED subscribed. CSS: @keyframes perfumer-pulse (rose/pink), .perfumer-section--active, .btn--perfumer-fragrance (rose), .btn--perfumer-herbs (green), .btn--perfumer-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T305",
+      "title": "Wandering Silversmith",
+      "description": "Iron Age+, 10+ tiles, 13-18 min spawn, 80s window. Commission Silver Artifacts (20 iron + 15 stone → +0.18 iron/s 2.5min · +22 prestige · +10 morale), Purchase Silver Jewelry (25g → +0.15 gold/s 2min · +18 prestige), Send Away.",
+      "priority": 305,
+      "status": "done",
+      "phase": 109,
+      "notes": "Built wanderingSilversmith.js. WANDERING_SILVERSMITH_CHANGED event added to events.js. state.wanderingSilversmith null field. Silversmith section in questPanel.js (import * as Silversmith). Events.WANDERING_SILVERSMITH_CHANGED subscribed. CSS: @keyframes silversmith-pulse (slate/silver), .silversmith-section--active, .btn--silversmith-artifacts (silver/slate), .btn--silversmith-jewelry (yellow/gold), .btn--silversmith-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T306",
+      "title": "Imperial Spice Merchant",
+      "description": "Bronze Age+, 8+ tiles, 12-17 min spawn, 80s window. Arrange Spice Trade (30 food + 20g → +0.25 food/s 2.5min · +20 prestige · +10 morale), Purchase Exotic Spices (25 food → +0.18 food/s 2min · +15 prestige), Send Away.",
+      "priority": 306,
+      "status": "done",
+      "phase": 109,
+      "notes": "Built imperialSpiceMerchant.js. IMPERIAL_SPICE_MERCHANT_CHANGED event added to events.js. state.imperialSpiceMerchant null field. Spice merchant section in questPanel.js (import * as SpiceMerchant). Events.IMPERIAL_SPICE_MERCHANT_CHANGED subscribed. CSS: @keyframes spice-pulse (orange/amber), .spice-section--active, .btn--spice-trade (orange), .btn--spice-purchase (amber), .btn--spice-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     }
   ],
   "session_history": [
@@ -630,6 +648,7 @@
     "Session 57 (T195-T196): Wandering Weaver (T295), Traveling Architect (T296)",
     "Session 58 (T197-T198): Wandering Falconer (T297), Roaming Botanist (T298)",
     "Session 59 (T199-T200): Wandering Jeweler (T299), Desert Nomad Chief (T300)",
-    "Session 60 (T201-T202): Wandering Mapmaker (T303), Royal Perfumer (T304)"
+    "Session 60 (T201-T202): Wandering Mapmaker (T303), Royal Perfumer (T304)",
+    "Session 61 (T203-T204): Wandering Silversmith (T305), Imperial Spice Merchant (T306)"
   ]
 }

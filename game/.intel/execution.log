@@ -868,3 +868,17 @@ Built royalPerfumer.js: createImperialFragrance (20 food + 15g → +0.2 food/s 2
 Wired in main.js: import initRoyalPerfumer+royalPerfumerTick, registerSystem, initRoyalPerfumer() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _royalPerfumerSection() render + perfumer-fragrance/perfumer-herbs/perfumer-away handlers to questPanel.js (import * as Perfumer). Events.ROYAL_PERFUMER_CHANGED subscribed.
 Added T304 perfumer CSS: @keyframes perfumer-pulse (rose/pink), .perfumer-section--active, .btn--perfumer-fragrance (rose), .btn--perfumer-herbs (green), .btn--perfumer-away (gray).
+
+Session 61 — T203–T204 (T305–T306): Wandering Silversmith, Imperial Spice Merchant.
+
+T203: Wandering Silversmith (T305) — Iron Age+, 10+ tiles, 13–18 min, 80s window.
+Built wanderingSilversmith.js: commissionSilverArtifacts (20 iron + 15 stone → +0.18 iron/s 2.5min +22 prestige +10 morale), purchaseSilverJewelry (25g → +0.15 gold/s 2min +18 prestige), sendSilversmithAway (dismiss). Added WANDERING_SILVERSMITH_CHANGED event to events.js. state.wanderingSilversmith null field.
+Wired in main.js: import initWanderingSilversmith+wanderingSilversmithTick, registerSystem, initWanderingSilversmith() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingSilversmithSection() render + silversmith-artifacts/silversmith-jewelry/silversmith-away handlers to questPanel.js (import * as Silversmith). Events.WANDERING_SILVERSMITH_CHANGED subscribed.
+Added T305 silversmith CSS: @keyframes silversmith-pulse (slate/silver), .silversmith-section--active, .btn--silversmith-artifacts (silver/slate), .btn--silversmith-jewelry (yellow/gold), .btn--silversmith-away (gray).
+
+T204: Imperial Spice Merchant (T306) — Bronze Age+, 8+ tiles, 12–17 min, 80s window.
+Built imperialSpiceMerchant.js: arrangeSpiceTrade (30 food + 20g → +0.25 food/s 2.5min +20 prestige +10 morale), purchaseExoticSpices (25 food → +0.18 food/s 2min +15 prestige), sendSpiceMerchantAway (dismiss). Added IMPERIAL_SPICE_MERCHANT_CHANGED event to events.js. state.imperialSpiceMerchant null field.
+Wired in main.js: import initImperialSpiceMerchant+imperialSpiceMerchantTick, registerSystem, initImperialSpiceMerchant() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _imperialSpiceMerchantSection() render + spice-trade/spice-purchase/spice-away handlers to questPanel.js (import * as SpiceMerchant). Events.IMPERIAL_SPICE_MERCHANT_CHANGED subscribed.
+Added T306 spice CSS: @keyframes spice-pulse (orange/amber), .spice-section--active, .btn--spice-trade (orange), .btn--spice-purchase (amber), .btn--spice-away (gray).

@@ -246,4 +246,6 @@ export const Events = Object.freeze({
   ROYAL_VINTNER_CHANGED:            'royalVintnerChanged',               // T302: vintner spawned / vintage / knowledge / dismissed / expired
   WANDERING_MAPMAKER_CHANGED:       'wanderingMapmakerChanged',           // T303: mapmaker spawned / atlas / survey / dismissed / expired
   ROYAL_PERFUMER_CHANGED:           'royalPerfumerChanged',               // T304: perfumer spawned / fragrance / herbs / dismissed / expired
+  WANDERING_SILVERSMITH_CHANGED:    'wanderingSilversmithChanged',         // T305: silversmith spawned / artifacts / jewelry / dismissed / expired
+  IMPERIAL_SPICE_MERCHANT_CHANGED:  'imperialSpiceMerchantChanged',        // T306: spice merchant spawned / trade / purchase / dismissed / expired
 });
