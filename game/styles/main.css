@@ -17623,3 +17623,81 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--nomad-decline:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T301: Wandering Sculptor ─────────────────────────────────────── */
+@keyframes sculptor-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(156, 163, 175, 0); }
+  50%       { box-shadow: 0 0 8px 2px rgba(156, 163, 175, 0.18); }
+}
+.sculptor-section--active {
+  background: linear-gradient(135deg, rgba(75, 85, 99, 0.18), rgba(55, 65, 81, 0.12));
+  border: 1px solid rgba(156, 163, 175, 0.3); border-radius: 8px; padding: 10px 12px; margin-bottom: 10px;
+  animation: sculptor-pulse 3.5s ease-in-out infinite;
+}
+.sculptor-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.sculptor-title   { font-size: 0.92rem; font-weight: 600; color: #e5e7eb; }
+.sculptor-timer   { font-size: 0.78rem; color: #9ca3af; background: rgba(156, 163, 175, 0.12); padding: 2px 7px; border-radius: 10px; }
+.sculptor-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.15); }
+.sculptor-desc    { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.sculptor-actions { display: flex; flex-direction: column; gap: 6px; }
+.sculptor-cost    { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--sculptor-commission {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(156, 163, 175, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #e5e7eb; text-align: left; transition: background 0.15s;
+}
+.btn--sculptor-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+.btn--sculptor-lesson {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.12), rgba(245, 158, 11, 0.08));
+  border: 1px solid rgba(251, 191, 36, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fde68a; text-align: left; transition: background 0.15s;
+}
+.btn--sculptor-lesson:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(251, 191, 36, 0.22), rgba(245, 158, 11, 0.15)); }
+.btn--sculptor-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--sculptor-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T302: Royal Vintner ──────────────────────────────────────────── */
+@keyframes vintner-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(185, 28, 28, 0); }
+  50%       { box-shadow: 0 0 8px 2px rgba(185, 28, 28, 0.18); }
+}
+.vintner-section--active {
+  background: linear-gradient(135deg, rgba(127, 29, 29, 0.18), rgba(109, 40, 40, 0.12));
+  border: 1px solid rgba(220, 38, 38, 0.3); border-radius: 8px; padding: 10px 12px; margin-bottom: 10px;
+  animation: vintner-pulse 3.5s ease-in-out infinite;
+}
+.vintner-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.vintner-title   { font-size: 0.92rem; font-weight: 600; color: #fca5a5; }
+.vintner-timer   { font-size: 0.78rem; color: #f87171; background: rgba(239, 68, 68, 0.12); padding: 2px 7px; border-radius: 10px; }
+.vintner-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.22); }
+.vintner-desc    { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.vintner-actions { display: flex; flex-direction: column; gap: 6px; }
+.vintner-cost    { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--vintner-vintage {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(185, 28, 28, 0.12), rgba(153, 27, 27, 0.08));
+  border: 1px solid rgba(220, 38, 38, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fca5a5; text-align: left; transition: background 0.15s;
+}
+.btn--vintner-vintage:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(185, 28, 28, 0.22), rgba(153, 27, 27, 0.15)); }
+.btn--vintner-knowledge {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.12), rgba(245, 158, 11, 0.08));
+  border: 1px solid rgba(251, 191, 36, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fde68a; text-align: left; transition: background 0.15s;
+}
+.btn--vintner-knowledge:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(251, 191, 36, 0.22), rgba(245, 158, 11, 0.15)); }
+.btn--vintner-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--vintner-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

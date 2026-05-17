@@ -65,6 +65,8 @@ import * as Falconer   from '../systems/wanderingFalconer.js';         // T297
 import * as Botanist   from '../systems/roamingBotanist.js';           // T298
 import * as Jeweler    from '../systems/wanderingJeweler.js';          // T299
 import * as NomadChief from '../systems/desertNomadChief.js';          // T300
+import * as Sculptor   from '../systems/wanderingSculptor.js';         // T301
+import * as Vintner    from '../systems/royalVintner.js';              // T302
 
 let _panel = null;
 
@@ -158,6 +160,8 @@ function _encountersSection() {
     _roamingBotanistSection(),
     _wanderingJewelerSection(),
     _desertNomadChiefSection(),
+    _wanderingSculptorSection(),
+    _royalVintnerSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -1898,6 +1902,70 @@ function _desertNomadChiefSection() {
     </div>`;
 }
 
+function _wanderingSculptorSection() {
+  if (!Sculptor.getActiveSculptor()) return '';
+  const secs         = Sculptor.getSculptorSecsLeft();
+  const stone        = Math.floor(state.resources.stone ?? 0);
+  const gold         = Math.floor(state.resources.gold ?? 0);
+  const canCommission = stone >= Sculptor.COMMISSION_STONE_COST;
+  const canLesson     = gold  >= Sculptor.LESSON_GOLD_COST;
+  const urg = secs <= 15 ? ' sculptor-timer--urgent' : '';
+  return `
+    <div class="sculptor-section--active">
+      <div class="sculptor-header">
+        <span class="sculptor-title">🗿 Wandering Sculptor</span>
+        <span class="sculptor-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="sculptor-desc">A wandering master sculptor arrives seeking a patron for his monumental works, his cart laden with chisels, mallets, and sketches of breathtaking monuments carved from living stone.</div>
+      <div class="sculptor-actions">
+        <button class="btn--sculptor-commission${canCommission ? '' : ' btn--disabled'}" data-action="sculptor-commission" ${canCommission ? '' : 'disabled'}>
+          🗿 Commission Grand Sculpture — ${Sculptor.COMMISSION_STONE_COST}🪨
+          <span class="sculptor-cost">→ +${Sculptor.COMMISSION_GOLD_RATE} gold/s (2 min) · +${Sculptor.COMMISSION_PRESTIGE_REWARD} prestige · +${Sculptor.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--sculptor-lesson${canLesson ? '' : ' btn--disabled'}" data-action="sculptor-lesson" ${canLesson ? '' : 'disabled'}>
+          🎨 Learn Stone-Carving Secrets — ${Sculptor.LESSON_GOLD_COST}💰
+          <span class="sculptor-cost">→ +${Sculptor.LESSON_STONE_RATE} stone/s (2 min) · +${Sculptor.LESSON_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--sculptor-away" data-action="sculptor-away">
+          🚶 Send Sculptor Away
+          <span class="sculptor-cost">→ Sculptor departs with his uncarved masterpieces</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _royalVintnerSection() {
+  if (!Vintner.getActiveVintner()) return '';
+  const secs       = Vintner.getVintnerSecsLeft();
+  const food       = Math.floor(state.resources.food ?? 0);
+  const gold       = Math.floor(state.resources.gold ?? 0);
+  const canVintage  = food >= Vintner.VINTAGE_FOOD_COST && gold >= Vintner.VINTAGE_GOLD_COST;
+  const canKnowledge = gold >= Vintner.KNOWLEDGE_GOLD_COST;
+  const urg = secs <= 15 ? ' vintner-timer--urgent' : '';
+  return `
+    <div class="vintner-section--active">
+      <div class="vintner-header">
+        <span class="vintner-title">🍷 Royal Vintner</span>
+        <span class="vintner-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="vintner-desc">A celebrated royal vintner arrives bearing wagon loads of exquisite wines and viticultural wisdom gathered from the finest vineyard estates across distant lands, seeking a worthy imperial patron.</div>
+      <div class="vintner-actions">
+        <button class="btn--vintner-vintage${canVintage ? '' : ' btn--disabled'}" data-action="vintner-vintage" ${canVintage ? '' : 'disabled'}>
+          🍷 Commission Imperial Vintage — ${Vintner.VINTAGE_FOOD_COST}🌾 + ${Vintner.VINTAGE_GOLD_COST}💰
+          <span class="vintner-cost">→ +${Vintner.VINTAGE_FOOD_RATE} food/s (2.5 min) · +${Vintner.VINTAGE_PRESTIGE_REWARD} prestige · +${Vintner.VINTAGE_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--vintner-knowledge${canKnowledge ? '' : ' btn--disabled'}" data-action="vintner-knowledge" ${canKnowledge ? '' : 'disabled'}>
+          📜 Purchase Vintner's Knowledge — ${Vintner.KNOWLEDGE_GOLD_COST}💰
+          <span class="vintner-cost">→ +${Vintner.KNOWLEDGE_GOLD_RATE} gold/s (2 min) · +${Vintner.KNOWLEDGE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--vintner-away" data-action="vintner-away">
+          🚶 Send Vintner Away
+          <span class="vintner-cost">→ Vintner departs with his finest casks to another court</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -2119,6 +2187,14 @@ const _HANDLERS = {
   'nomad-alliance':  () => NomadChief.forgeNomadAlliance(),
   'nomad-trade':     () => NomadChief.exchangeTradeGoods(),
   'nomad-decline':   () => NomadChief.declineNomadMeeting(),
+
+  'sculptor-commission': () => Sculptor.commissionGrandSculpture(),
+  'sculptor-lesson':     () => Sculptor.learnStoneCarvingSecrets(),
+  'sculptor-away':       () => Sculptor.sendSculptorAway(),
+
+  'vintner-vintage':   () => Vintner.commissionImperialVintage(),
+  'vintner-knowledge': () => Vintner.purchaseVintnersKnowledge(),
+  'vintner-away':      () => Vintner.sendVintnerAway(),
 };
 
 function _handleClick(e) {
@@ -2191,6 +2267,8 @@ export function initQuestPanel() {
     Events.ROAMING_BOTANIST_CHANGED,
     Events.WANDERING_JEWELER_CHANGED,
     Events.DESERT_NOMAD_CHIEF_CHANGED,
+    Events.WANDERING_SCULPTOR_CHANGED,
+    Events.ROYAL_VINTNER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

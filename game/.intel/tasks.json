@@ -1,6 +1,6 @@
 {
   "project": "EmpireOS",
-  "description": "Browser-based JS strategy game — vanilla ES modules, no build step.",
+  "description": "Browser-based JS strategy game \u2014 vanilla ES modules, no build step.",
   "tasks": [
     {
       "id": "T001",
@@ -554,6 +554,24 @@
       "status": "done",
       "phase": 107,
       "notes": "Built desertNomadChief.js. DESERT_NOMAD_CHIEF_CHANGED event added to events.js. state.desertNomadChief null field. Nomad chief section in questPanel.js (import * as NomadChief). Events.DESERT_NOMAD_CHIEF_CHANGED subscribed. CSS: @keyframes nomad-pulse (orange/desert), .nomad-section--active, .btn--nomad-alliance (orange), .btn--nomad-trade (amber), .btn--nomad-decline (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T301",
+      "title": "Wandering Sculptor",
+      "description": "Stone Age+, 6+ tiles, 11-16 min spawn, 80s window. Commission Grand Sculpture (30 stone \u2192 +0.15 gold/s 2min \u00b7 +22 prestige \u00b7 +8 morale), Learn Stone-Carving Secrets (20 gold \u2192 +0.18 stone/s 2min \u00b7 +12 prestige), Send Away.",
+      "priority": 301,
+      "status": "done",
+      "phase": 90,
+      "notes": "Built wanderingSculptor.js. WANDERING_SCULPTOR_CHANGED event added to events.js. state.wanderingSculptor null field. questPanel import * as Sculptor with _wanderingSculptorSection(). CSS: @keyframes sculptor-pulse, .sculptor-section--active. main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T302",
+      "title": "Royal Vintner",
+      "description": "Bronze Age+, 8+ tiles, 13-17 min spawn, 80s window. Commission Imperial Vintage (25 food + 10 gold \u2192 +0.2 food/s 2.5min \u00b7 +18 prestige \u00b7 +12 morale), Purchase Vintner's Knowledge (22 gold \u2192 +0.15 gold/s 2min \u00b7 +10 prestige), Send Away.",
+      "priority": 302,
+      "status": "done",
+      "phase": 90,
+      "notes": "Built royalVintner.js. ROYAL_VINTNER_CHANGED event added to events.js. state.royalVintner null field. questPanel import * as Vintner with _royalVintnerSection(). CSS: @keyframes vintner-pulse, .vintner-section--active. main.js: import, registerSystem, init x2, save/load."
     }
   ],
   "session_history": [
@@ -572,12 +590,12 @@
     "Session 13 (T121-T130): Construction drive, peace overture, royal forecast, war trophies, alchemy system, rationing policies, emergency militia, ancient pacts, imperial library, price surge",
     "Session 14 (T131-T140): Lost expedition, seasonal harvests, city prosperity, imperial games, royal loans, ancient vault cache, records exchange, nomadic tribes, wandering prophet, artisan fair",
     "Session 15 (T141-T143): Save version bump, hotfixes for artisan fair and wandering prophet",
-    "Session 16 (T144): Cosmic Alignment (T244) — 5 alignment types, observe/ritual/ignore",
+    "Session 16 (T144): Cosmic Alignment (T244) \u2014 5 alignment types, observe/ritual/ignore",
     "Session 17 (T145-T148): Economy Cycle (T245), Tribute Caravan (T246), Ancient Ore Vein (T247), Wandering Herbalist (T248)",
     "Session 18 (T149-T155): Traveling Circus (T249), Sacred Spring (T250), Wandering Bard (T251), Master Artisan (T252), Mountain Hermit (T253), Imperial Jubilee (T254), Exiled Prince (T255)",
     "Session 19 (T156-T164): Ancient Guardian (T256), Desert Oasis (T257), Foreign Dignitary (T258), Lost Caravan (T259), Nomadic Scholar (T260), Royal Feast (T261), Wandering Blacksmith (T262), Traveling Astrologer (T263), Merchant Prince (T264)",
-    "Session 20 (T165-T166): Quest Panel UI (T265), Wandering Sage (T266) — save version 100",
-    "Session 21 (T167-T168): Master Forester (T267), Enchanted Forest Spirit (T268) — sage CSS hotfix",
+    "Session 20 (T165-T166): Quest Panel UI (T265), Wandering Sage (T266) \u2014 save version 100",
+    "Session 21 (T167-T168): Master Forester (T267), Enchanted Forest Spirit (T268) \u2014 sage CSS hotfix",
     "Session 22 (T169-T170): Wandering Alchemist (T269), Seafaring Explorer (T270)",
     "Session 23 (T171-T172): Traveling Monk (T271), Imperial Cartographer (T272)",
     "Session 24 (T173-T174): Wandering Oracle (T273), Royal Emissary (T274)",
