@@ -250,4 +250,6 @@ export const Events = Object.freeze({
   IMPERIAL_SPICE_MERCHANT_CHANGED:  'imperialSpiceMerchantChanged',        // T306: spice merchant spawned / trade / purchase / dismissed / expired
   COURT_MUSICIAN_CHANGED:           'courtMusicianChanged',                 // T307: musician spawned / commission / performance / dismissed / expired
   ANCIENT_LIBRARY_KEEPER_CHANGED:   'ancientLibraryKeeperChanged',          // T308: keeper spawned / archive / manuscripts / dismissed / expired
+  WANDERING_CLOCKMAKER_CHANGED:     'wanderingClockmakerChanged',            // T309: clockmaker spawned / clock / timepiece / dismissed / expired
+  IMPERIAL_WEAPONSMITH_CHANGED:     'imperialWeaponsmithChanged',            // T310: weaponsmith spawned / armory / techniques / dismissed / expired
 });

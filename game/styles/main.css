@@ -17935,3 +17935,81 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--libkeeper-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T309: Wandering Clockmaker ──────────────────────────────────── */
+@keyframes clockmaker-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0); }
+  50%       { box-shadow: 0 0 8px 2px rgba(139, 92, 246, 0.20); }
+}
+.clockmaker-section--active {
+  background: linear-gradient(135deg, rgba(109, 40, 217, 0.18), rgba(139, 92, 246, 0.10));
+  border: 1px solid rgba(139, 92, 246, 0.30); border-radius: 8px; padding: 10px 12px; margin-bottom: 10px;
+  animation: clockmaker-pulse 3.5s ease-in-out infinite;
+}
+.clockmaker-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.clockmaker-title   { font-size: 0.92rem; font-weight: 600; color: #c4b5fd; }
+.clockmaker-timer   { font-size: 0.78rem; color: #a78bfa; background: rgba(139, 92, 246, 0.12); padding: 2px 7px; border-radius: 10px; }
+.clockmaker-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.15); }
+.clockmaker-desc    { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.clockmaker-actions { display: flex; flex-direction: column; gap: 6px; }
+.clockmaker-cost    { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--clockmaker-clock {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(109, 40, 217, 0.08));
+  border: 1px solid rgba(139, 92, 246, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #c4b5fd; text-align: left; transition: background 0.15s;
+}
+.btn--clockmaker-clock:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(139, 92, 246, 0.22), rgba(109, 40, 217, 0.15)); }
+.btn--clockmaker-timepiece {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(250, 204, 21, 0.12), rgba(202, 138, 4, 0.08));
+  border: 1px solid rgba(250, 204, 21, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fde68a; text-align: left; transition: background 0.15s;
+}
+.btn--clockmaker-timepiece:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(250, 204, 21, 0.22), rgba(202, 138, 4, 0.15)); }
+.btn--clockmaker-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--clockmaker-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T310: Imperial Weaponsmith ──────────────────────────────────── */
+@keyframes weaponsmith-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+  50%       { box-shadow: 0 0 8px 2px rgba(239, 68, 68, 0.20); }
+}
+.weaponsmith-section--active {
+  background: linear-gradient(135deg, rgba(185, 28, 28, 0.18), rgba(239, 68, 68, 0.10));
+  border: 1px solid rgba(239, 68, 68, 0.30); border-radius: 8px; padding: 10px 12px; margin-bottom: 10px;
+  animation: weaponsmith-pulse 3.5s ease-in-out infinite;
+}
+.weaponsmith-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.weaponsmith-title   { font-size: 0.92rem; font-weight: 600; color: #fca5a5; }
+.weaponsmith-timer   { font-size: 0.78rem; color: #f87171; background: rgba(239, 68, 68, 0.12); padding: 2px 7px; border-radius: 10px; }
+.weaponsmith-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.25); }
+.weaponsmith-desc    { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.weaponsmith-actions { display: flex; flex-direction: column; gap: 6px; }
+.weaponsmith-cost    { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--weaponsmith-armory {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.12), rgba(185, 28, 28, 0.08));
+  border: 1px solid rgba(239, 68, 68, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fca5a5; text-align: left; transition: background 0.15s;
+}
+.btn--weaponsmith-armory:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(239, 68, 68, 0.22), rgba(185, 28, 28, 0.15)); }
+.btn--weaponsmith-techniques {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(100, 116, 139, 0.12), rgba(71, 85, 105, 0.08));
+  border: 1px solid rgba(100, 116, 139, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #cbd5e1; text-align: left; transition: background 0.15s;
+}
+.btn--weaponsmith-techniques:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(100, 116, 139, 0.22), rgba(71, 85, 105, 0.15)); }
+.btn--weaponsmith-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--weaponsmith-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

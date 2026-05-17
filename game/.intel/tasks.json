@@ -626,6 +626,24 @@
       "status": "done",
       "phase": 110,
       "notes": "Built ancientLibraryKeeper.js. ANCIENT_LIBRARY_KEEPER_CHANGED event added to events.js. state.ancientLibraryKeeper null field. Library keeper section in questPanel.js (import * as LibKeeper). Events.ANCIENT_LIBRARY_KEEPER_CHANGED subscribed. CSS: @keyframes libkeeper-pulse (indigo/violet), .libkeeper-section--active, .btn--libkeeper-archive (indigo), .btn--libkeeper-manuscripts (amber/gold), .btn--libkeeper-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T309",
+      "title": "Wandering Clockmaker",
+      "description": "Medieval Age+, 10+ tiles, 14-19 min spawn, 80s window. Commission Celestial Clock (30 stone + 20g → +0.2 stone/s 2.5min · +22 prestige · +10 morale), Purchase Timepiece Mechanisms (25g → +0.15 gold/s 2min · +15 prestige), Send Away.",
+      "priority": 309,
+      "status": "done",
+      "phase": 111,
+      "notes": "Built wanderingClockmaker.js. WANDERING_CLOCKMAKER_CHANGED event added to events.js. state.wanderingClockmaker null field. Clockmaker section in questPanel.js (import * as Clockmaker). Events.WANDERING_CLOCKMAKER_CHANGED subscribed. CSS: @keyframes clockmaker-pulse (violet/purple), .clockmaker-section--active, .btn--clockmaker-clock (violet), .btn--clockmaker-timepiece (amber/gold), .btn--clockmaker-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T310",
+      "title": "Imperial Weaponsmith",
+      "description": "Iron Age+, 12+ tiles, 13-18 min spawn, 75s window. Commission Elite Armory (35 iron + 20 stone → +0.25 iron/s 2.5min · +25 prestige · +10 morale), Purchase Combat Techniques (25g → +0.18 iron/s 2min · +18 prestige), Send Away.",
+      "priority": 310,
+      "status": "done",
+      "phase": 111,
+      "notes": "Built imperialWeaponsmith.js. IMPERIAL_WEAPONSMITH_CHANGED event added to events.js. state.imperialWeaponsmith null field. Weaponsmith section in questPanel.js (import * as Weaponsmith). Events.IMPERIAL_WEAPONSMITH_CHANGED subscribed. CSS: @keyframes weaponsmith-pulse (red/crimson), .weaponsmith-section--active, .btn--weaponsmith-armory (red), .btn--weaponsmith-techniques (slate), .btn--weaponsmith-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     }
   ],
   "session_history": [
@@ -668,6 +686,7 @@
     "Session 59 (T199-T200): Wandering Jeweler (T299), Desert Nomad Chief (T300)",
     "Session 60 (T201-T202): Wandering Mapmaker (T303), Royal Perfumer (T304)",
     "Session 61 (T203-T204): Wandering Silversmith (T305), Imperial Spice Merchant (T306)",
-    "Session 62 (T205-T206): Court Musician (T307), Ancient Library Keeper (T308)"
+    "Session 62 (T205-T206): Court Musician (T307), Ancient Library Keeper (T308)",
+    "Session 63 (T207-T208): Wandering Clockmaker (T309), Imperial Weaponsmith (T310)"
   ]
 }

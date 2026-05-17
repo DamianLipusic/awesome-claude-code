@@ -250,6 +250,8 @@ import { initWanderingSilversmith, wanderingSilversmithTick }       from './syst
 import { initImperialSpiceMerchant, imperialSpiceMerchantTick }     from './systems/imperialSpiceMerchant.js';   // T306
 import { initCourtMusician, courtMusicianTick }                     from './systems/courtMusician.js';           // T307
 import { initAncientLibraryKeeper, ancientLibraryKeeperTick }       from './systems/ancientLibraryKeeper.js';    // T308
+import { initWanderingClockmaker, wanderingClockmakerTick }         from './systems/wanderingClockmaker.js';     // T309
+import { initImperialWeaponsmith, imperialWeaponsmithTick }         from './systems/imperialWeaponsmith.js';     // T310
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -506,6 +508,8 @@ function _registerAllSystems() {
   registerSystem(imperialSpiceMerchantTick);          // T306
   registerSystem(courtMusicianTick);                  // T307
   registerSystem(ancientLibraryKeeperTick);           // T308
+  registerSystem(wanderingClockmakerTick);            // T309
+  registerSystem(imperialWeaponsmithTick);            // T310
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -747,6 +751,8 @@ function _save() {
     imperialSpiceMerchant:      state.imperialSpiceMerchant,      // T306
     courtMusician:              state.courtMusician,              // T307
     ancientLibraryKeeper:       state.ancientLibraryKeeper,       // T308
+    wanderingClockmaker:        state.wanderingClockmaker,        // T309
+    imperialWeaponsmith:        state.imperialWeaponsmith,        // T310
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -993,6 +999,8 @@ function _applySave(s) {
   state.imperialSpiceMerchant      = s.imperialSpiceMerchant ?? null;      // T306
   state.courtMusician              = s.courtMusician ?? null;              // T307
   state.ancientLibraryKeeper       = s.ancientLibraryKeeper ?? null;       // T308
+  state.wanderingClockmaker        = s.wanderingClockmaker ?? null;        // T309
+  state.imperialWeaponsmith        = s.imperialWeaponsmith ?? null;        // T310
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -1245,6 +1253,8 @@ function _startFreshGame() {
   initImperialSpiceMerchant();          // T306
   initCourtMusician();                  // T307
   initAncientLibraryKeeper();           // T308
+  initWanderingClockmaker();            // T309
+  initImperialWeaponsmith();            // T310
   initAchievements();
   initLeaderboard();
 }
@@ -1480,6 +1490,8 @@ function _startLoadedGame(savedData) {
   initImperialSpiceMerchant();          // T306
   initCourtMusician();                  // T307
   initAncientLibraryKeeper();           // T308
+  initWanderingClockmaker();            // T309
+  initImperialWeaponsmith();            // T310
   initAchievements();
   initLeaderboard();
 }

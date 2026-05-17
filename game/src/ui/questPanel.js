@@ -73,6 +73,8 @@ import * as Silversmith  from '../systems/wanderingSilversmith.js';       // T30
 import * as SpiceMerchant from '../systems/imperialSpiceMerchant.js';    // T306
 import * as Musician     from '../systems/courtMusician.js';             // T307
 import * as LibKeeper    from '../systems/ancientLibraryKeeper.js';      // T308
+import * as Clockmaker   from '../systems/wanderingClockmaker.js';       // T309
+import * as Weaponsmith  from '../systems/imperialWeaponsmith.js';       // T310
 
 let _panel = null;
 
@@ -174,6 +176,8 @@ function _encountersSection() {
     _imperialSpiceMerchantSection(),
     _courtMusicianSection(),
     _ancientLibraryKeeperSection(),
+    _wanderingClockmakerSection(),
+    _imperialWeaponsmithSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -2182,6 +2186,75 @@ function _ancientLibraryKeeperSection() {
     </div>`;
 }
 
+// ── T309 Wandering Clockmaker ─────────────────────────────────────────────
+
+function _wanderingClockmakerSection() {
+  if (!Clockmaker.getActiveClockmaker()) return '';
+  const secs      = Clockmaker.getClockmakerSecsLeft();
+  const stone     = Math.floor(state.resources.stone ?? 0);
+  const gold      = Math.floor(state.resources.gold  ?? 0);
+  const canClock  = stone >= Clockmaker.CLOCK_STONE_COST && gold >= Clockmaker.CLOCK_GOLD_COST;
+  const canPiece  = gold  >= Clockmaker.TIMEPIECE_GOLD_COST;
+  const urg = secs <= 15 ? ' clockmaker-timer--urgent' : '';
+  return `
+    <div class="clockmaker-section--active">
+      <div class="clockmaker-header">
+        <span class="clockmaker-title">⚙️ Wandering Clockmaker</span>
+        <span class="clockmaker-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="clockmaker-desc">A wandering clockmaker arrives with a cart laden with astrolabes, celestial globes, and mechanical timepieces of extraordinary precision from distant lands.</div>
+      <div class="clockmaker-actions">
+        <button class="btn--clockmaker-clock${canClock ? '' : ' btn--disabled'}" data-action="clockmaker-clock" ${canClock ? '' : 'disabled'}>
+          ⚙️ Commission Celestial Clock — ${Clockmaker.CLOCK_STONE_COST}🪨 + ${Clockmaker.CLOCK_GOLD_COST}💰
+          <span class="clockmaker-cost">→ +${Clockmaker.CLOCK_STONE_RATE} stone/s (2.5 min) · +${Clockmaker.CLOCK_PRESTIGE_REWARD} prestige · +${Clockmaker.CLOCK_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--clockmaker-timepiece${canPiece ? '' : ' btn--disabled'}" data-action="clockmaker-timepiece" ${canPiece ? '' : 'disabled'}>
+          🕰️ Purchase Timepiece Mechanisms — ${Clockmaker.TIMEPIECE_GOLD_COST}💰
+          <span class="clockmaker-cost">→ +${Clockmaker.TIMEPIECE_GOLD_RATE} gold/s (2 min) · +${Clockmaker.TIMEPIECE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--clockmaker-away" data-action="clockmaker-away">
+          🚶 Send Away
+          <span class="clockmaker-cost">→ Clockmaker departs to another imperial court</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T310 Imperial Weaponsmith ─────────────────────────────────────────────
+
+function _imperialWeaponsmithSection() {
+  if (!Weaponsmith.getActiveWeaponsmith()) return '';
+  const secs       = Weaponsmith.getWeaponsmithSecsLeft();
+  const iron       = Math.floor(state.resources.iron  ?? 0);
+  const stone      = Math.floor(state.resources.stone ?? 0);
+  const gold       = Math.floor(state.resources.gold  ?? 0);
+  const canArmory  = iron >= Weaponsmith.ARMORY_IRON_COST && stone >= Weaponsmith.ARMORY_STONE_COST;
+  const canTech    = gold >= Weaponsmith.TECHNIQUES_GOLD_COST;
+  const urg = secs <= 15 ? ' weaponsmith-timer--urgent' : '';
+  return `
+    <div class="weaponsmith-section--active">
+      <div class="weaponsmith-header">
+        <span class="weaponsmith-title">⚔️ Imperial Weaponsmith</span>
+        <span class="weaponsmith-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="weaponsmith-desc">An imperial weaponsmith rides through the palace gates bearing master-forged swords, shields, and articulated plate armour from the great foundry guilds.</div>
+      <div class="weaponsmith-actions">
+        <button class="btn--weaponsmith-armory${canArmory ? '' : ' btn--disabled'}" data-action="weaponsmith-armory" ${canArmory ? '' : 'disabled'}>
+          ⚔️ Commission Elite Armory — ${Weaponsmith.ARMORY_IRON_COST}⚙️ + ${Weaponsmith.ARMORY_STONE_COST}🪨
+          <span class="weaponsmith-cost">→ +${Weaponsmith.ARMORY_IRON_RATE} iron/s (2.5 min) · +${Weaponsmith.ARMORY_PRESTIGE_REWARD} prestige · +${Weaponsmith.ARMORY_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--weaponsmith-techniques${canTech ? '' : ' btn--disabled'}" data-action="weaponsmith-techniques" ${canTech ? '' : 'disabled'}>
+          🛡️ Purchase Combat Techniques — ${Weaponsmith.TECHNIQUES_GOLD_COST}💰
+          <span class="weaponsmith-cost">→ +${Weaponsmith.TECHNIQUES_IRON_RATE} iron/s (2 min) · +${Weaponsmith.TECHNIQUES_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--weaponsmith-away" data-action="weaponsmith-away">
+          🚶 Send Away
+          <span class="weaponsmith-cost">→ Weaponsmith rides back to the great foundries</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -2435,6 +2508,14 @@ const _HANDLERS = {
   'libkeeper-archive':     () => LibKeeper.accessForbiddenArchives(),
   'libkeeper-manuscripts': () => LibKeeper.purchaseRareManuscripts(),
   'libkeeper-away':        () => LibKeeper.sendLibraryKeeperAway(),
+
+  'clockmaker-clock':      () => Clockmaker.commissionCelestialClock(),
+  'clockmaker-timepiece':  () => Clockmaker.purchaseTimepieceMechanisms(),
+  'clockmaker-away':       () => Clockmaker.sendClockmakerAway(),
+
+  'weaponsmith-armory':      () => Weaponsmith.commissionEliteArmory(),
+  'weaponsmith-techniques':  () => Weaponsmith.purchaseCombatTechniques(),
+  'weaponsmith-away':        () => Weaponsmith.sendWeaponsmithAway(),
 };
 
 function _handleClick(e) {
@@ -2515,6 +2596,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_SPICE_MERCHANT_CHANGED,
     Events.COURT_MUSICIAN_CHANGED,
     Events.ANCIENT_LIBRARY_KEEPER_CHANGED,
+    Events.WANDERING_CLOCKMAKER_CHANGED,
+    Events.IMPERIAL_WEAPONSMITH_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);
