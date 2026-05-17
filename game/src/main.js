@@ -244,6 +244,8 @@ import { initWanderingJeweler, wanderingJewelerTick }               from './syst
 import { initDesertNomadChief, desertNomadChiefTick }               from './systems/desertNomadChief.js';        // T300
 import { initWanderingSculptor, wanderingSculptorTick }             from './systems/wanderingSculptor.js';       // T301
 import { initRoyalVintner, royalVintnerTick }                       from './systems/royalVintner.js';            // T302
+import { initWanderingMapmaker, wanderingMapmakerTick }             from './systems/wanderingMapmaker.js';       // T303
+import { initRoyalPerfumer, royalPerfumerTick }                     from './systems/royalPerfumer.js';           // T304
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -494,6 +496,8 @@ function _registerAllSystems() {
   registerSystem(desertNomadChiefTick);               // T300
   registerSystem(wanderingSculptorTick);              // T301
   registerSystem(royalVintnerTick);                   // T302
+  registerSystem(wanderingMapmakerTick);              // T303
+  registerSystem(royalPerfumerTick);                  // T304
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -729,6 +733,8 @@ function _save() {
     desertNomadChief:           state.desertNomadChief,           // T300
     wanderingSculptor:          state.wanderingSculptor,          // T301
     royalVintner:               state.royalVintner,               // T302
+    wanderingMapmaker:          state.wanderingMapmaker,          // T303
+    royalPerfumer:              state.royalPerfumer,              // T304
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -969,6 +975,8 @@ function _applySave(s) {
   state.desertNomadChief           = s.desertNomadChief ?? null;           // T300
   state.wanderingSculptor          = s.wanderingSculptor ?? null;          // T301
   state.royalVintner               = s.royalVintner ?? null;               // T302
+  state.wanderingMapmaker          = s.wanderingMapmaker ?? null;          // T303
+  state.royalPerfumer              = s.royalPerfumer ?? null;              // T304
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -1215,6 +1223,8 @@ function _startFreshGame() {
   initDesertNomadChief();               // T300
   initWanderingSculptor();              // T301
   initRoyalVintner();                   // T302
+  initWanderingMapmaker();              // T303
+  initRoyalPerfumer();                  // T304
   initAchievements();
   initLeaderboard();
 }
@@ -1444,6 +1454,8 @@ function _startLoadedGame(savedData) {
   initDesertNomadChief();               // T300
   initWanderingSculptor();              // T301
   initRoyalVintner();                   // T302
+  initWanderingMapmaker();              // T303
+  initRoyalPerfumer();                  // T304
   initAchievements();
   initLeaderboard();
 }

@@ -854,3 +854,17 @@ Built desertNomadChief.js: forgeNomadAlliance (20 food + 20g → +0.2 food/s 2.5
 Wired in main.js: import initDesertNomadChief+desertNomadChiefTick, registerSystem, initDesertNomadChief() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _desertNomadChiefSection() render + nomad-alliance/nomad-trade/nomad-decline handlers to questPanel.js (import * as NomadChief). Events.DESERT_NOMAD_CHIEF_CHANGED subscribed.
 Added T300 nomad CSS: @keyframes nomad-pulse (orange/desert), .nomad-section--active, .btn--nomad-alliance (orange), .btn--nomad-trade (amber), .btn--nomad-decline (gray).
+
+Session 60 — T201–T202 (T303–T304): Wandering Mapmaker, Royal Perfumer.
+
+T201: Wandering Mapmaker (T303) — Medieval Age+, 12+ tiles, 14–19 min, 80s window.
+Built wanderingMapmaker.js: commissionImperialAtlas (30g + 25 mana → +0.25 mana/s 2.5min +22 prestige +8 morale), purchaseRegionalSurvey (20 stone → +0.2 stone/s 2min +15 prestige), sendMapmakerAway (dismiss). Added WANDERING_MAPMAKER_CHANGED event to events.js. state.wanderingMapmaker null field.
+Wired in main.js: import initWanderingMapmaker+wanderingMapmakerTick, registerSystem, initWanderingMapmaker() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingMapmakerSection() render + mapmaker-atlas/mapmaker-survey/mapmaker-away handlers to questPanel.js (import * as Mapmaker). Events.WANDERING_MAPMAKER_CHANGED subscribed.
+Added T303 mapmaker CSS: @keyframes mapmaker-pulse (teal/cyan), .mapmaker-section--active, .btn--mapmaker-atlas (teal), .btn--mapmaker-survey (slate), .btn--mapmaker-away (gray).
+
+T202: Royal Perfumer (T304) — Bronze Age+, 8+ tiles, 12–17 min, 80s window.
+Built royalPerfumer.js: createImperialFragrance (20 food + 15g → +0.2 food/s 2.5min +18 prestige +12 morale), purchaseAromaticHerbs (22 food → +0.15 food/s 2min +10 prestige), sendPerfumerAway (dismiss). Added ROYAL_PERFUMER_CHANGED event to events.js. state.royalPerfumer null field.
+Wired in main.js: import initRoyalPerfumer+royalPerfumerTick, registerSystem, initRoyalPerfumer() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _royalPerfumerSection() render + perfumer-fragrance/perfumer-herbs/perfumer-away handlers to questPanel.js (import * as Perfumer). Events.ROYAL_PERFUMER_CHANGED subscribed.
+Added T304 perfumer CSS: @keyframes perfumer-pulse (rose/pink), .perfumer-section--active, .btn--perfumer-fragrance (rose), .btn--perfumer-herbs (green), .btn--perfumer-away (gray).

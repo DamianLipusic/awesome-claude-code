@@ -67,6 +67,8 @@ import * as Jeweler    from '../systems/wanderingJeweler.js';          // T299
 import * as NomadChief from '../systems/desertNomadChief.js';          // T300
 import * as Sculptor   from '../systems/wanderingSculptor.js';         // T301
 import * as Vintner    from '../systems/royalVintner.js';              // T302
+import * as Mapmaker  from '../systems/wanderingMapmaker.js';          // T303
+import * as Perfumer  from '../systems/royalPerfumer.js';              // T304
 
 let _panel = null;
 
@@ -162,6 +164,8 @@ function _encountersSection() {
     _desertNomadChiefSection(),
     _wanderingSculptorSection(),
     _royalVintnerSection(),
+    _wanderingMapmakerSection(),
+    _royalPerfumerSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -1966,6 +1970,75 @@ function _royalVintnerSection() {
     </div>`;
 }
 
+// ── T303 Wandering Mapmaker ───────────────────────────────────────────────────
+
+function _wanderingMapmakerSection() {
+  if (!Mapmaker.getActiveMapmaker()) return '';
+  const secs      = Mapmaker.getMapmakerSecsLeft();
+  const gold      = Math.floor(state.resources.gold  ?? 0);
+  const mana      = Math.floor(state.resources.mana  ?? 0);
+  const stone     = Math.floor(state.resources.stone ?? 0);
+  const canAtlas  = gold >= Mapmaker.ATLAS_GOLD_COST && mana >= Mapmaker.ATLAS_MANA_COST;
+  const canSurvey = stone >= Mapmaker.SURVEY_STONE_COST;
+  const urg = secs <= 15 ? ' mapmaker-timer--urgent' : '';
+  return `
+    <div class="mapmaker-section--active">
+      <div class="mapmaker-header">
+        <span class="mapmaker-title">🗺️ Wandering Mapmaker</span>
+        <span class="mapmaker-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="mapmaker-desc">A skilled wandering mapmaker arrives bearing rolled parchment charts and precision measuring instruments, offering to render the empire's territories in magnificent cartographic detail.</div>
+      <div class="mapmaker-actions">
+        <button class="btn--mapmaker-atlas${canAtlas ? '' : ' btn--disabled'}" data-action="mapmaker-atlas" ${canAtlas ? '' : 'disabled'}>
+          🗺️ Commission Imperial Atlas — ${Mapmaker.ATLAS_GOLD_COST}💰 + ${Mapmaker.ATLAS_MANA_COST}✨
+          <span class="mapmaker-cost">→ +${Mapmaker.ATLAS_MANA_RATE} mana/s (2.5 min) · +${Mapmaker.ATLAS_PRESTIGE_REWARD} prestige · +${Mapmaker.ATLAS_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--mapmaker-survey${canSurvey ? '' : ' btn--disabled'}" data-action="mapmaker-survey" ${canSurvey ? '' : 'disabled'}>
+          📐 Purchase Regional Survey — ${Mapmaker.SURVEY_STONE_COST}🪨
+          <span class="mapmaker-cost">→ +${Mapmaker.SURVEY_STONE_RATE} stone/s (2 min) · +${Mapmaker.SURVEY_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--mapmaker-away" data-action="mapmaker-away">
+          🚶 Send Away
+          <span class="mapmaker-cost">→ Mapmaker departs to chart territories elsewhere</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T304 Royal Perfumer ───────────────────────────────────────────────────────
+
+function _royalPerfumerSection() {
+  if (!Perfumer.getActivePerfumer()) return '';
+  const secs           = Perfumer.getPerfumerSecsLeft();
+  const food           = Math.floor(state.resources.food ?? 0);
+  const gold           = Math.floor(state.resources.gold ?? 0);
+  const canFragrance   = food >= Perfumer.FRAGRANCE_FOOD_COST && gold >= Perfumer.FRAGRANCE_GOLD_COST;
+  const canHerbs       = food >= Perfumer.HERBS_FOOD_COST;
+  const urg = secs <= 15 ? ' perfumer-timer--urgent' : '';
+  return `
+    <div class="perfumer-section--active">
+      <div class="perfumer-header">
+        <span class="perfumer-title">🌸 Royal Perfumer</span>
+        <span class="perfumer-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="perfumer-desc">A celebrated royal perfumer arrives bearing exquisite essence vials and aromatic herb bundles gathered from the most fragrant gardens across the known world, offering their craft to the empire.</div>
+      <div class="perfumer-actions">
+        <button class="btn--perfumer-fragrance${canFragrance ? '' : ' btn--disabled'}" data-action="perfumer-fragrance" ${canFragrance ? '' : 'disabled'}>
+          🌸 Create Imperial Fragrance — ${Perfumer.FRAGRANCE_FOOD_COST}🌾 + ${Perfumer.FRAGRANCE_GOLD_COST}💰
+          <span class="perfumer-cost">→ +${Perfumer.FRAGRANCE_FOOD_RATE} food/s (2.5 min) · +${Perfumer.FRAGRANCE_PRESTIGE_REWARD} prestige · +${Perfumer.FRAGRANCE_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--perfumer-herbs${canHerbs ? '' : ' btn--disabled'}" data-action="perfumer-herbs" ${canHerbs ? '' : 'disabled'}>
+          🌿 Purchase Aromatic Herbs — ${Perfumer.HERBS_FOOD_COST}🌾
+          <span class="perfumer-cost">→ +${Perfumer.HERBS_FOOD_RATE} food/s (2 min) · +${Perfumer.HERBS_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--perfumer-away" data-action="perfumer-away">
+          🚶 Send Away
+          <span class="perfumer-cost">→ Perfumer departs with their aromatic treasures</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -2195,6 +2268,14 @@ const _HANDLERS = {
   'vintner-vintage':   () => Vintner.commissionImperialVintage(),
   'vintner-knowledge': () => Vintner.purchaseVintnersKnowledge(),
   'vintner-away':      () => Vintner.sendVintnerAway(),
+
+  'mapmaker-atlas':  () => Mapmaker.commissionImperialAtlas(),
+  'mapmaker-survey': () => Mapmaker.purchaseRegionalSurvey(),
+  'mapmaker-away':   () => Mapmaker.sendMapmakerAway(),
+
+  'perfumer-fragrance': () => Perfumer.createImperialFragrance(),
+  'perfumer-herbs':     () => Perfumer.purchaseAromaticHerbs(),
+  'perfumer-away':      () => Perfumer.sendPerfumerAway(),
 };
 
 function _handleClick(e) {
@@ -2269,6 +2350,8 @@ export function initQuestPanel() {
     Events.DESERT_NOMAD_CHIEF_CHANGED,
     Events.WANDERING_SCULPTOR_CHANGED,
     Events.ROYAL_VINTNER_CHANGED,
+    Events.WANDERING_MAPMAKER_CHANGED,
+    Events.ROYAL_PERFUMER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

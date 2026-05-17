@@ -244,4 +244,6 @@ export const Events = Object.freeze({
   DESERT_NOMAD_CHIEF_CHANGED:       'desertNomadChiefChanged',           // T300: chief spawned / alliance / trade / dismissed / expired
   WANDERING_SCULPTOR_CHANGED:       'wanderingSculptorChanged',          // T301: sculptor spawned / commissioned / lesson / dismissed / expired
   ROYAL_VINTNER_CHANGED:            'royalVintnerChanged',               // T302: vintner spawned / vintage / knowledge / dismissed / expired
+  WANDERING_MAPMAKER_CHANGED:       'wanderingMapmakerChanged',           // T303: mapmaker spawned / atlas / survey / dismissed / expired
+  ROYAL_PERFUMER_CHANGED:           'royalPerfumerChanged',               // T304: perfumer spawned / fragrance / herbs / dismissed / expired
 });
