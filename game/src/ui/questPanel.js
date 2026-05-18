@@ -78,7 +78,9 @@ import * as Weaponsmith  from '../systems/imperialWeaponsmith.js';       // T310
 import * as Stonemason  from '../systems/wanderingStonemason.js';       // T311
 import * as DyeMaster   from '../systems/imperialDyeMaster.js';         // T312
 import * as Navigator   from '../systems/wanderingNavigator.js';        // T313
-import * as Illuminator from '../systems/travelingIlluminator.js';      // T314
+import * as Illuminator   from '../systems/travelingIlluminator.js';    // T314
+import * as RitualLeader  from '../systems/ancientRitualLeader.js';     // T315
+import * as MtProspector  from '../systems/mountainProspector.js';      // T316
 
 let _panel = null;
 
@@ -186,6 +188,8 @@ function _encountersSection() {
     _imperialDyeMasterSection(),
     _wanderingNavigatorSection(),
     _travelingIlluminatorSection(),
+    _ancientRitualLeaderSection(),
+    _mountainProspectorSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -2404,6 +2408,74 @@ function _travelingIlluminatorSection() {
     </div>`;
 }
 
+// ── T315 Ancient Ritual Leader ─────────────────────────────────────────
+
+function _ancientRitualLeaderSection() {
+  if (!RitualLeader.getActiveRitualLeader()) return '';
+  const secs          = RitualLeader.getRitualLeaderSecsLeft();
+  const mana          = Math.floor(state.resources.mana ?? 0);
+  const food          = Math.floor(state.resources.food ?? 0);
+  const canCeremony   = mana >= RitualLeader.CEREMONY_MANA_COST;
+  const canDonation   = food >= RitualLeader.DONATION_FOOD_COST;
+  const urg = secs <= 15 ? ' ritual-timer--urgent' : '';
+  return `
+    <div class="ritual-section--active">
+      <div class="ritual-header">
+        <span class="ritual-title">🔥 Ancient Ritual Leader</span>
+        <span class="ritual-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="ritual-desc">An ancient ritual leader arrives bearing sacred ceremonial vestments and time-worn relics, offering to lead the empire in ancient rites of power and prosperity.</div>
+      <div class="ritual-actions">
+        <button class="btn--ritual-ceremony${canCeremony ? '' : ' btn--disabled'}" data-action="ritual-ceremony" ${canCeremony ? '' : 'disabled'}>
+          🔥 Conduct Imperial Ceremony — ${RitualLeader.CEREMONY_MANA_COST}✨
+          <span class="ritual-cost">→ +${RitualLeader.CEREMONY_MANA_RATE} mana/s (2.5 min) · +${RitualLeader.CEREMONY_PRESTIGE_REWARD} prestige · +${RitualLeader.CEREMONY_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--ritual-donation${canDonation ? '' : ' btn--disabled'}" data-action="ritual-donation" ${canDonation ? '' : 'disabled'}>
+          🍖 Donate Sacred Relics — ${RitualLeader.DONATION_FOOD_COST}🌾
+          <span class="ritual-cost">→ +${RitualLeader.DONATION_FOOD_RATE} food/s (2 min) · +${RitualLeader.DONATION_PRESTIGE_REWARD} prestige · +${RitualLeader.DONATION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--ritual-decline" data-action="ritual-decline">
+          🚶 Decline Invitation
+          <span class="ritual-cost">→ Ritual leader departs respectfully</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T316 Mountain Prospector ─────────────────────────────────────────
+
+function _mountainProspectorSection() {
+  if (!MtProspector.getActiveMountainProspector()) return '';
+  const secs            = MtProspector.getMountainProspectorSecsLeft();
+  const gold            = Math.floor(state.resources.gold ?? 0);
+  const stone           = Math.floor(state.resources.stone ?? 0);
+  const canExpedition   = gold >= MtProspector.EXPEDITION_GOLD_COST;
+  const canMaps         = stone >= MtProspector.MAPS_STONE_COST;
+  const urg = secs <= 15 ? ' prospector-timer--urgent' : '';
+  return `
+    <div class="prospector-section--active">
+      <div class="prospector-header">
+        <span class="prospector-title">⛏️ Mountain Prospector</span>
+        <span class="prospector-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="prospector-desc">A weathered mountain prospector arrives with ore samples and geological surveys of rich mineral deposits in the nearby highlands, seeking imperial backing for a major mining expedition.</div>
+      <div class="prospector-actions">
+        <button class="btn--prospector-expedition${canExpedition ? '' : ' btn--disabled'}" data-action="prospector-expedition" ${canExpedition ? '' : 'disabled'}>
+          ⛏️ Fund Mining Expedition — ${MtProspector.EXPEDITION_GOLD_COST}💰
+          <span class="prospector-cost">→ +${MtProspector.EXPEDITION_IRON_RATE} iron/s (2.5 min) · +${MtProspector.EXPEDITION_PRESTIGE_REWARD} prestige · +${MtProspector.EXPEDITION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--prospector-maps${canMaps ? '' : ' btn--disabled'}" data-action="prospector-maps" ${canMaps ? '' : 'disabled'}>
+          🗺️ Share Ore Maps — ${MtProspector.MAPS_STONE_COST}🪨
+          <span class="prospector-cost">→ +${MtProspector.MAPS_STONE_RATE} stone/s (2 min) · +${MtProspector.MAPS_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--prospector-away" data-action="prospector-away">
+          🚶 Send Away
+          <span class="prospector-cost">→ Prospector returns to the highlands</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -2681,6 +2753,14 @@ const _HANDLERS = {
   'illuminator-codex':       () => Illuminator.commissionIlluminatedCodex(),
   'illuminator-scripts':     () => Illuminator.purchaseGildedScripts(),
   'illuminator-away':        () => Illuminator.sendIlluminatorAway(),
+
+  'ritual-ceremony':         () => RitualLeader.conductImperialCeremony(),
+  'ritual-donation':         () => RitualLeader.donateSacredRelics(),
+  'ritual-decline':          () => RitualLeader.declineRitualInvitation(),
+
+  'prospector-expedition':   () => MtProspector.fundMiningExpedition(),
+  'prospector-maps':         () => MtProspector.shareOreMaps(),
+  'prospector-away':         () => MtProspector.sendProspectorAway(),
 };
 
 function _handleClick(e) {
@@ -2767,6 +2847,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_DYE_MASTER_CHANGED,
     Events.WANDERING_NAVIGATOR_CHANGED,
     Events.TRAVELING_ILLUMINATOR_CHANGED,
+    Events.ANCIENT_RITUAL_LEADER_CHANGED,
+    Events.MOUNTAIN_PROSPECTOR_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

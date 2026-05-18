@@ -938,3 +938,17 @@ Built travelingIlluminator.js: commissionIlluminatedCodex (30 mana + 20g → +0.
 Wired in main.js: import initTravelingIlluminator+travelingIlluminatorTick, registerSystem, initTravelingIlluminator() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _travelingIlluminatorSection() render + illuminator-codex/illuminator-scripts/illuminator-away handlers to questPanel.js (import * as Illuminator). Events.TRAVELING_ILLUMINATOR_CHANGED subscribed.
 Added T314 illuminator CSS: @keyframes illuminator-pulse (gold/amber), .illuminator-section--active, .btn--illuminator-codex (violet), .btn--illuminator-scripts (gold), .btn--illuminator-away (gray).
+
+Session 66 — T315–T316: Ancient Ritual Leader, Mountain Prospector.
+
+T213: Ancient Ritual Leader (T315) — Medieval Age+, 12+ tiles, 16–20 min, 80s window.
+Built ancientRitualLeader.js: conductImperialCeremony (25 mana → +0.25 mana/s 2.5min +20 prestige +12 morale), donateSacredRelics (30 food → +0.2 food/s 2min +15 prestige +8 morale), declineRitualInvitation (dismiss). Added ANCIENT_RITUAL_LEADER_CHANGED event to events.js. state.ancientRitualLeader null field.
+Wired in main.js: import initAncientRitualLeader+ancientRitualLeaderTick, registerSystem, initAncientRitualLeader() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _ancientRitualLeaderSection() render + ritual-ceremony/ritual-donation/ritual-decline handlers to questPanel.js (import * as RitualLeader). Events.ANCIENT_RITUAL_LEADER_CHANGED subscribed.
+Added T315 ritual CSS: @keyframes ritual-pulse (red/crimson), .ritual-section--active, .btn--ritual-ceremony (red), .btn--ritual-donation (green), .btn--ritual-decline (gray).
+
+T214: Mountain Prospector (T316) — Iron Age+, 12+ tiles, 14–18 min, 75s window.
+Built mountainProspector.js: fundMiningExpedition (40g → +0.25 iron/s 2.5min +22 prestige +8 morale), shareOreMaps (25 stone → +0.2 stone/s 2min +15 prestige), sendProspectorAway (dismiss). Added MOUNTAIN_PROSPECTOR_CHANGED event to events.js. state.mountainProspector null field.
+Wired in main.js: import initMountainProspector+mountainProspectorTick, registerSystem, initMountainProspector() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _mountainProspectorSection() render + prospector-expedition/prospector-maps/prospector-away handlers to questPanel.js (import * as MtProspector). Events.MOUNTAIN_PROSPECTOR_CHANGED subscribed.
+Added T316 prospector CSS: @keyframes prospector-pulse (amber/gold), .prospector-section--active, .btn--prospector-expedition (amber), .btn--prospector-maps (slate), .btn--prospector-away (gray).

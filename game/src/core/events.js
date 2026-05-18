@@ -256,4 +256,6 @@ export const Events = Object.freeze({
   IMPERIAL_DYE_MASTER_CHANGED:      'imperialDyeMasterChanged',              // T312: dye master spawned / dyeWorks / formulas / dismissed / expired
   WANDERING_NAVIGATOR_CHANGED:      'wanderingNavigatorChanged',              // T313: navigator spawned / charts / secrets / dismissed / expired
   TRAVELING_ILLUMINATOR_CHANGED:    'travelingIlluminatorChanged',            // T314: illuminator spawned / codex / scripts / dismissed / expired
+  ANCIENT_RITUAL_LEADER_CHANGED:    'ancientRitualLeaderChanged',             // T315: ritual leader spawned / ceremony / donation / dismissed / expired
+  MOUNTAIN_PROSPECTOR_CHANGED:      'mountainProspectorChanged',              // T316: prospector spawned / expedition / maps / dismissed / expired
 });

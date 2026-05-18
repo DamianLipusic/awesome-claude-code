@@ -256,6 +256,8 @@ import { initWanderingStonemason, wanderingStonemasonTick }         from './syst
 import { initImperialDyeMaster, imperialDyeMasterTick }             from './systems/imperialDyeMaster.js';       // T312
 import { initWanderingNavigator, wanderingNavigatorTick }           from './systems/wanderingNavigator.js';      // T313
 import { initTravelingIlluminator, travelingIlluminatorTick }       from './systems/travelingIlluminator.js';    // T314
+import { initAncientRitualLeader, ancientRitualLeaderTick }         from './systems/ancientRitualLeader.js';     // T315
+import { initMountainProspector, mountainProspectorTick }           from './systems/mountainProspector.js';      // T316
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -518,6 +520,8 @@ function _registerAllSystems() {
   registerSystem(imperialDyeMasterTick);              // T312
   registerSystem(wanderingNavigatorTick);             // T313
   registerSystem(travelingIlluminatorTick);           // T314
+  registerSystem(ancientRitualLeaderTick);            // T315
+  registerSystem(mountainProspectorTick);             // T316
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -765,6 +769,8 @@ function _save() {
     imperialDyeMaster:          state.imperialDyeMaster,          // T312
     wanderingNavigator:         state.wanderingNavigator,         // T313
     travelingIlluminator:       state.travelingIlluminator,       // T314
+    ancientRitualLeader:        state.ancientRitualLeader,        // T315
+    mountainProspector:         state.mountainProspector,         // T316
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -1017,6 +1023,8 @@ function _applySave(s) {
   state.imperialDyeMaster          = s.imperialDyeMaster ?? null;          // T312
   state.wanderingNavigator         = s.wanderingNavigator ?? null;         // T313
   state.travelingIlluminator       = s.travelingIlluminator ?? null;       // T314
+  state.ancientRitualLeader        = s.ancientRitualLeader ?? null;        // T315
+  state.mountainProspector         = s.mountainProspector ?? null;         // T316
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -1275,6 +1283,8 @@ function _startFreshGame() {
   initImperialDyeMaster();              // T312
   initWanderingNavigator();             // T313
   initTravelingIlluminator();           // T314
+  initAncientRitualLeader();            // T315
+  initMountainProspector();             // T316
   initAchievements();
   initLeaderboard();
 }
@@ -1516,6 +1526,8 @@ function _startLoadedGame(savedData) {
   initImperialDyeMaster();              // T312
   initWanderingNavigator();             // T313
   initTravelingIlluminator();           // T314
+  initAncientRitualLeader();            // T315
+  initMountainProspector();             // T316
   initAchievements();
   initLeaderboard();
 }

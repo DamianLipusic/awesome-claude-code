@@ -18169,3 +18169,81 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--illuminator-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T315 Ancient Ritual Leader ─────────────────────────────────────────── */
+@keyframes ritual-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+  50%       { box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.18); }
+}
+.ritual-section--active {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(185, 28, 28, 0.05));
+  border: 1px solid rgba(239, 68, 68, 0.28); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px;
+  animation: ritual-pulse 3.5s ease-in-out infinite;
+}
+.ritual-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.ritual-title   { font-size: 0.92rem; font-weight: 600; color: #fca5a5; }
+.ritual-timer   { font-size: 0.78rem; color: #f87171; background: rgba(239, 68, 68, 0.12); padding: 2px 7px; border-radius: 10px; }
+.ritual-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.25); }
+.ritual-desc    { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.ritual-actions { display: flex; flex-direction: column; gap: 6px; }
+.ritual-cost    { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--ritual-ceremony {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.12), rgba(185, 28, 28, 0.08));
+  border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fca5a5; text-align: left; transition: background 0.15s;
+}
+.btn--ritual-ceremony:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(239, 68, 68, 0.22), rgba(185, 28, 28, 0.15)); }
+.btn--ritual-donation {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.12), rgba(22, 163, 74, 0.08));
+  border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #86efac; text-align: left; transition: background 0.15s;
+}
+.btn--ritual-donation:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(34, 197, 94, 0.22), rgba(22, 163, 74, 0.15)); }
+.btn--ritual-decline {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--ritual-decline:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T316 Mountain Prospector ─────────────────────────────────────────── */
+@keyframes prospector-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(217, 119, 6, 0); }
+  50%       { box-shadow: 0 0 0 4px rgba(217, 119, 6, 0.18); }
+}
+.prospector-section--active {
+  background: linear-gradient(135deg, rgba(217, 119, 6, 0.08), rgba(180, 83, 9, 0.05));
+  border: 1px solid rgba(217, 119, 6, 0.28); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px;
+  animation: prospector-pulse 3.5s ease-in-out infinite;
+}
+.prospector-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.prospector-title   { font-size: 0.92rem; font-weight: 600; color: #fcd34d; }
+.prospector-timer   { font-size: 0.78rem; color: #fbbf24; background: rgba(217, 119, 6, 0.12); padding: 2px 7px; border-radius: 10px; }
+.prospector-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.25); }
+.prospector-desc    { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.prospector-actions { display: flex; flex-direction: column; gap: 6px; }
+.prospector-cost    { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--prospector-expedition {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(217, 119, 6, 0.12), rgba(180, 83, 9, 0.08));
+  border: 1px solid rgba(217, 119, 6, 0.3); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fcd34d; text-align: left; transition: background 0.15s;
+}
+.btn--prospector-expedition:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(217, 119, 6, 0.22), rgba(180, 83, 9, 0.15)); }
+.btn--prospector-maps {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(100, 116, 139, 0.12), rgba(71, 85, 105, 0.08));
+  border: 1px solid rgba(100, 116, 139, 0.3); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #cbd5e1; text-align: left; transition: background 0.15s;
+}
+.btn--prospector-maps:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(100, 116, 139, 0.22), rgba(71, 85, 105, 0.15)); }
+.btn--prospector-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--prospector-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
