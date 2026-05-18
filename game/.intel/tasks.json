@@ -716,6 +716,24 @@
       "status": "done",
       "phase": 114,
       "notes": "Built mountainProspector.js. MOUNTAIN_PROSPECTOR_CHANGED event added to events.js. state.mountainProspector null field. Prospector section in questPanel.js (import * as MtProspector). Events.MOUNTAIN_PROSPECTOR_CHANGED subscribed. CSS: @keyframes prospector-pulse (amber/gold), .prospector-section--active, .btn--prospector-expedition (amber), .btn--prospector-maps (slate), .btn--prospector-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T319",
+      "title": "Wandering Fishmonger",
+      "description": "Stone Age+, 6+ tiles, 11-16 min spawn, 80s window. Purchase Fresh Catch (20g -> +0.25 food/s 2.5min · +12 prestige · +8 morale), Trade for Dried Fish (25 wood -> +0.2 food/s 2min · +8 prestige), Send Away.",
+      "priority": 319,
+      "status": "done",
+      "phase": 116,
+      "notes": "Built wanderingFishmonger.js. WANDERING_FISHMONGER_CHANGED event added to events.js. state.wanderingFishmonger null field. Fishmonger section in questPanel.js (import * as Fishmonger). Events.WANDERING_FISHMONGER_CHANGED subscribed. CSS: @keyframes fishmonger-pulse (sky blue), .fishmonger-section--active, .btn--fishmonger-purchase (sky blue), .btn--fishmonger-trade (green), .btn--fishmonger-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T320",
+      "title": "Imperial Chandler",
+      "description": "Bronze Age+, 8+ tiles, 12-17 min spawn, 80s window. Commission Candle Works (20 wood + 15 food -> +0.2 food/s 2.5min · +18 prestige · +10 morale), Purchase Fine Candles (25g -> +0.15 gold/s 2min · +12 prestige), Send Away.",
+      "priority": 320,
+      "status": "done",
+      "phase": 116,
+      "notes": "Built imperialChandler.js. IMPERIAL_CHANDLER_CHANGED event added to events.js. state.imperialChandler null field. Chandler section in questPanel.js (import * as Chandler). Events.IMPERIAL_CHANDLER_CHANGED subscribed. CSS: @keyframes chandler-pulse (amber/yellow), .chandler-section--active, .btn--chandler-commission (amber), .btn--chandler-purchase (yellow/gold), .btn--chandler-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     }
   ],
   "session_history": [
@@ -763,6 +781,7 @@
     "Session 64 (T209-T210): Wandering Stonemason (T311), Imperial Dye Master (T312)",
     "Session 65 (T211-T212): Wandering Navigator (T313), Traveling Illuminator (T314)",
     "Session 66 (T213-T214): Ancient Ritual Leader (T315), Mountain Prospector (T316)",
-    "Session 67 (T215-T216): Wandering Leatherworker (T317), Royal Apothecary (T318)"
+    "Session 67 (T215-T216): Wandering Leatherworker (T317), Royal Apothecary (T318)",
+    "Session 68 (T217-T218): Wandering Fishmonger (T319), Imperial Chandler (T320)"
   ]
 }

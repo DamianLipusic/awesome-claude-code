@@ -83,6 +83,8 @@ import * as RitualLeader  from '../systems/ancientRitualLeader.js';     // T315
 import * as MtProspector  from '../systems/mountainProspector.js';      // T316
 import * as Leatherworker from '../systems/wanderingLeatherworker.js'; // T317
 import * as Apothecary    from '../systems/royalApothecary.js';        // T318
+import * as Fishmonger   from '../systems/wanderingFishmonger.js';    // T319
+import * as Chandler     from '../systems/imperialChandler.js';       // T320
 
 let _panel = null;
 
@@ -194,6 +196,8 @@ function _encountersSection() {
     _mountainProspectorSection(),
     _wanderingLeatherworkerSection(),
     _royalApothecarySection(),
+    _wanderingFishmongerSection(),
+    _imperialChandlerSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -2553,6 +2557,75 @@ function _royalApothecarySection() {
     </div>`;
 }
 
+// ── T319 Wandering Fishmonger ────────────────────────────────────────
+
+function _wanderingFishmongerSection() {
+  if (!Fishmonger.getActiveWanderingFishmonger()) return '';
+  const secs        = Fishmonger.getWanderingFishmongerSecsLeft();
+  const gold        = Math.floor(state.resources.gold ?? 0);
+  const wood        = Math.floor(state.resources.wood ?? 0);
+  const canPurchase = gold >= Fishmonger.PURCHASE_GOLD_COST;
+  const canTrade    = wood >= Fishmonger.TRADE_WOOD_COST;
+  const urg = secs <= 15 ? ' fishmonger-timer--urgent' : '';
+  return `
+    <div class="fishmonger-section--active">
+      <div class="fishmonger-header">
+        <span class="fishmonger-title">🐟 Wandering Fishmonger</span>
+        <span class="fishmonger-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="fishmonger-desc">A wandering fishmonger arrives with laden baskets of fresh river fish and expertly cured dried seafood from distant waterways.</div>
+      <div class="fishmonger-actions">
+        <button class="btn--fishmonger-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="fishmonger-purchase" ${canPurchase ? '' : 'disabled'}>
+          🐟 Purchase Fresh Catch — ${Fishmonger.PURCHASE_GOLD_COST}💰
+          <span class="fishmonger-cost">→ +${Fishmonger.PURCHASE_FOOD_RATE} food/s (2.5 min) · +${Fishmonger.PURCHASE_PRESTIGE_REWARD} prestige · +${Fishmonger.PURCHASE_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--fishmonger-trade${canTrade ? '' : ' btn--disabled'}" data-action="fishmonger-trade" ${canTrade ? '' : 'disabled'}>
+          🐠 Trade for Dried Fish — ${Fishmonger.TRADE_WOOD_COST}🌲
+          <span class="fishmonger-cost">→ +${Fishmonger.TRADE_FOOD_RATE} food/s (2 min) · +${Fishmonger.TRADE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--fishmonger-away" data-action="fishmonger-away">
+          🚶 Send Away
+          <span class="fishmonger-cost">→ Fishmonger continues down the road</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T320 Imperial Chandler ───────────────────────────────────────────
+
+function _imperialChandlerSection() {
+  if (!Chandler.getActiveImperialChandler()) return '';
+  const secs           = Chandler.getImperialChandlerSecsLeft();
+  const wood           = Math.floor(state.resources.wood ?? 0);
+  const food           = Math.floor(state.resources.food ?? 0);
+  const gold           = Math.floor(state.resources.gold ?? 0);
+  const canCommission  = wood >= Chandler.COMMISSION_WOOD_COST && food >= Chandler.COMMISSION_FOOD_COST;
+  const canPurchase    = gold >= Chandler.PURCHASE_GOLD_COST;
+  const urg = secs <= 15 ? ' chandler-timer--urgent' : '';
+  return `
+    <div class="chandler-section--active">
+      <div class="chandler-header">
+        <span class="chandler-title">🕯️ Imperial Chandler</span>
+        <span class="chandler-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="chandler-desc">An imperial chandler arrives bearing exquisitely crafted beeswax candles and luminous lanterns of unparalleled quality to illuminate the empire.</div>
+      <div class="chandler-actions">
+        <button class="btn--chandler-commission${canCommission ? '' : ' btn--disabled'}" data-action="chandler-commission" ${canCommission ? '' : 'disabled'}>
+          🕯️ Commission Candle Works — ${Chandler.COMMISSION_WOOD_COST}🌲 + ${Chandler.COMMISSION_FOOD_COST}🍎
+          <span class="chandler-cost">→ +${Chandler.COMMISSION_FOOD_RATE} food/s (2.5 min) · +${Chandler.COMMISSION_PRESTIGE_REWARD} prestige · +${Chandler.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--chandler-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="chandler-purchase" ${canPurchase ? '' : 'disabled'}>
+          💛 Purchase Fine Candles — ${Chandler.PURCHASE_GOLD_COST}💰
+          <span class="chandler-cost">→ +${Chandler.PURCHASE_GOLD_RATE} gold/s (2 min) · +${Chandler.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--chandler-away" data-action="chandler-away">
+          🚶 Send Away
+          <span class="chandler-cost">→ Chandler departs to other noble patrons</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -2844,6 +2917,12 @@ const _HANDLERS = {
   'apothecary-remedies':     () => Apothecary.commissionImperialRemedies(),
   'apothecary-potions':      () => Apothecary.purchaseExoticPotions(),
   'apothecary-away':         () => Apothecary.sendApothecaryAway(),
+  'fishmonger-purchase':     () => Fishmonger.purchaseFreshCatch(),
+  'fishmonger-trade':        () => Fishmonger.tradeForDriedFish(),
+  'fishmonger-away':         () => Fishmonger.sendFishmongerAway(),
+  'chandler-commission':     () => Chandler.commissionCandleWorks(),
+  'chandler-purchase':       () => Chandler.purchaseFineCandles(),
+  'chandler-away':           () => Chandler.sendChandlerAway(),
 };
 
 function _handleClick(e) {
@@ -2934,6 +3013,8 @@ export function initQuestPanel() {
     Events.MOUNTAIN_PROSPECTOR_CHANGED,
     Events.WANDERING_LEATHERWORKER_CHANGED,
     Events.ROYAL_APOTHECARY_CHANGED,
+    Events.WANDERING_FISHMONGER_CHANGED,
+    Events.IMPERIAL_CHANDLER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

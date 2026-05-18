@@ -260,6 +260,8 @@ import { initAncientRitualLeader, ancientRitualLeaderTick }         from './syst
 import { initMountainProspector, mountainProspectorTick }           from './systems/mountainProspector.js';      // T316
 import { initWanderingLeatherworker, wanderingLeatherworkerTick }   from './systems/wanderingLeatherworker.js';  // T317
 import { initRoyalApothecary, royalApothecaryTick }                 from './systems/royalApothecary.js';         // T318
+import { initWanderingFishmonger, wanderingFishmongerTick }         from './systems/wanderingFishmonger.js';     // T319
+import { initImperialChandler, imperialChandlerTick }               from './systems/imperialChandler.js';        // T320
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -526,6 +528,8 @@ function _registerAllSystems() {
   registerSystem(mountainProspectorTick);             // T316
   registerSystem(wanderingLeatherworkerTick);         // T317
   registerSystem(royalApothecaryTick);                // T318
+  registerSystem(wanderingFishmongerTick);            // T319
+  registerSystem(imperialChandlerTick);               // T320
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -777,6 +781,8 @@ function _save() {
     mountainProspector:         state.mountainProspector,         // T316
     wanderingLeatherworker:     state.wanderingLeatherworker,     // T317
     royalApothecary:            state.royalApothecary,            // T318
+    wanderingFishmonger:        state.wanderingFishmonger,        // T319
+    imperialChandler:           state.imperialChandler,           // T320
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -1033,6 +1039,8 @@ function _applySave(s) {
   state.mountainProspector         = s.mountainProspector ?? null;         // T316
   state.wanderingLeatherworker     = s.wanderingLeatherworker ?? null;     // T317
   state.royalApothecary            = s.royalApothecary ?? null;            // T318
+  state.wanderingFishmonger        = s.wanderingFishmonger ?? null;        // T319
+  state.imperialChandler           = s.imperialChandler ?? null;           // T320
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -1295,6 +1303,8 @@ function _startFreshGame() {
   initMountainProspector();             // T316
   initWanderingLeatherworker();         // T317
   initRoyalApothecary();                // T318
+  initWanderingFishmonger();            // T319
+  initImperialChandler();               // T320
   initAchievements();
   initLeaderboard();
 }
@@ -1540,6 +1550,8 @@ function _startLoadedGame(savedData) {
   initMountainProspector();             // T316
   initWanderingLeatherworker();         // T317
   initRoyalApothecary();                // T318
+  initWanderingFishmonger();            // T319
+  initImperialChandler();               // T320
   initAchievements();
   initLeaderboard();
 }

@@ -955,3 +955,15 @@ Built mountainProspector.js: fundMiningExpedition (40g → +0.25 iron/s 2.5min +
 Wired in main.js: import initMountainProspector+mountainProspectorTick, registerSystem, initMountainProspector() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _mountainProspectorSection() render + prospector-expedition/prospector-maps/prospector-away handlers to questPanel.js (import * as MtProspector). Events.MOUNTAIN_PROSPECTOR_CHANGED subscribed.
 Added T316 prospector CSS: @keyframes prospector-pulse (amber/gold), .prospector-section--active, .btn--prospector-expedition (amber), .btn--prospector-maps (slate), .btn--prospector-away (gray).
+
+T217: Wandering Fishmonger (T319) — Stone Age+, 6+ tiles, 11–16 min, 80s window.
+Built wanderingFishmonger.js: purchaseFreshCatch (20g → +0.25 food/s 2.5min +12 prestige +8 morale), tradeForDriedFish (25 wood → +0.2 food/s 2min +8 prestige), sendFishmongerAway (dismiss). Added WANDERING_FISHMONGER_CHANGED event to events.js. state.wanderingFishmonger null field.
+Wired in main.js: import initWanderingFishmonger+wanderingFishmongerTick, registerSystem, initWanderingFishmonger() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingFishmongerSection() render + fishmonger-purchase/fishmonger-trade/fishmonger-away handlers to questPanel.js (import * as Fishmonger). Events.WANDERING_FISHMONGER_CHANGED subscribed.
+Added T319 fishmonger CSS: @keyframes fishmonger-pulse (sky blue), .fishmonger-section--active, .btn--fishmonger-purchase (sky blue), .btn--fishmonger-trade (green), .btn--fishmonger-away (gray).
+
+T218: Imperial Chandler (T320) — Bronze Age+, 8+ tiles, 12–17 min, 80s window.
+Built imperialChandler.js: commissionCandleWorks (20 wood + 15 food → +0.2 food/s 2.5min +18 prestige +10 morale), purchaseFineCandles (25g → +0.15 gold/s 2min +12 prestige), sendChandlerAway (dismiss). Added IMPERIAL_CHANDLER_CHANGED event to events.js. state.imperialChandler null field.
+Wired in main.js: import initImperialChandler+imperialChandlerTick, registerSystem, initImperialChandler() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _imperialChandlerSection() render + chandler-commission/chandler-purchase/chandler-away handlers to questPanel.js (import * as Chandler). Events.IMPERIAL_CHANDLER_CHANGED subscribed.
+Added T320 chandler CSS: @keyframes chandler-pulse (amber/yellow), .chandler-section--active, .btn--chandler-commission (amber), .btn--chandler-purchase (yellow/gold), .btn--chandler-away (gray).
