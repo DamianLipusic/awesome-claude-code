@@ -254,4 +254,6 @@ export const Events = Object.freeze({
   IMPERIAL_WEAPONSMITH_CHANGED:     'imperialWeaponsmithChanged',            // T310: weaponsmith spawned / armory / techniques / dismissed / expired
   WANDERING_STONEMASON_CHANGED:     'wanderingStonemasonChanged',            // T311: stonemason spawned / stoneworks / techniques / dismissed / expired
   IMPERIAL_DYE_MASTER_CHANGED:      'imperialDyeMasterChanged',              // T312: dye master spawned / dyeWorks / formulas / dismissed / expired
+  WANDERING_NAVIGATOR_CHANGED:      'wanderingNavigatorChanged',              // T313: navigator spawned / charts / secrets / dismissed / expired
+  TRAVELING_ILLUMINATOR_CHANGED:    'travelingIlluminatorChanged',            // T314: illuminator spawned / codex / scripts / dismissed / expired
 });

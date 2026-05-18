@@ -662,6 +662,24 @@
       "status": "done",
       "phase": 112,
       "notes": "Built imperialDyeMaster.js. IMPERIAL_DYE_MASTER_CHANGED event added to events.js. state.imperialDyeMaster null field. Dye master section in questPanel.js (import * as DyeMaster). Events.IMPERIAL_DYE_MASTER_CHANGED subscribed. CSS: @keyframes dyemaster-pulse (violet/purple), .dyemaster-section--active, .btn--dyemaster-works (violet), .btn--dyemaster-formulas (green), .btn--dyemaster-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T313",
+      "title": "Wandering Navigator",
+      "description": "Iron Age+, 10+ tiles, 13-18 min spawn, 80s window. Commission Sea Charts (25 wood + 20g → +0.2 wood/s 2.5min · +22 prestige · +10 morale), Exchange Navigation Secrets (20 mana → +0.15 mana/s 2min · +15 prestige), Send Away.",
+      "priority": 313,
+      "status": "done",
+      "phase": 113,
+      "notes": "Built wanderingNavigator.js. WANDERING_NAVIGATOR_CHANGED event added to events.js. state.wanderingNavigator null field. Navigator section in questPanel.js (import * as Navigator). Events.WANDERING_NAVIGATOR_CHANGED subscribed. CSS: @keyframes navigator-pulse (sky blue), .navigator-section--active, .btn--navigator-charts (sky blue), .btn--navigator-secrets (indigo), .btn--navigator-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T314",
+      "title": "Traveling Illuminator",
+      "description": "Medieval Age+, 10+ tiles, 14-19 min spawn, 80s window. Commission Illuminated Codex (30 mana + 20g → +0.25 mana/s 2.5min · +22 prestige · +8 morale), Purchase Gilded Scripts (25g → +0.18 gold/s 2min · +15 prestige), Send Away.",
+      "priority": 314,
+      "status": "done",
+      "phase": 113,
+      "notes": "Built travelingIlluminator.js. TRAVELING_ILLUMINATOR_CHANGED event added to events.js. state.travelingIlluminator null field. Illuminator section in questPanel.js (import * as Illuminator). Events.TRAVELING_ILLUMINATOR_CHANGED subscribed. CSS: @keyframes illuminator-pulse (gold/amber), .illuminator-section--active, .btn--illuminator-codex (violet), .btn--illuminator-scripts (gold), .btn--illuminator-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     }
   ],
   "session_history": [
@@ -706,6 +724,7 @@
     "Session 61 (T203-T204): Wandering Silversmith (T305), Imperial Spice Merchant (T306)",
     "Session 62 (T205-T206): Court Musician (T307), Ancient Library Keeper (T308)",
     "Session 63 (T207-T208): Wandering Clockmaker (T309), Imperial Weaponsmith (T310)",
-    "Session 64 (T209-T210): Wandering Stonemason (T311), Imperial Dye Master (T312)"
+    "Session 64 (T209-T210): Wandering Stonemason (T311), Imperial Dye Master (T312)",
+    "Session 65 (T211-T212): Wandering Navigator (T313), Traveling Illuminator (T314)"
   ]
 }

@@ -18091,3 +18091,81 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--dyemaster-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T313: Wandering Navigator ───────────────────────────────────────── */
+@keyframes navigator-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(14, 165, 233, 0); }
+  50%       { box-shadow: 0 0 8px 2px rgba(14, 165, 233, 0.20); }
+}
+.navigator-section--active {
+  background: linear-gradient(135deg, rgba(3, 105, 161, 0.18), rgba(14, 165, 233, 0.10));
+  border: 1px solid rgba(14, 165, 233, 0.30); border-radius: 8px; padding: 10px 12px; margin-bottom: 10px;
+  animation: navigator-pulse 3.5s ease-in-out infinite;
+}
+.navigator-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.navigator-title   { font-size: 0.92rem; font-weight: 600; color: #7dd3fc; }
+.navigator-timer   { font-size: 0.78rem; color: #38bdf8; background: rgba(14, 165, 233, 0.12); padding: 2px 7px; border-radius: 10px; }
+.navigator-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.25); }
+.navigator-desc    { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.navigator-actions { display: flex; flex-direction: column; gap: 6px; }
+.navigator-cost    { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--navigator-charts {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.12), rgba(3, 105, 161, 0.08));
+  border: 1px solid rgba(14, 165, 233, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #7dd3fc; text-align: left; transition: background 0.15s;
+}
+.btn--navigator-charts:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(14, 165, 233, 0.22), rgba(3, 105, 161, 0.15)); }
+.btn--navigator-secrets {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(67, 56, 202, 0.08));
+  border: 1px solid rgba(99, 102, 241, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #a5b4fc; text-align: left; transition: background 0.15s;
+}
+.btn--navigator-secrets:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(99, 102, 241, 0.22), rgba(67, 56, 202, 0.15)); }
+.btn--navigator-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--navigator-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T314: Traveling Illuminator ────────────────────────────────────── */
+@keyframes illuminator-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0); }
+  50%       { box-shadow: 0 0 8px 2px rgba(234, 179, 8, 0.20); }
+}
+.illuminator-section--active {
+  background: linear-gradient(135deg, rgba(133, 77, 14, 0.18), rgba(234, 179, 8, 0.10));
+  border: 1px solid rgba(234, 179, 8, 0.30); border-radius: 8px; padding: 10px 12px; margin-bottom: 10px;
+  animation: illuminator-pulse 3.5s ease-in-out infinite;
+}
+.illuminator-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.illuminator-title   { font-size: 0.92rem; font-weight: 600; color: #fde68a; }
+.illuminator-timer   { font-size: 0.78rem; color: #fcd34d; background: rgba(234, 179, 8, 0.12); padding: 2px 7px; border-radius: 10px; }
+.illuminator-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.25); }
+.illuminator-desc    { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.illuminator-actions { display: flex; flex-direction: column; gap: 6px; }
+.illuminator-cost    { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--illuminator-codex {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(109, 40, 217, 0.08));
+  border: 1px solid rgba(139, 92, 246, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #c4b5fd; text-align: left; transition: background 0.15s;
+}
+.btn--illuminator-codex:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(139, 92, 246, 0.22), rgba(109, 40, 217, 0.15)); }
+.btn--illuminator-scripts {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(234, 179, 8, 0.12), rgba(161, 98, 7, 0.08));
+  border: 1px solid rgba(234, 179, 8, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fde68a; text-align: left; transition: background 0.15s;
+}
+.btn--illuminator-scripts:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(234, 179, 8, 0.22), rgba(161, 98, 7, 0.15)); }
+.btn--illuminator-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--illuminator-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

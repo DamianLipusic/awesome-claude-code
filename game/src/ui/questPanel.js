@@ -77,6 +77,8 @@ import * as Clockmaker   from '../systems/wanderingClockmaker.js';       // T309
 import * as Weaponsmith  from '../systems/imperialWeaponsmith.js';       // T310
 import * as Stonemason  from '../systems/wanderingStonemason.js';       // T311
 import * as DyeMaster   from '../systems/imperialDyeMaster.js';         // T312
+import * as Navigator   from '../systems/wanderingNavigator.js';        // T313
+import * as Illuminator from '../systems/travelingIlluminator.js';      // T314
 
 let _panel = null;
 
@@ -182,6 +184,8 @@ function _encountersSection() {
     _imperialWeaponsmithSection(),
     _wanderingStonemasonSection(),
     _imperialDyeMasterSection(),
+    _wanderingNavigatorSection(),
+    _travelingIlluminatorSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -2331,6 +2335,75 @@ function _imperialDyeMasterSection() {
     </div>`;
 }
 
+// ── T313 Wandering Navigator ─────────────────────────────────────────
+
+function _wanderingNavigatorSection() {
+  if (!Navigator.getActiveNavigator()) return '';
+  const secs       = Navigator.getNavigatorSecsLeft();
+  const wood       = Math.floor(state.resources.wood ?? 0);
+  const gold       = Math.floor(state.resources.gold ?? 0);
+  const mana       = Math.floor(state.resources.mana ?? 0);
+  const canCharts  = wood >= Navigator.NAV_WOOD_COST && gold >= Navigator.NAV_GOLD_COST;
+  const canSecrets = mana >= Navigator.SECRETS_MANA_COST;
+  const urg = secs <= 15 ? ' navigator-timer--urgent' : '';
+  return `
+    <div class="navigator-section--active">
+      <div class="navigator-header">
+        <span class="navigator-title">🧭 Wandering Navigator</span>
+        <span class="navigator-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="navigator-desc">A seasoned navigator arrives bearing hand-drawn sea charts and maritime secrets from uncharted shores, offering to share hard-won knowledge of coastal trade routes.</div>
+      <div class="navigator-actions">
+        <button class="btn--navigator-charts${canCharts ? '' : ' btn--disabled'}" data-action="navigator-charts" ${canCharts ? '' : 'disabled'}>
+          🧭 Commission Sea Charts — ${Navigator.NAV_WOOD_COST}🪵 + ${Navigator.NAV_GOLD_COST}💰
+          <span class="navigator-cost">→ +${Navigator.NAV_WOOD_RATE} wood/s (2.5 min) · +${Navigator.NAV_PRESTIGE_REWARD} prestige · +${Navigator.NAV_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--navigator-secrets${canSecrets ? '' : ' btn--disabled'}" data-action="navigator-secrets" ${canSecrets ? '' : 'disabled'}>
+          🌊 Exchange Navigation Secrets — ${Navigator.SECRETS_MANA_COST}✨
+          <span class="navigator-cost">→ +${Navigator.SECRETS_MANA_RATE} mana/s (2 min) · +${Navigator.SECRETS_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--navigator-away" data-action="navigator-away">
+          🚶 Send Away
+          <span class="navigator-cost">→ Navigator sails toward distant shores</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T314 Traveling Illuminator ─────────────────────────────────────────
+
+function _travelingIlluminatorSection() {
+  if (!Illuminator.getActiveIlluminator()) return '';
+  const secs       = Illuminator.getIlluminatorSecsLeft();
+  const mana       = Math.floor(state.resources.mana ?? 0);
+  const gold       = Math.floor(state.resources.gold ?? 0);
+  const canCodex   = mana >= Illuminator.CODEX_MANA_COST && gold >= Illuminator.CODEX_GOLD_COST;
+  const canScripts = gold >= Illuminator.SCRIPTS_GOLD_COST;
+  const urg = secs <= 15 ? ' illuminator-timer--urgent' : '';
+  return `
+    <div class="illuminator-section--active">
+      <div class="illuminator-header">
+        <span class="illuminator-title">📜 Traveling Illuminator</span>
+        <span class="illuminator-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="illuminator-desc">A skilled illuminator arrives with gilded manuscripts and devotional codices adorned with gold leaf and lapis lazuli, offering to create illuminated records of the empire's greatest achievements.</div>
+      <div class="illuminator-actions">
+        <button class="btn--illuminator-codex${canCodex ? '' : ' btn--disabled'}" data-action="illuminator-codex" ${canCodex ? '' : 'disabled'}>
+          📜 Commission Illuminated Codex — ${Illuminator.CODEX_MANA_COST}✨ + ${Illuminator.CODEX_GOLD_COST}💰
+          <span class="illuminator-cost">→ +${Illuminator.CODEX_MANA_RATE} mana/s (2.5 min) · +${Illuminator.CODEX_PRESTIGE_REWARD} prestige · +${Illuminator.CODEX_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--illuminator-scripts${canScripts ? '' : ' btn--disabled'}" data-action="illuminator-scripts" ${canScripts ? '' : 'disabled'}>
+          ✍️ Purchase Gilded Scripts — ${Illuminator.SCRIPTS_GOLD_COST}💰
+          <span class="illuminator-cost">→ +${Illuminator.SCRIPTS_GOLD_RATE} gold/s (2 min) · +${Illuminator.SCRIPTS_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--illuminator-away" data-action="illuminator-away">
+          🚶 Send Away
+          <span class="illuminator-cost">→ Illuminator departs for another court</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -2600,6 +2673,14 @@ const _HANDLERS = {
   'dyemaster-works':         () => DyeMaster.establishRoyalDyeWorks(),
   'dyemaster-formulas':      () => DyeMaster.purchaseRareDyeFormulas(),
   'dyemaster-away':          () => DyeMaster.sendDyeMasterAway(),
+
+  'navigator-charts':        () => Navigator.commissionSeaCharts(),
+  'navigator-secrets':       () => Navigator.exchangeNavigationSecrets(),
+  'navigator-away':          () => Navigator.sendNavigatorAway(),
+
+  'illuminator-codex':       () => Illuminator.commissionIlluminatedCodex(),
+  'illuminator-scripts':     () => Illuminator.purchaseGildedScripts(),
+  'illuminator-away':        () => Illuminator.sendIlluminatorAway(),
 };
 
 function _handleClick(e) {
@@ -2684,6 +2765,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_WEAPONSMITH_CHANGED,
     Events.WANDERING_STONEMASON_CHANGED,
     Events.IMPERIAL_DYE_MASTER_CHANGED,
+    Events.WANDERING_NAVIGATOR_CHANGED,
+    Events.TRAVELING_ILLUMINATOR_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

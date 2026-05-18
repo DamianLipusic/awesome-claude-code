@@ -924,3 +924,17 @@ Built imperialDyeMaster.js: establishRoyalDyeWorks (25 wood + 15 food → +0.25 
 Wired in main.js: import initImperialDyeMaster+imperialDyeMasterTick, registerSystem, initImperialDyeMaster() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _imperialDyeMasterSection() render + dyemaster-works/dyemaster-formulas/dyemaster-away handlers to questPanel.js (import * as DyeMaster). Events.IMPERIAL_DYE_MASTER_CHANGED subscribed.
 Added T312 dye master CSS: @keyframes dyemaster-pulse (violet/purple), .dyemaster-section--active, .btn--dyemaster-works (violet), .btn--dyemaster-formulas (green), .btn--dyemaster-away (gray).
+
+Session 65 — T211–T212 (T313–T314): Wandering Navigator, Traveling Illuminator.
+
+T211: Wandering Navigator (T313) — Iron Age+, 10+ tiles, 13–18 min, 80s window.
+Built wanderingNavigator.js: commissionSeaCharts (25 wood + 20g → +0.2 wood/s 2.5min +22 prestige +10 morale), exchangeNavigationSecrets (20 mana → +0.15 mana/s 2min +15 prestige), sendNavigatorAway (dismiss). Added WANDERING_NAVIGATOR_CHANGED event to events.js. state.wanderingNavigator null field.
+Wired in main.js: import initWanderingNavigator+wanderingNavigatorTick, registerSystem, initWanderingNavigator() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingNavigatorSection() render + navigator-charts/navigator-secrets/navigator-away handlers to questPanel.js (import * as Navigator). Events.WANDERING_NAVIGATOR_CHANGED subscribed.
+Added T313 navigator CSS: @keyframes navigator-pulse (sky blue), .navigator-section--active, .btn--navigator-charts (sky blue), .btn--navigator-secrets (indigo), .btn--navigator-away (gray).
+
+T212: Traveling Illuminator (T314) — Medieval Age+, 10+ tiles, 14–19 min, 80s window.
+Built travelingIlluminator.js: commissionIlluminatedCodex (30 mana + 20g → +0.25 mana/s 2.5min +22 prestige +8 morale), purchaseGildedScripts (25g → +0.18 gold/s 2min +15 prestige), sendIlluminatorAway (dismiss). Added TRAVELING_ILLUMINATOR_CHANGED event to events.js. state.travelingIlluminator null field.
+Wired in main.js: import initTravelingIlluminator+travelingIlluminatorTick, registerSystem, initTravelingIlluminator() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _travelingIlluminatorSection() render + illuminator-codex/illuminator-scripts/illuminator-away handlers to questPanel.js (import * as Illuminator). Events.TRAVELING_ILLUMINATOR_CHANGED subscribed.
+Added T314 illuminator CSS: @keyframes illuminator-pulse (gold/amber), .illuminator-section--active, .btn--illuminator-codex (violet), .btn--illuminator-scripts (gold), .btn--illuminator-away (gray).
