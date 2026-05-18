@@ -85,6 +85,8 @@ import * as Leatherworker from '../systems/wanderingLeatherworker.js'; // T317
 import * as Apothecary    from '../systems/royalApothecary.js';        // T318
 import * as Fishmonger   from '../systems/wanderingFishmonger.js';    // T319
 import * as Chandler     from '../systems/imperialChandler.js';       // T320
+import * as Lamplighter  from '../systems/royalLamplighter.js';       // T321
+import * as Cooper       from '../systems/wanderingCooper.js';         // T322
 
 let _panel = null;
 
@@ -198,6 +200,8 @@ function _encountersSection() {
     _royalApothecarySection(),
     _wanderingFishmongerSection(),
     _imperialChandlerSection(),
+    _royalLamplighterSection(),
+    _wanderingCooperSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -2626,6 +2630,75 @@ function _imperialChandlerSection() {
     </div>`;
 }
 
+// ── T321 Royal Lamplighter ───────────────────────────────────────────
+
+function _royalLamplighterSection() {
+  if (!Lamplighter.getActiveRoyalLamplighter()) return '';
+  const secs      = Lamplighter.getRoyalLamplighterSecsLeft();
+  const wood      = Math.floor(state.resources.wood ?? 0);
+  const gold      = Math.floor(state.resources.gold ?? 0);
+  const canEstablish = wood >= Lamplighter.ESTABLISH_WOOD_COST && gold >= Lamplighter.ESTABLISH_GOLD_COST;
+  const canPurchase  = gold >= Lamplighter.PURCHASE_GOLD_COST;
+  const urg = secs <= 15 ? ' lamplighter-timer--urgent' : '';
+  return `
+    <div class="lamplighter-section--active">
+      <div class="lamplighter-header">
+        <span class="lamplighter-title">🏮 Royal Lamplighter</span>
+        <span class="lamplighter-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="lamplighter-desc">A royal lamplighter arrives bearing exquisite oil lanterns and a proposal to illuminate the imperial city streets with warm golden light.</div>
+      <div class="lamplighter-actions">
+        <button class="btn--lamplighter-establish${canEstablish ? '' : ' btn--disabled'}" data-action="lamplighter-establish" ${canEstablish ? '' : 'disabled'}>
+          🏮 Establish Lamp District — ${Lamplighter.ESTABLISH_WOOD_COST}🌲 + ${Lamplighter.ESTABLISH_GOLD_COST}💰
+          <span class="lamplighter-cost">→ +${Lamplighter.ESTABLISH_WOOD_RATE} wood/s (2.5 min) · +${Lamplighter.ESTABLISH_PRESTIGE_REWARD} prestige · +${Lamplighter.ESTABLISH_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--lamplighter-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="lamplighter-purchase" ${canPurchase ? '' : 'disabled'}>
+          💡 Purchase Street Lanterns — ${Lamplighter.PURCHASE_GOLD_COST}💰
+          <span class="lamplighter-cost">→ +${Lamplighter.PURCHASE_GOLD_RATE} gold/s (2 min) · +${Lamplighter.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--lamplighter-away" data-action="lamplighter-away">
+          🚶 Send Away
+          <span class="lamplighter-cost">→ Lamplighter departs to illuminate other districts</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T322 Wandering Cooper ────────────────────────────────────────────
+
+function _wanderingCooperSection() {
+  if (!Cooper.getActiveWanderingCooper()) return '';
+  const secs        = Cooper.getWanderingCooperSecsLeft();
+  const wood        = Math.floor(state.resources.wood ?? 0);
+  const food        = Math.floor(state.resources.food ?? 0);
+  const gold        = Math.floor(state.resources.gold ?? 0);
+  const canCommission = wood >= Cooper.COMMISSION_WOOD_COST && food >= Cooper.COMMISSION_FOOD_COST;
+  const canPurchase   = gold >= Cooper.PURCHASE_GOLD_COST;
+  const urg = secs <= 15 ? ' cooper-timer--urgent' : '';
+  return `
+    <div class="cooper-section--active">
+      <div class="cooper-header">
+        <span class="cooper-title">🪣 Wandering Cooper</span>
+        <span class="cooper-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="cooper-desc">A wandering cooper arrives bearing a wagon of expertly crafted storage barrels, casks, and tuns, ready to expand the empire's storage capacity.</div>
+      <div class="cooper-actions">
+        <button class="btn--cooper-commission${canCommission ? '' : ' btn--disabled'}" data-action="cooper-commission" ${canCommission ? '' : 'disabled'}>
+          🪣 Commission Storage Barrels — ${Cooper.COMMISSION_WOOD_COST}🌲 + ${Cooper.COMMISSION_FOOD_COST}🍎
+          <span class="cooper-cost">→ +${Cooper.COMMISSION_FOOD_RATE} food/s (2.5 min) · +${Cooper.COMMISSION_PRESTIGE_REWARD} prestige · +${Cooper.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--cooper-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="cooper-purchase" ${canPurchase ? '' : 'disabled'}>
+          📜 Purchase Cooperage Secrets — ${Cooper.PURCHASE_GOLD_COST}💰
+          <span class="cooper-cost">→ +${Cooper.PURCHASE_WOOD_RATE} wood/s (2 min) · +${Cooper.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--cooper-away" data-action="cooper-away">
+          🚶 Send Away
+          <span class="cooper-cost">→ Cooper continues down the road to the next settlement</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -2923,6 +2996,14 @@ const _HANDLERS = {
   'chandler-commission':     () => Chandler.commissionCandleWorks(),
   'chandler-purchase':       () => Chandler.purchaseFineCandles(),
   'chandler-away':           () => Chandler.sendChandlerAway(),
+
+  'lamplighter-establish':   () => Lamplighter.establishLampDistrict(),
+  'lamplighter-purchase':    () => Lamplighter.purchaseStreetLanterns(),
+  'lamplighter-away':        () => Lamplighter.sendLamplighterAway(),
+
+  'cooper-commission':       () => Cooper.commissionStorageBarrels(),
+  'cooper-purchase':         () => Cooper.purchaseCooperageSecrets(),
+  'cooper-away':             () => Cooper.sendCooperAway(),
 };
 
 function _handleClick(e) {
@@ -3015,6 +3096,8 @@ export function initQuestPanel() {
     Events.ROYAL_APOTHECARY_CHANGED,
     Events.WANDERING_FISHMONGER_CHANGED,
     Events.IMPERIAL_CHANDLER_CHANGED,
+    Events.ROYAL_LAMPLIGHTER_CHANGED,
+    Events.WANDERING_COOPER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

@@ -262,4 +262,6 @@ export const Events = Object.freeze({
   ROYAL_APOTHECARY_CHANGED:         'royalApothecaryChanged',                 // T318: apothecary spawned / remedies / potions / dismissed / expired
   WANDERING_FISHMONGER_CHANGED:     'wanderingFishmongerChanged',             // T319: fishmonger spawned / purchased / traded / dismissed / expired
   IMPERIAL_CHANDLER_CHANGED:        'imperialChandlerChanged',                // T320: chandler spawned / commissioned / purchased / dismissed / expired
+  ROYAL_LAMPLIGHTER_CHANGED:        'royalLamplighterChanged',                // T321: lamplighter spawned / established / purchased / dismissed / expired
+  WANDERING_COOPER_CHANGED:         'wanderingCooperChanged',                 // T322: cooper spawned / commissioned / purchased / dismissed / expired
 });

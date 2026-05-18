@@ -967,3 +967,17 @@ Built imperialChandler.js: commissionCandleWorks (20 wood + 15 food → +0.2 foo
 Wired in main.js: import initImperialChandler+imperialChandlerTick, registerSystem, initImperialChandler() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _imperialChandlerSection() render + chandler-commission/chandler-purchase/chandler-away handlers to questPanel.js (import * as Chandler). Events.IMPERIAL_CHANDLER_CHANGED subscribed.
 Added T320 chandler CSS: @keyframes chandler-pulse (amber/yellow), .chandler-section--active, .btn--chandler-commission (amber), .btn--chandler-purchase (yellow/gold), .btn--chandler-away (gray).
+
+Session 69 — T321–T322: Royal Lamplighter, Wandering Cooper.
+
+T219: Royal Lamplighter (T321) — Medieval Age+, 8+ tiles, 13–18 min, 80s window.
+Built royalLamplighter.js: establishLampDistrict (25 wood + 20g → +0.22 wood/s 2.5min +22 prestige +12 morale), purchaseStreetLanterns (25g → +0.18 gold/s 2min +15 prestige), sendLamplighterAway (dismiss). Added ROYAL_LAMPLIGHTER_CHANGED event to events.js. state.royalLamplighter null field.
+Wired in main.js: import initRoyalLamplighter+royalLamplighterTick, registerSystem, initRoyalLamplighter() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _royalLamplighterSection() render + lamplighter-establish/lamplighter-purchase/lamplighter-away handlers to questPanel.js (import * as Lamplighter). Events.ROYAL_LAMPLIGHTER_CHANGED subscribed.
+Added T321 lamplighter CSS: @keyframes lamplighter-pulse (orange), .lamplighter-section--active, .btn--lamplighter-establish (orange), .btn--lamplighter-purchase (yellow), .btn--lamplighter-away (gray).
+
+T220: Wandering Cooper (T322) — Bronze Age+, 8+ tiles, 12–17 min, 80s window.
+Built wanderingCooper.js: commissionStorageBarrels (20 wood + 15 food → +0.2 food/s 2.5min +18 prestige +10 morale), purchaseCooperageSecrets (20g → +0.15 wood/s 2min +12 prestige), sendCooperAway (dismiss). Added WANDERING_COOPER_CHANGED event to events.js. state.wanderingCooper null field.
+Wired in main.js: import initWanderingCooper+wanderingCooperTick, registerSystem, initWanderingCooper() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingCooperSection() render + cooper-commission/cooper-purchase/cooper-away handlers to questPanel.js (import * as Cooper). Events.WANDERING_COOPER_CHANGED subscribed.
+Added T322 cooper CSS: @keyframes cooper-pulse (warm brown/amber), .cooper-section--active, .btn--cooper-commission (amber), .btn--cooper-purchase (green), .btn--cooper-away (gray).

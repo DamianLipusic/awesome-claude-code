@@ -734,6 +734,24 @@
       "status": "done",
       "phase": 116,
       "notes": "Built imperialChandler.js. IMPERIAL_CHANDLER_CHANGED event added to events.js. state.imperialChandler null field. Chandler section in questPanel.js (import * as Chandler). Events.IMPERIAL_CHANDLER_CHANGED subscribed. CSS: @keyframes chandler-pulse (amber/yellow), .chandler-section--active, .btn--chandler-commission (amber), .btn--chandler-purchase (yellow/gold), .btn--chandler-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T321",
+      "title": "Royal Lamplighter",
+      "description": "Medieval Age+, 8+ tiles, 13-18 min spawn, 80s window. Establish Lamp District (25 wood + 20g -> +0.22 wood/s 2.5min · +22 prestige · +12 morale), Purchase Street Lanterns (25g -> +0.18 gold/s 2min · +15 prestige), Send Away.",
+      "priority": 321,
+      "status": "done",
+      "phase": 117,
+      "notes": "Built royalLamplighter.js. ROYAL_LAMPLIGHTER_CHANGED event added to events.js. state.royalLamplighter null field. Lamplighter section in questPanel.js (import * as Lamplighter). Events.ROYAL_LAMPLIGHTER_CHANGED subscribed. CSS: @keyframes lamplighter-pulse (orange), .lamplighter-section--active, .btn--lamplighter-establish (orange), .btn--lamplighter-purchase (yellow), .btn--lamplighter-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T322",
+      "title": "Wandering Cooper",
+      "description": "Bronze Age+, 8+ tiles, 12-17 min spawn, 80s window. Commission Storage Barrels (20 wood + 15 food -> +0.2 food/s 2.5min · +18 prestige · +10 morale), Purchase Cooperage Secrets (20g -> +0.15 wood/s 2min · +12 prestige), Send Away.",
+      "priority": 322,
+      "status": "done",
+      "phase": 117,
+      "notes": "Built wanderingCooper.js. WANDERING_COOPER_CHANGED event added to events.js. state.wanderingCooper null field. Cooper section in questPanel.js (import * as Cooper). Events.WANDERING_COOPER_CHANGED subscribed. CSS: @keyframes cooper-pulse (warm brown/amber), .cooper-section--active, .btn--cooper-commission (amber), .btn--cooper-purchase (green), .btn--cooper-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     }
   ],
   "session_history": [
@@ -782,6 +800,7 @@
     "Session 65 (T211-T212): Wandering Navigator (T313), Traveling Illuminator (T314)",
     "Session 66 (T213-T214): Ancient Ritual Leader (T315), Mountain Prospector (T316)",
     "Session 67 (T215-T216): Wandering Leatherworker (T317), Royal Apothecary (T318)",
-    "Session 68 (T217-T218): Wandering Fishmonger (T319), Imperial Chandler (T320)"
+    "Session 68 (T217-T218): Wandering Fishmonger (T319), Imperial Chandler (T320)",
+    "Session 69 (T219-T220): Royal Lamplighter (T321), Wandering Cooper (T322)"
   ]
 }

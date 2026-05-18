@@ -18403,3 +18403,81 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--chandler-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T321 Royal Lamplighter ─────────────────────────────────────────────── */
+@keyframes lamplighter-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(251, 146, 60, 0); }
+  50%       { box-shadow: 0 0 0 4px rgba(251, 146, 60, 0.18); }
+}
+.lamplighter-section--active {
+  background: linear-gradient(135deg, rgba(251, 146, 60, 0.08), rgba(234, 88, 12, 0.05));
+  border: 1px solid rgba(251, 146, 60, 0.28); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px;
+  animation: lamplighter-pulse 3.5s ease-in-out infinite;
+}
+.lamplighter-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.lamplighter-title   { font-size: 0.92rem; font-weight: 600; color: #fb923c; }
+.lamplighter-timer   { font-size: 0.78rem; color: #ea580c; background: rgba(251, 146, 60, 0.12); padding: 2px 7px; border-radius: 10px; }
+.lamplighter-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.25); }
+.lamplighter-desc    { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.lamplighter-actions { display: flex; flex-direction: column; gap: 6px; }
+.lamplighter-cost    { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--lamplighter-establish {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(251, 146, 60, 0.12), rgba(234, 88, 12, 0.08));
+  border: 1px solid rgba(251, 146, 60, 0.3); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fb923c; text-align: left; transition: background 0.15s;
+}
+.btn--lamplighter-establish:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(251, 146, 60, 0.22), rgba(234, 88, 12, 0.15)); }
+.btn--lamplighter-purchase {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(250, 204, 21, 0.12), rgba(234, 179, 8, 0.08));
+  border: 1px solid rgba(250, 204, 21, 0.3); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fde047; text-align: left; transition: background 0.15s;
+}
+.btn--lamplighter-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(250, 204, 21, 0.22), rgba(234, 179, 8, 0.15)); }
+.btn--lamplighter-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--lamplighter-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T322 Wandering Cooper ──────────────────────────────────────────────── */
+@keyframes cooper-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(120, 80, 30, 0); }
+  50%       { box-shadow: 0 0 0 4px rgba(161, 99, 30, 0.18); }
+}
+.cooper-section--active {
+  background: linear-gradient(135deg, rgba(161, 99, 30, 0.08), rgba(120, 53, 15, 0.05));
+  border: 1px solid rgba(161, 99, 30, 0.28); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px;
+  animation: cooper-pulse 3.5s ease-in-out infinite;
+}
+.cooper-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.cooper-title   { font-size: 0.92rem; font-weight: 600; color: #d97706; }
+.cooper-timer   { font-size: 0.78rem; color: #b45309; background: rgba(217, 119, 6, 0.12); padding: 2px 7px; border-radius: 10px; }
+.cooper-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.25); }
+.cooper-desc    { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.cooper-actions { display: flex; flex-direction: column; gap: 6px; }
+.cooper-cost    { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--cooper-commission {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(217, 119, 6, 0.12), rgba(180, 83, 9, 0.08));
+  border: 1px solid rgba(217, 119, 6, 0.3); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #d97706; text-align: left; transition: background 0.15s;
+}
+.btn--cooper-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(217, 119, 6, 0.22), rgba(180, 83, 9, 0.15)); }
+.btn--cooper-purchase {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(22, 163, 74, 0.12), rgba(21, 128, 61, 0.08));
+  border: 1px solid rgba(22, 163, 74, 0.3); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #4ade80; text-align: left; transition: background 0.15s;
+}
+.btn--cooper-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(22, 163, 74, 0.22), rgba(21, 128, 61, 0.15)); }
+.btn--cooper-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--cooper-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
