@@ -258,6 +258,8 @@ import { initWanderingNavigator, wanderingNavigatorTick }           from './syst
 import { initTravelingIlluminator, travelingIlluminatorTick }       from './systems/travelingIlluminator.js';    // T314
 import { initAncientRitualLeader, ancientRitualLeaderTick }         from './systems/ancientRitualLeader.js';     // T315
 import { initMountainProspector, mountainProspectorTick }           from './systems/mountainProspector.js';      // T316
+import { initWanderingLeatherworker, wanderingLeatherworkerTick }   from './systems/wanderingLeatherworker.js';  // T317
+import { initRoyalApothecary, royalApothecaryTick }                 from './systems/royalApothecary.js';         // T318
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -522,6 +524,8 @@ function _registerAllSystems() {
   registerSystem(travelingIlluminatorTick);           // T314
   registerSystem(ancientRitualLeaderTick);            // T315
   registerSystem(mountainProspectorTick);             // T316
+  registerSystem(wanderingLeatherworkerTick);         // T317
+  registerSystem(royalApothecaryTick);                // T318
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -771,6 +775,8 @@ function _save() {
     travelingIlluminator:       state.travelingIlluminator,       // T314
     ancientRitualLeader:        state.ancientRitualLeader,        // T315
     mountainProspector:         state.mountainProspector,         // T316
+    wanderingLeatherworker:     state.wanderingLeatherworker,     // T317
+    royalApothecary:            state.royalApothecary,            // T318
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -1025,6 +1031,8 @@ function _applySave(s) {
   state.travelingIlluminator       = s.travelingIlluminator ?? null;       // T314
   state.ancientRitualLeader        = s.ancientRitualLeader ?? null;        // T315
   state.mountainProspector         = s.mountainProspector ?? null;         // T316
+  state.wanderingLeatherworker     = s.wanderingLeatherworker ?? null;     // T317
+  state.royalApothecary            = s.royalApothecary ?? null;            // T318
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -1285,6 +1293,8 @@ function _startFreshGame() {
   initTravelingIlluminator();           // T314
   initAncientRitualLeader();            // T315
   initMountainProspector();             // T316
+  initWanderingLeatherworker();         // T317
+  initRoyalApothecary();                // T318
   initAchievements();
   initLeaderboard();
 }
@@ -1528,6 +1538,8 @@ function _startLoadedGame(savedData) {
   initTravelingIlluminator();           // T314
   initAncientRitualLeader();            // T315
   initMountainProspector();             // T316
+  initWanderingLeatherworker();         // T317
+  initRoyalApothecary();                // T318
   initAchievements();
   initLeaderboard();
 }

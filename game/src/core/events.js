@@ -258,4 +258,6 @@ export const Events = Object.freeze({
   TRAVELING_ILLUMINATOR_CHANGED:    'travelingIlluminatorChanged',            // T314: illuminator spawned / codex / scripts / dismissed / expired
   ANCIENT_RITUAL_LEADER_CHANGED:    'ancientRitualLeaderChanged',             // T315: ritual leader spawned / ceremony / donation / dismissed / expired
   MOUNTAIN_PROSPECTOR_CHANGED:      'mountainProspectorChanged',              // T316: prospector spawned / expedition / maps / dismissed / expired
+  WANDERING_LEATHERWORKER_CHANGED:  'wanderingLeatherworkerChanged',          // T317: leatherworker spawned / saddles / leather / dismissed / expired
+  ROYAL_APOTHECARY_CHANGED:         'royalApothecaryChanged',                 // T318: apothecary spawned / remedies / potions / dismissed / expired
 });

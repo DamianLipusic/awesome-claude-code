@@ -81,6 +81,8 @@ import * as Navigator   from '../systems/wanderingNavigator.js';        // T313
 import * as Illuminator   from '../systems/travelingIlluminator.js';    // T314
 import * as RitualLeader  from '../systems/ancientRitualLeader.js';     // T315
 import * as MtProspector  from '../systems/mountainProspector.js';      // T316
+import * as Leatherworker from '../systems/wanderingLeatherworker.js'; // T317
+import * as Apothecary    from '../systems/royalApothecary.js';        // T318
 
 let _panel = null;
 
@@ -190,6 +192,8 @@ function _encountersSection() {
     _travelingIlluminatorSection(),
     _ancientRitualLeaderSection(),
     _mountainProspectorSection(),
+    _wanderingLeatherworkerSection(),
+    _royalApothecarySection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -2477,6 +2481,79 @@ function _mountainProspectorSection() {
 }
 
 // ---------------------------------------------------------------------------
+// T317 — Wandering Leatherworker
+// ---------------------------------------------------------------------------
+
+function _wanderingLeatherworkerSection() {
+  if (!Leatherworker.getActiveWanderingLeatherworker()) return '';
+  const secs        = Leatherworker.getWanderingLeatherworkerSecsLeft();
+  const food        = Math.floor(state.resources.food ?? 0);
+  const gold        = Math.floor(state.resources.gold ?? 0);
+  const canSaddles  = food >= Leatherworker.SADDLES_FOOD_COST && gold >= Leatherworker.SADDLES_GOLD_COST;
+  const canLeather  = food >= Leatherworker.LEATHER_FOOD_COST;
+  const urg = secs <= 15 ? ' leatherworker-timer--urgent' : '';
+  return `
+    <div class="leatherworker-section--active">
+      <div class="leatherworker-header">
+        <span class="leatherworker-title">🐎 Wandering Leatherworker</span>
+        <span class="leatherworker-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="leatherworker-desc">A skilled leatherworker arrives with supple hides, ornate saddles, and finely crafted leather goods. They offer their expertise to the imperial household.</div>
+      <div class="leatherworker-actions">
+        <button class="btn--leatherworker-saddles${canSaddles ? '' : ' btn--disabled'}" data-action="leatherworker-saddles" ${canSaddles ? '' : 'disabled'}>
+          🐎 Commission Imperial Saddles — ${Leatherworker.SADDLES_FOOD_COST}🍎 + ${Leatherworker.SADDLES_GOLD_COST}💰
+          <span class="leatherworker-cost">→ +${Leatherworker.SADDLES_FOOD_RATE} food/s (2.5 min) · +${Leatherworker.SADDLES_PRESTIGE_REWARD} prestige · +${Leatherworker.SADDLES_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--leatherworker-trade${canLeather ? '' : ' btn--disabled'}" data-action="leatherworker-trade" ${canLeather ? '' : 'disabled'}>
+          🛒 Trade for Leather Goods — ${Leatherworker.LEATHER_FOOD_COST}🍎
+          <span class="leatherworker-cost">→ +${Leatherworker.LEATHER_GOLD_RATE} gold/s (2 min) · +${Leatherworker.LEATHER_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--leatherworker-away" data-action="leatherworker-away">
+          🚶 Send Away
+          <span class="leatherworker-cost">→ Leatherworker continues on the trade road</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ---------------------------------------------------------------------------
+// T318 — Royal Apothecary
+// ---------------------------------------------------------------------------
+
+function _royalApothecarySection() {
+  if (!Apothecary.getActiveRoyalApothecary()) return '';
+  const secs         = Apothecary.getRoyalApothecarySecsLeft();
+  const mana         = Math.floor(state.resources.mana ?? 0);
+  const gold         = Math.floor(state.resources.gold ?? 0);
+  const food         = Math.floor(state.resources.food ?? 0);
+  const canRemedies  = mana >= Apothecary.REMEDIES_MANA_COST && gold >= Apothecary.REMEDIES_GOLD_COST;
+  const canPotions   = food >= Apothecary.POTIONS_FOOD_COST;
+  const urg = secs <= 15 ? ' apothecary-timer--urgent' : '';
+  return `
+    <div class="apothecary-section--active">
+      <div class="apothecary-header">
+        <span class="apothecary-title">⚗️ Royal Apothecary</span>
+        <span class="apothecary-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="apothecary-desc">A renowned royal apothecary arrives bearing rare alchemical preparations, exotic remedies, and mystical potions gathered from distant lands.</div>
+      <div class="apothecary-actions">
+        <button class="btn--apothecary-remedies${canRemedies ? '' : ' btn--disabled'}" data-action="apothecary-remedies" ${canRemedies ? '' : 'disabled'}>
+          ⚗️ Commission Imperial Remedies — ${Apothecary.REMEDIES_MANA_COST}✨ + ${Apothecary.REMEDIES_GOLD_COST}💰
+          <span class="apothecary-cost">→ +${Apothecary.REMEDIES_MANA_RATE} mana/s (2.5 min) · +${Apothecary.REMEDIES_PRESTIGE_REWARD} prestige · +${Apothecary.REMEDIES_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--apothecary-potions${canPotions ? '' : ' btn--disabled'}" data-action="apothecary-potions" ${canPotions ? '' : 'disabled'}>
+          🌿 Purchase Exotic Potions — ${Apothecary.POTIONS_FOOD_COST}🍎
+          <span class="apothecary-cost">→ +${Apothecary.POTIONS_FOOD_RATE} food/s (2 min) · +${Apothecary.POTIONS_PRESTIGE_REWARD} prestige · +${Apothecary.POTIONS_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--apothecary-away" data-action="apothecary-away">
+          🚶 Send Away
+          <span class="apothecary-cost">→ Apothecary departs to other noble courts</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
 
@@ -2761,6 +2838,12 @@ const _HANDLERS = {
   'prospector-expedition':   () => MtProspector.fundMiningExpedition(),
   'prospector-maps':         () => MtProspector.shareOreMaps(),
   'prospector-away':         () => MtProspector.sendProspectorAway(),
+  'leatherworker-saddles':   () => Leatherworker.commissionImperialSaddles(),
+  'leatherworker-trade':     () => Leatherworker.tradeForLeatherGoods(),
+  'leatherworker-away':      () => Leatherworker.sendLeatherworkerAway(),
+  'apothecary-remedies':     () => Apothecary.commissionImperialRemedies(),
+  'apothecary-potions':      () => Apothecary.purchaseExoticPotions(),
+  'apothecary-away':         () => Apothecary.sendApothecaryAway(),
 };
 
 function _handleClick(e) {
@@ -2849,6 +2932,8 @@ export function initQuestPanel() {
     Events.TRAVELING_ILLUMINATOR_CHANGED,
     Events.ANCIENT_RITUAL_LEADER_CHANGED,
     Events.MOUNTAIN_PROSPECTOR_CHANGED,
+    Events.WANDERING_LEATHERWORKER_CHANGED,
+    Events.ROYAL_APOTHECARY_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

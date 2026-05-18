@@ -124,6 +124,9 @@ Scholar commission/purchase/dismiss, feast grand/modest/holiday, blacksmith weap
 Session 42 — T407–T416: Merchant prince, wandering sage, quest panel UI.
 Merchant deal/exchange/reception, sage edict/study/host, questPanel.js with all 17 encounter sections, full CSS styling for all encounters.
 
+Session 67 — T317–T318: Wandering Leatherworker, Royal Apothecary.
+Leatherworker: Bronze Age+, 8+ tiles, 12-17 min spawn, 80s window. Commission Imperial Saddles (25 food + 15g → +0.2 food/s 2.5min · +18 prestige · +10 morale), Trade for Leather Goods (20 food → +0.15 gold/s 2min · +12 prestige). Warm brown/amber pulse CSS. Apothecary: Medieval Age+, 10+ tiles, 14-19 min spawn, 80s window. Commission Imperial Remedies (30 mana + 15g → +0.25 mana/s 2.5min · +22 prestige · +12 morale), Purchase Exotic Potions (25 food → +0.2 food/s 2min · +15 prestige · +8 morale). Teal/mint pulse CSS. Both fully wired into main.js (import, registerSystem, init x2, save/load) and questPanel.js (import, section render, handlers, ENCOUNTER_EVENTS). Events added to events.js.
+
 Session 56 — T301–T302: Wandering Sculptor, Royal Vintner.
 Sculptor: Stone Age+, 6+ tiles, 11-16 min spawn, 80s window. Commission Grand Sculpture (30 stone → +0.15 gold/s 2min · +22 prestige · +8 morale), Learn Stone-Carving Secrets (20 gold → +0.18 stone/s 2min · +12 prestige). Gray/silver pulse CSS. Vintner: Bronze Age+, 8+ tiles, 13-17 min spawn, 80s window. Commission Imperial Vintage (25 food + 10 gold → +0.2 food/s 2.5min · +18 prestige · +12 morale), Purchase Vintner's Knowledge (22 gold → +0.15 gold/s 2min · +10 prestige). Deep red pulse CSS. Both fully wired into main.js (import, registerSystem, init x2, save/load) and questPanel.js (import, section render, handlers, ENCOUNTER_EVENTS). Events added to events.js.
 
