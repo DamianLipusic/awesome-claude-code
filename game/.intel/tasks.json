@@ -752,6 +752,24 @@
       "status": "done",
       "phase": 117,
       "notes": "Built wanderingCooper.js. WANDERING_COOPER_CHANGED event added to events.js. state.wanderingCooper null field. Cooper section in questPanel.js (import * as Cooper). Events.WANDERING_COOPER_CHANGED subscribed. CSS: @keyframes cooper-pulse (warm brown/amber), .cooper-section--active, .btn--cooper-commission (amber), .btn--cooper-purchase (green), .btn--cooper-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T323",
+      "title": "Wandering Rope Maker",
+      "description": "Stone Age+, 6+ tiles, 12-17 min spawn, 80s window. Commission Ship Rigging (20 wood + 10 food -> +0.2 wood/s 2.5min · +15 prestige · +8 morale), Purchase Rope-Making Lore (18g -> +0.15 food/s 2min · +10 prestige), Send Away.",
+      "priority": 323,
+      "status": "done",
+      "phase": 118,
+      "notes": "Built wanderingRopeMaker.js. WANDERING_ROPE_MAKER_CHANGED event added to events.js. state.wanderingRopeMaker null field. Rope maker section in questPanel.js (import * as RopeMaker). Events.WANDERING_ROPE_MAKER_CHANGED subscribed. CSS: @keyframes ropemaker-pulse (warm brown/amber), .ropemaker-section--active, .btn--ropemaker-commission (amber-brown), .btn--ropemaker-purchase (green), .btn--ropemaker-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T324",
+      "title": "Imperial Salt Merchant",
+      "description": "Bronze Age+, 8+ tiles, 13-17 min spawn, 80s window. Establish Salt Trade Route (30 food + 20g -> +0.25 food/s 2.5min · +20 prestige · +10 morale), Purchase Salt Reserves (25g -> +0.18 gold/s 2min · +15 prestige), Send Away.",
+      "priority": 324,
+      "status": "done",
+      "phase": 118,
+      "notes": "Built imperialSaltMerchant.js. IMPERIAL_SALT_MERCHANT_CHANGED event added to events.js. state.imperialSaltMerchant null field. Salt merchant section in questPanel.js (import * as SaltMerchant). Events.IMPERIAL_SALT_MERCHANT_CHANGED subscribed. CSS: @keyframes salt-pulse (silver/white), .salt-section--active, .btn--salt-route (silver/gray), .btn--salt-reserves (amber/gold), .btn--salt-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     }
   ],
   "session_history": [
@@ -801,6 +819,7 @@
     "Session 66 (T213-T214): Ancient Ritual Leader (T315), Mountain Prospector (T316)",
     "Session 67 (T215-T216): Wandering Leatherworker (T317), Royal Apothecary (T318)",
     "Session 68 (T217-T218): Wandering Fishmonger (T319), Imperial Chandler (T320)",
-    "Session 69 (T219-T220): Royal Lamplighter (T321), Wandering Cooper (T322)"
+    "Session 69 (T219-T220): Royal Lamplighter (T321), Wandering Cooper (T322)",
+    "Session 70 (T221-T222): Wandering Rope Maker (T323), Imperial Salt Merchant (T324)"
   ]
 }

@@ -18481,3 +18481,83 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--cooper-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T323 Wandering Rope Maker ─────────────────────────────────────────── */
+@keyframes ropemaker-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(120, 90, 40, 0); }
+  50%       { box-shadow: 0 0 12px 3px rgba(180, 130, 60, 0.22); }
+}
+.ropemaker-section--active {
+  background: linear-gradient(135deg, rgba(120, 90, 40, 0.12), rgba(180, 130, 60, 0.07));
+  border: 1px solid rgba(180, 130, 60, 0.35); border-radius: 8px;
+  padding: 10px 12px; margin-bottom: 10px;
+  animation: ropemaker-pulse 3.5s ease-in-out infinite;
+}
+.ropemaker-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.ropemaker-title   { font-size: 0.92rem; font-weight: 600; color: #b45309; }
+.ropemaker-timer   { font-size: 0.78rem; color: #92400e; background: rgba(180, 83, 9, 0.12); padding: 2px 7px; border-radius: 10px; }
+.ropemaker-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.25); }
+.ropemaker-desc    { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.ropemaker-actions { display: flex; flex-direction: column; gap: 6px; }
+.ropemaker-cost    { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--ropemaker-commission {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(180, 83, 9, 0.12), rgba(120, 53, 15, 0.08));
+  border: 1px solid rgba(180, 83, 9, 0.3); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #b45309; text-align: left; transition: background 0.15s;
+}
+.btn--ropemaker-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(180, 83, 9, 0.22), rgba(120, 53, 15, 0.15)); }
+.btn--ropemaker-purchase {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(22, 163, 74, 0.12), rgba(21, 128, 61, 0.08));
+  border: 1px solid rgba(22, 163, 74, 0.3); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #4ade80; text-align: left; transition: background 0.15s;
+}
+.btn--ropemaker-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(22, 163, 74, 0.22), rgba(21, 128, 61, 0.15)); }
+.btn--ropemaker-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--ropemaker-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T324 Imperial Salt Merchant ─────────────────────────────────────────── */
+@keyframes salt-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(200, 200, 200, 0); }
+  50%       { box-shadow: 0 0 12px 3px rgba(209, 213, 219, 0.22); }
+}
+.salt-section--active {
+  background: linear-gradient(135deg, rgba(156, 163, 175, 0.12), rgba(209, 213, 219, 0.07));
+  border: 1px solid rgba(209, 213, 219, 0.35); border-radius: 8px;
+  padding: 10px 12px; margin-bottom: 10px;
+  animation: salt-pulse 3.5s ease-in-out infinite;
+}
+.salt-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.salt-title   { font-size: 0.92rem; font-weight: 600; color: #d1d5db; }
+.salt-timer   { font-size: 0.78rem; color: #9ca3af; background: rgba(156, 163, 175, 0.12); padding: 2px 7px; border-radius: 10px; }
+.salt-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.25); }
+.salt-desc    { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.salt-actions { display: flex; flex-direction: column; gap: 6px; }
+.salt-cost    { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--salt-route {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(156, 163, 175, 0.12), rgba(107, 114, 128, 0.08));
+  border: 1px solid rgba(156, 163, 175, 0.3); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #d1d5db; text-align: left; transition: background 0.15s;
+}
+.btn--salt-route:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(156, 163, 175, 0.22), rgba(107, 114, 128, 0.15)); }
+.btn--salt-reserves {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(234, 179, 8, 0.12), rgba(202, 138, 4, 0.08));
+  border: 1px solid rgba(234, 179, 8, 0.3); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fbbf24; text-align: left; transition: background 0.15s;
+}
+.btn--salt-reserves:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(234, 179, 8, 0.22), rgba(202, 138, 4, 0.15)); }
+.btn--salt-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--salt-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

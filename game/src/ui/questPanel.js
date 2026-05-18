@@ -87,6 +87,8 @@ import * as Fishmonger   from '../systems/wanderingFishmonger.js';    // T319
 import * as Chandler     from '../systems/imperialChandler.js';       // T320
 import * as Lamplighter  from '../systems/royalLamplighter.js';       // T321
 import * as Cooper       from '../systems/wanderingCooper.js';         // T322
+import * as RopeMaker   from '../systems/wanderingRopeMaker.js';      // T323
+import * as SaltMerchant from '../systems/imperialSaltMerchant.js';   // T324
 
 let _panel = null;
 
@@ -202,6 +204,8 @@ function _encountersSection() {
     _imperialChandlerSection(),
     _royalLamplighterSection(),
     _wanderingCooperSection(),
+    _wanderingRopeMakerSection(),
+    _imperialSaltMerchantSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -2699,6 +2703,75 @@ function _wanderingCooperSection() {
     </div>`;
 }
 
+// ── T323 Wandering Rope Maker ─────────────────────────────────────────────
+
+function _wanderingRopeMakerSection() {
+  if (!RopeMaker.getActiveWanderingRopeMaker()) return '';
+  const secs         = RopeMaker.getWanderingRopeMakerSecsLeft();
+  const wood         = Math.floor(state.resources.wood ?? 0);
+  const food         = Math.floor(state.resources.food ?? 0);
+  const gold         = Math.floor(state.resources.gold ?? 0);
+  const canCommission = wood >= RopeMaker.COMMISSION_WOOD_COST && food >= RopeMaker.COMMISSION_FOOD_COST;
+  const canPurchase   = gold >= RopeMaker.PURCHASE_GOLD_COST;
+  const urg = secs <= 15 ? ' ropemaker-timer--urgent' : '';
+  return `
+    <div class="ropemaker-section--active">
+      <div class="ropemaker-header">
+        <span class="ropemaker-title">🪢 Wandering Rope Maker</span>
+        <span class="ropemaker-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="ropemaker-desc">A wandering rope maker arrives bearing coils of expertly braided hemp, flax, and silk rope, offering to craft ship rigging or share ancient rope-making lore with the empire.</div>
+      <div class="ropemaker-actions">
+        <button class="btn--ropemaker-commission${canCommission ? '' : ' btn--disabled'}" data-action="ropemaker-commission" ${canCommission ? '' : 'disabled'}>
+          🪢 Commission Ship Rigging — ${RopeMaker.COMMISSION_WOOD_COST}🪵 + ${RopeMaker.COMMISSION_FOOD_COST}🌾
+          <span class="ropemaker-cost">→ +${RopeMaker.COMMISSION_WOOD_RATE} wood/s (2.5 min) · +${RopeMaker.COMMISSION_PRESTIGE_REWARD} prestige · +${RopeMaker.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--ropemaker-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="ropemaker-purchase" ${canPurchase ? '' : 'disabled'}>
+          📜 Purchase Rope-Making Lore — ${RopeMaker.PURCHASE_GOLD_COST}💰
+          <span class="ropemaker-cost">→ +${RopeMaker.PURCHASE_FOOD_RATE} food/s (2 min) · +${RopeMaker.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--ropemaker-away" data-action="ropemaker-away">
+          🚶 Send Away
+          <span class="ropemaker-cost">→ Rope maker sets off toward the harbour district</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T324 Imperial Salt Merchant ───────────────────────────────────────────
+
+function _imperialSaltMerchantSection() {
+  if (!SaltMerchant.getActiveImperialSaltMerchant()) return '';
+  const secs      = SaltMerchant.getImperialSaltMerchantSecsLeft();
+  const food      = Math.floor(state.resources.food ?? 0);
+  const gold      = Math.floor(state.resources.gold ?? 0);
+  const canRoute  = food >= SaltMerchant.ROUTE_FOOD_COST && gold >= SaltMerchant.ROUTE_GOLD_COST;
+  const canBuy    = gold >= SaltMerchant.RESERVES_GOLD_COST;
+  const urg = secs <= 15 ? ' salt-timer--urgent' : '';
+  return `
+    <div class="salt-section--active">
+      <div class="salt-header">
+        <span class="salt-title">🧂 Imperial Salt Merchant</span>
+        <span class="salt-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="salt-desc">An imperial salt merchant arrives with a caravan of salt-filled casks from coastal mines and inland deposits, offering a lucrative trade route or premium salt reserves.</div>
+      <div class="salt-actions">
+        <button class="btn--salt-route${canRoute ? '' : ' btn--disabled'}" data-action="salt-route" ${canRoute ? '' : 'disabled'}>
+          🧂 Establish Salt Trade Route — ${SaltMerchant.ROUTE_FOOD_COST}🌾 + ${SaltMerchant.ROUTE_GOLD_COST}💰
+          <span class="salt-cost">→ +${SaltMerchant.ROUTE_FOOD_RATE} food/s (2.5 min) · +${SaltMerchant.ROUTE_PRESTIGE_REWARD} prestige · +${SaltMerchant.ROUTE_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--salt-reserves${canBuy ? '' : ' btn--disabled'}" data-action="salt-reserves" ${canBuy ? '' : 'disabled'}>
+          💰 Purchase Salt Reserves — ${SaltMerchant.RESERVES_GOLD_COST}💰
+          <span class="salt-cost">→ +${SaltMerchant.RESERVES_GOLD_RATE} gold/s (2 min) · +${SaltMerchant.RESERVES_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--salt-away" data-action="salt-away">
+          🚶 Send Away
+          <span class="salt-cost">→ Merchant departs for other trading partners</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -3004,6 +3077,14 @@ const _HANDLERS = {
   'cooper-commission':       () => Cooper.commissionStorageBarrels(),
   'cooper-purchase':         () => Cooper.purchaseCooperageSecrets(),
   'cooper-away':             () => Cooper.sendCooperAway(),
+
+  'ropemaker-commission':    () => RopeMaker.commissionShipRigging(),
+  'ropemaker-purchase':      () => RopeMaker.purchaseRopeMakingLore(),
+  'ropemaker-away':          () => RopeMaker.sendRopeMakerAway(),
+
+  'salt-route':              () => SaltMerchant.establishSaltTradeRoute(),
+  'salt-reserves':           () => SaltMerchant.purchaseSaltReserves(),
+  'salt-away':               () => SaltMerchant.sendSaltMerchantAway(),
 };
 
 function _handleClick(e) {
@@ -3098,6 +3179,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_CHANDLER_CHANGED,
     Events.ROYAL_LAMPLIGHTER_CHANGED,
     Events.WANDERING_COOPER_CHANGED,
+    Events.WANDERING_ROPE_MAKER_CHANGED,
+    Events.IMPERIAL_SALT_MERCHANT_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

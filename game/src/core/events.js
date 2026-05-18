@@ -264,4 +264,6 @@ export const Events = Object.freeze({
   IMPERIAL_CHANDLER_CHANGED:        'imperialChandlerChanged',                // T320: chandler spawned / commissioned / purchased / dismissed / expired
   ROYAL_LAMPLIGHTER_CHANGED:        'royalLamplighterChanged',                // T321: lamplighter spawned / established / purchased / dismissed / expired
   WANDERING_COOPER_CHANGED:         'wanderingCooperChanged',                 // T322: cooper spawned / commissioned / purchased / dismissed / expired
+  WANDERING_ROPE_MAKER_CHANGED:     'wanderingRopeMakerChanged',              // T323: rope maker spawned / commissioned / purchased / dismissed / expired
+  IMPERIAL_SALT_MERCHANT_CHANGED:   'imperialSaltMerchantChanged',            // T324: salt merchant spawned / route / purchased / dismissed / expired
 });

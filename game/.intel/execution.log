@@ -981,3 +981,17 @@ Built wanderingCooper.js: commissionStorageBarrels (20 wood + 15 food → +0.2 f
 Wired in main.js: import initWanderingCooper+wanderingCooperTick, registerSystem, initWanderingCooper() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _wanderingCooperSection() render + cooper-commission/cooper-purchase/cooper-away handlers to questPanel.js (import * as Cooper). Events.WANDERING_COOPER_CHANGED subscribed.
 Added T322 cooper CSS: @keyframes cooper-pulse (warm brown/amber), .cooper-section--active, .btn--cooper-commission (amber), .btn--cooper-purchase (green), .btn--cooper-away (gray).
+
+Session 70 — T323–T324: Wandering Rope Maker, Imperial Salt Merchant.
+
+T221: Wandering Rope Maker (T323) — Stone Age+, 6+ tiles, 12–17 min, 80s window.
+Built wanderingRopeMaker.js: commissionShipRigging (20 wood + 10 food → +0.2 wood/s 2.5min +15 prestige +8 morale), purchaseRopeMakingLore (18g → +0.15 food/s 2min +10 prestige), sendRopeMakerAway (dismiss). Added WANDERING_ROPE_MAKER_CHANGED event to events.js. state.wanderingRopeMaker null field.
+Wired in main.js: import initWanderingRopeMaker+wanderingRopeMakerTick, registerSystem, initWanderingRopeMaker() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingRopeMakerSection() render + ropemaker-commission/ropemaker-purchase/ropemaker-away handlers to questPanel.js (import * as RopeMaker). Events.WANDERING_ROPE_MAKER_CHANGED subscribed.
+CSS: @keyframes ropemaker-pulse (warm brown/amber), .ropemaker-section--active, .btn--ropemaker-commission (amber-brown), .btn--ropemaker-purchase (green), .btn--ropemaker-away (gray).
+
+T222: Imperial Salt Merchant (T324) — Bronze Age+, 8+ tiles, 13–17 min, 80s window.
+Built imperialSaltMerchant.js: establishSaltTradeRoute (30 food + 20g → +0.25 food/s 2.5min +20 prestige +10 morale), purchaseSaltReserves (25g → +0.18 gold/s 2min +15 prestige), sendSaltMerchantAway (dismiss). Added IMPERIAL_SALT_MERCHANT_CHANGED event to events.js. state.imperialSaltMerchant null field.
+Wired in main.js: import initImperialSaltMerchant+imperialSaltMerchantTick, registerSystem, initImperialSaltMerchant() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _imperialSaltMerchantSection() render + salt-route/salt-reserves/salt-away handlers to questPanel.js (import * as SaltMerchant). Events.IMPERIAL_SALT_MERCHANT_CHANGED subscribed.
+CSS: @keyframes salt-pulse (silver/white), .salt-section--active, .btn--salt-route (silver/gray), .btn--salt-reserves (amber/gold), .btn--salt-away (gray).
