@@ -93,6 +93,8 @@ import * as Puppeteer   from '../systems/wanderingPuppeteer.js';      // T325
 import * as RuneCarver  from '../systems/ancientRuneCarver.js';        // T326
 import * as Cartwright from '../systems/wanderingCartwright.js';      // T327
 import * as Farrier    from '../systems/imperialFarrier.js';          // T328
+import * as Cobbler   from '../systems/wanderingCobbler.js';         // T329
+import * as Engraver  from '../systems/imperialEngraver.js';         // T330
 
 let _panel = null;
 
@@ -214,6 +216,8 @@ function _encountersSection() {
     _ancientRuneCarverSection(),
     _wanderingCartwrightSection(),
     _imperialFarrierSection(),
+    _wanderingCobblerSection(),
+    _imperialEngraverSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -2916,6 +2920,76 @@ function _imperialFarrierSection() {
     </div>`;
 }
 
+// ── T329 Wandering Cobbler ────────────────────────────────────────────────────
+
+function _wanderingCobblerSection() {
+  if (!Cobbler.getActiveWanderingCobbler()) return '';
+  const secs         = Cobbler.getCobblerSecsLeft();
+  const food         = Math.floor(state.resources.food ?? 0);
+  const wood         = Math.floor(state.resources.wood ?? 0);
+  const gold         = Math.floor(state.resources.gold ?? 0);
+  const canCommission = food >= Cobbler.COMMISSION_FOOD_COST && wood >= Cobbler.COMMISSION_WOOD_COST;
+  const canPurchase  = gold >= Cobbler.PURCHASE_GOLD_COST;
+  const urg = secs <= 15 ? ' cobbler-timer--urgent' : '';
+  return `
+    <div class="cobbler-section--active">
+      <div class="cobbler-header">
+        <span class="cobbler-title">👞 Wandering Cobbler</span>
+        <span class="cobbler-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="cobbler-desc">A skilled wandering cobbler arrives bearing a workbench of fine tools and expertly crafted boots. Their mastery of footwear could boost imperial productivity or enrich the imperial treasury.</div>
+      <div class="cobbler-actions">
+        <button class="btn--cobbler-commission${canCommission ? '' : ' btn--disabled'}" data-action="cobbler-commission" ${canCommission ? '' : 'disabled'}>
+          👞 Craft Imperial Footwear — ${Cobbler.COMMISSION_FOOD_COST}🌾 + ${Cobbler.COMMISSION_WOOD_COST}🪵
+          <span class="cobbler-cost">→ +${Cobbler.COMMISSION_FOOD_RATE} food/s (2.5 min) · +${Cobbler.COMMISSION_PRESTIGE_REWARD} prestige · +${Cobbler.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--cobbler-learn${canPurchase ? '' : ' btn--disabled'}" data-action="cobbler-learn" ${canPurchase ? '' : 'disabled'}>
+          📜 Share Cobbling Craft — ${Cobbler.PURCHASE_GOLD_COST}💰
+          <span class="cobbler-cost">→ +${Cobbler.PURCHASE_GOLD_RATE} gold/s (2 min) · +${Cobbler.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--cobbler-away" data-action="cobbler-away">
+          🚶 Send Away
+          <span class="cobbler-cost">→ Cobbler sets off to other imperial settlements</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T330 Imperial Engraver ────────────────────────────────────────────────────
+
+function _imperialEngraverSection() {
+  if (!Engraver.getActiveImperialEngraver()) return '';
+  const secs         = Engraver.getEngraverSecsLeft();
+  const iron         = Math.floor(state.resources.iron ?? 0);
+  const gold         = Math.floor(state.resources.gold ?? 0);
+  const stone        = Math.floor(state.resources.stone ?? 0);
+  const canCommission = iron >= Engraver.COMMISSION_IRON_COST && gold >= Engraver.COMMISSION_GOLD_COST;
+  const canPurchase  = stone >= Engraver.PURCHASE_STONE_COST;
+  const urg = secs <= 15 ? ' engraver-timer--urgent' : '';
+  return `
+    <div class="engraver-section--active">
+      <div class="engraver-header">
+        <span class="engraver-title">🪙 Imperial Engraver</span>
+        <span class="engraver-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="engraver-desc">A master imperial engraver arrives bearing precision gravers and sample medallions of breathtaking artistry. Their skills could elevate the imperial currency or advance the stonecutting arts.</div>
+      <div class="engraver-actions">
+        <button class="btn--engraver-commission${canCommission ? '' : ' btn--disabled'}" data-action="engraver-commission" ${canCommission ? '' : 'disabled'}>
+          🪙 Commission Coin Engravings — ${Engraver.COMMISSION_IRON_COST}⚙️ + ${Engraver.COMMISSION_GOLD_COST}💰
+          <span class="engraver-cost">→ +${Engraver.COMMISSION_IRON_RATE} iron/s (2.5 min) · +${Engraver.COMMISSION_PRESTIGE_REWARD} prestige · +${Engraver.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--engraver-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="engraver-purchase" ${canPurchase ? '' : 'disabled'}>
+          📜 Purchase Engraving Secrets — ${Engraver.PURCHASE_STONE_COST}🪨
+          <span class="engraver-cost">→ +${Engraver.PURCHASE_STONE_RATE} stone/s (2 min) · +${Engraver.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--engraver-away" data-action="engraver-away">
+          🚶 Send Away
+          <span class="engraver-cost">→ Engraver departs to seek other worthy commissions</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -3245,6 +3319,14 @@ const _HANDLERS = {
   'farrier-commission':      () => Farrier.commissionCavalryHorseshoes(),
   'farrier-purchase':        () => Farrier.purchaseFarrierysSecrets(),
   'farrier-away':            () => Farrier.sendFarrierAway(),
+
+  'cobbler-commission':      () => Cobbler.craftImperialFootwear(),
+  'cobbler-learn':           () => Cobbler.shareCobblingCraft(),
+  'cobbler-away':            () => Cobbler.sendCobblerAway(),
+
+  'engraver-commission':     () => Engraver.commissionCoinEngravings(),
+  'engraver-purchase':       () => Engraver.purchaseEngravingSecrets(),
+  'engraver-away':           () => Engraver.sendEngraverAway(),
 };
 
 function _handleClick(e) {
@@ -3345,6 +3427,8 @@ export function initQuestPanel() {
     Events.ANCIENT_RUNE_CARVER_CHANGED,
     Events.WANDERING_CARTWRIGHT_CHANGED,
     Events.IMPERIAL_FARRIER_CHANGED,
+    Events.WANDERING_COBBLER_CHANGED,
+    Events.IMPERIAL_ENGRAVER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

@@ -806,6 +806,24 @@
       "status": "done",
       "phase": 120,
       "notes": "Built imperialFarrier.js. IMPERIAL_FARRIER_CHANGED event added to events.js. state.imperialFarrier null field. Farrier section in questPanel.js (import * as Farrier). Events.IMPERIAL_FARRIER_CHANGED subscribed. CSS: @keyframes farrier-pulse (slate/steel), .farrier-section--active, .btn--farrier-commission (slate), .btn--farrier-purchase (amber/gold), .btn--farrier-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T329",
+      "title": "Wandering Cobbler",
+      "description": "Stone Age+, 6+ tiles, 12-16 min spawn, 80s window. Craft Imperial Footwear (20 food + 15 wood -> +0.22 food/s 2.5min · +18 prestige · +8 morale), Share Cobbling Craft (18g -> +0.15 gold/s 2min · +12 prestige), Send Away.",
+      "priority": 329,
+      "status": "done",
+      "phase": 121,
+      "notes": "Built wanderingCobbler.js. WANDERING_COBBLER_CHANGED event added to events.js. state.wanderingCobbler null field. Cobbler section in questPanel.js (import * as Cobbler). Events.WANDERING_COBBLER_CHANGED subscribed. CSS: @keyframes cobbler-pulse (brown/tan), .cobbler-section--active, .btn--cobbler-commission (brown), .btn--cobbler-learn (green), .btn--cobbler-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T330",
+      "title": "Imperial Engraver",
+      "description": "Iron Age+, 10+ tiles, 14-18 min spawn, 80s window. Commission Coin Engravings (25 iron + 20g -> +0.2 iron/s 2.5min · +22 prestige · +12 morale), Purchase Engraving Secrets (20 stone -> +0.15 stone/s 2min · +15 prestige), Send Away.",
+      "priority": 330,
+      "status": "done",
+      "phase": 121,
+      "notes": "Built imperialEngraver.js. IMPERIAL_ENGRAVER_CHANGED event added to events.js. state.imperialEngraver null field. Engraver section in questPanel.js (import * as Engraver). Events.IMPERIAL_ENGRAVER_CHANGED subscribed. CSS: @keyframes engraver-pulse (gold/amber), .engraver-section--active, .btn--engraver-commission (gold), .btn--engraver-purchase (slate/gray), .btn--engraver-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     }
   ],
   "session_history": [
@@ -858,6 +876,7 @@
     "Session 69 (T219-T220): Royal Lamplighter (T321), Wandering Cooper (T322)",
     "Session 70 (T221-T222): Wandering Rope Maker (T323), Imperial Salt Merchant (T324)",
     "Session 71 (T223-T224): Wandering Puppeteer (T325), Ancient Rune Carver (T326)",
-    "Session 72 (T225-T226): Wandering Cartwright (T327), Imperial Farrier (T328)"
+    "Session 72 (T225-T226): Wandering Cartwright (T327), Imperial Farrier (T328)",
+    "Session 73 (T227-T228): Wandering Cobbler (T329), Imperial Engraver (T330)"
   ]
 }

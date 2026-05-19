@@ -270,4 +270,6 @@ export const Events = Object.freeze({
   ANCIENT_RUNE_CARVER_CHANGED:      'ancientRuneCarverChanged',               // T326: rune carver spawned / commissioned / studied / dismissed / expired
   WANDERING_CARTWRIGHT_CHANGED:     'wanderingCartwrightChanged',             // T327: cartwright spawned / commissioned / learned / dismissed / expired
   IMPERIAL_FARRIER_CHANGED:         'imperialFarrierChanged',                 // T328: farrier spawned / commissioned / purchased / dismissed / expired
+  WANDERING_COBBLER_CHANGED:        'wanderingCobblerChanged',                // T329: cobbler spawned / commissioned / purchased / dismissed / expired
+  IMPERIAL_ENGRAVER_CHANGED:        'imperialEngraverChanged',                // T330: engraver spawned / commissioned / purchased / dismissed / expired
 });

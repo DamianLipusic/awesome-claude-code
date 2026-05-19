@@ -1023,3 +1023,18 @@ Built imperialFarrier.js: commissionCavalryHorseshoes (25 iron + 15 food → +0.
 Wired in main.js: import initImperialFarrier+imperialFarrierTick, registerSystem, initImperialFarrier() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _imperialFarrierSection() render + farrier-commission/farrier-purchase/farrier-away handlers to questPanel.js (import * as Farrier). Events.IMPERIAL_FARRIER_CHANGED subscribed.
 CSS: @keyframes farrier-pulse (slate/steel), .farrier-section--active, .btn--farrier-commission (slate), .btn--farrier-purchase (amber/gold), .btn--farrier-away (gray).
+
+Session 73 — T329–T330: Wandering Cobbler, Imperial Engraver.
+No pending tasks found; created T329 and T330 from Phase 6+ roadmap expansion, then implemented both.
+
+T227: Wandering Cobbler (T329) — Stone Age+, 6+ tiles, 12–16 min, 80s window.
+Built wanderingCobbler.js: craftImperialFootwear (20 food + 15 wood → +0.22 food/s 2.5min +18 prestige +8 morale), shareCobblingCraft (18g → +0.15 gold/s 2min +12 prestige), sendCobblerAway (dismiss). Added WANDERING_COBBLER_CHANGED event to events.js. state.wanderingCobbler null field.
+Wired in main.js: import initWanderingCobbler+wanderingCobblerTick, registerSystem, initWanderingCobbler() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingCobblerSection() render + cobbler-commission/cobbler-learn/cobbler-away handlers to questPanel.js (import * as Cobbler). Events.WANDERING_COBBLER_CHANGED subscribed.
+CSS: @keyframes cobbler-pulse (brown/tan), .cobbler-section--active, .btn--cobbler-commission (brown), .btn--cobbler-learn (green), .btn--cobbler-away (gray).
+
+T228: Imperial Engraver (T330) — Iron Age+, 10+ tiles, 14–18 min, 80s window.
+Built imperialEngraver.js: commissionCoinEngravings (25 iron + 20g → +0.2 iron/s 2.5min +22 prestige +12 morale), purchaseEngravingSecrets (20 stone → +0.15 stone/s 2min +15 prestige), sendEngraverAway (dismiss). Added IMPERIAL_ENGRAVER_CHANGED event to events.js. state.imperialEngraver null field.
+Wired in main.js: import initImperialEngraver+imperialEngraverTick, registerSystem, initImperialEngraver() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _imperialEngraverSection() render + engraver-commission/engraver-purchase/engraver-away handlers to questPanel.js (import * as Engraver). Events.IMPERIAL_ENGRAVER_CHANGED subscribed.
+CSS: @keyframes engraver-pulse (gold/amber), .engraver-section--active, .btn--engraver-commission (gold), .btn--engraver-purchase (slate/gray), .btn--engraver-away (gray).
