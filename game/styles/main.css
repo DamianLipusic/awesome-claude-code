@@ -18949,3 +18949,79 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--courier-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+@keyframes baker-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(251, 146, 60, 0.0); }
+  50%       { box-shadow: 0 0 8px 2px rgba(251, 146, 60, 0.18); }
+}
+.baker-section--active {
+  background: linear-gradient(135deg, rgba(120, 53, 15, 0.10), rgba(154, 52, 18, 0.06));
+  border: 1px solid rgba(251, 146, 60, 0.30); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px;
+  animation: baker-pulse 3.5s ease-in-out infinite;
+}
+.baker-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.baker-title   { font-size: 0.92rem; font-weight: 600; color: #fb923c; }
+.baker-timer   { font-size: 0.78rem; color: #ea580c; background: rgba(120, 53, 15, 0.12); padding: 2px 7px; border-radius: 10px; }
+.baker-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.25); }
+.baker-desc    { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.baker-actions { display: flex; flex-direction: column; gap: 6px; }
+.baker-cost    { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--baker-bake {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(120, 53, 15, 0.12), rgba(154, 52, 18, 0.08));
+  border: 1px solid rgba(251, 146, 60, 0.3); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fb923c; text-align: left; transition: background 0.15s;
+}
+.btn--baker-bake:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(120, 53, 15, 0.22), rgba(154, 52, 18, 0.15)); }
+.btn--baker-share {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(22, 101, 52, 0.12), rgba(21, 128, 61, 0.08));
+  border: 1px solid rgba(22, 101, 52, 0.3); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #4ade80; text-align: left; transition: background 0.15s;
+}
+.btn--baker-share:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(22, 101, 52, 0.22), rgba(21, 128, 61, 0.15)); }
+.btn--baker-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--baker-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+@keyframes armorer-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(100, 116, 139, 0.0); }
+  50%       { box-shadow: 0 0 8px 2px rgba(100, 116, 139, 0.18); }
+}
+.armorer-section--active {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.10), rgba(51, 65, 85, 0.06));
+  border: 1px solid rgba(100, 116, 139, 0.30); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px;
+  animation: armorer-pulse 3.5s ease-in-out infinite;
+}
+.armorer-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.armorer-title   { font-size: 0.92rem; font-weight: 600; color: #94a3b8; }
+.armorer-timer   { font-size: 0.78rem; color: #64748b; background: rgba(30, 41, 59, 0.12); padding: 2px 7px; border-radius: 10px; }
+.armorer-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.25); }
+.armorer-desc    { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.armorer-actions { display: flex; flex-direction: column; gap: 6px; }
+.armorer-cost    { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--armorer-forge {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.12), rgba(51, 65, 85, 0.08));
+  border: 1px solid rgba(100, 116, 139, 0.3); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #94a3b8; text-align: left; transition: background 0.15s;
+}
+.btn--armorer-forge:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(30, 41, 59, 0.22), rgba(51, 65, 85, 0.15)); }
+.btn--armorer-tech {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(68, 64, 60, 0.12), rgba(87, 83, 78, 0.08));
+  border: 1px solid rgba(161, 151, 137, 0.3); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #d6cfc4; text-align: left; transition: background 0.15s;
+}
+.btn--armorer-tech:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(68, 64, 60, 0.22), rgba(87, 83, 78, 0.15)); }
+.btn--armorer-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--armorer-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

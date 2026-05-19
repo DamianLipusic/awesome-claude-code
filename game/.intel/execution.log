@@ -1067,3 +1067,18 @@ Built imperialCourier.js: establishPostalRoutes (30g → +0.22 gold/s 2.5min +22
 Wired in main.js: import initImperialCourier+imperialCourierTick, registerSystem, initImperialCourier() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _imperialCourierSection() render + courier-establish/courier-exchange/courier-away handlers to questPanel.js (import * as Courier). Events.IMPERIAL_COURIER_CHANGED subscribed.
 CSS: @keyframes courier-pulse (indigo/violet), .courier-section--active, .btn--courier-establish (indigo), .btn--courier-exchange (violet), .btn--courier-away (gray).
+
+Session 76 — T335–T336: Wandering Baker, Imperial Armorer.
+No pending tasks found; created T335 and T336 from Phase 6+ roadmap expansion, then implemented both.
+
+T233: Wandering Baker (T335) — Stone Age+, 6+ tiles, 12–16 min, 80s window.
+Built wanderingBaker.js: bakeImperialBread (25 food → +0.25 food/s 2.5min +18 prestige +10 morale), shareBakingSecrets (18g → +0.15 gold/s 2min +12 prestige), sendBakerAway (dismiss). Added WANDERING_BAKER_CHANGED event to events.js. state.wanderingBaker null field.
+Wired in main.js: import initWanderingBaker+wanderingBakerTick, registerSystem, initWanderingBaker() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingBakerSection() render + baker-bake/baker-share/baker-away handlers to questPanel.js (import * as Baker). Events.WANDERING_BAKER_CHANGED subscribed.
+CSS: @keyframes baker-pulse (warm orange/amber), .baker-section--active, .btn--baker-bake (orange), .btn--baker-share (green), .btn--baker-away (gray).
+
+T234: Imperial Armorer (T336) — Iron Age+, 10+ tiles, 14–19 min, 80s window.
+Built imperialArmorer.js: forgeImperialArmor (25 iron + 15 wood → +0.22 iron/s 2.5min +22 prestige +12 morale), shareArmorTechniques (20 stone → +0.18 stone/s 2min +15 prestige), sendArmorerAway (dismiss). Added IMPERIAL_ARMORER_CHANGED event to events.js. state.imperialArmorer null field.
+Wired in main.js: import initImperialArmorer+imperialArmorerTick, registerSystem, initImperialArmorer() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _imperialArmorerSection() render + armorer-forge/armorer-tech/armorer-away handlers to questPanel.js (import * as Armorer). Events.IMPERIAL_ARMORER_CHANGED subscribed.
+CSS: @keyframes armorer-pulse (slate/steel blue-gray), .armorer-section--active, .btn--armorer-forge (slate blue), .btn--armorer-tech (stone/tan), .btn--armorer-away (gray).

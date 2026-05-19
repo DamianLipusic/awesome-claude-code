@@ -99,6 +99,8 @@ import * as Tailor    from '../systems/wanderingTailor.js';          // T331
 import * as Tinsmith  from '../systems/wanderingTinsmith.js';        // T332
 import * as Miller    from '../systems/wanderingMiller.js';          // T333
 import * as Courier   from '../systems/imperialCourier.js';          // T334
+import * as Baker     from '../systems/wanderingBaker.js';           // T335
+import * as Armorer   from '../systems/imperialArmorer.js';          // T336
 
 let _panel = null;
 
@@ -226,6 +228,8 @@ function _encountersSection() {
     _wanderingTinsmithSection(),
     _wanderingMillerSection(),
     _imperialCourierSection(),
+    _wanderingBakerSection(),
+    _imperialArmorerSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -3136,6 +3140,75 @@ function _imperialCourierSection() {
     </div>`;
 }
 
+// ── T335 Wandering Baker ─────────────────────────────────────────────────────
+
+function _wanderingBakerSection() {
+  if (!Baker.getActiveWanderingBaker()) return '';
+  const secs       = Baker.getBakerSecsLeft();
+  const food       = Math.floor(state.resources.food ?? 0);
+  const gold       = Math.floor(state.resources.gold ?? 0);
+  const canBake    = food >= Baker.BAKE_FOOD_COST;
+  const canShare   = gold >= Baker.SHARE_GOLD_COST;
+  const urg = secs <= 15 ? ' baker-timer--urgent' : '';
+  return `
+    <div class="baker-section--active">
+      <div class="baker-header">
+        <span class="baker-title">🥖 Wandering Baker</span>
+        <span class="baker-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="baker-desc">A wandering baker arrives bearing heavy flour sacks, carved proving baskets, and ancient family recipes for breads and pastries beloved across many kingdoms. Their craft could nourish and enrich the empire.</div>
+      <div class="baker-actions">
+        <button class="btn--baker-bake${canBake ? '' : ' btn--disabled'}" data-action="baker-bake" ${canBake ? '' : 'disabled'}>
+          🥖 Bake Imperial Bread — ${Baker.BAKE_FOOD_COST}🌾
+          <span class="baker-cost">→ +${Baker.BAKE_FOOD_RATE} food/s (2.5 min) · +${Baker.BAKE_PRESTIGE_REWARD} prestige · +${Baker.BAKE_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--baker-share${canShare ? '' : ' btn--disabled'}" data-action="baker-share" ${canShare ? '' : 'disabled'}>
+          📜 Share Baking Secrets — ${Baker.SHARE_GOLD_COST}💰
+          <span class="baker-cost">→ +${Baker.SHARE_GOLD_RATE} gold/s (2 min) · +${Baker.SHARE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--baker-away" data-action="baker-away">
+          🚶 Send Away
+          <span class="baker-cost">→ Baker departs to seek other settlements on their circuit</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T336 Imperial Armorer ────────────────────────────────────────────────────
+
+function _imperialArmorerSection() {
+  if (!Armorer.getActiveImperialArmorer()) return '';
+  const secs        = Armorer.getArmorerSecsLeft();
+  const iron        = Math.floor(state.resources.iron ?? 0);
+  const wood        = Math.floor(state.resources.wood ?? 0);
+  const stone       = Math.floor(state.resources.stone ?? 0);
+  const canForge    = iron >= Armorer.FORGE_IRON_COST && wood >= Armorer.FORGE_WOOD_COST;
+  const canTech     = stone >= Armorer.TECHNIQUES_STONE_COST;
+  const urg = secs <= 15 ? ' armorer-timer--urgent' : '';
+  return `
+    <div class="armorer-section--active">
+      <div class="armorer-header">
+        <span class="armorer-title">⚔️ Imperial Armorer</span>
+        <span class="armorer-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="armorer-desc">A master imperial armorer arrives bearing expertly crafted plate armor, intricate chainmail patterns, and offers to forge premium protective gear for the empire's forces and military infrastructure.</div>
+      <div class="armorer-actions">
+        <button class="btn--armorer-forge${canForge ? '' : ' btn--disabled'}" data-action="armorer-forge" ${canForge ? '' : 'disabled'}>
+          ⚔️ Forge Imperial Armor — ${Armorer.FORGE_IRON_COST}🔩 + ${Armorer.FORGE_WOOD_COST}🪵
+          <span class="armorer-cost">→ +${Armorer.FORGE_IRON_RATE} iron/s (2.5 min) · +${Armorer.FORGE_PRESTIGE_REWARD} prestige · +${Armorer.FORGE_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--armorer-tech${canTech ? '' : ' btn--disabled'}" data-action="armorer-tech" ${canTech ? '' : 'disabled'}>
+          🪨 Share Armor Techniques — ${Armorer.TECHNIQUES_STONE_COST}🪨
+          <span class="armorer-cost">→ +${Armorer.TECHNIQUES_STONE_RATE} stone/s (2 min) · +${Armorer.TECHNIQUES_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--armorer-away" data-action="armorer-away">
+          🚶 Send Away
+          <span class="armorer-cost">→ Armorer departs to serve border garrisons</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -3489,6 +3562,14 @@ const _HANDLERS = {
   'courier-establish':       () => Courier.establishPostalRoutes(),
   'courier-exchange':        () => Courier.exchangeIntelligencePackets(),
   'courier-away':            () => Courier.sendCourierAway(),
+
+  'baker-bake':              () => Baker.bakeImperialBread(),
+  'baker-share':             () => Baker.shareBakingSecrets(),
+  'baker-away':              () => Baker.sendBakerAway(),
+
+  'armorer-forge':           () => Armorer.forgeImperialArmor(),
+  'armorer-tech':            () => Armorer.shareArmorTechniques(),
+  'armorer-away':            () => Armorer.sendArmorerAway(),
 };
 
 function _handleClick(e) {
@@ -3595,6 +3676,8 @@ export function initQuestPanel() {
     Events.WANDERING_TINSMITH_CHANGED,
     Events.WANDERING_MILLER_CHANGED,
     Events.IMPERIAL_COURIER_CHANGED,
+    Events.WANDERING_BAKER_CHANGED,
+    Events.IMPERIAL_ARMORER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

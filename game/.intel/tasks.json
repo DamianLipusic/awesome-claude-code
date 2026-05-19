@@ -576,7 +576,7 @@
     {
       "id": "T303",
       "title": "Wandering Mapmaker",
-      "description": "Medieval Age+, 12+ tiles, 14-19 min spawn, 80s window. Commission Imperial Atlas (30g + 25 mana → +0.25 mana/s 2.5min · +22 prestige · +8 morale), Purchase Regional Survey (20 stone → +0.2 stone/s 2min · +15 prestige), Send Away.",
+      "description": "Medieval Age+, 12+ tiles, 14-19 min spawn, 80s window. Commission Imperial Atlas (30g + 25 mana \u2192 +0.25 mana/s 2.5min \u00b7 +22 prestige \u00b7 +8 morale), Purchase Regional Survey (20 stone \u2192 +0.2 stone/s 2min \u00b7 +15 prestige), Send Away.",
       "priority": 303,
       "status": "done",
       "phase": 108,
@@ -585,7 +585,7 @@
     {
       "id": "T304",
       "title": "Royal Perfumer",
-      "description": "Bronze Age+, 8+ tiles, 12-17 min spawn, 80s window. Create Imperial Fragrance (20 food + 15g → +0.2 food/s 2.5min · +18 prestige · +12 morale), Purchase Aromatic Herbs (22 food → +0.15 food/s 2min · +10 prestige), Send Away.",
+      "description": "Bronze Age+, 8+ tiles, 12-17 min spawn, 80s window. Create Imperial Fragrance (20 food + 15g \u2192 +0.2 food/s 2.5min \u00b7 +18 prestige \u00b7 +12 morale), Purchase Aromatic Herbs (22 food \u2192 +0.15 food/s 2min \u00b7 +10 prestige), Send Away.",
       "priority": 304,
       "status": "done",
       "phase": 108,
@@ -594,7 +594,7 @@
     {
       "id": "T305",
       "title": "Wandering Silversmith",
-      "description": "Iron Age+, 10+ tiles, 13-18 min spawn, 80s window. Commission Silver Artifacts (20 iron + 15 stone → +0.18 iron/s 2.5min · +22 prestige · +10 morale), Purchase Silver Jewelry (25g → +0.15 gold/s 2min · +18 prestige), Send Away.",
+      "description": "Iron Age+, 10+ tiles, 13-18 min spawn, 80s window. Commission Silver Artifacts (20 iron + 15 stone \u2192 +0.18 iron/s 2.5min \u00b7 +22 prestige \u00b7 +10 morale), Purchase Silver Jewelry (25g \u2192 +0.15 gold/s 2min \u00b7 +18 prestige), Send Away.",
       "priority": 305,
       "status": "done",
       "phase": 109,
@@ -603,7 +603,7 @@
     {
       "id": "T306",
       "title": "Imperial Spice Merchant",
-      "description": "Bronze Age+, 8+ tiles, 12-17 min spawn, 80s window. Arrange Spice Trade (30 food + 20g → +0.25 food/s 2.5min · +20 prestige · +10 morale), Purchase Exotic Spices (25 food → +0.18 food/s 2min · +15 prestige), Send Away.",
+      "description": "Bronze Age+, 8+ tiles, 12-17 min spawn, 80s window. Arrange Spice Trade (30 food + 20g \u2192 +0.25 food/s 2.5min \u00b7 +20 prestige \u00b7 +10 morale), Purchase Exotic Spices (25 food \u2192 +0.18 food/s 2min \u00b7 +15 prestige), Send Away.",
       "priority": 306,
       "status": "done",
       "phase": 109,
@@ -612,7 +612,7 @@
     {
       "id": "T307",
       "title": "Court Musician",
-      "description": "Bronze Age+, 6+ tiles, 11-16 min spawn, 80s window. Commission Grand Symphony (20g → +0.18 gold/s 2.5min · +18 prestige · +12 morale), Request Folk Performance (free → +8 morale · +6 prestige), Send Away.",
+      "description": "Bronze Age+, 6+ tiles, 11-16 min spawn, 80s window. Commission Grand Symphony (20g \u2192 +0.18 gold/s 2.5min \u00b7 +18 prestige \u00b7 +12 morale), Request Folk Performance (free \u2192 +8 morale \u00b7 +6 prestige), Send Away.",
       "priority": 307,
       "status": "done",
       "phase": 110,
@@ -621,7 +621,7 @@
     {
       "id": "T308",
       "title": "Ancient Library Keeper",
-      "description": "Medieval Age+, 10+ tiles, 15-20 min spawn, 80s window. Access Forbidden Archives (30 mana → +0.3 mana/s 2.5min · +25 prestige · +8 morale), Purchase Rare Manuscripts (35g → +0.2 gold/s 2min · +20 prestige), Send Away.",
+      "description": "Medieval Age+, 10+ tiles, 15-20 min spawn, 80s window. Access Forbidden Archives (30 mana \u2192 +0.3 mana/s 2.5min \u00b7 +25 prestige \u00b7 +8 morale), Purchase Rare Manuscripts (35g \u2192 +0.2 gold/s 2min \u00b7 +20 prestige), Send Away.",
       "priority": 308,
       "status": "done",
       "phase": 110,
@@ -630,7 +630,7 @@
     {
       "id": "T309",
       "title": "Wandering Clockmaker",
-      "description": "Medieval Age+, 10+ tiles, 14-19 min spawn, 80s window. Commission Celestial Clock (30 stone + 20g → +0.2 stone/s 2.5min · +22 prestige · +10 morale), Purchase Timepiece Mechanisms (25g → +0.15 gold/s 2min · +15 prestige), Send Away.",
+      "description": "Medieval Age+, 10+ tiles, 14-19 min spawn, 80s window. Commission Celestial Clock (30 stone + 20g \u2192 +0.2 stone/s 2.5min \u00b7 +22 prestige \u00b7 +10 morale), Purchase Timepiece Mechanisms (25g \u2192 +0.15 gold/s 2min \u00b7 +15 prestige), Send Away.",
       "priority": 309,
       "status": "done",
       "phase": 111,
@@ -639,7 +639,7 @@
     {
       "id": "T310",
       "title": "Imperial Weaponsmith",
-      "description": "Iron Age+, 12+ tiles, 13-18 min spawn, 75s window. Commission Elite Armory (35 iron + 20 stone → +0.25 iron/s 2.5min · +25 prestige · +10 morale), Purchase Combat Techniques (25g → +0.18 iron/s 2min · +18 prestige), Send Away.",
+      "description": "Iron Age+, 12+ tiles, 13-18 min spawn, 75s window. Commission Elite Armory (35 iron + 20 stone \u2192 +0.25 iron/s 2.5min \u00b7 +25 prestige \u00b7 +10 morale), Purchase Combat Techniques (25g \u2192 +0.18 iron/s 2min \u00b7 +18 prestige), Send Away.",
       "priority": 310,
       "status": "done",
       "phase": 111,
@@ -648,7 +648,7 @@
     {
       "id": "T311",
       "title": "Wandering Stonemason",
-      "description": "Iron Age+, 10+ tiles, 13-18 min spawn, 75s window. Commission Grand Stoneworks (30 stone + 20 iron → +0.2 stone/s 2.5min · +22 prestige · +10 morale), Exchange Master Techniques (25g → +0.15 iron/s 2min · +18 prestige), Send Away.",
+      "description": "Iron Age+, 10+ tiles, 13-18 min spawn, 75s window. Commission Grand Stoneworks (30 stone + 20 iron \u2192 +0.2 stone/s 2.5min \u00b7 +22 prestige \u00b7 +10 morale), Exchange Master Techniques (25g \u2192 +0.15 iron/s 2min \u00b7 +18 prestige), Send Away.",
       "priority": 311,
       "status": "done",
       "phase": 112,
@@ -657,7 +657,7 @@
     {
       "id": "T312",
       "title": "Imperial Dye Master",
-      "description": "Bronze Age+, 8+ tiles, 12-17 min spawn, 80s window. Establish Royal Dye Works (25 wood + 15 food → +0.25 wood/s 2.5min · +20 prestige · +8 morale), Purchase Rare Dye Formulas (22g → +0.18 food/s 2min · +12 prestige), Send Away.",
+      "description": "Bronze Age+, 8+ tiles, 12-17 min spawn, 80s window. Establish Royal Dye Works (25 wood + 15 food \u2192 +0.25 wood/s 2.5min \u00b7 +20 prestige \u00b7 +8 morale), Purchase Rare Dye Formulas (22g \u2192 +0.18 food/s 2min \u00b7 +12 prestige), Send Away.",
       "priority": 312,
       "status": "done",
       "phase": 112,
@@ -666,7 +666,7 @@
     {
       "id": "T313",
       "title": "Wandering Navigator",
-      "description": "Iron Age+, 10+ tiles, 13-18 min spawn, 80s window. Commission Sea Charts (25 wood + 20g → +0.2 wood/s 2.5min · +22 prestige · +10 morale), Exchange Navigation Secrets (20 mana → +0.15 mana/s 2min · +15 prestige), Send Away.",
+      "description": "Iron Age+, 10+ tiles, 13-18 min spawn, 80s window. Commission Sea Charts (25 wood + 20g \u2192 +0.2 wood/s 2.5min \u00b7 +22 prestige \u00b7 +10 morale), Exchange Navigation Secrets (20 mana \u2192 +0.15 mana/s 2min \u00b7 +15 prestige), Send Away.",
       "priority": 313,
       "status": "done",
       "phase": 113,
@@ -675,7 +675,7 @@
     {
       "id": "T314",
       "title": "Traveling Illuminator",
-      "description": "Medieval Age+, 10+ tiles, 14-19 min spawn, 80s window. Commission Illuminated Codex (30 mana + 20g → +0.25 mana/s 2.5min · +22 prestige · +8 morale), Purchase Gilded Scripts (25g → +0.18 gold/s 2min · +15 prestige), Send Away.",
+      "description": "Medieval Age+, 10+ tiles, 14-19 min spawn, 80s window. Commission Illuminated Codex (30 mana + 20g \u2192 +0.25 mana/s 2.5min \u00b7 +22 prestige \u00b7 +8 morale), Purchase Gilded Scripts (25g \u2192 +0.18 gold/s 2min \u00b7 +15 prestige), Send Away.",
       "priority": 314,
       "status": "done",
       "phase": 113,
@@ -684,7 +684,7 @@
     {
       "id": "T315",
       "title": "Ancient Ritual Leader",
-      "description": "Medieval Age+, 12+ tiles, 16-20 min spawn, 80s window. Conduct Imperial Ceremony (25 mana -> +0.25 mana/s 2.5min · +20 prestige · +12 morale), Donate Sacred Relics (30 food -> +0.2 food/s 2min · +15 prestige · +8 morale), Decline Invitation.",
+      "description": "Medieval Age+, 12+ tiles, 16-20 min spawn, 80s window. Conduct Imperial Ceremony (25 mana -> +0.25 mana/s 2.5min \u00b7 +20 prestige \u00b7 +12 morale), Donate Sacred Relics (30 food -> +0.2 food/s 2min \u00b7 +15 prestige \u00b7 +8 morale), Decline Invitation.",
       "priority": 315,
       "status": "done",
       "phase": 114,
@@ -693,7 +693,7 @@
     {
       "id": "T317",
       "title": "Wandering Leatherworker",
-      "description": "Bronze Age+, 8+ tiles, 12-17 min spawn, 80s window. Commission Imperial Saddles (25 food + 15g -> +0.2 food/s 2.5min · +18 prestige · +10 morale), Trade for Leather Goods (20 food -> +0.15 gold/s 2min · +12 prestige), Send Away.",
+      "description": "Bronze Age+, 8+ tiles, 12-17 min spawn, 80s window. Commission Imperial Saddles (25 food + 15g -> +0.2 food/s 2.5min \u00b7 +18 prestige \u00b7 +10 morale), Trade for Leather Goods (20 food -> +0.15 gold/s 2min \u00b7 +12 prestige), Send Away.",
       "priority": 317,
       "status": "done",
       "phase": 115,
@@ -702,7 +702,7 @@
     {
       "id": "T318",
       "title": "Royal Apothecary",
-      "description": "Medieval Age+, 10+ tiles, 14-19 min spawn, 80s window. Commission Imperial Remedies (30 mana + 15g -> +0.25 mana/s 2.5min · +22 prestige · +12 morale), Purchase Exotic Potions (25 food -> +0.2 food/s 2min · +15 prestige · +8 morale), Send Away.",
+      "description": "Medieval Age+, 10+ tiles, 14-19 min spawn, 80s window. Commission Imperial Remedies (30 mana + 15g -> +0.25 mana/s 2.5min \u00b7 +22 prestige \u00b7 +12 morale), Purchase Exotic Potions (25 food -> +0.2 food/s 2min \u00b7 +15 prestige \u00b7 +8 morale), Send Away.",
       "priority": 318,
       "status": "done",
       "phase": 115,
@@ -711,7 +711,7 @@
     {
       "id": "T316",
       "title": "Mountain Prospector",
-      "description": "Iron Age+, 12+ tiles, 14-18 min spawn, 75s window. Fund Mining Expedition (40g -> +0.25 iron/s 2.5min · +22 prestige · +8 morale), Share Ore Maps (25 stone -> +0.2 stone/s 2min · +15 prestige), Send Away.",
+      "description": "Iron Age+, 12+ tiles, 14-18 min spawn, 75s window. Fund Mining Expedition (40g -> +0.25 iron/s 2.5min \u00b7 +22 prestige \u00b7 +8 morale), Share Ore Maps (25 stone -> +0.2 stone/s 2min \u00b7 +15 prestige), Send Away.",
       "priority": 316,
       "status": "done",
       "phase": 114,
@@ -720,7 +720,7 @@
     {
       "id": "T319",
       "title": "Wandering Fishmonger",
-      "description": "Stone Age+, 6+ tiles, 11-16 min spawn, 80s window. Purchase Fresh Catch (20g -> +0.25 food/s 2.5min · +12 prestige · +8 morale), Trade for Dried Fish (25 wood -> +0.2 food/s 2min · +8 prestige), Send Away.",
+      "description": "Stone Age+, 6+ tiles, 11-16 min spawn, 80s window. Purchase Fresh Catch (20g -> +0.25 food/s 2.5min \u00b7 +12 prestige \u00b7 +8 morale), Trade for Dried Fish (25 wood -> +0.2 food/s 2min \u00b7 +8 prestige), Send Away.",
       "priority": 319,
       "status": "done",
       "phase": 116,
@@ -729,7 +729,7 @@
     {
       "id": "T320",
       "title": "Imperial Chandler",
-      "description": "Bronze Age+, 8+ tiles, 12-17 min spawn, 80s window. Commission Candle Works (20 wood + 15 food -> +0.2 food/s 2.5min · +18 prestige · +10 morale), Purchase Fine Candles (25g -> +0.15 gold/s 2min · +12 prestige), Send Away.",
+      "description": "Bronze Age+, 8+ tiles, 12-17 min spawn, 80s window. Commission Candle Works (20 wood + 15 food -> +0.2 food/s 2.5min \u00b7 +18 prestige \u00b7 +10 morale), Purchase Fine Candles (25g -> +0.15 gold/s 2min \u00b7 +12 prestige), Send Away.",
       "priority": 320,
       "status": "done",
       "phase": 116,
@@ -738,7 +738,7 @@
     {
       "id": "T321",
       "title": "Royal Lamplighter",
-      "description": "Medieval Age+, 8+ tiles, 13-18 min spawn, 80s window. Establish Lamp District (25 wood + 20g -> +0.22 wood/s 2.5min · +22 prestige · +12 morale), Purchase Street Lanterns (25g -> +0.18 gold/s 2min · +15 prestige), Send Away.",
+      "description": "Medieval Age+, 8+ tiles, 13-18 min spawn, 80s window. Establish Lamp District (25 wood + 20g -> +0.22 wood/s 2.5min \u00b7 +22 prestige \u00b7 +12 morale), Purchase Street Lanterns (25g -> +0.18 gold/s 2min \u00b7 +15 prestige), Send Away.",
       "priority": 321,
       "status": "done",
       "phase": 117,
@@ -747,7 +747,7 @@
     {
       "id": "T322",
       "title": "Wandering Cooper",
-      "description": "Bronze Age+, 8+ tiles, 12-17 min spawn, 80s window. Commission Storage Barrels (20 wood + 15 food -> +0.2 food/s 2.5min · +18 prestige · +10 morale), Purchase Cooperage Secrets (20g -> +0.15 wood/s 2min · +12 prestige), Send Away.",
+      "description": "Bronze Age+, 8+ tiles, 12-17 min spawn, 80s window. Commission Storage Barrels (20 wood + 15 food -> +0.2 food/s 2.5min \u00b7 +18 prestige \u00b7 +10 morale), Purchase Cooperage Secrets (20g -> +0.15 wood/s 2min \u00b7 +12 prestige), Send Away.",
       "priority": 322,
       "status": "done",
       "phase": 117,
@@ -756,7 +756,7 @@
     {
       "id": "T323",
       "title": "Wandering Rope Maker",
-      "description": "Stone Age+, 6+ tiles, 12-17 min spawn, 80s window. Commission Ship Rigging (20 wood + 10 food -> +0.2 wood/s 2.5min · +15 prestige · +8 morale), Purchase Rope-Making Lore (18g -> +0.15 food/s 2min · +10 prestige), Send Away.",
+      "description": "Stone Age+, 6+ tiles, 12-17 min spawn, 80s window. Commission Ship Rigging (20 wood + 10 food -> +0.2 wood/s 2.5min \u00b7 +15 prestige \u00b7 +8 morale), Purchase Rope-Making Lore (18g -> +0.15 food/s 2min \u00b7 +10 prestige), Send Away.",
       "priority": 323,
       "status": "done",
       "phase": 118,
@@ -765,7 +765,7 @@
     {
       "id": "T324",
       "title": "Imperial Salt Merchant",
-      "description": "Bronze Age+, 8+ tiles, 13-17 min spawn, 80s window. Establish Salt Trade Route (30 food + 20g -> +0.25 food/s 2.5min · +20 prestige · +10 morale), Purchase Salt Reserves (25g -> +0.18 gold/s 2min · +15 prestige), Send Away.",
+      "description": "Bronze Age+, 8+ tiles, 13-17 min spawn, 80s window. Establish Salt Trade Route (30 food + 20g -> +0.25 food/s 2.5min \u00b7 +20 prestige \u00b7 +10 morale), Purchase Salt Reserves (25g -> +0.18 gold/s 2min \u00b7 +15 prestige), Send Away.",
       "priority": 324,
       "status": "done",
       "phase": 118,
@@ -774,7 +774,7 @@
     {
       "id": "T325",
       "title": "Wandering Puppeteer",
-      "description": "Bronze Age+, 6+ tiles, 12-16 min spawn, 80s window. Commission Imperial Pageant (25g -> +0.2 gold/s 2.5min · +22 prestige · +15 morale), Host Village Performance (free -> +12 morale · +8 prestige), Send Away.",
+      "description": "Bronze Age+, 6+ tiles, 12-16 min spawn, 80s window. Commission Imperial Pageant (25g -> +0.2 gold/s 2.5min \u00b7 +22 prestige \u00b7 +15 morale), Host Village Performance (free -> +12 morale \u00b7 +8 prestige), Send Away.",
       "priority": 325,
       "status": "done",
       "phase": 119,
@@ -783,7 +783,7 @@
     {
       "id": "T326",
       "title": "Ancient Rune Carver",
-      "description": "Iron Age+, 10+ tiles, 15-20 min spawn, 80s window. Commission Runic Inscriptions (25 stone + 20 mana -> +0.2 stone/s 2.5min · +25 prestige · +8 morale), Learn Rune Lore (20 mana -> +0.18 mana/s 2min · +15 prestige), Send Away.",
+      "description": "Iron Age+, 10+ tiles, 15-20 min spawn, 80s window. Commission Runic Inscriptions (25 stone + 20 mana -> +0.2 stone/s 2.5min \u00b7 +25 prestige \u00b7 +8 morale), Learn Rune Lore (20 mana -> +0.18 mana/s 2min \u00b7 +15 prestige), Send Away.",
       "priority": 326,
       "status": "done",
       "phase": 119,
@@ -792,7 +792,7 @@
     {
       "id": "T327",
       "title": "Wandering Cartwright",
-      "description": "Stone Age+, 6+ tiles, 12-17 min spawn, 80s window. Commission Trade Wagons (20 wood + 15 food -> +0.22 wood/s 2.5min · +18 prestige · +8 morale), Learn Wheel-Making Craft (18g -> +0.15 gold/s 2min · +12 prestige), Send Away.",
+      "description": "Stone Age+, 6+ tiles, 12-17 min spawn, 80s window. Commission Trade Wagons (20 wood + 15 food -> +0.22 wood/s 2.5min \u00b7 +18 prestige \u00b7 +8 morale), Learn Wheel-Making Craft (18g -> +0.15 gold/s 2min \u00b7 +12 prestige), Send Away.",
       "priority": 327,
       "status": "done",
       "phase": 120,
@@ -801,7 +801,7 @@
     {
       "id": "T328",
       "title": "Imperial Farrier",
-      "description": "Iron Age+, 10+ tiles, 13-18 min spawn, 80s window. Commission Cavalry Horseshoes (25 iron + 15 food -> +0.2 iron/s 2.5min · +22 prestige · +12 morale), Purchase Farriery Secrets (25g -> +0.15 food/s 2min · +15 prestige), Send Away.",
+      "description": "Iron Age+, 10+ tiles, 13-18 min spawn, 80s window. Commission Cavalry Horseshoes (25 iron + 15 food -> +0.2 iron/s 2.5min \u00b7 +22 prestige \u00b7 +12 morale), Purchase Farriery Secrets (25g -> +0.15 food/s 2min \u00b7 +15 prestige), Send Away.",
       "priority": 328,
       "status": "done",
       "phase": 120,
@@ -810,7 +810,7 @@
     {
       "id": "T329",
       "title": "Wandering Cobbler",
-      "description": "Stone Age+, 6+ tiles, 12-16 min spawn, 80s window. Craft Imperial Footwear (20 food + 15 wood -> +0.22 food/s 2.5min · +18 prestige · +8 morale), Share Cobbling Craft (18g -> +0.15 gold/s 2min · +12 prestige), Send Away.",
+      "description": "Stone Age+, 6+ tiles, 12-16 min spawn, 80s window. Craft Imperial Footwear (20 food + 15 wood -> +0.22 food/s 2.5min \u00b7 +18 prestige \u00b7 +8 morale), Share Cobbling Craft (18g -> +0.15 gold/s 2min \u00b7 +12 prestige), Send Away.",
       "priority": 329,
       "status": "done",
       "phase": 121,
@@ -819,7 +819,7 @@
     {
       "id": "T330",
       "title": "Imperial Engraver",
-      "description": "Iron Age+, 10+ tiles, 14-18 min spawn, 80s window. Commission Coin Engravings (25 iron + 20g -> +0.2 iron/s 2.5min · +22 prestige · +12 morale), Purchase Engraving Secrets (20 stone -> +0.15 stone/s 2min · +15 prestige), Send Away.",
+      "description": "Iron Age+, 10+ tiles, 14-18 min spawn, 80s window. Commission Coin Engravings (25 iron + 20g -> +0.2 iron/s 2.5min \u00b7 +22 prestige \u00b7 +12 morale), Purchase Engraving Secrets (20 stone -> +0.15 stone/s 2min \u00b7 +15 prestige), Send Away.",
       "priority": 330,
       "status": "done",
       "phase": 121,
@@ -828,7 +828,7 @@
     {
       "id": "T331",
       "title": "Wandering Tailor",
-      "description": "Stone Age+, 6+ tiles, 12-16 min spawn, 80s window. Sew Imperial Garments (20 food + 15 wood -> +0.22 food/s 2.5min · +18 prestige · +8 morale), Purchase Tailoring Craft (18g -> +0.15 gold/s 2min · +12 prestige), Send Away.",
+      "description": "Stone Age+, 6+ tiles, 12-16 min spawn, 80s window. Sew Imperial Garments (20 food + 15 wood -> +0.22 food/s 2.5min \u00b7 +18 prestige \u00b7 +8 morale), Purchase Tailoring Craft (18g -> +0.15 gold/s 2min \u00b7 +12 prestige), Send Away.",
       "priority": 331,
       "status": "done",
       "phase": 122,
@@ -837,7 +837,7 @@
     {
       "id": "T332",
       "title": "Wandering Tinsmith",
-      "description": "Bronze Age+, 8+ tiles, 12-17 min spawn, 80s window. Commission Tin Vessels (20 iron + 15g -> +0.22 iron/s 2.5min · +20 prestige · +10 morale), Purchase Tinsmithing Craft (18 wood -> +0.15 wood/s 2min · +12 prestige), Send Away.",
+      "description": "Bronze Age+, 8+ tiles, 12-17 min spawn, 80s window. Commission Tin Vessels (20 iron + 15g -> +0.22 iron/s 2.5min \u00b7 +20 prestige \u00b7 +10 morale), Purchase Tinsmithing Craft (18 wood -> +0.15 wood/s 2min \u00b7 +12 prestige), Send Away.",
       "priority": 332,
       "status": "done",
       "phase": 122,
@@ -846,7 +846,7 @@
     {
       "id": "T333",
       "title": "Wandering Miller",
-      "description": "Stone Age+, 6+ tiles, 12-16 min spawn, 80s window. Commission Grain Milling (25 food -> +0.25 food/s 2.5min · +18 prestige · +8 morale), Purchase Milling Secrets (18g -> +0.15 gold/s 2min · +12 prestige), Send Away.",
+      "description": "Stone Age+, 6+ tiles, 12-16 min spawn, 80s window. Commission Grain Milling (25 food -> +0.25 food/s 2.5min \u00b7 +18 prestige \u00b7 +8 morale), Purchase Milling Secrets (18g -> +0.15 gold/s 2min \u00b7 +12 prestige), Send Away.",
       "priority": 333,
       "status": "done",
       "phase": 123,
@@ -855,11 +855,31 @@
     {
       "id": "T334",
       "title": "Imperial Courier",
-      "description": "Medieval Age+, 10+ tiles, 15-19 min spawn, 80s window. Establish Postal Routes (30g -> +0.22 gold/s 2.5min · +22 prestige · +10 morale), Exchange Intelligence Packets (25 mana -> +0.18 mana/s 2min · +15 prestige), Send Away.",
+      "description": "Medieval Age+, 10+ tiles, 15-19 min spawn, 80s window. Establish Postal Routes (30g -> +0.22 gold/s 2.5min \u00b7 +22 prestige \u00b7 +10 morale), Exchange Intelligence Packets (25 mana -> +0.18 mana/s 2min \u00b7 +15 prestige), Send Away.",
       "priority": 334,
       "status": "done",
       "phase": 123,
       "notes": "Built imperialCourier.js. IMPERIAL_COURIER_CHANGED event added to events.js. state.imperialCourier null field. Courier section in questPanel.js (import * as Courier). Events.IMPERIAL_COURIER_CHANGED subscribed. CSS: @keyframes courier-pulse (indigo/violet), .courier-section--active, .btn--courier-establish (indigo), .btn--courier-exchange (violet), .btn--courier-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T335",
+      "title": "Wandering Baker",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic wandering baker encounter: bake imperial bread (25 food \u2192 +0.25 food/s 2.5min +18 prestige +10 morale), share baking secrets (18g \u2192 +0.15 gold/s 2min +12 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
+      "completed_date": "2026-05-19",
+      "notes": "Created wanderingBaker.js system, added WANDERING_BAKER_CHANGED event, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingBakerSection() and handlers to questPanel.js. Added baker CSS (warm orange/amber theme)."
+    },
+    {
+      "id": "T336",
+      "title": "Imperial Armorer",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic imperial armorer encounter: forge imperial armor (25 iron + 15 wood \u2192 +0.22 iron/s 2.5min +22 prestige +12 morale), share armor techniques (20 stone \u2192 +0.18 stone/s 2min +15 prestige), send away. Iron Age+, 10+ tiles, 14-19 min.",
+      "completed_date": "2026-05-19",
+      "notes": "Created imperialArmorer.js system, added IMPERIAL_ARMORER_CHANGED event, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialArmorerSection() and handlers to questPanel.js. Added armorer CSS (slate/steel blue-gray theme)."
     }
   ],
   "session_history": [
