@@ -18561,3 +18561,83 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--salt-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T325 Wandering Puppeteer ─────────────────────────────────────────── */
+@keyframes puppet-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(167, 139, 250, 0); }
+  50%       { box-shadow: 0 0 12px 3px rgba(167, 139, 250, 0.22); }
+}
+.puppet-section--active {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(167, 139, 250, 0.07));
+  border: 1px solid rgba(167, 139, 250, 0.35); border-radius: 8px;
+  padding: 10px 12px; margin-bottom: 10px;
+  animation: puppet-pulse 3.5s ease-in-out infinite;
+}
+.puppet-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.puppet-title   { font-size: 0.92rem; font-weight: 600; color: #c4b5fd; }
+.puppet-timer   { font-size: 0.78rem; color: #a78bfa; background: rgba(139, 92, 246, 0.12); padding: 2px 7px; border-radius: 10px; }
+.puppet-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.25); }
+.puppet-desc    { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.puppet-actions { display: flex; flex-direction: column; gap: 6px; }
+.puppet-cost    { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--puppet-pageant {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(109, 40, 217, 0.08));
+  border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #c4b5fd; text-align: left; transition: background 0.15s;
+}
+.btn--puppet-pageant:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(139, 92, 246, 0.22), rgba(109, 40, 217, 0.15)); }
+.btn--puppet-show {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(52, 211, 153, 0.12), rgba(16, 185, 129, 0.08));
+  border: 1px solid rgba(52, 211, 153, 0.3); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #6ee7b7; text-align: left; transition: background 0.15s;
+}
+.btn--puppet-show:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(52, 211, 153, 0.22), rgba(16, 185, 129, 0.15)); }
+.btn--puppet-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--puppet-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T326 Ancient Rune Carver ─────────────────────────────────────────── */
+@keyframes rune-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+  50%       { box-shadow: 0 0 12px 3px rgba(99, 102, 241, 0.25); }
+}
+.rune-section--active {
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.12), rgba(99, 102, 241, 0.07));
+  border: 1px solid rgba(99, 102, 241, 0.35); border-radius: 8px;
+  padding: 10px 12px; margin-bottom: 10px;
+  animation: rune-pulse 3.5s ease-in-out infinite;
+}
+.rune-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.rune-title   { font-size: 0.92rem; font-weight: 600; color: #a5b4fc; }
+.rune-timer   { font-size: 0.78rem; color: #818cf8; background: rgba(99, 102, 241, 0.12); padding: 2px 7px; border-radius: 10px; }
+.rune-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.25); }
+.rune-desc    { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.rune-actions { display: flex; flex-direction: column; gap: 6px; }
+.rune-cost    { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--rune-inscribe {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.12), rgba(55, 48, 163, 0.08));
+  border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #a5b4fc; text-align: left; transition: background 0.15s;
+}
+.btn--rune-inscribe:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(79, 70, 229, 0.22), rgba(55, 48, 163, 0.15)); }
+.btn--rune-lore {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(109, 40, 217, 0.08));
+  border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #c4b5fd; text-align: left; transition: background 0.15s;
+}
+.btn--rune-lore:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(139, 92, 246, 0.22), rgba(109, 40, 217, 0.15)); }
+.btn--rune-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--rune-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

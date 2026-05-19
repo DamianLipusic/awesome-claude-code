@@ -995,3 +995,17 @@ Built imperialSaltMerchant.js: establishSaltTradeRoute (30 food + 20g → +0.25 
 Wired in main.js: import initImperialSaltMerchant+imperialSaltMerchantTick, registerSystem, initImperialSaltMerchant() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _imperialSaltMerchantSection() render + salt-route/salt-reserves/salt-away handlers to questPanel.js (import * as SaltMerchant). Events.IMPERIAL_SALT_MERCHANT_CHANGED subscribed.
 CSS: @keyframes salt-pulse (silver/white), .salt-section--active, .btn--salt-route (silver/gray), .btn--salt-reserves (amber/gold), .btn--salt-away (gray).
+
+Session 71 — T325–T326: Wandering Puppeteer, Ancient Rune Carver.
+
+T223: Wandering Puppeteer (T325) — Bronze Age+, 6+ tiles, 12–16 min, 80s window.
+Built wanderingPuppeteer.js: commissionImperialPageant (25g → +0.2 gold/s 2.5min +22 prestige +15 morale), hostVillagePerformance (free → +12 morale +8 prestige), sendPuppeteerAway (dismiss). Added WANDERING_PUPPETEER_CHANGED event to events.js. state.wanderingPuppeteer null field.
+Wired in main.js: import initWanderingPuppeteer+wanderingPuppeteerTick, registerSystem, initWanderingPuppeteer() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingPuppeteerSection() render + puppet-pageant/puppet-show/puppet-away handlers to questPanel.js (import * as Puppeteer). Events.WANDERING_PUPPETEER_CHANGED subscribed.
+CSS: @keyframes puppet-pulse (violet/purple), .puppet-section--active, .btn--puppet-pageant (violet), .btn--puppet-show (emerald green), .btn--puppet-away (gray).
+
+T224: Ancient Rune Carver (T326) — Iron Age+, 10+ tiles, 15–20 min, 80s window.
+Built ancientRuneCarver.js: commissionRunicInscriptions (25 stone + 20 mana → +0.2 stone/s 2.5min +25 prestige +8 morale), learnRuneLore (20 mana → +0.18 mana/s 2min +15 prestige), sendRuneCarverAway (dismiss). Added ANCIENT_RUNE_CARVER_CHANGED event to events.js. state.ancientRuneCarver null field.
+Wired in main.js: import initAncientRuneCarver+ancientRuneCarverTick, registerSystem, initAncientRuneCarver() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _ancientRuneCarverSection() render + rune-inscribe/rune-lore/rune-away handlers to questPanel.js (import * as RuneCarver). Events.ANCIENT_RUNE_CARVER_CHANGED subscribed.
+CSS: @keyframes rune-pulse (indigo/blue), .rune-section--active, .btn--rune-inscribe (indigo), .btn--rune-lore (violet), .btn--rune-away (gray).

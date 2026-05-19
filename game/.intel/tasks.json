@@ -770,6 +770,24 @@
       "status": "done",
       "phase": 118,
       "notes": "Built imperialSaltMerchant.js. IMPERIAL_SALT_MERCHANT_CHANGED event added to events.js. state.imperialSaltMerchant null field. Salt merchant section in questPanel.js (import * as SaltMerchant). Events.IMPERIAL_SALT_MERCHANT_CHANGED subscribed. CSS: @keyframes salt-pulse (silver/white), .salt-section--active, .btn--salt-route (silver/gray), .btn--salt-reserves (amber/gold), .btn--salt-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T325",
+      "title": "Wandering Puppeteer",
+      "description": "Bronze Age+, 6+ tiles, 12-16 min spawn, 80s window. Commission Imperial Pageant (25g -> +0.2 gold/s 2.5min · +22 prestige · +15 morale), Host Village Performance (free -> +12 morale · +8 prestige), Send Away.",
+      "priority": 325,
+      "status": "done",
+      "phase": 119,
+      "notes": "Built wanderingPuppeteer.js. WANDERING_PUPPETEER_CHANGED event added to events.js. state.wanderingPuppeteer null field. Puppeteer section in questPanel.js (import * as Puppeteer). Events.WANDERING_PUPPETEER_CHANGED subscribed. CSS: @keyframes puppet-pulse (violet/purple), .puppet-section--active, .btn--puppet-pageant (violet), .btn--puppet-show (emerald green), .btn--puppet-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T326",
+      "title": "Ancient Rune Carver",
+      "description": "Iron Age+, 10+ tiles, 15-20 min spawn, 80s window. Commission Runic Inscriptions (25 stone + 20 mana -> +0.2 stone/s 2.5min · +25 prestige · +8 morale), Learn Rune Lore (20 mana -> +0.18 mana/s 2min · +15 prestige), Send Away.",
+      "priority": 326,
+      "status": "done",
+      "phase": 119,
+      "notes": "Built ancientRuneCarver.js. ANCIENT_RUNE_CARVER_CHANGED event added to events.js. state.ancientRuneCarver null field. Rune carver section in questPanel.js (import * as RuneCarver). Events.ANCIENT_RUNE_CARVER_CHANGED subscribed. CSS: @keyframes rune-pulse (indigo/blue), .rune-section--active, .btn--rune-inscribe (indigo), .btn--rune-lore (violet), .btn--rune-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     }
   ],
   "session_history": [
@@ -820,6 +838,7 @@
     "Session 67 (T215-T216): Wandering Leatherworker (T317), Royal Apothecary (T318)",
     "Session 68 (T217-T218): Wandering Fishmonger (T319), Imperial Chandler (T320)",
     "Session 69 (T219-T220): Royal Lamplighter (T321), Wandering Cooper (T322)",
-    "Session 70 (T221-T222): Wandering Rope Maker (T323), Imperial Salt Merchant (T324)"
+    "Session 70 (T221-T222): Wandering Rope Maker (T323), Imperial Salt Merchant (T324)",
+    "Session 71 (T223-T224): Wandering Puppeteer (T325), Ancient Rune Carver (T326)"
   ]
 }

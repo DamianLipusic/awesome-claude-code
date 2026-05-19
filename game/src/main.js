@@ -266,6 +266,8 @@ import { initRoyalLamplighter, royalLamplighterTick }               from './syst
 import { initWanderingCooper, wanderingCooperTick }                  from './systems/wanderingCooper.js';         // T322
 import { initWanderingRopeMaker, wanderingRopeMakerTick }           from './systems/wanderingRopeMaker.js';      // T323
 import { initImperialSaltMerchant, imperialSaltMerchantTick }       from './systems/imperialSaltMerchant.js';    // T324
+import { initWanderingPuppeteer, wanderingPuppeteerTick }           from './systems/wanderingPuppeteer.js';      // T325
+import { initAncientRuneCarver, ancientRuneCarverTick }             from './systems/ancientRuneCarver.js';       // T326
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -538,6 +540,8 @@ function _registerAllSystems() {
   registerSystem(wanderingCooperTick);                // T322
   registerSystem(wanderingRopeMakerTick);             // T323
   registerSystem(imperialSaltMerchantTick);           // T324
+  registerSystem(wanderingPuppeteerTick);             // T325
+  registerSystem(ancientRuneCarverTick);              // T326
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -795,6 +799,8 @@ function _save() {
     wanderingCooper:            state.wanderingCooper,            // T322
     wanderingRopeMaker:         state.wanderingRopeMaker,         // T323
     imperialSaltMerchant:       state.imperialSaltMerchant,       // T324
+    wanderingPuppeteer:         state.wanderingPuppeteer,         // T325
+    ancientRuneCarver:          state.ancientRuneCarver,          // T326
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -1057,6 +1063,8 @@ function _applySave(s) {
   state.wanderingCooper            = s.wanderingCooper ?? null;            // T322
   state.wanderingRopeMaker         = s.wanderingRopeMaker ?? null;         // T323
   state.imperialSaltMerchant       = s.imperialSaltMerchant ?? null;       // T324
+  state.wanderingPuppeteer         = s.wanderingPuppeteer ?? null;         // T325
+  state.ancientRuneCarver          = s.ancientRuneCarver ?? null;          // T326
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -1325,6 +1333,8 @@ function _startFreshGame() {
   initWanderingCooper();                // T322
   initWanderingRopeMaker();             // T323
   initImperialSaltMerchant();           // T324
+  initWanderingPuppeteer();             // T325
+  initAncientRuneCarver();              // T326
   initAchievements();
   initLeaderboard();
 }
@@ -1576,6 +1586,8 @@ function _startLoadedGame(savedData) {
   initWanderingCooper();                // T322
   initWanderingRopeMaker();             // T323
   initImperialSaltMerchant();           // T324
+  initWanderingPuppeteer();             // T325
+  initAncientRuneCarver();              // T326
   initAchievements();
   initLeaderboard();
 }

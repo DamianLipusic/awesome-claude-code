@@ -266,4 +266,6 @@ export const Events = Object.freeze({
   WANDERING_COOPER_CHANGED:         'wanderingCooperChanged',                 // T322: cooper spawned / commissioned / purchased / dismissed / expired
   WANDERING_ROPE_MAKER_CHANGED:     'wanderingRopeMakerChanged',              // T323: rope maker spawned / commissioned / purchased / dismissed / expired
   IMPERIAL_SALT_MERCHANT_CHANGED:   'imperialSaltMerchantChanged',            // T324: salt merchant spawned / route / purchased / dismissed / expired
+  WANDERING_PUPPETEER_CHANGED:      'wanderingPuppeteerChanged',              // T325: puppeteer spawned / pageant / performance / dismissed / expired
+  ANCIENT_RUNE_CARVER_CHANGED:      'ancientRuneCarverChanged',               // T326: rune carver spawned / commissioned / studied / dismissed / expired
 });

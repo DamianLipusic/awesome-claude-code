@@ -89,6 +89,8 @@ import * as Lamplighter  from '../systems/royalLamplighter.js';       // T321
 import * as Cooper       from '../systems/wanderingCooper.js';         // T322
 import * as RopeMaker   from '../systems/wanderingRopeMaker.js';      // T323
 import * as SaltMerchant from '../systems/imperialSaltMerchant.js';   // T324
+import * as Puppeteer   from '../systems/wanderingPuppeteer.js';      // T325
+import * as RuneCarver  from '../systems/ancientRuneCarver.js';        // T326
 
 let _panel = null;
 
@@ -206,6 +208,8 @@ function _encountersSection() {
     _wanderingCooperSection(),
     _wanderingRopeMakerSection(),
     _imperialSaltMerchantSection(),
+    _wanderingPuppeteerSection(),
+    _ancientRuneCarverSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -2772,6 +2776,72 @@ function _imperialSaltMerchantSection() {
     </div>`;
 }
 
+// ── T325 Wandering Puppeteer ──────────────────────────────────────────────
+
+function _wanderingPuppeteerSection() {
+  if (!Puppeteer.getActiveWanderingPuppeteer()) return '';
+  const secs         = Puppeteer.getWanderingPuppeteerSecsLeft();
+  const gold         = Math.floor(state.resources.gold ?? 0);
+  const canPageant   = gold >= Puppeteer.PAGEANT_GOLD_COST;
+  const urg = secs <= 15 ? ' puppet-timer--urgent' : '';
+  return `
+    <div class="puppet-section--active">
+      <div class="puppet-header">
+        <span class="puppet-title">🎭 Wandering Puppeteer</span>
+        <span class="puppet-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="puppet-desc">A skilled wandering puppeteer arrives with elaborate marionettes and shadow-play apparatus, offering breathtaking performances for the empire's entertainment.</div>
+      <div class="puppet-actions">
+        <button class="btn--puppet-pageant${canPageant ? '' : ' btn--disabled'}" data-action="puppet-pageant" ${canPageant ? '' : 'disabled'}>
+          🎭 Commission Imperial Pageant — ${Puppeteer.PAGEANT_GOLD_COST}💰
+          <span class="puppet-cost">→ +${Puppeteer.PAGEANT_GOLD_RATE} gold/s (2.5 min) · +${Puppeteer.PAGEANT_PRESTIGE_REWARD} prestige · +${Puppeteer.PAGEANT_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--puppet-show" data-action="puppet-show">
+          🎪 Host Village Performance — Free
+          <span class="puppet-cost">→ +${Puppeteer.PERFORMANCE_MORALE_REWARD} morale · +${Puppeteer.PERFORMANCE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--puppet-away" data-action="puppet-away">
+          🚶 Send Away
+          <span class="puppet-cost">→ Puppeteer moves on to the next kingdom</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T326 Ancient Rune Carver ──────────────────────────────────────────────
+
+function _ancientRuneCarverSection() {
+  if (!RuneCarver.getActiveAncientRuneCarver()) return '';
+  const secs           = RuneCarver.getAncientRuneCarverSecsLeft();
+  const stone          = Math.floor(state.resources.stone ?? 0);
+  const mana           = Math.floor(state.resources.mana  ?? 0);
+  const canInscribe    = stone >= RuneCarver.INSCRIPTIONS_STONE_COST && mana >= RuneCarver.INSCRIPTIONS_MANA_COST;
+  const canStudy       = mana  >= RuneCarver.LORE_MANA_COST;
+  const urg = secs <= 15 ? ' rune-timer--urgent' : '';
+  return `
+    <div class="rune-section--active">
+      <div class="rune-header">
+        <span class="rune-title">🪨 Ancient Rune Carver</span>
+        <span class="rune-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="rune-desc">A mysterious rune carver bearing worn stone tablets etched with forgotten inscriptions offers to strengthen the empire's stoneworks or share their arcane knowledge.</div>
+      <div class="rune-actions">
+        <button class="btn--rune-inscribe${canInscribe ? '' : ' btn--disabled'}" data-action="rune-inscribe" ${canInscribe ? '' : 'disabled'}>
+          🪨 Commission Runic Inscriptions — ${RuneCarver.INSCRIPTIONS_STONE_COST}🪨 + ${RuneCarver.INSCRIPTIONS_MANA_COST}✨
+          <span class="rune-cost">→ +${RuneCarver.INSCRIPTIONS_STONE_RATE} stone/s (2.5 min) · +${RuneCarver.INSCRIPTIONS_PRESTIGE_REWARD} prestige · +${RuneCarver.INSCRIPTIONS_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--rune-lore${canStudy ? '' : ' btn--disabled'}" data-action="rune-lore" ${canStudy ? '' : 'disabled'}>
+          📜 Learn Rune Lore — ${RuneCarver.LORE_MANA_COST}✨
+          <span class="rune-cost">→ +${RuneCarver.LORE_MANA_RATE} mana/s (2 min) · +${RuneCarver.LORE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--rune-away" data-action="rune-away">
+          🚶 Send Away
+          <span class="rune-cost">→ Rune carver departs with their forgotten knowledge</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -3085,6 +3155,14 @@ const _HANDLERS = {
   'salt-route':              () => SaltMerchant.establishSaltTradeRoute(),
   'salt-reserves':           () => SaltMerchant.purchaseSaltReserves(),
   'salt-away':               () => SaltMerchant.sendSaltMerchantAway(),
+
+  'puppet-pageant':          () => Puppeteer.commissionImperialPageant(),
+  'puppet-show':             () => Puppeteer.hostVillagePerformance(),
+  'puppet-away':             () => Puppeteer.sendPuppeteerAway(),
+
+  'rune-inscribe':           () => RuneCarver.commissionRunicInscriptions(),
+  'rune-lore':               () => RuneCarver.learnRuneLore(),
+  'rune-away':               () => RuneCarver.sendRuneCarverAway(),
 };
 
 function _handleClick(e) {
@@ -3181,6 +3259,8 @@ export function initQuestPanel() {
     Events.WANDERING_COOPER_CHANGED,
     Events.WANDERING_ROPE_MAKER_CHANGED,
     Events.IMPERIAL_SALT_MERCHANT_CHANGED,
+    Events.WANDERING_PUPPETEER_CHANGED,
+    Events.ANCIENT_RUNE_CARVER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);
