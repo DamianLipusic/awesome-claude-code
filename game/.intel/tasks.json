@@ -788,6 +788,24 @@
       "status": "done",
       "phase": 119,
       "notes": "Built ancientRuneCarver.js. ANCIENT_RUNE_CARVER_CHANGED event added to events.js. state.ancientRuneCarver null field. Rune carver section in questPanel.js (import * as RuneCarver). Events.ANCIENT_RUNE_CARVER_CHANGED subscribed. CSS: @keyframes rune-pulse (indigo/blue), .rune-section--active, .btn--rune-inscribe (indigo), .btn--rune-lore (violet), .btn--rune-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T327",
+      "title": "Wandering Cartwright",
+      "description": "Stone Age+, 6+ tiles, 12-17 min spawn, 80s window. Commission Trade Wagons (20 wood + 15 food -> +0.22 wood/s 2.5min · +18 prestige · +8 morale), Learn Wheel-Making Craft (18g -> +0.15 gold/s 2min · +12 prestige), Send Away.",
+      "priority": 327,
+      "status": "done",
+      "phase": 120,
+      "notes": "Built wanderingCartwright.js. WANDERING_CARTWRIGHT_CHANGED event added to events.js. state.wanderingCartwright null field. Cartwright section in questPanel.js (import * as Cartwright). Events.WANDERING_CARTWRIGHT_CHANGED subscribed. CSS: @keyframes cartwright-pulse (amber/brown), .cartwright-section--active, .btn--cartwright-commission (amber), .btn--cartwright-learn (green), .btn--cartwright-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T328",
+      "title": "Imperial Farrier",
+      "description": "Iron Age+, 10+ tiles, 13-18 min spawn, 80s window. Commission Cavalry Horseshoes (25 iron + 15 food -> +0.2 iron/s 2.5min · +22 prestige · +12 morale), Purchase Farriery Secrets (25g -> +0.15 food/s 2min · +15 prestige), Send Away.",
+      "priority": 328,
+      "status": "done",
+      "phase": 120,
+      "notes": "Built imperialFarrier.js. IMPERIAL_FARRIER_CHANGED event added to events.js. state.imperialFarrier null field. Farrier section in questPanel.js (import * as Farrier). Events.IMPERIAL_FARRIER_CHANGED subscribed. CSS: @keyframes farrier-pulse (slate/steel), .farrier-section--active, .btn--farrier-commission (slate), .btn--farrier-purchase (amber/gold), .btn--farrier-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     }
   ],
   "session_history": [
@@ -839,6 +857,7 @@
     "Session 68 (T217-T218): Wandering Fishmonger (T319), Imperial Chandler (T320)",
     "Session 69 (T219-T220): Royal Lamplighter (T321), Wandering Cooper (T322)",
     "Session 70 (T221-T222): Wandering Rope Maker (T323), Imperial Salt Merchant (T324)",
-    "Session 71 (T223-T224): Wandering Puppeteer (T325), Ancient Rune Carver (T326)"
+    "Session 71 (T223-T224): Wandering Puppeteer (T325), Ancient Rune Carver (T326)",
+    "Session 72 (T225-T226): Wandering Cartwright (T327), Imperial Farrier (T328)"
   ]
 }

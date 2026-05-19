@@ -268,4 +268,6 @@ export const Events = Object.freeze({
   IMPERIAL_SALT_MERCHANT_CHANGED:   'imperialSaltMerchantChanged',            // T324: salt merchant spawned / route / purchased / dismissed / expired
   WANDERING_PUPPETEER_CHANGED:      'wanderingPuppeteerChanged',              // T325: puppeteer spawned / pageant / performance / dismissed / expired
   ANCIENT_RUNE_CARVER_CHANGED:      'ancientRuneCarverChanged',               // T326: rune carver spawned / commissioned / studied / dismissed / expired
+  WANDERING_CARTWRIGHT_CHANGED:     'wanderingCartwrightChanged',             // T327: cartwright spawned / commissioned / learned / dismissed / expired
+  IMPERIAL_FARRIER_CHANGED:         'imperialFarrierChanged',                 // T328: farrier spawned / commissioned / purchased / dismissed / expired
 });

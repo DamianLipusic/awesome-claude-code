@@ -1009,3 +1009,17 @@ Built ancientRuneCarver.js: commissionRunicInscriptions (25 stone + 20 mana → 
 Wired in main.js: import initAncientRuneCarver+ancientRuneCarverTick, registerSystem, initAncientRuneCarver() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _ancientRuneCarverSection() render + rune-inscribe/rune-lore/rune-away handlers to questPanel.js (import * as RuneCarver). Events.ANCIENT_RUNE_CARVER_CHANGED subscribed.
 CSS: @keyframes rune-pulse (indigo/blue), .rune-section--active, .btn--rune-inscribe (indigo), .btn--rune-lore (violet), .btn--rune-away (gray).
+
+Session 72 — T327–T328: Wandering Cartwright, Imperial Farrier.
+
+T225: Wandering Cartwright (T327) — Stone Age+, 6+ tiles, 12–17 min, 80s window.
+Built wanderingCartwright.js: commissionTradeWagons (20 wood + 15 food → +0.22 wood/s 2.5min +18 prestige +8 morale), learnWheelMakingCraft (18g → +0.15 gold/s 2min +12 prestige), sendCartwrightAway (dismiss). Added WANDERING_CARTWRIGHT_CHANGED event to events.js. state.wanderingCartwright null field.
+Wired in main.js: import initWanderingCartwright+wanderingCartwrightTick, registerSystem, initWanderingCartwright() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingCartwrightSection() render + cartwright-commission/cartwright-learn/cartwright-away handlers to questPanel.js (import * as Cartwright). Events.WANDERING_CARTWRIGHT_CHANGED subscribed.
+CSS: @keyframes cartwright-pulse (amber/brown), .cartwright-section--active, .btn--cartwright-commission (amber), .btn--cartwright-learn (green), .btn--cartwright-away (gray).
+
+T226: Imperial Farrier (T328) — Iron Age+, 10+ tiles, 13–18 min, 80s window.
+Built imperialFarrier.js: commissionCavalryHorseshoes (25 iron + 15 food → +0.2 iron/s 2.5min +22 prestige +12 morale), purchaseFarrierysSecrets (25g → +0.15 food/s 2min +15 prestige), sendFarrierAway (dismiss). Added IMPERIAL_FARRIER_CHANGED event to events.js. state.imperialFarrier null field.
+Wired in main.js: import initImperialFarrier+imperialFarrierTick, registerSystem, initImperialFarrier() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _imperialFarrierSection() render + farrier-commission/farrier-purchase/farrier-away handlers to questPanel.js (import * as Farrier). Events.IMPERIAL_FARRIER_CHANGED subscribed.
+CSS: @keyframes farrier-pulse (slate/steel), .farrier-section--active, .btn--farrier-commission (slate), .btn--farrier-purchase (amber/gold), .btn--farrier-away (gray).

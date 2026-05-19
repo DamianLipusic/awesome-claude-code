@@ -91,6 +91,8 @@ import * as RopeMaker   from '../systems/wanderingRopeMaker.js';      // T323
 import * as SaltMerchant from '../systems/imperialSaltMerchant.js';   // T324
 import * as Puppeteer   from '../systems/wanderingPuppeteer.js';      // T325
 import * as RuneCarver  from '../systems/ancientRuneCarver.js';        // T326
+import * as Cartwright from '../systems/wanderingCartwright.js';      // T327
+import * as Farrier    from '../systems/imperialFarrier.js';          // T328
 
 let _panel = null;
 
@@ -210,6 +212,8 @@ function _encountersSection() {
     _imperialSaltMerchantSection(),
     _wanderingPuppeteerSection(),
     _ancientRuneCarverSection(),
+    _wanderingCartwrightSection(),
+    _imperialFarrierSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -2842,6 +2846,76 @@ function _ancientRuneCarverSection() {
     </div>`;
 }
 
+// ── T327 Wandering Cartwright ────────────────────────────────────────────────
+
+function _wanderingCartwrightSection() {
+  if (!Cartwright.getActiveWanderingCartwright()) return '';
+  const secs         = Cartwright.getCartwrightSecsLeft();
+  const wood         = Math.floor(state.resources.wood ?? 0);
+  const food         = Math.floor(state.resources.food ?? 0);
+  const gold         = Math.floor(state.resources.gold ?? 0);
+  const canCommission = wood >= Cartwright.COMMISSION_WOOD_COST && food >= Cartwright.COMMISSION_FOOD_COST;
+  const canLearn     = gold >= Cartwright.PURCHASE_GOLD_COST;
+  const urg = secs <= 15 ? ' cartwright-timer--urgent' : '';
+  return `
+    <div class="cartwright-section--active">
+      <div class="cartwright-header">
+        <span class="cartwright-title">🛒 Wandering Cartwright</span>
+        <span class="cartwright-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="cartwright-desc">A skilled wandering cartwright arrives bearing finely crafted wagon wheels and trade cart designs. Their expertise could boost imperial commerce and timber transport.</div>
+      <div class="cartwright-actions">
+        <button class="btn--cartwright-commission${canCommission ? '' : ' btn--disabled'}" data-action="cartwright-commission" ${canCommission ? '' : 'disabled'}>
+          🛒 Commission Trade Wagons — ${Cartwright.COMMISSION_WOOD_COST}\u{1FAB5} + ${Cartwright.COMMISSION_FOOD_COST}\u{1F33E}
+          <span class="cartwright-cost">→ +${Cartwright.COMMISSION_WOOD_RATE} wood/s (2.5 min) · +${Cartwright.COMMISSION_PRESTIGE_REWARD} prestige · +${Cartwright.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--cartwright-learn${canLearn ? '' : ' btn--disabled'}" data-action="cartwright-learn" ${canLearn ? '' : 'disabled'}>
+          📜 Learn Wheel-Making Craft — ${Cartwright.PURCHASE_GOLD_COST}\u{1F4B0}
+          <span class="cartwright-cost">→ +${Cartwright.PURCHASE_GOLD_RATE} gold/s (2 min) · +${Cartwright.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--cartwright-away" data-action="cartwright-away">
+          🚶 Send Away
+          <span class="cartwright-cost">→ Cartwright trundles off to other settlements</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T328 Imperial Farrier ────────────────────────────────────────────────────
+
+function _imperialFarrierSection() {
+  if (!Farrier.getActiveImperialFarrier()) return '';
+  const secs         = Farrier.getFarrierSecsLeft();
+  const iron         = Math.floor(state.resources.iron ?? 0);
+  const food         = Math.floor(state.resources.food ?? 0);
+  const gold         = Math.floor(state.resources.gold ?? 0);
+  const canCommission = iron >= Farrier.COMMISSION_IRON_COST && food >= Farrier.COMMISSION_FOOD_COST;
+  const canPurchase  = gold >= Farrier.PURCHASE_GOLD_COST;
+  const urg = secs <= 15 ? ' farrier-timer--urgent' : '';
+  return `
+    <div class="farrier-section--active">
+      <div class="farrier-header">
+        <span class="farrier-title">🐴 Imperial Farrier</span>
+        <span class="farrier-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="farrier-desc">A renowned imperial farrier arrives bearing a portable forge and a collection of precision horseshoes. Their skills could strengthen the cavalry or improve imperial livestock health.</div>
+      <div class="farrier-actions">
+        <button class="btn--farrier-commission${canCommission ? '' : ' btn--disabled'}" data-action="farrier-commission" ${canCommission ? '' : 'disabled'}>
+          🐴 Commission Cavalry Horseshoes — ${Farrier.COMMISSION_IRON_COST}⚙️ + ${Farrier.COMMISSION_FOOD_COST}\u{1F33E}
+          <span class="farrier-cost">→ +${Farrier.COMMISSION_IRON_RATE} iron/s (2.5 min) · +${Farrier.COMMISSION_PRESTIGE_REWARD} prestige · +${Farrier.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--farrier-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="farrier-purchase" ${canPurchase ? '' : 'disabled'}>
+          📜 Purchase Farriery Secrets — ${Farrier.PURCHASE_GOLD_COST}\u{1F4B0}
+          <span class="farrier-cost">→ +${Farrier.PURCHASE_FOOD_RATE} food/s (2 min) · +${Farrier.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--farrier-away" data-action="farrier-away">
+          🚶 Send Away
+          <span class="farrier-cost">→ Farrier departs to other imperial courts</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -3163,6 +3237,14 @@ const _HANDLERS = {
   'rune-inscribe':           () => RuneCarver.commissionRunicInscriptions(),
   'rune-lore':               () => RuneCarver.learnRuneLore(),
   'rune-away':               () => RuneCarver.sendRuneCarverAway(),
+
+  'cartwright-commission':   () => Cartwright.commissionTradeWagons(),
+  'cartwright-learn':        () => Cartwright.learnWheelMakingCraft(),
+  'cartwright-away':         () => Cartwright.sendCartwrightAway(),
+
+  'farrier-commission':      () => Farrier.commissionCavalryHorseshoes(),
+  'farrier-purchase':        () => Farrier.purchaseFarrierysSecrets(),
+  'farrier-away':            () => Farrier.sendFarrierAway(),
 };
 
 function _handleClick(e) {
@@ -3261,6 +3343,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_SALT_MERCHANT_CHANGED,
     Events.WANDERING_PUPPETEER_CHANGED,
     Events.ANCIENT_RUNE_CARVER_CHANGED,
+    Events.WANDERING_CARTWRIGHT_CHANGED,
+    Events.IMPERIAL_FARRIER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

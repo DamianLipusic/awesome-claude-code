@@ -268,6 +268,8 @@ import { initWanderingRopeMaker, wanderingRopeMakerTick }           from './syst
 import { initImperialSaltMerchant, imperialSaltMerchantTick }       from './systems/imperialSaltMerchant.js';    // T324
 import { initWanderingPuppeteer, wanderingPuppeteerTick }           from './systems/wanderingPuppeteer.js';      // T325
 import { initAncientRuneCarver, ancientRuneCarverTick }             from './systems/ancientRuneCarver.js';       // T326
+import { initWanderingCartwright, wanderingCartwrightTick }         from './systems/wanderingCartwright.js';     // T327
+import { initImperialFarrier, imperialFarrierTick }                 from './systems/imperialFarrier.js';         // T328
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -542,6 +544,8 @@ function _registerAllSystems() {
   registerSystem(imperialSaltMerchantTick);           // T324
   registerSystem(wanderingPuppeteerTick);             // T325
   registerSystem(ancientRuneCarverTick);              // T326
+  registerSystem(wanderingCartwrightTick);            // T327
+  registerSystem(imperialFarrierTick);               // T328
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -801,6 +805,8 @@ function _save() {
     imperialSaltMerchant:       state.imperialSaltMerchant,       // T324
     wanderingPuppeteer:         state.wanderingPuppeteer,         // T325
     ancientRuneCarver:          state.ancientRuneCarver,          // T326
+    wanderingCartwright:        state.wanderingCartwright,        // T327
+    imperialFarrier:            state.imperialFarrier,            // T328
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -1065,6 +1071,8 @@ function _applySave(s) {
   state.imperialSaltMerchant       = s.imperialSaltMerchant ?? null;       // T324
   state.wanderingPuppeteer         = s.wanderingPuppeteer ?? null;         // T325
   state.ancientRuneCarver          = s.ancientRuneCarver ?? null;          // T326
+  state.wanderingCartwright        = s.wanderingCartwright ?? null;        // T327
+  state.imperialFarrier            = s.imperialFarrier ?? null;            // T328
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -1335,6 +1343,8 @@ function _startFreshGame() {
   initImperialSaltMerchant();           // T324
   initWanderingPuppeteer();             // T325
   initAncientRuneCarver();              // T326
+  initWanderingCartwright();            // T327
+  initImperialFarrier();               // T328
   initAchievements();
   initLeaderboard();
 }
@@ -1588,6 +1598,8 @@ function _startLoadedGame(savedData) {
   initImperialSaltMerchant();           // T324
   initWanderingPuppeteer();             // T325
   initAncientRuneCarver();              // T326
+  initWanderingCartwright();            // T327
+  initImperialFarrier();               // T328
   initAchievements();
   initLeaderboard();
 }
