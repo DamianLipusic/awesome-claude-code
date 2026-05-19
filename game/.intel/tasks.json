@@ -842,6 +842,24 @@
       "status": "done",
       "phase": 122,
       "notes": "Built wanderingTinsmith.js. WANDERING_TINSMITH_CHANGED event added to events.js. state.wanderingTinsmith null field. Tinsmith section in questPanel.js (import * as Tinsmith). Events.WANDERING_TINSMITH_CHANGED subscribed. CSS: @keyframes tinsmith-pulse (steel blue), .tinsmith-section--active, .btn--tinsmith-commission (blue), .btn--tinsmith-purchase (green), .btn--tinsmith-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T333",
+      "title": "Wandering Miller",
+      "description": "Stone Age+, 6+ tiles, 12-16 min spawn, 80s window. Commission Grain Milling (25 food -> +0.25 food/s 2.5min · +18 prestige · +8 morale), Purchase Milling Secrets (18g -> +0.15 gold/s 2min · +12 prestige), Send Away.",
+      "priority": 333,
+      "status": "done",
+      "phase": 123,
+      "notes": "Built wanderingMiller.js. WANDERING_MILLER_CHANGED event added to events.js. state.wanderingMiller null field. Miller section in questPanel.js (import * as Miller). Events.WANDERING_MILLER_CHANGED subscribed. CSS: @keyframes miller-pulse (warm yellow/amber), .miller-section--active, .btn--miller-commission (yellow), .btn--miller-purchase (green), .btn--miller-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T334",
+      "title": "Imperial Courier",
+      "description": "Medieval Age+, 10+ tiles, 15-19 min spawn, 80s window. Establish Postal Routes (30g -> +0.22 gold/s 2.5min · +22 prestige · +10 morale), Exchange Intelligence Packets (25 mana -> +0.18 mana/s 2min · +15 prestige), Send Away.",
+      "priority": 334,
+      "status": "done",
+      "phase": 123,
+      "notes": "Built imperialCourier.js. IMPERIAL_COURIER_CHANGED event added to events.js. state.imperialCourier null field. Courier section in questPanel.js (import * as Courier). Events.IMPERIAL_COURIER_CHANGED subscribed. CSS: @keyframes courier-pulse (indigo/violet), .courier-section--active, .btn--courier-establish (indigo), .btn--courier-exchange (violet), .btn--courier-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     }
   ],
   "session_history": [
@@ -896,6 +914,7 @@
     "Session 71 (T223-T224): Wandering Puppeteer (T325), Ancient Rune Carver (T326)",
     "Session 72 (T225-T226): Wandering Cartwright (T327), Imperial Farrier (T328)",
     "Session 73 (T227-T228): Wandering Cobbler (T329), Imperial Engraver (T330)",
-    "Session 74 (T229-T230): Wandering Tailor (T331), Wandering Tinsmith (T332)"
+    "Session 74 (T229-T230): Wandering Tailor (T331), Wandering Tinsmith (T332)",
+    "Session 75 (T231-T232): Wandering Miller (T333), Imperial Courier (T334)"
   ]
 }

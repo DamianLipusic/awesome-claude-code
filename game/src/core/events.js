@@ -274,4 +274,6 @@ export const Events = Object.freeze({
   IMPERIAL_ENGRAVER_CHANGED:        'imperialEngraverChanged',                // T330: engraver spawned / commissioned / purchased / dismissed / expired
   WANDERING_TAILOR_CHANGED:         'wanderingTailorChanged',                 // T331: tailor spawned / commissioned / purchased / dismissed / expired
   WANDERING_TINSMITH_CHANGED:       'wanderingTinsmithChanged',               // T332: tinsmith spawned / commissioned / purchased / dismissed / expired
+  WANDERING_MILLER_CHANGED:         'wanderingMillerChanged',                 // T333: miller spawned / commissioned / purchased / dismissed / expired
+  IMPERIAL_COURIER_CHANGED:         'imperialCourierChanged',                 // T334: courier spawned / established / exchanged / dismissed / expired
 });

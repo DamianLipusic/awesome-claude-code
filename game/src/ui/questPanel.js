@@ -97,6 +97,8 @@ import * as Cobbler   from '../systems/wanderingCobbler.js';         // T329
 import * as Engraver  from '../systems/imperialEngraver.js';         // T330
 import * as Tailor    from '../systems/wanderingTailor.js';          // T331
 import * as Tinsmith  from '../systems/wanderingTinsmith.js';        // T332
+import * as Miller    from '../systems/wanderingMiller.js';          // T333
+import * as Courier   from '../systems/imperialCourier.js';          // T334
 
 let _panel = null;
 
@@ -222,6 +224,8 @@ function _encountersSection() {
     _imperialEngraverSection(),
     _wanderingTailorSection(),
     _wanderingTinsmithSection(),
+    _wanderingMillerSection(),
+    _imperialCourierSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -3064,6 +3068,74 @@ function _wanderingTinsmithSection() {
     </div>`;
 }
 
+// ── T333 Wandering Miller ────────────────────────────────────────────────────
+
+function _wanderingMillerSection() {
+  if (!Miller.getActiveWanderingMiller()) return '';
+  const secs          = Miller.getMillerSecsLeft();
+  const food          = Math.floor(state.resources.food ?? 0);
+  const gold          = Math.floor(state.resources.gold ?? 0);
+  const canCommission = food >= Miller.COMMISSION_FOOD_COST;
+  const canPurchase   = gold >= Miller.PURCHASE_GOLD_COST;
+  const urg = secs <= 15 ? ' miller-timer--urgent' : '';
+  return `
+    <div class="miller-section--active">
+      <div class="miller-header">
+        <span class="miller-title">🌾 Wandering Miller</span>
+        <span class="miller-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="miller-desc">A skilled wandering miller arrives bearing heavy millstones, fine grain sieves, and ancient recipes for producing the finest flour and grains. Their craft could greatly improve the empire's food production.</div>
+      <div class="miller-actions">
+        <button class="btn--miller-commission${canCommission ? '' : ' btn--disabled'}" data-action="miller-commission" ${canCommission ? '' : 'disabled'}>
+          🌾 Commission Grain Milling — ${Miller.COMMISSION_FOOD_COST}🌾
+          <span class="miller-cost">→ +${Miller.COMMISSION_FOOD_RATE} food/s (2.5 min) · +${Miller.COMMISSION_PRESTIGE_REWARD} prestige · +${Miller.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--miller-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="miller-purchase" ${canPurchase ? '' : 'disabled'}>
+          📜 Purchase Milling Secrets — ${Miller.PURCHASE_GOLD_COST}💰
+          <span class="miller-cost">→ +${Miller.PURCHASE_GOLD_RATE} gold/s (2 min) · +${Miller.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--miller-away" data-action="miller-away">
+          🚶 Send Away
+          <span class="miller-cost">→ Miller departs to seek other settlements</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T334 Imperial Courier ────────────────────────────────────────────────────
+
+function _imperialCourierSection() {
+  if (!Courier.getActiveImperialCourier()) return '';
+  const secs          = Courier.getCourierSecsLeft();
+  const gold          = Math.floor(state.resources.gold ?? 0);
+  const mana          = Math.floor(state.resources.mana ?? 0);
+  const canEstablish  = gold >= Courier.ESTABLISH_GOLD_COST;
+  const canExchange   = mana >= Courier.EXCHANGE_MANA_COST;
+  const urg = secs <= 15 ? ' courier-timer--urgent' : '';
+  return `
+    <div class="courier-section--active">
+      <div class="courier-header">
+        <span class="courier-title">📮 Imperial Courier</span>
+        <span class="courier-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="courier-desc">An experienced imperial courier arrives bearing sealed diplomatic dispatches, route maps, and offers to establish a swift messenger network connecting every corner of the realm.</div>
+      <div class="courier-actions">
+        <button class="btn--courier-establish${canEstablish ? '' : ' btn--disabled'}" data-action="courier-establish" ${canEstablish ? '' : 'disabled'}>
+          📮 Establish Postal Routes — ${Courier.ESTABLISH_GOLD_COST}💰
+          <span class="courier-cost">→ +${Courier.ESTABLISH_GOLD_RATE} gold/s (2.5 min) · +${Courier.ESTABLISH_PRESTIGE_REWARD} prestige · +${Courier.ESTABLISH_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--courier-exchange${canExchange ? '' : ' btn--disabled'}" data-action="courier-exchange" ${canExchange ? '' : 'disabled'}>
+          🔮 Exchange Intelligence Packets — ${Courier.EXCHANGE_MANA_COST}✨
+          <span class="courier-cost">→ +${Courier.EXCHANGE_MANA_RATE} mana/s (2 min) · +${Courier.EXCHANGE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--courier-away" data-action="courier-away">
+          🚶 Send Away
+          <span class="courier-cost">→ Courier departs to continue their appointed rounds</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -3409,6 +3481,14 @@ const _HANDLERS = {
   'tinsmith-commission':     () => Tinsmith.commissionTinVessels(),
   'tinsmith-purchase':       () => Tinsmith.purchaseTinsmithingCraft(),
   'tinsmith-away':           () => Tinsmith.sendTinsmithAway(),
+
+  'miller-commission':       () => Miller.commissionGrainMilling(),
+  'miller-purchase':         () => Miller.purchaseMillingSecrets(),
+  'miller-away':             () => Miller.sendMillerAway(),
+
+  'courier-establish':       () => Courier.establishPostalRoutes(),
+  'courier-exchange':        () => Courier.exchangeIntelligencePackets(),
+  'courier-away':            () => Courier.sendCourierAway(),
 };
 
 function _handleClick(e) {
@@ -3513,6 +3593,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_ENGRAVER_CHANGED,
     Events.WANDERING_TAILOR_CHANGED,
     Events.WANDERING_TINSMITH_CHANGED,
+    Events.WANDERING_MILLER_CHANGED,
+    Events.IMPERIAL_COURIER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

@@ -1052,3 +1052,18 @@ Built wanderingTinsmith.js: commissionTinVessels (20 iron + 15g → +0.22 iron/s
 Wired in main.js: import initWanderingTinsmith+wanderingTinsmithTick, registerSystem, initWanderingTinsmith() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _wanderingTinsmithSection() render + tinsmith-commission/tinsmith-purchase/tinsmith-away handlers to questPanel.js (import * as Tinsmith). Events.WANDERING_TINSMITH_CHANGED subscribed.
 CSS: @keyframes tinsmith-pulse (steel blue), .tinsmith-section--active, .btn--tinsmith-commission (blue), .btn--tinsmith-purchase (green), .btn--tinsmith-away (gray).
+
+Session 75 — T333–T334: Wandering Miller, Imperial Courier.
+No pending tasks found; created T333 and T334 from Phase 6+ roadmap expansion, then implemented both.
+
+T231: Wandering Miller (T333) — Stone Age+, 6+ tiles, 12–16 min, 80s window.
+Built wanderingMiller.js: commissionGrainMilling (25 food → +0.25 food/s 2.5min +18 prestige +8 morale), purchaseMillingSecrets (18g → +0.15 gold/s 2min +12 prestige), sendMillerAway (dismiss). Added WANDERING_MILLER_CHANGED event to events.js. state.wanderingMiller null field.
+Wired in main.js: import initWanderingMiller+wanderingMillerTick, registerSystem, initWanderingMiller() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingMillerSection() render + miller-commission/miller-purchase/miller-away handlers to questPanel.js (import * as Miller). Events.WANDERING_MILLER_CHANGED subscribed.
+CSS: @keyframes miller-pulse (warm yellow/amber), .miller-section--active, .btn--miller-commission (yellow), .btn--miller-purchase (green), .btn--miller-away (gray).
+
+T232: Imperial Courier (T334) — Medieval Age+, 10+ tiles, 15–19 min, 80s window.
+Built imperialCourier.js: establishPostalRoutes (30g → +0.22 gold/s 2.5min +22 prestige +10 morale), exchangeIntelligencePackets (25 mana → +0.18 mana/s 2min +15 prestige), sendCourierAway (dismiss). Added IMPERIAL_COURIER_CHANGED event to events.js. state.imperialCourier null field.
+Wired in main.js: import initImperialCourier+imperialCourierTick, registerSystem, initImperialCourier() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _imperialCourierSection() render + courier-establish/courier-exchange/courier-away handlers to questPanel.js (import * as Courier). Events.IMPERIAL_COURIER_CHANGED subscribed.
+CSS: @keyframes courier-pulse (indigo/violet), .courier-section--active, .btn--courier-establish (indigo), .btn--courier-exchange (violet), .btn--courier-away (gray).

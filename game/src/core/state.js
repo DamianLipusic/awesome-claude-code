@@ -1007,5 +1007,7 @@ export function initState(empireName = 'My Empire') {
   state.imperialEngraver     = null; // T330: reset imperial engraver per game
   state.wanderingTailor      = null; // T331: reset wandering tailor per game
   state.wanderingTinsmith    = null; // T332: reset wandering tinsmith per game
+  state.wanderingMiller      = null; // T333: reset wandering miller per game
+  state.imperialCourier      = null; // T334: reset imperial courier per game
   // Note: state.archetype is NOT reset here — it persists across new games
 }
