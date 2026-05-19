@@ -272,6 +272,8 @@ import { initWanderingCartwright, wanderingCartwrightTick }         from './syst
 import { initImperialFarrier, imperialFarrierTick }                 from './systems/imperialFarrier.js';         // T328
 import { initWanderingCobbler, wanderingCobblerTick }               from './systems/wanderingCobbler.js';         // T329
 import { initImperialEngraver, imperialEngraverTick }               from './systems/imperialEngraver.js';         // T330
+import { initWanderingTailor, wanderingTailorTick }                 from './systems/wanderingTailor.js';          // T331
+import { initWanderingTinsmith, wanderingTinsmithTick }             from './systems/wanderingTinsmith.js';        // T332
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -550,6 +552,8 @@ function _registerAllSystems() {
   registerSystem(imperialFarrierTick);               // T328
   registerSystem(wanderingCobblerTick);              // T329
   registerSystem(imperialEngraverTick);              // T330
+  registerSystem(wanderingTailorTick);               // T331
+  registerSystem(wanderingTinsmithTick);             // T332
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -813,6 +817,8 @@ function _save() {
     imperialFarrier:            state.imperialFarrier,            // T328
     wanderingCobbler:           state.wanderingCobbler,           // T329
     imperialEngraver:           state.imperialEngraver,           // T330
+    wanderingTailor:            state.wanderingTailor,            // T331
+    wanderingTinsmith:          state.wanderingTinsmith,          // T332
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -1081,6 +1087,8 @@ function _applySave(s) {
   state.imperialFarrier            = s.imperialFarrier ?? null;            // T328
   state.wanderingCobbler           = s.wanderingCobbler ?? null;           // T329
   state.imperialEngraver           = s.imperialEngraver ?? null;           // T330
+  state.wanderingTailor            = s.wanderingTailor ?? null;            // T331
+  state.wanderingTinsmith          = s.wanderingTinsmith ?? null;          // T332
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -1355,6 +1363,8 @@ function _startFreshGame() {
   initImperialFarrier();               // T328
   initWanderingCobbler();              // T329
   initImperialEngraver();              // T330
+  initWanderingTailor();               // T331
+  initWanderingTinsmith();             // T332
   initAchievements();
   initLeaderboard();
 }
@@ -1612,6 +1622,8 @@ function _startLoadedGame(savedData) {
   initImperialFarrier();               // T328
   initWanderingCobbler();              // T329
   initImperialEngraver();              // T330
+  initWanderingTailor();               // T331
+  initWanderingTinsmith();             // T332
   initAchievements();
   initLeaderboard();
 }

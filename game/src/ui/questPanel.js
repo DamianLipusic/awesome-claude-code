@@ -95,6 +95,8 @@ import * as Cartwright from '../systems/wanderingCartwright.js';      // T327
 import * as Farrier    from '../systems/imperialFarrier.js';          // T328
 import * as Cobbler   from '../systems/wanderingCobbler.js';         // T329
 import * as Engraver  from '../systems/imperialEngraver.js';         // T330
+import * as Tailor    from '../systems/wanderingTailor.js';          // T331
+import * as Tinsmith  from '../systems/wanderingTinsmith.js';        // T332
 
 let _panel = null;
 
@@ -218,6 +220,8 @@ function _encountersSection() {
     _imperialFarrierSection(),
     _wanderingCobblerSection(),
     _imperialEngraverSection(),
+    _wanderingTailorSection(),
+    _wanderingTinsmithSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -2990,6 +2994,76 @@ function _imperialEngraverSection() {
     </div>`;
 }
 
+// ── T331 Wandering Tailor ────────────────────────────────────────────────────
+
+function _wanderingTailorSection() {
+  if (!Tailor.getActiveWanderingTailor()) return '';
+  const secs          = Tailor.getTailorSecsLeft();
+  const food          = Math.floor(state.resources.food ?? 0);
+  const wood          = Math.floor(state.resources.wood ?? 0);
+  const gold          = Math.floor(state.resources.gold ?? 0);
+  const canCommission = food >= Tailor.COMMISSION_FOOD_COST && wood >= Tailor.COMMISSION_WOOD_COST;
+  const canPurchase   = gold >= Tailor.PURCHASE_GOLD_COST;
+  const urg = secs <= 15 ? ' tailor-timer--urgent' : '';
+  return `
+    <div class="tailor-section--active">
+      <div class="tailor-header">
+        <span class="tailor-title">🧵 Wandering Tailor</span>
+        <span class="tailor-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="tailor-desc">A skilled wandering tailor arrives bearing bolts of fine cloth, precision needles, and imperial garment patterns. Their mastery of tailoring could clothe the realm in prestige or enrich the imperial treasury.</div>
+      <div class="tailor-actions">
+        <button class="btn--tailor-sew${canCommission ? '' : ' btn--disabled'}" data-action="tailor-sew" ${canCommission ? '' : 'disabled'}>
+          🧵 Sew Imperial Garments — ${Tailor.COMMISSION_FOOD_COST}🌾 + ${Tailor.COMMISSION_WOOD_COST}🪵
+          <span class="tailor-cost">→ +${Tailor.COMMISSION_FOOD_RATE} food/s (2.5 min) · +${Tailor.COMMISSION_PRESTIGE_REWARD} prestige · +${Tailor.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--tailor-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="tailor-purchase" ${canPurchase ? '' : 'disabled'}>
+          📜 Purchase Tailoring Craft — ${Tailor.PURCHASE_GOLD_COST}💰
+          <span class="tailor-cost">→ +${Tailor.PURCHASE_GOLD_RATE} gold/s (2 min) · +${Tailor.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--tailor-away" data-action="tailor-away">
+          🚶 Send Away
+          <span class="tailor-cost">→ Tailor heads off to other imperial settlements</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T332 Wandering Tinsmith ──────────────────────────────────────────────────
+
+function _wanderingTinsmithSection() {
+  if (!Tinsmith.getActiveWanderingTinsmith()) return '';
+  const secs          = Tinsmith.getTinsmithSecsLeft();
+  const iron          = Math.floor(state.resources.iron ?? 0);
+  const gold          = Math.floor(state.resources.gold ?? 0);
+  const wood          = Math.floor(state.resources.wood ?? 0);
+  const canCommission = iron >= Tinsmith.COMMISSION_IRON_COST && gold >= Tinsmith.COMMISSION_GOLD_COST;
+  const canPurchase   = wood >= Tinsmith.PURCHASE_WOOD_COST;
+  const urg = secs <= 15 ? ' tinsmith-timer--urgent' : '';
+  return `
+    <div class="tinsmith-section--active">
+      <div class="tinsmith-header">
+        <span class="tinsmith-title">🔧 Wandering Tinsmith</span>
+        <span class="tinsmith-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="tinsmith-desc">A skilled wandering tinsmith arrives bearing gleaming tin vessels, soldering tools, and alloy samples. Their craft could advance the imperial metalworks or inspire more efficient use of timber and resources.</div>
+      <div class="tinsmith-actions">
+        <button class="btn--tinsmith-commission${canCommission ? '' : ' btn--disabled'}" data-action="tinsmith-commission" ${canCommission ? '' : 'disabled'}>
+          🔧 Commission Tin Vessels — ${Tinsmith.COMMISSION_IRON_COST}⚙️ + ${Tinsmith.COMMISSION_GOLD_COST}💰
+          <span class="tinsmith-cost">→ +${Tinsmith.COMMISSION_IRON_RATE} iron/s (2.5 min) · +${Tinsmith.COMMISSION_PRESTIGE_REWARD} prestige · +${Tinsmith.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--tinsmith-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="tinsmith-purchase" ${canPurchase ? '' : 'disabled'}>
+          📜 Purchase Tinsmithing Craft — ${Tinsmith.PURCHASE_WOOD_COST}🪵
+          <span class="tinsmith-cost">→ +${Tinsmith.PURCHASE_WOOD_RATE} wood/s (2 min) · +${Tinsmith.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--tinsmith-away" data-action="tinsmith-away">
+          🚶 Send Away
+          <span class="tinsmith-cost">→ Tinsmith departs to seek other commissions</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -3327,6 +3401,14 @@ const _HANDLERS = {
   'engraver-commission':     () => Engraver.commissionCoinEngravings(),
   'engraver-purchase':       () => Engraver.purchaseEngravingSecrets(),
   'engraver-away':           () => Engraver.sendEngraverAway(),
+
+  'tailor-sew':              () => Tailor.sewImperialGarments(),
+  'tailor-purchase':         () => Tailor.purchaseTailoringCraft(),
+  'tailor-away':             () => Tailor.sendTailorAway(),
+
+  'tinsmith-commission':     () => Tinsmith.commissionTinVessels(),
+  'tinsmith-purchase':       () => Tinsmith.purchaseTinsmithingCraft(),
+  'tinsmith-away':           () => Tinsmith.sendTinsmithAway(),
 };
 
 function _handleClick(e) {
@@ -3429,6 +3511,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_FARRIER_CHANGED,
     Events.WANDERING_COBBLER_CHANGED,
     Events.IMPERIAL_ENGRAVER_CHANGED,
+    Events.WANDERING_TAILOR_CHANGED,
+    Events.WANDERING_TINSMITH_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

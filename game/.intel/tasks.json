@@ -824,6 +824,24 @@
       "status": "done",
       "phase": 121,
       "notes": "Built imperialEngraver.js. IMPERIAL_ENGRAVER_CHANGED event added to events.js. state.imperialEngraver null field. Engraver section in questPanel.js (import * as Engraver). Events.IMPERIAL_ENGRAVER_CHANGED subscribed. CSS: @keyframes engraver-pulse (gold/amber), .engraver-section--active, .btn--engraver-commission (gold), .btn--engraver-purchase (slate/gray), .btn--engraver-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T331",
+      "title": "Wandering Tailor",
+      "description": "Stone Age+, 6+ tiles, 12-16 min spawn, 80s window. Sew Imperial Garments (20 food + 15 wood -> +0.22 food/s 2.5min · +18 prestige · +8 morale), Purchase Tailoring Craft (18g -> +0.15 gold/s 2min · +12 prestige), Send Away.",
+      "priority": 331,
+      "status": "done",
+      "phase": 122,
+      "notes": "Built wanderingTailor.js. WANDERING_TAILOR_CHANGED event added to events.js. state.wanderingTailor null field. Tailor section in questPanel.js (import * as Tailor). Events.WANDERING_TAILOR_CHANGED subscribed. CSS: @keyframes tailor-pulse (rose/pink), .tailor-section--active, .btn--tailor-sew (rose/crimson), .btn--tailor-purchase (green), .btn--tailor-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T332",
+      "title": "Wandering Tinsmith",
+      "description": "Bronze Age+, 8+ tiles, 12-17 min spawn, 80s window. Commission Tin Vessels (20 iron + 15g -> +0.22 iron/s 2.5min · +20 prestige · +10 morale), Purchase Tinsmithing Craft (18 wood -> +0.15 wood/s 2min · +12 prestige), Send Away.",
+      "priority": 332,
+      "status": "done",
+      "phase": 122,
+      "notes": "Built wanderingTinsmith.js. WANDERING_TINSMITH_CHANGED event added to events.js. state.wanderingTinsmith null field. Tinsmith section in questPanel.js (import * as Tinsmith). Events.WANDERING_TINSMITH_CHANGED subscribed. CSS: @keyframes tinsmith-pulse (steel blue), .tinsmith-section--active, .btn--tinsmith-commission (blue), .btn--tinsmith-purchase (green), .btn--tinsmith-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     }
   ],
   "session_history": [
@@ -877,6 +895,7 @@
     "Session 70 (T221-T222): Wandering Rope Maker (T323), Imperial Salt Merchant (T324)",
     "Session 71 (T223-T224): Wandering Puppeteer (T325), Ancient Rune Carver (T326)",
     "Session 72 (T225-T226): Wandering Cartwright (T327), Imperial Farrier (T328)",
-    "Session 73 (T227-T228): Wandering Cobbler (T329), Imperial Engraver (T330)"
+    "Session 73 (T227-T228): Wandering Cobbler (T329), Imperial Engraver (T330)",
+    "Session 74 (T229-T230): Wandering Tailor (T331), Wandering Tinsmith (T332)"
   ]
 }
