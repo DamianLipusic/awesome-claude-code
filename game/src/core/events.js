@@ -284,4 +284,6 @@ export const Events = Object.freeze({
   ROYAL_BOOKBINDER_CHANGED:         'royalBookbinderChanged',                   // T340: bookbinder spawned / commissioned / purchased / dismissed / expired
   WANDERING_BASKETWEAVER_CHANGED:   'wanderingBasketweaverChanged',             // T341: basketweaver spawned / woven / purchased / dismissed / expired
   WANDERING_CHARCOAL_MAKER_CHANGED: 'wanderingCharcoalMakerChanged',            // T342: charcoal maker spawned / commissioned / purchased / dismissed / expired
+  WANDERING_TANNER_CHANGED:         'wanderingTannerChanged',                   // T343: tanner spawned / commissioned / purchased / dismissed / expired
+  IMPERIAL_GLASSMAKER_CHANGED:      'imperialGlassmakerChanged',                // T344: glassmaker spawned / commissioned / purchased / dismissed / expired
 });

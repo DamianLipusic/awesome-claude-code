@@ -1125,3 +1125,15 @@ Built wanderingCharcoalMaker.js: commissionCharcoalWorks (20 wood + 10 food → 
 Wired in main.js: import initWanderingCharcoalMaker+wanderingCharcoalMakerTick, registerSystem, initWanderingCharcoalMaker() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _wanderingCharcoalMakerSection() render + charcoal-commission/charcoal-purchase/charcoal-away handlers to questPanel.js (import * as CharcoalMaker). Events.WANDERING_CHARCOAL_MAKER_CHANGED subscribed.
 CSS: @keyframes charcoal-pulse (dark slate/gray with amber accent), .charcoal-section--active, .btn--charcoal-commission (slate/gray), .btn--charcoal-purchase (amber/gold), .btn--charcoal-away (gray).
+
+T343: Wandering Tanner — Bronze Age+, 8+ tiles, 12–17 min, 80s window.
+Built wanderingTanner.js: commissionLeatherworks (20 food + 15 wood → +0.22 food/s 2.5min +18 prestige +10 morale), purchaseTanningSecrets (18g → +0.15 gold/s 2min +12 prestige), sendTannerAway (dismiss). Added WANDERING_TANNER_CHANGED event to events.js. state.wanderingTanner null field.
+Wired in main.js: import initWanderingTanner+wanderingTannerTick, registerSystem, initWanderingTanner() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingTannerSection() render + tanner-commission/tanner-purchase/tanner-away handlers to questPanel.js (import * as Tanner). Events.WANDERING_TANNER_CHANGED subscribed.
+CSS: @keyframes tanner-pulse (warm brown/leather), .tanner-section--active, .btn--tanner-commission (brown), .btn--tanner-purchase (amber/gold), .btn--tanner-away (gray).
+
+T344: Imperial Glassmaker — Iron Age+, 10+ tiles, 14–19 min, 80s window.
+Built imperialGlassmaker.js: commissionCrystalWorkshop (20 iron + 15 stone → +0.22 iron/s 2.5min +20 prestige +12 morale), purchaseGlassFormulas (20g → +0.15 stone/s 2min +15 prestige), sendGlassMakerAway (dismiss). Added IMPERIAL_GLASSMAKER_CHANGED event to events.js. state.imperialGlassmaker null field.
+Wired in main.js: import initImperialGlassmaker+imperialGlassmakerTick, registerSystem, initImperialGlassmaker() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _imperialGlassmakerSection() render + glassmaker-commission/glassmaker-purchase/glassmaker-away handlers to questPanel.js (import * as IGlassmaker). Events.IMPERIAL_GLASSMAKER_CHANGED subscribed.
+CSS: @keyframes glassmaker-pulse (cyan/teal crystal), .glassmaker-section--active, .btn--glassmaker-commission (cyan), .btn--glassmaker-purchase (slate), .btn--glassmaker-away (gray).

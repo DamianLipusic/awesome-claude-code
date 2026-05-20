@@ -107,6 +107,8 @@ import * as Embroiderer   from '../systems/wanderingEmbroiderer.js';  // T339
 import * as Bookbinder    from '../systems/royalBookbinder.js';       // T340
 import * as Basketweaver  from '../systems/wanderingBasketweaver.js'; // T341
 import * as CharcoalMaker from '../systems/wanderingCharcoalMaker.js'; // T342
+import * as Tanner        from '../systems/wanderingTanner.js';        // T343
+import * as IGlassmaker   from '../systems/imperialGlassmaker.js';     // T344
 
 let _panel = null;
 
@@ -242,6 +244,8 @@ function _encountersSection() {
     _royalBookbinderSection(),
     _wanderingBasketweaverSection(),
     _wanderingCharcoalMakerSection(),
+    _wanderingTannerSection(),
+    _imperialGlassmakerSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -3425,6 +3429,72 @@ function _wanderingCharcoalMakerSection() {
     </div>`;
 }
 
+function _wanderingTannerSection() {
+  if (!Tanner.getActiveWanderingTanner()) return '';
+  const secs        = Tanner.getTannerSecsLeft();
+  const food        = Math.floor(state.resources.food ?? 0);
+  const wood        = Math.floor(state.resources.wood ?? 0);
+  const gold        = Math.floor(state.resources.gold ?? 0);
+  const canCommission = food >= Tanner.COMMISSION_FOOD_COST && wood >= Tanner.COMMISSION_WOOD_COST;
+  const canPurchase   = gold >= Tanner.PURCHASE_GOLD_COST;
+  const urg = secs <= 15 ? ' tanner-timer--urgent' : '';
+  return `
+    <div class="tanner-section--active">
+      <div class="tanner-header">
+        <span class="tanner-title">🦬 Wandering Tanner</span>
+        <span class="tanner-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="tanner-desc">A wandering tanner arrives bearing cured hides, bark-tanning vats, and generations of leatherworking knowledge. Their premium leather can supply armourers and traders across the empire with exceptional goods that fetch higher prices at market.</div>
+      <div class="tanner-actions">
+        <button class="btn--tanner-commission${canCommission ? '' : ' btn--disabled'}" data-action="tanner-commission" ${canCommission ? '' : 'disabled'}>
+          🦬 Commission Imperial Leatherworks — ${Tanner.COMMISSION_FOOD_COST}🌾 + ${Tanner.COMMISSION_WOOD_COST}🪵
+          <span class="tanner-cost">→ +${Tanner.COMMISSION_FOOD_RATE} food/s (2.5 min) · +${Tanner.COMMISSION_PRESTIGE_REWARD} prestige · +${Tanner.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--tanner-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="tanner-purchase" ${canPurchase ? '' : 'disabled'}>
+          📜 Purchase Tanning Secrets — ${Tanner.PURCHASE_GOLD_COST}💰
+          <span class="tanner-cost">→ +${Tanner.PURCHASE_GOLD_RATE} gold/s (2 min) · +${Tanner.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--tanner-away" data-action="tanner-away">
+          🚶 Send Away
+          <span class="tanner-cost">→ Tanner departs to seek other settlements on their trade route</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _imperialGlassmakerSection() {
+  if (!IGlassmaker.getActiveImperialGlassmaker()) return '';
+  const secs        = IGlassmaker.getGlassmakerSecsLeft();
+  const iron        = Math.floor(state.resources.iron  ?? 0);
+  const stone       = Math.floor(state.resources.stone ?? 0);
+  const gold        = Math.floor(state.resources.gold  ?? 0);
+  const canCommission = iron >= IGlassmaker.COMMISSION_IRON_COST && stone >= IGlassmaker.COMMISSION_STONE_COST;
+  const canPurchase   = gold >= IGlassmaker.PURCHASE_GOLD_COST;
+  const urg = secs <= 15 ? ' glassmaker-timer--urgent' : '';
+  return `
+    <div class="glassmaker-section--active">
+      <div class="glassmaker-header">
+        <span class="glassmaker-title">🔮 Imperial Glassmaker</span>
+        <span class="glassmaker-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="glassmaker-desc">A renowned imperial glassmaker arrives bearing hand-blown crystal vessels, coloured glass samples, and the closely guarded secrets of the master furnace. Their crystal workshop can unlock remarkable metalworking efficiencies, while glass formulas improve stone quarrying techniques.</div>
+      <div class="glassmaker-actions">
+        <button class="btn--glassmaker-commission${canCommission ? '' : ' btn--disabled'}" data-action="glassmaker-commission" ${canCommission ? '' : 'disabled'}>
+          🔮 Commission Crystal Workshop — ${IGlassmaker.COMMISSION_IRON_COST}⚙ + ${IGlassmaker.COMMISSION_STONE_COST}🪨
+          <span class="glassmaker-cost">→ +${IGlassmaker.COMMISSION_IRON_RATE} iron/s (2.5 min) · +${IGlassmaker.COMMISSION_PRESTIGE_REWARD} prestige · +${IGlassmaker.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--glassmaker-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="glassmaker-purchase" ${canPurchase ? '' : 'disabled'}>
+          📜 Purchase Glass Formulas — ${IGlassmaker.PURCHASE_GOLD_COST}💰
+          <span class="glassmaker-cost">→ +${IGlassmaker.PURCHASE_STONE_RATE} stone/s (2 min) · +${IGlassmaker.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--glassmaker-away" data-action="glassmaker-away">
+          🚶 Send Away
+          <span class="glassmaker-cost">→ Glassmaker departs for distant courts that may better appreciate their craft</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -3810,6 +3880,14 @@ const _HANDLERS = {
   'charcoal-commission':     () => CharcoalMaker.commissionCharcoalWorks(),
   'charcoal-purchase':       () => CharcoalMaker.purchaseCharBurningLore(),
   'charcoal-away':           () => CharcoalMaker.sendCharcoalMakerAway(),
+
+  'tanner-commission':       () => Tanner.commissionLeatherworks(),
+  'tanner-purchase':         () => Tanner.purchaseTanningSecrets(),
+  'tanner-away':             () => Tanner.sendTannerAway(),
+
+  'glassmaker-commission':   () => IGlassmaker.commissionCrystalWorkshop(),
+  'glassmaker-purchase':     () => IGlassmaker.purchaseGlassFormulas(),
+  'glassmaker-away':         () => IGlassmaker.sendGlassMakerAway(),
 };
 
 function _handleClick(e) {
@@ -3924,6 +4002,8 @@ export function initQuestPanel() {
     Events.ROYAL_BOOKBINDER_CHANGED,
     Events.WANDERING_BASKETWEAVER_CHANGED,
     Events.WANDERING_CHARCOAL_MAKER_CHANGED,
+    Events.WANDERING_TANNER_CHANGED,
+    Events.IMPERIAL_GLASSMAKER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

@@ -19255,3 +19255,83 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--charcoal-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T343: Wandering Tanner ── */
+@keyframes tanner-pulse {
+  0%, 100% { border-color: rgba(120, 70, 20, 0.35); box-shadow: 0 0 0 rgba(120, 70, 20, 0); }
+  50%       { border-color: rgba(180, 110, 50, 0.65); box-shadow: 0 0 10px rgba(180, 110, 50, 0.20); }
+}
+.tanner-section--active {
+  background: linear-gradient(135deg, rgba(120, 70, 20, 0.10), rgba(92, 50, 10, 0.06));
+  border: 1px solid rgba(120, 70, 20, 0.35); border-radius: 8px;
+  padding: 10px 12px; margin-bottom: 10px;
+  animation: tanner-pulse 3.5s ease-in-out infinite;
+}
+.tanner-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.tanner-title   { font-size: 0.92rem; font-weight: 600; color: #b45309; }
+.tanner-timer   { font-size: 0.78rem; color: #92400e; background: rgba(120, 53, 15, 0.12); padding: 2px 7px; border-radius: 10px; }
+.tanner-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.25); }
+.tanner-desc    { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.tanner-actions { display: flex; flex-direction: column; gap: 6px; }
+.tanner-cost    { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--tanner-commission {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(120, 70, 20, 0.14), rgba(92, 50, 10, 0.09));
+  border: 1px solid rgba(180, 110, 50, 0.35); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #b45309; text-align: left; transition: background 0.15s;
+}
+.btn--tanner-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(120, 70, 20, 0.26), rgba(92, 50, 10, 0.18)); }
+.btn--tanner-purchase {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(180, 140, 40, 0.12), rgba(161, 120, 20, 0.08));
+  border: 1px solid rgba(180, 140, 40, 0.30); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fbbf24; text-align: left; transition: background 0.15s;
+}
+.btn--tanner-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(180, 140, 40, 0.22), rgba(161, 120, 20, 0.15)); }
+.btn--tanner-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--tanner-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T344: Imperial Glassmaker ── */
+@keyframes glassmaker-pulse {
+  0%, 100% { border-color: rgba(6, 148, 162, 0.30); box-shadow: 0 0 0 rgba(6, 148, 162, 0); }
+  50%       { border-color: rgba(14, 200, 220, 0.60); box-shadow: 0 0 10px rgba(14, 200, 220, 0.18); }
+}
+.glassmaker-section--active {
+  background: linear-gradient(135deg, rgba(6, 148, 162, 0.09), rgba(8, 100, 112, 0.06));
+  border: 1px solid rgba(6, 148, 162, 0.30); border-radius: 8px;
+  padding: 10px 12px; margin-bottom: 10px;
+  animation: glassmaker-pulse 3.5s ease-in-out infinite;
+}
+.glassmaker-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.glassmaker-title   { font-size: 0.92rem; font-weight: 600; color: #22d3ee; }
+.glassmaker-timer   { font-size: 0.78rem; color: #0891b2; background: rgba(6, 148, 162, 0.12); padding: 2px 7px; border-radius: 10px; }
+.glassmaker-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.25); }
+.glassmaker-desc    { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.glassmaker-actions { display: flex; flex-direction: column; gap: 6px; }
+.glassmaker-cost    { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--glassmaker-commission {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(6, 148, 162, 0.14), rgba(8, 100, 112, 0.09));
+  border: 1px solid rgba(14, 200, 220, 0.32); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #22d3ee; text-align: left; transition: background 0.15s;
+}
+.btn--glassmaker-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(6, 148, 162, 0.26), rgba(8, 100, 112, 0.18)); }
+.btn--glassmaker-purchase {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(71, 85, 105, 0.12), rgba(51, 65, 85, 0.08));
+  border: 1px solid rgba(71, 85, 105, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #94a3b8; text-align: left; transition: background 0.15s;
+}
+.btn--glassmaker-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(71, 85, 105, 0.22), rgba(51, 65, 85, 0.15)); }
+.btn--glassmaker-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--glassmaker-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

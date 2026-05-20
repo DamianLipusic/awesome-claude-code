@@ -940,6 +940,26 @@
       "description": "Periodic wandering charcoal maker encounter: commission charcoal works (20 wood + 10 food → +0.20 iron/s 2.5min +15 prestige +8 morale), purchase char-burning lore (18g → +0.15 food/s 2min +10 prestige), send away. Stone Age+, 6+ tiles, 13-17 min.",
       "completed_date": "2026-05-20",
       "notes": "Created wanderingCharcoalMaker.js system, added WANDERING_CHARCOAL_MAKER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingCharcoalMakerSection() and handlers to questPanel.js (import * as CharcoalMaker). Events.WANDERING_CHARCOAL_MAKER_CHANGED subscribed. Added charcoal CSS (dark slate/gray with amber accent theme)."
+    },
+    {
+      "id": "T343",
+      "title": "Wandering Tanner",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic wandering tanner encounter: commission imperial leatherworks (20 food + 15 wood → +0.22 food/s 2.5min +18 prestige +10 morale), purchase tanning secrets (18g → +0.15 gold/s 2min +12 prestige), send away. Bronze Age+, 8+ tiles, 12-17 min.",
+      "completed_date": "2026-05-20",
+      "notes": "Created wanderingTanner.js system, added WANDERING_TANNER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingTannerSection() and handlers to questPanel.js (import * as Tanner). Events.WANDERING_TANNER_CHANGED subscribed. Added tanner CSS (warm brown/leather theme)."
+    },
+    {
+      "id": "T344",
+      "title": "Imperial Glassmaker",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic imperial glassmaker encounter: commission crystal workshop (20 iron + 15 stone → +0.22 iron/s 2.5min +20 prestige +12 morale), purchase glass formulas (20g → +0.15 stone/s 2min +15 prestige), send away. Iron Age+, 10+ tiles, 14-19 min.",
+      "completed_date": "2026-05-20",
+      "notes": "Created imperialGlassmaker.js system, added IMPERIAL_GLASSMAKER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialGlassmakerSection() and handlers to questPanel.js (import * as IGlassmaker). Events.IMPERIAL_GLASSMAKER_CHANGED subscribed. Added glassmaker CSS (cyan/teal crystal theme)."
     }
   ],
   "session_history": [
@@ -999,6 +1019,7 @@
     "Session 76 (T233-T234): Wandering Baker (T335), Imperial Armorer (T336)",
     "Session 77 (T235-T236): Wandering Wood Carver (T337), Imperial Road Builder (T338)",
     "Session 78 (T237-T238): Wandering Embroiderer (T339), Royal Bookbinder (T340)",
-    "Session 79 (T239-T240): Wandering Basketweaver (T341), Wandering Charcoal Maker (T342)"
+    "Session 79 (T239-T240): Wandering Basketweaver (T341), Wandering Charcoal Maker (T342)",
+    "Session 80 (T241-T242): Wandering Tanner (T343), Imperial Glassmaker (T344)"
   ]
 }
