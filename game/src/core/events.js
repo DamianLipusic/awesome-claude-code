@@ -286,4 +286,6 @@ export const Events = Object.freeze({
   WANDERING_CHARCOAL_MAKER_CHANGED: 'wanderingCharcoalMakerChanged',            // T342: charcoal maker spawned / commissioned / purchased / dismissed / expired
   WANDERING_TANNER_CHANGED:         'wanderingTannerChanged',                   // T343: tanner spawned / commissioned / purchased / dismissed / expired
   IMPERIAL_GLASSMAKER_CHANGED:      'imperialGlassmakerChanged',                // T344: glassmaker spawned / commissioned / purchased / dismissed / expired
+  WANDERING_INKMAKER_CHANGED:       'wanderingInkmakerChanged',                 // T345: inkmaker spawned / commissioned / purchased / dismissed / expired
+  IMPERIAL_DOCKMASTER_CHANGED:      'imperialDockmasterChanged',                // T346: dockmaster spawned / established / commissioned / dismissed / expired
 });

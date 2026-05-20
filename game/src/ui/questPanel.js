@@ -109,6 +109,8 @@ import * as Basketweaver  from '../systems/wanderingBasketweaver.js'; // T341
 import * as CharcoalMaker from '../systems/wanderingCharcoalMaker.js'; // T342
 import * as Tanner        from '../systems/wanderingTanner.js';        // T343
 import * as IGlassmaker   from '../systems/imperialGlassmaker.js';     // T344
+import * as Inkmaker      from '../systems/wanderingInkmaker.js';      // T345
+import * as Dockmaster    from '../systems/imperialDockmaster.js';     // T346
 
 let _panel = null;
 
@@ -246,6 +248,8 @@ function _encountersSection() {
     _wanderingCharcoalMakerSection(),
     _wanderingTannerSection(),
     _imperialGlassmakerSection(),
+    _wanderingInkmakerSection(),
+    _imperialDockmasterSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -3495,6 +3499,72 @@ function _imperialGlassmakerSection() {
     </div>`;
 }
 
+function _wanderingInkmakerSection() {
+  if (!Inkmaker.getActiveWanderingInkmaker()) return '';
+  const secs        = Inkmaker.getInkmakerSecsLeft();
+  const mana        = Math.floor(state.resources.mana ?? 0);
+  const gold        = Math.floor(state.resources.gold ?? 0);
+  const wood        = Math.floor(state.resources.wood ?? 0);
+  const canCommission = mana >= Inkmaker.COMMISSION_MANA_COST && gold >= Inkmaker.COMMISSION_GOLD_COST;
+  const canPurchase   = wood >= Inkmaker.PURCHASE_WOOD_COST;
+  const urg = secs <= 15 ? ' inkmaker-timer--urgent' : '';
+  return `
+    <div class="inkmaker-section--active">
+      <div class="inkmaker-header">
+        <span class="inkmaker-title">🖊️ Wandering Inkmaker</span>
+        <span class="inkmaker-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="inkmaker-desc">A wandering inkmaker arrives bearing rare lapis-lazuli pigments, oak-gall writing ink, and illuminated script samples from distant monastic scriptoria. Their expertise can inspire the imperial scholars or improve woodland harvesting techniques.</div>
+      <div class="inkmaker-actions">
+        <button class="btn--inkmaker-commission${canCommission ? '' : ' btn--disabled'}" data-action="inkmaker-commission" ${canCommission ? '' : 'disabled'}>
+          🖊️ Commission Illuminated Scripts — ${Inkmaker.COMMISSION_MANA_COST}✨ + ${Inkmaker.COMMISSION_GOLD_COST}💰
+          <span class="inkmaker-cost">→ +${Inkmaker.COMMISSION_MANA_RATE} mana/s (2.5 min) · +${Inkmaker.COMMISSION_PRESTIGE_REWARD} prestige · +${Inkmaker.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--inkmaker-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="inkmaker-purchase" ${canPurchase ? '' : 'disabled'}>
+          📜 Purchase Ink Formulas — ${Inkmaker.PURCHASE_WOOD_COST}🪵
+          <span class="inkmaker-cost">→ +${Inkmaker.PURCHASE_WOOD_RATE} wood/s (2 min) · +${Inkmaker.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--inkmaker-away" data-action="inkmaker-away">
+          🚶 Send Away
+          <span class="inkmaker-cost">→ Inkmaker departs to supply the next imperial scriptorium on their trade route</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _imperialDockmasterSection() {
+  if (!Dockmaster.getActiveImperialDockmaster()) return '';
+  const secs          = Dockmaster.getDockmasterSecsLeft();
+  const wood          = Math.floor(state.resources.wood ?? 0);
+  const gold          = Math.floor(state.resources.gold ?? 0);
+  const iron          = Math.floor(state.resources.iron ?? 0);
+  const canEstablish  = wood >= Dockmaster.ESTABLISH_WOOD_COST && gold >= Dockmaster.ESTABLISH_GOLD_COST;
+  const canCommission = iron >= Dockmaster.COMMISSION_IRON_COST;
+  const urg = secs <= 15 ? ' dockmaster-timer--urgent' : '';
+  return `
+    <div class="dockmaster-section--active">
+      <div class="dockmaster-header">
+        <span class="dockmaster-title">⚓ Imperial Dockmaster</span>
+        <span class="dockmaster-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="dockmaster-desc">A seasoned imperial dockmaster arrives bearing detailed harbor charts and dock-building blueprints. They offer to establish full trading docks to boost timber imports, or commission iron-reinforced harbor works to attract heavier ore barges to the imperial waterfront.</div>
+      <div class="dockmaster-actions">
+        <button class="btn--dockmaster-establish${canEstablish ? '' : ' btn--disabled'}" data-action="dockmaster-establish" ${canEstablish ? '' : 'disabled'}>
+          ⚓ Establish Trading Docks — ${Dockmaster.ESTABLISH_WOOD_COST}🪵 + ${Dockmaster.ESTABLISH_GOLD_COST}💰
+          <span class="dockmaster-cost">→ +${Dockmaster.ESTABLISH_WOOD_RATE} wood/s (2.5 min) · +${Dockmaster.ESTABLISH_PRESTIGE_REWARD} prestige · +${Dockmaster.ESTABLISH_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--dockmaster-commission${canCommission ? '' : ' btn--disabled'}" data-action="dockmaster-commission" ${canCommission ? '' : 'disabled'}>
+          ⚙️ Commission Harbor Works — ${Dockmaster.COMMISSION_IRON_COST}⚙
+          <span class="dockmaster-cost">→ +${Dockmaster.COMMISSION_IRON_RATE} iron/s (2 min) · +${Dockmaster.COMMISSION_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--dockmaster-away" data-action="dockmaster-away">
+          🚶 Send Away
+          <span class="dockmaster-cost">→ Dockmaster departs to inspect the next imperial port on the survey circuit</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -3888,6 +3958,14 @@ const _HANDLERS = {
   'glassmaker-commission':   () => IGlassmaker.commissionCrystalWorkshop(),
   'glassmaker-purchase':     () => IGlassmaker.purchaseGlassFormulas(),
   'glassmaker-away':         () => IGlassmaker.sendGlassMakerAway(),
+
+  'inkmaker-commission':     () => Inkmaker.commissionIlluminatedScripts(),
+  'inkmaker-purchase':       () => Inkmaker.purchaseInkFormulas(),
+  'inkmaker-away':           () => Inkmaker.sendInkmakerAway(),
+
+  'dockmaster-establish':    () => Dockmaster.establishTradingDocks(),
+  'dockmaster-commission':   () => Dockmaster.commissionHarborWorks(),
+  'dockmaster-away':         () => Dockmaster.sendDockmasterAway(),
 };
 
 function _handleClick(e) {
@@ -4004,6 +4082,8 @@ export function initQuestPanel() {
     Events.WANDERING_CHARCOAL_MAKER_CHANGED,
     Events.WANDERING_TANNER_CHANGED,
     Events.IMPERIAL_GLASSMAKER_CHANGED,
+    Events.WANDERING_INKMAKER_CHANGED,
+    Events.IMPERIAL_DOCKMASTER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

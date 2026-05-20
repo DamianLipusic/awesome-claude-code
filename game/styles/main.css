@@ -19335,3 +19335,83 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--glassmaker-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T345: Wandering Inkmaker ── */
+@keyframes inkmaker-pulse {
+  0%, 100% { border-color: rgba(124, 58, 237, 0.30); box-shadow: 0 0 0 rgba(124, 58, 237, 0); }
+  50%       { border-color: rgba(167, 100, 255, 0.60); box-shadow: 0 0 10px rgba(167, 100, 255, 0.18); }
+}
+.inkmaker-section--active {
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.09), rgba(91, 33, 182, 0.06));
+  border: 1px solid rgba(124, 58, 237, 0.30); border-radius: 8px;
+  padding: 10px 12px; margin-bottom: 10px;
+  animation: inkmaker-pulse 3.5s ease-in-out infinite;
+}
+.inkmaker-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.inkmaker-title   { font-size: 0.92rem; font-weight: 600; color: #c084fc; }
+.inkmaker-timer   { font-size: 0.78rem; color: #a855f7; background: rgba(124, 58, 237, 0.12); padding: 2px 7px; border-radius: 10px; }
+.inkmaker-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.25); }
+.inkmaker-desc    { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.inkmaker-actions { display: flex; flex-direction: column; gap: 6px; }
+.inkmaker-cost    { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--inkmaker-commission {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.14), rgba(91, 33, 182, 0.09));
+  border: 1px solid rgba(167, 100, 255, 0.32); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #c084fc; text-align: left; transition: background 0.15s;
+}
+.btn--inkmaker-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(124, 58, 237, 0.26), rgba(91, 33, 182, 0.18)); }
+.btn--inkmaker-purchase {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(22, 101, 52, 0.12), rgba(20, 83, 45, 0.08));
+  border: 1px solid rgba(34, 197, 94, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #4ade80; text-align: left; transition: background 0.15s;
+}
+.btn--inkmaker-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(22, 101, 52, 0.22), rgba(20, 83, 45, 0.15)); }
+.btn--inkmaker-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--inkmaker-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T346: Imperial Dockmaster ── */
+@keyframes dockmaster-pulse {
+  0%, 100% { border-color: rgba(3, 105, 161, 0.30); box-shadow: 0 0 0 rgba(3, 105, 161, 0); }
+  50%       { border-color: rgba(14, 165, 233, 0.60); box-shadow: 0 0 10px rgba(14, 165, 233, 0.18); }
+}
+.dockmaster-section--active {
+  background: linear-gradient(135deg, rgba(3, 105, 161, 0.09), rgba(2, 75, 112, 0.06));
+  border: 1px solid rgba(3, 105, 161, 0.30); border-radius: 8px;
+  padding: 10px 12px; margin-bottom: 10px;
+  animation: dockmaster-pulse 3.5s ease-in-out infinite;
+}
+.dockmaster-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.dockmaster-title   { font-size: 0.92rem; font-weight: 600; color: #38bdf8; }
+.dockmaster-timer   { font-size: 0.78rem; color: #0369a1; background: rgba(3, 105, 161, 0.12); padding: 2px 7px; border-radius: 10px; }
+.dockmaster-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.25); }
+.dockmaster-desc    { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.dockmaster-actions { display: flex; flex-direction: column; gap: 6px; }
+.dockmaster-cost    { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--dockmaster-establish {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(3, 105, 161, 0.14), rgba(2, 75, 112, 0.09));
+  border: 1px solid rgba(14, 165, 233, 0.32); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #38bdf8; text-align: left; transition: background 0.15s;
+}
+.btn--dockmaster-establish:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(3, 105, 161, 0.26), rgba(2, 75, 112, 0.18)); }
+.btn--dockmaster-commission {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(180, 120, 40, 0.12), rgba(161, 100, 20, 0.08));
+  border: 1px solid rgba(251, 191, 36, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fbbf24; text-align: left; transition: background 0.15s;
+}
+.btn--dockmaster-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(180, 120, 40, 0.22), rgba(161, 100, 20, 0.15)); }
+.btn--dockmaster-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--dockmaster-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

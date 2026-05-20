@@ -1137,3 +1137,17 @@ Built imperialGlassmaker.js: commissionCrystalWorkshop (20 iron + 15 stone → +
 Wired in main.js: import initImperialGlassmaker+imperialGlassmakerTick, registerSystem, initImperialGlassmaker() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _imperialGlassmakerSection() render + glassmaker-commission/glassmaker-purchase/glassmaker-away handlers to questPanel.js (import * as IGlassmaker). Events.IMPERIAL_GLASSMAKER_CHANGED subscribed.
 CSS: @keyframes glassmaker-pulse (cyan/teal crystal), .glassmaker-section--active, .btn--glassmaker-commission (cyan), .btn--glassmaker-purchase (slate), .btn--glassmaker-away (gray).
+
+Session 81 — T345–T346: Wandering Inkmaker, Imperial Dockmaster.
+
+T345: Wandering Inkmaker — Medieval Age+, 8+ tiles, 13–17 min, 80s window.
+Built wanderingInkmaker.js: commissionIlluminatedScripts (20 mana + 15g → +0.22 mana/s 2.5min +20 prestige +8 morale), purchaseInkFormulas (18 wood → +0.18 wood/s 2min +12 prestige), sendInkmakerAway (dismiss). Added WANDERING_INKMAKER_CHANGED event to events.js. state.wanderingInkmaker null field.
+Wired in main.js: import initWanderingInkmaker+wanderingInkmakerTick, registerSystem, initWanderingInkmaker() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingInkmakerSection() render + inkmaker-commission/inkmaker-purchase/inkmaker-away handlers to questPanel.js (import * as Inkmaker). Events.WANDERING_INKMAKER_CHANGED subscribed.
+CSS: @keyframes inkmaker-pulse (violet/purple), .inkmaker-section--active, .btn--inkmaker-commission (violet), .btn--inkmaker-purchase (green), .btn--inkmaker-away (gray).
+
+T346: Imperial Dockmaster — Iron Age+, 10+ tiles, 13–18 min, 75s window.
+Built imperialDockmaster.js: establishTradingDocks (25 wood + 20g → +0.25 wood/s 2.5min +22 prestige +10 morale), commissionHarborWorks (20 iron → +0.18 iron/s 2min +15 prestige), sendDockmasterAway (dismiss). Added IMPERIAL_DOCKMASTER_CHANGED event to events.js. state.imperialDockmaster null field.
+Wired in main.js: import initImperialDockmaster+imperialDockmasterTick, registerSystem, initImperialDockmaster() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _imperialDockmasterSection() render + dockmaster-establish/dockmaster-commission/dockmaster-away handlers to questPanel.js (import * as Dockmaster). Events.IMPERIAL_DOCKMASTER_CHANGED subscribed.
+CSS: @keyframes dockmaster-pulse (sky blue/ocean), .dockmaster-section--active, .btn--dockmaster-establish (sky blue), .btn--dockmaster-commission (amber/gold), .btn--dockmaster-away (gray).

@@ -960,6 +960,26 @@
       "description": "Periodic imperial glassmaker encounter: commission crystal workshop (20 iron + 15 stone → +0.22 iron/s 2.5min +20 prestige +12 morale), purchase glass formulas (20g → +0.15 stone/s 2min +15 prestige), send away. Iron Age+, 10+ tiles, 14-19 min.",
       "completed_date": "2026-05-20",
       "notes": "Created imperialGlassmaker.js system, added IMPERIAL_GLASSMAKER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialGlassmakerSection() and handlers to questPanel.js (import * as IGlassmaker). Events.IMPERIAL_GLASSMAKER_CHANGED subscribed. Added glassmaker CSS (cyan/teal crystal theme)."
+    },
+    {
+      "id": "T345",
+      "title": "Wandering Inkmaker",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic wandering inkmaker encounter: commission illuminated scripts (20 mana + 15g → +0.22 mana/s 2.5min +20 prestige +8 morale), purchase ink formulas (18 wood → +0.18 wood/s 2min +12 prestige), send away. Medieval Age+, 8+ tiles, 13-17 min.",
+      "completed_date": "2026-05-20",
+      "notes": "Created wanderingInkmaker.js system, added WANDERING_INKMAKER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingInkmakerSection() and handlers to questPanel.js (import * as Inkmaker). Events.WANDERING_INKMAKER_CHANGED subscribed. Added inkmaker CSS (violet/purple theme)."
+    },
+    {
+      "id": "T346",
+      "title": "Imperial Dockmaster",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic imperial dockmaster encounter: establish trading docks (25 wood + 20g → +0.25 wood/s 2.5min +22 prestige +10 morale), commission harbor works (20 iron → +0.18 iron/s 2min +15 prestige), send away. Iron Age+, 10+ tiles, 13-18 min.",
+      "completed_date": "2026-05-20",
+      "notes": "Created imperialDockmaster.js system, added IMPERIAL_DOCKMASTER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialDockmasterSection() and handlers to questPanel.js (import * as Dockmaster). Events.IMPERIAL_DOCKMASTER_CHANGED subscribed. Added dockmaster CSS (sky blue/ocean theme)."
     }
   ],
   "session_history": [
@@ -1020,6 +1040,7 @@
     "Session 77 (T235-T236): Wandering Wood Carver (T337), Imperial Road Builder (T338)",
     "Session 78 (T237-T238): Wandering Embroiderer (T339), Royal Bookbinder (T340)",
     "Session 79 (T239-T240): Wandering Basketweaver (T341), Wandering Charcoal Maker (T342)",
-    "Session 80 (T241-T242): Wandering Tanner (T343), Imperial Glassmaker (T344)"
+    "Session 80 (T241-T242): Wandering Tanner (T343), Imperial Glassmaker (T344)",
+    "Session 81 (T243-T244): Wandering Inkmaker (T345), Imperial Dockmaster (T346)"
   ]
 }
