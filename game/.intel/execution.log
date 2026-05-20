@@ -1097,3 +1097,17 @@ Built imperialRoadBuilder.js: commissionImperialRoads (25 stone + 15 iron → +0
 Wired in main.js: import initImperialRoadBuilder+imperialRoadBuilderTick, registerSystem, initImperialRoadBuilder() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _imperialRoadBuilderSection() render + roadbuilder-build/roadbuilder-exchange/roadbuilder-away handlers to questPanel.js (import * as RoadBuilder). Events.IMPERIAL_ROAD_BUILDER_CHANGED subscribed.
 CSS: @keyframes roadbuilder-pulse (slate/gray), .roadbuilder-section--active, .btn--roadbuilder-build (slate blue), .btn--roadbuilder-exchange (amber/gold), .btn--roadbuilder-away (gray).
+
+Session 78 — T339–T340: Wandering Embroiderer, Royal Bookbinder.
+
+T339: Wandering Embroiderer — Stone Age+, 6+ tiles, 12–16 min, 80s window.
+Built wanderingEmbroiderer.js: embroiderImperialBanners (20 food + 15 wood → +0.22 food/s 2.5min +18 prestige +10 morale), purchaseNeedleworkPatterns (18g → +0.15 gold/s 2min +12 prestige), sendEmbroidererAway (dismiss). Added WANDERING_EMBROIDERER_CHANGED event to events.js. state.wanderingEmbroiderer null field.
+Wired in main.js: import initWanderingEmbroiderer+wanderingEmbroidererTick, registerSystem, initWanderingEmbroiderer() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingEmbroidererSection() render + embroiderer-embroider/embroiderer-purchase/embroiderer-away handlers to questPanel.js (import * as Embroiderer). Events.WANDERING_EMBROIDERER_CHANGED subscribed.
+CSS: @keyframes embroiderer-pulse (rose/pink), .embroiderer-section--active, .btn--embroiderer-embroider (rose/pink), .btn--embroiderer-purchase (amber/gold), .btn--embroiderer-away (gray).
+
+T340: Royal Bookbinder — Medieval Age+, 10+ tiles, 15–19 min, 80s window.
+Built royalBookbinder.js: commissionIlluminatedBinding (25 mana + 20g → +0.25 mana/s 2.5min +22 prestige +8 morale), purchaseBindingMaterials (20 stone → +0.18 stone/s 2min +15 prestige), sendBookbinderAway (dismiss). Added ROYAL_BOOKBINDER_CHANGED event to events.js. state.royalBookbinder null field.
+Wired in main.js: import initRoyalBookbinder+royalBookbinderTick, registerSystem, initRoyalBookbinder() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _royalBookbinderSection() render + bookbinder-commission/bookbinder-purchase/bookbinder-away handlers to questPanel.js (import * as Bookbinder). Events.ROYAL_BOOKBINDER_CHANGED subscribed.
+CSS: @keyframes bookbinder-pulse (indigo/violet), .bookbinder-section--active, .btn--bookbinder-commission (indigo), .btn--bookbinder-purchase (slate/gray), .btn--bookbinder-away (gray).

@@ -19103,3 +19103,81 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--roadbuilder-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T339 Wandering Embroiderer ─────────────────────────────────────────────── */
+@keyframes embroiderer-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(219, 39, 119, 0.0); }
+  50%       { box-shadow: 0 0 8px 2px rgba(219, 39, 119, 0.28); }
+}
+.embroiderer-section--active {
+  background: linear-gradient(135deg, rgba(131, 24, 67, 0.10), rgba(157, 23, 77, 0.07));
+  border: 1px solid rgba(219, 39, 119, 0.30); border-radius: 8px; padding: 10px 12px; margin-bottom: 10px;
+  animation: embroiderer-pulse 3.5s ease-in-out infinite;
+}
+.embroiderer-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.embroiderer-title   { font-size: 0.92rem; font-weight: 600; color: #f472b6; }
+.embroiderer-timer   { font-size: 0.78rem; color: #db2777; background: rgba(131, 24, 67, 0.12); padding: 2px 7px; border-radius: 10px; }
+.embroiderer-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.25); }
+.embroiderer-desc    { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.embroiderer-actions { display: flex; flex-direction: column; gap: 6px; }
+.embroiderer-cost    { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--embroiderer-embroider {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(131, 24, 67, 0.14), rgba(219, 39, 119, 0.10));
+  border: 1px solid rgba(219, 39, 119, 0.32); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #f472b6; text-align: left; transition: background 0.15s;
+}
+.btn--embroiderer-embroider:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(131, 24, 67, 0.24), rgba(219, 39, 119, 0.18)); }
+.btn--embroiderer-purchase {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(180, 140, 40, 0.12), rgba(161, 120, 20, 0.08));
+  border: 1px solid rgba(180, 140, 40, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fbbf24; text-align: left; transition: background 0.15s;
+}
+.btn--embroiderer-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(180, 140, 40, 0.22), rgba(161, 120, 20, 0.15)); }
+.btn--embroiderer-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--embroiderer-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T340 Royal Bookbinder ───────────────────────────────────────────────────── */
+@keyframes bookbinder-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.0); }
+  50%       { box-shadow: 0 0 8px 2px rgba(79, 70, 229, 0.28); }
+}
+.bookbinder-section--active {
+  background: linear-gradient(135deg, rgba(49, 46, 129, 0.10), rgba(67, 56, 202, 0.07));
+  border: 1px solid rgba(79, 70, 229, 0.30); border-radius: 8px; padding: 10px 12px; margin-bottom: 10px;
+  animation: bookbinder-pulse 3.5s ease-in-out infinite;
+}
+.bookbinder-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.bookbinder-title   { font-size: 0.92rem; font-weight: 600; color: #818cf8; }
+.bookbinder-timer   { font-size: 0.78rem; color: #6366f1; background: rgba(49, 46, 129, 0.12); padding: 2px 7px; border-radius: 10px; }
+.bookbinder-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.25); }
+.bookbinder-desc    { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.bookbinder-actions { display: flex; flex-direction: column; gap: 6px; }
+.bookbinder-cost    { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--bookbinder-commission {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(49, 46, 129, 0.14), rgba(79, 70, 229, 0.10));
+  border: 1px solid rgba(79, 70, 229, 0.32); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #818cf8; text-align: left; transition: background 0.15s;
+}
+.btn--bookbinder-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(49, 46, 129, 0.24), rgba(79, 70, 229, 0.18)); }
+.btn--bookbinder-purchase {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(71, 85, 105, 0.12), rgba(51, 65, 85, 0.08));
+  border: 1px solid rgba(71, 85, 105, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #94a3b8; text-align: left; transition: background 0.15s;
+}
+.btn--bookbinder-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(71, 85, 105, 0.22), rgba(51, 65, 85, 0.15)); }
+.btn--bookbinder-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--bookbinder-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

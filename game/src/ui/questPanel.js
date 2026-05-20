@@ -101,8 +101,10 @@ import * as Miller    from '../systems/wanderingMiller.js';          // T333
 import * as Courier   from '../systems/imperialCourier.js';          // T334
 import * as Baker     from '../systems/wanderingBaker.js';           // T335
 import * as Armorer   from '../systems/imperialArmorer.js';          // T336
-import * as WoodCarver from '../systems/wanderingWoodCarver.js';     // T337
-import * as RoadBuilder from '../systems/imperialRoadBuilder.js';    // T338
+import * as WoodCarver    from '../systems/wanderingWoodCarver.js';    // T337
+import * as RoadBuilder   from '../systems/imperialRoadBuilder.js';   // T338
+import * as Embroiderer   from '../systems/wanderingEmbroiderer.js';  // T339
+import * as Bookbinder    from '../systems/royalBookbinder.js';       // T340
 
 let _panel = null;
 
@@ -234,6 +236,8 @@ function _encountersSection() {
     _imperialArmorerSection(),
     _wanderingWoodCarverSection(),
     _imperialRoadBuilderSection(),
+    _wanderingEmbroidererSection(),
+    _royalBookbinderSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -3282,6 +3286,76 @@ function _imperialRoadBuilderSection() {
     </div>`;
 }
 
+// ── T339 Wandering Embroiderer ───────────────────────────────────────────────
+
+function _wanderingEmbroidererSection() {
+  if (!Embroiderer.getActiveWanderingEmbroiderer()) return '';
+  const secs         = Embroiderer.getEmbroidererSecsLeft();
+  const food         = Math.floor(state.resources.food ?? 0);
+  const wood         = Math.floor(state.resources.wood ?? 0);
+  const gold         = Math.floor(state.resources.gold ?? 0);
+  const canEmbroider = food >= Embroiderer.EMBROIDER_FOOD_COST && wood >= Embroiderer.EMBROIDER_WOOD_COST;
+  const canPurchase  = gold >= Embroiderer.PURCHASE_GOLD_COST;
+  const urg = secs <= 15 ? ' embroiderer-timer--urgent' : '';
+  return `
+    <div class="embroiderer-section--active">
+      <div class="embroiderer-header">
+        <span class="embroiderer-title">🪡 Wandering Embroiderer</span>
+        <span class="embroiderer-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="embroiderer-desc">A skilled embroiderer arrives bearing silk-work frames, skeins of gold and silver thread, and stunning examples of ornate heraldic banners and royal ceremonial garments. Their artistry could adorn the empire's halls and standards.</div>
+      <div class="embroiderer-actions">
+        <button class="btn--embroiderer-embroider${canEmbroider ? '' : ' btn--disabled'}" data-action="embroiderer-embroider" ${canEmbroider ? '' : 'disabled'}>
+          🪡 Embroider Imperial Banners — ${Embroiderer.EMBROIDER_FOOD_COST}🍞 + ${Embroiderer.EMBROIDER_WOOD_COST}🪵
+          <span class="embroiderer-cost">→ +${Embroiderer.EMBROIDER_FOOD_RATE} food/s (2.5 min) · +${Embroiderer.EMBROIDER_PRESTIGE_REWARD} prestige · +${Embroiderer.EMBROIDER_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--embroiderer-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="embroiderer-purchase" ${canPurchase ? '' : 'disabled'}>
+          📜 Purchase Needlework Patterns — ${Embroiderer.PURCHASE_GOLD_COST}💰
+          <span class="embroiderer-cost">→ +${Embroiderer.PURCHASE_GOLD_RATE} gold/s (2 min) · +${Embroiderer.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--embroiderer-away" data-action="embroiderer-away">
+          🚶 Send Away
+          <span class="embroiderer-cost">→ Embroiderer departs to continue their circuit through other settlements</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T340 Royal Bookbinder ────────────────────────────────────────────────────
+
+function _royalBookbinderSection() {
+  if (!Bookbinder.getActiveRoyalBookbinder()) return '';
+  const secs          = Bookbinder.getBookbinderSecsLeft();
+  const mana          = Math.floor(state.resources.mana ?? 0);
+  const gold          = Math.floor(state.resources.gold ?? 0);
+  const stone         = Math.floor(state.resources.stone ?? 0);
+  const canCommission = mana >= Bookbinder.COMMISSION_MANA_COST && gold >= Bookbinder.COMMISSION_GOLD_COST;
+  const canPurchase   = stone >= Bookbinder.PURCHASE_STONE_COST;
+  const urg = secs <= 15 ? ' bookbinder-timer--urgent' : '';
+  return `
+    <div class="bookbinder-section--active">
+      <div class="bookbinder-header">
+        <span class="bookbinder-title">📚 Royal Bookbinder</span>
+        <span class="bookbinder-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="bookbinder-desc">A master royal bookbinder arrives bearing tooled leather covers, gilded spine-plates, and fine parchment quires. They offer to bind illuminated codices and imperial law books into lasting magnificent volumes for the royal scriptorium.</div>
+      <div class="bookbinder-actions">
+        <button class="btn--bookbinder-commission${canCommission ? '' : ' btn--disabled'}" data-action="bookbinder-commission" ${canCommission ? '' : 'disabled'}>
+          📚 Commission Illuminated Binding — ${Bookbinder.COMMISSION_MANA_COST}✨ + ${Bookbinder.COMMISSION_GOLD_COST}💰
+          <span class="bookbinder-cost">→ +${Bookbinder.COMMISSION_MANA_RATE} mana/s (2.5 min) · +${Bookbinder.COMMISSION_PRESTIGE_REWARD} prestige · +${Bookbinder.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--bookbinder-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="bookbinder-purchase" ${canPurchase ? '' : 'disabled'}>
+          🪨 Purchase Binding Materials — ${Bookbinder.PURCHASE_STONE_COST}🪨
+          <span class="bookbinder-cost">→ +${Bookbinder.PURCHASE_STONE_RATE} stone/s (2 min) · +${Bookbinder.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--bookbinder-away" data-action="bookbinder-away">
+          🚶 Send Away
+          <span class="bookbinder-cost">→ Bookbinder departs to serve other imperial courts along the circuit</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -3651,6 +3725,14 @@ const _HANDLERS = {
   'roadbuilder-build':       () => RoadBuilder.commissionImperialRoads(),
   'roadbuilder-exchange':    () => RoadBuilder.exchangeRoadMaps(),
   'roadbuilder-away':        () => RoadBuilder.sendRoadBuilderAway(),
+
+  'embroiderer-embroider':   () => Embroiderer.embroiderImperialBanners(),
+  'embroiderer-purchase':    () => Embroiderer.purchaseNeedleworkPatterns(),
+  'embroiderer-away':        () => Embroiderer.sendEmbroidererAway(),
+
+  'bookbinder-commission':   () => Bookbinder.commissionIlluminatedBinding(),
+  'bookbinder-purchase':     () => Bookbinder.purchaseBindingMaterials(),
+  'bookbinder-away':         () => Bookbinder.sendBookbinderAway(),
 };
 
 function _handleClick(e) {
@@ -3761,6 +3843,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_ARMORER_CHANGED,
     Events.WANDERING_WOOD_CARVER_CHANGED,
     Events.IMPERIAL_ROAD_BUILDER_CHANGED,
+    Events.WANDERING_EMBROIDERER_CHANGED,
+    Events.ROYAL_BOOKBINDER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

@@ -900,6 +900,26 @@
       "description": "Periodic imperial road builder encounter: commission imperial roads (25 stone + 15 iron \u2192 +0.20 stone/s 2.5min +22 prestige +12 morale), exchange road maps (20g \u2192 +0.15 gold/s 2min +15 prestige), send away. Iron Age+, 10+ tiles, 14-18 min.",
       "completed_date": "2026-05-20",
       "notes": "Created imperialRoadBuilder.js system, added IMPERIAL_ROAD_BUILDER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialRoadBuilderSection() and handlers to questPanel.js (import * as RoadBuilder). Events.IMPERIAL_ROAD_BUILDER_CHANGED subscribed. Added roadbuilder CSS (slate/gray theme)."
+    },
+    {
+      "id": "T339",
+      "title": "Wandering Embroiderer",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic wandering embroiderer encounter: embroider imperial banners (20 food + 15 wood \u2192 +0.22 food/s 2.5min +18 prestige +10 morale), purchase needlework patterns (18g \u2192 +0.15 gold/s 2min +12 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
+      "completed_date": "2026-05-20",
+      "notes": "Created wanderingEmbroiderer.js system, added WANDERING_EMBROIDERER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingEmbroidererSection() and handlers to questPanel.js (import * as Embroiderer). Events.WANDERING_EMBROIDERER_CHANGED subscribed. Added embroiderer CSS (rose/pink theme)."
+    },
+    {
+      "id": "T340",
+      "title": "Royal Bookbinder",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic royal bookbinder encounter: commission illuminated binding (25 mana + 20g \u2192 +0.25 mana/s 2.5min +22 prestige +8 morale), purchase binding materials (20 stone \u2192 +0.18 stone/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 15-19 min.",
+      "completed_date": "2026-05-20",
+      "notes": "Created royalBookbinder.js system, added ROYAL_BOOKBINDER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _royalBookbinderSection() and handlers to questPanel.js (import * as Bookbinder). Events.ROYAL_BOOKBINDER_CHANGED subscribed. Added bookbinder CSS (indigo/violet theme)."
     }
   ],
   "session_history": [
@@ -957,6 +977,7 @@
     "Session 74 (T229-T230): Wandering Tailor (T331), Wandering Tinsmith (T332)",
     "Session 75 (T231-T232): Wandering Miller (T333), Imperial Courier (T334)",
     "Session 76 (T233-T234): Wandering Baker (T335), Imperial Armorer (T336)",
-    "Session 77 (T235-T236): Wandering Wood Carver (T337), Imperial Road Builder (T338)"
+    "Session 77 (T235-T236): Wandering Wood Carver (T337), Imperial Road Builder (T338)",
+    "Session 78 (T237-T238): Wandering Embroiderer (T339), Royal Bookbinder (T340)"
   ]
 }
