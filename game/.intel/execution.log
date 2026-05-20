@@ -1082,3 +1082,18 @@ Built imperialArmorer.js: forgeImperialArmor (25 iron + 15 wood → +0.22 iron/s
 Wired in main.js: import initImperialArmorer+imperialArmorerTick, registerSystem, initImperialArmorer() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _imperialArmorerSection() render + armorer-forge/armorer-tech/armorer-away handlers to questPanel.js (import * as Armorer). Events.IMPERIAL_ARMORER_CHANGED subscribed.
 CSS: @keyframes armorer-pulse (slate/steel blue-gray), .armorer-section--active, .btn--armorer-forge (slate blue), .btn--armorer-tech (stone/tan), .btn--armorer-away (gray).
+
+Session 77 — T337–T338: Wandering Wood Carver, Imperial Road Builder.
+No pending tasks found; created T337 and T338 from Phase 6+ roadmap expansion, then implemented both.
+
+T235: Wandering Wood Carver (T337) — Stone Age+, 6+ tiles, 12–16 min, 80s window.
+Built wanderingWoodCarver.js: commissionDecorativeCarvings (20 wood → +0.22 wood/s 2.5min +18 prestige +8 morale), purchaseCarvingTemplates (18g → +0.15 gold/s 2min +12 prestige), sendWoodCarverAway (dismiss). Added WANDERING_WOOD_CARVER_CHANGED event to events.js. state.wanderingWoodCarver null field.
+Wired in main.js: import initWanderingWoodCarver+wanderingWoodCarverTick, registerSystem, initWanderingWoodCarver() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingWoodCarverSection() render + woodcarver-commission/woodcarver-purchase/woodcarver-away handlers to questPanel.js (import * as WoodCarver). Events.WANDERING_WOOD_CARVER_CHANGED subscribed.
+CSS: @keyframes woodcarver-pulse (warm brown/cedar), .woodcarver-section--active, .btn--woodcarver-commission (brown/cedar), .btn--woodcarver-purchase (green), .btn--woodcarver-away (gray).
+
+T236: Imperial Road Builder (T338) — Iron Age+, 10+ tiles, 14–18 min, 80s window.
+Built imperialRoadBuilder.js: commissionImperialRoads (25 stone + 15 iron → +0.20 stone/s 2.5min +22 prestige +12 morale), exchangeRoadMaps (20g → +0.15 gold/s 2min +15 prestige), sendRoadBuilderAway (dismiss). Added IMPERIAL_ROAD_BUILDER_CHANGED event to events.js. state.imperialRoadBuilder null field.
+Wired in main.js: import initImperialRoadBuilder+imperialRoadBuilderTick, registerSystem, initImperialRoadBuilder() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _imperialRoadBuilderSection() render + roadbuilder-build/roadbuilder-exchange/roadbuilder-away handlers to questPanel.js (import * as RoadBuilder). Events.IMPERIAL_ROAD_BUILDER_CHANGED subscribed.
+CSS: @keyframes roadbuilder-pulse (slate/gray), .roadbuilder-section--active, .btn--roadbuilder-build (slate blue), .btn--roadbuilder-exchange (amber/gold), .btn--roadbuilder-away (gray).

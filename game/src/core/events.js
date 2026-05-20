@@ -278,4 +278,6 @@ export const Events = Object.freeze({
   IMPERIAL_COURIER_CHANGED:         'imperialCourierChanged',                 // T334: courier spawned / established / exchanged / dismissed / expired
   WANDERING_BAKER_CHANGED:          'wanderingBakerChanged',                   // T335: baker spawned / baked / shared / dismissed / expired
   IMPERIAL_ARMORER_CHANGED:         'imperialArmorerChanged',                  // T336: armorer spawned / forged / shared / dismissed / expired
+  WANDERING_WOOD_CARVER_CHANGED:    'wanderingWoodCarverChanged',               // T337: wood carver spawned / commissioned / purchased / dismissed / expired
+  IMPERIAL_ROAD_BUILDER_CHANGED:    'imperialRoadBuilderChanged',               // T338: road builder spawned / built / exchanged / dismissed / expired
 });

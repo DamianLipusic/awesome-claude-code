@@ -101,6 +101,8 @@ import * as Miller    from '../systems/wanderingMiller.js';          // T333
 import * as Courier   from '../systems/imperialCourier.js';          // T334
 import * as Baker     from '../systems/wanderingBaker.js';           // T335
 import * as Armorer   from '../systems/imperialArmorer.js';          // T336
+import * as WoodCarver from '../systems/wanderingWoodCarver.js';     // T337
+import * as RoadBuilder from '../systems/imperialRoadBuilder.js';    // T338
 
 let _panel = null;
 
@@ -230,6 +232,8 @@ function _encountersSection() {
     _imperialCourierSection(),
     _wanderingBakerSection(),
     _imperialArmorerSection(),
+    _wanderingWoodCarverSection(),
+    _imperialRoadBuilderSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -3209,6 +3213,75 @@ function _imperialArmorerSection() {
     </div>`;
 }
 
+// ── T337 Wandering Wood Carver ───────────────────────────────────────────────
+
+function _wanderingWoodCarverSection() {
+  if (!WoodCarver.getActiveWanderingWoodCarver()) return '';
+  const secs           = WoodCarver.getWoodCarverSecsLeft();
+  const wood           = Math.floor(state.resources.wood ?? 0);
+  const gold           = Math.floor(state.resources.gold ?? 0);
+  const canCommission  = wood >= WoodCarver.COMMISSION_WOOD_COST;
+  const canPurchase    = gold >= WoodCarver.PURCHASE_GOLD_COST;
+  const urg = secs <= 15 ? ' woodcarver-timer--urgent' : '';
+  return `
+    <div class="woodcarver-section--active">
+      <div class="woodcarver-header">
+        <span class="woodcarver-title">🪵 Wandering Wood Carver</span>
+        <span class="woodcarver-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="woodcarver-desc">A skilled wood carver arrives bearing fine chisels, hand gouges, and beautiful examples of decorative relief panels, figurines, and ornamental carvings crafted from rare hardwoods. Their artistry could enrich the empire's halls and markets.</div>
+      <div class="woodcarver-actions">
+        <button class="btn--woodcarver-commission${canCommission ? '' : ' btn--disabled'}" data-action="woodcarver-commission" ${canCommission ? '' : 'disabled'}>
+          🪵 Commission Decorative Carvings — ${WoodCarver.COMMISSION_WOOD_COST}🪵
+          <span class="woodcarver-cost">→ +${WoodCarver.COMMISSION_WOOD_RATE} wood/s (2.5 min) · +${WoodCarver.COMMISSION_PRESTIGE_REWARD} prestige · +${WoodCarver.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--woodcarver-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="woodcarver-purchase" ${canPurchase ? '' : 'disabled'}>
+          📜 Purchase Carving Templates — ${WoodCarver.PURCHASE_GOLD_COST}💰
+          <span class="woodcarver-cost">→ +${WoodCarver.PURCHASE_GOLD_RATE} gold/s (2 min) · +${WoodCarver.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--woodcarver-away" data-action="woodcarver-away">
+          🚶 Send Away
+          <span class="woodcarver-cost">→ Carver departs to continue their circuit through other settlements</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T338 Imperial Road Builder ───────────────────────────────────────────────
+
+function _imperialRoadBuilderSection() {
+  if (!RoadBuilder.getActiveImperialRoadBuilder()) return '';
+  const secs         = RoadBuilder.getRoadBuilderSecsLeft();
+  const stone        = Math.floor(state.resources.stone ?? 0);
+  const iron         = Math.floor(state.resources.iron ?? 0);
+  const gold         = Math.floor(state.resources.gold ?? 0);
+  const canBuild     = stone >= RoadBuilder.BUILD_STONE_COST && iron >= RoadBuilder.BUILD_IRON_COST;
+  const canExchange  = gold >= RoadBuilder.EXCHANGE_GOLD_COST;
+  const urg = secs <= 15 ? ' roadbuilder-timer--urgent' : '';
+  return `
+    <div class="roadbuilder-section--active">
+      <div class="roadbuilder-header">
+        <span class="roadbuilder-title">🛤️ Imperial Road Builder</span>
+        <span class="roadbuilder-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="roadbuilder-desc">A master imperial road builder arrives bearing precision survey rods, rolled parchment blueprints, and detailed topographic maps. They offer to commission stone-paved roads across the empire or share their road-building expertise.</div>
+      <div class="roadbuilder-actions">
+        <button class="btn--roadbuilder-build${canBuild ? '' : ' btn--disabled'}" data-action="roadbuilder-build" ${canBuild ? '' : 'disabled'}>
+          🛤️ Commission Imperial Roads — ${RoadBuilder.BUILD_STONE_COST}🪨 + ${RoadBuilder.BUILD_IRON_COST}🔩
+          <span class="roadbuilder-cost">→ +${RoadBuilder.BUILD_STONE_RATE} stone/s (2.5 min) · +${RoadBuilder.BUILD_PRESTIGE_REWARD} prestige · +${RoadBuilder.BUILD_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--roadbuilder-exchange${canExchange ? '' : ' btn--disabled'}" data-action="roadbuilder-exchange" ${canExchange ? '' : 'disabled'}>
+          🗺️ Exchange Road Maps — ${RoadBuilder.EXCHANGE_GOLD_COST}💰
+          <span class="roadbuilder-cost">→ +${RoadBuilder.EXCHANGE_GOLD_RATE} gold/s (2 min) · +${RoadBuilder.EXCHANGE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--roadbuilder-away" data-action="roadbuilder-away">
+          🚶 Send Away
+          <span class="roadbuilder-cost">→ Builder departs to survey road opportunities in other territories</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -3570,6 +3643,14 @@ const _HANDLERS = {
   'armorer-forge':           () => Armorer.forgeImperialArmor(),
   'armorer-tech':            () => Armorer.shareArmorTechniques(),
   'armorer-away':            () => Armorer.sendArmorerAway(),
+
+  'woodcarver-commission':   () => WoodCarver.commissionDecorativeCarvings(),
+  'woodcarver-purchase':     () => WoodCarver.purchaseCarvingTemplates(),
+  'woodcarver-away':         () => WoodCarver.sendWoodCarverAway(),
+
+  'roadbuilder-build':       () => RoadBuilder.commissionImperialRoads(),
+  'roadbuilder-exchange':    () => RoadBuilder.exchangeRoadMaps(),
+  'roadbuilder-away':        () => RoadBuilder.sendRoadBuilderAway(),
 };
 
 function _handleClick(e) {
@@ -3678,6 +3759,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_COURIER_CHANGED,
     Events.WANDERING_BAKER_CHANGED,
     Events.IMPERIAL_ARMORER_CHANGED,
+    Events.WANDERING_WOOD_CARVER_CHANGED,
+    Events.IMPERIAL_ROAD_BUILDER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);
