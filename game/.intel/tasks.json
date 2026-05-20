@@ -920,6 +920,26 @@
       "description": "Periodic royal bookbinder encounter: commission illuminated binding (25 mana + 20g \u2192 +0.25 mana/s 2.5min +22 prestige +8 morale), purchase binding materials (20 stone \u2192 +0.18 stone/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 15-19 min.",
       "completed_date": "2026-05-20",
       "notes": "Created royalBookbinder.js system, added ROYAL_BOOKBINDER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _royalBookbinderSection() and handlers to questPanel.js (import * as Bookbinder). Events.ROYAL_BOOKBINDER_CHANGED subscribed. Added bookbinder CSS (indigo/violet theme)."
+    },
+    {
+      "id": "T341",
+      "title": "Wandering Basketweaver",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic wandering basketweaver encounter: weave imperial baskets (20 wood → +0.22 wood/s 2.5min +18 prestige +8 morale), purchase weaving patterns (18g → +0.15 gold/s 2min +12 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
+      "completed_date": "2026-05-20",
+      "notes": "Created wanderingBasketweaver.js system, added WANDERING_BASKETWEAVER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingBasketweaverSection() and handlers to questPanel.js (import * as Basketweaver). Events.WANDERING_BASKETWEAVER_CHANGED subscribed. Added basketweaver CSS (warm amber/brown theme)."
+    },
+    {
+      "id": "T342",
+      "title": "Wandering Charcoal Maker",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic wandering charcoal maker encounter: commission charcoal works (20 wood + 10 food → +0.20 iron/s 2.5min +15 prestige +8 morale), purchase char-burning lore (18g → +0.15 food/s 2min +10 prestige), send away. Stone Age+, 6+ tiles, 13-17 min.",
+      "completed_date": "2026-05-20",
+      "notes": "Created wanderingCharcoalMaker.js system, added WANDERING_CHARCOAL_MAKER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingCharcoalMakerSection() and handlers to questPanel.js (import * as CharcoalMaker). Events.WANDERING_CHARCOAL_MAKER_CHANGED subscribed. Added charcoal CSS (dark slate/gray with amber accent theme)."
     }
   ],
   "session_history": [
@@ -978,6 +998,7 @@
     "Session 75 (T231-T232): Wandering Miller (T333), Imperial Courier (T334)",
     "Session 76 (T233-T234): Wandering Baker (T335), Imperial Armorer (T336)",
     "Session 77 (T235-T236): Wandering Wood Carver (T337), Imperial Road Builder (T338)",
-    "Session 78 (T237-T238): Wandering Embroiderer (T339), Royal Bookbinder (T340)"
+    "Session 78 (T237-T238): Wandering Embroiderer (T339), Royal Bookbinder (T340)",
+    "Session 79 (T239-T240): Wandering Basketweaver (T341), Wandering Charcoal Maker (T342)"
   ]
 }

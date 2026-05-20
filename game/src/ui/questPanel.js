@@ -105,6 +105,8 @@ import * as WoodCarver    from '../systems/wanderingWoodCarver.js';    // T337
 import * as RoadBuilder   from '../systems/imperialRoadBuilder.js';   // T338
 import * as Embroiderer   from '../systems/wanderingEmbroiderer.js';  // T339
 import * as Bookbinder    from '../systems/royalBookbinder.js';       // T340
+import * as Basketweaver  from '../systems/wanderingBasketweaver.js'; // T341
+import * as CharcoalMaker from '../systems/wanderingCharcoalMaker.js'; // T342
 
 let _panel = null;
 
@@ -238,6 +240,8 @@ function _encountersSection() {
     _imperialRoadBuilderSection(),
     _wanderingEmbroidererSection(),
     _royalBookbinderSection(),
+    _wanderingBasketweaverSection(),
+    _wanderingCharcoalMakerSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -3356,6 +3360,71 @@ function _royalBookbinderSection() {
     </div>`;
 }
 
+function _wanderingBasketweaverSection() {
+  if (!Basketweaver.getActiveWanderingBasketweaver()) return '';
+  const secs       = Basketweaver.getBasketweaverSecsLeft();
+  const wood       = Math.floor(state.resources.wood ?? 0);
+  const gold       = Math.floor(state.resources.gold ?? 0);
+  const canWeave   = wood >= Basketweaver.WEAVE_WOOD_COST;
+  const canPurchase = gold >= Basketweaver.PURCHASE_GOLD_COST;
+  const urg = secs <= 15 ? ' basketweaver-timer--urgent' : '';
+  return `
+    <div class="basketweaver-section--active">
+      <div class="basketweaver-header">
+        <span class="basketweaver-title">🧺 Wandering Basketweaver</span>
+        <span class="basketweaver-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="basketweaver-desc">A wandering basketweaver arrives bearing bundles of river reeds, dyed wood strips, and ancient family weaving patterns. Their craft could furnish the empire with sturdy storage baskets and boost commerce with artisan wicker goods.</div>
+      <div class="basketweaver-actions">
+        <button class="btn--basketweaver-weave${canWeave ? '' : ' btn--disabled'}" data-action="basketweaver-weave" ${canWeave ? '' : 'disabled'}>
+          🧺 Weave Imperial Baskets — ${Basketweaver.WEAVE_WOOD_COST}🪵
+          <span class="basketweaver-cost">→ +${Basketweaver.WEAVE_WOOD_RATE} wood/s (2.5 min) · +${Basketweaver.WEAVE_PRESTIGE_REWARD} prestige · +${Basketweaver.WEAVE_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--basketweaver-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="basketweaver-purchase" ${canPurchase ? '' : 'disabled'}>
+          📜 Purchase Weaving Patterns — ${Basketweaver.PURCHASE_GOLD_COST}💰
+          <span class="basketweaver-cost">→ +${Basketweaver.PURCHASE_GOLD_RATE} gold/s (2 min) · +${Basketweaver.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--basketweaver-away" data-action="basketweaver-away">
+          🚶 Send Away
+          <span class="basketweaver-cost">→ Basketweaver departs to seek other settlements on their craft circuit</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _wanderingCharcoalMakerSection() {
+  if (!CharcoalMaker.getActiveWanderingCharcoalMaker()) return '';
+  const secs           = CharcoalMaker.getCharcoalMakerSecsLeft();
+  const wood           = Math.floor(state.resources.wood ?? 0);
+  const food           = Math.floor(state.resources.food ?? 0);
+  const gold           = Math.floor(state.resources.gold ?? 0);
+  const canCommission  = wood >= CharcoalMaker.COMMISSION_WOOD_COST && food >= CharcoalMaker.COMMISSION_FOOD_COST;
+  const canPurchase    = gold >= CharcoalMaker.PURCHASE_GOLD_COST;
+  const urg = secs <= 15 ? ' charcoal-timer--urgent' : '';
+  return `
+    <div class="charcoal-section--active">
+      <div class="charcoal-header">
+        <span class="charcoal-title">🪵 Wandering Charcoal Maker</span>
+        <span class="charcoal-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="charcoal-desc">A wandering charcoal maker arrives bearing sacks of high-grade charcoal, blackened iron tongs, and ancient kiln-building secrets. Their slow-burning kilns can supercharge imperial forges and smelters to dramatically increase iron output.</div>
+      <div class="charcoal-actions">
+        <button class="btn--charcoal-commission${canCommission ? '' : ' btn--disabled'}" data-action="charcoal-commission" ${canCommission ? '' : 'disabled'}>
+          🪵 Commission Charcoal Works — ${CharcoalMaker.COMMISSION_WOOD_COST}🪵 + ${CharcoalMaker.COMMISSION_FOOD_COST}🌾
+          <span class="charcoal-cost">→ +${CharcoalMaker.COMMISSION_IRON_RATE} iron/s (2.5 min) · +${CharcoalMaker.COMMISSION_PRESTIGE_REWARD} prestige · +${CharcoalMaker.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--charcoal-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="charcoal-purchase" ${canPurchase ? '' : 'disabled'}>
+          📜 Purchase Char-Burning Lore — ${CharcoalMaker.PURCHASE_GOLD_COST}💰
+          <span class="charcoal-cost">→ +${CharcoalMaker.PURCHASE_FOOD_RATE} food/s (2 min) · +${CharcoalMaker.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--charcoal-away" data-action="charcoal-away">
+          🚶 Send Away
+          <span class="charcoal-cost">→ Charcoal maker departs to supply the next forge settlement on their long route</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -3733,6 +3802,14 @@ const _HANDLERS = {
   'bookbinder-commission':   () => Bookbinder.commissionIlluminatedBinding(),
   'bookbinder-purchase':     () => Bookbinder.purchaseBindingMaterials(),
   'bookbinder-away':         () => Bookbinder.sendBookbinderAway(),
+
+  'basketweaver-weave':      () => Basketweaver.weaveImperialBaskets(),
+  'basketweaver-purchase':   () => Basketweaver.purchaseWeavingPatterns(),
+  'basketweaver-away':       () => Basketweaver.sendBasketweaverAway(),
+
+  'charcoal-commission':     () => CharcoalMaker.commissionCharcoalWorks(),
+  'charcoal-purchase':       () => CharcoalMaker.purchaseCharBurningLore(),
+  'charcoal-away':           () => CharcoalMaker.sendCharcoalMakerAway(),
 };
 
 function _handleClick(e) {
@@ -3845,6 +3922,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_ROAD_BUILDER_CHANGED,
     Events.WANDERING_EMBROIDERER_CHANGED,
     Events.ROYAL_BOOKBINDER_CHANGED,
+    Events.WANDERING_BASKETWEAVER_CHANGED,
+    Events.WANDERING_CHARCOAL_MAKER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

@@ -1111,3 +1111,17 @@ Built royalBookbinder.js: commissionIlluminatedBinding (25 mana + 20g → +0.25 
 Wired in main.js: import initRoyalBookbinder+royalBookbinderTick, registerSystem, initRoyalBookbinder() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _royalBookbinderSection() render + bookbinder-commission/bookbinder-purchase/bookbinder-away handlers to questPanel.js (import * as Bookbinder). Events.ROYAL_BOOKBINDER_CHANGED subscribed.
 CSS: @keyframes bookbinder-pulse (indigo/violet), .bookbinder-section--active, .btn--bookbinder-commission (indigo), .btn--bookbinder-purchase (slate/gray), .btn--bookbinder-away (gray).
+
+Session 79 — T341–T342: Wandering Basketweaver, Wandering Charcoal Maker.
+
+T341: Wandering Basketweaver — Stone Age+, 6+ tiles, 12–16 min, 80s window.
+Built wanderingBasketweaver.js: weaveImperialBaskets (20 wood → +0.22 wood/s 2.5min +18 prestige +8 morale), purchaseWeavingPatterns (18g → +0.15 gold/s 2min +12 prestige), sendBasketweaverAway (dismiss). Added WANDERING_BASKETWEAVER_CHANGED event to events.js. state.wanderingBasketweaver null field.
+Wired in main.js: import initWanderingBasketweaver+wanderingBasketweaverTick, registerSystem, initWanderingBasketweaver() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingBasketweaverSection() render + basketweaver-weave/basketweaver-purchase/basketweaver-away handlers to questPanel.js (import * as Basketweaver). Events.WANDERING_BASKETWEAVER_CHANGED subscribed.
+CSS: @keyframes basketweaver-pulse (warm amber/brown), .basketweaver-section--active, .btn--basketweaver-weave (amber), .btn--basketweaver-purchase (green), .btn--basketweaver-away (gray).
+
+T342: Wandering Charcoal Maker — Stone Age+, 6+ tiles, 13–17 min, 80s window.
+Built wanderingCharcoalMaker.js: commissionCharcoalWorks (20 wood + 10 food → +0.20 iron/s 2.5min +15 prestige +8 morale), purchaseCharBurningLore (18g → +0.15 food/s 2min +10 prestige), sendCharcoalMakerAway (dismiss). Added WANDERING_CHARCOAL_MAKER_CHANGED event to events.js. state.wanderingCharcoalMaker null field.
+Wired in main.js: import initWanderingCharcoalMaker+wanderingCharcoalMakerTick, registerSystem, initWanderingCharcoalMaker() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingCharcoalMakerSection() render + charcoal-commission/charcoal-purchase/charcoal-away handlers to questPanel.js (import * as CharcoalMaker). Events.WANDERING_CHARCOAL_MAKER_CHANGED subscribed.
+CSS: @keyframes charcoal-pulse (dark slate/gray with amber accent), .charcoal-section--active, .btn--charcoal-commission (slate/gray), .btn--charcoal-purchase (amber/gold), .btn--charcoal-away (gray).

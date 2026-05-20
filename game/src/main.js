@@ -282,6 +282,8 @@ import { initWanderingWoodCarver, wanderingWoodCarverTick }         from './syst
 import { initImperialRoadBuilder, imperialRoadBuilderTick }         from './systems/imperialRoadBuilder.js';       // T338
 import { initWanderingEmbroiderer, wanderingEmbroidererTick }       from './systems/wanderingEmbroiderer.js';      // T339
 import { initRoyalBookbinder, royalBookbinderTick }                 from './systems/royalBookbinder.js';           // T340
+import { initWanderingBasketweaver, wanderingBasketweaverTick }     from './systems/wanderingBasketweaver.js';     // T341
+import { initWanderingCharcoalMaker, wanderingCharcoalMakerTick }   from './systems/wanderingCharcoalMaker.js';   // T342
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -570,6 +572,8 @@ function _registerAllSystems() {
   registerSystem(imperialRoadBuilderTick);           // T338
   registerSystem(wanderingEmbroidererTick);          // T339
   registerSystem(royalBookbinderTick);               // T340
+  registerSystem(wanderingBasketweaverTick);         // T341
+  registerSystem(wanderingCharcoalMakerTick);        // T342
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -843,6 +847,8 @@ function _save() {
     imperialRoadBuilder:        state.imperialRoadBuilder,        // T338
     wanderingEmbroiderer:       state.wanderingEmbroiderer,       // T339
     royalBookbinder:            state.royalBookbinder,            // T340
+    wanderingBasketweaver:      state.wanderingBasketweaver,      // T341
+    wanderingCharcoalMaker:     state.wanderingCharcoalMaker,     // T342
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -1121,6 +1127,8 @@ function _applySave(s) {
   state.imperialRoadBuilder        = s.imperialRoadBuilder ?? null;        // T338
   state.wanderingEmbroiderer       = s.wanderingEmbroiderer ?? null;       // T339
   state.royalBookbinder            = s.royalBookbinder ?? null;            // T340
+  state.wanderingBasketweaver      = s.wanderingBasketweaver ?? null;      // T341
+  state.wanderingCharcoalMaker     = s.wanderingCharcoalMaker ?? null;     // T342
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -1405,6 +1413,8 @@ function _startFreshGame() {
   initImperialRoadBuilder();           // T338
   initWanderingEmbroiderer();          // T339
   initRoyalBookbinder();               // T340
+  initWanderingBasketweaver();         // T341
+  initWanderingCharcoalMaker();        // T342
   initAchievements();
   initLeaderboard();
 }
@@ -1672,6 +1682,8 @@ function _startLoadedGame(savedData) {
   initImperialRoadBuilder();           // T338
   initWanderingEmbroiderer();          // T339
   initRoyalBookbinder();               // T340
+  initWanderingBasketweaver();         // T341
+  initWanderingCharcoalMaker();        // T342
   initAchievements();
   initLeaderboard();
 }

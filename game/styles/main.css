@@ -19181,3 +19181,77 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--bookbinder-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T341: Wandering Basketweaver ── */
+@keyframes basketweaver-pulse {
+  0%, 100% { border-color: rgba(120, 80, 40, 0.35); box-shadow: 0 0 0 rgba(120, 80, 40, 0); }
+  50%       { border-color: rgba(180, 130, 60, 0.65); box-shadow: 0 0 10px rgba(180, 130, 60, 0.20); }
+}
+.basketweaver-section--active {
+  background: linear-gradient(135deg, rgba(120, 80, 40, 0.10), rgba(92, 60, 20, 0.06));
+  border: 1px solid rgba(120, 80, 40, 0.35); border-radius: 8px;
+  padding: 10px 12px; margin-bottom: 10px;
+  animation: basketweaver-pulse 3.5s ease-in-out infinite;
+}
+.basketweaver-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.basketweaver-title   { font-size: 0.92rem; font-weight: 600; color: #d97706; }
+.basketweaver-timer   { font-size: 0.78rem; color: #b45309; background: rgba(120, 53, 15, 0.12); padding: 2px 7px; border-radius: 10px; }
+.basketweaver-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.25); }
+.basketweaver-desc    { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.basketweaver-actions { display: flex; flex-direction: column; gap: 6px; }
+.basketweaver-cost    { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--basketweaver-weave {
+  background: linear-gradient(135deg, rgba(120, 80, 40, 0.14), rgba(92, 60, 20, 0.09));
+  border: 1px solid rgba(180, 130, 60, 0.35); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #d97706; text-align: left; transition: background 0.15s;
+}
+.btn--basketweaver-weave:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(120, 80, 40, 0.26), rgba(92, 60, 20, 0.18)); }
+.btn--basketweaver-purchase {
+  background: linear-gradient(135deg, rgba(22, 101, 52, 0.12), rgba(20, 83, 45, 0.08));
+  border: 1px solid rgba(22, 101, 52, 0.30); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #4ade80; text-align: left; transition: background 0.15s;
+}
+.btn--basketweaver-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(22, 101, 52, 0.22), rgba(20, 83, 45, 0.15)); }
+.btn--basketweaver-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--basketweaver-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T342: Wandering Charcoal Maker ── */
+@keyframes charcoal-pulse {
+  0%, 100% { border-color: rgba(55, 65, 81, 0.40); box-shadow: 0 0 0 rgba(55, 65, 81, 0); }
+  50%       { border-color: rgba(107, 114, 128, 0.65); box-shadow: 0 0 10px rgba(107, 114, 128, 0.18); }
+}
+.charcoal-section--active {
+  background: linear-gradient(135deg, rgba(55, 65, 81, 0.12), rgba(31, 41, 55, 0.08));
+  border: 1px solid rgba(55, 65, 81, 0.40); border-radius: 8px;
+  padding: 10px 12px; margin-bottom: 10px;
+  animation: charcoal-pulse 3.5s ease-in-out infinite;
+}
+.charcoal-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.charcoal-title   { font-size: 0.92rem; font-weight: 600; color: #9ca3af; }
+.charcoal-timer   { font-size: 0.78rem; color: #6b7280; background: rgba(55, 65, 81, 0.12); padding: 2px 7px; border-radius: 10px; }
+.charcoal-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.25); }
+.charcoal-desc    { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.charcoal-actions { display: flex; flex-direction: column; gap: 6px; }
+.charcoal-cost    { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--charcoal-commission {
+  background: linear-gradient(135deg, rgba(55, 65, 81, 0.16), rgba(31, 41, 55, 0.10));
+  border: 1px solid rgba(107, 114, 128, 0.35); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #d1d5db; text-align: left; transition: background 0.15s;
+}
+.btn--charcoal-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(55, 65, 81, 0.28), rgba(31, 41, 55, 0.20)); }
+.btn--charcoal-purchase {
+  background: linear-gradient(135deg, rgba(180, 120, 20, 0.12), rgba(120, 80, 10, 0.08));
+  border: 1px solid rgba(180, 120, 20, 0.30); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fbbf24; text-align: left; transition: background 0.15s;
+}
+.btn--charcoal-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(180, 120, 20, 0.22), rgba(120, 80, 10, 0.15)); }
+.btn--charcoal-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--charcoal-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
