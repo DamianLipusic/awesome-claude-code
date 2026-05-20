@@ -19415,3 +19415,83 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--dockmaster-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T347: Wandering Storyteller ── */
+@keyframes storyteller-pulse {
+  0%, 100% { border-color: rgba(217, 119, 6, 0.30); box-shadow: 0 0 0 rgba(217, 119, 6, 0); }
+  50%       { border-color: rgba(245, 158, 11, 0.60); box-shadow: 0 0 10px rgba(245, 158, 11, 0.18); }
+}
+.storyteller-section--active {
+  background: linear-gradient(135deg, rgba(217, 119, 6, 0.09), rgba(180, 83, 9, 0.06));
+  border: 1px solid rgba(217, 119, 6, 0.30); border-radius: 8px;
+  padding: 10px 12px; margin-bottom: 10px;
+  animation: storyteller-pulse 3.5s ease-in-out infinite;
+}
+.storyteller-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.storyteller-title   { font-size: 0.92rem; font-weight: 600; color: #f59e0b; }
+.storyteller-timer   { font-size: 0.78rem; color: #d97706; background: rgba(217, 119, 6, 0.12); padding: 2px 7px; border-radius: 10px; }
+.storyteller-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.25); }
+.storyteller-desc    { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.storyteller-actions { display: flex; flex-direction: column; gap: 6px; }
+.storyteller-cost    { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--storyteller-chronicle {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(217, 119, 6, 0.14), rgba(180, 83, 9, 0.09));
+  border: 1px solid rgba(245, 158, 11, 0.32); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #f59e0b; text-align: left; transition: background 0.15s;
+}
+.btn--storyteller-chronicle:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(217, 119, 6, 0.26), rgba(180, 83, 9, 0.18)); }
+.btn--storyteller-listen {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(22, 101, 52, 0.12), rgba(20, 83, 45, 0.08));
+  border: 1px solid rgba(34, 197, 94, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #4ade80; text-align: left; transition: background 0.15s;
+}
+.btn--storyteller-listen:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(22, 101, 52, 0.22), rgba(20, 83, 45, 0.15)); }
+.btn--storyteller-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--storyteller-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T348: Imperial Lore Master ── */
+@keyframes loremaster-pulse {
+  0%, 100% { border-color: rgba(91, 33, 182, 0.30); box-shadow: 0 0 0 rgba(91, 33, 182, 0); }
+  50%       { border-color: rgba(139, 92, 246, 0.60); box-shadow: 0 0 10px rgba(139, 92, 246, 0.18); }
+}
+.loremaster-section--active {
+  background: linear-gradient(135deg, rgba(91, 33, 182, 0.09), rgba(76, 29, 149, 0.06));
+  border: 1px solid rgba(91, 33, 182, 0.30); border-radius: 8px;
+  padding: 10px 12px; margin-bottom: 10px;
+  animation: loremaster-pulse 3.5s ease-in-out infinite;
+}
+.loremaster-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.loremaster-title   { font-size: 0.92rem; font-weight: 600; color: #a78bfa; }
+.loremaster-timer   { font-size: 0.78rem; color: #7c3aed; background: rgba(91, 33, 182, 0.12); padding: 2px 7px; border-radius: 10px; }
+.loremaster-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.25); }
+.loremaster-desc    { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.loremaster-actions { display: flex; flex-direction: column; gap: 6px; }
+.loremaster-cost    { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--loremaster-codex {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(91, 33, 182, 0.14), rgba(76, 29, 149, 0.09));
+  border: 1px solid rgba(139, 92, 246, 0.32); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #a78bfa; text-align: left; transition: background 0.15s;
+}
+.btn--loremaster-codex:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(91, 33, 182, 0.26), rgba(76, 29, 149, 0.18)); }
+.btn--loremaster-scrolls {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(180, 120, 40, 0.12), rgba(161, 100, 20, 0.08));
+  border: 1px solid rgba(251, 191, 36, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fbbf24; text-align: left; transition: background 0.15s;
+}
+.btn--loremaster-scrolls:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(180, 120, 40, 0.22), rgba(161, 100, 20, 0.15)); }
+.btn--loremaster-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--loremaster-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

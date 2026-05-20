@@ -982,6 +982,26 @@
       "notes": "Created imperialDockmaster.js system, added IMPERIAL_DOCKMASTER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialDockmasterSection() and handlers to questPanel.js (import * as Dockmaster). Events.IMPERIAL_DOCKMASTER_CHANGED subscribed. Added dockmaster CSS (sky blue/ocean theme)."
     }
   ],
+    {
+      "id": "T347",
+      "title": "Wandering Storyteller",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic wandering storyteller encounter: commission epic chronicle (25g → +0.2 gold/s 2.5min +20 prestige +12 morale), listen to ancient tales (free → +10 morale +8 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
+      "completed_date": "2026-05-20",
+      "notes": "Created wanderingStoryteller.js system, added WANDERING_STORYTELLER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingStorytellerSection() and handlers to questPanel.js (import * as Storyteller). Events.WANDERING_STORYTELLER_CHANGED subscribed. Added storyteller CSS (amber/gold theme)."
+    },
+    {
+      "id": "T348",
+      "title": "Imperial Lore Master",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic imperial lore master encounter: commission imperial codex collection (35 mana + 20g → +0.28 mana/s 2.5min +25 prestige +10 morale), purchase ancient lore scrolls (25g → +0.18 gold/s 2min +18 prestige), send away. Medieval Age+, 12+ tiles, 16-20 min.",
+      "completed_date": "2026-05-20",
+      "notes": "Created imperialLoreMaster.js system, added IMPERIAL_LORE_MASTER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialLoreMasterSection() and handlers to questPanel.js (import * as LoreMaster). Events.IMPERIAL_LORE_MASTER_CHANGED subscribed. Added lore master CSS (violet/purple theme)."
+    },
   "session_history": [
     "Session 1 (T001-T010): Core engine, resources, buildings, map, combat, diplomacy",
     "Session 2 (T011-T020): Hero, random events, quests, story, seasons, morale, prestige, garrison, hero leveling, tech mastery",
@@ -1041,6 +1061,7 @@
     "Session 78 (T237-T238): Wandering Embroiderer (T339), Royal Bookbinder (T340)",
     "Session 79 (T239-T240): Wandering Basketweaver (T341), Wandering Charcoal Maker (T342)",
     "Session 80 (T241-T242): Wandering Tanner (T343), Imperial Glassmaker (T344)",
-    "Session 81 (T243-T244): Wandering Inkmaker (T345), Imperial Dockmaster (T346)"
+    "Session 81 (T243-T244): Wandering Inkmaker (T345), Imperial Dockmaster (T346)",
+    "Session 82 (T245-T246): Wandering Storyteller (T347), Imperial Lore Master (T348)"
   ]
 }

@@ -1151,3 +1151,17 @@ Built imperialDockmaster.js: establishTradingDocks (25 wood + 20g → +0.25 wood
 Wired in main.js: import initImperialDockmaster+imperialDockmasterTick, registerSystem, initImperialDockmaster() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _imperialDockmasterSection() render + dockmaster-establish/dockmaster-commission/dockmaster-away handlers to questPanel.js (import * as Dockmaster). Events.IMPERIAL_DOCKMASTER_CHANGED subscribed.
 CSS: @keyframes dockmaster-pulse (sky blue/ocean), .dockmaster-section--active, .btn--dockmaster-establish (sky blue), .btn--dockmaster-commission (amber/gold), .btn--dockmaster-away (gray).
+
+Session 82 — T347–T348: Wandering Storyteller, Imperial Lore Master.
+
+T347: Wandering Storyteller — Stone Age+, 6+ tiles, 12–16 min, 80s window.
+Built wanderingStoryteller.js: commissionEpicChronicle (25g → +0.2 gold/s 2.5min +20 prestige +12 morale), listenToAncientTales (free → +10 morale +8 prestige), sendStorytellerAway (dismiss). Added WANDERING_STORYTELLER_CHANGED event to events.js. state.wanderingStoryteller null field.
+Wired in main.js: import initWanderingStoryteller+wanderingStorytellerTick, registerSystem, initWanderingStoryteller() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingStorytellerSection() render + storyteller-chronicle/storyteller-listen/storyteller-away handlers to questPanel.js (import * as Storyteller). Events.WANDERING_STORYTELLER_CHANGED subscribed.
+CSS: @keyframes storyteller-pulse (amber/gold), .storyteller-section--active, .btn--storyteller-chronicle (amber), .btn--storyteller-listen (green), .btn--storyteller-away (gray).
+
+T348: Imperial Lore Master — Medieval Age+, 12+ tiles, 16–20 min, 80s window.
+Built imperialLoreMaster.js: commissionImperialCodexCollection (35 mana + 20g → +0.28 mana/s 2.5min +25 prestige +10 morale), purchaseAncientLoreScrolls (25g → +0.18 gold/s 2min +18 prestige), sendLoreMasterAway (dismiss). Added IMPERIAL_LORE_MASTER_CHANGED event to events.js. state.imperialLoreMaster null field.
+Wired in main.js: import initImperialLoreMaster+imperialLoreMasterTick, registerSystem, initImperialLoreMaster() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _imperialLoreMasterSection() render + loremaster-codex/loremaster-scrolls/loremaster-away handlers to questPanel.js (import * as LoreMaster). Events.IMPERIAL_LORE_MASTER_CHANGED subscribed.
+CSS: @keyframes loremaster-pulse (violet/purple), .loremaster-section--active, .btn--loremaster-codex (violet), .btn--loremaster-scrolls (amber/gold), .btn--loremaster-away (gray).

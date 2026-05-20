@@ -111,6 +111,8 @@ import * as Tanner        from '../systems/wanderingTanner.js';        // T343
 import * as IGlassmaker   from '../systems/imperialGlassmaker.js';     // T344
 import * as Inkmaker      from '../systems/wanderingInkmaker.js';      // T345
 import * as Dockmaster    from '../systems/imperialDockmaster.js';     // T346
+import * as Storyteller  from '../systems/wanderingStoryteller.js';  // T347
+import * as LoreMaster   from '../systems/imperialLoreMaster.js';    // T348
 
 let _panel = null;
 
@@ -250,6 +252,8 @@ function _encountersSection() {
     _imperialGlassmakerSection(),
     _wanderingInkmakerSection(),
     _imperialDockmasterSection(),
+    _wanderingStorytellerSection(),
+    _imperialLoreMasterSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -3565,6 +3569,68 @@ function _imperialDockmasterSection() {
     </div>`;
 }
 
+function _wanderingStorytellerSection() {
+  if (!Storyteller.getActiveWanderingStoryteller()) return '';
+  const secs         = Storyteller.getStorytellerSecsLeft();
+  const gold         = Math.floor(state.resources.gold ?? 0);
+  const canChronicle = gold >= Storyteller.CHRONICLE_GOLD_COST;
+  const urg = secs <= 15 ? ' storyteller-timer--urgent' : '';
+  return `
+    <div class="storyteller-section--active">
+      <div class="storyteller-header">
+        <span class="storyteller-title">📖 Wandering Storyteller</span>
+        <span class="storyteller-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="storyteller-desc">A wandering storyteller arrives bearing hand-illustrated chronicles of fallen kingdoms and legendary heroes. They offer to compose a grand epic chronicle of your empire's deeds, or simply share ancient tales to inspire your people.</div>
+      <div class="storyteller-actions">
+        <button class="btn--storyteller-chronicle${canChronicle ? '' : ' btn--disabled'}" data-action="storyteller-chronicle" ${canChronicle ? '' : 'disabled'}>
+          📜 Commission Epic Chronicle — ${Storyteller.CHRONICLE_GOLD_COST}💰
+          <span class="storyteller-cost">→ +${Storyteller.CHRONICLE_GOLD_RATE} gold/s (2.5 min) · +${Storyteller.CHRONICLE_PRESTIGE_REWARD} prestige · +${Storyteller.CHRONICLE_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--storyteller-listen" data-action="storyteller-listen">
+          📖 Listen to Ancient Tales — free
+          <span class="storyteller-cost">→ +${Storyteller.TALES_MORALE_REWARD} morale · +${Storyteller.TALES_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--storyteller-away" data-action="storyteller-away">
+          🚶 Send Away
+          <span class="storyteller-cost">→ Storyteller departs to share tales in other kingdoms</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _imperialLoreMasterSection() {
+  if (!LoreMaster.getActiveImperialLoreMaster()) return '';
+  const secs      = LoreMaster.getLoreMasterSecsLeft();
+  const mana      = Math.floor(state.resources.mana ?? 0);
+  const gold      = Math.floor(state.resources.gold ?? 0);
+  const canCodex  = mana >= LoreMaster.CODEX_MANA_COST && gold >= LoreMaster.CODEX_GOLD_COST;
+  const canScrolls = gold >= LoreMaster.SCROLLS_GOLD_COST;
+  const urg = secs <= 15 ? ' loremaster-timer--urgent' : '';
+  return `
+    <div class="loremaster-section--active">
+      <div class="loremaster-header">
+        <span class="loremaster-title">📚 Imperial Lore Master</span>
+        <span class="loremaster-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="loremaster-desc">A revered imperial lore master arrives bearing ancient codices, forbidden knowledge scrolls, and mystical lore from across the known world. They offer to commission a grand codex collection to amplify arcane energies, or sell rare scrolls with hidden trade secrets.</div>
+      <div class="loremaster-actions">
+        <button class="btn--loremaster-codex${canCodex ? '' : ' btn--disabled'}" data-action="loremaster-codex" ${canCodex ? '' : 'disabled'}>
+          📚 Commission Imperial Codex Collection — ${LoreMaster.CODEX_MANA_COST}✨ + ${LoreMaster.CODEX_GOLD_COST}💰
+          <span class="loremaster-cost">→ +${LoreMaster.CODEX_MANA_RATE} mana/s (2.5 min) · +${LoreMaster.CODEX_PRESTIGE_REWARD} prestige · +${LoreMaster.CODEX_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--loremaster-scrolls${canScrolls ? '' : ' btn--disabled'}" data-action="loremaster-scrolls" ${canScrolls ? '' : 'disabled'}>
+          🗝️ Purchase Ancient Lore Scrolls — ${LoreMaster.SCROLLS_GOLD_COST}💰
+          <span class="loremaster-cost">→ +${LoreMaster.SCROLLS_GOLD_RATE} gold/s (2 min) · +${LoreMaster.SCROLLS_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--loremaster-away" data-action="loremaster-away">
+          🚶 Send Away
+          <span class="loremaster-cost">→ Lore master departs to another imperial seat of learning</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -3966,6 +4032,14 @@ const _HANDLERS = {
   'dockmaster-establish':    () => Dockmaster.establishTradingDocks(),
   'dockmaster-commission':   () => Dockmaster.commissionHarborWorks(),
   'dockmaster-away':         () => Dockmaster.sendDockmasterAway(),
+
+  'storyteller-chronicle':   () => Storyteller.commissionEpicChronicle(),
+  'storyteller-listen':      () => Storyteller.listenToAncientTales(),
+  'storyteller-away':        () => Storyteller.sendStorytellerAway(),
+
+  'loremaster-codex':        () => LoreMaster.commissionImperialCodexCollection(),
+  'loremaster-scrolls':      () => LoreMaster.purchaseAncientLoreScrolls(),
+  'loremaster-away':         () => LoreMaster.sendLoreMasterAway(),
 };
 
 function _handleClick(e) {
@@ -4084,6 +4158,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_GLASSMAKER_CHANGED,
     Events.WANDERING_INKMAKER_CHANGED,
     Events.IMPERIAL_DOCKMASTER_CHANGED,
+    Events.WANDERING_STORYTELLER_CHANGED,
+    Events.IMPERIAL_LORE_MASTER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);
