@@ -296,6 +296,8 @@ import { initWanderingMosaicMaker, wanderingMosaicMakerTick }       from './syst
 import { initImperialBathhouseBuilder, imperialBathhouseBuilderTick } from './systems/imperialBathhouseBuilder.js'; // T352
 import { initWanderingBellFounder, wanderingBellFounderTick }         from './systems/wanderingBellFounder.js';       // T353
 import { initImperialMarbleCutter, imperialMarbleCutterTick }         from './systems/imperialMarbleCutter.js';       // T354
+import { initWanderingParchmentMaker, wanderingParchmentMakerTick }   from './systems/wanderingParchmentMaker.js'; // T355
+import { initWanderingIncenseMaker, wanderingIncenseMakerTick }       from './systems/wanderingIncenseMaker.js';   // T356
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -598,6 +600,8 @@ function _registerAllSystems() {
   registerSystem(imperialBathhouseBuilderTick);      // T352
   registerSystem(wanderingBellFounderTick);          // T353
   registerSystem(imperialMarbleCutterTick);          // T354
+  registerSystem(wanderingParchmentMakerTick);       // T355
+  registerSystem(wanderingIncenseMakerTick);         // T356
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -885,6 +889,8 @@ function _save() {
     imperialBathhouseBuilder:   state.imperialBathhouseBuilder,   // T352
     wanderingBellFounder:       state.wanderingBellFounder,       // T353
     imperialMarbleCutter:       state.imperialMarbleCutter,       // T354
+    wanderingParchmentMaker:    state.wanderingParchmentMaker,    // T355
+    wanderingIncenseMaker:      state.wanderingIncenseMaker,      // T356
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -1177,6 +1183,8 @@ function _applySave(s) {
   state.imperialBathhouseBuilder   = s.imperialBathhouseBuilder ?? null;   // T352
   state.wanderingBellFounder       = s.wanderingBellFounder ?? null;       // T353
   state.imperialMarbleCutter       = s.imperialMarbleCutter ?? null;       // T354
+  state.wanderingParchmentMaker    = s.wanderingParchmentMaker ?? null;    // T355
+  state.wanderingIncenseMaker      = s.wanderingIncenseMaker ?? null;      // T356
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -1475,6 +1483,8 @@ function _startFreshGame() {
   initImperialBathhouseBuilder();      // T352
   initWanderingBellFounder();          // T353
   initImperialMarbleCutter();          // T354
+  initWanderingParchmentMaker();       // T355
+  initWanderingIncenseMaker();         // T356
   initAchievements();
   initLeaderboard();
 }
@@ -1756,6 +1766,8 @@ function _startLoadedGame(savedData) {
   initImperialBathhouseBuilder();      // T352
   initWanderingBellFounder();          // T353
   initImperialMarbleCutter();          // T354
+  initWanderingParchmentMaker();       // T355
+  initWanderingIncenseMaker();         // T356
   initAchievements();
   initLeaderboard();
 }

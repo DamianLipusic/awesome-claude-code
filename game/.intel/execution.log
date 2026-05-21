@@ -1208,3 +1208,15 @@ Built imperialMarbleCutter.js: commissionMarbleColumns (30 stone + 20 iron → +
 Wired in main.js: import initImperialMarbleCutter+imperialMarbleCutterTick, registerSystem, initImperialMarbleCutter() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _imperialMarbleCutterSection() render + marble-commission/marble-exchange/marble-away handlers to questPanel.js (import * as MarbleCutter). Events.IMPERIAL_MARBLE_CUTTER_CHANGED subscribed.
 CSS: @keyframes marble-pulse (slate/silver), .marble-section--active, .btn--marble-commission (silver/slate), .btn--marble-exchange (amber/gold), .btn--marble-away (gray).
+
+T355: Wandering Parchment Maker — Medieval Age+, 10+ tiles, 14–18 min, 80s window.
+Built wanderingParchmentMaker.js: commissionRoyalParchments (20 wood + 15 mana → +0.22 mana/s 2.5min +20 prestige +8 morale), purchaseWritingMaterials (18g → +0.15 gold/s 2min +12 prestige), sendParchmentMakerAway (dismiss). Added WANDERING_PARCHMENT_MAKER_CHANGED event to events.js. state.wanderingParchmentMaker null field.
+Wired in main.js: import initWanderingParchmentMaker+wanderingParchmentMakerTick, registerSystem, initWanderingParchmentMaker() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingParchmentMakerSection() render + parchment-commission/parchment-purchase/parchment-away handlers to questPanel.js (import * as ParchmentMaker). Events.WANDERING_PARCHMENT_MAKER_CHANGED subscribed.
+CSS: @keyframes parchment-pulse (warm parchment/amber), .parchment-section--active, .btn--parchment-commission (violet/purple), .btn--parchment-purchase (amber/gold), .btn--parchment-away (gray).
+
+T356: Wandering Incense Maker — Bronze Age+, 8+ tiles, 12–16 min, 80s window.
+Built wanderingIncenseMaker.js: prepareSacredIncense (20 food + 15 mana → +0.20 food/s 2.5min +18 prestige +12 morale), purchaseAromaticBlends (20g → +0.15 gold/s 2min +12 prestige), sendIncenseMakerAway (dismiss). Added WANDERING_INCENSE_MAKER_CHANGED event to events.js. state.wanderingIncenseMaker null field.
+Wired in main.js: import initWanderingIncenseMaker+wanderingIncenseMakerTick, registerSystem, initWanderingIncenseMaker() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingIncenseMakerSection() render + incense-prepare/incense-purchase/incense-away handlers to questPanel.js (import * as IncenseMaker). Events.WANDERING_INCENSE_MAKER_CHANGED subscribed.
+CSS: @keyframes incense-pulse (violet/purple smoky), .incense-section--active, .btn--incense-prepare (violet/purple), .btn--incense-purchase (mint green), .btn--incense-away (gray). Session 86.

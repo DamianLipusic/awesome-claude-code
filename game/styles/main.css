@@ -19731,3 +19731,81 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--marble-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T355: Wandering Parchment Maker ── */
+@keyframes parchment-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(217, 176, 100, 0.0); }
+  50%       { box-shadow: 0 0 0 6px rgba(217, 176, 100, 0.22); }
+}
+.parchment-section--active {
+  background: linear-gradient(135deg, rgba(217, 176, 100, 0.09), rgba(180, 138, 60, 0.06));
+  border: 1px solid rgba(217, 176, 100, 0.32); border-radius: 8px; padding: 10px 12px; margin-bottom: 10px;
+  animation: parchment-pulse 3.5s ease-in-out infinite;
+}
+.parchment-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.parchment-title   { font-size: 0.92rem; font-weight: 600; color: #d4b86a; }
+.parchment-timer   { font-size: 0.78rem; color: #b8a26a; background: rgba(217, 176, 100, 0.12); padding: 2px 7px; border-radius: 10px; }
+.parchment-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.25); }
+.parchment-desc    { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.parchment-actions { display: flex; flex-direction: column; gap: 6px; }
+.parchment-cost    { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--parchment-commission {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.14), rgba(109, 40, 217, 0.09));
+  border: 1px solid rgba(167, 139, 250, 0.35); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #a78bfa; text-align: left; transition: background 0.15s;
+}
+.btn--parchment-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(139, 92, 246, 0.26), rgba(109, 40, 217, 0.18)); }
+.btn--parchment-purchase {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(234, 179, 8, 0.12), rgba(202, 138, 4, 0.08));
+  border: 1px solid rgba(251, 191, 36, 0.30); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fbbf24; text-align: left; transition: background 0.15s;
+}
+.btn--parchment-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(234, 179, 8, 0.22), rgba(202, 138, 4, 0.15)); }
+.btn--parchment-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--parchment-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T356: Wandering Incense Maker ── */
+@keyframes incense-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(167, 139, 250, 0.0); }
+  50%       { box-shadow: 0 0 0 6px rgba(167, 139, 250, 0.22); }
+}
+.incense-section--active {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.09), rgba(109, 40, 217, 0.06));
+  border: 1px solid rgba(167, 139, 250, 0.32); border-radius: 8px; padding: 10px 12px; margin-bottom: 10px;
+  animation: incense-pulse 3.5s ease-in-out infinite;
+}
+.incense-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.incense-title   { font-size: 0.92rem; font-weight: 600; color: #c4b5fd; }
+.incense-timer   { font-size: 0.78rem; color: #a78bfa; background: rgba(139, 92, 246, 0.12); padding: 2px 7px; border-radius: 10px; }
+.incense-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.25); }
+.incense-desc    { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.incense-actions { display: flex; flex-direction: column; gap: 6px; }
+.incense-cost    { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--incense-prepare {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.14), rgba(109, 40, 217, 0.09));
+  border: 1px solid rgba(167, 139, 250, 0.35); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #c4b5fd; text-align: left; transition: background 0.15s;
+}
+.btn--incense-prepare:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(139, 92, 246, 0.26), rgba(109, 40, 217, 0.18)); }
+.btn--incense-purchase {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(5, 150, 105, 0.08));
+  border: 1px solid rgba(52, 211, 153, 0.30); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #6ee7b7; text-align: left; transition: background 0.15s;
+}
+.btn--incense-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(16, 185, 129, 0.22), rgba(5, 150, 105, 0.15)); }
+.btn--incense-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--incense-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

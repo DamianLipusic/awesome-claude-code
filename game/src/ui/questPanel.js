@@ -118,7 +118,9 @@ import * as Ferryman     from '../systems/imperialFerryman.js';      // T350
 import * as MosaicMaker  from '../systems/wanderingMosaicMaker.js';  // T351
 import * as BHBuilder    from '../systems/imperialBathhouseBuilder.js'; // T352
 import * as BellFounder  from '../systems/wanderingBellFounder.js';     // T353
-import * as MarbleCutter from '../systems/imperialMarbleCutter.js';     // T354
+import * as MarbleCutter    from '../systems/imperialMarbleCutter.js';     // T354
+import * as ParchmentMaker from '../systems/wanderingParchmentMaker.js'; // T355
+import * as IncenseMaker   from '../systems/wanderingIncenseMaker.js';   // T356
 
 let _panel = null;
 
@@ -266,6 +268,8 @@ function _encountersSection() {
     _imperialBathhouseBuilderSection(),
     _wanderingBellFounderSection(),
     _imperialMarbleCutterSection(),
+    _wanderingParchmentMakerSection(),
+    _wanderingIncenseMakerSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -3846,6 +3850,72 @@ function _imperialMarbleCutterSection() {
     </div>`;
 }
 
+function _wanderingParchmentMakerSection() {
+  if (!ParchmentMaker.getActiveWanderingParchmentMaker()) return '';
+  const secs           = ParchmentMaker.getParchmentMakerSecsLeft();
+  const wood           = state.resources.wood ?? 0;
+  const mana           = state.resources.mana ?? 0;
+  const gold           = state.resources.gold ?? 0;
+  const urg            = secs <= 15 ? ' parchment-timer--urgent' : '';
+  const canCommission  = wood >= ParchmentMaker.COMMISSION_WOOD_COST && mana >= ParchmentMaker.COMMISSION_MANA_COST;
+  const canPurchase    = gold >= ParchmentMaker.PURCHASE_GOLD_COST;
+  return `
+    <div class="parchment-section--active">
+      <div class="parchment-header">
+        <span class="parchment-title">📜 Wandering Parchment Maker</span>
+        <span class="parchment-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="parchment-desc">A wandering parchment maker arrives bearing stretching frames, scrapers, and lime-water barrels — ready to produce the finest vellum sheets for imperial correspondence and illuminated manuscripts.</div>
+      <div class="parchment-actions">
+        <button class="btn--parchment-commission${canCommission ? '' : ' btn--disabled'}" data-action="parchment-commission" ${canCommission ? '' : 'disabled'}>
+          📜 Commission Royal Parchments — ${ParchmentMaker.COMMISSION_WOOD_COST}🪵 + ${ParchmentMaker.COMMISSION_MANA_COST}✨
+          <span class="parchment-cost">→ +${ParchmentMaker.COMMISSION_MANA_RATE} mana/s (2.5 min) · +${ParchmentMaker.COMMISSION_PRESTIGE_REWARD} prestige · +${ParchmentMaker.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--parchment-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="parchment-purchase" ${canPurchase ? '' : 'disabled'}>
+          ✍️ Purchase Writing Materials — ${ParchmentMaker.PURCHASE_GOLD_COST}💰
+          <span class="parchment-cost">→ +${ParchmentMaker.PURCHASE_GOLD_RATE} gold/s (2 min) · +${ParchmentMaker.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--parchment-away" data-action="parchment-away">
+          🚶 Send Away
+          <span class="parchment-cost">→ Parchment maker packs the frames and departs</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _wanderingIncenseMakerSection() {
+  if (!IncenseMaker.getActiveWanderingIncenseMaker()) return '';
+  const secs        = IncenseMaker.getIncenseMakerSecsLeft();
+  const food        = state.resources.food ?? 0;
+  const mana        = state.resources.mana ?? 0;
+  const gold        = state.resources.gold ?? 0;
+  const urg         = secs <= 15 ? ' incense-timer--urgent' : '';
+  const canIncense  = food >= IncenseMaker.INCENSE_FOOD_COST && mana >= IncenseMaker.INCENSE_MANA_COST;
+  const canPurchase = gold >= IncenseMaker.PURCHASE_GOLD_COST;
+  return `
+    <div class="incense-section--active">
+      <div class="incense-header">
+        <span class="incense-title">🕯️ Wandering Incense Maker</span>
+        <span class="incense-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="incense-desc">A wandering incense maker arrives with dried herbs, fragrant resins, and a portable brazier — blending ceremonial incense used in temples throughout the known world.</div>
+      <div class="incense-actions">
+        <button class="btn--incense-prepare${canIncense ? '' : ' btn--disabled'}" data-action="incense-prepare" ${canIncense ? '' : 'disabled'}>
+          🕯️ Prepare Sacred Incense — ${IncenseMaker.INCENSE_FOOD_COST}🌾 + ${IncenseMaker.INCENSE_MANA_COST}✨
+          <span class="incense-cost">→ +${IncenseMaker.INCENSE_FOOD_RATE} food/s (2.5 min) · +${IncenseMaker.INCENSE_PRESTIGE_REWARD} prestige · +${IncenseMaker.INCENSE_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--incense-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="incense-purchase" ${canPurchase ? '' : 'disabled'}>
+          🌿 Purchase Aromatic Blends — ${IncenseMaker.PURCHASE_GOLD_COST}💰
+          <span class="incense-cost">→ +${IncenseMaker.PURCHASE_GOLD_RATE} gold/s (2 min) · +${IncenseMaker.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--incense-away" data-action="incense-away">
+          🚶 Send Away
+          <span class="incense-cost">→ Incense maker extinguishes the brazier and departs</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -4275,6 +4345,14 @@ const _HANDLERS = {
   'marble-commission':       () => MarbleCutter.commissionMarbleColumns(),
   'marble-exchange':         () => MarbleCutter.exchangeCuttingTechniques(),
   'marble-away':             () => MarbleCutter.sendMarbleCutterAway(),
+
+  'parchment-commission':    () => ParchmentMaker.commissionRoyalParchments(),
+  'parchment-purchase':      () => ParchmentMaker.purchaseWritingMaterials(),
+  'parchment-away':          () => ParchmentMaker.sendParchmentMakerAway(),
+
+  'incense-prepare':         () => IncenseMaker.prepareSacredIncense(),
+  'incense-purchase':        () => IncenseMaker.purchaseAromaticBlends(),
+  'incense-away':            () => IncenseMaker.sendIncenseMakerAway(),
 };
 
 function _handleClick(e) {
@@ -4401,6 +4479,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_BATHHOUSE_BUILDER_CHANGED,
     Events.WANDERING_BELL_FOUNDER_CHANGED,
     Events.IMPERIAL_MARBLE_CUTTER_CHANGED,
+    Events.WANDERING_PARCHMENT_MAKER_CHANGED,
+    Events.WANDERING_INCENSE_MAKER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);
