@@ -19653,3 +19653,81 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--bathhouse-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T353: Wandering Bell Founder ── */
+@keyframes bellfdr-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(234, 88, 12, 0.0); }
+  50%       { box-shadow: 0 0 0 6px rgba(234, 88, 12, 0.20); }
+}
+.bellfdr-section--active {
+  background: linear-gradient(135deg, rgba(234, 88, 12, 0.09), rgba(194, 65, 12, 0.06));
+  border: 1px solid rgba(234, 88, 12, 0.32); border-radius: 8px; padding: 10px 12px; margin-bottom: 10px;
+  animation: bellfdr-pulse 3.5s ease-in-out infinite;
+}
+.bellfdr-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.bellfdr-title   { font-size: 0.92rem; font-weight: 600; color: #fb923c; }
+.bellfdr-timer   { font-size: 0.78rem; color: #ea580c; background: rgba(234, 88, 12, 0.12); padding: 2px 7px; border-radius: 10px; }
+.bellfdr-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.25); }
+.bellfdr-desc    { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.bellfdr-actions { display: flex; flex-direction: column; gap: 6px; }
+.bellfdr-cost    { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--bellfdr-bells {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(234, 88, 12, 0.14), rgba(194, 65, 12, 0.09));
+  border: 1px solid rgba(251, 146, 60, 0.35); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fb923c; text-align: left; transition: background 0.15s;
+}
+.btn--bellfdr-bells:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(234, 88, 12, 0.26), rgba(194, 65, 12, 0.18)); }
+.btn--bellfdr-secrets {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(234, 179, 8, 0.12), rgba(202, 138, 4, 0.08));
+  border: 1px solid rgba(251, 191, 36, 0.30); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fbbf24; text-align: left; transition: background 0.15s;
+}
+.btn--bellfdr-secrets:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(234, 179, 8, 0.22), rgba(202, 138, 4, 0.15)); }
+.btn--bellfdr-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--bellfdr-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T354: Imperial Marble Cutter ── */
+@keyframes marble-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(148, 163, 184, 0.0); }
+  50%       { box-shadow: 0 0 0 6px rgba(148, 163, 184, 0.22); }
+}
+.marble-section--active {
+  background: linear-gradient(135deg, rgba(148, 163, 184, 0.09), rgba(100, 116, 139, 0.06));
+  border: 1px solid rgba(148, 163, 184, 0.32); border-radius: 8px; padding: 10px 12px; margin-bottom: 10px;
+  animation: marble-pulse 3.5s ease-in-out infinite;
+}
+.marble-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.marble-title   { font-size: 0.92rem; font-weight: 600; color: #cbd5e1; }
+.marble-timer   { font-size: 0.78rem; color: #94a3b8; background: rgba(148, 163, 184, 0.12); padding: 2px 7px; border-radius: 10px; }
+.marble-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.25); }
+.marble-desc    { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.marble-actions { display: flex; flex-direction: column; gap: 6px; }
+.marble-cost    { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--marble-commission {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(148, 163, 184, 0.14), rgba(100, 116, 139, 0.09));
+  border: 1px solid rgba(203, 213, 225, 0.35); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #cbd5e1; text-align: left; transition: background 0.15s;
+}
+.btn--marble-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(148, 163, 184, 0.26), rgba(100, 116, 139, 0.18)); }
+.btn--marble-exchange {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.12), rgba(217, 119, 6, 0.08));
+  border: 1px solid rgba(251, 191, 36, 0.30); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fbbf24; text-align: left; transition: background 0.15s;
+}
+.btn--marble-exchange:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(251, 191, 36, 0.22), rgba(217, 119, 6, 0.15)); }
+.btn--marble-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--marble-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

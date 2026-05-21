@@ -1040,6 +1040,26 @@
       "description": "Periodic imperial bathhouse builder encounter: construct bathhouse complex (30 stone + 20g → +0.22 stone/s 2.5min +25 prestige +15 morale), share engineering plans (25 mana → +0.18 mana/s 2min +18 prestige), send away. Medieval Age+, 12+ tiles, 15-20 min.",
       "completed_date": "2026-05-21",
       "notes": "Created imperialBathhouseBuilder.js system, added IMPERIAL_BATHHOUSE_BUILDER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialBathhouseBuilderSection() and handlers to questPanel.js (import * as BHBuilder). Events.IMPERIAL_BATHHOUSE_BUILDER_CHANGED subscribed. Added bathhouse CSS (teal/mint theme with violet plans button)."
+    },
+    {
+      "id": "T353",
+      "title": "Wandering Bell Founder",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic wandering bell founder encounter: commission temple bells (25 iron + 20 stone → +0.22 iron/s 2.5min +20 prestige +12 morale), purchase bell-casting secrets (22g → +0.15 gold/s 2min +15 prestige), send away. Bronze Age+, 8+ tiles, 12-17 min.",
+      "completed_date": "2026-05-21",
+      "notes": "Created wanderingBellFounder.js system, added WANDERING_BELL_FOUNDER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingBellFounderSection() and handlers to questPanel.js (import * as BellFounder). Events.WANDERING_BELL_FOUNDER_CHANGED subscribed. Added bellfdr CSS (orange/amber theme with bronze tones)."
+    },
+    {
+      "id": "T354",
+      "title": "Imperial Marble Cutter",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic imperial marble cutter encounter: commission marble columns (30 stone + 20 iron → +0.22 stone/s 2.5min +25 prestige +10 morale), exchange cutting techniques (20g → +0.15 iron/s 2min +15 prestige), send away. Iron Age+, 10+ tiles, 13-18 min.",
+      "completed_date": "2026-05-21",
+      "notes": "Created imperialMarbleCutter.js system, added IMPERIAL_MARBLE_CUTTER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialMarbleCutterSection() and handlers to questPanel.js (import * as MarbleCutter). Events.IMPERIAL_MARBLE_CUTTER_CHANGED subscribed. Added marble CSS (slate/silver theme with amber exchange button)."
     }
   ],
   "session_history": [
@@ -1104,6 +1124,7 @@
     "Session 81 (T243-T244): Wandering Inkmaker (T345), Imperial Dockmaster (T346)",
     "Session 82 (T245-T246): Wandering Storyteller (T347), Imperial Lore Master (T348)",
     "Session 83 (T247-T248): Wandering Toymaker (T349), Imperial Ferryman (T350)",
-    "Session 84 (T249-T250): Wandering Mosaic Maker (T351), Imperial Bathhouse Builder (T352)"
+    "Session 84 (T249-T250): Wandering Mosaic Maker (T351), Imperial Bathhouse Builder (T352)",
+    "Session 85 (T251-T252): Wandering Bell Founder (T353), Imperial Marble Cutter (T354)"
   ]
 }

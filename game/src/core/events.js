@@ -294,4 +294,6 @@ export const Events = Object.freeze({
   IMPERIAL_FERRYMAN_CHANGED:       'imperialFerrymanChanged',                  // T350: ferryman spawned / routes / charts / dismissed / expired
   WANDERING_MOSAIC_MAKER_CHANGED:  'wanderingMosaicMakerChanged',              // T351: mosaic maker spawned / commission / exchange / dismissed / expired
   IMPERIAL_BATHHOUSE_BUILDER_CHANGED: 'imperialBathhouseBuilderChanged',       // T352: bathhouse builder spawned / construct / plans / dismissed / expired
+  WANDERING_BELL_FOUNDER_CHANGED:     'wanderingBellFounderChanged',             // T353: bell founder spawned / bells / secrets / dismissed / expired
+  IMPERIAL_MARBLE_CUTTER_CHANGED:     'imperialMarbleCutterChanged',             // T354: marble cutter spawned / commission / exchange / dismissed / expired
 });

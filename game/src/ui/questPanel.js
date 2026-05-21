@@ -117,6 +117,8 @@ import * as Toymaker     from '../systems/wanderingToymaker.js';     // T349
 import * as Ferryman     from '../systems/imperialFerryman.js';      // T350
 import * as MosaicMaker  from '../systems/wanderingMosaicMaker.js';  // T351
 import * as BHBuilder    from '../systems/imperialBathhouseBuilder.js'; // T352
+import * as BellFounder  from '../systems/wanderingBellFounder.js';     // T353
+import * as MarbleCutter from '../systems/imperialMarbleCutter.js';     // T354
 
 let _panel = null;
 
@@ -262,6 +264,8 @@ function _encountersSection() {
     _imperialFerrymanSection(),
     _wanderingMosaicMakerSection(),
     _imperialBathhouseBuilderSection(),
+    _wanderingBellFounderSection(),
+    _imperialMarbleCutterSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -3772,6 +3776,76 @@ function _imperialBathhouseBuilderSection() {
     </div>`;
 }
 
+// ── T353 Wandering Bell Founder ───────────────────────────────────────
+
+function _wanderingBellFounderSection() {
+  if (!BellFounder.getActiveWanderingBellFounder()) return '';
+  const secs       = BellFounder.getBellFounderSecsLeft();
+  const iron       = state.resources.iron  ?? 0;
+  const stone      = state.resources.stone ?? 0;
+  const gold       = state.resources.gold  ?? 0;
+  const urg        = secs <= 15 ? ' bellfdr-timer--urgent' : '';
+  const canBells   = iron >= BellFounder.BELLS_IRON_COST && stone >= BellFounder.BELLS_STONE_COST;
+  const canSecrets = gold >= BellFounder.SECRETS_GOLD_COST;
+  return `
+    <div class="bellfdr-section--active">
+      <div class="bellfdr-header">
+        <span class="bellfdr-title">🔔 Wandering Bell Founder</span>
+        <span class="bellfdr-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="bellfdr-desc">A wandering bell founder arrives with a portable smelting forge and intricate sand moulds, offering to cast magnificent ceremonial bells for the empire or to share closely-guarded alloy secrets.</div>
+      <div class="bellfdr-actions">
+        <button class="btn--bellfdr-bells${canBells ? '' : ' btn--disabled'}" data-action="bellfdr-bells" ${canBells ? '' : 'disabled'}>
+          🔔 Commission Temple Bells — ${BellFounder.BELLS_IRON_COST}⚙️ + ${BellFounder.BELLS_STONE_COST}🪨
+          <span class="bellfdr-cost">→ +${BellFounder.BELLS_IRON_RATE} iron/s (2.5 min) · +${BellFounder.BELLS_PRESTIGE_REWARD} prestige · +${BellFounder.BELLS_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--bellfdr-secrets${canSecrets ? '' : ' btn--disabled'}" data-action="bellfdr-secrets" ${canSecrets ? '' : 'disabled'}>
+          📜 Purchase Bell-Casting Secrets — ${BellFounder.SECRETS_GOLD_COST}💰
+          <span class="bellfdr-cost">→ +${BellFounder.SECRETS_GOLD_RATE} gold/s (2 min) · +${BellFounder.SECRETS_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--bellfdr-away" data-action="bellfdr-away">
+          🚶 Send Away
+          <span class="bellfdr-cost">→ Bell founder loads the forge and departs</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T354 Imperial Marble Cutter ───────────────────────────────────────
+
+function _imperialMarbleCutterSection() {
+  if (!MarbleCutter.getActiveImperialMarbleCutter()) return '';
+  const secs          = MarbleCutter.getMarbleCutterSecsLeft();
+  const stone         = state.resources.stone ?? 0;
+  const iron          = state.resources.iron  ?? 0;
+  const gold          = state.resources.gold  ?? 0;
+  const urg           = secs <= 15 ? ' marble-timer--urgent' : '';
+  const canCommission = stone >= MarbleCutter.COMMISSION_STONE_COST && iron >= MarbleCutter.COMMISSION_IRON_COST;
+  const canExchange   = gold  >= MarbleCutter.EXCHANGE_GOLD_COST;
+  return `
+    <div class="marble-section--active">
+      <div class="marble-header">
+        <span class="marble-title">🏛️ Imperial Marble Cutter</span>
+        <span class="marble-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="marble-desc">An imperial marble cutter arrives bearing polished sample columns and precision diamond-tipped saws, proposing either grand marble columns for the empire's buildings or the sharing of revolutionary stone-cutting techniques.</div>
+      <div class="marble-actions">
+        <button class="btn--marble-commission${canCommission ? '' : ' btn--disabled'}" data-action="marble-commission" ${canCommission ? '' : 'disabled'}>
+          🏛️ Commission Marble Columns — ${MarbleCutter.COMMISSION_STONE_COST}🪨 + ${MarbleCutter.COMMISSION_IRON_COST}⚙️
+          <span class="marble-cost">→ +${MarbleCutter.COMMISSION_STONE_RATE} stone/s (2.5 min) · +${MarbleCutter.COMMISSION_PRESTIGE_REWARD} prestige · +${MarbleCutter.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--marble-exchange${canExchange ? '' : ' btn--disabled'}" data-action="marble-exchange" ${canExchange ? '' : 'disabled'}>
+          ⚒️ Exchange Cutting Techniques — ${MarbleCutter.EXCHANGE_GOLD_COST}💰
+          <span class="marble-cost">→ +${MarbleCutter.EXCHANGE_IRON_RATE} iron/s (2 min) · +${MarbleCutter.EXCHANGE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--marble-away" data-action="marble-away">
+          🚶 Send Away
+          <span class="marble-cost">→ Marble cutter loads the tools and departs</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -4193,6 +4267,14 @@ const _HANDLERS = {
   'bathhouse-construct':     () => BHBuilder.constructBathhouseComplex(),
   'bathhouse-plans':         () => BHBuilder.shareEngineeringPlans(),
   'bathhouse-away':          () => BHBuilder.sendBathhouseBuilderAway(),
+
+  'bellfdr-bells':           () => BellFounder.commissionTempleBells(),
+  'bellfdr-secrets':         () => BellFounder.purchaseBellCastingSecrets(),
+  'bellfdr-away':            () => BellFounder.sendBellFounderAway(),
+
+  'marble-commission':       () => MarbleCutter.commissionMarbleColumns(),
+  'marble-exchange':         () => MarbleCutter.exchangeCuttingTechniques(),
+  'marble-away':             () => MarbleCutter.sendMarbleCutterAway(),
 };
 
 function _handleClick(e) {
@@ -4317,6 +4399,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_FERRYMAN_CHANGED,
     Events.WANDERING_MOSAIC_MAKER_CHANGED,
     Events.IMPERIAL_BATHHOUSE_BUILDER_CHANGED,
+    Events.WANDERING_BELL_FOUNDER_CHANGED,
+    Events.IMPERIAL_MARBLE_CUTTER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

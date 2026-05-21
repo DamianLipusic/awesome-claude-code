@@ -1194,3 +1194,17 @@ Built imperialBathhouseBuilder.js: constructBathhouseComplex (30 stone + 20g →
 Wired in main.js: import initImperialBathhouseBuilder+imperialBathhouseBuilderTick, registerSystem, initImperialBathhouseBuilder() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _imperialBathhouseBuilderSection() render + bathhouse-construct/bathhouse-plans/bathhouse-away handlers to questPanel.js (import * as BHBuilder). Events.IMPERIAL_BATHHOUSE_BUILDER_CHANGED subscribed.
 CSS: @keyframes bathhouse-pulse (teal/mint), .bathhouse-section--active, .btn--bathhouse-construct (teal), .btn--bathhouse-plans (violet), .btn--bathhouse-away (gray).
+
+Session 85 — T353–T354: Wandering Bell Founder, Imperial Marble Cutter.
+
+T353: Wandering Bell Founder — Bronze Age+, 8+ tiles, 12–17 min, 80s window.
+Built wanderingBellFounder.js: commissionTempleBells (25 iron + 20 stone → +0.22 iron/s 2.5min +20 prestige +12 morale), purchaseBellCastingSecrets (22g → +0.15 gold/s 2min +15 prestige), sendBellFounderAway (dismiss). Added WANDERING_BELL_FOUNDER_CHANGED event to events.js. state.wanderingBellFounder null field.
+Wired in main.js: import initWanderingBellFounder+wanderingBellFounderTick, registerSystem, initWanderingBellFounder() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingBellFounderSection() render + bellfdr-bells/bellfdr-secrets/bellfdr-away handlers to questPanel.js (import * as BellFounder). Events.WANDERING_BELL_FOUNDER_CHANGED subscribed.
+CSS: @keyframes bellfdr-pulse (orange/amber bronze), .bellfdr-section--active, .btn--bellfdr-bells (orange), .btn--bellfdr-secrets (amber/gold), .btn--bellfdr-away (gray).
+
+T354: Imperial Marble Cutter — Iron Age+, 10+ tiles, 13–18 min, 80s window.
+Built imperialMarbleCutter.js: commissionMarbleColumns (30 stone + 20 iron → +0.22 stone/s 2.5min +25 prestige +10 morale), exchangeCuttingTechniques (20g → +0.15 iron/s 2min +15 prestige), sendMarbleCutterAway (dismiss). Added IMPERIAL_MARBLE_CUTTER_CHANGED event to events.js. state.imperialMarbleCutter null field.
+Wired in main.js: import initImperialMarbleCutter+imperialMarbleCutterTick, registerSystem, initImperialMarbleCutter() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _imperialMarbleCutterSection() render + marble-commission/marble-exchange/marble-away handlers to questPanel.js (import * as MarbleCutter). Events.IMPERIAL_MARBLE_CUTTER_CHANGED subscribed.
+CSS: @keyframes marble-pulse (slate/silver), .marble-section--active, .btn--marble-commission (silver/slate), .btn--marble-exchange (amber/gold), .btn--marble-away (gray).
