@@ -1020,6 +1020,26 @@
       "description": "Periodic imperial ferryman encounter: establish ferry routes (20 wood + 15g → +0.22 wood/s 2.5min +18 prestige +10 morale), purchase river charts (20g → +0.15 gold/s 2min +12 prestige), send away. Bronze Age+, 8+ tiles, 12-17 min.",
       "completed_date": "2026-05-21",
       "notes": "Created imperialFerryman.js system, added IMPERIAL_FERRYMAN_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialFerrymanSection() and handlers to questPanel.js (import * as Ferryman). Events.IMPERIAL_FERRYMAN_CHANGED subscribed. Added ferryman CSS (cyan/teal theme)."
+    },
+    {
+      "id": "T351",
+      "title": "Wandering Mosaic Maker",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic wandering mosaic maker encounter: commission imperial mosaic (20 stone + 15g → +0.20 stone/s 2.5min +20 prestige +10 morale), exchange pattern lore (18g → +0.15 gold/s 2min +12 prestige), send away. Bronze Age+, 8+ tiles, 12-17 min.",
+      "completed_date": "2026-05-21",
+      "notes": "Created wanderingMosaicMaker.js system, added WANDERING_MOSAIC_MAKER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingMosaicMakerSection() and handlers to questPanel.js (import * as MosaicMaker). Events.WANDERING_MOSAIC_MAKER_CHANGED subscribed. Added mosaic CSS (warm orange/amber theme)."
+    },
+    {
+      "id": "T352",
+      "title": "Imperial Bathhouse Builder",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic imperial bathhouse builder encounter: construct bathhouse complex (30 stone + 20g → +0.22 stone/s 2.5min +25 prestige +15 morale), share engineering plans (25 mana → +0.18 mana/s 2min +18 prestige), send away. Medieval Age+, 12+ tiles, 15-20 min.",
+      "completed_date": "2026-05-21",
+      "notes": "Created imperialBathhouseBuilder.js system, added IMPERIAL_BATHHOUSE_BUILDER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialBathhouseBuilderSection() and handlers to questPanel.js (import * as BHBuilder). Events.IMPERIAL_BATHHOUSE_BUILDER_CHANGED subscribed. Added bathhouse CSS (teal/mint theme with violet plans button)."
     }
   ],
   "session_history": [
@@ -1083,6 +1103,7 @@
     "Session 80 (T241-T242): Wandering Tanner (T343), Imperial Glassmaker (T344)",
     "Session 81 (T243-T244): Wandering Inkmaker (T345), Imperial Dockmaster (T346)",
     "Session 82 (T245-T246): Wandering Storyteller (T347), Imperial Lore Master (T348)",
-    "Session 83 (T247-T248): Wandering Toymaker (T349), Imperial Ferryman (T350)"
+    "Session 83 (T247-T248): Wandering Toymaker (T349), Imperial Ferryman (T350)",
+    "Session 84 (T249-T250): Wandering Mosaic Maker (T351), Imperial Bathhouse Builder (T352)"
   ]
 }

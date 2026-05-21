@@ -292,6 +292,8 @@ import { initWanderingStoryteller, wanderingStorytellerTick }       from './syst
 import { initImperialLoreMaster, imperialLoreMasterTick }           from './systems/imperialLoreMaster.js';        // T348
 import { initWanderingToymaker, wanderingToymakerTick }             from './systems/wanderingToymaker.js';         // T349
 import { initImperialFerryman, imperialFerrymanTick }               from './systems/imperialFerryman.js';          // T350
+import { initWanderingMosaicMaker, wanderingMosaicMakerTick }       from './systems/wanderingMosaicMaker.js';       // T351
+import { initImperialBathhouseBuilder, imperialBathhouseBuilderTick } from './systems/imperialBathhouseBuilder.js'; // T352
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -590,6 +592,8 @@ function _registerAllSystems() {
   registerSystem(imperialLoreMasterTick);            // T348
   registerSystem(wanderingToymakerTick);             // T349
   registerSystem(imperialFerrymanTick);              // T350
+  registerSystem(wanderingMosaicMakerTick);          // T351
+  registerSystem(imperialBathhouseBuilderTick);      // T352
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -873,6 +877,8 @@ function _save() {
     imperialLoreMaster:         state.imperialLoreMaster,         // T348
     wanderingToymaker:          state.wanderingToymaker,          // T349
     imperialFerryman:           state.imperialFerryman,           // T350
+    wanderingMosaicMaker:       state.wanderingMosaicMaker,       // T351
+    imperialBathhouseBuilder:   state.imperialBathhouseBuilder,   // T352
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -1161,6 +1167,8 @@ function _applySave(s) {
   state.imperialLoreMaster         = s.imperialLoreMaster ?? null;         // T348
   state.wanderingToymaker          = s.wanderingToymaker ?? null;          // T349
   state.imperialFerryman           = s.imperialFerryman ?? null;           // T350
+  state.wanderingMosaicMaker       = s.wanderingMosaicMaker ?? null;       // T351
+  state.imperialBathhouseBuilder   = s.imperialBathhouseBuilder ?? null;   // T352
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -1455,6 +1463,8 @@ function _startFreshGame() {
   initImperialLoreMaster();            // T348
   initWanderingToymaker();             // T349
   initImperialFerryman();              // T350
+  initWanderingMosaicMaker();          // T351
+  initImperialBathhouseBuilder();      // T352
   initAchievements();
   initLeaderboard();
 }
@@ -1732,6 +1742,8 @@ function _startLoadedGame(savedData) {
   initImperialLoreMaster();            // T348
   initWanderingToymaker();             // T349
   initImperialFerryman();              // T350
+  initWanderingMosaicMaker();          // T351
+  initImperialBathhouseBuilder();      // T352
   initAchievements();
   initLeaderboard();
 }

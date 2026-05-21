@@ -1180,3 +1180,17 @@ Built imperialFerryman.js: establishFerryRoutes (20 wood + 15g → +0.22 wood/s 
 Wired in main.js: import initImperialFerryman+imperialFerrymanTick, registerSystem, initImperialFerryman() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _imperialFerrymanSection() render + ferryman-routes/ferryman-charts/ferryman-away handlers to questPanel.js (import * as Ferryman). Events.IMPERIAL_FERRYMAN_CHANGED subscribed.
 CSS: @keyframes ferryman-pulse (cyan/teal), .ferryman-section--active, .btn--ferryman-routes (cyan), .btn--ferryman-charts (amber/gold), .btn--ferryman-away (gray).
+
+Session 84 — T351–T352: Wandering Mosaic Maker, Imperial Bathhouse Builder.
+
+T351: Wandering Mosaic Maker — Bronze Age+, 8+ tiles, 12–17 min, 80s window.
+Built wanderingMosaicMaker.js: commissionImperialMosaic (20 stone + 15g → +0.20 stone/s 2.5min +20 prestige +10 morale), exchangePatternLore (18g → +0.15 gold/s 2min +12 prestige), sendMosaicMakerAway (dismiss). Added WANDERING_MOSAIC_MAKER_CHANGED event to events.js. state.wanderingMosaicMaker null field.
+Wired in main.js: import initWanderingMosaicMaker+wanderingMosaicMakerTick, registerSystem, initWanderingMosaicMaker() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingMosaicMakerSection() render + mosaic-commission/mosaic-exchange/mosaic-away handlers to questPanel.js (import * as MosaicMaker). Events.WANDERING_MOSAIC_MAKER_CHANGED subscribed.
+CSS: @keyframes mosaic-pulse (warm orange/amber), .mosaic-section--active, .btn--mosaic-commission (orange), .btn--mosaic-exchange (yellow/gold), .btn--mosaic-away (gray).
+
+T352: Imperial Bathhouse Builder — Medieval Age+, 12+ tiles, 15–20 min, 80s window.
+Built imperialBathhouseBuilder.js: constructBathhouseComplex (30 stone + 20g → +0.22 stone/s 2.5min +25 prestige +15 morale), shareEngineeringPlans (25 mana → +0.18 mana/s 2min +18 prestige), sendBathhouseBuilderAway (dismiss). Added IMPERIAL_BATHHOUSE_BUILDER_CHANGED event to events.js. state.imperialBathhouseBuilder null field.
+Wired in main.js: import initImperialBathhouseBuilder+imperialBathhouseBuilderTick, registerSystem, initImperialBathhouseBuilder() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _imperialBathhouseBuilderSection() render + bathhouse-construct/bathhouse-plans/bathhouse-away handlers to questPanel.js (import * as BHBuilder). Events.IMPERIAL_BATHHOUSE_BUILDER_CHANGED subscribed.
+CSS: @keyframes bathhouse-pulse (teal/mint), .bathhouse-section--active, .btn--bathhouse-construct (teal), .btn--bathhouse-plans (violet), .btn--bathhouse-away (gray).

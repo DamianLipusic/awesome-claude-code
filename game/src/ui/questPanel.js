@@ -115,6 +115,8 @@ import * as Storyteller  from '../systems/wanderingStoryteller.js';  // T347
 import * as LoreMaster   from '../systems/imperialLoreMaster.js';    // T348
 import * as Toymaker     from '../systems/wanderingToymaker.js';     // T349
 import * as Ferryman     from '../systems/imperialFerryman.js';      // T350
+import * as MosaicMaker  from '../systems/wanderingMosaicMaker.js';  // T351
+import * as BHBuilder    from '../systems/imperialBathhouseBuilder.js'; // T352
 
 let _panel = null;
 
@@ -258,6 +260,8 @@ function _encountersSection() {
     _imperialLoreMasterSection(),
     _wanderingToymakerSection(),
     _imperialFerrymanSection(),
+    _wanderingMosaicMakerSection(),
+    _imperialBathhouseBuilderSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -3699,6 +3703,75 @@ function _imperialFerrymanSection() {
     </div>`;
 }
 
+// ── T351 Wandering Mosaic Maker ────────────────────────────────────────
+
+function _wanderingMosaicMakerSection() {
+  if (!MosaicMaker.getActiveWanderingMosaicMaker()) return '';
+  const secs         = MosaicMaker.getMosaicMakerSecsLeft();
+  const stone        = state.resources.stone ?? 0;
+  const gold         = state.resources.gold  ?? 0;
+  const urg          = secs <= 15 ? ' mosaic-timer--urgent' : '';
+  const canCommission = stone >= MosaicMaker.COMMISSION_STONE_COST && gold >= MosaicMaker.COMMISSION_GOLD_COST;
+  const canExchange   = gold  >= MosaicMaker.EXCHANGE_GOLD_COST;
+  return `
+    <div class="mosaic-section--active">
+      <div class="mosaic-header">
+        <span class="mosaic-title">🎨 Wandering Mosaic Maker</span>
+        <span class="mosaic-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="mosaic-desc">A wandering mosaic maker arrives with carts of coloured stone tesserae and decades of craft expertise, proposing to adorn the empire's public spaces with magnificent stone mosaics or to share hard-won pattern lore.</div>
+      <div class="mosaic-actions">
+        <button class="btn--mosaic-commission${canCommission ? '' : ' btn--disabled'}" data-action="mosaic-commission" ${canCommission ? '' : 'disabled'}>
+          🎨 Commission Imperial Mosaic — ${MosaicMaker.COMMISSION_STONE_COST}🪨 + ${MosaicMaker.COMMISSION_GOLD_COST}💰
+          <span class="mosaic-cost">→ +${MosaicMaker.COMMISSION_STONE_RATE} stone/s (2.5 min) · +${MosaicMaker.COMMISSION_PRESTIGE_REWARD} prestige · +${MosaicMaker.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--mosaic-exchange${canExchange ? '' : ' btn--disabled'}" data-action="mosaic-exchange" ${canExchange ? '' : 'disabled'}>
+          📜 Exchange Pattern Lore — ${MosaicMaker.EXCHANGE_GOLD_COST}💰
+          <span class="mosaic-cost">→ +${MosaicMaker.EXCHANGE_GOLD_RATE} gold/s (2 min) · +${MosaicMaker.EXCHANGE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--mosaic-away" data-action="mosaic-away">
+          🚶 Send Away
+          <span class="mosaic-cost">→ Mosaic maker packs the tesserae and departs</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T352 Imperial Bathhouse Builder ───────────────────────────────────
+
+function _imperialBathhouseBuilderSection() {
+  if (!BHBuilder.getActiveImperialBathhouseBuilder()) return '';
+  const secs         = BHBuilder.getBathhouseBuilderSecsLeft();
+  const stone        = state.resources.stone ?? 0;
+  const gold         = state.resources.gold  ?? 0;
+  const mana         = state.resources.mana  ?? 0;
+  const urg          = secs <= 15 ? ' bathhouse-timer--urgent' : '';
+  const canConstruct = stone >= BHBuilder.CONSTRUCT_STONE_COST && gold >= BHBuilder.CONSTRUCT_GOLD_COST;
+  const canPlans     = mana  >= BHBuilder.PLANS_MANA_COST;
+  return `
+    <div class="bathhouse-section--active">
+      <div class="bathhouse-header">
+        <span class="bathhouse-title">🏛️ Imperial Bathhouse Builder</span>
+        <span class="bathhouse-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="bathhouse-desc">A celebrated imperial bathhouse builder arrives bearing detailed engineering drawings for grand heated public bathhouses, proposing either full construction or the sharing of advanced hydraulic engineering plans.</div>
+      <div class="bathhouse-actions">
+        <button class="btn--bathhouse-construct${canConstruct ? '' : ' btn--disabled'}" data-action="bathhouse-construct" ${canConstruct ? '' : 'disabled'}>
+          🏛️ Construct Bathhouse Complex — ${BHBuilder.CONSTRUCT_STONE_COST}🪨 + ${BHBuilder.CONSTRUCT_GOLD_COST}💰
+          <span class="bathhouse-cost">→ +${BHBuilder.CONSTRUCT_STONE_RATE} stone/s (2.5 min) · +${BHBuilder.CONSTRUCT_PRESTIGE_REWARD} prestige · +${BHBuilder.CONSTRUCT_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--bathhouse-plans${canPlans ? '' : ' btn--disabled'}" data-action="bathhouse-plans" ${canPlans ? '' : 'disabled'}>
+          📐 Share Engineering Plans — ${BHBuilder.PLANS_MANA_COST}✨
+          <span class="bathhouse-cost">→ +${BHBuilder.PLANS_MANA_RATE} mana/s (2 min) · +${BHBuilder.PLANS_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--bathhouse-away" data-action="bathhouse-away">
+          🚶 Send Away
+          <span class="bathhouse-cost">→ Builder rolls up the drawings and seeks another patron</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -4114,6 +4187,12 @@ const _HANDLERS = {
   'ferryman-routes':         () => Ferryman.establishFerryRoutes(),
   'ferryman-charts':         () => Ferryman.purchaseRiverCharts(),
   'ferryman-away':           () => Ferryman.sendFerrymanAway(),
+  'mosaic-commission':       () => MosaicMaker.commissionImperialMosaic(),
+  'mosaic-exchange':         () => MosaicMaker.exchangePatternLore(),
+  'mosaic-away':             () => MosaicMaker.sendMosaicMakerAway(),
+  'bathhouse-construct':     () => BHBuilder.constructBathhouseComplex(),
+  'bathhouse-plans':         () => BHBuilder.shareEngineeringPlans(),
+  'bathhouse-away':          () => BHBuilder.sendBathhouseBuilderAway(),
 };
 
 function _handleClick(e) {
@@ -4236,6 +4315,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_LORE_MASTER_CHANGED,
     Events.WANDERING_TOYMAKER_CHANGED,
     Events.IMPERIAL_FERRYMAN_CHANGED,
+    Events.WANDERING_MOSAIC_MAKER_CHANGED,
+    Events.IMPERIAL_BATHHOUSE_BUILDER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

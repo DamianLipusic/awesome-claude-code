@@ -19575,3 +19575,81 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--ferryman-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T351: Wandering Mosaic Maker ── */
+@keyframes mosaic-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(251, 146, 60, 0.0); }
+  50%       { box-shadow: 0 0 0 6px rgba(251, 146, 60, 0.18); }
+}
+.mosaic-section--active {
+  background: linear-gradient(135deg, rgba(251, 146, 60, 0.08), rgba(234, 88, 12, 0.05));
+  border: 1px solid rgba(251, 146, 60, 0.30); border-radius: 8px; padding: 10px 12px; margin-bottom: 10px;
+  animation: mosaic-pulse 3.5s ease-in-out infinite;
+}
+.mosaic-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.mosaic-title   { font-size: 0.92rem; font-weight: 600; color: #fb923c; }
+.mosaic-timer   { font-size: 0.78rem; color: #ea580c; background: rgba(234, 88, 12, 0.12); padding: 2px 7px; border-radius: 10px; }
+.mosaic-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.25); }
+.mosaic-desc    { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.mosaic-actions { display: flex; flex-direction: column; gap: 6px; }
+.mosaic-cost    { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--mosaic-commission {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(251, 146, 60, 0.14), rgba(234, 88, 12, 0.09));
+  border: 1px solid rgba(251, 146, 60, 0.35); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fb923c; text-align: left; transition: background 0.15s;
+}
+.btn--mosaic-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(251, 146, 60, 0.26), rgba(234, 88, 12, 0.18)); }
+.btn--mosaic-exchange {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(234, 179, 8, 0.14), rgba(202, 138, 4, 0.09));
+  border: 1px solid rgba(234, 179, 8, 0.35); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #eab308; text-align: left; transition: background 0.15s;
+}
+.btn--mosaic-exchange:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(234, 179, 8, 0.26), rgba(202, 138, 4, 0.18)); }
+.btn--mosaic-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--mosaic-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T352: Imperial Bathhouse Builder ── */
+@keyframes bathhouse-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(20, 184, 166, 0.0); }
+  50%       { box-shadow: 0 0 0 6px rgba(20, 184, 166, 0.18); }
+}
+.bathhouse-section--active {
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.08), rgba(13, 148, 136, 0.05));
+  border: 1px solid rgba(20, 184, 166, 0.30); border-radius: 8px; padding: 10px 12px; margin-bottom: 10px;
+  animation: bathhouse-pulse 3.5s ease-in-out infinite;
+}
+.bathhouse-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.bathhouse-title   { font-size: 0.92rem; font-weight: 600; color: #14b8a6; }
+.bathhouse-timer   { font-size: 0.78rem; color: #0d9488; background: rgba(13, 148, 136, 0.12); padding: 2px 7px; border-radius: 10px; }
+.bathhouse-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.25); }
+.bathhouse-desc    { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.bathhouse-actions { display: flex; flex-direction: column; gap: 6px; }
+.bathhouse-cost    { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--bathhouse-construct {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.14), rgba(13, 148, 136, 0.09));
+  border: 1px solid rgba(20, 184, 166, 0.35); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #14b8a6; text-align: left; transition: background 0.15s;
+}
+.btn--bathhouse-construct:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(20, 184, 166, 0.26), rgba(13, 148, 136, 0.18)); }
+.btn--bathhouse-plans {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.14), rgba(109, 40, 217, 0.09));
+  border: 1px solid rgba(139, 92, 246, 0.35); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #a78bfa; text-align: left; transition: background 0.15s;
+}
+.btn--bathhouse-plans:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(139, 92, 246, 0.26), rgba(109, 40, 217, 0.18)); }
+.btn--bathhouse-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--bathhouse-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
