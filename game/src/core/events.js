@@ -300,4 +300,6 @@ export const Events = Object.freeze({
   WANDERING_INCENSE_MAKER_CHANGED:    'wanderingIncenseMakerChanged',             // T356: incense maker spawned / incense / purchase / dismissed / expired
   WANDERING_FURRIER_CHANGED:          'wanderingFurrierChanged',                   // T357: furrier spawned / commission / purchase / dismissed / expired
   IMPERIAL_WOOL_MERCHANT_CHANGED:     'imperialWoolMerchantChanged',               // T358: wool merchant spawned / trade / purchase / dismissed / expired
+  WANDERING_HORSE_TRADER_CHANGED:     'wanderingHorseTraderChanged',               // T359: horse trader spawned / purchase / trade / dismissed / expired
+  IMPERIAL_SILK_WEAVER_CHANGED:       'imperialSilkWeaverChanged',                 // T360: silk weaver spawned / commission / purchase / dismissed / expired
 });

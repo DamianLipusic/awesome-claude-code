@@ -123,6 +123,8 @@ import * as ParchmentMaker from '../systems/wanderingParchmentMaker.js'; // T355
 import * as IncenseMaker   from '../systems/wanderingIncenseMaker.js';   // T356
 import * as Furrier        from '../systems/wanderingFurrier.js';         // T357
 import * as WoolMerchant   from '../systems/imperialWoolMerchant.js';     // T358
+import * as HorseTrader    from '../systems/wanderingHorseTrader.js';     // T359
+import * as SilkWeaver     from '../systems/imperialSilkWeaver.js';       // T360
 
 let _panel = null;
 
@@ -274,6 +276,8 @@ function _encountersSection() {
     _wanderingIncenseMakerSection(),
     _wanderingFurrierSection(),
     _imperialWoolMerchantSection(),
+    _wanderingHorseTraderSection(),
+    _imperialSilkWeaverSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -3985,6 +3989,72 @@ function _imperialWoolMerchantSection() {
     </div>`;
 }
 
+function _wanderingHorseTraderSection() {
+  if (!HorseTrader.getActiveWanderingHorseTrader()) return '';
+  const secs         = HorseTrader.getHorseTraderSecsLeft();
+  const iron         = state.resources.iron ?? 0;
+  const food         = state.resources.food ?? 0;
+  const gold         = state.resources.gold ?? 0;
+  const urg          = secs <= 15 ? ' horse-timer--urgent' : '';
+  const canPurchase  = gold >= HorseTrader.PURCHASE_GOLD_COST;
+  const canTrade     = iron >= HorseTrader.TRADE_IRON_COST && food >= HorseTrader.TRADE_FOOD_COST;
+  return `
+    <div class="horse-section--active">
+      <div class="horse-header">
+        <span class="horse-title">🐴 Wandering Horse Trader</span>
+        <span class="horse-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="horse-desc">A skilled horse trader arrives with a magnificent string of stallions and mares bred on distant plains for speed, endurance, and battlefield courage.</div>
+      <div class="horse-actions">
+        <button class="btn--horse-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="horse-purchase" ${canPurchase ? '' : 'disabled'}>
+          🐴 Purchase Prize Stallions — ${HorseTrader.PURCHASE_GOLD_COST}💰
+          <span class="horse-cost">→ +${HorseTrader.PURCHASE_GOLD_RATE} gold/s (2.5 min) · +${HorseTrader.PURCHASE_PRESTIGE_REWARD} prestige · +${HorseTrader.PURCHASE_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--horse-trade${canTrade ? '' : ' btn--disabled'}" data-action="horse-trade" ${canTrade ? '' : 'disabled'}>
+          ⚔️ Trade Saddle Equipment — ${HorseTrader.TRADE_IRON_COST}⚙️ + ${HorseTrader.TRADE_FOOD_COST}🌾
+          <span class="horse-cost">→ +${HorseTrader.TRADE_IRON_RATE} iron/s (2 min) · +${HorseTrader.TRADE_PRESTIGE_REWARD} prestige · +${HorseTrader.TRADE_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--horse-away" data-action="horse-away">
+          🚶 Send Away
+          <span class="horse-cost">→ Horse trader gathers the string and rides on</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _imperialSilkWeaverSection() {
+  if (!SilkWeaver.getActiveImperialSilkWeaver()) return '';
+  const secs          = SilkWeaver.getSilkWeaverSecsLeft();
+  const mana          = state.resources.mana ?? 0;
+  const food          = state.resources.food ?? 0;
+  const gold          = state.resources.gold ?? 0;
+  const urg           = secs <= 15 ? ' silk-timer--urgent' : '';
+  const canCommission = mana >= SilkWeaver.COMMISSION_MANA_COST && gold >= SilkWeaver.COMMISSION_GOLD_COST;
+  const canPurchase   = food >= SilkWeaver.PURCHASE_FOOD_COST;
+  return `
+    <div class="silk-section--active">
+      <div class="silk-header">
+        <span class="silk-title">🧵 Imperial Silk Weaver</span>
+        <span class="silk-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="silk-desc">A master silk weaver arrives bearing exquisite bolts of hand-dyed silk and embroidered tapestries worthy of the finest imperial courts.</div>
+      <div class="silk-actions">
+        <button class="btn--silk-commission${canCommission ? '' : ' btn--disabled'}" data-action="silk-commission" ${canCommission ? '' : 'disabled'}>
+          🧵 Commission Silk Tapestries — ${SilkWeaver.COMMISSION_MANA_COST}✨ + ${SilkWeaver.COMMISSION_GOLD_COST}💰
+          <span class="silk-cost">→ +${SilkWeaver.COMMISSION_MANA_RATE} mana/s (2.5 min) · +${SilkWeaver.COMMISSION_PRESTIGE_REWARD} prestige · +${SilkWeaver.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--silk-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="silk-purchase" ${canPurchase ? '' : 'disabled'}>
+          🌾 Purchase Silk Bolts — ${SilkWeaver.PURCHASE_FOOD_COST}🌾
+          <span class="silk-cost">→ +${SilkWeaver.PURCHASE_FOOD_RATE} food/s (2 min) · +${SilkWeaver.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--silk-away" data-action="silk-away">
+          🚶 Send Away
+          <span class="silk-cost">→ Silk weaver closes the lacquered case and departs</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -4430,6 +4500,14 @@ const _HANDLERS = {
   'wool-trade':              () => WoolMerchant.tradeWoolSupplies(),
   'wool-purchase':           () => WoolMerchant.purchaseWoolGoods(),
   'wool-away':               () => WoolMerchant.sendWoolMerchantAway(),
+
+  'horse-purchase':          () => HorseTrader.purchasePrizeStallions(),
+  'horse-trade':             () => HorseTrader.tradeSaddleEquipment(),
+  'horse-away':              () => HorseTrader.sendHorseTraderAway(),
+
+  'silk-commission':         () => SilkWeaver.commissionSilkTapestries(),
+  'silk-purchase':           () => SilkWeaver.purchaseSilkBolts(),
+  'silk-away':               () => SilkWeaver.sendSilkWeaverAway(),
 };
 
 function _handleClick(e) {
@@ -4560,6 +4638,8 @@ export function initQuestPanel() {
     Events.WANDERING_INCENSE_MAKER_CHANGED,
     Events.WANDERING_FURRIER_CHANGED,
     Events.IMPERIAL_WOOL_MERCHANT_CHANGED,
+    Events.WANDERING_HORSE_TRADER_CHANGED,
+    Events.IMPERIAL_SILK_WEAVER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

@@ -1100,6 +1100,26 @@
       "description": "Periodic imperial wool merchant encounter: trade wool supplies (20 food + 15 wood → +0.22 food/s 2.5min +18 prestige +8 morale), purchase wool goods (18g → +0.15 wood/s 2min +12 prestige), send away. Bronze Age+, 8+ tiles, 12-17 min.",
       "completed_date": "2026-05-21",
       "notes": "Created imperialWoolMerchant.js system, added IMPERIAL_WOOL_MERCHANT_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialWoolMerchantSection() and handlers to questPanel.js (import * as WoolMerchant). Events.IMPERIAL_WOOL_MERCHANT_CHANGED subscribed. Added wool CSS (emerald green fleece theme with lime purchase button)."
+    },
+    {
+      "id": "T359",
+      "title": "Wandering Horse Trader",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic wandering horse trader encounter: purchase prize stallions (35g → +0.2 gold/s 2.5min +22 prestige +12 morale), trade saddle equipment (20 iron + 15 food → +0.18 iron/s 2min +15 prestige +8 morale), send away. Iron Age+, 10+ tiles, 12-17 min.",
+      "completed_date": "2026-05-21",
+      "notes": "Created wanderingHorseTrader.js system, added WANDERING_HORSE_TRADER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingHorseTraderSection() and handlers to questPanel.js (import * as HorseTrader). Events.WANDERING_HORSE_TRADER_CHANGED subscribed. Added horse CSS (warm chestnut/brown theme with slate trade button)."
+    },
+    {
+      "id": "T360",
+      "title": "Imperial Silk Weaver",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic imperial silk weaver encounter: commission silk tapestries (25 mana + 20g → +0.2 mana/s 2.5min +22 prestige +10 morale), purchase silk bolts (20 food → +0.18 food/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-18 min.",
+      "completed_date": "2026-05-21",
+      "notes": "Created imperialSilkWeaver.js system, added IMPERIAL_SILK_WEAVER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialSilkWeaverSection() and handlers to questPanel.js (import * as SilkWeaver). Events.IMPERIAL_SILK_WEAVER_CHANGED subscribed. Added silk CSS (rich violet/purple silk theme with crimson purchase button)."
     }
   ],
   "session_history": [
@@ -1167,6 +1187,7 @@
     "Session 84 (T249-T250): Wandering Mosaic Maker (T351), Imperial Bathhouse Builder (T352)",
     "Session 85 (T251-T252): Wandering Bell Founder (T353), Imperial Marble Cutter (T354)",
     "Session 86 (T253-T254): Wandering Parchment Maker (T355), Wandering Incense Maker (T356)",
-    "Session 87 (T357-T358): Wandering Furrier (T357), Imperial Wool Merchant (T358)"
+    "Session 87 (T357-T358): Wandering Furrier (T357), Imperial Wool Merchant (T358)",
+    "Session 88 (T359-T360): Wandering Horse Trader (T359), Imperial Silk Weaver (T360)"
   ]
 }

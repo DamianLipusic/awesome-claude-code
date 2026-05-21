@@ -1232,3 +1232,15 @@ Built imperialWoolMerchant.js: tradeWoolSupplies (20 food + 15 wood → +0.22 fo
 Wired in main.js: import initImperialWoolMerchant+imperialWoolMerchantTick, registerSystem, initImperialWoolMerchant() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _imperialWoolMerchantSection() render + wool-trade/wool-purchase/wool-away handlers to questPanel.js (import * as WoolMerchant). Events.IMPERIAL_WOOL_MERCHANT_CHANGED subscribed.
 CSS: @keyframes wool-pulse (emerald green fleece), .wool-section--active, .btn--wool-trade (emerald green), .btn--wool-purchase (lime green), .btn--wool-away (gray). Session 87.
+
+T359: Wandering Horse Trader — Iron Age+, 10+ tiles, 12–17 min, 80s window.
+Built wanderingHorseTrader.js: purchasePrizeStallions (35g → +0.2 gold/s 2.5min +22 prestige +12 morale), tradeSaddleEquipment (20 iron + 15 food → +0.18 iron/s 2min +15 prestige +8 morale), sendHorseTraderAway (dismiss). Added WANDERING_HORSE_TRADER_CHANGED event to events.js. state.wanderingHorseTrader null field.
+Wired in main.js: import initWanderingHorseTrader+wanderingHorseTraderTick, registerSystem, initWanderingHorseTrader() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingHorseTraderSection() render + horse-purchase/horse-trade/horse-away handlers to questPanel.js (import * as HorseTrader). Events.WANDERING_HORSE_TRADER_CHANGED subscribed.
+CSS: @keyframes horse-pulse (warm chestnut/brown), .horse-section--active, .btn--horse-purchase (amber/orange), .btn--horse-trade (slate), .btn--horse-away (gray). Session 88.
+
+T360: Imperial Silk Weaver — Medieval Age+, 10+ tiles, 14–18 min, 80s window.
+Built imperialSilkWeaver.js: commissionSilkTapestries (25 mana + 20g → +0.2 mana/s 2.5min +22 prestige +10 morale), purchaseSilkBolts (20 food → +0.18 food/s 2min +15 prestige), sendSilkWeaverAway (dismiss). Added IMPERIAL_SILK_WEAVER_CHANGED event to events.js. state.imperialSilkWeaver null field.
+Wired in main.js: import initImperialSilkWeaver+imperialSilkWeaverTick, registerSystem, initImperialSilkWeaver() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _imperialSilkWeaverSection() render + silk-commission/silk-purchase/silk-away handlers to questPanel.js (import * as SilkWeaver). Events.IMPERIAL_SILK_WEAVER_CHANGED subscribed.
+CSS: @keyframes silk-pulse (rich violet/purple), .silk-section--active, .btn--silk-commission (violet/purple), .btn--silk-purchase (crimson/red), .btn--silk-away (gray). Session 88.

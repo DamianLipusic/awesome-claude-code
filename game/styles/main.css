@@ -19887,3 +19887,81 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--wool-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T359: Wandering Horse Trader ──────────────────────────── */
+@keyframes horse-pulse {
+  0%, 100% { border-color: rgba(180, 83, 9, 0.35); box-shadow: 0 0 0 0 rgba(180, 83, 9, 0); }
+  50%       { border-color: rgba(180, 83, 9, 0.70); box-shadow: 0 0 8px 2px rgba(180, 83, 9, 0.18); }
+}
+.horse-section--active {
+  background: linear-gradient(135deg, rgba(92, 45, 10, 0.14), rgba(60, 28, 6, 0.08));
+  border: 1px solid rgba(180, 83, 9, 0.35); border-radius: 8px; padding: 10px 12px; margin-bottom: 10px;
+  animation: horse-pulse 3.5s ease-in-out infinite;
+}
+.horse-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.horse-title   { font-size: 0.92rem; font-weight: 600; color: #fdba74; }
+.horse-timer   { font-size: 0.78rem; color: #b45309; background: rgba(180, 83, 9, 0.12); padding: 2px 7px; border-radius: 10px; }
+.horse-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.25); }
+.horse-desc    { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.horse-actions { display: flex; flex-direction: column; gap: 6px; }
+.horse-cost    { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--horse-purchase {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(180, 83, 9, 0.15), rgba(146, 64, 14, 0.10));
+  border: 1px solid rgba(180, 83, 9, 0.32); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fdba74; text-align: left; transition: background 0.15s;
+}
+.btn--horse-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(180, 83, 9, 0.26), rgba(146, 64, 14, 0.18)); }
+.btn--horse-trade {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(100, 116, 139, 0.15), rgba(71, 85, 105, 0.10));
+  border: 1px solid rgba(100, 116, 139, 0.32); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #cbd5e1; text-align: left; transition: background 0.15s;
+}
+.btn--horse-trade:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(100, 116, 139, 0.26), rgba(71, 85, 105, 0.18)); }
+.btn--horse-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--horse-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T360: Imperial Silk Weaver ─────────────────────────────── */
+@keyframes silk-pulse {
+  0%, 100% { border-color: rgba(168, 85, 247, 0.35); box-shadow: 0 0 0 0 rgba(168, 85, 247, 0); }
+  50%       { border-color: rgba(168, 85, 247, 0.70); box-shadow: 0 0 8px 2px rgba(168, 85, 247, 0.18); }
+}
+.silk-section--active {
+  background: linear-gradient(135deg, rgba(88, 28, 135, 0.14), rgba(59, 7, 100, 0.08));
+  border: 1px solid rgba(168, 85, 247, 0.35); border-radius: 8px; padding: 10px 12px; margin-bottom: 10px;
+  animation: silk-pulse 3.5s ease-in-out infinite;
+}
+.silk-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.silk-title   { font-size: 0.92rem; font-weight: 600; color: #e9d5ff; }
+.silk-timer   { font-size: 0.78rem; color: #a855f7; background: rgba(168, 85, 247, 0.12); padding: 2px 7px; border-radius: 10px; }
+.silk-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.25); }
+.silk-desc    { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.silk-actions { display: flex; flex-direction: column; gap: 6px; }
+.silk-cost    { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--silk-commission {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(126, 34, 206, 0.10));
+  border: 1px solid rgba(168, 85, 247, 0.32); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #e9d5ff; text-align: left; transition: background 0.15s;
+}
+.btn--silk-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(168, 85, 247, 0.26), rgba(126, 34, 206, 0.18)); }
+.btn--silk-purchase {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.13), rgba(185, 28, 28, 0.09));
+  border: 1px solid rgba(239, 68, 68, 0.30); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fca5a5; text-align: left; transition: background 0.15s;
+}
+.btn--silk-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(239, 68, 68, 0.22), rgba(185, 28, 28, 0.15)); }
+.btn--silk-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--silk-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
