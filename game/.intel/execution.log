@@ -1220,3 +1220,15 @@ Built wanderingIncenseMaker.js: prepareSacredIncense (20 food + 15 mana → +0.2
 Wired in main.js: import initWanderingIncenseMaker+wanderingIncenseMakerTick, registerSystem, initWanderingIncenseMaker() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _wanderingIncenseMakerSection() render + incense-prepare/incense-purchase/incense-away handlers to questPanel.js (import * as IncenseMaker). Events.WANDERING_INCENSE_MAKER_CHANGED subscribed.
 CSS: @keyframes incense-pulse (violet/purple smoky), .incense-section--active, .btn--incense-prepare (violet/purple), .btn--incense-purchase (mint green), .btn--incense-away (gray). Session 86.
+
+T357: Wandering Furrier — Stone Age+, 6+ tiles, 11–15 min, 80s window.
+Built wanderingFurrier.js: commissionRoyalPeltWorks (25 food → +0.22 food/s 2.5min +18 prestige +10 morale), purchasePeltCollection (20g → +0.15 gold/s 2min +12 prestige), sendFurrierAway (dismiss). Added WANDERING_FURRIER_CHANGED event to events.js. state.wanderingFurrier null field.
+Wired in main.js: import initWanderingFurrier+wanderingFurrierTick, registerSystem, initWanderingFurrier() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingFurrierSection() render + furrier-commission/furrier-purchase/furrier-away handlers to questPanel.js (import * as Furrier). Events.WANDERING_FURRIER_CHANGED subscribed.
+CSS: @keyframes furrier-pulse (amber/orange pelt), .furrier-section--active, .btn--furrier-commission (amber), .btn--furrier-purchase (gold/yellow), .btn--furrier-away (gray). Session 87.
+
+T358: Imperial Wool Merchant — Bronze Age+, 8+ tiles, 12–17 min, 80s window.
+Built imperialWoolMerchant.js: tradeWoolSupplies (20 food + 15 wood → +0.22 food/s 2.5min +18 prestige +8 morale), purchaseWoolGoods (18g → +0.15 wood/s 2min +12 prestige), sendWoolMerchantAway (dismiss). Added IMPERIAL_WOOL_MERCHANT_CHANGED event to events.js. state.imperialWoolMerchant null field.
+Wired in main.js: import initImperialWoolMerchant+imperialWoolMerchantTick, registerSystem, initImperialWoolMerchant() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _imperialWoolMerchantSection() render + wool-trade/wool-purchase/wool-away handlers to questPanel.js (import * as WoolMerchant). Events.IMPERIAL_WOOL_MERCHANT_CHANGED subscribed.
+CSS: @keyframes wool-pulse (emerald green fleece), .wool-section--active, .btn--wool-trade (emerald green), .btn--wool-purchase (lime green), .btn--wool-away (gray). Session 87.

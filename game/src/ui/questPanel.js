@@ -121,6 +121,8 @@ import * as BellFounder  from '../systems/wanderingBellFounder.js';     // T353
 import * as MarbleCutter    from '../systems/imperialMarbleCutter.js';     // T354
 import * as ParchmentMaker from '../systems/wanderingParchmentMaker.js'; // T355
 import * as IncenseMaker   from '../systems/wanderingIncenseMaker.js';   // T356
+import * as Furrier        from '../systems/wanderingFurrier.js';         // T357
+import * as WoolMerchant   from '../systems/imperialWoolMerchant.js';     // T358
 
 let _panel = null;
 
@@ -270,6 +272,8 @@ function _encountersSection() {
     _imperialMarbleCutterSection(),
     _wanderingParchmentMakerSection(),
     _wanderingIncenseMakerSection(),
+    _wanderingFurrierSection(),
+    _imperialWoolMerchantSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -3916,6 +3920,71 @@ function _wanderingIncenseMakerSection() {
     </div>`;
 }
 
+function _wanderingFurrierSection() {
+  if (!Furrier.getActiveWanderingFurrier()) return '';
+  const secs           = Furrier.getFurrierSecsLeft();
+  const food           = state.resources.food ?? 0;
+  const gold           = state.resources.gold ?? 0;
+  const urg            = secs <= 15 ? ' furrier-timer--urgent' : '';
+  const canCommission  = food >= Furrier.COMMISSION_FOOD_COST;
+  const canPurchase    = gold >= Furrier.PURCHASE_GOLD_COST;
+  return `
+    <div class="furrier-section--active">
+      <div class="furrier-header">
+        <span class="furrier-title">🦊 Wandering Furrier</span>
+        <span class="furrier-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="furrier-desc">A wandering furrier arrives with wolf pelts, fox furs, beaver hides, and cured rabbit skins — fine materials for noble wardrobes and warm winter cloaks.</div>
+      <div class="furrier-actions">
+        <button class="btn--furrier-commission${canCommission ? '' : ' btn--disabled'}" data-action="furrier-commission" ${canCommission ? '' : 'disabled'}>
+          🦊 Commission Royal Pelt Works — ${Furrier.COMMISSION_FOOD_COST}🌾
+          <span class="furrier-cost">→ +${Furrier.COMMISSION_FOOD_RATE} food/s (2.5 min) · +${Furrier.COMMISSION_PRESTIGE_REWARD} prestige · +${Furrier.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--furrier-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="furrier-purchase" ${canPurchase ? '' : 'disabled'}>
+          💰 Purchase Pelt Collection — ${Furrier.PURCHASE_GOLD_COST}💰
+          <span class="furrier-cost">→ +${Furrier.PURCHASE_GOLD_RATE} gold/s (2 min) · +${Furrier.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--furrier-away" data-action="furrier-away">
+          🚶 Send Away
+          <span class="furrier-cost">→ Furrier packs the pelts and departs</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _imperialWoolMerchantSection() {
+  if (!WoolMerchant.getActiveImperialWoolMerchant()) return '';
+  const secs        = WoolMerchant.getWoolMerchantSecsLeft();
+  const food        = state.resources.food ?? 0;
+  const wood        = state.resources.wood ?? 0;
+  const gold        = state.resources.gold ?? 0;
+  const urg         = secs <= 15 ? ' wool-timer--urgent' : '';
+  const canTrade    = food >= WoolMerchant.TRADE_FOOD_COST && wood >= WoolMerchant.TRADE_WOOD_COST;
+  const canPurchase = gold >= WoolMerchant.PURCHASE_GOLD_COST;
+  return `
+    <div class="wool-section--active">
+      <div class="wool-header">
+        <span class="wool-title">🐑 Imperial Wool Merchant</span>
+        <span class="wool-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="wool-desc">A traveling wool merchant arrives with bales of raw fleece, spun yarn, and undyed woollen cloth — the raw material of warm cloaks, farmers' tunics, and soldiers' winter gear.</div>
+      <div class="wool-actions">
+        <button class="btn--wool-trade${canTrade ? '' : ' btn--disabled'}" data-action="wool-trade" ${canTrade ? '' : 'disabled'}>
+          🐑 Trade Wool Supplies — ${WoolMerchant.TRADE_FOOD_COST}🌾 + ${WoolMerchant.TRADE_WOOD_COST}🪵
+          <span class="wool-cost">→ +${WoolMerchant.TRADE_FOOD_RATE} food/s (2.5 min) · +${WoolMerchant.TRADE_PRESTIGE_REWARD} prestige · +${WoolMerchant.TRADE_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--wool-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="wool-purchase" ${canPurchase ? '' : 'disabled'}>
+          🪵 Purchase Wool Goods — ${WoolMerchant.PURCHASE_GOLD_COST}💰
+          <span class="wool-cost">→ +${WoolMerchant.PURCHASE_WOOD_RATE} wood/s (2 min) · +${WoolMerchant.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--wool-away" data-action="wool-away">
+          🚶 Send Away
+          <span class="wool-cost">→ Wool merchant loads the cart and departs</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -4353,6 +4422,14 @@ const _HANDLERS = {
   'incense-prepare':         () => IncenseMaker.prepareSacredIncense(),
   'incense-purchase':        () => IncenseMaker.purchaseAromaticBlends(),
   'incense-away':            () => IncenseMaker.sendIncenseMakerAway(),
+
+  'furrier-commission':      () => Furrier.commissionRoyalPeltWorks(),
+  'furrier-purchase':        () => Furrier.purchasePeltCollection(),
+  'furrier-away':            () => Furrier.sendFurrierAway(),
+
+  'wool-trade':              () => WoolMerchant.tradeWoolSupplies(),
+  'wool-purchase':           () => WoolMerchant.purchaseWoolGoods(),
+  'wool-away':               () => WoolMerchant.sendWoolMerchantAway(),
 };
 
 function _handleClick(e) {
@@ -4481,6 +4558,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_MARBLE_CUTTER_CHANGED,
     Events.WANDERING_PARCHMENT_MAKER_CHANGED,
     Events.WANDERING_INCENSE_MAKER_CHANGED,
+    Events.WANDERING_FURRIER_CHANGED,
+    Events.IMPERIAL_WOOL_MERCHANT_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

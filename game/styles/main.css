@@ -19809,3 +19809,81 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--incense-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T357: Wandering Furrier ────────────────────────────────── */
+@keyframes furrier-pulse {
+  0%, 100% { border-color: rgba(217, 119, 6, 0.35); box-shadow: 0 0 0 0 rgba(217, 119, 6, 0); }
+  50%       { border-color: rgba(217, 119, 6, 0.70); box-shadow: 0 0 8px 2px rgba(217, 119, 6, 0.18); }
+}
+.furrier-section--active {
+  background: linear-gradient(135deg, rgba(120, 53, 15, 0.14), rgba(78, 40, 10, 0.08));
+  border: 1px solid rgba(217, 119, 6, 0.35); border-radius: 8px; padding: 10px 12px; margin-bottom: 10px;
+  animation: furrier-pulse 3.5s ease-in-out infinite;
+}
+.furrier-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.furrier-title   { font-size: 0.92rem; font-weight: 600; color: #fbbf24; }
+.furrier-timer   { font-size: 0.78rem; color: #d97706; background: rgba(217, 119, 6, 0.12); padding: 2px 7px; border-radius: 10px; }
+.furrier-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.25); }
+.furrier-desc    { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.furrier-actions { display: flex; flex-direction: column; gap: 6px; }
+.furrier-cost    { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--furrier-commission {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(217, 119, 6, 0.15), rgba(180, 83, 9, 0.10));
+  border: 1px solid rgba(217, 119, 6, 0.32); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fbbf24; text-align: left; transition: background 0.15s;
+}
+.btn--furrier-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(217, 119, 6, 0.26), rgba(180, 83, 9, 0.18)); }
+.btn--furrier-purchase {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(234, 179, 8, 0.15), rgba(202, 138, 4, 0.10));
+  border: 1px solid rgba(234, 179, 8, 0.32); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fde68a; text-align: left; transition: background 0.15s;
+}
+.btn--furrier-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(234, 179, 8, 0.26), rgba(202, 138, 4, 0.18)); }
+.btn--furrier-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--furrier-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T358: Imperial Wool Merchant ──────────────────────────── */
+@keyframes wool-pulse {
+  0%, 100% { border-color: rgba(16, 185, 129, 0.35); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+  50%       { border-color: rgba(16, 185, 129, 0.70); box-shadow: 0 0 8px 2px rgba(16, 185, 129, 0.18); }
+}
+.wool-section--active {
+  background: linear-gradient(135deg, rgba(6, 78, 59, 0.14), rgba(4, 50, 38, 0.08));
+  border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 8px; padding: 10px 12px; margin-bottom: 10px;
+  animation: wool-pulse 3.5s ease-in-out infinite;
+}
+.wool-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.wool-title   { font-size: 0.92rem; font-weight: 600; color: #6ee7b7; }
+.wool-timer   { font-size: 0.78rem; color: #10b981; background: rgba(16, 185, 129, 0.12); padding: 2px 7px; border-radius: 10px; }
+.wool-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.25); }
+.wool-desc    { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.wool-actions { display: flex; flex-direction: column; gap: 6px; }
+.wool-cost    { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--wool-trade {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(5, 150, 105, 0.10));
+  border: 1px solid rgba(16, 185, 129, 0.32); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #6ee7b7; text-align: left; transition: background 0.15s;
+}
+.btn--wool-trade:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(16, 185, 129, 0.26), rgba(5, 150, 105, 0.18)); }
+.btn--wool-purchase {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(161, 222, 105, 0.15), rgba(101, 163, 13, 0.10));
+  border: 1px solid rgba(132, 204, 22, 0.32); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #bef264; text-align: left; transition: background 0.15s;
+}
+.btn--wool-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(132, 204, 22, 0.26), rgba(101, 163, 13, 0.18)); }
+.btn--wool-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--wool-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

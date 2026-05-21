@@ -298,4 +298,6 @@ export const Events = Object.freeze({
   IMPERIAL_MARBLE_CUTTER_CHANGED:     'imperialMarbleCutterChanged',             // T354: marble cutter spawned / commission / exchange / dismissed / expired
   WANDERING_PARCHMENT_MAKER_CHANGED:  'wanderingParchmentMakerChanged',          // T355: parchment maker spawned / commission / purchase / dismissed / expired
   WANDERING_INCENSE_MAKER_CHANGED:    'wanderingIncenseMakerChanged',             // T356: incense maker spawned / incense / purchase / dismissed / expired
+  WANDERING_FURRIER_CHANGED:          'wanderingFurrierChanged',                   // T357: furrier spawned / commission / purchase / dismissed / expired
+  IMPERIAL_WOOL_MERCHANT_CHANGED:     'imperialWoolMerchantChanged',               // T358: wool merchant spawned / trade / purchase / dismissed / expired
 });

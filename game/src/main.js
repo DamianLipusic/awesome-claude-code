@@ -298,6 +298,8 @@ import { initWanderingBellFounder, wanderingBellFounderTick }         from './sy
 import { initImperialMarbleCutter, imperialMarbleCutterTick }         from './systems/imperialMarbleCutter.js';       // T354
 import { initWanderingParchmentMaker, wanderingParchmentMakerTick }   from './systems/wanderingParchmentMaker.js'; // T355
 import { initWanderingIncenseMaker, wanderingIncenseMakerTick }       from './systems/wanderingIncenseMaker.js';   // T356
+import { initWanderingFurrier, wanderingFurrierTick }                 from './systems/wanderingFurrier.js';         // T357
+import { initImperialWoolMerchant, imperialWoolMerchantTick }         from './systems/imperialWoolMerchant.js';     // T358
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -602,6 +604,8 @@ function _registerAllSystems() {
   registerSystem(imperialMarbleCutterTick);          // T354
   registerSystem(wanderingParchmentMakerTick);       // T355
   registerSystem(wanderingIncenseMakerTick);         // T356
+  registerSystem(wanderingFurrierTick);              // T357
+  registerSystem(imperialWoolMerchantTick);          // T358
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -891,6 +895,8 @@ function _save() {
     imperialMarbleCutter:       state.imperialMarbleCutter,       // T354
     wanderingParchmentMaker:    state.wanderingParchmentMaker,    // T355
     wanderingIncenseMaker:      state.wanderingIncenseMaker,      // T356
+    wanderingFurrier:           state.wanderingFurrier,           // T357
+    imperialWoolMerchant:       state.imperialWoolMerchant,       // T358
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -1185,6 +1191,8 @@ function _applySave(s) {
   state.imperialMarbleCutter       = s.imperialMarbleCutter ?? null;       // T354
   state.wanderingParchmentMaker    = s.wanderingParchmentMaker ?? null;    // T355
   state.wanderingIncenseMaker      = s.wanderingIncenseMaker ?? null;      // T356
+  state.wanderingFurrier           = s.wanderingFurrier ?? null;           // T357
+  state.imperialWoolMerchant       = s.imperialWoolMerchant ?? null;       // T358
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -1485,6 +1493,8 @@ function _startFreshGame() {
   initImperialMarbleCutter();          // T354
   initWanderingParchmentMaker();       // T355
   initWanderingIncenseMaker();         // T356
+  initWanderingFurrier();              // T357
+  initImperialWoolMerchant();          // T358
   initAchievements();
   initLeaderboard();
 }
@@ -1768,6 +1778,8 @@ function _startLoadedGame(savedData) {
   initImperialMarbleCutter();          // T354
   initWanderingParchmentMaker();       // T355
   initWanderingIncenseMaker();         // T356
+  initWanderingFurrier();              // T357
+  initImperialWoolMerchant();          // T358
   initAchievements();
   initLeaderboard();
 }

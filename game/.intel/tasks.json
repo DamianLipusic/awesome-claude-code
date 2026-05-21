@@ -1080,6 +1080,26 @@
       "description": "Periodic wandering incense maker encounter: prepare sacred incense (20 food + 15 mana → +0.20 food/s 2.5min +18 prestige +12 morale), purchase aromatic blends (20g → +0.15 gold/s 2min +12 prestige), send away. Bronze Age+, 8+ tiles, 12-16 min.",
       "completed_date": "2026-05-21",
       "notes": "Created wanderingIncenseMaker.js system, added WANDERING_INCENSE_MAKER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingIncenseMakerSection() and handlers to questPanel.js (import * as IncenseMaker). Events.WANDERING_INCENSE_MAKER_CHANGED subscribed. Added incense CSS (violet/purple smoky theme with mint green purchase button)."
+    },
+    {
+      "id": "T357",
+      "title": "Wandering Furrier",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic wandering furrier encounter: commission royal pelt works (25 food → +0.22 food/s 2.5min +18 prestige +10 morale), purchase pelt collection (20g → +0.15 gold/s 2min +12 prestige), send away. Stone Age+, 6+ tiles, 11-15 min.",
+      "completed_date": "2026-05-21",
+      "notes": "Created wanderingFurrier.js system, added WANDERING_FURRIER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingFurrierSection() and handlers to questPanel.js (import * as Furrier). Events.WANDERING_FURRIER_CHANGED subscribed. Added furrier CSS (amber/orange pelt theme with gold purchase button)."
+    },
+    {
+      "id": "T358",
+      "title": "Imperial Wool Merchant",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic imperial wool merchant encounter: trade wool supplies (20 food + 15 wood → +0.22 food/s 2.5min +18 prestige +8 morale), purchase wool goods (18g → +0.15 wood/s 2min +12 prestige), send away. Bronze Age+, 8+ tiles, 12-17 min.",
+      "completed_date": "2026-05-21",
+      "notes": "Created imperialWoolMerchant.js system, added IMPERIAL_WOOL_MERCHANT_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialWoolMerchantSection() and handlers to questPanel.js (import * as WoolMerchant). Events.IMPERIAL_WOOL_MERCHANT_CHANGED subscribed. Added wool CSS (emerald green fleece theme with lime purchase button)."
     }
   ],
   "session_history": [
@@ -1146,6 +1166,7 @@
     "Session 83 (T247-T248): Wandering Toymaker (T349), Imperial Ferryman (T350)",
     "Session 84 (T249-T250): Wandering Mosaic Maker (T351), Imperial Bathhouse Builder (T352)",
     "Session 85 (T251-T252): Wandering Bell Founder (T353), Imperial Marble Cutter (T354)",
-    "Session 86 (T253-T254): Wandering Parchment Maker (T355), Wandering Incense Maker (T356)"
+    "Session 86 (T253-T254): Wandering Parchment Maker (T355), Wandering Incense Maker (T356)",
+    "Session 87 (T357-T358): Wandering Furrier (T357), Imperial Wool Merchant (T358)"
   ]
 }
