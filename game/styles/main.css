@@ -19495,3 +19495,83 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--loremaster-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T349: Wandering Toymaker ── */
+@keyframes toymaker-pulse {
+  0%, 100% { border-color: rgba(168, 85, 247, 0.30); box-shadow: 0 0 0 rgba(168, 85, 247, 0); }
+  50%       { border-color: rgba(192, 132, 252, 0.60); box-shadow: 0 0 10px rgba(192, 132, 252, 0.18); }
+}
+.toymaker-section--active {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.09), rgba(126, 34, 206, 0.06));
+  border: 1px solid rgba(168, 85, 247, 0.30); border-radius: 8px;
+  padding: 10px 12px; margin-bottom: 10px;
+  animation: toymaker-pulse 3.5s ease-in-out infinite;
+}
+.toymaker-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.toymaker-title   { font-size: 0.92rem; font-weight: 600; color: #c084fc; }
+.toymaker-timer   { font-size: 0.78rem; color: #a855f7; background: rgba(168, 85, 247, 0.12); padding: 2px 7px; border-radius: 10px; }
+.toymaker-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.25); }
+.toymaker-desc    { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.toymaker-actions { display: flex; flex-direction: column; gap: 6px; }
+.toymaker-cost    { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--toymaker-toys {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.14), rgba(126, 34, 206, 0.09));
+  border: 1px solid rgba(192, 132, 252, 0.32); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #c084fc; text-align: left; transition: background 0.15s;
+}
+.btn--toymaker-toys:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(168, 85, 247, 0.26), rgba(126, 34, 206, 0.18)); }
+.btn--toymaker-patterns {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(217, 119, 6, 0.12), rgba(180, 83, 9, 0.08));
+  border: 1px solid rgba(251, 191, 36, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fbbf24; text-align: left; transition: background 0.15s;
+}
+.btn--toymaker-patterns:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(217, 119, 6, 0.22), rgba(180, 83, 9, 0.15)); }
+.btn--toymaker-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--toymaker-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T350: Imperial Ferryman ── */
+@keyframes ferryman-pulse {
+  0%, 100% { border-color: rgba(6, 148, 162, 0.30); box-shadow: 0 0 0 rgba(6, 148, 162, 0); }
+  50%       { border-color: rgba(34, 211, 238, 0.60); box-shadow: 0 0 10px rgba(34, 211, 238, 0.18); }
+}
+.ferryman-section--active {
+  background: linear-gradient(135deg, rgba(6, 148, 162, 0.09), rgba(14, 116, 144, 0.06));
+  border: 1px solid rgba(6, 148, 162, 0.30); border-radius: 8px;
+  padding: 10px 12px; margin-bottom: 10px;
+  animation: ferryman-pulse 3.5s ease-in-out infinite;
+}
+.ferryman-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.ferryman-title   { font-size: 0.92rem; font-weight: 600; color: #22d3ee; }
+.ferryman-timer   { font-size: 0.78rem; color: #0891b2; background: rgba(6, 148, 162, 0.12); padding: 2px 7px; border-radius: 10px; }
+.ferryman-timer--urgent { color: #f87171; background: rgba(239, 68, 68, 0.25); }
+.ferryman-desc    { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.ferryman-actions { display: flex; flex-direction: column; gap: 6px; }
+.ferryman-cost    { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--ferryman-routes {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(6, 148, 162, 0.14), rgba(14, 116, 144, 0.09));
+  border: 1px solid rgba(34, 211, 238, 0.32); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #22d3ee; text-align: left; transition: background 0.15s;
+}
+.btn--ferryman-routes:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(6, 148, 162, 0.26), rgba(14, 116, 144, 0.18)); }
+.btn--ferryman-charts {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(217, 119, 6, 0.12), rgba(180, 83, 9, 0.08));
+  border: 1px solid rgba(251, 191, 36, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fbbf24; text-align: left; transition: background 0.15s;
+}
+.btn--ferryman-charts:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(217, 119, 6, 0.22), rgba(180, 83, 9, 0.15)); }
+.btn--ferryman-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--ferryman-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

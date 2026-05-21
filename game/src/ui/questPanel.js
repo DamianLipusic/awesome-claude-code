@@ -113,6 +113,8 @@ import * as Inkmaker      from '../systems/wanderingInkmaker.js';      // T345
 import * as Dockmaster    from '../systems/imperialDockmaster.js';     // T346
 import * as Storyteller  from '../systems/wanderingStoryteller.js';  // T347
 import * as LoreMaster   from '../systems/imperialLoreMaster.js';    // T348
+import * as Toymaker     from '../systems/wanderingToymaker.js';     // T349
+import * as Ferryman     from '../systems/imperialFerryman.js';      // T350
 
 let _panel = null;
 
@@ -254,6 +256,8 @@ function _encountersSection() {
     _imperialDockmasterSection(),
     _wanderingStorytellerSection(),
     _imperialLoreMasterSection(),
+    _wanderingToymakerSection(),
+    _imperialFerrymanSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -3631,6 +3635,70 @@ function _imperialLoreMasterSection() {
     </div>`;
 }
 
+function _wanderingToymakerSection() {
+  if (!Toymaker.getActiveWanderingToymaker()) return '';
+  const secs      = Toymaker.getToymakerSecsLeft();
+  const wood      = state.resources.wood ?? 0;
+  const gold      = state.resources.gold ?? 0;
+  const urg       = secs <= 15 ? ' toymaker-timer--urgent' : '';
+  const canToys   = wood >= Toymaker.TOYS_WOOD_COST;
+  const canPat    = gold >= Toymaker.PATTERNS_GOLD_COST;
+  return `
+    <div class="toymaker-section--active">
+      <div class="toymaker-header">
+        <span class="toymaker-title">🪀 Wandering Toymaker</span>
+        <span class="toymaker-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="toymaker-desc">A wandering toymaker arrives with a cart of beautifully carved wooden toys, painted figurines, and clever mechanical curiosities. They offer to craft a royal toy collection or share intricate crafting patterns with imperial workshops.</div>
+      <div class="toymaker-actions">
+        <button class="btn--toymaker-toys${canToys ? '' : ' btn--disabled'}" data-action="toymaker-toys" ${canToys ? '' : 'disabled'}>
+          🪀 Commission Royal Toys — ${Toymaker.TOYS_WOOD_COST}🪵
+          <span class="toymaker-cost">→ +${Toymaker.TOYS_WOOD_RATE} wood/s (2.5 min) · +${Toymaker.TOYS_PRESTIGE_REWARD} prestige · +${Toymaker.TOYS_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--toymaker-patterns${canPat ? '' : ' btn--disabled'}" data-action="toymaker-patterns" ${canPat ? '' : 'disabled'}>
+          🎁 Share Crafting Patterns — ${Toymaker.PATTERNS_GOLD_COST}💰
+          <span class="toymaker-cost">→ +${Toymaker.PATTERNS_GOLD_RATE} gold/s (2 min) · +${Toymaker.PATTERNS_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--toymaker-away" data-action="toymaker-away">
+          🚶 Send Away
+          <span class="toymaker-cost">→ Toymaker departs to delight another village with crafted wonders</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _imperialFerrymanSection() {
+  if (!Ferryman.getActiveImperialFerryman()) return '';
+  const secs       = Ferryman.getFerrymanSecsLeft();
+  const wood       = state.resources.wood ?? 0;
+  const gold       = state.resources.gold ?? 0;
+  const urg        = secs <= 15 ? ' ferryman-timer--urgent' : '';
+  const canRoutes  = wood >= Ferryman.ROUTES_WOOD_COST && gold >= Ferryman.ROUTES_GOLD_COST;
+  const canCharts  = gold >= Ferryman.CHARTS_GOLD_COST;
+  return `
+    <div class="ferryman-section--active">
+      <div class="ferryman-header">
+        <span class="ferryman-title">⛵ Imperial Ferryman</span>
+        <span class="ferryman-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="ferryman-desc">An imperial ferryman arrives bearing river charts, tide tables, and navigational wisdom from the empire's waterways. They offer to establish efficient ferry crossing routes or sell detailed charts of hidden channels and secret harbours.</div>
+      <div class="ferryman-actions">
+        <button class="btn--ferryman-routes${canRoutes ? '' : ' btn--disabled'}" data-action="ferryman-routes" ${canRoutes ? '' : 'disabled'}>
+          ⛵ Establish Ferry Routes — ${Ferryman.ROUTES_WOOD_COST}🪵 + ${Ferryman.ROUTES_GOLD_COST}💰
+          <span class="ferryman-cost">→ +${Ferryman.ROUTES_WOOD_RATE} wood/s (2.5 min) · +${Ferryman.ROUTES_PRESTIGE_REWARD} prestige · +${Ferryman.ROUTES_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--ferryman-charts${canCharts ? '' : ' btn--disabled'}" data-action="ferryman-charts" ${canCharts ? '' : 'disabled'}>
+          🗺️ Purchase River Charts — ${Ferryman.CHARTS_GOLD_COST}💰
+          <span class="ferryman-cost">→ +${Ferryman.CHARTS_GOLD_RATE} gold/s (2 min) · +${Ferryman.CHARTS_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--ferryman-away" data-action="ferryman-away">
+          🚶 Send Away
+          <span class="ferryman-cost">→ Ferryman poles back into the river and continues their journey</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -4040,6 +4108,12 @@ const _HANDLERS = {
   'loremaster-codex':        () => LoreMaster.commissionImperialCodexCollection(),
   'loremaster-scrolls':      () => LoreMaster.purchaseAncientLoreScrolls(),
   'loremaster-away':         () => LoreMaster.sendLoreMasterAway(),
+  'toymaker-toys':           () => Toymaker.commissionRoyalToys(),
+  'toymaker-patterns':       () => Toymaker.shareCraftingPatterns(),
+  'toymaker-away':           () => Toymaker.sendToymakerAway(),
+  'ferryman-routes':         () => Ferryman.establishFerryRoutes(),
+  'ferryman-charts':         () => Ferryman.purchaseRiverCharts(),
+  'ferryman-away':           () => Ferryman.sendFerrymanAway(),
 };
 
 function _handleClick(e) {
@@ -4160,6 +4234,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_DOCKMASTER_CHANGED,
     Events.WANDERING_STORYTELLER_CHANGED,
     Events.IMPERIAL_LORE_MASTER_CHANGED,
+    Events.WANDERING_TOYMAKER_CHANGED,
+    Events.IMPERIAL_FERRYMAN_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

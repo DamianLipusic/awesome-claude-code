@@ -290,4 +290,6 @@ export const Events = Object.freeze({
   IMPERIAL_DOCKMASTER_CHANGED:      'imperialDockmasterChanged',                // T346: dockmaster spawned / established / commissioned / dismissed / expired
   WANDERING_STORYTELLER_CHANGED:   'wanderingStorytellerChanged',              // T347: storyteller spawned / chronicled / listened / dismissed / expired
   IMPERIAL_LORE_MASTER_CHANGED:    'imperialLoreMasterChanged',                // T348: lore master spawned / codex / scrolls / dismissed / expired
+  WANDERING_TOYMAKER_CHANGED:      'wanderingToymakerChanged',                 // T349: toymaker spawned / toys / patterns / dismissed / expired
+  IMPERIAL_FERRYMAN_CHANGED:       'imperialFerrymanChanged',                  // T350: ferryman spawned / routes / charts / dismissed / expired
 });

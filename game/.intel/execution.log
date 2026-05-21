@@ -1165,3 +1165,18 @@ Built imperialLoreMaster.js: commissionImperialCodexCollection (35 mana + 20g �
 Wired in main.js: import initImperialLoreMaster+imperialLoreMasterTick, registerSystem, initImperialLoreMaster() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _imperialLoreMasterSection() render + loremaster-codex/loremaster-scrolls/loremaster-away handlers to questPanel.js (import * as LoreMaster). Events.IMPERIAL_LORE_MASTER_CHANGED subscribed.
 CSS: @keyframes loremaster-pulse (violet/purple), .loremaster-section--active, .btn--loremaster-codex (violet), .btn--loremaster-scrolls (amber/gold), .btn--loremaster-away (gray).
+
+Session 83 — T349–T350: Wandering Toymaker, Imperial Ferryman.
+
+T349: Wandering Toymaker — Stone Age+, 6+ tiles, 11–15 min, 80s window.
+Built wanderingToymaker.js: commissionRoyalToys (20 wood → +0.2 wood/s 2.5min +15 prestige +12 morale), shareCraftingPatterns (18g → +0.15 gold/s 2min +10 prestige), sendToymakerAway (dismiss). Added WANDERING_TOYMAKER_CHANGED event to events.js. state.wanderingToymaker null field.
+Wired in main.js: import initWanderingToymaker+wanderingToymakerTick, registerSystem, initWanderingToymaker() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingToymakerSection() render + toymaker-toys/toymaker-patterns/toymaker-away handlers to questPanel.js (import * as Toymaker). Events.WANDERING_TOYMAKER_CHANGED subscribed.
+CSS: @keyframes toymaker-pulse (violet/purple), .toymaker-section--active, .btn--toymaker-toys (violet), .btn--toymaker-patterns (amber/gold), .btn--toymaker-away (gray).
+Also fixed tasks.json JSON syntax error (T347+T348 were outside tasks array; moved them inside and fixed root object structure).
+
+T350: Imperial Ferryman — Bronze Age+, 8+ tiles, 12–17 min, 80s window.
+Built imperialFerryman.js: establishFerryRoutes (20 wood + 15g → +0.22 wood/s 2.5min +18 prestige +10 morale), purchaseRiverCharts (20g → +0.15 gold/s 2min +12 prestige), sendFerrymanAway (dismiss). Added IMPERIAL_FERRYMAN_CHANGED event to events.js. state.imperialFerryman null field.
+Wired in main.js: import initImperialFerryman+imperialFerrymanTick, registerSystem, initImperialFerryman() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _imperialFerrymanSection() render + ferryman-routes/ferryman-charts/ferryman-away handlers to questPanel.js (import * as Ferryman). Events.IMPERIAL_FERRYMAN_CHANGED subscribed.
+CSS: @keyframes ferryman-pulse (cyan/teal), .ferryman-section--active, .btn--ferryman-routes (cyan), .btn--ferryman-charts (amber/gold), .btn--ferryman-away (gray).

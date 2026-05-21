@@ -980,8 +980,7 @@
       "description": "Periodic imperial dockmaster encounter: establish trading docks (25 wood + 20g → +0.25 wood/s 2.5min +22 prestige +10 morale), commission harbor works (20 iron → +0.18 iron/s 2min +15 prestige), send away. Iron Age+, 10+ tiles, 13-18 min.",
       "completed_date": "2026-05-20",
       "notes": "Created imperialDockmaster.js system, added IMPERIAL_DOCKMASTER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialDockmasterSection() and handlers to questPanel.js (import * as Dockmaster). Events.IMPERIAL_DOCKMASTER_CHANGED subscribed. Added dockmaster CSS (sky blue/ocean theme)."
-    }
-  ],
+    },
     {
       "id": "T347",
       "title": "Wandering Storyteller",
@@ -1002,6 +1001,27 @@
       "completed_date": "2026-05-20",
       "notes": "Created imperialLoreMaster.js system, added IMPERIAL_LORE_MASTER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialLoreMasterSection() and handlers to questPanel.js (import * as LoreMaster). Events.IMPERIAL_LORE_MASTER_CHANGED subscribed. Added lore master CSS (violet/purple theme)."
     },
+    {
+      "id": "T349",
+      "title": "Wandering Toymaker",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic wandering toymaker encounter: commission royal toys (20 wood → +0.2 wood/s 2.5min +15 prestige +12 morale), share crafting patterns (18g → +0.15 gold/s 2min +10 prestige), send away. Stone Age+, 6+ tiles, 11-15 min.",
+      "completed_date": "2026-05-21",
+      "notes": "Created wanderingToymaker.js system, added WANDERING_TOYMAKER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingToymakerSection() and handlers to questPanel.js (import * as Toymaker). Events.WANDERING_TOYMAKER_CHANGED subscribed. Added toymaker CSS (violet/purple theme)."
+    },
+    {
+      "id": "T350",
+      "title": "Imperial Ferryman",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic imperial ferryman encounter: establish ferry routes (20 wood + 15g → +0.22 wood/s 2.5min +18 prestige +10 morale), purchase river charts (20g → +0.15 gold/s 2min +12 prestige), send away. Bronze Age+, 8+ tiles, 12-17 min.",
+      "completed_date": "2026-05-21",
+      "notes": "Created imperialFerryman.js system, added IMPERIAL_FERRYMAN_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialFerrymanSection() and handlers to questPanel.js (import * as Ferryman). Events.IMPERIAL_FERRYMAN_CHANGED subscribed. Added ferryman CSS (cyan/teal theme)."
+    }
+  ],
   "session_history": [
     "Session 1 (T001-T010): Core engine, resources, buildings, map, combat, diplomacy",
     "Session 2 (T011-T020): Hero, random events, quests, story, seasons, morale, prestige, garrison, hero leveling, tech mastery",
@@ -1062,6 +1082,7 @@
     "Session 79 (T239-T240): Wandering Basketweaver (T341), Wandering Charcoal Maker (T342)",
     "Session 80 (T241-T242): Wandering Tanner (T343), Imperial Glassmaker (T344)",
     "Session 81 (T243-T244): Wandering Inkmaker (T345), Imperial Dockmaster (T346)",
-    "Session 82 (T245-T246): Wandering Storyteller (T347), Imperial Lore Master (T348)"
+    "Session 82 (T245-T246): Wandering Storyteller (T347), Imperial Lore Master (T348)",
+    "Session 83 (T247-T248): Wandering Toymaker (T349), Imperial Ferryman (T350)"
   ]
 }
