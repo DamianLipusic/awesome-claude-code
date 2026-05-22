@@ -1244,3 +1244,15 @@ Built imperialSilkWeaver.js: commissionSilkTapestries (25 mana + 20g → +0.2 ma
 Wired in main.js: import initImperialSilkWeaver+imperialSilkWeaverTick, registerSystem, initImperialSilkWeaver() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _imperialSilkWeaverSection() render + silk-commission/silk-purchase/silk-away handlers to questPanel.js (import * as SilkWeaver). Events.IMPERIAL_SILK_WEAVER_CHANGED subscribed.
 CSS: @keyframes silk-pulse (rich violet/purple), .silk-section--active, .btn--silk-commission (violet/purple), .btn--silk-purchase (crimson/red), .btn--silk-away (gray). Session 88.
+
+T361: Wandering Gem Merchant — Bronze Age+, 8+ tiles, 13–17 min, 80s window.
+Built wanderingGemMerchant.js: tradeGemConsignment (25 stone + 20g → +0.22 stone/s 2.5min +20 prestige +10 morale), purchaseGemCollection (22g → +0.18 gold/s 2min +15 prestige), sendGemMerchantAway (dismiss). Added WANDERING_GEM_MERCHANT_CHANGED event to events.js. state.wanderingGemMerchant null field.
+Wired in main.js: import initWanderingGemMerchant+wanderingGemMerchantTick, registerSystem, initWanderingGemMerchant() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingGemMerchantSection() render + gem-trade/gem-purchase/gem-away handlers to questPanel.js (import * as GemMerchant). Events.WANDERING_GEM_MERCHANT_CHANGED subscribed.
+CSS: @keyframes gem-pulse (violet/purple gem), .gem-section--active, .btn--gem-trade (violet), .btn--gem-purchase (amber/gold), .btn--gem-away (gray). Session 89.
+
+T362: Imperial Siege Master — Iron Age+, 12+ tiles, 15–19 min, 80s window.
+Built imperialSiegeMaster.js: commissionWarEngines (30 iron + 20 wood → +0.22 iron/s 2.5min +25 prestige +10 morale), purchaseSiegePlans (25g → +0.18 gold/s 2min +18 prestige), sendSiegeMasterAway (dismiss). Added IMPERIAL_SIEGE_MASTER_CHANGED event to events.js. state.imperialSiegeMaster null field.
+Wired in main.js: import initImperialSiegeMaster+imperialSiegeMasterTick, registerSystem, initImperialSiegeMaster() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _imperialSiegeMasterSection() render + siege-commission/siege-purchase/siege-away handlers to questPanel.js (import * as SiegeMaster). Events.IMPERIAL_SIEGE_MASTER_CHANGED subscribed.
+CSS: @keyframes siege-pulse (red/crimson war theme), .siege-section--active, .btn--siege-commission (crimson/red), .btn--siege-purchase (slate/gray), .btn--siege-away (gray). Session 89.

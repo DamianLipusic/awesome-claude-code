@@ -302,6 +302,8 @@ import { initWanderingFurrier, wanderingFurrierTick }                 from './sy
 import { initImperialWoolMerchant, imperialWoolMerchantTick }         from './systems/imperialWoolMerchant.js';     // T358
 import { initWanderingHorseTrader, wanderingHorseTraderTick }         from './systems/wanderingHorseTrader.js';     // T359
 import { initImperialSilkWeaver, imperialSilkWeaverTick }             from './systems/imperialSilkWeaver.js';       // T360
+import { initWanderingGemMerchant, wanderingGemMerchantTick }         from './systems/wanderingGemMerchant.js';     // T361
+import { initImperialSiegeMaster, imperialSiegeMasterTick }           from './systems/imperialSiegeMaster.js';      // T362
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -610,6 +612,8 @@ function _registerAllSystems() {
   registerSystem(imperialWoolMerchantTick);          // T358
   registerSystem(wanderingHorseTraderTick);          // T359
   registerSystem(imperialSilkWeaverTick);            // T360
+  registerSystem(wanderingGemMerchantTick);          // T361
+  registerSystem(imperialSiegeMasterTick);           // T362
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -903,6 +907,8 @@ function _save() {
     imperialWoolMerchant:       state.imperialWoolMerchant,       // T358
     wanderingHorseTrader:       state.wanderingHorseTrader,       // T359
     imperialSilkWeaver:         state.imperialSilkWeaver,         // T360
+    wanderingGemMerchant:       state.wanderingGemMerchant,       // T361
+    imperialSiegeMaster:        state.imperialSiegeMaster,        // T362
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -1201,6 +1207,8 @@ function _applySave(s) {
   state.imperialWoolMerchant       = s.imperialWoolMerchant ?? null;       // T358
   state.wanderingHorseTrader       = s.wanderingHorseTrader ?? null;       // T359
   state.imperialSilkWeaver         = s.imperialSilkWeaver ?? null;         // T360
+  state.wanderingGemMerchant       = s.wanderingGemMerchant ?? null;       // T361
+  state.imperialSiegeMaster        = s.imperialSiegeMaster ?? null;        // T362
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -1505,6 +1513,8 @@ function _startFreshGame() {
   initImperialWoolMerchant();          // T358
   initWanderingHorseTrader();          // T359
   initImperialSilkWeaver();            // T360
+  initWanderingGemMerchant();          // T361
+  initImperialSiegeMaster();           // T362
   initAchievements();
   initLeaderboard();
 }
@@ -1792,6 +1802,8 @@ function _startLoadedGame(savedData) {
   initImperialWoolMerchant();          // T358
   initWanderingHorseTrader();          // T359
   initImperialSilkWeaver();            // T360
+  initWanderingGemMerchant();          // T361
+  initImperialSiegeMaster();           // T362
   initAchievements();
   initLeaderboard();
 }

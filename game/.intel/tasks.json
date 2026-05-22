@@ -1120,6 +1120,26 @@
       "description": "Periodic imperial silk weaver encounter: commission silk tapestries (25 mana + 20g → +0.2 mana/s 2.5min +22 prestige +10 morale), purchase silk bolts (20 food → +0.18 food/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-18 min.",
       "completed_date": "2026-05-21",
       "notes": "Created imperialSilkWeaver.js system, added IMPERIAL_SILK_WEAVER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialSilkWeaverSection() and handlers to questPanel.js (import * as SilkWeaver). Events.IMPERIAL_SILK_WEAVER_CHANGED subscribed. Added silk CSS (rich violet/purple silk theme with crimson purchase button)."
+    },
+    {
+      "id": "T361",
+      "title": "Wandering Gem Merchant",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic wandering gem merchant encounter: trade precious gems (25 stone + 20g → +0.22 stone/s 2.5min +20 prestige +10 morale), purchase gem collection (22g → +0.18 gold/s 2min +15 prestige), send away. Bronze Age+, 8+ tiles, 13-17 min.",
+      "completed_date": "2026-05-22",
+      "notes": "Created wanderingGemMerchant.js system, added WANDERING_GEM_MERCHANT_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingGemMerchantSection() and handlers to questPanel.js (import * as GemMerchant). Events.WANDERING_GEM_MERCHANT_CHANGED subscribed. Added gem CSS (violet/purple gem theme with amber purchase button)."
+    },
+    {
+      "id": "T362",
+      "title": "Imperial Siege Master",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic imperial siege master encounter: commission war engines (30 iron + 20 wood → +0.22 iron/s 2.5min +25 prestige +10 morale), purchase siege plans (25g → +0.18 gold/s 2min +18 prestige), send away. Iron Age+, 12+ tiles, 15-19 min.",
+      "completed_date": "2026-05-22",
+      "notes": "Created imperialSiegeMaster.js system, added IMPERIAL_SIEGE_MASTER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialSiegeMasterSection() and handlers to questPanel.js (import * as SiegeMaster). Events.IMPERIAL_SIEGE_MASTER_CHANGED subscribed. Added siege CSS (red/crimson war theme with slate purchase button)."
     }
   ],
   "session_history": [
@@ -1188,6 +1208,7 @@
     "Session 85 (T251-T252): Wandering Bell Founder (T353), Imperial Marble Cutter (T354)",
     "Session 86 (T253-T254): Wandering Parchment Maker (T355), Wandering Incense Maker (T356)",
     "Session 87 (T357-T358): Wandering Furrier (T357), Imperial Wool Merchant (T358)",
-    "Session 88 (T359-T360): Wandering Horse Trader (T359), Imperial Silk Weaver (T360)"
+    "Session 88 (T359-T360): Wandering Horse Trader (T359), Imperial Silk Weaver (T360)",
+    "Session 89 (T361-T362): Wandering Gem Merchant (T361), Imperial Siege Master (T362)"
   ]
 }

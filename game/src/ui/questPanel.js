@@ -125,6 +125,8 @@ import * as Furrier        from '../systems/wanderingFurrier.js';         // T35
 import * as WoolMerchant   from '../systems/imperialWoolMerchant.js';     // T358
 import * as HorseTrader    from '../systems/wanderingHorseTrader.js';     // T359
 import * as SilkWeaver     from '../systems/imperialSilkWeaver.js';       // T360
+import * as GemMerchant    from '../systems/wanderingGemMerchant.js';     // T361
+import * as SiegeMaster    from '../systems/imperialSiegeMaster.js';      // T362
 
 let _panel = null;
 
@@ -278,6 +280,8 @@ function _encountersSection() {
     _imperialWoolMerchantSection(),
     _wanderingHorseTraderSection(),
     _imperialSilkWeaverSection(),
+    _wanderingGemMerchantSection(),
+    _imperialSiegeMasterSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -4055,6 +4059,71 @@ function _imperialSilkWeaverSection() {
     </div>`;
 }
 
+function _wanderingGemMerchantSection() {
+  if (!GemMerchant.getActiveWanderingGemMerchant()) return '';
+  const secs       = GemMerchant.getGemMerchantSecsLeft();
+  const stone      = state.resources.stone ?? 0;
+  const gold       = state.resources.gold  ?? 0;
+  const urg        = secs <= 15 ? ' gem-timer--urgent' : '';
+  const canTrade   = stone >= GemMerchant.TRADE_STONE_COST && gold >= GemMerchant.TRADE_GOLD_COST;
+  const canPurchase = gold >= GemMerchant.PURCHASE_GOLD_COST;
+  return `
+    <div class="gem-section--active">
+      <div class="gem-header">
+        <span class="gem-title">💎 Wandering Gem Merchant</span>
+        <span class="gem-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="gem-desc">A gem merchant arrives with a lacquered case of rubies, sapphires, and exotic stones from distant mountain ranges, offering trade partnerships or direct purchase.</div>
+      <div class="gem-actions">
+        <button class="btn--gem-trade${canTrade ? '' : ' btn--disabled'}" data-action="gem-trade" ${canTrade ? '' : 'disabled'}>
+          💎 Trade Precious Gems — ${GemMerchant.TRADE_STONE_COST}🪨 + ${GemMerchant.TRADE_GOLD_COST}💰
+          <span class="gem-cost">→ +${GemMerchant.TRADE_STONE_RATE} stone/s (2.5 min) · +${GemMerchant.TRADE_PRESTIGE_REWARD} prestige · +${GemMerchant.TRADE_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--gem-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="gem-purchase" ${canPurchase ? '' : 'disabled'}>
+          💰 Purchase Gem Collection — ${GemMerchant.PURCHASE_GOLD_COST}💰
+          <span class="gem-cost">→ +${GemMerchant.PURCHASE_GOLD_RATE} gold/s (2 min) · +${GemMerchant.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--gem-away" data-action="gem-away">
+          🚶 Send Away
+          <span class="gem-cost">→ Gem merchant closes the lacquered case and departs</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _imperialSiegeMasterSection() {
+  if (!SiegeMaster.getActiveImperialSiegeMaster()) return '';
+  const secs          = SiegeMaster.getSiegeMasterSecsLeft();
+  const iron          = state.resources.iron ?? 0;
+  const wood          = state.resources.wood ?? 0;
+  const gold          = state.resources.gold ?? 0;
+  const urg           = secs <= 15 ? ' siege-timer--urgent' : '';
+  const canCommission = iron >= SiegeMaster.COMMISSION_IRON_COST && wood >= SiegeMaster.COMMISSION_WOOD_COST;
+  const canPurchase   = gold >= SiegeMaster.PURCHASE_GOLD_COST;
+  return `
+    <div class="siege-section--active">
+      <div class="siege-header">
+        <span class="siege-title">⚔️ Imperial Siege Master</span>
+        <span class="siege-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="siege-desc">A legendary siege master arrives bearing blueprints for advanced war engines and fortifications refined over decades of campaigns, offering to oversee construction or sell the plans.</div>
+      <div class="siege-actions">
+        <button class="btn--siege-commission${canCommission ? '' : ' btn--disabled'}" data-action="siege-commission" ${canCommission ? '' : 'disabled'}>
+          ⚔️ Commission War Engines — ${SiegeMaster.COMMISSION_IRON_COST}⚙️ + ${SiegeMaster.COMMISSION_WOOD_COST}🪵
+          <span class="siege-cost">→ +${SiegeMaster.COMMISSION_IRON_RATE} iron/s (2.5 min) · +${SiegeMaster.COMMISSION_PRESTIGE_REWARD} prestige · +${SiegeMaster.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--siege-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="siege-purchase" ${canPurchase ? '' : 'disabled'}>
+          📜 Purchase Siege Plans — ${SiegeMaster.PURCHASE_GOLD_COST}💰
+          <span class="siege-cost">→ +${SiegeMaster.PURCHASE_GOLD_RATE} gold/s (2 min) · +${SiegeMaster.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--siege-away" data-action="siege-away">
+          🚶 Send Away
+          <span class="siege-cost">→ Siege master rolls up the blueprints and departs</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -4508,6 +4577,14 @@ const _HANDLERS = {
   'silk-commission':         () => SilkWeaver.commissionSilkTapestries(),
   'silk-purchase':           () => SilkWeaver.purchaseSilkBolts(),
   'silk-away':               () => SilkWeaver.sendSilkWeaverAway(),
+
+  'gem-trade':               () => GemMerchant.tradeGemConsignment(),
+  'gem-purchase':            () => GemMerchant.purchaseGemCollection(),
+  'gem-away':                () => GemMerchant.sendGemMerchantAway(),
+
+  'siege-commission':        () => SiegeMaster.commissionWarEngines(),
+  'siege-purchase':          () => SiegeMaster.purchaseSiegePlans(),
+  'siege-away':              () => SiegeMaster.sendSiegeMasterAway(),
 };
 
 function _handleClick(e) {
@@ -4640,6 +4717,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_WOOL_MERCHANT_CHANGED,
     Events.WANDERING_HORSE_TRADER_CHANGED,
     Events.IMPERIAL_SILK_WEAVER_CHANGED,
+    Events.WANDERING_GEM_MERCHANT_CHANGED,
+    Events.IMPERIAL_SIEGE_MASTER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);
