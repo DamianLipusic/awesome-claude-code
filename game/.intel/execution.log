@@ -1268,3 +1268,18 @@ Built imperialGoldsmith.js: commissionGoldenRegalia (25 iron + 20g → +0.22 iro
 Wired in main.js: import initImperialGoldsmith+imperialGoldsmithTick, registerSystem, initImperialGoldsmith() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _imperialGoldsmithSection() render + goldsmith-commission/goldsmith-purchase/goldsmith-away handlers to questPanel.js (import * as Goldsmith). Events.IMPERIAL_GOLDSMITH_CHANGED subscribed.
 CSS: @keyframes goldsmith-pulse (gold/amber theme), .goldsmith-section--active, .btn--goldsmith-commission (gold/amber), .btn--goldsmith-purchase (slate/gray), .btn--goldsmith-away (gray). Session 90.
+
+Session 91 — T365–T366: Wandering Oil Merchant, Imperial Quarryman.
+Oil Merchant: Bronze Age+, 8+ tiles, 13–17 min, 80s window. Purchase Olive Oil Reserves (25 food → +0.25 food/s 2.5min · +18 prestige · +10 morale), Trade Oil Lamp Supplies (15 wood + 15g → +0.18 gold/s 2min · +12 prestige). Golden-yellow purchase / green trade CSS. Imperial Quarryman: Iron Age+, 10+ tiles, 14–18 min, 75s window. Commission Stone Works (25 stone + 20g → +0.22 stone/s 2.5min · +22 prestige · +12 morale), Exchange Quarrying Techniques (20 iron → +0.18 iron/s 2min · +15 prestige). Slate/gray commission with amber exchange CSS. Both fully wired into main.js (import, registerSystem, init x2, save/load) and questPanel.js (import, section render, handlers, ENCOUNTER_EVENTS). Events added to events.js.
+
+T365: Wandering Oil Merchant — Bronze Age+, 8+ tiles, 13–17 min, 80s window.
+Built wanderingOilMerchant.js: purchaseOliveOilReserves (25 food → +0.25 food/s 2.5min +18 prestige +10 morale), tradeOilLampSupplies (15 wood + 15g → +0.18 gold/s 2min +12 prestige), sendOilMerchantAway (dismiss). Added WANDERING_OIL_MERCHANT_CHANGED event to events.js. state.wanderingOilMerchant null field.
+Wired in main.js: import initWanderingOilMerchant+wanderingOilMerchantTick, registerSystem, initWanderingOilMerchant() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingOilMerchantSection() render + oilmerchant-purchase/oilmerchant-trade/oilmerchant-away handlers to questPanel.js (import * as OilMerchant). Events.WANDERING_OIL_MERCHANT_CHANGED subscribed.
+CSS: @keyframes oilmerchant-pulse (golden-yellow theme), .oilmerchant-section--active, .btn--oilmerchant-purchase (yellow/amber), .btn--oilmerchant-trade (green), .btn--oilmerchant-away (gray). Session 91.
+
+T366: Imperial Quarryman — Iron Age+, 10+ tiles, 14–18 min, 75s window.
+Built imperialQuarryman.js: commissionStoneWorks (25 stone + 20g → +0.22 stone/s 2.5min +22 prestige +12 morale), exchangeQuarryingTechniques (20 iron → +0.18 iron/s 2min +15 prestige), sendQuarrymanAway (dismiss). Added IMPERIAL_QUARRYMAN_CHANGED event to events.js. state.imperialQuarryman null field.
+Wired in main.js: import initImperialQuarryman+imperialQuarrymanTick, registerSystem, initImperialQuarryman() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _imperialQuarrymanSection() render + quarryman-commission/quarryman-exchange/quarryman-away handlers to questPanel.js (import * as Quarryman). Events.IMPERIAL_QUARRYMAN_CHANGED subscribed.
+CSS: @keyframes quarryman-pulse (slate/stone-gray theme), .quarryman-section--active, .btn--quarryman-commission (slate/gray), .btn--quarryman-exchange (amber/gold), .btn--quarryman-away (gray). Session 91.

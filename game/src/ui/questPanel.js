@@ -129,6 +129,8 @@ import * as GemMerchant    from '../systems/wanderingGemMerchant.js';     // T36
 import * as SiegeMaster    from '../systems/imperialSiegeMaster.js';      // T362
 import * as HatMaker       from '../systems/wanderingHatMaker.js';        // T363
 import * as Goldsmith      from '../systems/imperialGoldsmith.js';        // T364
+import * as OilMerchant   from '../systems/wanderingOilMerchant.js';     // T365
+import * as Quarryman      from '../systems/imperialQuarryman.js';        // T366
 
 let _panel = null;
 
@@ -286,6 +288,8 @@ function _encountersSection() {
     _imperialSiegeMasterSection(),
     _wanderingHatMakerSection(),
     _imperialGoldsmithSection(),
+    _wanderingOilMerchantSection(),
+    _imperialQuarrymanSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -4194,6 +4198,72 @@ function _imperialGoldsmithSection() {
     </div>`;
 }
 
+function _wanderingOilMerchantSection() {
+  if (!OilMerchant.getActiveWanderingOilMerchant()) return '';
+  const secs        = OilMerchant.getOilMerchantSecsLeft();
+  const food        = state.resources.food ?? 0;
+  const wood        = state.resources.wood ?? 0;
+  const gold        = state.resources.gold ?? 0;
+  const urg         = secs <= 15 ? ' oilmerchant-timer--urgent' : '';
+  const canPurchase = food >= OilMerchant.PURCHASE_FOOD_COST;
+  const canTrade    = wood >= OilMerchant.TRADE_WOOD_COST && gold >= OilMerchant.TRADE_GOLD_COST;
+  return `
+    <div class="oilmerchant-section--active">
+      <div class="oilmerchant-header">
+        <span class="oilmerchant-title">🫙 Wandering Oil Merchant</span>
+        <span class="oilmerchant-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="oilmerchant-desc">A wandering oil merchant arrives with barrels of fine olive oil and brass lamp supplies from distant sun-drenched groves — offering premium olive oil reserves or superior lamp supplies for the palace treasury.</div>
+      <div class="oilmerchant-actions">
+        <button class="btn--oilmerchant-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="oilmerchant-purchase" ${canPurchase ? '' : 'disabled'}>
+          🫙 Purchase Olive Oil Reserves — ${OilMerchant.PURCHASE_FOOD_COST}🌾
+          <span class="oilmerchant-cost">→ +${OilMerchant.PURCHASE_FOOD_RATE} food/s (2.5 min) · +${OilMerchant.PURCHASE_PRESTIGE_REWARD} prestige · +${OilMerchant.PURCHASE_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--oilmerchant-trade${canTrade ? '' : ' btn--disabled'}" data-action="oilmerchant-trade" ${canTrade ? '' : 'disabled'}>
+          🔦 Trade Oil Lamp Supplies — ${OilMerchant.TRADE_WOOD_COST}🪵 + ${OilMerchant.TRADE_GOLD_COST}💰
+          <span class="oilmerchant-cost">→ +${OilMerchant.TRADE_GOLD_RATE} gold/s (2 min) · +${OilMerchant.TRADE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--oilmerchant-away" data-action="oilmerchant-away">
+          🚶 Send Away
+          <span class="oilmerchant-cost">→ Oil merchant loads up the cart and departs</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _imperialQuarrymanSection() {
+  if (!Quarryman.getActiveImperialQuarryman()) return '';
+  const secs          = Quarryman.getQuarrymanSecsLeft();
+  const stone         = state.resources.stone ?? 0;
+  const gold          = state.resources.gold ?? 0;
+  const iron          = state.resources.iron ?? 0;
+  const urg           = secs <= 15 ? ' quarryman-timer--urgent' : '';
+  const canCommission = stone >= Quarryman.COMMISSION_STONE_COST && gold >= Quarryman.COMMISSION_GOLD_COST;
+  const canExchange   = iron >= Quarryman.EXCHANGE_IRON_COST;
+  return `
+    <div class="quarryman-section--active">
+      <div class="quarryman-header">
+        <span class="quarryman-title">🪨 Imperial Quarryman</span>
+        <span class="quarryman-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="quarryman-desc">A master imperial quarryman arrives with survey plans, precision iron chisels, and quarrying charts mapping the finest stone deposits — offering to oversee grand stone works or share advanced quarrying techniques.</div>
+      <div class="quarryman-actions">
+        <button class="btn--quarryman-commission${canCommission ? '' : ' btn--disabled'}" data-action="quarryman-commission" ${canCommission ? '' : 'disabled'}>
+          🪨 Commission Stone Works — ${Quarryman.COMMISSION_STONE_COST}🪨 + ${Quarryman.COMMISSION_GOLD_COST}💰
+          <span class="quarryman-cost">→ +${Quarryman.COMMISSION_STONE_RATE} stone/s (2.5 min) · +${Quarryman.COMMISSION_PRESTIGE_REWARD} prestige · +${Quarryman.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--quarryman-exchange${canExchange ? '' : ' btn--disabled'}" data-action="quarryman-exchange" ${canExchange ? '' : 'disabled'}>
+          ⛏️ Exchange Quarrying Techniques — ${Quarryman.EXCHANGE_IRON_COST}⚙️
+          <span class="quarryman-cost">→ +${Quarryman.EXCHANGE_IRON_RATE} iron/s (2 min) · +${Quarryman.EXCHANGE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--quarryman-away" data-action="quarryman-away">
+          🚶 Send Away
+          <span class="quarryman-cost">→ Quarryman rolls up the plans and departs</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -4663,6 +4733,14 @@ const _HANDLERS = {
   'goldsmith-commission':    () => Goldsmith.commissionGoldenRegalia(),
   'goldsmith-purchase':      () => Goldsmith.purchaseGoldCraftingSecrets(),
   'goldsmith-away':          () => Goldsmith.sendGoldsmithAway(),
+
+  'oilmerchant-purchase':    () => OilMerchant.purchaseOliveOilReserves(),
+  'oilmerchant-trade':       () => OilMerchant.tradeOilLampSupplies(),
+  'oilmerchant-away':        () => OilMerchant.sendOilMerchantAway(),
+
+  'quarryman-commission':    () => Quarryman.commissionStoneWorks(),
+  'quarryman-exchange':      () => Quarryman.exchangeQuarryingTechniques(),
+  'quarryman-away':          () => Quarryman.sendQuarrymanAway(),
 };
 
 function _handleClick(e) {
@@ -4799,6 +4877,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_SIEGE_MASTER_CHANGED,
     Events.WANDERING_HAT_MAKER_CHANGED,
     Events.IMPERIAL_GOLDSMITH_CHANGED,
+    Events.WANDERING_OIL_MERCHANT_CHANGED,
+    Events.IMPERIAL_QUARRYMAN_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

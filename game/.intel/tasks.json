@@ -1160,6 +1160,26 @@
       "description": "Periodic imperial goldsmith encounter: commission golden regalia (25 iron + 20g → +0.22 iron/s 2.5min +22 prestige +12 morale), purchase gold crafting secrets (20 stone → +0.18 stone/s 2min +15 prestige), send away. Iron Age+, 10+ tiles, 13-18 min.",
       "completed_date": "2026-05-22",
       "notes": "Created imperialGoldsmith.js system, added IMPERIAL_GOLDSMITH_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialGoldsmithSection() and handlers to questPanel.js (import * as Goldsmith). Events.IMPERIAL_GOLDSMITH_CHANGED subscribed. Added goldsmith CSS (gold/amber theme with slate purchase button)."
+    },
+    {
+      "id": "T365",
+      "title": "Wandering Oil Merchant",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic wandering oil merchant encounter: purchase olive oil reserves (25 food → +0.25 food/s 2.5min +18 prestige +10 morale), trade oil lamp supplies (15 wood + 15g → +0.18 gold/s 2min +12 prestige), send away. Bronze Age+, 8+ tiles, 13-17 min.",
+      "completed_date": "2026-05-22",
+      "notes": "Created wanderingOilMerchant.js system, added WANDERING_OIL_MERCHANT_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingOilMerchantSection() and handlers to questPanel.js (import * as OilMerchant). Events.WANDERING_OIL_MERCHANT_CHANGED subscribed. Added oilmerchant CSS (golden-yellow purchase with green trade theme)."
+    },
+    {
+      "id": "T366",
+      "title": "Imperial Quarryman",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic imperial quarryman encounter: commission stone works (25 stone + 20g → +0.22 stone/s 2.5min +22 prestige +12 morale), exchange quarrying techniques (20 iron → +0.18 iron/s 2min +15 prestige), send away. Iron Age+, 10+ tiles, 14-18 min.",
+      "completed_date": "2026-05-22",
+      "notes": "Created imperialQuarryman.js system, added IMPERIAL_QUARRYMAN_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialQuarrymanSection() and handlers to questPanel.js (import * as Quarryman). Events.IMPERIAL_QUARRYMAN_CHANGED subscribed. Added quarryman CSS (slate/stone-gray commission with amber exchange theme)."
     }
   ],
   "session_history": [
@@ -1230,6 +1250,7 @@
     "Session 87 (T357-T358): Wandering Furrier (T357), Imperial Wool Merchant (T358)",
     "Session 88 (T359-T360): Wandering Horse Trader (T359), Imperial Silk Weaver (T360)",
     "Session 89 (T361-T362): Wandering Gem Merchant (T361), Imperial Siege Master (T362)",
-    "Session 90 (T363-T364): Wandering Hat Maker (T363), Imperial Goldsmith (T364)"
+    "Session 90 (T363-T364): Wandering Hat Maker (T363), Imperial Goldsmith (T364)",
+    "Session 91 (T365-T366): Wandering Oil Merchant (T365), Imperial Quarryman (T366)"
   ]
 }
