@@ -135,6 +135,8 @@ import * as SoapMaker     from '../systems/wanderingSoapMaker.js';       // T367
 import * as Metalcaster   from '../systems/imperialMetalcaster.js';      // T368
 import * as GloveMaker    from '../systems/wanderingGloveMaker.js';      // T369
 import * as TelescopeMkr  from '../systems/imperialTelescopeMaker.js';   // T370
+import * as PaperMaker    from '../systems/wanderingPaperMaker.js';       // T371
+import * as CoinMinter    from '../systems/imperialCoinMinter.js';        // T372
 
 let _panel = null;
 
@@ -298,6 +300,8 @@ function _encountersSection() {
     _imperialMetalcasterSection(),
     _wanderingGloveMakerSection(),
     _imperialTelescopeMakerSection(),
+    _wanderingPaperMakerSection(),
+    _imperialCoinMinterSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -4404,6 +4408,72 @@ function _imperialTelescopeMakerSection() {
     </div>`;
 }
 
+function _wanderingPaperMakerSection() {
+  if (!PaperMaker.getActiveWanderingPaperMaker()) return '';
+  const secs           = PaperMaker.getPaperMakerSecsLeft();
+  const wood           = state.resources.wood ?? 0;
+  const mana           = state.resources.mana ?? 0;
+  const gold           = state.resources.gold ?? 0;
+  const urg            = secs <= 15 ? ' papermaker-timer--urgent' : '';
+  const canCommission  = wood >= PaperMaker.COMMISSION_WOOD_COST && mana >= PaperMaker.COMMISSION_MANA_COST;
+  const canPurchase    = gold >= PaperMaker.PURCHASE_GOLD_COST;
+  return `
+    <div class="papermaker-section--active">
+      <div class="papermaker-header">
+        <span class="papermaker-title">📜 Wandering Paper Maker</span>
+        <span class="papermaker-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="papermaker-desc">A wandering paper maker arrives at court laden with bundles of finely pressed linen sheets, smooth reed parchment, and vials of shimmering iron gall ink — offering to illuminate writing sheets for the imperial scriptorium or sell quality paper stock to the court scholars.</div>
+      <div class="papermaker-actions">
+        <button class="btn--papermaker-commission${canCommission ? '' : ' btn--disabled'}" data-action="papermaker-commission" ${canCommission ? '' : 'disabled'}>
+          📜 Commission Illuminated Sheets — ${PaperMaker.COMMISSION_WOOD_COST}🪵 + ${PaperMaker.COMMISSION_MANA_COST}✨
+          <span class="papermaker-cost">→ +${PaperMaker.COMMISSION_MANA_RATE} mana/s (2.5 min) · +${PaperMaker.COMMISSION_PRESTIGE_REWARD} prestige · +${PaperMaker.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--papermaker-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="papermaker-purchase" ${canPurchase ? '' : 'disabled'}>
+          📄 Purchase Fine Paper — ${PaperMaker.PURCHASE_GOLD_COST}💰
+          <span class="papermaker-cost">→ +${PaperMaker.PURCHASE_GOLD_RATE} gold/s (2 min) · +${PaperMaker.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--papermaker-away" data-action="papermaker-away">
+          🚶 Send Away
+          <span class="papermaker-cost">→ Paper maker bundles the sheets and departs</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _imperialCoinMinterSection() {
+  if (!CoinMinter.getActiveImperialCoinMinter()) return '';
+  const secs           = CoinMinter.getCoinMinterSecsLeft();
+  const iron           = state.resources.iron ?? 0;
+  const gold           = state.resources.gold ?? 0;
+  const stone          = state.resources.stone ?? 0;
+  const urg            = secs <= 15 ? ' coinminter-timer--urgent' : '';
+  const canCommission  = iron >= CoinMinter.COMMISSION_IRON_COST && gold >= CoinMinter.COMMISSION_GOLD_COST;
+  const canPurchase    = stone >= CoinMinter.PURCHASE_STONE_COST;
+  return `
+    <div class="coinminter-section--active">
+      <div class="coinminter-header">
+        <span class="coinminter-title">🪙 Imperial Coin Minter</span>
+        <span class="coinminter-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="coinminter-desc">An imperial coin minter arrives at the palace treasury bearing polished iron dies engraved with the imperial crest, bronze blanks, and precision engraving tools — offering to strike a commemorative run of golden imperial coins or teach master minting techniques to the palace craftsmen.</div>
+      <div class="coinminter-actions">
+        <button class="btn--coinminter-commission${canCommission ? '' : ' btn--disabled'}" data-action="coinminter-commission" ${canCommission ? '' : 'disabled'}>
+          🪙 Commission Golden Coins — ${CoinMinter.COMMISSION_IRON_COST}⚙️ + ${CoinMinter.COMMISSION_GOLD_COST}💰
+          <span class="coinminter-cost">→ +${CoinMinter.COMMISSION_IRON_RATE} iron/s (2.5 min) · +${CoinMinter.COMMISSION_PRESTIGE_REWARD} prestige · +${CoinMinter.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--coinminter-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="coinminter-purchase" ${canPurchase ? '' : 'disabled'}>
+          🔨 Purchase Minting Secrets — ${CoinMinter.PURCHASE_STONE_COST}🪨
+          <span class="coinminter-cost">→ +${CoinMinter.PURCHASE_STONE_RATE} stone/s (2 min) · +${CoinMinter.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--coinminter-away" data-action="coinminter-away">
+          🚶 Send Away
+          <span class="coinminter-cost">→ Coin minter wraps the dies and departs</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -4897,6 +4967,14 @@ const _HANDLERS = {
   'telescope-commission':    () => TelescopeMkr.commissionNavalTelescope(),
   'telescope-purchase':      () => TelescopeMkr.purchaseCelestialLens(),
   'telescope-away':          () => TelescopeMkr.sendTelescopeMakerAway(),
+
+  'papermaker-commission':   () => PaperMaker.commissionIlluminatedSheets(),
+  'papermaker-purchase':     () => PaperMaker.purchaseFinePaper(),
+  'papermaker-away':         () => PaperMaker.sendPaperMakerAway(),
+
+  'coinminter-commission':   () => CoinMinter.commissionGoldenCoins(),
+  'coinminter-purchase':     () => CoinMinter.purchaseMintingSecrets(),
+  'coinminter-away':         () => CoinMinter.sendCoinMinterAway(),
 };
 
 function _handleClick(e) {
@@ -5039,6 +5117,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_METALCASTER_CHANGED,
     Events.WANDERING_GLOVE_MAKER_CHANGED,
     Events.IMPERIAL_TELESCOPE_MAKER_CHANGED,
+    Events.WANDERING_PAPER_MAKER_CHANGED,
+    Events.IMPERIAL_COIN_MINTER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

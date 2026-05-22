@@ -20355,3 +20355,81 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--telescope-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T371 Wandering Paper Maker ─────────────────────────────────────── */
+@keyframes papermaker-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(180, 160, 100, 0); }
+  50%       { box-shadow: 0 0 8px 3px rgba(180, 160, 100, 0.28); }
+}
+.papermaker-section--active {
+  background: linear-gradient(135deg, rgba(180, 160, 100, 0.10), rgba(150, 130, 70, 0.07));
+  border: 1px solid rgba(180, 160, 100, 0.30); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: papermaker-pulse 2.8s ease-in-out infinite;
+}
+.papermaker-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.papermaker-title  { font-weight: 700; font-size: 0.88rem; color: #d4c090; }
+.papermaker-timer  { font-size: 0.78rem; color: #b8a870; }
+.papermaker-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.papermaker-desc   { font-size: 0.78rem; color: #a89468; margin-bottom: 8px; line-height: 1.4; }
+.papermaker-actions { display: flex; flex-direction: column; gap: 5px; }
+.papermaker-cost   { display: block; font-size: 0.72rem; color: #9a8460; margin-top: 2px; }
+.btn--papermaker-commission {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(109, 40, 217, 0.10));
+  border: 1px solid rgba(139, 92, 246, 0.32); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #c4b5fd; text-align: left; transition: background 0.15s;
+}
+.btn--papermaker-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(139, 92, 246, 0.26), rgba(109, 40, 217, 0.18)); }
+.btn--papermaker-purchase {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.13), rgba(217, 119, 6, 0.09));
+  border: 1px solid rgba(251, 191, 36, 0.30); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fde68a; text-align: left; transition: background 0.15s;
+}
+.btn--papermaker-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(251, 191, 36, 0.22), rgba(217, 119, 6, 0.15)); }
+.btn--papermaker-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--papermaker-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T372 Imperial Coin Minter ──────────────────────────────────────── */
+@keyframes coinminter-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0); }
+  50%       { box-shadow: 0 0 8px 3px rgba(234, 179, 8, 0.30); }
+}
+.coinminter-section--active {
+  background: linear-gradient(135deg, rgba(234, 179, 8, 0.10), rgba(202, 138, 4, 0.07));
+  border: 1px solid rgba(234, 179, 8, 0.30); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: coinminter-pulse 2.8s ease-in-out infinite;
+}
+.coinminter-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.coinminter-title  { font-weight: 700; font-size: 0.88rem; color: #fde68a; }
+.coinminter-timer  { font-size: 0.78rem; color: #f59e0b; }
+.coinminter-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.coinminter-desc   { font-size: 0.78rem; color: #d4b870; margin-bottom: 8px; line-height: 1.4; }
+.coinminter-actions { display: flex; flex-direction: column; gap: 5px; }
+.coinminter-cost   { display: block; font-size: 0.72rem; color: #b89a50; margin-top: 2px; }
+.btn--coinminter-commission {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(234, 179, 8, 0.15), rgba(202, 138, 4, 0.10));
+  border: 1px solid rgba(234, 179, 8, 0.32); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fde68a; text-align: left; transition: background 0.15s;
+}
+.btn--coinminter-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(234, 179, 8, 0.26), rgba(202, 138, 4, 0.18)); }
+.btn--coinminter-purchase {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.13), rgba(75, 85, 99, 0.09));
+  border: 1px solid rgba(148, 163, 184, 0.30); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #cbd5e1; text-align: left; transition: background 0.15s;
+}
+.btn--coinminter-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+.btn--coinminter-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--coinminter-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

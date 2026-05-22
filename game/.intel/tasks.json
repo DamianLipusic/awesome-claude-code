@@ -1220,6 +1220,26 @@
       "description": "Periodic imperial telescope maker encounter: commission naval telescope (25 iron + 20 mana → +0.22 iron/s 2.5min +22 prestige +10 morale), purchase celestial lens (25g → +0.18 mana/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 15-20 min.",
       "completed_date": "2026-05-22",
       "notes": "Created imperialTelescopeMaker.js system, added IMPERIAL_TELESCOPE_MAKER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialTelescopeMakerSection() and handlers to questPanel.js (import * as TelescopeMkr). Events.IMPERIAL_TELESCOPE_MAKER_CHANGED subscribed. Added telescope CSS (indigo/violet cosmic theme with violet purchase button)."
+    },
+    {
+      "id": "T371",
+      "title": "Wandering Paper Maker",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic wandering paper maker encounter: commission illuminated sheets (20 wood + 15 mana → +0.22 mana/s 2.5min +20 prestige +8 morale), purchase fine paper (18g → +0.15 gold/s 2min +12 prestige), send away. Medieval Age+, 10+ tiles, 14-18 min.",
+      "completed_date": "2026-05-22",
+      "notes": "Created wanderingPaperMaker.js system, added WANDERING_PAPER_MAKER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingPaperMakerSection() and handlers to questPanel.js (import * as PaperMaker). Events.WANDERING_PAPER_MAKER_CHANGED subscribed. Added papermaker CSS (parchment/amber theme with violet commission button and gold purchase button)."
+    },
+    {
+      "id": "T372",
+      "title": "Imperial Coin Minter",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic imperial coin minter encounter: commission golden coins (25 iron + 20g → +0.22 iron/s 2.5min +22 prestige +12 morale), purchase minting secrets (20 stone → +0.18 stone/s 2min +15 prestige), send away. Iron Age+, 10+ tiles, 14-18 min.",
+      "completed_date": "2026-05-22",
+      "notes": "Created imperialCoinMinter.js system, added IMPERIAL_COIN_MINTER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialCoinMinterSection() and handlers to questPanel.js (import * as CoinMinter). Events.IMPERIAL_COIN_MINTER_CHANGED subscribed. Added coinminter CSS (gold/amber theme with slate purchase button)."
     }
   ],
   "session_history": [
@@ -1293,6 +1313,7 @@
     "Session 90 (T363-T364): Wandering Hat Maker (T363), Imperial Goldsmith (T364)",
     "Session 91 (T365-T366): Wandering Oil Merchant (T365), Imperial Quarryman (T366)",
     "Session 92 (T367-T368): Wandering Soap Maker (T367), Imperial Metalcaster (T368)",
-    "Session 93 (T369-T370): Wandering Glove Maker (T369), Imperial Telescope Maker (T370)"
+    "Session 93 (T369-T370): Wandering Glove Maker (T369), Imperial Telescope Maker (T370)",
+    "Session 94 (T371-T372): Wandering Paper Maker (T371), Imperial Coin Minter (T372)"
   ]
 }

@@ -312,6 +312,8 @@ import { initWanderingSoapMaker, wanderingSoapMakerTick }             from './sy
 import { initImperialMetalcaster, imperialMetalcasterTick }           from './systems/imperialMetalcaster.js';       // T368
 import { initWanderingGloveMaker, wanderingGloveMakerTick }           from './systems/wanderingGloveMaker.js';       // T369
 import { initImperialTelescopeMaker, imperialTelescopeMakerTick }     from './systems/imperialTelescopeMaker.js';    // T370
+import { initWanderingPaperMaker, wanderingPaperMakerTick }           from './systems/wanderingPaperMaker.js';        // T371
+import { initImperialCoinMinter, imperialCoinMinterTick }             from './systems/imperialCoinMinter.js';         // T372
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -630,6 +632,8 @@ function _registerAllSystems() {
   registerSystem(imperialMetalcasterTick);           // T368
   registerSystem(wanderingGloveMakerTick);           // T369
   registerSystem(imperialTelescopeMakerTick);        // T370
+  registerSystem(wanderingPaperMakerTick);           // T371
+  registerSystem(imperialCoinMinterTick);            // T372
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -933,6 +937,8 @@ function _save() {
     imperialMetalcaster:        state.imperialMetalcaster,        // T368
     wanderingGloveMaker:        state.wanderingGloveMaker,        // T369
     imperialTelescopeMaker:     state.imperialTelescopeMaker,     // T370
+    wanderingPaperMaker:        state.wanderingPaperMaker,        // T371
+    imperialCoinMinter:         state.imperialCoinMinter,         // T372
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -1241,6 +1247,8 @@ function _applySave(s) {
   state.imperialMetalcaster        = s.imperialMetalcaster ?? null;        // T368
   state.wanderingGloveMaker        = s.wanderingGloveMaker ?? null;        // T369
   state.imperialTelescopeMaker     = s.imperialTelescopeMaker ?? null;     // T370
+  state.wanderingPaperMaker        = s.wanderingPaperMaker ?? null;        // T371
+  state.imperialCoinMinter         = s.imperialCoinMinter ?? null;         // T372
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -1555,6 +1563,8 @@ function _startFreshGame() {
   initImperialMetalcaster();           // T368
   initWanderingGloveMaker();           // T369
   initImperialTelescopeMaker();        // T370
+  initWanderingPaperMaker();           // T371
+  initImperialCoinMinter();            // T372
   initAchievements();
   initLeaderboard();
 }
@@ -1852,6 +1862,8 @@ function _startLoadedGame(savedData) {
   initImperialMetalcaster();           // T368
   initWanderingGloveMaker();           // T369
   initImperialTelescopeMaker();        // T370
+  initWanderingPaperMaker();           // T371
+  initImperialCoinMinter();            // T372
   initAchievements();
   initLeaderboard();
 }
