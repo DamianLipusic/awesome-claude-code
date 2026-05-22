@@ -127,6 +127,8 @@ import * as HorseTrader    from '../systems/wanderingHorseTrader.js';     // T35
 import * as SilkWeaver     from '../systems/imperialSilkWeaver.js';       // T360
 import * as GemMerchant    from '../systems/wanderingGemMerchant.js';     // T361
 import * as SiegeMaster    from '../systems/imperialSiegeMaster.js';      // T362
+import * as HatMaker       from '../systems/wanderingHatMaker.js';        // T363
+import * as Goldsmith      from '../systems/imperialGoldsmith.js';        // T364
 
 let _panel = null;
 
@@ -282,6 +284,8 @@ function _encountersSection() {
     _imperialSilkWeaverSection(),
     _wanderingGemMerchantSection(),
     _imperialSiegeMasterSection(),
+    _wanderingHatMakerSection(),
+    _imperialGoldsmithSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -4124,6 +4128,72 @@ function _imperialSiegeMasterSection() {
     </div>`;
 }
 
+function _wanderingHatMakerSection() {
+  if (!HatMaker.getActiveWanderingHatMaker()) return '';
+  const secs          = HatMaker.getHatMakerSecsLeft();
+  const food          = state.resources.food ?? 0;
+  const wood          = state.resources.wood ?? 0;
+  const gold          = state.resources.gold ?? 0;
+  const urg           = secs <= 15 ? ' hatmaker-timer--urgent' : '';
+  const canCommission = food >= HatMaker.COMMISSION_FOOD_COST && wood >= HatMaker.COMMISSION_WOOD_COST;
+  const canPurchase   = gold >= HatMaker.PURCHASE_GOLD_COST;
+  return `
+    <div class="hatmaker-section--active">
+      <div class="hatmaker-header">
+        <span class="hatmaker-title">🎩 Wandering Hat Maker</span>
+        <span class="hatmaker-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="hatmaker-desc">A wandering hat maker arrives with a wagon heaped with fine felt caps, feathered hats, and rolled patterns for royal crowns — offering to craft a grand collection of imperial headwear or share their craft secrets.</div>
+      <div class="hatmaker-actions">
+        <button class="btn--hatmaker-commission${canCommission ? '' : ' btn--disabled'}" data-action="hatmaker-commission" ${canCommission ? '' : 'disabled'}>
+          🎩 Commission Royal Headwear — ${HatMaker.COMMISSION_FOOD_COST}🌾 + ${HatMaker.COMMISSION_WOOD_COST}🪵
+          <span class="hatmaker-cost">→ +${HatMaker.COMMISSION_FOOD_RATE} food/s (2.5 min) · +${HatMaker.COMMISSION_PRESTIGE_REWARD} prestige · +${HatMaker.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--hatmaker-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="hatmaker-purchase" ${canPurchase ? '' : 'disabled'}>
+          📜 Purchase Hat-Making Craft — ${HatMaker.PURCHASE_GOLD_COST}💰
+          <span class="hatmaker-cost">→ +${HatMaker.PURCHASE_GOLD_RATE} gold/s (2 min) · +${HatMaker.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--hatmaker-away" data-action="hatmaker-away">
+          🚶 Send Away
+          <span class="hatmaker-cost">→ Hat maker tips their cap and departs</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _imperialGoldsmithSection() {
+  if (!Goldsmith.getActiveImperialGoldsmith()) return '';
+  const secs          = Goldsmith.getGoldsmithSecsLeft();
+  const iron          = state.resources.iron ?? 0;
+  const gold          = state.resources.gold ?? 0;
+  const stone         = state.resources.stone ?? 0;
+  const urg           = secs <= 15 ? ' goldsmith-timer--urgent' : '';
+  const canCommission = iron >= Goldsmith.COMMISSION_IRON_COST && gold >= Goldsmith.COMMISSION_GOLD_COST;
+  const canPurchase   = stone >= Goldsmith.PURCHASE_STONE_COST;
+  return `
+    <div class="goldsmith-section--active">
+      <div class="goldsmith-header">
+        <span class="goldsmith-title">🥇 Imperial Goldsmith</span>
+        <span class="goldsmith-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="goldsmith-desc">A master imperial goldsmith arrives bearing exquisite golden crowns, scepters, and ceremonial vessels forged with ancient techniques — offering to craft golden regalia or share precious metalworking secrets.</div>
+      <div class="goldsmith-actions">
+        <button class="btn--goldsmith-commission${canCommission ? '' : ' btn--disabled'}" data-action="goldsmith-commission" ${canCommission ? '' : 'disabled'}>
+          🥇 Commission Golden Regalia — ${Goldsmith.COMMISSION_IRON_COST}⚙️ + ${Goldsmith.COMMISSION_GOLD_COST}💰
+          <span class="goldsmith-cost">→ +${Goldsmith.COMMISSION_IRON_RATE} iron/s (2.5 min) · +${Goldsmith.COMMISSION_PRESTIGE_REWARD} prestige · +${Goldsmith.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--goldsmith-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="goldsmith-purchase" ${canPurchase ? '' : 'disabled'}>
+          📜 Purchase Gold Crafting Secrets — ${Goldsmith.PURCHASE_STONE_COST}🪨
+          <span class="goldsmith-cost">→ +${Goldsmith.PURCHASE_STONE_RATE} stone/s (2 min) · +${Goldsmith.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--goldsmith-away" data-action="goldsmith-away">
+          🚶 Send Away
+          <span class="goldsmith-cost">→ Goldsmith departs with quiet dignity</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -4585,6 +4655,14 @@ const _HANDLERS = {
   'siege-commission':        () => SiegeMaster.commissionWarEngines(),
   'siege-purchase':          () => SiegeMaster.purchaseSiegePlans(),
   'siege-away':              () => SiegeMaster.sendSiegeMasterAway(),
+
+  'hatmaker-commission':     () => HatMaker.commissionRoyalHeadwear(),
+  'hatmaker-purchase':       () => HatMaker.purchaseHatMakingCraft(),
+  'hatmaker-away':           () => HatMaker.sendHatMakerAway(),
+
+  'goldsmith-commission':    () => Goldsmith.commissionGoldenRegalia(),
+  'goldsmith-purchase':      () => Goldsmith.purchaseGoldCraftingSecrets(),
+  'goldsmith-away':          () => Goldsmith.sendGoldsmithAway(),
 };
 
 function _handleClick(e) {
@@ -4719,6 +4797,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_SILK_WEAVER_CHANGED,
     Events.WANDERING_GEM_MERCHANT_CHANGED,
     Events.IMPERIAL_SIEGE_MASTER_CHANGED,
+    Events.WANDERING_HAT_MAKER_CHANGED,
+    Events.IMPERIAL_GOLDSMITH_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

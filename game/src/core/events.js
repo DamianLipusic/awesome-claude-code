@@ -304,4 +304,6 @@ export const Events = Object.freeze({
   IMPERIAL_SILK_WEAVER_CHANGED:       'imperialSilkWeaverChanged',                 // T360: silk weaver spawned / commission / purchase / dismissed / expired
   WANDERING_GEM_MERCHANT_CHANGED:     'wanderingGemMerchantChanged',               // T361: gem merchant spawned / trade / purchase / dismissed / expired
   IMPERIAL_SIEGE_MASTER_CHANGED:      'imperialSiegeMasterChanged',                // T362: siege master spawned / commission / purchase / dismissed / expired
+  WANDERING_HAT_MAKER_CHANGED:        'wanderingHatMakerChanged',                  // T363: hat maker spawned / commission / purchase / dismissed / expired
+  IMPERIAL_GOLDSMITH_CHANGED:         'imperialGoldsmithChanged',                  // T364: goldsmith spawned / commission / purchase / dismissed / expired
 });

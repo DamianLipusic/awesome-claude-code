@@ -1140,6 +1140,26 @@
       "description": "Periodic imperial siege master encounter: commission war engines (30 iron + 20 wood → +0.22 iron/s 2.5min +25 prestige +10 morale), purchase siege plans (25g → +0.18 gold/s 2min +18 prestige), send away. Iron Age+, 12+ tiles, 15-19 min.",
       "completed_date": "2026-05-22",
       "notes": "Created imperialSiegeMaster.js system, added IMPERIAL_SIEGE_MASTER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialSiegeMasterSection() and handlers to questPanel.js (import * as SiegeMaster). Events.IMPERIAL_SIEGE_MASTER_CHANGED subscribed. Added siege CSS (red/crimson war theme with slate purchase button)."
+    },
+    {
+      "id": "T363",
+      "title": "Wandering Hat Maker",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic wandering hat maker encounter: commission royal headwear (20 food + 15 wood → +0.22 food/s 2.5min +18 prestige +10 morale), purchase hat-making craft (18g → +0.15 gold/s 2min +12 prestige), send away. Stone Age+, 6+ tiles, 11-15 min.",
+      "completed_date": "2026-05-22",
+      "notes": "Created wanderingHatMaker.js system, added WANDERING_HAT_MAKER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingHatMakerSection() and handlers to questPanel.js (import * as HatMaker). Events.WANDERING_HAT_MAKER_CHANGED subscribed. Added hatmaker CSS (violet/purple theme with amber purchase button)."
+    },
+    {
+      "id": "T364",
+      "title": "Imperial Goldsmith",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic imperial goldsmith encounter: commission golden regalia (25 iron + 20g → +0.22 iron/s 2.5min +22 prestige +12 morale), purchase gold crafting secrets (20 stone → +0.18 stone/s 2min +15 prestige), send away. Iron Age+, 10+ tiles, 13-18 min.",
+      "completed_date": "2026-05-22",
+      "notes": "Created imperialGoldsmith.js system, added IMPERIAL_GOLDSMITH_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialGoldsmithSection() and handlers to questPanel.js (import * as Goldsmith). Events.IMPERIAL_GOLDSMITH_CHANGED subscribed. Added goldsmith CSS (gold/amber theme with slate purchase button)."
     }
   ],
   "session_history": [
@@ -1209,6 +1229,7 @@
     "Session 86 (T253-T254): Wandering Parchment Maker (T355), Wandering Incense Maker (T356)",
     "Session 87 (T357-T358): Wandering Furrier (T357), Imperial Wool Merchant (T358)",
     "Session 88 (T359-T360): Wandering Horse Trader (T359), Imperial Silk Weaver (T360)",
-    "Session 89 (T361-T362): Wandering Gem Merchant (T361), Imperial Siege Master (T362)"
+    "Session 89 (T361-T362): Wandering Gem Merchant (T361), Imperial Siege Master (T362)",
+    "Session 90 (T363-T364): Wandering Hat Maker (T363), Imperial Goldsmith (T364)"
   ]
 }

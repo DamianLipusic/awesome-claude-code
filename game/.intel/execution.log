@@ -1256,3 +1256,15 @@ Built imperialSiegeMaster.js: commissionWarEngines (30 iron + 20 wood → +0.22 
 Wired in main.js: import initImperialSiegeMaster+imperialSiegeMasterTick, registerSystem, initImperialSiegeMaster() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _imperialSiegeMasterSection() render + siege-commission/siege-purchase/siege-away handlers to questPanel.js (import * as SiegeMaster). Events.IMPERIAL_SIEGE_MASTER_CHANGED subscribed.
 CSS: @keyframes siege-pulse (red/crimson war theme), .siege-section--active, .btn--siege-commission (crimson/red), .btn--siege-purchase (slate/gray), .btn--siege-away (gray). Session 89.
+
+T363: Wandering Hat Maker — Stone Age+, 6+ tiles, 11–15 min, 80s window.
+Built wanderingHatMaker.js: commissionRoyalHeadwear (20 food + 15 wood → +0.22 food/s 2.5min +18 prestige +10 morale), purchaseHatMakingCraft (18g → +0.15 gold/s 2min +12 prestige), sendHatMakerAway (dismiss). Added WANDERING_HAT_MAKER_CHANGED event to events.js. state.wanderingHatMaker null field.
+Wired in main.js: import initWanderingHatMaker+wanderingHatMakerTick, registerSystem, initWanderingHatMaker() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingHatMakerSection() render + hatmaker-commission/hatmaker-purchase/hatmaker-away handlers to questPanel.js (import * as HatMaker). Events.WANDERING_HAT_MAKER_CHANGED subscribed.
+CSS: @keyframes hatmaker-pulse (violet/purple theme), .hatmaker-section--active, .btn--hatmaker-commission (violet), .btn--hatmaker-purchase (amber/gold), .btn--hatmaker-away (gray).
+
+T364: Imperial Goldsmith — Iron Age+, 10+ tiles, 13–18 min, 80s window.
+Built imperialGoldsmith.js: commissionGoldenRegalia (25 iron + 20g → +0.22 iron/s 2.5min +22 prestige +12 morale), purchaseGoldCraftingSecrets (20 stone → +0.18 stone/s 2min +15 prestige), sendGoldsmithAway (dismiss). Added IMPERIAL_GOLDSMITH_CHANGED event to events.js. state.imperialGoldsmith null field.
+Wired in main.js: import initImperialGoldsmith+imperialGoldsmithTick, registerSystem, initImperialGoldsmith() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _imperialGoldsmithSection() render + goldsmith-commission/goldsmith-purchase/goldsmith-away handlers to questPanel.js (import * as Goldsmith). Events.IMPERIAL_GOLDSMITH_CHANGED subscribed.
+CSS: @keyframes goldsmith-pulse (gold/amber theme), .goldsmith-section--active, .btn--goldsmith-commission (gold/amber), .btn--goldsmith-purchase (slate/gray), .btn--goldsmith-away (gray). Session 90.
