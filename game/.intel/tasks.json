@@ -1180,6 +1180,26 @@
       "description": "Periodic imperial quarryman encounter: commission stone works (25 stone + 20g → +0.22 stone/s 2.5min +22 prestige +12 morale), exchange quarrying techniques (20 iron → +0.18 iron/s 2min +15 prestige), send away. Iron Age+, 10+ tiles, 14-18 min.",
       "completed_date": "2026-05-22",
       "notes": "Created imperialQuarryman.js system, added IMPERIAL_QUARRYMAN_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialQuarrymanSection() and handlers to questPanel.js (import * as Quarryman). Events.IMPERIAL_QUARRYMAN_CHANGED subscribed. Added quarryman CSS (slate/stone-gray commission with amber exchange theme)."
+    },
+    {
+      "id": "T367",
+      "title": "Wandering Soap Maker",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic wandering soap maker encounter: commission imperial soap works (20 food + 15 wood → +0.20 food/s 2.5min +15 prestige +10 morale), purchase aromatic soaps (18g → +0.15 gold/s 2min +10 prestige), send away. Stone Age+, 6+ tiles, 11-15 min.",
+      "completed_date": "2026-05-22",
+      "notes": "Created wanderingSoapMaker.js system, added WANDERING_SOAP_MAKER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingSoapMakerSection() and handlers to questPanel.js (import * as SoapMaker). Events.WANDERING_SOAP_MAKER_CHANGED subscribed. Added soapmaker CSS (mint/sage green theme with lighter green purchase button)."
+    },
+    {
+      "id": "T368",
+      "title": "Imperial Metalcaster",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic imperial metalcaster encounter: commission metal sculptures (25 iron + 20 stone → +0.22 iron/s 2.5min +22 prestige +12 morale), purchase cast metal goods (22g → +0.18 gold/s 2min +15 prestige), send away. Iron Age+, 10+ tiles, 13-18 min.",
+      "completed_date": "2026-05-22",
+      "notes": "Created imperialMetalcaster.js system, added IMPERIAL_METALCASTER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialMetalcasterSection() and handlers to questPanel.js (import * as Metalcaster). Events.IMPERIAL_METALCASTER_CHANGED subscribed. Added metalcaster CSS (copper/orange commission with amber purchase theme)."
     }
   ],
   "session_history": [
@@ -1251,6 +1271,7 @@
     "Session 88 (T359-T360): Wandering Horse Trader (T359), Imperial Silk Weaver (T360)",
     "Session 89 (T361-T362): Wandering Gem Merchant (T361), Imperial Siege Master (T362)",
     "Session 90 (T363-T364): Wandering Hat Maker (T363), Imperial Goldsmith (T364)",
-    "Session 91 (T365-T366): Wandering Oil Merchant (T365), Imperial Quarryman (T366)"
+    "Session 91 (T365-T366): Wandering Oil Merchant (T365), Imperial Quarryman (T366)",
+    "Session 92 (T367-T368): Wandering Soap Maker (T367), Imperial Metalcaster (T368)"
   ]
 }

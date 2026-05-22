@@ -1283,3 +1283,15 @@ Built imperialQuarryman.js: commissionStoneWorks (25 stone + 20g → +0.22 stone
 Wired in main.js: import initImperialQuarryman+imperialQuarrymanTick, registerSystem, initImperialQuarryman() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _imperialQuarrymanSection() render + quarryman-commission/quarryman-exchange/quarryman-away handlers to questPanel.js (import * as Quarryman). Events.IMPERIAL_QUARRYMAN_CHANGED subscribed.
 CSS: @keyframes quarryman-pulse (slate/stone-gray theme), .quarryman-section--active, .btn--quarryman-commission (slate/gray), .btn--quarryman-exchange (amber/gold), .btn--quarryman-away (gray). Session 91.
+
+T367: Wandering Soap Maker — Stone Age+, 6+ tiles, 11–15 min, 80s window.
+Built wanderingSoapMaker.js: commissionSoapWorks (20 food + 15 wood → +0.20 food/s 2.5min +15 prestige +10 morale), purchaseAromaticSoaps (18g → +0.15 gold/s 2min +10 prestige), sendSoapMakerAway (dismiss). Added WANDERING_SOAP_MAKER_CHANGED event to events.js. state.wanderingSoapMaker null field.
+Wired in main.js: import initWanderingSoapMaker+wanderingSoapMakerTick, registerSystem, initWanderingSoapMaker() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingSoapMakerSection() render + soapmaker-commission/soapmaker-purchase/soapmaker-away handlers to questPanel.js (import * as SoapMaker). Events.WANDERING_SOAP_MAKER_CHANGED subscribed.
+CSS: @keyframes soapmaker-pulse (mint/sage green theme), .soapmaker-section--active, .btn--soapmaker-commission (mint green), .btn--soapmaker-purchase (lighter green), .btn--soapmaker-away (gray).
+
+T368: Imperial Metalcaster — Iron Age+, 10+ tiles, 13–18 min, 80s window.
+Built imperialMetalcaster.js: commissionMetalSculptures (25 iron + 20 stone → +0.22 iron/s 2.5min +22 prestige +12 morale), purchaseCastMetalGoods (22g → +0.18 gold/s 2min +15 prestige), sendMetalcasterAway (dismiss). Added IMPERIAL_METALCASTER_CHANGED event to events.js. state.imperialMetalcaster null field.
+Wired in main.js: import initImperialMetalcaster+imperialMetalcasterTick, registerSystem, initImperialMetalcaster() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _imperialMetalcasterSection() render + metalcaster-commission/metalcaster-purchase/metalcaster-away handlers to questPanel.js (import * as Metalcaster). Events.IMPERIAL_METALCASTER_CHANGED subscribed.
+CSS: @keyframes metalcaster-pulse (copper/orange theme), .metalcaster-section--active, .btn--metalcaster-commission (orange/copper), .btn--metalcaster-purchase (amber/gold), .btn--metalcaster-away (gray). Session 92.

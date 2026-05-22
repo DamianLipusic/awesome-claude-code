@@ -131,6 +131,8 @@ import * as HatMaker       from '../systems/wanderingHatMaker.js';        // T36
 import * as Goldsmith      from '../systems/imperialGoldsmith.js';        // T364
 import * as OilMerchant   from '../systems/wanderingOilMerchant.js';     // T365
 import * as Quarryman      from '../systems/imperialQuarryman.js';        // T366
+import * as SoapMaker     from '../systems/wanderingSoapMaker.js';       // T367
+import * as Metalcaster   from '../systems/imperialMetalcaster.js';      // T368
 
 let _panel = null;
 
@@ -290,6 +292,8 @@ function _encountersSection() {
     _imperialGoldsmithSection(),
     _wanderingOilMerchantSection(),
     _imperialQuarrymanSection(),
+    _wanderingSoapMakerSection(),
+    _imperialMetalcasterSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -4264,6 +4268,72 @@ function _imperialQuarrymanSection() {
     </div>`;
 }
 
+function _wanderingSoapMakerSection() {
+  if (!SoapMaker.getActiveWanderingSoapMaker()) return '';
+  const secs          = SoapMaker.getSoapMakerSecsLeft();
+  const food          = state.resources.food ?? 0;
+  const wood          = state.resources.wood ?? 0;
+  const gold          = state.resources.gold ?? 0;
+  const urg           = secs <= 15 ? ' soapmaker-timer--urgent' : '';
+  const canCommission = food >= SoapMaker.COMMISSION_FOOD_COST && wood >= SoapMaker.COMMISSION_WOOD_COST;
+  const canPurchase   = gold >= SoapMaker.PURCHASE_GOLD_COST;
+  return `
+    <div class="soapmaker-section--active">
+      <div class="soapmaker-header">
+        <span class="soapmaker-title">🧼 Wandering Soap Maker</span>
+        <span class="soapmaker-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="soapmaker-desc">A wandering soap maker arrives bearing fragrant herbal soaps, ash lye crocks, and aromatic oils gathered from distant market towns — offering to establish an imperial soap works or sell artisan soaps to the court.</div>
+      <div class="soapmaker-actions">
+        <button class="btn--soapmaker-commission${canCommission ? '' : ' btn--disabled'}" data-action="soapmaker-commission" ${canCommission ? '' : 'disabled'}>
+          🧼 Commission Imperial Soap Works — ${SoapMaker.COMMISSION_FOOD_COST}🌾 + ${SoapMaker.COMMISSION_WOOD_COST}🪵
+          <span class="soapmaker-cost">→ +${SoapMaker.COMMISSION_FOOD_RATE} food/s (2.5 min) · +${SoapMaker.COMMISSION_PRESTIGE_REWARD} prestige · +${SoapMaker.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--soapmaker-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="soapmaker-purchase" ${canPurchase ? '' : 'disabled'}>
+          🌿 Purchase Aromatic Soaps — ${SoapMaker.PURCHASE_GOLD_COST}💰
+          <span class="soapmaker-cost">→ +${SoapMaker.PURCHASE_GOLD_RATE} gold/s (2 min) · +${SoapMaker.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--soapmaker-away" data-action="soapmaker-away">
+          🚶 Send Away
+          <span class="soapmaker-cost">→ Soap maker packs up and departs</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _imperialMetalcasterSection() {
+  if (!Metalcaster.getActiveImperialMetalcaster()) return '';
+  const secs          = Metalcaster.getMetalcasterSecsLeft();
+  const iron          = state.resources.iron ?? 0;
+  const stone         = state.resources.stone ?? 0;
+  const gold          = state.resources.gold ?? 0;
+  const urg           = secs <= 15 ? ' metalcaster-timer--urgent' : '';
+  const canCommission = iron >= Metalcaster.COMMISSION_IRON_COST && stone >= Metalcaster.COMMISSION_STONE_COST;
+  const canPurchase   = gold >= Metalcaster.PURCHASE_GOLD_COST;
+  return `
+    <div class="metalcaster-section--active">
+      <div class="metalcaster-header">
+        <span class="metalcaster-title">🔩 Imperial Metalcaster</span>
+        <span class="metalcaster-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="metalcaster-desc">A renowned imperial metalcaster arrives bearing gleaming bronze casting moulds, precision iron tongs, and furnace designs capable of producing magnificent decorative sculptures and refined metal goods — offering foundry expertise or fine cast-metal wares.</div>
+      <div class="metalcaster-actions">
+        <button class="btn--metalcaster-commission${canCommission ? '' : ' btn--disabled'}" data-action="metalcaster-commission" ${canCommission ? '' : 'disabled'}>
+          🔩 Commission Metal Sculptures — ${Metalcaster.COMMISSION_IRON_COST}⚙️ + ${Metalcaster.COMMISSION_STONE_COST}🪨
+          <span class="metalcaster-cost">→ +${Metalcaster.COMMISSION_IRON_RATE} iron/s (2.5 min) · +${Metalcaster.COMMISSION_PRESTIGE_REWARD} prestige · +${Metalcaster.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--metalcaster-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="metalcaster-purchase" ${canPurchase ? '' : 'disabled'}>
+          🪙 Purchase Cast Metal Goods — ${Metalcaster.PURCHASE_GOLD_COST}💰
+          <span class="metalcaster-cost">→ +${Metalcaster.PURCHASE_GOLD_RATE} gold/s (2 min) · +${Metalcaster.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--metalcaster-away" data-action="metalcaster-away">
+          🚶 Send Away
+          <span class="metalcaster-cost">→ Metalcaster loads the moulds and departs</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -4741,6 +4811,14 @@ const _HANDLERS = {
   'quarryman-commission':    () => Quarryman.commissionStoneWorks(),
   'quarryman-exchange':      () => Quarryman.exchangeQuarryingTechniques(),
   'quarryman-away':          () => Quarryman.sendQuarrymanAway(),
+
+  'soapmaker-commission':    () => SoapMaker.commissionSoapWorks(),
+  'soapmaker-purchase':      () => SoapMaker.purchaseAromaticSoaps(),
+  'soapmaker-away':          () => SoapMaker.sendSoapMakerAway(),
+
+  'metalcaster-commission':  () => Metalcaster.commissionMetalSculptures(),
+  'metalcaster-purchase':    () => Metalcaster.purchaseCastMetalGoods(),
+  'metalcaster-away':        () => Metalcaster.sendMetalcasterAway(),
 };
 
 function _handleClick(e) {
@@ -4879,6 +4957,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_GOLDSMITH_CHANGED,
     Events.WANDERING_OIL_MERCHANT_CHANGED,
     Events.IMPERIAL_QUARRYMAN_CHANGED,
+    Events.WANDERING_SOAP_MAKER_CHANGED,
+    Events.IMPERIAL_METALCASTER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

@@ -20199,3 +20199,81 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--quarryman-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T367: Wandering Soap Maker ──────────────────────────────── */
+@keyframes soapmaker-pulse {
+  0%, 100% { border-color: rgba(52, 211, 153, 0.35); box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); }
+  50%       { border-color: rgba(52, 211, 153, 0.70); box-shadow: 0 0 8px 2px rgba(52, 211, 153, 0.18); }
+}
+.soapmaker-section--active {
+  background: linear-gradient(135deg, rgba(6, 78, 59, 0.14), rgba(4, 50, 38, 0.08));
+  border: 1px solid rgba(52, 211, 153, 0.35); border-radius: 8px; padding: 10px 12px; margin-bottom: 10px;
+  animation: soapmaker-pulse 3.5s ease-in-out infinite;
+}
+.soapmaker-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.soapmaker-title   { font-size: 0.92rem; font-weight: 600; color: #6ee7b7; }
+.soapmaker-timer   { font-size: 0.78rem; color: #34d399; background: rgba(52, 211, 153, 0.12); padding: 2px 7px; border-radius: 10px; }
+.soapmaker-timer--urgent { color: #a7f3d0; background: rgba(52, 211, 153, 0.25); }
+.soapmaker-desc    { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.soapmaker-actions { display: flex; flex-direction: column; gap: 6px; }
+.soapmaker-cost    { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--soapmaker-commission {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(52, 211, 153, 0.15), rgba(16, 185, 129, 0.10));
+  border: 1px solid rgba(52, 211, 153, 0.32); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #6ee7b7; text-align: left; transition: background 0.15s;
+}
+.btn--soapmaker-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(52, 211, 153, 0.26), rgba(16, 185, 129, 0.18)); }
+.btn--soapmaker-purchase {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(134, 239, 172, 0.13), rgba(74, 222, 128, 0.09));
+  border: 1px solid rgba(134, 239, 172, 0.30); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #bbf7d0; text-align: left; transition: background 0.15s;
+}
+.btn--soapmaker-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(134, 239, 172, 0.22), rgba(74, 222, 128, 0.15)); }
+.btn--soapmaker-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--soapmaker-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T368: Imperial Metalcaster ──────────────────────────────── */
+@keyframes metalcaster-pulse {
+  0%, 100% { border-color: rgba(251, 146, 60, 0.35); box-shadow: 0 0 0 0 rgba(251, 146, 60, 0); }
+  50%       { border-color: rgba(251, 146, 60, 0.70); box-shadow: 0 0 8px 2px rgba(251, 146, 60, 0.20); }
+}
+.metalcaster-section--active {
+  background: linear-gradient(135deg, rgba(124, 45, 18, 0.14), rgba(76, 29, 10, 0.08));
+  border: 1px solid rgba(251, 146, 60, 0.35); border-radius: 8px; padding: 10px 12px; margin-bottom: 10px;
+  animation: metalcaster-pulse 3.5s ease-in-out infinite;
+}
+.metalcaster-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.metalcaster-title   { font-size: 0.92rem; font-weight: 600; color: #fdba74; }
+.metalcaster-timer   { font-size: 0.78rem; color: #fb923c; background: rgba(251, 146, 60, 0.12); padding: 2px 7px; border-radius: 10px; }
+.metalcaster-timer--urgent { color: #fed7aa; background: rgba(251, 146, 60, 0.25); }
+.metalcaster-desc    { font-size: 0.78rem; color: #9ca3af; margin-bottom: 8px; line-height: 1.4; }
+.metalcaster-actions { display: flex; flex-direction: column; gap: 6px; }
+.metalcaster-cost    { display: block; font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.btn--metalcaster-commission {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(251, 146, 60, 0.15), rgba(234, 88, 12, 0.10));
+  border: 1px solid rgba(251, 146, 60, 0.32); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fdba74; text-align: left; transition: background 0.15s;
+}
+.btn--metalcaster-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(251, 146, 60, 0.26), rgba(234, 88, 12, 0.18)); }
+.btn--metalcaster-purchase {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.13), rgba(217, 119, 6, 0.09));
+  border: 1px solid rgba(251, 191, 36, 0.30); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fde68a; text-align: left; transition: background 0.15s;
+}
+.btn--metalcaster-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(251, 191, 36, 0.22), rgba(217, 119, 6, 0.15)); }
+.btn--metalcaster-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--metalcaster-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

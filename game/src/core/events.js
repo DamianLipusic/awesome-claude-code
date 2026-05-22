@@ -308,4 +308,6 @@ export const Events = Object.freeze({
   IMPERIAL_GOLDSMITH_CHANGED:         'imperialGoldsmithChanged',                  // T364: goldsmith spawned / commission / purchase / dismissed / expired
   WANDERING_OIL_MERCHANT_CHANGED:    'wanderingOilMerchantChanged',               // T365: oil merchant spawned / purchase / trade / dismissed / expired
   IMPERIAL_QUARRYMAN_CHANGED:        'imperialQuarrymanChanged',                  // T366: quarryman spawned / commission / exchange / dismissed / expired
+  WANDERING_SOAP_MAKER_CHANGED:     'wanderingSoapMakerChanged',                 // T367: soap maker spawned / commission / purchase / dismissed / expired
+  IMPERIAL_METALCASTER_CHANGED:     'imperialMetalcasterChanged',                // T368: metalcaster spawned / commission / purchase / dismissed / expired
 });
