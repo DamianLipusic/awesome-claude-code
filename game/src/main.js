@@ -310,6 +310,8 @@ import { initWanderingOilMerchant, wanderingOilMerchantTick }         from './sy
 import { initImperialQuarryman, imperialQuarrymanTick }               from './systems/imperialQuarryman.js';         // T366
 import { initWanderingSoapMaker, wanderingSoapMakerTick }             from './systems/wanderingSoapMaker.js';         // T367
 import { initImperialMetalcaster, imperialMetalcasterTick }           from './systems/imperialMetalcaster.js';       // T368
+import { initWanderingGloveMaker, wanderingGloveMakerTick }           from './systems/wanderingGloveMaker.js';       // T369
+import { initImperialTelescopeMaker, imperialTelescopeMakerTick }     from './systems/imperialTelescopeMaker.js';    // T370
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -626,6 +628,8 @@ function _registerAllSystems() {
   registerSystem(imperialQuarrymanTick);             // T366
   registerSystem(wanderingSoapMakerTick);            // T367
   registerSystem(imperialMetalcasterTick);           // T368
+  registerSystem(wanderingGloveMakerTick);           // T369
+  registerSystem(imperialTelescopeMakerTick);        // T370
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -927,6 +931,8 @@ function _save() {
     imperialQuarryman:          state.imperialQuarryman,          // T366
     wanderingSoapMaker:         state.wanderingSoapMaker,         // T367
     imperialMetalcaster:        state.imperialMetalcaster,        // T368
+    wanderingGloveMaker:        state.wanderingGloveMaker,        // T369
+    imperialTelescopeMaker:     state.imperialTelescopeMaker,     // T370
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -1233,6 +1239,8 @@ function _applySave(s) {
   state.imperialQuarryman          = s.imperialQuarryman ?? null;          // T366
   state.wanderingSoapMaker         = s.wanderingSoapMaker ?? null;         // T367
   state.imperialMetalcaster        = s.imperialMetalcaster ?? null;        // T368
+  state.wanderingGloveMaker        = s.wanderingGloveMaker ?? null;        // T369
+  state.imperialTelescopeMaker     = s.imperialTelescopeMaker ?? null;     // T370
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -1545,6 +1553,8 @@ function _startFreshGame() {
   initImperialQuarryman();             // T366
   initWanderingSoapMaker();            // T367
   initImperialMetalcaster();           // T368
+  initWanderingGloveMaker();           // T369
+  initImperialTelescopeMaker();        // T370
   initAchievements();
   initLeaderboard();
 }
@@ -1840,6 +1850,8 @@ function _startLoadedGame(savedData) {
   initImperialQuarryman();             // T366
   initWanderingSoapMaker();            // T367
   initImperialMetalcaster();           // T368
+  initWanderingGloveMaker();           // T369
+  initImperialTelescopeMaker();        // T370
   initAchievements();
   initLeaderboard();
 }

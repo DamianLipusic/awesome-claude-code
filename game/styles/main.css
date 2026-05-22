@@ -20277,3 +20277,81 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--metalcaster-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T369 Wandering Glove Maker ─────────────────────────────────────── */
+@keyframes glovemaker-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(180, 120, 60, 0); }
+  50%       { box-shadow: 0 0 8px 3px rgba(180, 120, 60, 0.28); }
+}
+.glovemaker-section--active {
+  background: linear-gradient(135deg, rgba(180, 120, 60, 0.10), rgba(139, 90, 43, 0.07));
+  border: 1px solid rgba(180, 120, 60, 0.30); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: glovemaker-pulse 2.8s ease-in-out infinite;
+}
+.glovemaker-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.glovemaker-title  { font-weight: 700; font-size: 0.88rem; color: #d4a574; }
+.glovemaker-timer  { font-size: 0.78rem; color: #b8956a; }
+.glovemaker-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.glovemaker-desc   { font-size: 0.78rem; color: #a88060; margin-bottom: 8px; line-height: 1.4; }
+.glovemaker-actions { display: flex; flex-direction: column; gap: 5px; }
+.glovemaker-cost   { display: block; font-size: 0.72rem; color: #9a7050; margin-top: 2px; }
+.btn--glovemaker-craft {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(180, 120, 60, 0.15), rgba(139, 90, 43, 0.10));
+  border: 1px solid rgba(180, 120, 60, 0.32); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #d4a574; text-align: left; transition: background 0.15s;
+}
+.btn--glovemaker-craft:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(180, 120, 60, 0.26), rgba(139, 90, 43, 0.18)); }
+.btn--glovemaker-purchase {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.13), rgba(217, 119, 6, 0.09));
+  border: 1px solid rgba(251, 191, 36, 0.30); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fde68a; text-align: left; transition: background 0.15s;
+}
+.btn--glovemaker-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(251, 191, 36, 0.22), rgba(217, 119, 6, 0.15)); }
+.btn--glovemaker-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--glovemaker-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T370 Imperial Telescope Maker ──────────────────────────────────── */
+@keyframes telescope-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+  50%       { box-shadow: 0 0 8px 3px rgba(99, 102, 241, 0.28); }
+}
+.telescope-section--active {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.10), rgba(67, 56, 202, 0.07));
+  border: 1px solid rgba(99, 102, 241, 0.30); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: telescope-pulse 2.8s ease-in-out infinite;
+}
+.telescope-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.telescope-title  { font-weight: 700; font-size: 0.88rem; color: #a5b4fc; }
+.telescope-timer  { font-size: 0.78rem; color: #818cf8; }
+.telescope-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.telescope-desc   { font-size: 0.78rem; color: #8691d4; margin-bottom: 8px; line-height: 1.4; }
+.telescope-actions { display: flex; flex-direction: column; gap: 5px; }
+.telescope-cost   { display: block; font-size: 0.72rem; color: #6e7abf; margin-top: 2px; }
+.btn--telescope-commission {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(67, 56, 202, 0.10));
+  border: 1px solid rgba(99, 102, 241, 0.32); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #a5b4fc; text-align: left; transition: background 0.15s;
+}
+.btn--telescope-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(99, 102, 241, 0.26), rgba(67, 56, 202, 0.18)); }
+.btn--telescope-purchase {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.13), rgba(109, 40, 217, 0.09));
+  border: 1px solid rgba(139, 92, 246, 0.30); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #c4b5fd; text-align: left; transition: background 0.15s;
+}
+.btn--telescope-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(139, 92, 246, 0.22), rgba(109, 40, 217, 0.15)); }
+.btn--telescope-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--telescope-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

@@ -133,6 +133,8 @@ import * as OilMerchant   from '../systems/wanderingOilMerchant.js';     // T365
 import * as Quarryman      from '../systems/imperialQuarryman.js';        // T366
 import * as SoapMaker     from '../systems/wanderingSoapMaker.js';       // T367
 import * as Metalcaster   from '../systems/imperialMetalcaster.js';      // T368
+import * as GloveMaker    from '../systems/wanderingGloveMaker.js';      // T369
+import * as TelescopeMkr  from '../systems/imperialTelescopeMaker.js';   // T370
 
 let _panel = null;
 
@@ -294,6 +296,8 @@ function _encountersSection() {
     _imperialQuarrymanSection(),
     _wanderingSoapMakerSection(),
     _imperialMetalcasterSection(),
+    _wanderingGloveMakerSection(),
+    _imperialTelescopeMakerSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -4334,6 +4338,72 @@ function _imperialMetalcasterSection() {
     </div>`;
 }
 
+function _wanderingGloveMakerSection() {
+  if (!GloveMaker.getActiveWanderingGloveMaker()) return '';
+  const secs       = GloveMaker.getGloveMakerSecsLeft();
+  const food       = state.resources.food ?? 0;
+  const wood       = state.resources.wood ?? 0;
+  const gold       = state.resources.gold ?? 0;
+  const urg        = secs <= 15 ? ' glovemaker-timer--urgent' : '';
+  const canCraft   = food >= GloveMaker.CRAFT_FOOD_COST && wood >= GloveMaker.CRAFT_WOOD_COST;
+  const canPurchase = gold >= GloveMaker.PURCHASE_GOLD_COST;
+  return `
+    <div class="glovemaker-section--active">
+      <div class="glovemaker-header">
+        <span class="glovemaker-title">🧤 Wandering Glove Maker</span>
+        <span class="glovemaker-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="glovemaker-desc">A wandering glove maker arrives bearing supple calf leather, linen padding, and coloured stitching thread — offering to craft fine riding gloves for the imperial cavalry or sell artisan leather gloves to the court.</div>
+      <div class="glovemaker-actions">
+        <button class="btn--glovemaker-craft${canCraft ? '' : ' btn--disabled'}" data-action="glovemaker-craft" ${canCraft ? '' : 'disabled'}>
+          🧤 Craft Riding Gloves — ${GloveMaker.CRAFT_FOOD_COST}🌾 + ${GloveMaker.CRAFT_WOOD_COST}🪵
+          <span class="glovemaker-cost">→ +${GloveMaker.CRAFT_FOOD_RATE} food/s (2.5 min) · +${GloveMaker.CRAFT_PRESTIGE_REWARD} prestige · +${GloveMaker.CRAFT_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--glovemaker-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="glovemaker-purchase" ${canPurchase ? '' : 'disabled'}>
+          🪡 Purchase Leather Gloves — ${GloveMaker.PURCHASE_GOLD_COST}💰
+          <span class="glovemaker-cost">→ +${GloveMaker.PURCHASE_GOLD_RATE} gold/s (2 min) · +${GloveMaker.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--glovemaker-away" data-action="glovemaker-away">
+          🚶 Send Away
+          <span class="glovemaker-cost">→ Glove maker packs up and departs</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _imperialTelescopeMakerSection() {
+  if (!TelescopeMkr.getActiveImperialTelescopeMaker()) return '';
+  const secs          = TelescopeMkr.getTelescopeMakerSecsLeft();
+  const iron          = state.resources.iron ?? 0;
+  const mana          = state.resources.mana ?? 0;
+  const gold          = state.resources.gold ?? 0;
+  const urg           = secs <= 15 ? ' telescope-timer--urgent' : '';
+  const canCommission = iron >= TelescopeMkr.COMMISSION_IRON_COST && mana >= TelescopeMkr.COMMISSION_MANA_COST;
+  const canPurchase   = gold >= TelescopeMkr.PURCHASE_GOLD_COST;
+  return `
+    <div class="telescope-section--active">
+      <div class="telescope-header">
+        <span class="telescope-title">🔭 Imperial Telescope Maker</span>
+        <span class="telescope-timer${urg}">⏱ ${secs}s</span>
+      </div>
+      <div class="telescope-desc">A renowned imperial telescope maker arrives bearing finely ground glass lenses, polished brass tubes, and celestial charts — offering to craft a precision naval telescope for the imperial fleet or sell their finest astronomical lens to the court scholars.</div>
+      <div class="telescope-actions">
+        <button class="btn--telescope-commission${canCommission ? '' : ' btn--disabled'}" data-action="telescope-commission" ${canCommission ? '' : 'disabled'}>
+          🔭 Commission Naval Telescope — ${TelescopeMkr.COMMISSION_IRON_COST}⚙️ + ${TelescopeMkr.COMMISSION_MANA_COST}✨
+          <span class="telescope-cost">→ +${TelescopeMkr.COMMISSION_IRON_RATE} iron/s (2.5 min) · +${TelescopeMkr.COMMISSION_PRESTIGE_REWARD} prestige · +${TelescopeMkr.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--telescope-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="telescope-purchase" ${canPurchase ? '' : 'disabled'}>
+          🌌 Purchase Celestial Lens — ${TelescopeMkr.PURCHASE_GOLD_COST}💰
+          <span class="telescope-cost">→ +${TelescopeMkr.PURCHASE_MANA_RATE} mana/s (2 min) · +${TelescopeMkr.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--telescope-away" data-action="telescope-away">
+          🚶 Send Away
+          <span class="telescope-cost">→ Telescope maker packs the lenses and departs</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -4819,6 +4889,14 @@ const _HANDLERS = {
   'metalcaster-commission':  () => Metalcaster.commissionMetalSculptures(),
   'metalcaster-purchase':    () => Metalcaster.purchaseCastMetalGoods(),
   'metalcaster-away':        () => Metalcaster.sendMetalcasterAway(),
+
+  'glovemaker-craft':        () => GloveMaker.craftRidingGloves(),
+  'glovemaker-purchase':     () => GloveMaker.purchaseLeatherGloves(),
+  'glovemaker-away':         () => GloveMaker.sendGloveMakerAway(),
+
+  'telescope-commission':    () => TelescopeMkr.commissionNavalTelescope(),
+  'telescope-purchase':      () => TelescopeMkr.purchaseCelestialLens(),
+  'telescope-away':          () => TelescopeMkr.sendTelescopeMakerAway(),
 };
 
 function _handleClick(e) {
@@ -4959,6 +5037,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_QUARRYMAN_CHANGED,
     Events.WANDERING_SOAP_MAKER_CHANGED,
     Events.IMPERIAL_METALCASTER_CHANGED,
+    Events.WANDERING_GLOVE_MAKER_CHANGED,
+    Events.IMPERIAL_TELESCOPE_MAKER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

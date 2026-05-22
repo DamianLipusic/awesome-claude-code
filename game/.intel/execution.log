@@ -1,3 +1,6 @@
+Session 93 — T369–T370: Wandering Glove Maker, Imperial Telescope Maker.
+Glove Maker: Stone Age+, 6+ tiles, 11-15 min spawn, 80s window. Craft Riding Gloves (20 food + 15 wood → +0.22 food/s 2.5min · +18 prestige · +8 morale), Purchase Leather Gloves (18g → +0.15 gold/s 2min · +12 prestige). Warm leather/tan brown pulse CSS. Telescope Maker: Medieval Age+, 10+ tiles, 15-20 min spawn, 80s window. Commission Naval Telescope (25 iron + 20 mana → +0.22 iron/s 2.5min · +22 prestige · +10 morale), Purchase Celestial Lens (25g → +0.18 mana/s 2min · +15 prestige). Indigo/violet cosmic pulse CSS. Both fully wired into main.js (import, registerSystem, init x2, save/load) and questPanel.js (import, section render, handlers, ENCOUNTER_EVENTS). Events added to events.js.
+
 Session 1 — T001–T010: Core game loop, resource management, building system, basic UI.
 Built tick engine (4 ticks/s), resource rates, gold/food/wood/stone/iron/mana caps, building purchase queue, HUD display, message log.
 
