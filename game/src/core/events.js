@@ -316,4 +316,6 @@ export const Events = Object.freeze({
   IMPERIAL_COIN_MINTER_CHANGED:              'imperialCoinMinterChanged',                       // T372: coin minter spawned / commission / purchase / dismissed / expired
   WANDERING_CARTOGRAPHER_GUILD_CHANGED:      'wanderingCartographerGuildChanged',               // T373: guild spawned / surveyed / purchased / dismissed / expired
   IMPERIAL_SPYMASTER_CHANGED:                'imperialSpymasterChanged',                        // T374: spymaster spawned / commissioned / purchased / dismissed / expired
+  WANDERING_GEM_POLISHER_CHANGED:           'wanderingGemPolisherChanged',                     // T375: gem polisher spawned / commissioned / purchased / dismissed / expired
+  IMPERIAL_ASTROLABE_MAKER_CHANGED:         'imperialAstrolabeMakerChanged',                   // T376: astrolabe maker spawned / commissioned / purchased / dismissed / expired
 });

@@ -20510,4 +20510,82 @@ kbd {
   border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
+
+/* ── T375 Wandering Gem Polisher ────────────────────────────────────────── */
+@keyframes gempolisher-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(167, 139, 250, 0); }
+  50%       { box-shadow: 0 0 8px 3px rgba(167, 139, 250, 0.30); }
+}
+.gempolisher-section--active {
+  background: linear-gradient(135deg, rgba(167, 139, 250, 0.10), rgba(139, 92, 246, 0.07));
+  border: 1px solid rgba(167, 139, 250, 0.32); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: gempolisher-pulse 2.8s ease-in-out infinite;
+}
+.gempolisher-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.gempolisher-title  { font-weight: 700; font-size: 0.88rem; color: #ddd6fe; }
+.gempolisher-timer  { font-size: 0.78rem; color: #c4b5fd; }
+.gempolisher-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.gempolisher-desc   { font-size: 0.78rem; color: #ede9fe; margin-bottom: 8px; line-height: 1.4; }
+.gempolisher-actions { display: flex; flex-direction: column; gap: 5px; }
+.gempolisher-cost   { display: block; font-size: 0.72rem; color: #c4b5fd; margin-top: 2px; }
+.btn--gempolisher-commission {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(167, 139, 250, 0.15), rgba(139, 92, 246, 0.10));
+  border: 1px solid rgba(167, 139, 250, 0.34); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #ddd6fe; text-align: left; transition: background 0.15s;
+}
+.btn--gempolisher-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(167, 139, 250, 0.26), rgba(139, 92, 246, 0.18)); }
+.btn--gempolisher-purchase {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.13), rgba(100, 116, 139, 0.09));
+  border: 1px solid rgba(148, 163, 184, 0.30); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #cbd5e1; text-align: left; transition: background 0.15s;
+}
+.btn--gempolisher-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(100, 116, 139, 0.15)); }
+.btn--gempolisher-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--gempolisher-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T376 Imperial Astrolabe Maker ──────────────────────────────────────── */
+@keyframes astrolabe-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0); }
+  50%       { box-shadow: 0 0 8px 3px rgba(56, 189, 248, 0.28); }
+}
+.astrolabe-section--active {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.10), rgba(14, 165, 233, 0.07));
+  border: 1px solid rgba(56, 189, 248, 0.32); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: astrolabe-pulse 2.8s ease-in-out infinite;
+}
+.astrolabe-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.astrolabe-title  { font-weight: 700; font-size: 0.88rem; color: #bae6fd; }
+.astrolabe-timer  { font-size: 0.78rem; color: #7dd3fc; }
+.astrolabe-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.astrolabe-desc   { font-size: 0.78rem; color: #e0f2fe; margin-bottom: 8px; line-height: 1.4; }
+.astrolabe-actions { display: flex; flex-direction: column; gap: 5px; }
+.astrolabe-cost   { display: block; font-size: 0.72rem; color: #7dd3fc; margin-top: 2px; }
+.btn--astrolabe-commission {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(14, 165, 233, 0.10));
+  border: 1px solid rgba(56, 189, 248, 0.34); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #bae6fd; text-align: left; transition: background 0.15s;
+}
+.btn--astrolabe-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(56, 189, 248, 0.26), rgba(14, 165, 233, 0.18)); }
+.btn--astrolabe-purchase {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.13), rgba(217, 119, 6, 0.09));
+  border: 1px solid rgba(251, 191, 36, 0.30); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fde68a; text-align: left; transition: background 0.15s;
+}
+.btn--astrolabe-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(251, 191, 36, 0.22), rgba(217, 119, 6, 0.15)); }
+.btn--astrolabe-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--astrolabe-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
 .btn--spymaster-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

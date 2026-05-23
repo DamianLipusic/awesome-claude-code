@@ -316,6 +316,8 @@ import { initWanderingPaperMaker, wanderingPaperMakerTick }           from './sy
 import { initImperialCoinMinter, imperialCoinMinterTick }             from './systems/imperialCoinMinter.js';         // T372
 import { initWanderingCartographerGuild, wanderingCartographerGuildTick } from './systems/wanderingCartographerGuild.js'; // T373
 import { initImperialSpymaster, imperialSpymasterTick }               from './systems/imperialSpymaster.js';          // T374
+import { initWanderingGemPolisher, wanderingGemPolisherTick }         from './systems/wanderingGemPolisher.js';        // T375
+import { initImperialAstrolabeMaker, imperialAstrolabeMakerTick }     from './systems/imperialAstrolabeMaker.js';      // T376
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -638,6 +640,8 @@ function _registerAllSystems() {
   registerSystem(imperialCoinMinterTick);            // T372
   registerSystem(wanderingCartographerGuildTick);   // T373
   registerSystem(imperialSpymasterTick);            // T374
+  registerSystem(wanderingGemPolisherTick);         // T375
+  registerSystem(imperialAstrolabeMakerTick);       // T376
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -945,6 +949,8 @@ function _save() {
     imperialCoinMinter:            state.imperialCoinMinter,            // T372
     wanderingCartographerGuild:    state.wanderingCartographerGuild,    // T373
     imperialSpymaster:             state.imperialSpymaster,             // T374
+    wanderingGemPolisher:          state.wanderingGemPolisher,          // T375
+    imperialAstrolabeMaker:        state.imperialAstrolabeMaker,        // T376
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -1257,6 +1263,8 @@ function _applySave(s) {
   state.imperialCoinMinter         = s.imperialCoinMinter ?? null;         // T372
   state.wanderingCartographerGuild = s.wanderingCartographerGuild ?? null; // T373
   state.imperialSpymaster          = s.imperialSpymaster ?? null;          // T374
+  state.wanderingGemPolisher       = s.wanderingGemPolisher ?? null;       // T375
+  state.imperialAstrolabeMaker     = s.imperialAstrolabeMaker ?? null;     // T376
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -1575,6 +1583,8 @@ function _startFreshGame() {
   initImperialCoinMinter();            // T372
   initWanderingCartographerGuild();   // T373
   initImperialSpymaster();            // T374
+  initWanderingGemPolisher();         // T375
+  initImperialAstrolabeMaker();       // T376
   initAchievements();
   initLeaderboard();
 }
@@ -1876,6 +1886,8 @@ function _startLoadedGame(savedData) {
   initImperialCoinMinter();            // T372
   initWanderingCartographerGuild();   // T373
   initImperialSpymaster();            // T374
+  initWanderingGemPolisher();         // T375
+  initImperialAstrolabeMaker();       // T376
   initAchievements();
   initLeaderboard();
 }

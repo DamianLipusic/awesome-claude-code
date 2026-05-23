@@ -1260,6 +1260,26 @@
       "description": "Periodic imperial spymaster encounter: commission intelligence network (30 iron + 20g → +0.22 iron/s 2.5min +25 prestige +10 morale), purchase cipher codes (25 mana → +0.20 mana/s 2min +18 prestige), send away. Iron Age+, 12+ tiles, 15-20 min.",
       "completed_date": "2026-05-23",
       "notes": "Created imperialSpymaster.js system, added IMPERIAL_SPYMASTER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialSpymasterSection() and handlers to questPanel.js (import * as Spymaster). Events.IMPERIAL_SPYMASTER_CHANGED subscribed. Added spymaster CSS (indigo/violet theme with light purple cipher button)."
+    },
+    {
+      "id": "T375",
+      "title": "Wandering Gem Polisher",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic wandering gem polisher encounter: commission royal gem collection (20 iron + 15 stone → +0.20 iron/s 2.5min +22 prestige +10 morale), purchase polishing techniques (22g → +0.15 stone/s 2min +15 prestige), send away. Iron Age+, 10+ tiles, 13-18 min.",
+      "completed_date": "2026-05-23",
+      "notes": "Created wanderingGemPolisher.js system, added WANDERING_GEM_POLISHER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingGemPolisherSection() and handlers to questPanel.js (import * as GemPolisher). Events.WANDERING_GEM_POLISHER_CHANGED subscribed. Added gempolisher CSS (violet/purple gem theme with slate purchase button)."
+    },
+    {
+      "id": "T376",
+      "title": "Imperial Astrolabe Maker",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic imperial astrolabe maker encounter: commission navigation astrolabe (25 iron + 20 mana → +0.22 mana/s 2.5min +22 prestige +10 morale), purchase celestial charts (22g → +0.18 gold/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 15-20 min.",
+      "completed_date": "2026-05-23",
+      "notes": "Created imperialAstrolabeMaker.js system, added IMPERIAL_ASTROLABE_MAKER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialAstrolabeMakerSection() and handlers to questPanel.js (import * as AstrolabeMkr). Events.IMPERIAL_ASTROLABE_MAKER_CHANGED subscribed. Added astrolabe CSS (sky blue/cyan theme with amber purchase button)."
     }
   ],
   "session_history": [
@@ -1335,6 +1355,7 @@
     "Session 92 (T367-T368): Wandering Soap Maker (T367), Imperial Metalcaster (T368)",
     "Session 93 (T369-T370): Wandering Glove Maker (T369), Imperial Telescope Maker (T370)",
     "Session 94 (T371-T372): Wandering Paper Maker (T371), Imperial Coin Minter (T372)",
-    "Session 95 (T373-T374): Wandering Cartographer's Guild (T373), Imperial Spymaster (T374)"
+    "Session 95 (T373-T374): Wandering Cartographer's Guild (T373), Imperial Spymaster (T374)",
+    "Session 96 (T375-T376): Wandering Gem Polisher (T375), Imperial Astrolabe Maker (T376)"
   ]
 }

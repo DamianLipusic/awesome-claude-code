@@ -139,6 +139,8 @@ import * as PaperMaker    from '../systems/wanderingPaperMaker.js';       // T37
 import * as CoinMinter    from '../systems/imperialCoinMinter.js';        // T372
 import * as CartGuild    from '../systems/wanderingCartographerGuild.js'; // T373
 import * as Spymaster    from '../systems/imperialSpymaster.js';          // T374
+import * as GemPolisher  from '../systems/wanderingGemPolisher.js';       // T375
+import * as AstrolabeMkr from '../systems/imperialAstrolabeMaker.js';     // T376
 
 let _panel = null;
 
@@ -306,6 +308,8 @@ function _encountersSection() {
     _imperialCoinMinterSection(),
     _wanderingCartographerGuildSection(),
     _imperialSpymasterSection(),
+    _wanderingGemPolisherSection(),
+    _imperialAstrolabeMakerSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -4543,6 +4547,72 @@ function _imperialSpymasterSection() {
     </div>`;
 }
 
+function _wanderingGemPolisherSection() {
+  if (!GemPolisher.getActiveWanderingGemPolisher()) return '';
+  const secs          = GemPolisher.getGemPolisherSecsLeft();
+  const urgent        = secs <= 15;
+  const iron          = state.resources.iron  ?? 0;
+  const stone         = state.resources.stone ?? 0;
+  const gold          = state.resources.gold  ?? 0;
+  const canCommission = iron >= GemPolisher.COMMISSION_IRON_COST && stone >= GemPolisher.COMMISSION_STONE_COST;
+  const canPurchase   = gold >= GemPolisher.PURCHASE_GOLD_COST;
+  return `
+    <div class="gempolisher-section--active">
+      <div class="gempolisher-header">
+        <span class="gempolisher-title">💎 Wandering Gem Polisher</span>
+        <span class="gempolisher-timer${urgent ? ' gempolisher-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="gempolisher-desc">A skilled gem polisher arrives carrying a velvet-lined case of uncut stones, polishing wheels of finest emery cloth, and a portfolio of finished royal gems.</div>
+      <div class="gempolisher-actions">
+        <button class="btn--gempolisher-commission${canCommission ? '' : ' btn--disabled'}" data-action="gempolisher-commission" ${canCommission ? '' : 'disabled'}>
+          💎 Commission Royal Gem Collection — ${GemPolisher.COMMISSION_IRON_COST}⚙️ + ${GemPolisher.COMMISSION_STONE_COST}🪨
+          <span class="gempolisher-cost">→ +${GemPolisher.COMMISSION_IRON_RATE} iron/s (2.5 min) · +${GemPolisher.COMMISSION_PRESTIGE_REWARD} prestige · +${GemPolisher.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--gempolisher-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="gempolisher-purchase" ${canPurchase ? '' : 'disabled'}>
+          🔬 Purchase Polishing Techniques — ${GemPolisher.PURCHASE_GOLD_COST}💰
+          <span class="gempolisher-cost">→ +${GemPolisher.PURCHASE_STONE_RATE} stone/s (2 min) · +${GemPolisher.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--gempolisher-away" data-action="gempolisher-away">
+          🚶 Send Away
+          <span class="gempolisher-cost">→ Polisher departs with their velvet case</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _imperialAstrolabeMakerSection() {
+  if (!AstrolabeMkr.getActiveImperialAstrolabeMaker()) return '';
+  const secs          = AstrolabeMkr.getAstrolabeMakerSecsLeft();
+  const urgent        = secs <= 15;
+  const iron          = state.resources.iron ?? 0;
+  const mana          = state.resources.mana ?? 0;
+  const gold          = state.resources.gold ?? 0;
+  const canCommission = iron >= AstrolabeMkr.COMMISSION_IRON_COST && mana >= AstrolabeMkr.COMMISSION_MANA_COST;
+  const canPurchase   = gold >= AstrolabeMkr.PURCHASE_GOLD_COST;
+  return `
+    <div class="astrolabe-section--active">
+      <div class="astrolabe-header">
+        <span class="astrolabe-title">🌐 Imperial Astrolabe Maker</span>
+        <span class="astrolabe-timer${urgent ? ' astrolabe-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="astrolabe-desc">A master astrolabe maker arrives bearing intricately engraved brass astrolabes, celestial sphere models, and hand-drawn star charts of the observable heavens.</div>
+      <div class="astrolabe-actions">
+        <button class="btn--astrolabe-commission${canCommission ? '' : ' btn--disabled'}" data-action="astrolabe-commission" ${canCommission ? '' : 'disabled'}>
+          🌐 Commission Navigation Astrolabe — ${AstrolabeMkr.COMMISSION_IRON_COST}⚙️ + ${AstrolabeMkr.COMMISSION_MANA_COST}✨
+          <span class="astrolabe-cost">→ +${AstrolabeMkr.COMMISSION_MANA_RATE} mana/s (2.5 min) · +${AstrolabeMkr.COMMISSION_PRESTIGE_REWARD} prestige · +${AstrolabeMkr.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--astrolabe-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="astrolabe-purchase" ${canPurchase ? '' : 'disabled'}>
+          🗺️ Purchase Celestial Charts — ${AstrolabeMkr.PURCHASE_GOLD_COST}💰
+          <span class="astrolabe-cost">→ +${AstrolabeMkr.PURCHASE_GOLD_RATE} gold/s (2 min) · +${AstrolabeMkr.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--astrolabe-away" data-action="astrolabe-away">
+          🚶 Send Away
+          <span class="astrolabe-cost">→ Maker departs with the brass instruments</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -5052,6 +5122,14 @@ const _HANDLERS = {
   'spymaster-network':   () => Spymaster.commissionIntelligenceNetwork(),
   'spymaster-cipher':    () => Spymaster.purchaseCipherCodes(),
   'spymaster-away':      () => Spymaster.sendSpymasterAway(),
+
+  'gempolisher-commission': () => GemPolisher.commissionRoyalGemCollection(),
+  'gempolisher-purchase':   () => GemPolisher.purchasePolishingTechniques(),
+  'gempolisher-away':       () => GemPolisher.sendGemPolisherAway(),
+
+  'astrolabe-commission': () => AstrolabeMkr.commissionNavigationAstrolabe(),
+  'astrolabe-purchase':   () => AstrolabeMkr.purchaseCelestialCharts(),
+  'astrolabe-away':       () => AstrolabeMkr.sendAstrolabeMakerAway(),
 };
 
 function _handleClick(e) {
@@ -5198,6 +5276,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_COIN_MINTER_CHANGED,
     Events.WANDERING_CARTOGRAPHER_GUILD_CHANGED,
     Events.IMPERIAL_SPYMASTER_CHANGED,
+    Events.WANDERING_GEM_POLISHER_CHANGED,
+    Events.IMPERIAL_ASTROLABE_MAKER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);
