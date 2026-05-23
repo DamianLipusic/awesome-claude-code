@@ -324,4 +324,6 @@ export const Events = Object.freeze({
   IMPERIAL_SCRIVENER_CHANGED:               'imperialScrivenerChanged',                         // T380: scrivener spawned / commissioned / purchased / dismissed / expired
   WANDERING_MIRROR_MAKER_CHANGED:           'wanderingMirrorMakerChanged',                      // T381: mirror maker spawned / commissioned / purchased / dismissed / expired
   IMPERIAL_FLOWER_MERCHANT_CHANGED:         'imperialFlowerMerchantChanged',                    // T382: flower merchant spawned / arranged / purchased / dismissed / expired
+  WANDERING_DRESSMAKER_CHANGED:             'wanderingDressmakertChanged',                       // T383: dressmaker spawned / sewn / purchased / dismissed / expired
+  IMPERIAL_TILE_SETTER_CHANGED:             'imperialTileSetterChanged',                         // T384: tile setter spawned / commissioned / purchased / dismissed / expired
 });

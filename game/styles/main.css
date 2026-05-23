@@ -20823,3 +20823,81 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--flower-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T383: Wandering Dressmaker ─────────────────────────────────────────── */
+@keyframes dress-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0); }
+  50%       { box-shadow: 0 0 8px 2px rgba(236, 72, 153, 0.22); }
+}
+.dress-section--active {
+  background: linear-gradient(135deg, rgba(131, 24, 67, 0.18), rgba(236, 72, 153, 0.10));
+  border: 1px solid rgba(236, 72, 153, 0.32); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: dress-pulse 2.8s ease-in-out infinite;
+}
+.dress-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.dress-title  { font-weight: 700; font-size: 0.88rem; color: #f9a8d4; }
+.dress-timer  { font-size: 0.78rem; color: #ec4899; }
+.dress-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.dress-desc   { font-size: 0.78rem; color: #fce7f3; margin-bottom: 8px; line-height: 1.4; }
+.dress-actions { display: flex; flex-direction: column; gap: 5px; }
+.dress-cost   { display: block; font-size: 0.72rem; color: #f9a8d4; margin-top: 2px; }
+.btn--dress-sew {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(190, 24, 93, 0.22), rgba(131, 24, 67, 0.15));
+  border: 1px solid rgba(236, 72, 153, 0.38); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #f9a8d4; text-align: left; transition: background 0.15s;
+}
+.btn--dress-sew:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(190, 24, 93, 0.35), rgba(131, 24, 67, 0.25)); }
+.btn--dress-purchase {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(161, 132, 36, 0.22), rgba(120, 100, 20, 0.15));
+  border: 1px solid rgba(234, 179, 8, 0.35); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fbbf24; text-align: left; transition: background 0.15s;
+}
+.btn--dress-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(161, 132, 36, 0.35), rgba(120, 100, 20, 0.25)); }
+.btn--dress-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--dress-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T384: Imperial Tile Setter ─────────────────────────────────────────── */
+@keyframes tileset-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(251, 146, 60, 0); }
+  50%       { box-shadow: 0 0 8px 2px rgba(251, 146, 60, 0.22); }
+}
+.tileset-section--active {
+  background: linear-gradient(135deg, rgba(124, 45, 18, 0.18), rgba(251, 146, 60, 0.10));
+  border: 1px solid rgba(251, 146, 60, 0.32); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: tileset-pulse 2.8s ease-in-out infinite;
+}
+.tileset-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.tileset-title  { font-weight: 700; font-size: 0.88rem; color: #fdba74; }
+.tileset-timer  { font-size: 0.78rem; color: #f97316; }
+.tileset-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.tileset-desc   { font-size: 0.78rem; color: #fed7aa; margin-bottom: 8px; line-height: 1.4; }
+.tileset-actions { display: flex; flex-direction: column; gap: 5px; }
+.tileset-cost   { display: block; font-size: 0.72rem; color: #fdba74; margin-top: 2px; }
+.btn--tileset-commission {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(194, 65, 12, 0.22), rgba(124, 45, 18, 0.15));
+  border: 1px solid rgba(251, 146, 60, 0.38); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fdba74; text-align: left; transition: background 0.15s;
+}
+.btn--tileset-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(194, 65, 12, 0.35), rgba(124, 45, 18, 0.25)); }
+.btn--tileset-purchase {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(100, 116, 139, 0.22), rgba(71, 85, 105, 0.15));
+  border: 1px solid rgba(148, 163, 184, 0.35); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #cbd5e1; text-align: left; transition: background 0.15s;
+}
+.btn--tileset-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(100, 116, 139, 0.35), rgba(71, 85, 105, 0.25)); }
+.btn--tileset-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--tileset-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

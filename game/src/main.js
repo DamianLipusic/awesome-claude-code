@@ -324,6 +324,8 @@ import { initWanderingCoppersmith, wanderingCoppersmithTick }         from './sy
 import { initImperialScrivener, imperialScrivenerTick }               from './systems/imperialScrivener.js';           // T380
 import { initWanderingMirrorMaker, wanderingMirrorMakerTick }         from './systems/wanderingMirrorMaker.js';        // T381
 import { initImperialFlowerMerchant, imperialFlowerMerchantTick }     from './systems/imperialFlowerMerchant.js';      // T382
+import { initWanderingDressmaker, wanderingDressmakertick }           from './systems/wanderingDressmaker.js';          // T383
+import { initImperialTileSetter, imperialTileSetterTick }             from './systems/imperialTileSetter.js';           // T384
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -654,6 +656,8 @@ function _registerAllSystems() {
   registerSystem(imperialScrivenerTick);            // T380
   registerSystem(wanderingMirrorMakerTick);         // T381
   registerSystem(imperialFlowerMerchantTick);       // T382
+  registerSystem(wanderingDressmakertick);          // T383
+  registerSystem(imperialTileSetterTick);           // T384
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -969,6 +973,8 @@ function _save() {
     imperialScrivener:             state.imperialScrivener,             // T380
     wanderingMirrorMaker:          state.wanderingMirrorMaker,          // T381
     imperialFlowerMerchant:        state.imperialFlowerMerchant,        // T382
+    wanderingDressmaker:           state.wanderingDressmaker,           // T383
+    imperialTileSetter:            state.imperialTileSetter,            // T384
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -1289,6 +1295,8 @@ function _applySave(s) {
   state.imperialScrivener          = s.imperialScrivener ?? null;          // T380
   state.wanderingMirrorMaker       = s.wanderingMirrorMaker ?? null;       // T381
   state.imperialFlowerMerchant     = s.imperialFlowerMerchant ?? null;     // T382
+  state.wanderingDressmaker        = s.wanderingDressmaker ?? null;        // T383
+  state.imperialTileSetter         = s.imperialTileSetter ?? null;         // T384
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -1615,6 +1623,8 @@ function _startFreshGame() {
   initImperialScrivener();            // T380
   initWanderingMirrorMaker();         // T381
   initImperialFlowerMerchant();       // T382
+  initWanderingDressmaker();          // T383
+  initImperialTileSetter();           // T384
   initAchievements();
   initLeaderboard();
 }
@@ -1924,6 +1934,8 @@ function _startLoadedGame(savedData) {
   initImperialScrivener();            // T380
   initWanderingMirrorMaker();         // T381
   initImperialFlowerMerchant();       // T382
+  initWanderingDressmaker();          // T383
+  initImperialTileSetter();           // T384
   initAchievements();
   initLeaderboard();
 }

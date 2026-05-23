@@ -147,6 +147,8 @@ import * as Coppersmith    from '../systems/wanderingCoppersmith.js';       // T
 import * as Scrivener      from '../systems/imperialScrivener.js';          // T380
 import * as MirrorMaker    from '../systems/wanderingMirrorMaker.js';       // T381
 import * as FlowerMerchant from '../systems/imperialFlowerMerchant.js';     // T382
+import * as Dressmaker    from '../systems/wanderingDressmaker.js';         // T383
+import * as TileSetter    from '../systems/imperialTileSetter.js';          // T384
 
 let _panel = null;
 
@@ -322,6 +324,8 @@ function _encountersSection() {
     _imperialScrivenerSection(),
     _wanderingMirrorMakerSection(),
     _imperialFlowerMerchantSection(),
+    _wanderingDressmakertSection(),
+    _imperialTileSetterSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -4821,6 +4825,68 @@ function _imperialFlowerMerchantSection() {
     </div>`;
 }
 
+function _wanderingDressmakertSection() {
+  if (!Dressmaker.getActiveWanderingDressmaker()) return '';
+  const secs     = Dressmaker.getDressmakertSecsLeft();
+  const urgent   = secs <= 20;
+  const { food = 0, wood = 0, gold = 0 } = state.resources ?? {};
+  const canSew      = food >= Dressmaker.SEW_FOOD_COST && wood >= Dressmaker.SEW_WOOD_COST;
+  const canPurchase = gold >= Dressmaker.PURCHASE_GOLD_COST;
+  return `
+    <div class="dress-section--active">
+      <div class="dress-header">
+        <span class="dress-title">👗 Wandering Dressmaker</span>
+        <span class="dress-timer${urgent ? ' dress-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="dress-desc">A skilled wandering dressmaker arrives carrying bolts of fine fabric, silver needles, and ornate thread — offering to sew imperial gowns for the palace household, or to share prized dressmaking patterns with the court seamstresses.</div>
+      <div class="dress-actions">
+        <button class="btn--dress-sew${canSew ? '' : ' btn--disabled'}" data-action="dress-sew" ${canSew ? '' : 'disabled'}>
+          👗 Sew Imperial Gowns — ${Dressmaker.SEW_FOOD_COST}🌾 + ${Dressmaker.SEW_WOOD_COST}🪵
+          <span class="dress-cost">→ +${Dressmaker.SEW_FOOD_RATE} food/s (2.5 min) · +${Dressmaker.SEW_PRESTIGE_REWARD} prestige · +${Dressmaker.SEW_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--dress-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="dress-purchase" ${canPurchase ? '' : 'disabled'}>
+          🧵 Purchase Dressmaking Patterns — ${Dressmaker.PURCHASE_GOLD_COST}💰
+          <span class="dress-cost">→ +${Dressmaker.PURCHASE_GOLD_RATE} gold/s (2 min) · +${Dressmaker.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--dress-away" data-action="dress-away">
+          🚶 Send Away
+          <span class="dress-cost">→ Dressmaker departs with the bolts of fabric</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _imperialTileSetterSection() {
+  if (!TileSetter.getActiveImperialTileSetter()) return '';
+  const secs     = TileSetter.getTileSetterSecsLeft();
+  const urgent   = secs <= 20;
+  const { stone = 0, gold = 0, iron = 0 } = state.resources ?? {};
+  const canCommission = stone >= TileSetter.COMMISSION_STONE_COST && gold >= TileSetter.COMMISSION_GOLD_COST;
+  const canPurchase   = iron >= TileSetter.PURCHASE_IRON_COST;
+  return `
+    <div class="tileset-section--active">
+      <div class="tileset-header">
+        <span class="tileset-title">🏛️ Imperial Tile Setter</span>
+        <span class="tileset-timer${urgent ? ' tileset-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="tileset-desc">A master imperial tile setter arrives bearing hand-painted ceramic tiles, geometric pattern templates, and fine grout tools — offering to commission breathtaking mosaic tilework throughout the palace, or to share rare tile-laying techniques with the construction teams.</div>
+      <div class="tileset-actions">
+        <button class="btn--tileset-commission${canCommission ? '' : ' btn--disabled'}" data-action="tileset-commission" ${canCommission ? '' : 'disabled'}>
+          🏛️ Commission Imperial Tilework — ${TileSetter.COMMISSION_STONE_COST}🪨 + ${TileSetter.COMMISSION_GOLD_COST}💰
+          <span class="tileset-cost">→ +${TileSetter.COMMISSION_STONE_RATE} stone/s (2.5 min) · +${TileSetter.COMMISSION_PRESTIGE_REWARD} prestige · +${TileSetter.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--tileset-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="tileset-purchase" ${canPurchase ? '' : 'disabled'}>
+          🎨 Purchase Tile Patterns — ${TileSetter.PURCHASE_IRON_COST}⚙️
+          <span class="tileset-cost">→ +${TileSetter.PURCHASE_IRON_RATE} iron/s (2 min) · +${TileSetter.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--tileset-away" data-action="tileset-away">
+          🚶 Send Away
+          <span class="tileset-cost">→ Tile setter departs with the ceramic samples</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -5362,6 +5428,14 @@ const _HANDLERS = {
   'flower-arrange':  () => FlowerMerchant.arrangeImperialGardens(),
   'flower-purchase': () => FlowerMerchant.purchaseSeasonalBlooms(),
   'flower-away':     () => FlowerMerchant.sendFlowerMerchantAway(),
+
+  'dress-sew':      () => Dressmaker.sewImperialGowns(),
+  'dress-purchase': () => Dressmaker.purchaseDressmakingPatterns(),
+  'dress-away':     () => Dressmaker.sendDressmakertAway(),
+
+  'tileset-commission': () => TileSetter.commissionImperialTilework(),
+  'tileset-purchase':   () => TileSetter.purchaseTilePatterns(),
+  'tileset-away':       () => TileSetter.sendTileSetterAway(),
 };
 
 function _handleClick(e) {
@@ -5516,6 +5590,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_SCRIVENER_CHANGED,
     Events.WANDERING_MIRROR_MAKER_CHANGED,
     Events.IMPERIAL_FLOWER_MERCHANT_CHANGED,
+    Events.WANDERING_DRESSMAKER_CHANGED,
+    Events.IMPERIAL_TILE_SETTER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);
