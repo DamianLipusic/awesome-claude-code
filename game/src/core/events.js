@@ -313,5 +313,7 @@ export const Events = Object.freeze({
   WANDERING_GLOVE_MAKER_CHANGED:    'wanderingGloveMakerChanged',                // T369: glove maker spawned / craft / purchase / dismissed / expired
   IMPERIAL_TELESCOPE_MAKER_CHANGED: 'imperialTelescopeMakerChanged',             // T370: telescope maker spawned / commission / purchase / dismissed / expired
   WANDERING_PAPER_MAKER_CHANGED:    'wanderingPaperMakerChanged',                // T371: paper maker spawned / commission / purchase / dismissed / expired
-  IMPERIAL_COIN_MINTER_CHANGED:     'imperialCoinMinterChanged',                 // T372: coin minter spawned / commission / purchase / dismissed / expired
+  IMPERIAL_COIN_MINTER_CHANGED:              'imperialCoinMinterChanged',                       // T372: coin minter spawned / commission / purchase / dismissed / expired
+  WANDERING_CARTOGRAPHER_GUILD_CHANGED:      'wanderingCartographerGuildChanged',               // T373: guild spawned / surveyed / purchased / dismissed / expired
+  IMPERIAL_SPYMASTER_CHANGED:                'imperialSpymasterChanged',                        // T374: spymaster spawned / commissioned / purchased / dismissed / expired
 });

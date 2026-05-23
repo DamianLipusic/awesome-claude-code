@@ -137,6 +137,8 @@ import * as GloveMaker    from '../systems/wanderingGloveMaker.js';      // T369
 import * as TelescopeMkr  from '../systems/imperialTelescopeMaker.js';   // T370
 import * as PaperMaker    from '../systems/wanderingPaperMaker.js';       // T371
 import * as CoinMinter    from '../systems/imperialCoinMinter.js';        // T372
+import * as CartGuild    from '../systems/wanderingCartographerGuild.js'; // T373
+import * as Spymaster    from '../systems/imperialSpymaster.js';          // T374
 
 let _panel = null;
 
@@ -302,6 +304,8 @@ function _encountersSection() {
     _imperialTelescopeMakerSection(),
     _wanderingPaperMakerSection(),
     _imperialCoinMinterSection(),
+    _wanderingCartographerGuildSection(),
+    _imperialSpymasterSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -4474,6 +4478,71 @@ function _imperialCoinMinterSection() {
     </div>`;
 }
 
+function _wanderingCartographerGuildSection() {
+  if (!CartGuild.getActiveCartographerGuild()) return '';
+  const secs           = CartGuild.getCartographerGuildSecsLeft();
+  const urgent         = secs <= 15;
+  const gold           = state.resources.gold  ?? 0;
+  const wood           = state.resources.wood  ?? 0;
+  const canSurvey      = wood >= CartGuild.SURVEY_WOOD_COST && gold >= CartGuild.SURVEY_GOLD_COST;
+  const canPurchase    = gold >= CartGuild.PURCHASE_GOLD_COST;
+  return `
+    <div class="cartguild-section--active">
+      <div class="cartguild-header">
+        <span class="cartguild-title">🗺️ Wandering Cartographer's Guild</span>
+        <span class="cartguild-timer${urgent ? ' cartguild-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="cartguild-desc">A guild of cartographers arrives bearing rolled parchment surveys and brass instruments, offering to chart the surrounding territory or sell their precision surveying tools.</div>
+      <div class="cartguild-actions">
+        <button class="btn--cartguild-survey${canSurvey ? '' : ' btn--disabled'}" data-action="cartguild-survey" ${canSurvey ? '' : 'disabled'}>
+          🗺️ Commission Regional Survey — ${CartGuild.SURVEY_WOOD_COST}🪵 + ${CartGuild.SURVEY_GOLD_COST}💰
+          <span class="cartguild-cost">→ +${CartGuild.SURVEY_WOOD_RATE} wood/s (2.5 min) · +${CartGuild.SURVEY_PRESTIGE_REWARD} prestige · +${CartGuild.SURVEY_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--cartguild-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="cartguild-purchase" ${canPurchase ? '' : 'disabled'}>
+          🔭 Purchase Surveying Instruments — ${CartGuild.PURCHASE_GOLD_COST}💰
+          <span class="cartguild-cost">→ +${CartGuild.PURCHASE_GOLD_RATE} gold/s (2 min) · +${CartGuild.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--cartguild-away" data-action="cartguild-away">
+          🚶 Send Away
+          <span class="cartguild-cost">→ Guild departs with their instruments</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _imperialSpymasterSection() {
+  if (!Spymaster.getActiveImperialSpymaster()) return '';
+  const secs           = Spymaster.getSpymasterSecsLeft();
+  const urgent         = secs <= 15;
+  const iron           = state.resources.iron ?? 0;
+  const gold           = state.resources.gold ?? 0;
+  const mana           = state.resources.mana ?? 0;
+  const canCommission  = iron >= Spymaster.COMMISSION_IRON_COST && gold >= Spymaster.COMMISSION_GOLD_COST;
+  const canPurchase    = mana >= Spymaster.PURCHASE_MANA_COST;
+  return `
+    <div class="spymaster-section--active">
+      <div class="spymaster-header">
+        <span class="spymaster-title">🕵️ Imperial Spymaster</span>
+        <span class="spymaster-timer${urgent ? ' spymaster-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="spymaster-desc">A cloaked spymaster slips through the servants' entrance bearing intelligence dossiers and cipher tablets, offering to establish a hidden network or sell advanced cipher codes.</div>
+      <div class="spymaster-actions">
+        <button class="btn--spymaster-network${canCommission ? '' : ' btn--disabled'}" data-action="spymaster-network" ${canCommission ? '' : 'disabled'}>
+          🕵️ Commission Intelligence Network — ${Spymaster.COMMISSION_IRON_COST}⚙️ + ${Spymaster.COMMISSION_GOLD_COST}💰
+          <span class="spymaster-cost">→ +${Spymaster.COMMISSION_IRON_RATE} iron/s (2.5 min) · +${Spymaster.COMMISSION_PRESTIGE_REWARD} prestige · +${Spymaster.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--spymaster-cipher${canPurchase ? '' : ' btn--disabled'}" data-action="spymaster-cipher" ${canPurchase ? '' : 'disabled'}>
+          📜 Purchase Cipher Codes — ${Spymaster.PURCHASE_MANA_COST}✨
+          <span class="spymaster-cost">→ +${Spymaster.PURCHASE_MANA_RATE} mana/s (2 min) · +${Spymaster.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--spymaster-away" data-action="spymaster-away">
+          🚶 Send Away
+          <span class="spymaster-cost">→ Spymaster slips back into the shadows</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -4975,6 +5044,14 @@ const _HANDLERS = {
   'coinminter-commission':   () => CoinMinter.commissionGoldenCoins(),
   'coinminter-purchase':     () => CoinMinter.purchaseMintingSecrets(),
   'coinminter-away':         () => CoinMinter.sendCoinMinterAway(),
+
+  'cartguild-survey':    () => CartGuild.commissionRegionalSurvey(),
+  'cartguild-purchase':  () => CartGuild.purchaseSurveyingInstruments(),
+  'cartguild-away':      () => CartGuild.sendCartographerGuildAway(),
+
+  'spymaster-network':   () => Spymaster.commissionIntelligenceNetwork(),
+  'spymaster-cipher':    () => Spymaster.purchaseCipherCodes(),
+  'spymaster-away':      () => Spymaster.sendSpymasterAway(),
 };
 
 function _handleClick(e) {
@@ -5119,6 +5196,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_TELESCOPE_MAKER_CHANGED,
     Events.WANDERING_PAPER_MAKER_CHANGED,
     Events.IMPERIAL_COIN_MINTER_CHANGED,
+    Events.WANDERING_CARTOGRAPHER_GUILD_CHANGED,
+    Events.IMPERIAL_SPYMASTER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

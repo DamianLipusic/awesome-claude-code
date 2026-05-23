@@ -1240,6 +1240,26 @@
       "description": "Periodic imperial coin minter encounter: commission golden coins (25 iron + 20g → +0.22 iron/s 2.5min +22 prestige +12 morale), purchase minting secrets (20 stone → +0.18 stone/s 2min +15 prestige), send away. Iron Age+, 10+ tiles, 14-18 min.",
       "completed_date": "2026-05-22",
       "notes": "Created imperialCoinMinter.js system, added IMPERIAL_COIN_MINTER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialCoinMinterSection() and handlers to questPanel.js (import * as CoinMinter). Events.IMPERIAL_COIN_MINTER_CHANGED subscribed. Added coinminter CSS (gold/amber theme with slate purchase button)."
+    },
+    {
+      "id": "T373",
+      "title": "Wandering Cartographer's Guild",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic wandering cartographer's guild encounter: commission regional survey (25 wood + 15g → +0.22 wood/s 2.5min +20 prestige +8 morale), purchase surveying instruments (20g → +0.15 gold/s 2min +12 prestige), send away. Bronze Age+, 8+ tiles, 12-17 min.",
+      "completed_date": "2026-05-23",
+      "notes": "Created wanderingCartographerGuild.js system, added WANDERING_CARTOGRAPHER_GUILD_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingCartographerGuildSection() and handlers to questPanel.js (import * as CartGuild). Events.WANDERING_CARTOGRAPHER_GUILD_CHANGED subscribed. Added cartguild CSS (teal/cyan theme with amber purchase button)."
+    },
+    {
+      "id": "T374",
+      "title": "Imperial Spymaster",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic imperial spymaster encounter: commission intelligence network (30 iron + 20g → +0.22 iron/s 2.5min +25 prestige +10 morale), purchase cipher codes (25 mana → +0.20 mana/s 2min +18 prestige), send away. Iron Age+, 12+ tiles, 15-20 min.",
+      "completed_date": "2026-05-23",
+      "notes": "Created imperialSpymaster.js system, added IMPERIAL_SPYMASTER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialSpymasterSection() and handlers to questPanel.js (import * as Spymaster). Events.IMPERIAL_SPYMASTER_CHANGED subscribed. Added spymaster CSS (indigo/violet theme with light purple cipher button)."
     }
   ],
   "session_history": [
@@ -1314,6 +1334,7 @@
     "Session 91 (T365-T366): Wandering Oil Merchant (T365), Imperial Quarryman (T366)",
     "Session 92 (T367-T368): Wandering Soap Maker (T367), Imperial Metalcaster (T368)",
     "Session 93 (T369-T370): Wandering Glove Maker (T369), Imperial Telescope Maker (T370)",
-    "Session 94 (T371-T372): Wandering Paper Maker (T371), Imperial Coin Minter (T372)"
+    "Session 94 (T371-T372): Wandering Paper Maker (T371), Imperial Coin Minter (T372)",
+    "Session 95 (T373-T374): Wandering Cartographer's Guild (T373), Imperial Spymaster (T374)"
   ]
 }
