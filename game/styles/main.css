@@ -20589,3 +20589,81 @@ kbd {
 }
 .btn--astrolabe-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
 .btn--spymaster-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T377: Wandering Locksmith ──────────────────────────────────────────────── */
+@keyframes locksmith-pulse {
+  0%, 100% { box-shadow: 0 0 6px rgba(71, 85, 105, 0.35), 0 0 12px rgba(100, 116, 139, 0.18); }
+  50%       { box-shadow: 0 0 10px rgba(71, 85, 105, 0.55), 0 0 20px rgba(100, 116, 139, 0.30); }
+}
+.locksmith-section--active {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.55), rgba(15, 23, 42, 0.40));
+  border: 1px solid rgba(100, 116, 139, 0.38); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: locksmith-pulse 2.8s ease-in-out infinite;
+}
+.locksmith-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.locksmith-title  { font-weight: 700; font-size: 0.88rem; color: #94a3b8; }
+.locksmith-timer  { font-size: 0.78rem; color: #64748b; }
+.locksmith-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.locksmith-desc   { font-size: 0.78rem; color: #cbd5e1; margin-bottom: 8px; line-height: 1.4; }
+.locksmith-actions { display: flex; flex-direction: column; gap: 5px; }
+.locksmith-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--locksmith-forge {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(71, 85, 105, 0.22), rgba(51, 65, 85, 0.15));
+  border: 1px solid rgba(100, 116, 139, 0.40); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #cbd5e1; text-align: left; transition: background 0.15s;
+}
+.btn--locksmith-forge:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(71, 85, 105, 0.35), rgba(51, 65, 85, 0.25)); }
+.btn--locksmith-share {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(234, 179, 8, 0.16), rgba(202, 138, 4, 0.10));
+  border: 1px solid rgba(234, 179, 8, 0.30); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fde68a; text-align: left; transition: background 0.15s;
+}
+.btn--locksmith-share:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(234, 179, 8, 0.26), rgba(202, 138, 4, 0.18)); }
+.btn--locksmith-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--locksmith-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T378: Imperial Calligrapher ────────────────────────────────────────────── */
+@keyframes calligrapher-pulse {
+  0%, 100% { box-shadow: 0 0 6px rgba(99, 102, 241, 0.35), 0 0 12px rgba(139, 92, 246, 0.18); }
+  50%       { box-shadow: 0 0 10px rgba(99, 102, 241, 0.55), 0 0 20px rgba(139, 92, 246, 0.30); }
+}
+.calligrapher-section--active {
+  background: linear-gradient(135deg, rgba(30, 27, 75, 0.55), rgba(15, 12, 50, 0.40));
+  border: 1px solid rgba(139, 92, 246, 0.38); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: calligrapher-pulse 2.8s ease-in-out infinite;
+}
+.calligrapher-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.calligrapher-title  { font-weight: 700; font-size: 0.88rem; color: #c4b5fd; }
+.calligrapher-timer  { font-size: 0.78rem; color: #a78bfa; }
+.calligrapher-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.calligrapher-desc   { font-size: 0.78rem; color: #ede9fe; margin-bottom: 8px; line-height: 1.4; }
+.calligrapher-actions { display: flex; flex-direction: column; gap: 5px; }
+.calligrapher-cost   { display: block; font-size: 0.72rem; color: #a78bfa; margin-top: 2px; }
+.btn--calligrapher-commission {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.22), rgba(79, 70, 229, 0.15));
+  border: 1px solid rgba(139, 92, 246, 0.40); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #ddd6fe; text-align: left; transition: background 0.15s;
+}
+.btn--calligrapher-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(99, 102, 241, 0.35), rgba(79, 70, 229, 0.25)); }
+.btn--calligrapher-purchase {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(234, 179, 8, 0.16), rgba(202, 138, 4, 0.10));
+  border: 1px solid rgba(234, 179, 8, 0.30); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fde68a; text-align: left; transition: background 0.15s;
+}
+.btn--calligrapher-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(234, 179, 8, 0.26), rgba(202, 138, 4, 0.18)); }
+.btn--calligrapher-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--calligrapher-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

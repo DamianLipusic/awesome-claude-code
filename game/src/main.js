@@ -318,6 +318,8 @@ import { initWanderingCartographerGuild, wanderingCartographerGuildTick } from '
 import { initImperialSpymaster, imperialSpymasterTick }               from './systems/imperialSpymaster.js';          // T374
 import { initWanderingGemPolisher, wanderingGemPolisherTick }         from './systems/wanderingGemPolisher.js';        // T375
 import { initImperialAstrolabeMaker, imperialAstrolabeMakerTick }     from './systems/imperialAstrolabeMaker.js';      // T376
+import { initWanderingLocksmith, wanderingLocksmithTick }             from './systems/wanderingLocksmith.js';          // T377
+import { initImperialCalligrapher, imperialCalligrapherTick }         from './systems/imperialCalligrapher.js';        // T378
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -642,6 +644,8 @@ function _registerAllSystems() {
   registerSystem(imperialSpymasterTick);            // T374
   registerSystem(wanderingGemPolisherTick);         // T375
   registerSystem(imperialAstrolabeMakerTick);       // T376
+  registerSystem(wanderingLocksmithTick);           // T377
+  registerSystem(imperialCalligrapherTick);         // T378
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -951,6 +955,8 @@ function _save() {
     imperialSpymaster:             state.imperialSpymaster,             // T374
     wanderingGemPolisher:          state.wanderingGemPolisher,          // T375
     imperialAstrolabeMaker:        state.imperialAstrolabeMaker,        // T376
+    wanderingLocksmith:            state.wanderingLocksmith,            // T377
+    imperialCalligrapher:          state.imperialCalligrapher,          // T378
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -1265,6 +1271,8 @@ function _applySave(s) {
   state.imperialSpymaster          = s.imperialSpymaster ?? null;          // T374
   state.wanderingGemPolisher       = s.wanderingGemPolisher ?? null;       // T375
   state.imperialAstrolabeMaker     = s.imperialAstrolabeMaker ?? null;     // T376
+  state.wanderingLocksmith         = s.wanderingLocksmith ?? null;         // T377
+  state.imperialCalligrapher       = s.imperialCalligrapher ?? null;       // T378
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -1585,6 +1593,8 @@ function _startFreshGame() {
   initImperialSpymaster();            // T374
   initWanderingGemPolisher();         // T375
   initImperialAstrolabeMaker();       // T376
+  initWanderingLocksmith();           // T377
+  initImperialCalligrapher();         // T378
   initAchievements();
   initLeaderboard();
 }
@@ -1888,6 +1898,8 @@ function _startLoadedGame(savedData) {
   initImperialSpymaster();            // T374
   initWanderingGemPolisher();         // T375
   initImperialAstrolabeMaker();       // T376
+  initWanderingLocksmith();           // T377
+  initImperialCalligrapher();         // T378
   initAchievements();
   initLeaderboard();
 }

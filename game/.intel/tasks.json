@@ -1280,6 +1280,26 @@
       "description": "Periodic imperial astrolabe maker encounter: commission navigation astrolabe (25 iron + 20 mana → +0.22 mana/s 2.5min +22 prestige +10 morale), purchase celestial charts (22g → +0.18 gold/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 15-20 min.",
       "completed_date": "2026-05-23",
       "notes": "Created imperialAstrolabeMaker.js system, added IMPERIAL_ASTROLABE_MAKER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialAstrolabeMakerSection() and handlers to questPanel.js (import * as AstrolabeMkr). Events.IMPERIAL_ASTROLABE_MAKER_CHANGED subscribed. Added astrolabe CSS (sky blue/cyan theme with amber purchase button)."
+    },
+    {
+      "id": "T377",
+      "title": "Wandering Locksmith",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic wandering locksmith encounter: craft imperial vault locks (20 iron + 15 stone → +0.22 iron/s 2.5min +20 prestige +10 morale), share lock-making craft (18g → +0.15 gold/s 2min +12 prestige), send away. Iron Age+, 10+ tiles, 13-18 min.",
+      "completed_date": "2026-05-23",
+      "notes": "Created wanderingLocksmith.js system, added WANDERING_LOCKSMITH_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingLocksmithSection() and handlers to questPanel.js (import * as Locksmith). Events.WANDERING_LOCKSMITH_CHANGED subscribed. Added locksmith CSS (slate/steel-blue theme with amber share button)."
+    },
+    {
+      "id": "T378",
+      "title": "Imperial Calligrapher",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic imperial calligrapher encounter: commission imperial decrees (25 mana + 20g → +0.25 mana/s 2.5min +22 prestige +8 morale), purchase script collection (20g → +0.18 gold/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-19 min.",
+      "completed_date": "2026-05-23",
+      "notes": "Created imperialCalligrapher.js system, added IMPERIAL_CALLIGRAPHER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialCalligrapherSection() and handlers to questPanel.js (import * as Calligrapher). Events.IMPERIAL_CALLIGRAPHER_CHANGED subscribed. Added calligrapher CSS (indigo/violet theme with amber purchase button)."
     }
   ],
   "session_history": [
@@ -1356,6 +1376,7 @@
     "Session 93 (T369-T370): Wandering Glove Maker (T369), Imperial Telescope Maker (T370)",
     "Session 94 (T371-T372): Wandering Paper Maker (T371), Imperial Coin Minter (T372)",
     "Session 95 (T373-T374): Wandering Cartographer's Guild (T373), Imperial Spymaster (T374)",
-    "Session 96 (T375-T376): Wandering Gem Polisher (T375), Imperial Astrolabe Maker (T376)"
+    "Session 96 (T375-T376): Wandering Gem Polisher (T375), Imperial Astrolabe Maker (T376)",
+    "Session 97 (T377-T378): Wandering Locksmith (T377), Imperial Calligrapher (T378)"
   ]
 }

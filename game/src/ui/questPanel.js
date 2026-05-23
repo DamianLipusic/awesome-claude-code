@@ -141,6 +141,8 @@ import * as CartGuild    from '../systems/wanderingCartographerGuild.js'; // T37
 import * as Spymaster    from '../systems/imperialSpymaster.js';          // T374
 import * as GemPolisher  from '../systems/wanderingGemPolisher.js';       // T375
 import * as AstrolabeMkr from '../systems/imperialAstrolabeMaker.js';     // T376
+import * as Locksmith    from '../systems/wanderingLocksmith.js';         // T377
+import * as Calligrapher from '../systems/imperialCalligrapher.js';       // T378
 
 let _panel = null;
 
@@ -310,6 +312,8 @@ function _encountersSection() {
     _imperialSpymasterSection(),
     _wanderingGemPolisherSection(),
     _imperialAstrolabeMakerSection(),
+    _wanderingLocksmithSection(),
+    _imperialCalligrapherSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -4613,6 +4617,71 @@ function _imperialAstrolabeMakerSection() {
     </div>`;
 }
 
+function _wanderingLocksmithSection() {
+  if (!Locksmith.getActiveWanderingLocksmith()) return '';
+  const secs       = Locksmith.getLocksmithSecsLeft();
+  const urgent     = secs <= 15;
+  const iron       = state.resources.iron  ?? 0;
+  const stone      = state.resources.stone ?? 0;
+  const gold       = state.resources.gold  ?? 0;
+  const canForge   = iron >= Locksmith.FORGE_IRON_COST && stone >= Locksmith.FORGE_STONE_COST;
+  const canShare   = gold >= Locksmith.SHARE_GOLD_COST;
+  return `
+    <div class="locksmith-section--active">
+      <div class="locksmith-header">
+        <span class="locksmith-title">🔐 Wandering Locksmith</span>
+        <span class="locksmith-timer${urgent ? ' locksmith-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="locksmith-desc">A master locksmith arrives bearing a leather satchel of precision-crafted iron picks, tumblers, and intricate vault mechanisms from distant workshops.</div>
+      <div class="locksmith-actions">
+        <button class="btn--locksmith-forge${canForge ? '' : ' btn--disabled'}" data-action="locksmith-forge" ${canForge ? '' : 'disabled'}>
+          🔐 Craft Imperial Vault Locks — ${Locksmith.FORGE_IRON_COST}⚙️ + ${Locksmith.FORGE_STONE_COST}🪨
+          <span class="locksmith-cost">→ +${Locksmith.FORGE_IRON_RATE} iron/s (2.5 min) · +${Locksmith.FORGE_PRESTIGE_REWARD} prestige · +${Locksmith.FORGE_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--locksmith-share${canShare ? '' : ' btn--disabled'}" data-action="locksmith-share" ${canShare ? '' : 'disabled'}>
+          🗝️ Share Lock-Making Craft — ${Locksmith.SHARE_GOLD_COST}💰
+          <span class="locksmith-cost">→ +${Locksmith.SHARE_GOLD_RATE} gold/s (2 min) · +${Locksmith.SHARE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--locksmith-away" data-action="locksmith-away">
+          🚶 Send Away
+          <span class="locksmith-cost">→ Locksmith departs with the iron tumblers</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _imperialCalligrapherSection() {
+  if (!Calligrapher.getActiveImperialCalligrapher()) return '';
+  const secs            = Calligrapher.getCalligrapherSecsLeft();
+  const urgent          = secs <= 15;
+  const mana            = state.resources.mana ?? 0;
+  const gold            = state.resources.gold ?? 0;
+  const canCommission   = mana >= Calligrapher.COMMISSION_MANA_COST && gold >= Calligrapher.COMMISSION_GOLD_COST;
+  const canPurchase     = gold >= Calligrapher.PURCHASE_GOLD_COST;
+  return `
+    <div class="calligrapher-section--active">
+      <div class="calligrapher-header">
+        <span class="calligrapher-title">✒️ Imperial Calligrapher</span>
+        <span class="calligrapher-timer${urgent ? ' calligrapher-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="calligrapher-desc">A renowned imperial calligrapher arrives bearing ornate brushes, hand-ground ink stones, and rolls of finest vellum for inscribing elaborate imperial decrees in gilded script.</div>
+      <div class="calligrapher-actions">
+        <button class="btn--calligrapher-commission${canCommission ? '' : ' btn--disabled'}" data-action="calligrapher-commission" ${canCommission ? '' : 'disabled'}>
+          ✒️ Commission Imperial Decrees — ${Calligrapher.COMMISSION_MANA_COST}✨ + ${Calligrapher.COMMISSION_GOLD_COST}💰
+          <span class="calligrapher-cost">→ +${Calligrapher.COMMISSION_MANA_RATE} mana/s (2.5 min) · +${Calligrapher.COMMISSION_PRESTIGE_REWARD} prestige · +${Calligrapher.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--calligrapher-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="calligrapher-purchase" ${canPurchase ? '' : 'disabled'}>
+          📜 Purchase Script Collection — ${Calligrapher.PURCHASE_GOLD_COST}💰
+          <span class="calligrapher-cost">→ +${Calligrapher.PURCHASE_GOLD_RATE} gold/s (2 min) · +${Calligrapher.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--calligrapher-away" data-action="calligrapher-away">
+          🚶 Send Away
+          <span class="calligrapher-cost">→ Calligrapher departs with the ink stones</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -5130,6 +5199,14 @@ const _HANDLERS = {
   'astrolabe-commission': () => AstrolabeMkr.commissionNavigationAstrolabe(),
   'astrolabe-purchase':   () => AstrolabeMkr.purchaseCelestialCharts(),
   'astrolabe-away':       () => AstrolabeMkr.sendAstrolabeMakerAway(),
+
+  'locksmith-forge':  () => Locksmith.craftImperialVaultLocks(),
+  'locksmith-share':  () => Locksmith.shareLockMakingCraft(),
+  'locksmith-away':   () => Locksmith.sendLocksmithAway(),
+
+  'calligrapher-commission': () => Calligrapher.commissionImperialDecrees(),
+  'calligrapher-purchase':   () => Calligrapher.purchaseScriptCollection(),
+  'calligrapher-away':       () => Calligrapher.sendCalligrapherAway(),
 };
 
 function _handleClick(e) {
@@ -5278,6 +5355,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_SPYMASTER_CHANGED,
     Events.WANDERING_GEM_POLISHER_CHANGED,
     Events.IMPERIAL_ASTROLABE_MAKER_CHANGED,
+    Events.WANDERING_LOCKSMITH_CHANGED,
+    Events.IMPERIAL_CALLIGRAPHER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

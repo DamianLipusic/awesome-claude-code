@@ -318,4 +318,6 @@ export const Events = Object.freeze({
   IMPERIAL_SPYMASTER_CHANGED:                'imperialSpymasterChanged',                        // T374: spymaster spawned / commissioned / purchased / dismissed / expired
   WANDERING_GEM_POLISHER_CHANGED:           'wanderingGemPolisherChanged',                     // T375: gem polisher spawned / commissioned / purchased / dismissed / expired
   IMPERIAL_ASTROLABE_MAKER_CHANGED:         'imperialAstrolabeMakerChanged',                   // T376: astrolabe maker spawned / commissioned / purchased / dismissed / expired
+  WANDERING_LOCKSMITH_CHANGED:              'wanderingLocksmithChanged',                        // T377: locksmith spawned / forged / shared / dismissed / expired
+  IMPERIAL_CALLIGRAPHER_CHANGED:            'imperialCalligrapherChanged',                      // T378: calligrapher spawned / commissioned / purchased / dismissed / expired
 });
