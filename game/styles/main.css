@@ -20667,3 +20667,81 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--calligrapher-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T379: Wandering Coppersmith ─────────────────────────────────────────── */
+@keyframes coppersmith-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(194, 120, 60, 0); }
+  50%       { box-shadow: 0 0 8px 2px rgba(194, 120, 60, 0.22); }
+}
+.coppersmith-section--active {
+  background: linear-gradient(135deg, rgba(120, 60, 20, 0.18), rgba(194, 120, 60, 0.10));
+  border: 1px solid rgba(194, 120, 60, 0.32); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: coppersmith-pulse 2.8s ease-in-out infinite;
+}
+.coppersmith-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.coppersmith-title  { font-weight: 700; font-size: 0.88rem; color: #d97706; }
+.coppersmith-timer  { font-size: 0.78rem; color: #b45309; }
+.coppersmith-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.coppersmith-desc   { font-size: 0.78rem; color: #fde68a; margin-bottom: 8px; line-height: 1.4; }
+.coppersmith-actions { display: flex; flex-direction: column; gap: 5px; }
+.coppersmith-cost   { display: block; font-size: 0.72rem; color: #d97706; margin-top: 2px; }
+.btn--coppersmith-commission {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(194, 120, 60, 0.22), rgba(146, 80, 30, 0.15));
+  border: 1px solid rgba(194, 120, 60, 0.38); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fbbf24; text-align: left; transition: background 0.15s;
+}
+.btn--coppersmith-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(194, 120, 60, 0.35), rgba(146, 80, 30, 0.25)); }
+.btn--coppersmith-purchase {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(71, 85, 105, 0.22), rgba(51, 65, 85, 0.15));
+  border: 1px solid rgba(100, 116, 139, 0.35); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #94a3b8; text-align: left; transition: background 0.15s;
+}
+.btn--coppersmith-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(71, 85, 105, 0.35), rgba(51, 65, 85, 0.25)); }
+.btn--coppersmith-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--coppersmith-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T380: Imperial Scrivener ────────────────────────────────────────────── */
+@keyframes scrivener-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(20, 148, 132, 0); }
+  50%       { box-shadow: 0 0 8px 2px rgba(20, 148, 132, 0.22); }
+}
+.scrivener-section--active {
+  background: linear-gradient(135deg, rgba(10, 80, 70, 0.18), rgba(20, 148, 132, 0.10));
+  border: 1px solid rgba(20, 148, 132, 0.32); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: scrivener-pulse 2.8s ease-in-out infinite;
+}
+.scrivener-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.scrivener-title  { font-weight: 700; font-size: 0.88rem; color: #2dd4bf; }
+.scrivener-timer  { font-size: 0.78rem; color: #14b8a6; }
+.scrivener-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.scrivener-desc   { font-size: 0.78rem; color: #ccfbf1; margin-bottom: 8px; line-height: 1.4; }
+.scrivener-actions { display: flex; flex-direction: column; gap: 5px; }
+.scrivener-cost   { display: block; font-size: 0.72rem; color: #2dd4bf; margin-top: 2px; }
+.btn--scrivener-commission {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(20, 148, 132, 0.22), rgba(13, 100, 90, 0.15));
+  border: 1px solid rgba(20, 148, 132, 0.38); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #5eead4; text-align: left; transition: background 0.15s;
+}
+.btn--scrivener-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(20, 148, 132, 0.35), rgba(13, 100, 90, 0.25)); }
+.btn--scrivener-purchase {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(74, 134, 58, 0.22), rgba(54, 104, 38, 0.15));
+  border: 1px solid rgba(74, 134, 58, 0.35); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #86efac; text-align: left; transition: background 0.15s;
+}
+.btn--scrivener-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(74, 134, 58, 0.35), rgba(54, 104, 38, 0.25)); }
+.btn--scrivener-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--scrivener-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

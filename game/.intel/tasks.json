@@ -1300,6 +1300,26 @@
       "description": "Periodic imperial calligrapher encounter: commission imperial decrees (25 mana + 20g → +0.25 mana/s 2.5min +22 prestige +8 morale), purchase script collection (20g → +0.18 gold/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-19 min.",
       "completed_date": "2026-05-23",
       "notes": "Created imperialCalligrapher.js system, added IMPERIAL_CALLIGRAPHER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialCalligrapherSection() and handlers to questPanel.js (import * as Calligrapher). Events.IMPERIAL_CALLIGRAPHER_CHANGED subscribed. Added calligrapher CSS (indigo/violet theme with amber purchase button)."
+    },
+    {
+      "id": "T379",
+      "title": "Wandering Coppersmith",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic wandering coppersmith encounter: commission copper tools (20 iron + 15g → +0.20 iron/s 2.5min +18 prestige +10 morale), purchase coppersmith secrets (18 stone → +0.15 stone/s 2min +12 prestige), send away. Bronze Age+, 8+ tiles, 12-17 min.",
+      "completed_date": "2026-05-23",
+      "notes": "Created wanderingCoppersmith.js system, added WANDERING_COPPERSMITH_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingCoppersmithSection() and handlers to questPanel.js (import * as Coppersmith). Events.WANDERING_COPPERSMITH_CHANGED subscribed. Added coppersmith CSS (warm copper/orange-amber theme with slate purchase button)."
+    },
+    {
+      "id": "T380",
+      "title": "Imperial Scrivener",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic imperial scrivener encounter: commission royal scrolls (25 mana + 20g → +0.25 mana/s 2.5min +22 prestige +8 morale), purchase scrivener's compendium (22 wood → +0.18 wood/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-19 min.",
+      "completed_date": "2026-05-23",
+      "notes": "Created imperialScrivener.js system, added IMPERIAL_SCRIVENER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialScrivenerSection() and handlers to questPanel.js (import * as Scrivener). Events.IMPERIAL_SCRIVENER_CHANGED subscribed. Added scrivener CSS (teal/ocean green theme with green purchase button)."
     }
   ],
   "session_history": [
@@ -1377,6 +1397,7 @@
     "Session 94 (T371-T372): Wandering Paper Maker (T371), Imperial Coin Minter (T372)",
     "Session 95 (T373-T374): Wandering Cartographer's Guild (T373), Imperial Spymaster (T374)",
     "Session 96 (T375-T376): Wandering Gem Polisher (T375), Imperial Astrolabe Maker (T376)",
-    "Session 97 (T377-T378): Wandering Locksmith (T377), Imperial Calligrapher (T378)"
+    "Session 97 (T377-T378): Wandering Locksmith (T377), Imperial Calligrapher (T378)",
+    "Session 98 (T379-T380): Wandering Coppersmith (T379), Imperial Scrivener (T380)"
   ]
 }

@@ -141,8 +141,10 @@ import * as CartGuild    from '../systems/wanderingCartographerGuild.js'; // T37
 import * as Spymaster    from '../systems/imperialSpymaster.js';          // T374
 import * as GemPolisher  from '../systems/wanderingGemPolisher.js';       // T375
 import * as AstrolabeMkr from '../systems/imperialAstrolabeMaker.js';     // T376
-import * as Locksmith    from '../systems/wanderingLocksmith.js';         // T377
-import * as Calligrapher from '../systems/imperialCalligrapher.js';       // T378
+import * as Locksmith      from '../systems/wanderingLocksmith.js';         // T377
+import * as Calligrapher   from '../systems/imperialCalligrapher.js';       // T378
+import * as Coppersmith    from '../systems/wanderingCoppersmith.js';       // T379
+import * as Scrivener      from '../systems/imperialScrivener.js';          // T380
 
 let _panel = null;
 
@@ -314,6 +316,8 @@ function _encountersSection() {
     _imperialAstrolabeMakerSection(),
     _wanderingLocksmithSection(),
     _imperialCalligrapherSection(),
+    _wanderingCoppersmithSection(),
+    _imperialScrivenerSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -4682,6 +4686,72 @@ function _imperialCalligrapherSection() {
     </div>`;
 }
 
+function _wanderingCoppersmithSection() {
+  if (!Coppersmith.getActiveWanderingCoppersmith()) return '';
+  const secs          = Coppersmith.getCoppersmithSecsLeft();
+  const urgent        = secs <= 15;
+  const iron          = state.resources.iron  ?? 0;
+  const gold          = state.resources.gold  ?? 0;
+  const stone         = state.resources.stone ?? 0;
+  const canCommission = iron >= Coppersmith.COMMISSION_IRON_COST && gold >= Coppersmith.COMMISSION_GOLD_COST;
+  const canPurchase   = stone >= Coppersmith.PURCHASE_STONE_COST;
+  return `
+    <div class="coppersmith-section--active">
+      <div class="coppersmith-header">
+        <span class="coppersmith-title">🔧 Wandering Coppersmith</span>
+        <span class="coppersmith-timer${urgent ? ' coppersmith-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="coppersmith-desc">A skilled coppersmith arrives bearing a portable forge, hammers, and gleaming copper ingots — offering to craft imperial tools or share ancient coppersmithing secrets with the palace artisans.</div>
+      <div class="coppersmith-actions">
+        <button class="btn--coppersmith-commission${canCommission ? '' : ' btn--disabled'}" data-action="coppersmith-commission" ${canCommission ? '' : 'disabled'}>
+          🔧 Commission Copper Tools — ${Coppersmith.COMMISSION_IRON_COST}⚙️ + ${Coppersmith.COMMISSION_GOLD_COST}💰
+          <span class="coppersmith-cost">→ +${Coppersmith.COMMISSION_IRON_RATE} iron/s (2.5 min) · +${Coppersmith.COMMISSION_PRESTIGE_REWARD} prestige · +${Coppersmith.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--coppersmith-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="coppersmith-purchase" ${canPurchase ? '' : 'disabled'}>
+          🪙 Purchase Coppersmith Secrets — ${Coppersmith.PURCHASE_STONE_COST}🪨
+          <span class="coppersmith-cost">→ +${Coppersmith.PURCHASE_STONE_RATE} stone/s (2 min) · +${Coppersmith.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--coppersmith-away" data-action="coppersmith-away">
+          🚶 Send Away
+          <span class="coppersmith-cost">→ Coppersmith departs with the copper ingots</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _imperialScrivenerSection() {
+  if (!Scrivener.getActiveImperialScrivener()) return '';
+  const secs          = Scrivener.getScrivenerSecsLeft();
+  const urgent        = secs <= 15;
+  const mana          = state.resources.mana ?? 0;
+  const gold          = state.resources.gold ?? 0;
+  const wood          = state.resources.wood ?? 0;
+  const canCommission = mana >= Scrivener.COMMISSION_MANA_COST && gold >= Scrivener.COMMISSION_GOLD_COST;
+  const canPurchase   = wood >= Scrivener.PURCHASE_WOOD_COST;
+  return `
+    <div class="scrivener-section--active">
+      <div class="scrivener-header">
+        <span class="scrivener-title">📋 Imperial Scrivener</span>
+        <span class="scrivener-timer${urgent ? ' scrivener-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="scrivener-desc">A master scrivener arrives bearing a portable writing desk, quill pens, and blank vellum sheets — offering to inscribe royal scrolls with official proclamations or share advanced papermaking techniques.</div>
+      <div class="scrivener-actions">
+        <button class="btn--scrivener-commission${canCommission ? '' : ' btn--disabled'}" data-action="scrivener-commission" ${canCommission ? '' : 'disabled'}>
+          📋 Commission Royal Scrolls — ${Scrivener.COMMISSION_MANA_COST}✨ + ${Scrivener.COMMISSION_GOLD_COST}💰
+          <span class="scrivener-cost">→ +${Scrivener.COMMISSION_MANA_RATE} mana/s (2.5 min) · +${Scrivener.COMMISSION_PRESTIGE_REWARD} prestige · +${Scrivener.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--scrivener-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="scrivener-purchase" ${canPurchase ? '' : 'disabled'}>
+          📚 Purchase Scrivener's Compendium — ${Scrivener.PURCHASE_WOOD_COST}🪵
+          <span class="scrivener-cost">→ +${Scrivener.PURCHASE_WOOD_RATE} wood/s (2 min) · +${Scrivener.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--scrivener-away" data-action="scrivener-away">
+          🚶 Send Away
+          <span class="scrivener-cost">→ Scrivener departs with the writing desk</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -5207,6 +5277,14 @@ const _HANDLERS = {
   'calligrapher-commission': () => Calligrapher.commissionImperialDecrees(),
   'calligrapher-purchase':   () => Calligrapher.purchaseScriptCollection(),
   'calligrapher-away':       () => Calligrapher.sendCalligrapherAway(),
+
+  'coppersmith-commission': () => Coppersmith.commissionCopperTools(),
+  'coppersmith-purchase':   () => Coppersmith.purchaseCoppersmithSecrets(),
+  'coppersmith-away':       () => Coppersmith.sendCoppersmithAway(),
+
+  'scrivener-commission': () => Scrivener.commissionRoyalScrolls(),
+  'scrivener-purchase':   () => Scrivener.purchaseScrivenersCompendium(),
+  'scrivener-away':       () => Scrivener.sendScrivenerAway(),
 };
 
 function _handleClick(e) {
@@ -5357,6 +5435,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_ASTROLABE_MAKER_CHANGED,
     Events.WANDERING_LOCKSMITH_CHANGED,
     Events.IMPERIAL_CALLIGRAPHER_CHANGED,
+    Events.WANDERING_COPPERSMITH_CHANGED,
+    Events.IMPERIAL_SCRIVENER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);
