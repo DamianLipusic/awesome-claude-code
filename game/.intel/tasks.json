@@ -1320,6 +1320,26 @@
       "description": "Periodic imperial scrivener encounter: commission royal scrolls (25 mana + 20g → +0.25 mana/s 2.5min +22 prestige +8 morale), purchase scrivener's compendium (22 wood → +0.18 wood/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-19 min.",
       "completed_date": "2026-05-23",
       "notes": "Created imperialScrivener.js system, added IMPERIAL_SCRIVENER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialScrivenerSection() and handlers to questPanel.js (import * as Scrivener). Events.IMPERIAL_SCRIVENER_CHANGED subscribed. Added scrivener CSS (teal/ocean green theme with green purchase button)."
+    },
+    {
+      "id": "T381",
+      "title": "Wandering Mirror Maker",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic wandering mirror maker encounter: commission polished mirrors (20 iron + 15 stone → +0.20 iron/s 2.5min +20 prestige +10 morale), purchase mirror-making craft (18g → +0.15 gold/s 2min +12 prestige), send away. Iron Age+, 10+ tiles, 13-17 min.",
+      "completed_date": "2026-05-23",
+      "notes": "Created wanderingMirrorMaker.js system, added WANDERING_MIRROR_MAKER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingMirrorMakerSection() and handlers to questPanel.js (import * as MirrorMaker). Events.WANDERING_MIRROR_MAKER_CHANGED subscribed. Added mirror CSS (silver/slate theme with gold purchase button)."
+    },
+    {
+      "id": "T382",
+      "title": "Imperial Flower Merchant",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic imperial flower merchant encounter: arrange imperial gardens (25 food + 15g → +0.22 food/s 2.5min +20 prestige +12 morale), purchase seasonal blooms (20 food → +0.15 food/s 2min +12 prestige), send away. Bronze Age+, 8+ tiles, 12-17 min.",
+      "completed_date": "2026-05-23",
+      "notes": "Created imperialFlowerMerchant.js system, added IMPERIAL_FLOWER_MERCHANT_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialFlowerMerchantSection() and handlers to questPanel.js (import * as FlowerMerchant). Events.IMPERIAL_FLOWER_MERCHANT_CHANGED subscribed. Added flower CSS (rose/pink floral theme with green purchase button)."
     }
   ],
   "session_history": [
@@ -1398,6 +1418,7 @@
     "Session 95 (T373-T374): Wandering Cartographer's Guild (T373), Imperial Spymaster (T374)",
     "Session 96 (T375-T376): Wandering Gem Polisher (T375), Imperial Astrolabe Maker (T376)",
     "Session 97 (T377-T378): Wandering Locksmith (T377), Imperial Calligrapher (T378)",
-    "Session 98 (T379-T380): Wandering Coppersmith (T379), Imperial Scrivener (T380)"
+    "Session 98 (T379-T380): Wandering Coppersmith (T379), Imperial Scrivener (T380)",
+    "Session 99 (T381-T382): Wandering Mirror Maker (T381), Imperial Flower Merchant (T382)"
   ]
 }

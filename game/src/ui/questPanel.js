@@ -145,6 +145,8 @@ import * as Locksmith      from '../systems/wanderingLocksmith.js';         // T
 import * as Calligrapher   from '../systems/imperialCalligrapher.js';       // T378
 import * as Coppersmith    from '../systems/wanderingCoppersmith.js';       // T379
 import * as Scrivener      from '../systems/imperialScrivener.js';          // T380
+import * as MirrorMaker    from '../systems/wanderingMirrorMaker.js';       // T381
+import * as FlowerMerchant from '../systems/imperialFlowerMerchant.js';     // T382
 
 let _panel = null;
 
@@ -318,6 +320,8 @@ function _encountersSection() {
     _imperialCalligrapherSection(),
     _wanderingCoppersmithSection(),
     _imperialScrivenerSection(),
+    _wanderingMirrorMakerSection(),
+    _imperialFlowerMerchantSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -4752,6 +4756,71 @@ function _imperialScrivenerSection() {
     </div>`;
 }
 
+function _wanderingMirrorMakerSection() {
+  if (!MirrorMaker.getActiveWanderingMirrorMaker()) return '';
+  const secs          = MirrorMaker.getMirrorMakerSecsLeft();
+  const urgent        = secs <= 15;
+  const iron          = state.resources.iron  ?? 0;
+  const stone         = state.resources.stone ?? 0;
+  const gold          = state.resources.gold  ?? 0;
+  const canCommission = iron >= MirrorMaker.COMMISSION_IRON_COST && stone >= MirrorMaker.COMMISSION_STONE_COST;
+  const canPurchase   = gold >= MirrorMaker.PURCHASE_GOLD_COST;
+  return `
+    <div class="mirror-section--active">
+      <div class="mirror-header">
+        <span class="mirror-title">🪞 Wandering Mirror Maker</span>
+        <span class="mirror-timer${urgent ? ' mirror-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="mirror-desc">A skilled mirror maker arrives bearing a portable polishing wheel, hammered tin sheets, and gleaming bronze discs — offering to commission exquisite palace mirrors or share the ancient art of mirror-making with the palace workshops.</div>
+      <div class="mirror-actions">
+        <button class="btn--mirror-commission${canCommission ? '' : ' btn--disabled'}" data-action="mirror-commission" ${canCommission ? '' : 'disabled'}>
+          🪞 Commission Polished Mirrors — ${MirrorMaker.COMMISSION_IRON_COST}⚙️ + ${MirrorMaker.COMMISSION_STONE_COST}🪨
+          <span class="mirror-cost">→ +${MirrorMaker.COMMISSION_IRON_RATE} iron/s (2.5 min) · +${MirrorMaker.COMMISSION_PRESTIGE_REWARD} prestige · +${MirrorMaker.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--mirror-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="mirror-purchase" ${canPurchase ? '' : 'disabled'}>
+          ✨ Purchase Mirror-Making Craft — ${MirrorMaker.PURCHASE_GOLD_COST}💰
+          <span class="mirror-cost">→ +${MirrorMaker.PURCHASE_GOLD_RATE} gold/s (2 min) · +${MirrorMaker.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--mirror-away" data-action="mirror-away">
+          🚶 Send Away
+          <span class="mirror-cost">→ Mirror maker departs with the bronze discs</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _imperialFlowerMerchantSection() {
+  if (!FlowerMerchant.getActiveImperialFlowerMerchant()) return '';
+  const secs          = FlowerMerchant.getFlowerMerchantSecsLeft();
+  const urgent        = secs <= 15;
+  const food          = state.resources.food ?? 0;
+  const gold          = state.resources.gold ?? 0;
+  const canArrange    = food >= FlowerMerchant.ARRANGE_FOOD_COST && gold >= FlowerMerchant.ARRANGE_GOLD_COST;
+  const canPurchase   = food >= FlowerMerchant.PURCHASE_FOOD_COST;
+  return `
+    <div class="flower-section--active">
+      <div class="flower-header">
+        <span class="flower-title">🌸 Imperial Flower Merchant</span>
+        <span class="flower-timer${urgent ? ' flower-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="flower-desc">A renowned flower merchant arrives bearing fragrant garlands, rare seed packets, and a cart of exotic seasonal blooms — offering to arrange a magnificent imperial garden or sell prized seasonal flowers to the court gardeners.</div>
+      <div class="flower-actions">
+        <button class="btn--flower-arrange${canArrange ? '' : ' btn--disabled'}" data-action="flower-arrange" ${canArrange ? '' : 'disabled'}>
+          🌸 Arrange Imperial Gardens — ${FlowerMerchant.ARRANGE_FOOD_COST}🌾 + ${FlowerMerchant.ARRANGE_GOLD_COST}💰
+          <span class="flower-cost">→ +${FlowerMerchant.ARRANGE_FOOD_RATE} food/s (2.5 min) · +${FlowerMerchant.ARRANGE_PRESTIGE_REWARD} prestige · +${FlowerMerchant.ARRANGE_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--flower-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="flower-purchase" ${canPurchase ? '' : 'disabled'}>
+          🌺 Purchase Seasonal Blooms — ${FlowerMerchant.PURCHASE_FOOD_COST}🌾
+          <span class="flower-cost">→ +${FlowerMerchant.PURCHASE_FOOD_RATE} food/s (2 min) · +${FlowerMerchant.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--flower-away" data-action="flower-away">
+          🚶 Send Away
+          <span class="flower-cost">→ Flower merchant departs with the seasonal blooms</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -5285,6 +5354,14 @@ const _HANDLERS = {
   'scrivener-commission': () => Scrivener.commissionRoyalScrolls(),
   'scrivener-purchase':   () => Scrivener.purchaseScrivenersCompendium(),
   'scrivener-away':       () => Scrivener.sendScrivenerAway(),
+
+  'mirror-commission': () => MirrorMaker.commissionPolishedMirrors(),
+  'mirror-purchase':   () => MirrorMaker.purchaseMirrorMakingCraft(),
+  'mirror-away':       () => MirrorMaker.sendMirrorMakerAway(),
+
+  'flower-arrange':  () => FlowerMerchant.arrangeImperialGardens(),
+  'flower-purchase': () => FlowerMerchant.purchaseSeasonalBlooms(),
+  'flower-away':     () => FlowerMerchant.sendFlowerMerchantAway(),
 };
 
 function _handleClick(e) {
@@ -5437,6 +5514,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_CALLIGRAPHER_CHANGED,
     Events.WANDERING_COPPERSMITH_CHANGED,
     Events.IMPERIAL_SCRIVENER_CHANGED,
+    Events.WANDERING_MIRROR_MAKER_CHANGED,
+    Events.IMPERIAL_FLOWER_MERCHANT_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);
