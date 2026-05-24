@@ -21291,3 +21291,81 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--vineyard-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T395 Wandering Herb Merchant ────────────────────────────────────────── */
+@keyframes herbmerchant-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); border-color: rgba(34, 197, 94, 0.28); }
+  50%       { box-shadow: 0 0 8px 2px rgba(34, 197, 94, 0.16); border-color: rgba(34, 197, 94, 0.52); }
+}
+.herbmerchant-section--active {
+  background: linear-gradient(135deg, rgba(5, 46, 22, 0.18), rgba(2, 30, 12, 0.12));
+  border: 1px solid rgba(34, 197, 94, 0.30); border-radius: 8px; padding: 10px;
+  margin-bottom: 10px; animation: herbmerchant-pulse 2.8s ease-in-out infinite;
+}
+.herbmerchant-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.herbmerchant-title  { font-weight: 700; font-size: 0.88rem; color: #4ade80; }
+.herbmerchant-timer  { font-size: 0.78rem; color: #4ade80; }
+.herbmerchant-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.herbmerchant-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.herbmerchant-actions { display: flex; flex-direction: column; gap: 5px; }
+.herbmerchant-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--herbmerchant-commission {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(15, 80, 40, 0.28), rgba(8, 55, 25, 0.20));
+  border: 1px solid rgba(34, 197, 94, 0.42); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #4ade80; text-align: left; transition: background 0.15s;
+}
+.btn--herbmerchant-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(15, 80, 40, 0.42), rgba(8, 55, 25, 0.30)); }
+.btn--herbmerchant-purchase {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(90, 70, 10, 0.24), rgba(65, 48, 5, 0.18));
+  border: 1px solid rgba(202, 138, 4, 0.36); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fbbf24; text-align: left; transition: background 0.15s;
+}
+.btn--herbmerchant-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(90, 70, 10, 0.36), rgba(65, 48, 5, 0.28)); }
+.btn--herbmerchant-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--herbmerchant-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T396 Imperial Lantern Maker ─────────────────────────────────────────── */
+@keyframes lantern-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(251, 146, 60, 0); border-color: rgba(251, 146, 60, 0.28); }
+  50%       { box-shadow: 0 0 8px 2px rgba(251, 146, 60, 0.16); border-color: rgba(251, 146, 60, 0.52); }
+}
+.lantern-section--active {
+  background: linear-gradient(135deg, rgba(60, 25, 5, 0.18), rgba(40, 15, 2, 0.12));
+  border: 1px solid rgba(251, 146, 60, 0.30); border-radius: 8px; padding: 10px;
+  margin-bottom: 10px; animation: lantern-pulse 2.8s ease-in-out infinite;
+}
+.lantern-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.lantern-title  { font-weight: 700; font-size: 0.88rem; color: #fb923c; }
+.lantern-timer  { font-size: 0.78rem; color: #fb923c; }
+.lantern-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.lantern-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.lantern-actions { display: flex; flex-direction: column; gap: 5px; }
+.lantern-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--lantern-commission {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(120, 50, 5, 0.28), rgba(85, 30, 2, 0.20));
+  border: 1px solid rgba(251, 146, 60, 0.42); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fb923c; text-align: left; transition: background 0.15s;
+}
+.btn--lantern-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(120, 50, 5, 0.42), rgba(85, 30, 2, 0.30)); }
+.btn--lantern-purchase {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(30, 65, 10, 0.24), rgba(18, 45, 5, 0.18));
+  border: 1px solid rgba(101, 163, 13, 0.36); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #84cc16; text-align: left; transition: background 0.15s;
+}
+.btn--lantern-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(30, 65, 10, 0.36), rgba(18, 45, 5, 0.28)); }
+.btn--lantern-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--lantern-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

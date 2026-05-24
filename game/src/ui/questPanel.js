@@ -159,6 +159,8 @@ import * as Candlemaker   from '../systems/wanderingCandlemaker.js';         // 
 import * as GrainMerchant from '../systems/imperialGrainMerchant.js';        // T392
 import * as FeltMaker     from '../systems/wanderingFeltMaker.js';           // T393
 import * as VineyardMaster from '../systems/imperialVineyardMaster.js';      // T394
+import * as HerbMerchant  from '../systems/wanderingHerbMerchant.js';        // T395
+import * as LanternMaker  from '../systems/imperialLanternMaker.js';         // T396
 
 let _panel = null;
 
@@ -346,6 +348,8 @@ function _encountersSection() {
     _imperialGrainMerchantSection(),
     _wanderingFeltMakerSection(),
     _imperialVineyardMasterSection(),
+    _wanderingHerbMerchantSection(),
+    _imperialLanternMakerSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -5236,6 +5240,71 @@ function _imperialVineyardMasterSection() {
     </div>`;
 }
 
+function _wanderingHerbMerchantSection() {
+  if (!HerbMerchant.getActiveWanderingHerbMerchant()) return '';
+  const secs   = HerbMerchant.getHerbMerchantSecsLeft();
+  const urgent = secs <= 15;
+  const food   = state.resources?.food ?? 0;
+  const gold   = state.resources?.gold ?? 0;
+  const canCommission = food >= HerbMerchant.COMMISSION_FOOD_COST;
+  const canPurchase   = gold >= HerbMerchant.PURCHASE_GOLD_COST;
+  return `
+    <div class="herbmerchant-section--active">
+      <div class="herbmerchant-header">
+        <span class="herbmerchant-title">🌿 Wandering Herb Merchant</span>
+        <span class="herbmerchant-timer${urgent ? ' herbmerchant-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="herbmerchant-desc">A wandering herb merchant arrives carrying wicker baskets overflowing with dried herbs, medicinal roots, aromatic bundles, and pressed botanical remedies — offering to prepare restorative herbal remedies for the empire, or to share ancient herb-cultivation and medicinal brewing lore.</div>
+      <div class="herbmerchant-actions">
+        <button class="btn--herbmerchant-commission${canCommission ? '' : ' btn--disabled'}" data-action="herbmerchant-commission" ${canCommission ? '' : 'disabled'}>
+          🌿 Commission Herbal Remedies — ${HerbMerchant.COMMISSION_FOOD_COST}🌾
+          <span class="herbmerchant-cost">→ +${HerbMerchant.COMMISSION_FOOD_RATE} food/s (2.5 min) · +${HerbMerchant.COMMISSION_PRESTIGE_REWARD} prestige · +${HerbMerchant.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--herbmerchant-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="herbmerchant-purchase" ${canPurchase ? '' : 'disabled'}>
+          📜 Purchase Herb Lore — ${HerbMerchant.PURCHASE_GOLD_COST}💰
+          <span class="herbmerchant-cost">→ +${HerbMerchant.PURCHASE_GOLD_RATE} gold/s (2 min) · +${HerbMerchant.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--herbmerchant-away" data-action="herbmerchant-away">
+          🚶 Send Away
+          <span class="herbmerchant-cost">→ Herb merchant departs with the baskets</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _imperialLanternMakerSection() {
+  if (!LanternMaker.getActiveImperialLanternMaker()) return '';
+  const secs   = LanternMaker.getLanternMakerSecsLeft();
+  const urgent = secs <= 15;
+  const mana   = state.resources?.mana ?? 0;
+  const gold   = state.resources?.gold ?? 0;
+  const wood   = state.resources?.wood ?? 0;
+  const canCommission = mana >= LanternMaker.COMMISSION_MANA_COST && gold >= LanternMaker.COMMISSION_GOLD_COST;
+  const canPurchase   = wood >= LanternMaker.PURCHASE_WOOD_COST;
+  return `
+    <div class="lantern-section--active">
+      <div class="lantern-header">
+        <span class="lantern-title">🏮 Imperial Lantern Maker</span>
+        <span class="lantern-timer${urgent ? ' lantern-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="lantern-desc">An imperial lantern maker arrives at court carrying hand-painted paper lanterns, gilded iron frames, coloured glass panels, and finely-crafted wick mechanisms — offering to commission magnificent festival lanterns to illuminate the capital, or to share refined lantern-crafting and glasswork techniques.</div>
+      <div class="lantern-actions">
+        <button class="btn--lantern-commission${canCommission ? '' : ' btn--disabled'}" data-action="lantern-commission" ${canCommission ? '' : 'disabled'}>
+          🏮 Commission Festival Lanterns — ${LanternMaker.COMMISSION_MANA_COST}✨ + ${LanternMaker.COMMISSION_GOLD_COST}💰
+          <span class="lantern-cost">→ +${LanternMaker.COMMISSION_MANA_RATE} mana/s (2.5 min) · +${LanternMaker.COMMISSION_PRESTIGE_REWARD} prestige · +${LanternMaker.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--lantern-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="lantern-purchase" ${canPurchase ? '' : 'disabled'}>
+          📜 Purchase Lantern Craft — ${LanternMaker.PURCHASE_WOOD_COST}🪵
+          <span class="lantern-cost">→ +${LanternMaker.PURCHASE_WOOD_RATE} wood/s (2 min) · +${LanternMaker.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--lantern-away" data-action="lantern-away">
+          🚶 Send Away
+          <span class="lantern-cost">→ Lantern maker departs with the lanterns</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -5825,6 +5894,14 @@ const _HANDLERS = {
   'vineyard-commission': () => VineyardMaster.commissionWineCellar(),
   'vineyard-purchase':   () => VineyardMaster.purchaseVineyardSecrets(),
   'vineyard-away':       () => VineyardMaster.sendVineyardMasterAway(),
+
+  'herbmerchant-commission': () => HerbMerchant.commissionHerbalRemedies(),
+  'herbmerchant-purchase':   () => HerbMerchant.purchaseHerbLore(),
+  'herbmerchant-away':       () => HerbMerchant.sendHerbMerchantAway(),
+
+  'lantern-commission': () => LanternMaker.commissionFestivalLanterns(),
+  'lantern-purchase':   () => LanternMaker.purchaseLanternCraft(),
+  'lantern-away':       () => LanternMaker.sendLanternMakerAway(),
 };
 
 function _handleClick(e) {
@@ -5991,6 +6068,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_GRAIN_MERCHANT_CHANGED,
     Events.WANDERING_FELT_MAKER_CHANGED,
     Events.IMPERIAL_VINEYARD_MASTER_CHANGED,
+    Events.WANDERING_HERB_MERCHANT_CHANGED,
+    Events.IMPERIAL_LANTERN_MAKER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

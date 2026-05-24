@@ -1460,6 +1460,26 @@
       "description": "Periodic imperial vineyard master encounter: commission wine cellar (25 food + 20g → +0.25 food/s 2.5min +20 prestige +12 morale), purchase vineyard secrets (20 wood → +0.18 wood/s 2min +15 prestige), send away. Bronze Age+, 8+ tiles, 13-17 min.",
       "completed_date": "2026-05-24",
       "notes": "Created imperialVineyardMaster.js system, added IMPERIAL_VINEYARD_MASTER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialVineyardMasterSection() and handlers to questPanel.js (import * as VineyardMaster). Events.IMPERIAL_VINEYARD_MASTER_CHANGED subscribed. Added vineyard CSS (deep purple/fuchsia pulse theme with lime purchase button, vineyard- CSS prefix)."
+    },
+    {
+      "id": "T395",
+      "title": "Wandering Herb Merchant",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic wandering herb merchant encounter: commission herbal remedies (25 food → +0.25 food/s 2.5min +18 prestige +12 morale), purchase herb lore (18g → +0.15 gold/s 2min +12 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
+      "completed_date": "2026-05-24",
+      "notes": "Created wanderingHerbMerchant.js system, added WANDERING_HERB_MERCHANT_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingHerbMerchantSection() and handlers to questPanel.js (import * as HerbMerchant). Events.WANDERING_HERB_MERCHANT_CHANGED subscribed. Added herbmerchant CSS (emerald green pulse theme with amber purchase button, herbmerchant- CSS prefix)."
+    },
+    {
+      "id": "T396",
+      "title": "Imperial Lantern Maker",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic imperial lantern maker encounter: commission festival lanterns (25 mana + 20g → +0.25 mana/s 2.5min +22 prestige +12 morale), purchase lantern craft (20 wood → +0.18 wood/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-19 min.",
+      "completed_date": "2026-05-24",
+      "notes": "Created imperialLanternMaker.js system, added IMPERIAL_LANTERN_MAKER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialLanternMakerSection() and handlers to questPanel.js (import * as LanternMaker). Events.IMPERIAL_LANTERN_MAKER_CHANGED subscribed. Added lantern CSS (amber/orange pulse theme with lime-green purchase button, lantern- CSS prefix)."
     }
   ],
   "session_history": [
@@ -1545,6 +1565,7 @@
     "Session 102 (T387-T388): Wandering Tapestry Maker (T387), Imperial Siege Architect (T388)",
     "Session 103 (T389-T390): Wandering Lute Maker (T389), Imperial Stonecutter's Guild (T390)",
     "Session 104 (T391-T392): Wandering Candlemaker (T391), Imperial Grain Merchant (T392)",
-    "Session 105 (T393-T394): Wandering Felt Maker (T393), Imperial Vineyard Master (T394)"
+    "Session 105 (T393-T394): Wandering Felt Maker (T393), Imperial Vineyard Master (T394)",
+    "Session 106 (T395-T396): Wandering Herb Merchant (T395), Imperial Lantern Maker (T396)"
   ]
 }
