@@ -334,6 +334,8 @@ import { initWanderingLuteMaker, wanderingLuteMakerTick }             from './sy
 import { initImperialStonecutterGuild, imperialStonecutterGuildTick } from './systems/imperialStonecutterGuild.js';     // T390
 import { initWanderingCandlemaker, wanderingCandlemakerTick }         from './systems/wanderingCandlemaker.js';         // T391
 import { initImperialGrainMerchant, imperialGrainMerchantTick }       from './systems/imperialGrainMerchant.js';        // T392
+import { initWanderingFeltMaker, wanderingFeltMakerTick }             from './systems/wanderingFeltMaker.js';           // T393
+import { initImperialVineyardMaster, imperialVineyardMasterTick }     from './systems/imperialVineyardMaster.js';       // T394
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -674,6 +676,8 @@ function _registerAllSystems() {
   registerSystem(imperialStonecutterGuildTick);     // T390
   registerSystem(wanderingCandlemakerTick);         // T391
   registerSystem(imperialGrainMerchantTick);        // T392
+  registerSystem(wanderingFeltMakerTick);           // T393
+  registerSystem(imperialVineyardMasterTick);       // T394
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -999,6 +1003,8 @@ function _save() {
     imperialStonecutterGuild:      state.imperialStonecutterGuild,      // T390
     wanderingCandlemaker:          state.wanderingCandlemaker,          // T391
     imperialGrainMerchant:         state.imperialGrainMerchant,         // T392
+    wanderingFeltMaker:            state.wanderingFeltMaker,            // T393
+    imperialVineyardMaster:        state.imperialVineyardMaster,        // T394
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -1329,6 +1335,8 @@ function _applySave(s) {
   state.imperialStonecutterGuild   = s.imperialStonecutterGuild ?? null;   // T390
   state.wanderingCandlemaker       = s.wanderingCandlemaker ?? null;       // T391
   state.imperialGrainMerchant      = s.imperialGrainMerchant ?? null;      // T392
+  state.wanderingFeltMaker         = s.wanderingFeltMaker ?? null;         // T393
+  state.imperialVineyardMaster     = s.imperialVineyardMaster ?? null;     // T394
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -1665,6 +1673,8 @@ function _startFreshGame() {
   initImperialStonecutterGuild();     // T390
   initWanderingCandlemaker();         // T391
   initImperialGrainMerchant();        // T392
+  initWanderingFeltMaker();           // T393
+  initImperialVineyardMaster();       // T394
   initAchievements();
   initLeaderboard();
 }
@@ -1984,6 +1994,8 @@ function _startLoadedGame(savedData) {
   initImperialStonecutterGuild();     // T390
   initWanderingCandlemaker();         // T391
   initImperialGrainMerchant();        // T392
+  initWanderingFeltMaker();           // T393
+  initImperialVineyardMaster();       // T394
   initAchievements();
   initLeaderboard();
 }

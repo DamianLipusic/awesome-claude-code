@@ -157,6 +157,8 @@ import * as LuteMaker     from '../systems/wanderingLuteMaker.js';           // 
 import * as SCGuild       from '../systems/imperialStonecutterGuild.js';     // T390
 import * as Candlemaker   from '../systems/wanderingCandlemaker.js';         // T391
 import * as GrainMerchant from '../systems/imperialGrainMerchant.js';        // T392
+import * as FeltMaker     from '../systems/wanderingFeltMaker.js';           // T393
+import * as VineyardMaster from '../systems/imperialVineyardMaster.js';      // T394
 
 let _panel = null;
 
@@ -342,6 +344,8 @@ function _encountersSection() {
     _imperialStonecutterGuildSection(),
     _wanderingCandlemakerSection(),
     _imperialGrainMerchantSection(),
+    _wanderingFeltMakerSection(),
+    _imperialVineyardMasterSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -5166,6 +5170,72 @@ function _imperialGrainMerchantSection() {
     </div>`;
 }
 
+function _wanderingFeltMakerSection() {
+  if (!FeltMaker.getActiveWanderingFeltMaker()) return '';
+  const secs   = FeltMaker.getFeltMakerSecsLeft();
+  const urgent = secs <= 15;
+  const food   = state.resources?.food ?? 0;
+  const wood   = state.resources?.wood ?? 0;
+  const gold   = state.resources?.gold ?? 0;
+  const canCommission = food >= FeltMaker.COMMISSION_FOOD_COST && wood >= FeltMaker.COMMISSION_WOOD_COST;
+  const canPurchase   = gold >= FeltMaker.PURCHASE_GOLD_COST;
+  return `
+    <div class="feltmaker-section--active">
+      <div class="feltmaker-header">
+        <span class="feltmaker-title">🧶 Wandering Felt Maker</span>
+        <span class="feltmaker-timer${urgent ? ' feltmaker-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="feltmaker-desc">A wandering felt maker arrives carrying rolls of fine compressed wool felt, bone needles, and carding combs — offering to commission thick felt carpets for the imperial halls and barracks, or to share rare felting and wool-pressing techniques.</div>
+      <div class="feltmaker-actions">
+        <button class="btn--feltmaker-commission${canCommission ? '' : ' btn--disabled'}" data-action="feltmaker-commission" ${canCommission ? '' : 'disabled'}>
+          🧶 Commission Felt Carpets — ${FeltMaker.COMMISSION_FOOD_COST}🌾 + ${FeltMaker.COMMISSION_WOOD_COST}🪵
+          <span class="feltmaker-cost">→ +${FeltMaker.COMMISSION_FOOD_RATE} food/s (2.5 min) · +${FeltMaker.COMMISSION_PRESTIGE_REWARD} prestige · +${FeltMaker.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--feltmaker-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="feltmaker-purchase" ${canPurchase ? '' : 'disabled'}>
+          📜 Purchase Felting Techniques — ${FeltMaker.PURCHASE_GOLD_COST}💰
+          <span class="feltmaker-cost">→ +${FeltMaker.PURCHASE_GOLD_RATE} gold/s (2 min) · +${FeltMaker.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--feltmaker-away" data-action="feltmaker-away">
+          🚶 Send Away
+          <span class="feltmaker-cost">→ Felt maker departs with the rolls</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _imperialVineyardMasterSection() {
+  if (!VineyardMaster.getActiveImperialVineyardMaster()) return '';
+  const secs   = VineyardMaster.getVineyardMasterSecsLeft();
+  const urgent = secs <= 15;
+  const food   = state.resources?.food ?? 0;
+  const gold   = state.resources?.gold ?? 0;
+  const wood   = state.resources?.wood ?? 0;
+  const canCommission = food >= VineyardMaster.COMMISSION_FOOD_COST && gold >= VineyardMaster.COMMISSION_GOLD_COST;
+  const canPurchase   = wood >= VineyardMaster.PURCHASE_WOOD_COST;
+  return `
+    <div class="vineyard-section--active">
+      <div class="vineyard-header">
+        <span class="vineyard-title">🍇 Imperial Vineyard Master</span>
+        <span class="vineyard-timer${urgent ? ' vineyard-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="vineyard-desc">An imperial vineyard master arrives bearing clay amphoras of fine aged wine, pruning tools, and pressed grape samples — offering to commission a grand wine cellar for the imperial palace, or to share rare viticulture secrets and vine-cultivation techniques.</div>
+      <div class="vineyard-actions">
+        <button class="btn--vineyard-commission${canCommission ? '' : ' btn--disabled'}" data-action="vineyard-commission" ${canCommission ? '' : 'disabled'}>
+          🍇 Commission Wine Cellar — ${VineyardMaster.COMMISSION_FOOD_COST}🌾 + ${VineyardMaster.COMMISSION_GOLD_COST}💰
+          <span class="vineyard-cost">→ +${VineyardMaster.COMMISSION_FOOD_RATE} food/s (2.5 min) · +${VineyardMaster.COMMISSION_PRESTIGE_REWARD} prestige · +${VineyardMaster.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--vineyard-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="vineyard-purchase" ${canPurchase ? '' : 'disabled'}>
+          📜 Purchase Vineyard Secrets — ${VineyardMaster.PURCHASE_WOOD_COST}🪵
+          <span class="vineyard-cost">→ +${VineyardMaster.PURCHASE_WOOD_RATE} wood/s (2 min) · +${VineyardMaster.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--vineyard-away" data-action="vineyard-away">
+          🚶 Send Away
+          <span class="vineyard-cost">→ Vineyard master departs with the amphoras</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -5747,6 +5817,14 @@ const _HANDLERS = {
   'grain-establish': () => GrainMerchant.establishGrainStores(),
   'grain-purchase':  () => GrainMerchant.purchaseMillingRights(),
   'grain-away':      () => GrainMerchant.sendGrainMerchantAway(),
+
+  'feltmaker-commission': () => FeltMaker.commissionFeltCarpets(),
+  'feltmaker-purchase':   () => FeltMaker.purchaseFeltingTechniques(),
+  'feltmaker-away':       () => FeltMaker.sendFeltMakerAway(),
+
+  'vineyard-commission': () => VineyardMaster.commissionWineCellar(),
+  'vineyard-purchase':   () => VineyardMaster.purchaseVineyardSecrets(),
+  'vineyard-away':       () => VineyardMaster.sendVineyardMasterAway(),
 };
 
 function _handleClick(e) {
@@ -5911,6 +5989,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_STONECUTTER_GUILD_CHANGED,
     Events.WANDERING_CANDLEMAKER_CHANGED,
     Events.IMPERIAL_GRAIN_MERCHANT_CHANGED,
+    Events.WANDERING_FELT_MAKER_CHANGED,
+    Events.IMPERIAL_VINEYARD_MASTER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

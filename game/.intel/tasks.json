@@ -1440,6 +1440,26 @@
       "description": "Periodic imperial stonecutter's guild encounter: commission grand stoneworks (30 stone + 25g → +0.25 stone/s 2.5min +25 prestige +12 morale), purchase stonecutting lore (25 iron → +0.20 iron/s 2min +18 prestige), send away. Iron Age+, 12+ tiles, 14-18 min.",
       "completed_date": "2026-05-24",
       "notes": "Created imperialStonecutterGuild.js system, added IMPERIAL_STONECUTTER_GUILD_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialStonecutterGuildSection() and handlers to questPanel.js (import * as SCGuild). Events.IMPERIAL_STONECUTTER_GUILD_CHANGED subscribed. Added scguild CSS (slate/gray pulse theme with amber purchase button, scguild- CSS prefix)."
+    },
+    {
+      "id": "T393",
+      "title": "Wandering Felt Maker",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic wandering felt maker encounter: commission felt carpets (20 food + 15 wood → +0.22 food/s 2.5min +18 prestige +8 morale), purchase felting techniques (18g → +0.15 gold/s 2min +12 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
+      "completed_date": "2026-05-24",
+      "notes": "Created wanderingFeltMaker.js system, added WANDERING_FELT_MAKER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingFeltMakerSection() and handlers to questPanel.js (import * as FeltMaker). Events.WANDERING_FELT_MAKER_CHANGED subscribed. Added feltmaker CSS (warm ochre/brown pulse theme with green purchase button, feltmaker- CSS prefix)."
+    },
+    {
+      "id": "T394",
+      "title": "Imperial Vineyard Master",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic imperial vineyard master encounter: commission wine cellar (25 food + 20g → +0.25 food/s 2.5min +20 prestige +12 morale), purchase vineyard secrets (20 wood → +0.18 wood/s 2min +15 prestige), send away. Bronze Age+, 8+ tiles, 13-17 min.",
+      "completed_date": "2026-05-24",
+      "notes": "Created imperialVineyardMaster.js system, added IMPERIAL_VINEYARD_MASTER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialVineyardMasterSection() and handlers to questPanel.js (import * as VineyardMaster). Events.IMPERIAL_VINEYARD_MASTER_CHANGED subscribed. Added vineyard CSS (deep purple/fuchsia pulse theme with lime purchase button, vineyard- CSS prefix)."
     }
   ],
   "session_history": [
@@ -1524,6 +1544,7 @@
     "Session 101 (T385-T386): Imperial Banner Weaver (T385), Wandering Bone Carver (T386)",
     "Session 102 (T387-T388): Wandering Tapestry Maker (T387), Imperial Siege Architect (T388)",
     "Session 103 (T389-T390): Wandering Lute Maker (T389), Imperial Stonecutter's Guild (T390)",
-    "Session 104 (T391-T392): Wandering Candlemaker (T391), Imperial Grain Merchant (T392)"
+    "Session 104 (T391-T392): Wandering Candlemaker (T391), Imperial Grain Merchant (T392)",
+    "Session 105 (T393-T394): Wandering Felt Maker (T393), Imperial Vineyard Master (T394)"
   ]
 }

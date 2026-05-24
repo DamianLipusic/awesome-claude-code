@@ -334,4 +334,6 @@ export const Events = Object.freeze({
   IMPERIAL_STONECUTTER_GUILD_CHANGED:       'imperialStonecutterGuildChanged',                       // T390: stonecutter guild spawned / commissioned / purchased / dismissed / expired
   WANDERING_CANDLEMAKER_CHANGED:            'wanderingCandlemakerChanged',                            // T391: candlemaker spawned / commissioned / purchased / dismissed / expired
   IMPERIAL_GRAIN_MERCHANT_CHANGED:          'imperialGrainMerchantChanged',                           // T392: grain merchant spawned / established / purchased / dismissed / expired
+  WANDERING_FELT_MAKER_CHANGED:             'wanderingFeltMakerChanged',                               // T393: felt maker spawned / commissioned / purchased / dismissed / expired
+  IMPERIAL_VINEYARD_MASTER_CHANGED:         'imperialVineyardMasterChanged',                           // T394: vineyard master spawned / commissioned / purchased / dismissed / expired
 });
