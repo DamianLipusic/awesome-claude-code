@@ -149,6 +149,8 @@ import * as MirrorMaker    from '../systems/wanderingMirrorMaker.js';       // T
 import * as FlowerMerchant from '../systems/imperialFlowerMerchant.js';     // T382
 import * as Dressmaker    from '../systems/wanderingDressmaker.js';         // T383
 import * as TileSetter    from '../systems/imperialTileSetter.js';          // T384
+import * as BannerWeaver from '../systems/imperialBannerWeaver.js';        // T385
+import * as BoneCarver   from '../systems/wanderingBoneCarver.js';         // T386
 
 let _panel = null;
 
@@ -326,6 +328,8 @@ function _encountersSection() {
     _imperialFlowerMerchantSection(),
     _wanderingDressmakertSection(),
     _imperialTileSetterSection(),
+    _imperialBannerWeaverSection(),
+    _wanderingBoneCarverSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -4887,6 +4891,68 @@ function _imperialTileSetterSection() {
     </div>`;
 }
 
+function _imperialBannerWeaverSection() {
+  if (!BannerWeaver.getActiveImperialBannerWeaver()) return '';
+  const secs     = BannerWeaver.getBannerWeaverSecsLeft();
+  const urgent   = secs <= 20;
+  const { wood = 0, gold = 0 } = state.resources ?? {};
+  const canWeave    = wood >= BannerWeaver.WEAVE_WOOD_COST && gold >= BannerWeaver.WEAVE_GOLD_COST;
+  const canPurchase = gold >= BannerWeaver.PURCHASE_GOLD_COST;
+  return `
+    <div class="banner-section--active">
+      <div class="banner-header">
+        <span class="banner-title">🏴 Imperial Banner Weaver</span>
+        <span class="banner-timer${urgent ? ' banner-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="banner-desc">A master imperial banner weaver arrives bearing bolts of crimson silk, spools of golden thread, and heraldic pattern books — offering to weave imperial battle banners for the palace halls and legions, or to share rare heraldic design patterns with the royal artisans.</div>
+      <div class="banner-actions">
+        <button class="btn--banner-weave${canWeave ? '' : ' btn--disabled'}" data-action="banner-weave" ${canWeave ? '' : 'disabled'}>
+          🏴 Weave Imperial Battle Banners — ${BannerWeaver.WEAVE_WOOD_COST}🪵 + ${BannerWeaver.WEAVE_GOLD_COST}💰
+          <span class="banner-cost">→ +${BannerWeaver.WEAVE_WOOD_RATE} wood/s (2.5 min) · +${BannerWeaver.WEAVE_PRESTIGE_REWARD} prestige · +${BannerWeaver.WEAVE_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--banner-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="banner-purchase" ${canPurchase ? '' : 'disabled'}>
+          📜 Purchase Heraldic Patterns — ${BannerWeaver.PURCHASE_GOLD_COST}💰
+          <span class="banner-cost">→ +${BannerWeaver.PURCHASE_GOLD_RATE} gold/s (2 min) · +${BannerWeaver.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--banner-away" data-action="banner-away">
+          🚶 Send Away
+          <span class="banner-cost">→ Banner weaver departs with the crimson silk</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _wanderingBoneCarverSection() {
+  if (!BoneCarver.getActiveWanderingBoneCarver()) return '';
+  const secs     = BoneCarver.getBoneCarverSecsLeft();
+  const urgent   = secs <= 20;
+  const { food = 0, stone = 0, gold = 0 } = state.resources ?? {};
+  const canCommission = food >= BoneCarver.COMMISSION_FOOD_COST && stone >= BoneCarver.COMMISSION_STONE_COST;
+  const canPurchase   = gold >= BoneCarver.PURCHASE_GOLD_COST;
+  return `
+    <div class="bone-section--active">
+      <div class="bone-header">
+        <span class="bone-title">🦴 Wandering Bone Carver</span>
+        <span class="bone-timer${urgent ? ' bone-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="bone-desc">A wandering bone carver arrives carrying a satchel of polished animal bones, carved antler pieces, and fine flint tools — offering to commission ancestral carved totems for the palace shrines, or to sell rare bone carving patterns and ancient craft techniques.</div>
+      <div class="bone-actions">
+        <button class="btn--bone-commission${canCommission ? '' : ' btn--disabled'}" data-action="bone-commission" ${canCommission ? '' : 'disabled'}>
+          🦴 Commission Ancestral Carvings — ${BoneCarver.COMMISSION_FOOD_COST}🌾 + ${BoneCarver.COMMISSION_STONE_COST}🪨
+          <span class="bone-cost">→ +${BoneCarver.COMMISSION_FOOD_RATE} food/s (2.5 min) · +${BoneCarver.COMMISSION_PRESTIGE_REWARD} prestige · +${BoneCarver.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--bone-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="bone-purchase" ${canPurchase ? '' : 'disabled'}>
+          🗿 Purchase Carved Artifacts — ${BoneCarver.PURCHASE_GOLD_COST}💰
+          <span class="bone-cost">→ +${BoneCarver.PURCHASE_STONE_RATE} stone/s (2 min) · +${BoneCarver.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--bone-away" data-action="bone-away">
+          🚶 Send Away
+          <span class="bone-cost">→ Bone carver departs with the carved bones</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -5436,6 +5502,14 @@ const _HANDLERS = {
   'tileset-commission': () => TileSetter.commissionImperialTilework(),
   'tileset-purchase':   () => TileSetter.purchaseTilePatterns(),
   'tileset-away':       () => TileSetter.sendTileSetterAway(),
+
+  'banner-weave':    () => BannerWeaver.weaveImperialBattleBanners(),
+  'banner-purchase': () => BannerWeaver.purchaseHeraldicPatterns(),
+  'banner-away':     () => BannerWeaver.sendBannerWeaverAway(),
+
+  'bone-commission': () => BoneCarver.commissionAncestralCarvings(),
+  'bone-purchase':   () => BoneCarver.purchaseCarvedArtifacts(),
+  'bone-away':       () => BoneCarver.sendBoneCarverAway(),
 };
 
 function _handleClick(e) {
@@ -5592,6 +5666,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_FLOWER_MERCHANT_CHANGED,
     Events.WANDERING_DRESSMAKER_CHANGED,
     Events.IMPERIAL_TILE_SETTER_CHANGED,
+    Events.IMPERIAL_BANNER_WEAVER_CHANGED,
+    Events.WANDERING_BONE_CARVER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

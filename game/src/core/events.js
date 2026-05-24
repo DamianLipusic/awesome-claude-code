@@ -326,4 +326,6 @@ export const Events = Object.freeze({
   IMPERIAL_FLOWER_MERCHANT_CHANGED:         'imperialFlowerMerchantChanged',                    // T382: flower merchant spawned / arranged / purchased / dismissed / expired
   WANDERING_DRESSMAKER_CHANGED:             'wanderingDressmakertChanged',                       // T383: dressmaker spawned / sewn / purchased / dismissed / expired
   IMPERIAL_TILE_SETTER_CHANGED:             'imperialTileSetterChanged',                         // T384: tile setter spawned / commissioned / purchased / dismissed / expired
+  IMPERIAL_BANNER_WEAVER_CHANGED:           'imperialBannerWeaverChanged',                        // T385: banner weaver spawned / woven / purchased / dismissed / expired
+  WANDERING_BONE_CARVER_CHANGED:            'wanderingBoneCarverChanged',                          // T386: bone carver spawned / commissioned / purchased / dismissed / expired
 });

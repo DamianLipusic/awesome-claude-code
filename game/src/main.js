@@ -326,6 +326,8 @@ import { initWanderingMirrorMaker, wanderingMirrorMakerTick }         from './sy
 import { initImperialFlowerMerchant, imperialFlowerMerchantTick }     from './systems/imperialFlowerMerchant.js';      // T382
 import { initWanderingDressmaker, wanderingDressmakertick }           from './systems/wanderingDressmaker.js';          // T383
 import { initImperialTileSetter, imperialTileSetterTick }             from './systems/imperialTileSetter.js';           // T384
+import { initImperialBannerWeaver, imperialBannerWeaverTick }         from './systems/imperialBannerWeaver.js';         // T385
+import { initWanderingBoneCarver, wanderingBoneCarverTick }           from './systems/wanderingBoneCarver.js';          // T386
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -658,6 +660,8 @@ function _registerAllSystems() {
   registerSystem(imperialFlowerMerchantTick);       // T382
   registerSystem(wanderingDressmakertick);          // T383
   registerSystem(imperialTileSetterTick);           // T384
+  registerSystem(imperialBannerWeaverTick);         // T385
+  registerSystem(wanderingBoneCarverTick);          // T386
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -975,6 +979,8 @@ function _save() {
     imperialFlowerMerchant:        state.imperialFlowerMerchant,        // T382
     wanderingDressmaker:           state.wanderingDressmaker,           // T383
     imperialTileSetter:            state.imperialTileSetter,            // T384
+    imperialBannerWeaver:          state.imperialBannerWeaver,          // T385
+    wanderingBoneCarver:           state.wanderingBoneCarver,           // T386
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -1297,6 +1303,8 @@ function _applySave(s) {
   state.imperialFlowerMerchant     = s.imperialFlowerMerchant ?? null;     // T382
   state.wanderingDressmaker        = s.wanderingDressmaker ?? null;        // T383
   state.imperialTileSetter         = s.imperialTileSetter ?? null;         // T384
+  state.imperialBannerWeaver       = s.imperialBannerWeaver ?? null;       // T385
+  state.wanderingBoneCarver        = s.wanderingBoneCarver ?? null;        // T386
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -1625,6 +1633,8 @@ function _startFreshGame() {
   initImperialFlowerMerchant();       // T382
   initWanderingDressmaker();          // T383
   initImperialTileSetter();           // T384
+  initImperialBannerWeaver();         // T385
+  initWanderingBoneCarver();          // T386
   initAchievements();
   initLeaderboard();
 }
@@ -1936,6 +1946,8 @@ function _startLoadedGame(savedData) {
   initImperialFlowerMerchant();       // T382
   initWanderingDressmaker();          // T383
   initImperialTileSetter();           // T384
+  initImperialBannerWeaver();         // T385
+  initWanderingBoneCarver();          // T386
   initAchievements();
   initLeaderboard();
 }

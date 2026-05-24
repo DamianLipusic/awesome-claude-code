@@ -1360,6 +1360,26 @@
       "description": "Periodic imperial tile setter encounter: commission imperial tilework (25 stone + 15g → +0.22 stone/s 2.5min +20 prestige +10 morale), purchase tile patterns (18 iron → +0.15 iron/s 2min +12 prestige), send away. Bronze Age+, 8+ tiles, 13-17 min.",
       "completed_date": "2026-05-23",
       "notes": "Created imperialTileSetter.js system, added IMPERIAL_TILE_SETTER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialTileSetterSection() and handlers to questPanel.js (import * as TileSetter). Events.IMPERIAL_TILE_SETTER_CHANGED subscribed. Added tileset CSS (orange/amber theme with slate purchase button)."
+    },
+    {
+      "id": "T385",
+      "title": "Imperial Banner Weaver",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic imperial banner weaver encounter: weave imperial battle banners (25 wood + 20g → +0.25 wood/s 2.5min +22 prestige +12 morale), purchase heraldic patterns (22g → +0.18 gold/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-18 min.",
+      "completed_date": "2026-05-24",
+      "notes": "Created imperialBannerWeaver.js system, added IMPERIAL_BANNER_WEAVER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialBannerWeaverSection() and handlers to questPanel.js (import * as BannerWeaver). Events.IMPERIAL_BANNER_WEAVER_CHANGED subscribed. Added banner CSS (crimson/scarlet pulse theme with gold purchase button)."
+    },
+    {
+      "id": "T386",
+      "title": "Wandering Bone Carver",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic wandering bone carver encounter: commission ancestral carvings (20 food + 10 stone → +0.20 food/s 2.5min +15 prestige +10 morale), purchase carved artifacts (18g → +0.15 stone/s 2min +10 prestige), send away. Stone Age+, 6+ tiles, 11-15 min.",
+      "completed_date": "2026-05-24",
+      "notes": "Created wanderingBoneCarver.js system, added WANDERING_BONE_CARVER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingBoneCarverSection() and handlers to questPanel.js (import * as BoneCarver). Events.WANDERING_BONE_CARVER_CHANGED subscribed. Added bone CSS (earthy ivory/tan pulse theme with slate purchase button)."
     }
   ],
   "session_history": [
@@ -1440,6 +1460,7 @@
     "Session 97 (T377-T378): Wandering Locksmith (T377), Imperial Calligrapher (T378)",
     "Session 98 (T379-T380): Wandering Coppersmith (T379), Imperial Scrivener (T380)",
     "Session 99 (T381-T382): Wandering Mirror Maker (T381), Imperial Flower Merchant (T382)",
-    "Session 100 (T383-T384): Wandering Dressmaker (T383), Imperial Tile Setter (T384)"
+    "Session 100 (T383-T384): Wandering Dressmaker (T383), Imperial Tile Setter (T384)",
+    "Session 101 (T385-T386): Imperial Banner Weaver (T385), Wandering Bone Carver (T386)"
   ]
 }
