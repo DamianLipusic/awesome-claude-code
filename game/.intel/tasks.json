@@ -1412,6 +1412,26 @@
       "notes": "Created wanderingLuteMaker.js system, added WANDERING_LUTE_MAKER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingLuteMakerSection() and handlers to questPanel.js (import * as LuteMaker). Events.WANDERING_LUTE_MAKER_CHANGED subscribed. Added lute CSS (warm cedar/amber pulse theme with gold purchase button, lute- CSS prefix)."
     },
     {
+      "id": "T391",
+      "title": "Wandering Candlemaker",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic wandering candlemaker encounter: commission royal candles (20 food + 15 wood → +0.20 food/s 2.5min +15 prestige +10 morale), purchase wax formulas (18g → +0.15 gold/s 2min +10 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
+      "completed_date": "2026-05-24",
+      "notes": "Created wanderingCandlemaker.js system, added WANDERING_CANDLEMAKER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingCandlemakerSection() and handlers to questPanel.js (import * as Candlemaker). Events.WANDERING_CANDLEMAKER_CHANGED subscribed. Added candlemaker CSS (warm amber/beeswax theme with gray purchase button)."
+    },
+    {
+      "id": "T392",
+      "title": "Imperial Grain Merchant",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic imperial grain merchant encounter: establish grain stores (25 food + 15g → +0.25 food/s 2.5min +20 prestige +12 morale), purchase milling rights (20 wood → +0.18 wood/s 2min +15 prestige), send away. Bronze Age+, 8+ tiles, 12-17 min.",
+      "completed_date": "2026-05-24",
+      "notes": "Created imperialGrainMerchant.js system, added IMPERIAL_GRAIN_MERCHANT_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialGrainMerchantSection() and handlers to questPanel.js (import * as GrainMerchant). Events.IMPERIAL_GRAIN_MERCHANT_CHANGED subscribed. Added grain CSS (spring green establish with amber milling rights theme)."
+    },
+    {
       "id": "T390",
       "title": "Imperial Stonecutter's Guild",
       "status": "done",
@@ -1503,6 +1523,7 @@
     "Session 100 (T383-T384): Wandering Dressmaker (T383), Imperial Tile Setter (T384)",
     "Session 101 (T385-T386): Imperial Banner Weaver (T385), Wandering Bone Carver (T386)",
     "Session 102 (T387-T388): Wandering Tapestry Maker (T387), Imperial Siege Architect (T388)",
-    "Session 103 (T389-T390): Wandering Lute Maker (T389), Imperial Stonecutter's Guild (T390)"
+    "Session 103 (T389-T390): Wandering Lute Maker (T389), Imperial Stonecutter's Guild (T390)",
+    "Session 104 (T391-T392): Wandering Candlemaker (T391), Imperial Grain Merchant (T392)"
   ]
 }

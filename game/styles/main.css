@@ -21135,3 +21135,81 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--scguild-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T391 Wandering Candlemaker ─────────────────────────────────────────── */
+@keyframes candlemaker-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0); border-color: rgba(251, 191, 36, 0.28); }
+  50%       { box-shadow: 0 0 8px 2px rgba(251, 191, 36, 0.18); border-color: rgba(251, 191, 36, 0.52); }
+}
+.candlemaker-section--active {
+  background: linear-gradient(135deg, rgba(92, 55, 5, 0.18), rgba(60, 35, 0, 0.12));
+  border: 1px solid rgba(251, 191, 36, 0.30); border-radius: 8px; padding: 10px;
+  margin-bottom: 10px; animation: candlemaker-pulse 2.8s ease-in-out infinite;
+}
+.candlemaker-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.candlemaker-title  { font-weight: 700; font-size: 0.88rem; color: #fbbf24; }
+.candlemaker-timer  { font-size: 0.78rem; color: #fbbf24; }
+.candlemaker-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.candlemaker-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.candlemaker-actions { display: flex; flex-direction: column; gap: 5px; }
+.candlemaker-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--candlemaker-commission {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(180, 120, 10, 0.28), rgba(140, 90, 5, 0.20));
+  border: 1px solid rgba(251, 191, 36, 0.42); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fbbf24; text-align: left; transition: background 0.15s;
+}
+.btn--candlemaker-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(180, 120, 10, 0.42), rgba(140, 90, 5, 0.30)); }
+.btn--candlemaker-purchase {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.20), rgba(75, 85, 99, 0.14));
+  border: 1px solid rgba(209, 213, 219, 0.32); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #d1d5db; text-align: left; transition: background 0.15s;
+}
+.btn--candlemaker-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.32), rgba(75, 85, 99, 0.24)); }
+.btn--candlemaker-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--candlemaker-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T392 Imperial Grain Merchant ────────────────────────────────────────── */
+@keyframes grain-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(134, 239, 172, 0); border-color: rgba(134, 239, 172, 0.25); }
+  50%       { box-shadow: 0 0 8px 2px rgba(134, 239, 172, 0.14); border-color: rgba(134, 239, 172, 0.48); }
+}
+.grain-section--active {
+  background: linear-gradient(135deg, rgba(5, 60, 20, 0.18), rgba(2, 40, 12, 0.12));
+  border: 1px solid rgba(134, 239, 172, 0.28); border-radius: 8px; padding: 10px;
+  margin-bottom: 10px; animation: grain-pulse 2.8s ease-in-out infinite;
+}
+.grain-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.grain-title  { font-weight: 700; font-size: 0.88rem; color: #86efac; }
+.grain-timer  { font-size: 0.78rem; color: #86efac; }
+.grain-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.grain-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.grain-actions { display: flex; flex-direction: column; gap: 5px; }
+.grain-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--grain-establish {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(20, 100, 50, 0.30), rgba(10, 70, 30, 0.22));
+  border: 1px solid rgba(134, 239, 172, 0.42); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #86efac; text-align: left; transition: background 0.15s;
+}
+.btn--grain-establish:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(20, 100, 50, 0.44), rgba(10, 70, 30, 0.34)); }
+.btn--grain-purchase {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(120, 80, 10, 0.22), rgba(90, 60, 5, 0.16));
+  border: 1px solid rgba(217, 119, 6, 0.36); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #d97706; text-align: left; transition: background 0.15s;
+}
+.btn--grain-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(120, 80, 10, 0.34), rgba(90, 60, 5, 0.26)); }
+.btn--grain-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--grain-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

@@ -155,6 +155,8 @@ import * as TapestryMaker  from '../systems/wanderingTapestryMaker.js';      // 
 import * as SiegeArchitect from '../systems/imperialSiegeArchitect.js';      // T388
 import * as LuteMaker     from '../systems/wanderingLuteMaker.js';           // T389
 import * as SCGuild       from '../systems/imperialStonecutterGuild.js';     // T390
+import * as Candlemaker   from '../systems/wanderingCandlemaker.js';         // T391
+import * as GrainMerchant from '../systems/imperialGrainMerchant.js';        // T392
 
 let _panel = null;
 
@@ -338,6 +340,8 @@ function _encountersSection() {
     _imperialSiegeArchitectSection(),
     _wanderingLuteMakerSection(),
     _imperialStonecutterGuildSection(),
+    _wanderingCandlemakerSection(),
+    _imperialGrainMerchantSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -5092,6 +5096,76 @@ function _imperialStonecutterGuildSection() {
     </div>`;
 }
 
+// ── T391 Wandering Candlemaker ───────────────────────────────────────────────
+
+function _wanderingCandlemakerSection() {
+  if (!Candlemaker.getActiveWanderingCandlemaker()) return '';
+  const secs = Candlemaker.getCandlemakerSecsLeft();
+  const urgent = secs <= 20;
+  const food = state.resources.food ?? 0;
+  const wood = state.resources.wood ?? 0;
+  const gold = state.resources.gold ?? 0;
+  const canCommission = food >= Candlemaker.COMMISSION_FOOD_COST && wood >= Candlemaker.COMMISSION_WOOD_COST;
+  const canPurchase   = gold >= Candlemaker.PURCHASE_GOLD_COST;
+  return `
+    <div class="candlemaker-section--active">
+      <div class="candlemaker-header">
+        <span class="candlemaker-title">🕯️ Wandering Candlemaker</span>
+        <span class="candlemaker-timer${urgent ? ' candlemaker-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="candlemaker-desc">A wandering candlemaker arrives carrying bundles of fine beeswax candles, ornate tallow moulds, and fragrant wicking cords — offering to commission royal ceremonial candles for the palace halls, or to share rare wax-blending formulas and wick-crafting secrets.</div>
+      <div class="candlemaker-actions">
+        <button class="btn--candlemaker-commission${canCommission ? '' : ' btn--disabled'}" data-action="candlemaker-commission" ${canCommission ? '' : 'disabled'}>
+          🕯️ Commission Royal Candles — ${Candlemaker.COMMISSION_FOOD_COST}🌾 + ${Candlemaker.COMMISSION_WOOD_COST}🪵
+          <span class="candlemaker-cost">→ +${Candlemaker.COMMISSION_FOOD_RATE} food/s (2.5 min) · +${Candlemaker.COMMISSION_PRESTIGE_REWARD} prestige · +${Candlemaker.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--candlemaker-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="candlemaker-purchase" ${canPurchase ? '' : 'disabled'}>
+          📜 Purchase Wax Formulas — ${Candlemaker.PURCHASE_GOLD_COST}💰
+          <span class="candlemaker-cost">→ +${Candlemaker.PURCHASE_GOLD_RATE} gold/s (2 min) · +${Candlemaker.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--candlemaker-away" data-action="candlemaker-away">
+          🚶 Send Away
+          <span class="candlemaker-cost">→ Candlemaker departs with the candles</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T392 Imperial Grain Merchant ─────────────────────────────────────────────
+
+function _imperialGrainMerchantSection() {
+  if (!GrainMerchant.getActiveImperialGrainMerchant()) return '';
+  const secs = GrainMerchant.getGrainMerchantSecsLeft();
+  const urgent = secs <= 20;
+  const food = state.resources.food ?? 0;
+  const gold = state.resources.gold ?? 0;
+  const wood = state.resources.wood ?? 0;
+  const canCommission = food >= GrainMerchant.COMMISSION_FOOD_COST && gold >= GrainMerchant.COMMISSION_GOLD_COST;
+  const canPurchase   = wood >= GrainMerchant.PURCHASE_WOOD_COST;
+  return `
+    <div class="grain-section--active">
+      <div class="grain-header">
+        <span class="grain-title">🌾 Imperial Grain Merchant</span>
+        <span class="grain-timer${urgent ? ' grain-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="grain-desc">An imperial grain merchant arrives accompanied by a long train of ox-carts laden with prime winter wheat, barley, and millet — offering to establish long-term grain stores for the imperial granaries, or to sell exclusive milling rights and grain-drying techniques.</div>
+      <div class="grain-actions">
+        <button class="btn--grain-establish${canCommission ? '' : ' btn--disabled'}" data-action="grain-establish" ${canCommission ? '' : 'disabled'}>
+          🌾 Establish Grain Stores — ${GrainMerchant.COMMISSION_FOOD_COST}🌾 + ${GrainMerchant.COMMISSION_GOLD_COST}💰
+          <span class="grain-cost">→ +${GrainMerchant.COMMISSION_FOOD_RATE} food/s (2.5 min) · +${GrainMerchant.COMMISSION_PRESTIGE_REWARD} prestige · +${GrainMerchant.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--grain-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="grain-purchase" ${canPurchase ? '' : 'disabled'}>
+          🪵 Purchase Milling Rights — ${GrainMerchant.PURCHASE_WOOD_COST}🪵
+          <span class="grain-cost">→ +${GrainMerchant.PURCHASE_WOOD_RATE} wood/s (2 min) · +${GrainMerchant.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--grain-away" data-action="grain-away">
+          🚶 Send Away
+          <span class="grain-cost">→ Grain merchant departs with the carts</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -5665,6 +5739,14 @@ const _HANDLERS = {
   'scguild-commission': () => SCGuild.commissionGrandStoneworks(),
   'scguild-purchase':   () => SCGuild.purchaseStonecuttingLore(),
   'scguild-away':       () => SCGuild.sendStonecutterGuildAway(),
+
+  'candlemaker-commission': () => Candlemaker.commissionRoyalCandles(),
+  'candlemaker-purchase':   () => Candlemaker.purchaseWaxFormulas(),
+  'candlemaker-away':       () => Candlemaker.sendCandlemakerAway(),
+
+  'grain-establish': () => GrainMerchant.establishGrainStores(),
+  'grain-purchase':  () => GrainMerchant.purchaseMillingRights(),
+  'grain-away':      () => GrainMerchant.sendGrainMerchantAway(),
 };
 
 function _handleClick(e) {
@@ -5827,6 +5909,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_SIEGE_ARCHITECT_CHANGED,
     Events.WANDERING_LUTE_MAKER_CHANGED,
     Events.IMPERIAL_STONECUTTER_GUILD_CHANGED,
+    Events.WANDERING_CANDLEMAKER_CHANGED,
+    Events.IMPERIAL_GRAIN_MERCHANT_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

@@ -332,6 +332,8 @@ import { initWanderingTapestryMaker, wanderingTapestryMakerTick }     from './sy
 import { initImperialSiegeArchitect, imperialSiegeArchitectTick }     from './systems/imperialSiegeArchitect.js';       // T388
 import { initWanderingLuteMaker, wanderingLuteMakerTick }             from './systems/wanderingLuteMaker.js';           // T389
 import { initImperialStonecutterGuild, imperialStonecutterGuildTick } from './systems/imperialStonecutterGuild.js';     // T390
+import { initWanderingCandlemaker, wanderingCandlemakerTick }         from './systems/wanderingCandlemaker.js';         // T391
+import { initImperialGrainMerchant, imperialGrainMerchantTick }       from './systems/imperialGrainMerchant.js';        // T392
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -670,6 +672,8 @@ function _registerAllSystems() {
   registerSystem(imperialSiegeArchitectTick);       // T388
   registerSystem(wanderingLuteMakerTick);           // T389
   registerSystem(imperialStonecutterGuildTick);     // T390
+  registerSystem(wanderingCandlemakerTick);         // T391
+  registerSystem(imperialGrainMerchantTick);        // T392
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -993,6 +997,8 @@ function _save() {
     imperialSiegeArchitect:        state.imperialSiegeArchitect,        // T388
     wanderingLuteMaker:            state.wanderingLuteMaker,            // T389
     imperialStonecutterGuild:      state.imperialStonecutterGuild,      // T390
+    wanderingCandlemaker:          state.wanderingCandlemaker,          // T391
+    imperialGrainMerchant:         state.imperialGrainMerchant,         // T392
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -1321,6 +1327,8 @@ function _applySave(s) {
   state.imperialSiegeArchitect     = s.imperialSiegeArchitect ?? null;     // T388
   state.wanderingLuteMaker         = s.wanderingLuteMaker ?? null;         // T389
   state.imperialStonecutterGuild   = s.imperialStonecutterGuild ?? null;   // T390
+  state.wanderingCandlemaker       = s.wanderingCandlemaker ?? null;       // T391
+  state.imperialGrainMerchant      = s.imperialGrainMerchant ?? null;      // T392
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -1655,6 +1663,8 @@ function _startFreshGame() {
   initImperialSiegeArchitect();       // T388
   initWanderingLuteMaker();           // T389
   initImperialStonecutterGuild();     // T390
+  initWanderingCandlemaker();         // T391
+  initImperialGrainMerchant();        // T392
   initAchievements();
   initLeaderboard();
 }
@@ -1972,6 +1982,8 @@ function _startLoadedGame(savedData) {
   initImperialSiegeArchitect();       // T388
   initWanderingLuteMaker();           // T389
   initImperialStonecutterGuild();     // T390
+  initWanderingCandlemaker();         // T391
+  initImperialGrainMerchant();        // T392
   initAchievements();
   initLeaderboard();
 }
