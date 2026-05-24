@@ -21057,3 +21057,81 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--sarch-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T389 Wandering Lute Maker ───────────────────────────────────────────── */
+@keyframes lute-pulse {
+  0%, 100% { border-color: rgba(180, 120, 60, 0.45); box-shadow: 0 0 6px rgba(180, 120, 60, 0.18); }
+  50%       { border-color: rgba(205, 150, 80, 0.70); box-shadow: 0 0 12px rgba(205, 150, 80, 0.32); }
+}
+.lute-section--active {
+  background: linear-gradient(135deg, rgba(120, 70, 20, 0.18), rgba(90, 50, 10, 0.12));
+  border: 1px solid rgba(180, 120, 60, 0.45); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: lute-pulse 2.8s ease-in-out infinite;
+}
+.lute-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.lute-title  { font-weight: 700; font-size: 0.88rem; color: #d4a060; }
+.lute-timer  { font-size: 0.78rem; color: #94a3b8; }
+.lute-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.lute-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.lute-actions { display: flex; flex-direction: column; gap: 5px; }
+.lute-cost   { display: block; font-size: 0.72rem; color: #d4a060; margin-top: 2px; }
+.btn--lute-commission {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(120, 70, 20, 0.30), rgba(90, 50, 10, 0.20));
+  border: 1px solid rgba(180, 120, 60, 0.40); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #d4a060; text-align: left; transition: background 0.15s;
+}
+.btn--lute-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(140, 90, 30, 0.42), rgba(110, 70, 20, 0.30)); }
+.btn--lute-purchase {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(161, 132, 36, 0.25), rgba(120, 100, 20, 0.18));
+  border: 1px solid rgba(200, 165, 50, 0.38); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #c9a73e; text-align: left; transition: background 0.15s;
+}
+.btn--lute-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(161, 132, 36, 0.38), rgba(120, 100, 20, 0.28)); }
+.btn--lute-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--lute-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T390 Imperial Stonecutter's Guild ───────────────────────────────────── */
+@keyframes scguild-pulse {
+  0%, 100% { border-color: rgba(100, 116, 139, 0.45); box-shadow: 0 0 6px rgba(100, 116, 139, 0.18); }
+  50%       { border-color: rgba(148, 163, 184, 0.70); box-shadow: 0 0 12px rgba(148, 163, 184, 0.30); }
+}
+.scguild-section--active {
+  background: linear-gradient(135deg, rgba(50, 60, 75, 0.20), rgba(35, 45, 60, 0.14));
+  border: 1px solid rgba(100, 116, 139, 0.45); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: scguild-pulse 2.8s ease-in-out infinite;
+}
+.scguild-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.scguild-title  { font-weight: 700; font-size: 0.88rem; color: #94a3b8; }
+.scguild-timer  { font-size: 0.78rem; color: #94a3b8; }
+.scguild-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.scguild-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.scguild-actions { display: flex; flex-direction: column; gap: 5px; }
+.scguild-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--scguild-commission {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(71, 85, 105, 0.32), rgba(51, 65, 85, 0.22));
+  border: 1px solid rgba(100, 116, 139, 0.42); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #94a3b8; text-align: left; transition: background 0.15s;
+}
+.btn--scguild-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(71, 85, 105, 0.46), rgba(51, 65, 85, 0.34)); }
+.btn--scguild-purchase {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(161, 132, 36, 0.25), rgba(120, 100, 20, 0.18));
+  border: 1px solid rgba(200, 165, 50, 0.38); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #c9a73e; text-align: left; transition: background 0.15s;
+}
+.btn--scguild-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(161, 132, 36, 0.38), rgba(120, 100, 20, 0.28)); }
+.btn--scguild-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--scguild-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

@@ -330,4 +330,6 @@ export const Events = Object.freeze({
   WANDERING_BONE_CARVER_CHANGED:            'wanderingBoneCarverChanged',                          // T386: bone carver spawned / commissioned / purchased / dismissed / expired
   WANDERING_TAPESTRY_MAKER_CHANGED:         'wanderingTapestryMakerChanged',                        // T387: tapestry maker spawned / commissioned / purchased / dismissed / expired
   IMPERIAL_SIEGE_ARCHITECT_CHANGED:         'imperialSiegeArchitectChanged',                        // T388: siege architect spawned / commissioned / studied / dismissed / expired
+  WANDERING_LUTE_MAKER_CHANGED:             'wanderingLuteMakerChanged',                             // T389: lute maker spawned / commissioned / purchased / dismissed / expired
+  IMPERIAL_STONECUTTER_GUILD_CHANGED:       'imperialStonecutterGuildChanged',                       // T390: stonecutter guild spawned / commissioned / purchased / dismissed / expired
 });

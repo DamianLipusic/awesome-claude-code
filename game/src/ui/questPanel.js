@@ -153,6 +153,8 @@ import * as BannerWeaver from '../systems/imperialBannerWeaver.js';        // T3
 import * as BoneCarver      from '../systems/wanderingBoneCarver.js';         // T386
 import * as TapestryMaker  from '../systems/wanderingTapestryMaker.js';      // T387
 import * as SiegeArchitect from '../systems/imperialSiegeArchitect.js';      // T388
+import * as LuteMaker     from '../systems/wanderingLuteMaker.js';           // T389
+import * as SCGuild       from '../systems/imperialStonecutterGuild.js';     // T390
 
 let _panel = null;
 
@@ -334,6 +336,8 @@ function _encountersSection() {
     _wanderingBoneCarverSection(),
     _wanderingTapestryMakerSection(),
     _imperialSiegeArchitectSection(),
+    _wanderingLuteMakerSection(),
+    _imperialStonecutterGuildSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -5021,6 +5025,73 @@ function _imperialSiegeArchitectSection() {
     </div>`;
 }
 
+// ── T389 Wandering Lute Maker ─────────────────────────────────────────────
+function _wanderingLuteMakerSection() {
+  if (!LuteMaker.getActiveWanderingLuteMaker()) return '';
+  const secs = LuteMaker.getLuteMakerSecsLeft();
+  const urgent = secs <= 20;
+  const wood = state.resources.wood ?? 0;
+  const gold = state.resources.gold ?? 0;
+  const canCommission = wood >= LuteMaker.COMMISSION_WOOD_COST && gold >= LuteMaker.COMMISSION_GOLD_COST;
+  const canPurchase   = gold >= LuteMaker.PURCHASE_GOLD_COST;
+  return `
+    <div class="lute-section--active">
+      <div class="lute-header">
+        <span class="lute-title">🎸 Wandering Lute Maker</span>
+        <span class="lute-timer${urgent ? ' lute-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="lute-desc">A wandering lute maker arrives carrying handcrafted wooden instruments, fine gut strings, and decorative inlay patterns — offering to commission a set of court lutes for the imperial musicians, or to share rare instrument patterns and woodworking techniques.</div>
+      <div class="lute-actions">
+        <button class="btn--lute-commission${canCommission ? '' : ' btn--disabled'}" data-action="lute-commission" ${canCommission ? '' : 'disabled'}>
+          🎸 Commission Court Lutes — ${LuteMaker.COMMISSION_WOOD_COST}🪵 + ${LuteMaker.COMMISSION_GOLD_COST}💰
+          <span class="lute-cost">→ +${LuteMaker.COMMISSION_WOOD_RATE} wood/s (2.5 min) · +${LuteMaker.COMMISSION_PRESTIGE_REWARD} prestige · +${LuteMaker.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--lute-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="lute-purchase" ${canPurchase ? '' : 'disabled'}>
+          🎵 Purchase Instrument Patterns — ${LuteMaker.PURCHASE_GOLD_COST}💰
+          <span class="lute-cost">→ +${LuteMaker.PURCHASE_GOLD_RATE} gold/s (2 min) · +${LuteMaker.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--lute-away" data-action="lute-away">
+          🚶 Send Away
+          <span class="lute-cost">→ Lute maker departs with the instruments</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T390 Imperial Stonecutter's Guild ─────────────────────────────────────
+function _imperialStonecutterGuildSection() {
+  if (!SCGuild.getActiveImperialStonecutterGuild()) return '';
+  const secs = SCGuild.getStonecutterGuildSecsLeft();
+  const urgent = secs <= 20;
+  const stone = state.resources.stone ?? 0;
+  const gold  = state.resources.gold  ?? 0;
+  const iron  = state.resources.iron  ?? 0;
+  const canCommission = stone >= SCGuild.COMMISSION_STONE_COST && gold >= SCGuild.COMMISSION_GOLD_COST;
+  const canPurchase   = iron  >= SCGuild.PURCHASE_IRON_COST;
+  return `
+    <div class="scguild-section--active">
+      <div class="scguild-header">
+        <span class="scguild-title">⛏️ Imperial Stonecutter's Guild</span>
+        <span class="scguild-timer${urgent ? ' scguild-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="scguild-desc">A delegation from the imperial stonecutter's guild arrives bearing master-cut stone samples, quarrying diagrams, and guild commission contracts — offering to commission grand precision stoneworks for the realm's infrastructure, or to share rare stonecutting lore and master quarrying techniques.</div>
+      <div class="scguild-actions">
+        <button class="btn--scguild-commission${canCommission ? '' : ' btn--disabled'}" data-action="scguild-commission" ${canCommission ? '' : 'disabled'}>
+          ⛏️ Commission Grand Stoneworks — ${SCGuild.COMMISSION_STONE_COST}🪨 + ${SCGuild.COMMISSION_GOLD_COST}💰
+          <span class="scguild-cost">→ +${SCGuild.COMMISSION_STONE_RATE} stone/s (2.5 min) · +${SCGuild.COMMISSION_PRESTIGE_REWARD} prestige · +${SCGuild.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--scguild-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="scguild-purchase" ${canPurchase ? '' : 'disabled'}>
+          📜 Purchase Stonecutting Lore — ${SCGuild.PURCHASE_IRON_COST}⚙️
+          <span class="scguild-cost">→ +${SCGuild.PURCHASE_IRON_RATE} iron/s (2 min) · +${SCGuild.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--scguild-away" data-action="scguild-away">
+          🚶 Send Away
+          <span class="scguild-cost">→ Guild delegation departs with the contracts</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -5586,6 +5657,14 @@ const _HANDLERS = {
   'sarch-commission': () => SiegeArchitect.commissionSiegeTowers(),
   'sarch-study':      () => SiegeArchitect.studyFortificationDesigns(),
   'sarch-away':       () => SiegeArchitect.sendSiegeArchitectAway(),
+
+  'lute-commission': () => LuteMaker.commissionCourtLutes(),
+  'lute-purchase':   () => LuteMaker.purchaseInstrumentPatterns(),
+  'lute-away':       () => LuteMaker.sendLuteMakerAway(),
+
+  'scguild-commission': () => SCGuild.commissionGrandStoneworks(),
+  'scguild-purchase':   () => SCGuild.purchaseStonecuttingLore(),
+  'scguild-away':       () => SCGuild.sendStonecutterGuildAway(),
 };
 
 function _handleClick(e) {
@@ -5746,6 +5825,8 @@ export function initQuestPanel() {
     Events.WANDERING_BONE_CARVER_CHANGED,
     Events.WANDERING_TAPESTRY_MAKER_CHANGED,
     Events.IMPERIAL_SIEGE_ARCHITECT_CHANGED,
+    Events.WANDERING_LUTE_MAKER_CHANGED,
+    Events.IMPERIAL_STONECUTTER_GUILD_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);
