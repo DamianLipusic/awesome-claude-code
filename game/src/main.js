@@ -328,6 +328,8 @@ import { initWanderingDressmaker, wanderingDressmakertick }           from './sy
 import { initImperialTileSetter, imperialTileSetterTick }             from './systems/imperialTileSetter.js';           // T384
 import { initImperialBannerWeaver, imperialBannerWeaverTick }         from './systems/imperialBannerWeaver.js';         // T385
 import { initWanderingBoneCarver, wanderingBoneCarverTick }           from './systems/wanderingBoneCarver.js';          // T386
+import { initWanderingTapestryMaker, wanderingTapestryMakerTick }     from './systems/wanderingTapestryMaker.js';       // T387
+import { initImperialSiegeArchitect, imperialSiegeArchitectTick }     from './systems/imperialSiegeArchitect.js';       // T388
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -662,6 +664,8 @@ function _registerAllSystems() {
   registerSystem(imperialTileSetterTick);           // T384
   registerSystem(imperialBannerWeaverTick);         // T385
   registerSystem(wanderingBoneCarverTick);          // T386
+  registerSystem(wanderingTapestryMakerTick);       // T387
+  registerSystem(imperialSiegeArchitectTick);       // T388
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -981,6 +985,8 @@ function _save() {
     imperialTileSetter:            state.imperialTileSetter,            // T384
     imperialBannerWeaver:          state.imperialBannerWeaver,          // T385
     wanderingBoneCarver:           state.wanderingBoneCarver,           // T386
+    wanderingTapestryMaker:        state.wanderingTapestryMaker,        // T387
+    imperialSiegeArchitect:        state.imperialSiegeArchitect,        // T388
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -1305,6 +1311,8 @@ function _applySave(s) {
   state.imperialTileSetter         = s.imperialTileSetter ?? null;         // T384
   state.imperialBannerWeaver       = s.imperialBannerWeaver ?? null;       // T385
   state.wanderingBoneCarver        = s.wanderingBoneCarver ?? null;        // T386
+  state.wanderingTapestryMaker     = s.wanderingTapestryMaker ?? null;     // T387
+  state.imperialSiegeArchitect     = s.imperialSiegeArchitect ?? null;     // T388
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -1635,6 +1643,8 @@ function _startFreshGame() {
   initImperialTileSetter();           // T384
   initImperialBannerWeaver();         // T385
   initWanderingBoneCarver();          // T386
+  initWanderingTapestryMaker();       // T387
+  initImperialSiegeArchitect();       // T388
   initAchievements();
   initLeaderboard();
 }
@@ -1948,6 +1958,8 @@ function _startLoadedGame(savedData) {
   initImperialTileSetter();           // T384
   initImperialBannerWeaver();         // T385
   initWanderingBoneCarver();          // T386
+  initWanderingTapestryMaker();       // T387
+  initImperialSiegeArchitect();       // T388
   initAchievements();
   initLeaderboard();
 }

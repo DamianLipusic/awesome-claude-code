@@ -150,7 +150,9 @@ import * as FlowerMerchant from '../systems/imperialFlowerMerchant.js';     // T
 import * as Dressmaker    from '../systems/wanderingDressmaker.js';         // T383
 import * as TileSetter    from '../systems/imperialTileSetter.js';          // T384
 import * as BannerWeaver from '../systems/imperialBannerWeaver.js';        // T385
-import * as BoneCarver   from '../systems/wanderingBoneCarver.js';         // T386
+import * as BoneCarver      from '../systems/wanderingBoneCarver.js';         // T386
+import * as TapestryMaker  from '../systems/wanderingTapestryMaker.js';      // T387
+import * as SiegeArchitect from '../systems/imperialSiegeArchitect.js';      // T388
 
 let _panel = null;
 
@@ -330,6 +332,8 @@ function _encountersSection() {
     _imperialTileSetterSection(),
     _imperialBannerWeaverSection(),
     _wanderingBoneCarverSection(),
+    _wanderingTapestryMakerSection(),
+    _imperialSiegeArchitectSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -4953,6 +4957,70 @@ function _wanderingBoneCarverSection() {
     </div>`;
 }
 
+// ── T387 Wandering Tapestry Maker ────────────────────────────────────────
+function _wanderingTapestryMakerSection() {
+  if (!TapestryMaker.getActiveWanderingTapestryMaker()) return '';
+  const secs   = TapestryMaker.getTapestryMakerSecsLeft();
+  const urgent = secs <= 20;
+  const { wood = 0, gold = 0 } = state.resources ?? {};
+  const canCommission = wood >= TapestryMaker.COMMISSION_WOOD_COST && gold >= TapestryMaker.COMMISSION_GOLD_COST;
+  const canPurchase   = gold >= TapestryMaker.PURCHASE_GOLD_COST;
+  return `
+    <div class="tapestry-section--active">
+      <div class="tapestry-header">
+        <span class="tapestry-title">🧶 Wandering Tapestry Maker</span>
+        <span class="tapestry-timer${urgent ? ' tapestry-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="tapestry-desc">A wandering tapestry maker arrives carrying bolts of richly dyed wool, intricate loom patterns, and finely carved wooden shuttles — offering to weave a magnificent imperial tapestry for the throne room, or to share rare weaving patterns and craft techniques.</div>
+      <div class="tapestry-actions">
+        <button class="btn--tapestry-commission${canCommission ? '' : ' btn--disabled'}" data-action="tapestry-commission" ${canCommission ? '' : 'disabled'}>
+          🧶 Commission Imperial Tapestry — ${TapestryMaker.COMMISSION_WOOD_COST}🪵 + ${TapestryMaker.COMMISSION_GOLD_COST}💰
+          <span class="tapestry-cost">→ +${TapestryMaker.COMMISSION_WOOD_RATE} wood/s (2.5 min) · +${TapestryMaker.COMMISSION_PRESTIGE_REWARD} prestige · +${TapestryMaker.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--tapestry-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="tapestry-purchase" ${canPurchase ? '' : 'disabled'}>
+          🎨 Purchase Tapestry Patterns — ${TapestryMaker.PURCHASE_GOLD_COST}💰
+          <span class="tapestry-cost">→ +${TapestryMaker.PURCHASE_GOLD_RATE} gold/s (2 min) · +${TapestryMaker.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--tapestry-away" data-action="tapestry-away">
+          🚶 Send Away
+          <span class="tapestry-cost">→ Tapestry maker departs with the wool bolts</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T388 Imperial Siege Architect ────────────────────────────────────────
+function _imperialSiegeArchitectSection() {
+  if (!SiegeArchitect.getActiveImperialSiegeArchitect()) return '';
+  const secs   = SiegeArchitect.getSiegeArchitectSecsLeft();
+  const urgent = secs <= 20;
+  const { iron = 0, stone = 0, gold = 0 } = state.resources ?? {};
+  const canCommission = iron >= SiegeArchitect.COMMISSION_IRON_COST && stone >= SiegeArchitect.COMMISSION_STONE_COST;
+  const canStudy      = gold >= SiegeArchitect.PURCHASE_GOLD_COST;
+  return `
+    <div class="sarch-section--active">
+      <div class="sarch-header">
+        <span class="sarch-title">🏰 Imperial Siege Architect</span>
+        <span class="sarch-timer${urgent ? ' sarch-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="sarch-desc">A renowned imperial siege architect arrives bearing detailed engineering blueprints for advanced siege towers and fortification designs — offering to commission a set of powerful siege tower constructions, or to share classified fortification design secrets with the engineers.</div>
+      <div class="sarch-actions">
+        <button class="btn--sarch-commission${canCommission ? '' : ' btn--disabled'}" data-action="sarch-commission" ${canCommission ? '' : 'disabled'}>
+          🏰 Commission Siege Towers — ${SiegeArchitect.COMMISSION_IRON_COST}⚙️ + ${SiegeArchitect.COMMISSION_STONE_COST}🪨
+          <span class="sarch-cost">→ +${SiegeArchitect.COMMISSION_IRON_RATE} iron/s (2.5 min) · +${SiegeArchitect.COMMISSION_PRESTIGE_REWARD} prestige · +${SiegeArchitect.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--sarch-study${canStudy ? '' : ' btn--disabled'}" data-action="sarch-study" ${canStudy ? '' : 'disabled'}>
+          📐 Study Fortification Designs — ${SiegeArchitect.PURCHASE_GOLD_COST}💰
+          <span class="sarch-cost">→ +${SiegeArchitect.PURCHASE_STONE_RATE} stone/s (2 min) · +${SiegeArchitect.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--sarch-away" data-action="sarch-away">
+          🚶 Send Away
+          <span class="sarch-cost">→ Architect departs with the blueprints</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -5510,6 +5578,14 @@ const _HANDLERS = {
   'bone-commission': () => BoneCarver.commissionAncestralCarvings(),
   'bone-purchase':   () => BoneCarver.purchaseCarvedArtifacts(),
   'bone-away':       () => BoneCarver.sendBoneCarverAway(),
+
+  'tapestry-commission': () => TapestryMaker.commissionImperialTapestry(),
+  'tapestry-purchase':   () => TapestryMaker.purchaseTapestryPatterns(),
+  'tapestry-away':       () => TapestryMaker.sendTapestryMakerAway(),
+
+  'sarch-commission': () => SiegeArchitect.commissionSiegeTowers(),
+  'sarch-study':      () => SiegeArchitect.studyFortificationDesigns(),
+  'sarch-away':       () => SiegeArchitect.sendSiegeArchitectAway(),
 };
 
 function _handleClick(e) {
@@ -5668,6 +5744,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_TILE_SETTER_CHANGED,
     Events.IMPERIAL_BANNER_WEAVER_CHANGED,
     Events.WANDERING_BONE_CARVER_CHANGED,
+    Events.WANDERING_TAPESTRY_MAKER_CHANGED,
+    Events.IMPERIAL_SIEGE_ARCHITECT_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

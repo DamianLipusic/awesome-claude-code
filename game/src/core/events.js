@@ -328,4 +328,6 @@ export const Events = Object.freeze({
   IMPERIAL_TILE_SETTER_CHANGED:             'imperialTileSetterChanged',                         // T384: tile setter spawned / commissioned / purchased / dismissed / expired
   IMPERIAL_BANNER_WEAVER_CHANGED:           'imperialBannerWeaverChanged',                        // T385: banner weaver spawned / woven / purchased / dismissed / expired
   WANDERING_BONE_CARVER_CHANGED:            'wanderingBoneCarverChanged',                          // T386: bone carver spawned / commissioned / purchased / dismissed / expired
+  WANDERING_TAPESTRY_MAKER_CHANGED:         'wanderingTapestryMakerChanged',                        // T387: tapestry maker spawned / commissioned / purchased / dismissed / expired
+  IMPERIAL_SIEGE_ARCHITECT_CHANGED:         'imperialSiegeArchitectChanged',                        // T388: siege architect spawned / commissioned / studied / dismissed / expired
 });
