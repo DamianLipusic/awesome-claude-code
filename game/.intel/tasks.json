@@ -1540,6 +1540,26 @@
       "description": "Periodic imperial siege catapult engineer encounter: commission war machines (35 iron + 20 wood → +0.25 iron/s 2.5min +28 prestige +10 morale), study torsion physics (25 stone → +0.20 stone/s 2min +18 prestige), send away. Iron Age+, 12+ tiles, 15-19 min.",
       "completed_date": "2026-05-25",
       "notes": "Built imperialSiegeCatapultEngineer.js. IMPERIAL_SIEGE_CATAPULT_ENGINEER_CHANGED event added to events.js. state.imperialSiegeCatapultEngineer null field. Catapult engineer section in questPanel.js (import * as CatapultEng). Events.IMPERIAL_SIEGE_CATAPULT_ENGINEER_CHANGED subscribed. CSS: @keyframes catapulteng-pulse (red/crimson), .catapulteng-section--active, .btn--catapulteng-commission (red), .btn--catapulteng-study (slate), .btn--catapulteng-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T403",
+      "title": "Wandering Wool Spinner",
+      "status": "done",
+      "priority": 403,
+      "phase": 117,
+      "description": "Periodic wandering wool spinner encounter: commission royal wool cloth (20 food + 15g → +0.2 food/s 2.5min +18 prestige +10 morale), purchase spinning techniques (15 wood → +0.15 wood/s 2min +12 prestige), send away. Stone Age+, 6+ tiles, 11-16 min.",
+      "completed_date": "2026-05-25",
+      "notes": "Built wanderingWoolSpinner.js. WANDERING_WOOL_SPINNER_CHANGED event added to events.js. state.wanderingWoolSpinner null field. Wool spinner section in questPanel.js (import * as WoolSpinner). Events.WANDERING_WOOL_SPINNER_CHANGED subscribed. CSS: @keyframes woolspinner-pulse (warm cream/golden), .woolspinner-section--active, .btn--woolspinner-commission (golden cream), .btn--woolspinner-purchase (green), .btn--woolspinner-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T404",
+      "title": "Imperial Amber Merchant",
+      "status": "done",
+      "priority": 404,
+      "phase": 117,
+      "description": "Periodic imperial amber merchant encounter: arrange Baltic amber trade (25 food + 20g → +0.22 gold/s 2.5min +20 prestige +10 morale), purchase amber specimens (18 stone → +0.15 stone/s 2min +12 prestige), send away. Bronze Age+, 8+ tiles, 13-18 min.",
+      "completed_date": "2026-05-25",
+      "notes": "Built imperialAmberMerchant.js. IMPERIAL_AMBER_MERCHANT_CHANGED event added to events.js. state.imperialAmberMerchant null field. Amber merchant section in questPanel.js (import * as AmberMerchant). Events.IMPERIAL_AMBER_MERCHANT_CHANGED subscribed. CSS: @keyframes ambermerchant-pulse (warm amber/golden orange), .ambermerchant-section--active, .btn--ambermerchant-arrange (amber/gold), .btn--ambermerchant-purchase (slate), .btn--ambermerchant-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     }
   ],
   "session_history": [
@@ -1629,6 +1649,7 @@
     "Session 106 (T395-T396): Wandering Herb Merchant (T395), Imperial Lantern Maker (T396)",
     "Session 107 (T397-T398): Wandering Ink Master (T397), Wandering Salt Merchant (T398)",
     "Session 108 (T399-T400): Wandering Bronze Smith (T399), Imperial Aqueduct Builder (T400)",
-    "Session 109 (T401-T402): Wandering Glass Painter (T401), Imperial Siege Catapult Engineer (T402)"
+    "Session 109 (T401-T402): Wandering Glass Painter (T401), Imperial Siege Catapult Engineer (T402)",
+    "Session 110 (T403-T404): Wandering Wool Spinner (T403), Imperial Amber Merchant (T404)"
   ]
 }

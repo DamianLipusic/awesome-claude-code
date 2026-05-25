@@ -344,6 +344,8 @@ import { initWanderingBronzeSmith, wanderingBronzeSmithTick }         from './sy
 import { initImperialAqueductBuilder, imperialAqueductBuilderTick }   from './systems/imperialAqueductBuilder.js';      // T400
 import { initWanderingGlassPainter, wanderingGlassPainterTick }       from './systems/wanderingGlassPainter.js';        // T401
 import { initImperialSiegeCatapultEngineer, imperialSiegeCatapultEngineerTick } from './systems/imperialSiegeCatapultEngineer.js'; // T402
+import { initWanderingWoolSpinner, wanderingWoolSpinnerTick }         from './systems/wanderingWoolSpinner.js';          // T403
+import { initImperialAmberMerchant, imperialAmberMerchantTick }       from './systems/imperialAmberMerchant.js';         // T404
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -694,6 +696,8 @@ function _registerAllSystems() {
   registerSystem(imperialAqueductBuilderTick);      // T400
   registerSystem(wanderingGlassPainterTick);        // T401
   registerSystem(imperialSiegeCatapultEngineerTick); // T402
+  registerSystem(wanderingWoolSpinnerTick);          // T403
+  registerSystem(imperialAmberMerchantTick);         // T404
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -1029,6 +1033,8 @@ function _save() {
     imperialAqueductBuilder:       state.imperialAqueductBuilder,       // T400
     wanderingGlassPainter:         state.wanderingGlassPainter,         // T401
     imperialSiegeCatapultEngineer: state.imperialSiegeCatapultEngineer, // T402
+    wanderingWoolSpinner:          state.wanderingWoolSpinner,          // T403
+    imperialAmberMerchant:         state.imperialAmberMerchant,         // T404
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -1369,6 +1375,8 @@ function _applySave(s) {
   state.imperialAqueductBuilder    = s.imperialAqueductBuilder ?? null;    // T400
   state.wanderingGlassPainter      = s.wanderingGlassPainter ?? null;      // T401
   state.imperialSiegeCatapultEngineer = s.imperialSiegeCatapultEngineer ?? null; // T402
+  state.wanderingWoolSpinner       = s.wanderingWoolSpinner ?? null;       // T403
+  state.imperialAmberMerchant      = s.imperialAmberMerchant ?? null;      // T404
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -1715,6 +1723,8 @@ function _startFreshGame() {
   initImperialAqueductBuilder();      // T400
   initWanderingGlassPainter();        // T401
   initImperialSiegeCatapultEngineer(); // T402
+  initWanderingWoolSpinner();          // T403
+  initImperialAmberMerchant();         // T404
   initAchievements();
   initLeaderboard();
 }
@@ -2044,6 +2054,8 @@ function _startLoadedGame(savedData) {
   initImperialAqueductBuilder();      // T400
   initWanderingGlassPainter();        // T401
   initImperialSiegeCatapultEngineer(); // T402
+  initWanderingWoolSpinner();          // T403
+  initImperialAmberMerchant();         // T404
   initAchievements();
   initLeaderboard();
 }

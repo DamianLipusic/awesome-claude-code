@@ -21607,3 +21607,81 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--catapulteng-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* T403 — Wandering Wool Spinner (warm cream/ivory) */
+@keyframes woolspinner-pulse {
+  0%, 100% { box-shadow: 0 0 6px rgba(253, 230, 138, 0.25); }
+  50%       { box-shadow: 0 0 14px rgba(253, 230, 138, 0.55); }
+}
+.woolspinner-section--active {
+  background: linear-gradient(135deg, rgba(60, 50, 20, 0.22), rgba(45, 35, 10, 0.15));
+  border: 1px solid rgba(253, 230, 138, 0.35); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: woolspinner-pulse 2.8s ease-in-out infinite;
+}
+.woolspinner-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.woolspinner-title  { font-weight: 700; font-size: 0.88rem; color: #fde68a; }
+.woolspinner-timer  { font-size: 0.78rem; color: #fde68a; }
+.woolspinner-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.woolspinner-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.woolspinner-actions { display: flex; flex-direction: column; gap: 5px; }
+.woolspinner-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--woolspinner-commission {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(80, 65, 15, 0.28), rgba(60, 45, 10, 0.20));
+  border: 1px solid rgba(253, 230, 138, 0.42); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fde68a; text-align: left; transition: background 0.15s;
+}
+.btn--woolspinner-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(80, 65, 15, 0.42), rgba(60, 45, 10, 0.30)); }
+.btn--woolspinner-purchase {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(20, 55, 20, 0.24), rgba(10, 40, 10, 0.18));
+  border: 1px solid rgba(134, 239, 172, 0.36); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #86efac; text-align: left; transition: background 0.15s;
+}
+.btn--woolspinner-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(20, 55, 20, 0.36), rgba(10, 40, 10, 0.28)); }
+.btn--woolspinner-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--woolspinner-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* T404 — Imperial Amber Merchant (warm amber/golden orange) */
+@keyframes ambermerchant-pulse {
+  0%, 100% { box-shadow: 0 0 6px rgba(251, 191, 36, 0.28); }
+  50%       { box-shadow: 0 0 14px rgba(251, 191, 36, 0.60); }
+}
+.ambermerchant-section--active {
+  background: linear-gradient(135deg, rgba(70, 45, 5, 0.24), rgba(50, 30, 3, 0.17));
+  border: 1px solid rgba(251, 191, 36, 0.38); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: ambermerchant-pulse 2.8s ease-in-out infinite;
+}
+.ambermerchant-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.ambermerchant-title  { font-weight: 700; font-size: 0.88rem; color: #fbbf24; }
+.ambermerchant-timer  { font-size: 0.78rem; color: #fbbf24; }
+.ambermerchant-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.ambermerchant-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.ambermerchant-actions { display: flex; flex-direction: column; gap: 5px; }
+.ambermerchant-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--ambermerchant-arrange {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(90, 58, 5, 0.28), rgba(65, 40, 3, 0.20));
+  border: 1px solid rgba(251, 191, 36, 0.44); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fbbf24; text-align: left; transition: background 0.15s;
+}
+.btn--ambermerchant-arrange:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(90, 58, 5, 0.42), rgba(65, 40, 3, 0.30)); }
+.btn--ambermerchant-purchase {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(70, 70, 85, 0.24), rgba(50, 50, 65, 0.18));
+  border: 1px solid rgba(148, 163, 184, 0.36); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #cbd5e1; text-align: left; transition: background 0.15s;
+}
+.btn--ambermerchant-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(70, 70, 85, 0.36), rgba(50, 50, 65, 0.28)); }
+.btn--ambermerchant-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--ambermerchant-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

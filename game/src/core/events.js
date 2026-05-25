@@ -344,4 +344,6 @@ export const Events = Object.freeze({
   IMPERIAL_AQUEDUCT_BUILDER_CHANGED:       'imperialAqueductBuilderChanged',                           // T400: aqueduct builder spawned / commissioned / studied / dismissed / expired
   WANDERING_GLASS_PAINTER_CHANGED:         'wanderingGlassPainterChanged',                              // T401: glass painter spawned / commissioned / purchased / dismissed / expired
   IMPERIAL_SIEGE_CATAPULT_ENGINEER_CHANGED: 'imperialSiegeCatapultEngineerChanged',                    // T402: siege catapult engineer spawned / commissioned / studied / dismissed / expired
+  WANDERING_WOOL_SPINNER_CHANGED:           'wanderingWoolSpinnerChanged',                               // T403: wool spinner spawned / commissioned / purchased / dismissed / expired
+  IMPERIAL_AMBER_MERCHANT_CHANGED:          'imperialAmberMerchantChanged',                              // T404: amber merchant spawned / arranged / purchased / dismissed / expired
 });

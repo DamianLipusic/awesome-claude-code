@@ -167,6 +167,8 @@ import * as BronzeSmith   from '../systems/wanderingBronzeSmith.js';         // 
 import * as AqueductBld   from '../systems/imperialAqueductBuilder.js';      // T400
 import * as GlassPainter  from '../systems/wanderingGlassPainter.js';        // T401
 import * as CatapultEng   from '../systems/imperialSiegeCatapultEngineer.js'; // T402
+import * as WoolSpinner   from '../systems/wanderingWoolSpinner.js';          // T403
+import * as AmberMerchant from '../systems/imperialAmberMerchant.js';         // T404
 
 let _panel = null;
 
@@ -362,6 +364,8 @@ function _encountersSection() {
     _imperialAqueductBuilderSection(),
     _wanderingGlassPainterSection(),
     _imperialSiegeCatapultEngineerSection(),
+    _wanderingWoolSpinnerSection(),
+    _imperialAmberMerchantSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -5515,6 +5519,72 @@ function _imperialSiegeCatapultEngineerSection() {
     </div>`;
 }
 
+function _wanderingWoolSpinnerSection() {
+  if (!WoolSpinner.getActiveWanderingWoolSpinner()) return '';
+  const secs   = WoolSpinner.getWoolSpinnerSecsLeft();
+  const urgent = secs <= 15;
+  const food   = state.resources?.food ?? 0;
+  const gold   = state.resources?.gold ?? 0;
+  const wood   = state.resources?.wood ?? 0;
+  const canCommission = food >= WoolSpinner.COMMISSION_FOOD_COST && gold >= WoolSpinner.COMMISSION_GOLD_COST;
+  const canPurchase   = wood >= WoolSpinner.PURCHASE_WOOD_COST;
+  return `
+    <div class="woolspinner-section--active">
+      <div class="woolspinner-header">
+        <span class="woolspinner-title">🐑 Wandering Wool Spinner</span>
+        <span class="woolspinner-timer${urgent ? ' woolspinner-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="woolspinner-desc">A wandering wool spinner arrives bearing a drop spindle, fleece-filled baskets, and dyed skeins of fine wool — offering to commission a supply of royal wool cloth for the imperial wardrobe, or to share ancient spinning and dyeing techniques with the palace weavers.</div>
+      <div class="woolspinner-actions">
+        <button class="btn--woolspinner-commission${canCommission ? '' : ' btn--disabled'}" data-action="woolspinner-commission" ${canCommission ? '' : 'disabled'}>
+          🐑 Commission Royal Wool Cloth — ${WoolSpinner.COMMISSION_FOOD_COST}🍖 + ${WoolSpinner.COMMISSION_GOLD_COST}💰
+          <span class="woolspinner-cost">→ +${WoolSpinner.COMMISSION_FOOD_RATE} food/s (2.5 min) · +${WoolSpinner.COMMISSION_PRESTIGE_REWARD} prestige · +${WoolSpinner.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--woolspinner-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="woolspinner-purchase" ${canPurchase ? '' : 'disabled'}>
+          🧵 Purchase Spinning Techniques — ${WoolSpinner.PURCHASE_WOOD_COST}🪵
+          <span class="woolspinner-cost">→ +${WoolSpinner.PURCHASE_WOOD_RATE} wood/s (2 min) · +${WoolSpinner.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--woolspinner-away" data-action="woolspinner-away">
+          🚶 Send Away
+          <span class="woolspinner-cost">→ Wool spinner departs with the fleece and spindles</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _imperialAmberMerchantSection() {
+  if (!AmberMerchant.getActiveImperialAmberMerchant()) return '';
+  const secs   = AmberMerchant.getAmberMerchantSecsLeft();
+  const urgent = secs <= 15;
+  const food   = state.resources?.food  ?? 0;
+  const gold   = state.resources?.gold  ?? 0;
+  const stone  = state.resources?.stone ?? 0;
+  const canArrange  = food >= AmberMerchant.ARRANGE_FOOD_COST && gold >= AmberMerchant.ARRANGE_GOLD_COST;
+  const canPurchase = stone >= AmberMerchant.PURCHASE_STONE_COST;
+  return `
+    <div class="ambermerchant-section--active">
+      <div class="ambermerchant-header">
+        <span class="ambermerchant-title">🟡 Imperial Amber Merchant</span>
+        <span class="ambermerchant-timer${urgent ? ' ambermerchant-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="ambermerchant-desc">An imperial amber merchant arrives bearing lacquered display cases of translucent Baltic amber chunks, insect-inclusion specimens, and polished amber amulets — offering to arrange an exclusive Baltic amber trade route for the imperial treasury, or to sell curated specimens to the palace gem-cutters.</div>
+      <div class="ambermerchant-actions">
+        <button class="btn--ambermerchant-arrange${canArrange ? '' : ' btn--disabled'}" data-action="ambermerchant-arrange" ${canArrange ? '' : 'disabled'}>
+          🟡 Arrange Baltic Amber Trade — ${AmberMerchant.ARRANGE_FOOD_COST}🍖 + ${AmberMerchant.ARRANGE_GOLD_COST}💰
+          <span class="ambermerchant-cost">→ +${AmberMerchant.ARRANGE_GOLD_RATE} gold/s (2.5 min) · +${AmberMerchant.ARRANGE_PRESTIGE_REWARD} prestige · +${AmberMerchant.ARRANGE_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--ambermerchant-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="ambermerchant-purchase" ${canPurchase ? '' : 'disabled'}>
+          💎 Purchase Amber Specimens — ${AmberMerchant.PURCHASE_STONE_COST}🪨
+          <span class="ambermerchant-cost">→ +${AmberMerchant.PURCHASE_STONE_RATE} stone/s (2 min) · +${AmberMerchant.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--ambermerchant-away" data-action="ambermerchant-away">
+          🚶 Send Away
+          <span class="ambermerchant-cost">→ Amber merchant departs with the Baltic collection</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -6136,6 +6206,14 @@ const _HANDLERS = {
   'catapulteng-commission': () => CatapultEng.commissionWarMachines(),
   'catapulteng-study':      () => CatapultEng.studyTorsionPhysics(),
   'catapulteng-away':       () => CatapultEng.sendSiegeCatapultEngineerAway(),
+
+  'woolspinner-commission': () => WoolSpinner.commissionRoyalWoolCloth(),
+  'woolspinner-purchase':   () => WoolSpinner.purchaseSpinningTechniques(),
+  'woolspinner-away':       () => WoolSpinner.sendWoolSpinnerAway(),
+
+  'ambermerchant-arrange':  () => AmberMerchant.arrangeBalticAmberTrade(),
+  'ambermerchant-purchase': () => AmberMerchant.purchaseAmberSpecimens(),
+  'ambermerchant-away':     () => AmberMerchant.sendAmberMerchantAway(),
 };
 
 function _handleClick(e) {
@@ -6310,6 +6388,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_AQUEDUCT_BUILDER_CHANGED,
     Events.WANDERING_GLASS_PAINTER_CHANGED,
     Events.IMPERIAL_SIEGE_CATAPULT_ENGINEER_CHANGED,
+    Events.WANDERING_WOOL_SPINNER_CHANGED,
+    Events.IMPERIAL_AMBER_MERCHANT_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);
