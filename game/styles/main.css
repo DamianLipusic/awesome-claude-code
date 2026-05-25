@@ -21685,3 +21685,81 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--ambermerchant-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* T405: Wandering Sandglass Maker — teal/cyan hourglass theme */
+@keyframes sandglass-pulse {
+  0%, 100% { box-shadow: 0 0 6px rgba(20, 184, 166, 0.28); }
+  50%       { box-shadow: 0 0 14px rgba(20, 184, 166, 0.55); }
+}
+.sandglass-section--active {
+  background: linear-gradient(135deg, rgba(15, 50, 50, 0.32), rgba(10, 35, 40, 0.24));
+  border: 1px solid rgba(20, 184, 166, 0.38); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: sandglass-pulse 2.8s ease-in-out infinite;
+}
+.sandglass-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.sandglass-title  { font-weight: 700; font-size: 0.88rem; color: #2dd4bf; }
+.sandglass-timer  { font-size: 0.78rem; color: #2dd4bf; }
+.sandglass-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.sandglass-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.sandglass-actions { display: flex; flex-direction: column; gap: 5px; }
+.sandglass-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--sandglass-commission {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(10, 55, 55, 0.28), rgba(8, 40, 45, 0.20));
+  border: 1px solid rgba(20, 184, 166, 0.44); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #2dd4bf; text-align: left; transition: background 0.15s;
+}
+.btn--sandglass-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(10, 55, 55, 0.42), rgba(8, 40, 45, 0.30)); }
+.btn--sandglass-purchase {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(25, 60, 30, 0.24), rgba(15, 45, 20, 0.18));
+  border: 1px solid rgba(52, 211, 153, 0.36); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #34d399; text-align: left; transition: background 0.15s;
+}
+.btn--sandglass-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(25, 60, 30, 0.36), rgba(15, 45, 20, 0.28)); }
+.btn--sandglass-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--sandglass-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* T406: Imperial Bridge Builder — slate/stone arch theme */
+@keyframes bridgebld-pulse {
+  0%, 100% { box-shadow: 0 0 6px rgba(100, 116, 139, 0.28); }
+  50%       { box-shadow: 0 0 14px rgba(100, 116, 139, 0.55); }
+}
+.bridgebld-section--active {
+  background: linear-gradient(135deg, rgba(30, 35, 45, 0.32), rgba(20, 25, 35, 0.24));
+  border: 1px solid rgba(100, 116, 139, 0.38); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: bridgebld-pulse 2.8s ease-in-out infinite;
+}
+.bridgebld-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.bridgebld-title  { font-weight: 700; font-size: 0.88rem; color: #94a3b8; }
+.bridgebld-timer  { font-size: 0.78rem; color: #94a3b8; }
+.bridgebld-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.bridgebld-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.bridgebld-actions { display: flex; flex-direction: column; gap: 5px; }
+.bridgebld-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--bridgebld-commission {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(40, 50, 65, 0.28), rgba(28, 35, 50, 0.20));
+  border: 1px solid rgba(100, 116, 139, 0.44); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #94a3b8; text-align: left; transition: background 0.15s;
+}
+.btn--bridgebld-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(40, 50, 65, 0.42), rgba(28, 35, 50, 0.30)); }
+.btn--bridgebld-study {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(90, 58, 5, 0.24), rgba(65, 40, 3, 0.18));
+  border: 1px solid rgba(251, 191, 36, 0.36); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fbbf24; text-align: left; transition: background 0.15s;
+}
+.btn--bridgebld-study:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(90, 58, 5, 0.36), rgba(65, 40, 3, 0.28)); }
+.btn--bridgebld-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--bridgebld-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

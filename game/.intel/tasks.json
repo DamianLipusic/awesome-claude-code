@@ -1560,6 +1560,26 @@
       "description": "Periodic imperial amber merchant encounter: arrange Baltic amber trade (25 food + 20g → +0.22 gold/s 2.5min +20 prestige +10 morale), purchase amber specimens (18 stone → +0.15 stone/s 2min +12 prestige), send away. Bronze Age+, 8+ tiles, 13-18 min.",
       "completed_date": "2026-05-25",
       "notes": "Built imperialAmberMerchant.js. IMPERIAL_AMBER_MERCHANT_CHANGED event added to events.js. state.imperialAmberMerchant null field. Amber merchant section in questPanel.js (import * as AmberMerchant). Events.IMPERIAL_AMBER_MERCHANT_CHANGED subscribed. CSS: @keyframes ambermerchant-pulse (warm amber/golden orange), .ambermerchant-section--active, .btn--ambermerchant-arrange (amber/gold), .btn--ambermerchant-purchase (slate), .btn--ambermerchant-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T405",
+      "title": "Wandering Sandglass Maker",
+      "status": "done",
+      "priority": 405,
+      "phase": 118,
+      "description": "Periodic wandering sandglass maker encounter: commission imperial hourglasses (20 stone + 15g → +0.20 stone/s 2.5min +18 prestige +10 morale), purchase glass-sand lore (18 iron → +0.15 iron/s 2min +12 prestige), send away. Stone Age+, 6+ tiles, 12-17 min.",
+      "completed_date": "2026-05-25",
+      "notes": "Built wanderingSandglassMaker.js. WANDERING_SANDGLASS_MAKER_CHANGED event added to events.js. state.wanderingSandglassMaker null field. Sandglass maker section in questPanel.js (import * as SandglassMaker). Events.WANDERING_SANDGLASS_MAKER_CHANGED subscribed. CSS: @keyframes sandglass-pulse (teal/cyan), .sandglass-section--active, .btn--sandglass-commission (teal), .btn--sandglass-purchase (green), .btn--sandglass-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T406",
+      "title": "Imperial Bridge Builder",
+      "status": "done",
+      "priority": 406,
+      "phase": 118,
+      "description": "Periodic imperial bridge builder encounter: commission imperial bridges (30 stone + 20g → +0.25 stone/s 2.5min +25 prestige +12 morale), study bridge engineering (25 iron → +0.20 iron/s 2min +18 prestige), send away. Iron Age+, 10+ tiles, 14-18 min.",
+      "completed_date": "2026-05-25",
+      "notes": "Built imperialBridgeBuilder.js. IMPERIAL_BRIDGE_BUILDER_CHANGED event added to events.js. state.imperialBridgeBuilder null field. Bridge builder section in questPanel.js (import * as BridgeBuilder). Events.IMPERIAL_BRIDGE_BUILDER_CHANGED subscribed. CSS: @keyframes bridgebld-pulse (slate/stone), .bridgebld-section--active, .btn--bridgebld-commission (slate), .btn--bridgebld-study (amber/gold), .btn--bridgebld-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     }
   ],
   "session_history": [
@@ -1650,6 +1670,7 @@
     "Session 107 (T397-T398): Wandering Ink Master (T397), Wandering Salt Merchant (T398)",
     "Session 108 (T399-T400): Wandering Bronze Smith (T399), Imperial Aqueduct Builder (T400)",
     "Session 109 (T401-T402): Wandering Glass Painter (T401), Imperial Siege Catapult Engineer (T402)",
-    "Session 110 (T403-T404): Wandering Wool Spinner (T403), Imperial Amber Merchant (T404)"
+    "Session 110 (T403-T404): Wandering Wool Spinner (T403), Imperial Amber Merchant (T404)",
+    "Session 111 (T405-T406): Wandering Sandglass Maker (T405), Imperial Bridge Builder (T406)"
   ]
 }

@@ -168,7 +168,9 @@ import * as AqueductBld   from '../systems/imperialAqueductBuilder.js';      // 
 import * as GlassPainter  from '../systems/wanderingGlassPainter.js';        // T401
 import * as CatapultEng   from '../systems/imperialSiegeCatapultEngineer.js'; // T402
 import * as WoolSpinner   from '../systems/wanderingWoolSpinner.js';          // T403
-import * as AmberMerchant from '../systems/imperialAmberMerchant.js';         // T404
+import * as AmberMerchant   from '../systems/imperialAmberMerchant.js';         // T404
+import * as SandglassMaker from '../systems/wanderingSandglassMaker.js';       // T405
+import * as BridgeBuilder  from '../systems/imperialBridgeBuilder.js';         // T406
 
 let _panel = null;
 
@@ -366,6 +368,8 @@ function _encountersSection() {
     _imperialSiegeCatapultEngineerSection(),
     _wanderingWoolSpinnerSection(),
     _imperialAmberMerchantSection(),
+    _wanderingSandglassMakerSection(),
+    _imperialBridgeBuilderSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -5585,6 +5589,72 @@ function _imperialAmberMerchantSection() {
     </div>`;
 }
 
+function _wanderingSandglassMakerSection() {
+  if (!SandglassMaker.getActiveWanderingSandglassMaker()) return '';
+  const secs   = SandglassMaker.getSandglassMakerSecsLeft();
+  const urgent = secs <= 15;
+  const stone  = state.resources?.stone ?? 0;
+  const gold   = state.resources?.gold  ?? 0;
+  const iron   = state.resources?.iron  ?? 0;
+  const canCommission = stone >= SandglassMaker.COMMISSION_STONE_COST && gold >= SandglassMaker.COMMISSION_GOLD_COST;
+  const canPurchase   = iron  >= SandglassMaker.PURCHASE_IRON_COST;
+  return `
+    <div class="sandglass-section--active">
+      <div class="sandglass-header">
+        <span class="sandglass-title">⏳ Wandering Sandglass Maker</span>
+        <span class="sandglass-timer${urgent ? ' sandglass-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="sandglass-desc">A wandering sandglass maker arrives carrying delicate blown-glass hourglasses filled with fine sea-sand, river silt, and crushed crystal — offering to craft imperial hourglasses for the palace timekeepers, or to share the arcane secrets of glass-sand measurement and fine abrasive compounding.</div>
+      <div class="sandglass-actions">
+        <button class="btn--sandglass-commission${canCommission ? '' : ' btn--disabled'}" data-action="sandglass-commission" ${canCommission ? '' : 'disabled'}>
+          ⏳ Commission Imperial Hourglasses — ${SandglassMaker.COMMISSION_STONE_COST}🪨 + ${SandglassMaker.COMMISSION_GOLD_COST}💰
+          <span class="sandglass-cost">→ +${SandglassMaker.COMMISSION_STONE_RATE} stone/s (2.5 min) · +${SandglassMaker.COMMISSION_PRESTIGE_REWARD} prestige · +${SandglassMaker.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--sandglass-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="sandglass-purchase" ${canPurchase ? '' : 'disabled'}>
+          🪨 Purchase Glass-Sand Lore — ${SandglassMaker.PURCHASE_IRON_COST}⚙️
+          <span class="sandglass-cost">→ +${SandglassMaker.PURCHASE_IRON_RATE} iron/s (2 min) · +${SandglassMaker.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--sandglass-away" data-action="sandglass-away">
+          🚶 Send Away
+          <span class="sandglass-cost">→ Sandglass maker departs with the hourglass collection</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _imperialBridgeBuilderSection() {
+  if (!BridgeBuilder.getActiveImperialBridgeBuilder()) return '';
+  const secs   = BridgeBuilder.getBridgeBuilderSecsLeft();
+  const urgent = secs <= 15;
+  const stone  = state.resources?.stone ?? 0;
+  const gold   = state.resources?.gold  ?? 0;
+  const iron   = state.resources?.iron  ?? 0;
+  const canCommission = stone >= BridgeBuilder.COMMISSION_STONE_COST && gold >= BridgeBuilder.COMMISSION_GOLD_COST;
+  const canStudy      = iron  >= BridgeBuilder.STUDY_IRON_COST;
+  return `
+    <div class="bridgebld-section--active">
+      <div class="bridgebld-header">
+        <span class="bridgebld-title">🌉 Imperial Bridge Builder</span>
+        <span class="bridgebld-timer${urgent ? ' bridgebld-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="bridgebld-desc">An imperial bridge builder arrives bearing detailed parchment plans for stone arch bridges, timber trestle crossings, and rope suspension spans — offering to commission a grand network of imperial bridges across the river crossings and ravines of the empire, or to sell the latest engineering drawings for bridge foundations and load-bearing arch calculations.</div>
+      <div class="bridgebld-actions">
+        <button class="btn--bridgebld-commission${canCommission ? '' : ' btn--disabled'}" data-action="bridgebld-commission" ${canCommission ? '' : 'disabled'}>
+          🌉 Commission Imperial Bridges — ${BridgeBuilder.COMMISSION_STONE_COST}🪨 + ${BridgeBuilder.COMMISSION_GOLD_COST}💰
+          <span class="bridgebld-cost">→ +${BridgeBuilder.COMMISSION_STONE_RATE} stone/s (2.5 min) · +${BridgeBuilder.COMMISSION_PRESTIGE_REWARD} prestige · +${BridgeBuilder.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--bridgebld-study${canStudy ? '' : ' btn--disabled'}" data-action="bridgebld-study" ${canStudy ? '' : 'disabled'}>
+          📐 Study Bridge Engineering — ${BridgeBuilder.STUDY_IRON_COST}⚙️
+          <span class="bridgebld-cost">→ +${BridgeBuilder.STUDY_IRON_RATE} iron/s (2 min) · +${BridgeBuilder.STUDY_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--bridgebld-away" data-action="bridgebld-away">
+          🚶 Send Away
+          <span class="bridgebld-cost">→ Bridge builder departs with the engineering plans</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -6214,6 +6284,14 @@ const _HANDLERS = {
   'ambermerchant-arrange':  () => AmberMerchant.arrangeBalticAmberTrade(),
   'ambermerchant-purchase': () => AmberMerchant.purchaseAmberSpecimens(),
   'ambermerchant-away':     () => AmberMerchant.sendAmberMerchantAway(),
+
+  'sandglass-commission': () => SandglassMaker.commissionImperialHourglasses(),
+  'sandglass-purchase':   () => SandglassMaker.purchaseGlassSandLore(),
+  'sandglass-away':       () => SandglassMaker.sendSandglassMakerAway(),
+
+  'bridgebld-commission': () => BridgeBuilder.commissionImperialBridges(),
+  'bridgebld-study':      () => BridgeBuilder.studyBridgeEngineering(),
+  'bridgebld-away':       () => BridgeBuilder.sendBridgeBuilderAway(),
 };
 
 function _handleClick(e) {
@@ -6390,6 +6468,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_SIEGE_CATAPULT_ENGINEER_CHANGED,
     Events.WANDERING_WOOL_SPINNER_CHANGED,
     Events.IMPERIAL_AMBER_MERCHANT_CHANGED,
+    Events.WANDERING_SANDGLASS_MAKER_CHANGED,
+    Events.IMPERIAL_BRIDGE_BUILDER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);
