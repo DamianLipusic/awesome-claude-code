@@ -1520,6 +1520,26 @@
       "description": "Periodic imperial aqueduct builder encounter: commission grand aqueduct (30 stone + 20g → +0.25 food/s 2.5min +28 prestige +12 morale), study hydraulic engineering (25 iron → +0.20 iron/s 2min +18 prestige), send away. Medieval Age+, 12+ tiles, 16-20 min.",
       "completed_date": "2026-05-25",
       "notes": "Built imperialAqueductBuilder.js. IMPERIAL_AQUEDUCT_BUILDER_CHANGED event added to events.js. state.imperialAqueductBuilder null field. Aqueduct builder section in questPanel.js (import * as AqueductBld). Events.IMPERIAL_AQUEDUCT_BUILDER_CHANGED subscribed. CSS: @keyframes aqueduct-pulse (teal/cyan), .aqueduct-section--active, .btn--aqueduct-commission (teal), .btn--aqueduct-study (violet/purple), .btn--aqueduct-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T401",
+      "title": "Wandering Glass Painter",
+      "status": "done",
+      "priority": 401,
+      "phase": 116,
+      "description": "Periodic wandering glass painter encounter: commission stained glass windows (25 stone + 20g → +0.22 stone/s 2.5min +22 prestige +10 morale), purchase painting techniques (20 mana → +0.18 mana/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-19 min.",
+      "completed_date": "2026-05-25",
+      "notes": "Built wanderingGlassPainter.js. WANDERING_GLASS_PAINTER_CHANGED event added to events.js. state.wanderingGlassPainter null field. Glass painter section in questPanel.js (import * as GlassPainter). Events.WANDERING_GLASS_PAINTER_CHANGED subscribed. CSS: @keyframes glasspainter-pulse (sky blue/cyan), .glasspainter-section--active, .btn--glasspainter-commission (sky blue), .btn--glasspainter-purchase (violet), .btn--glasspainter-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T402",
+      "title": "Imperial Siege Catapult Engineer",
+      "status": "done",
+      "priority": 402,
+      "phase": 116,
+      "description": "Periodic imperial siege catapult engineer encounter: commission war machines (35 iron + 20 wood → +0.25 iron/s 2.5min +28 prestige +10 morale), study torsion physics (25 stone → +0.20 stone/s 2min +18 prestige), send away. Iron Age+, 12+ tiles, 15-19 min.",
+      "completed_date": "2026-05-25",
+      "notes": "Built imperialSiegeCatapultEngineer.js. IMPERIAL_SIEGE_CATAPULT_ENGINEER_CHANGED event added to events.js. state.imperialSiegeCatapultEngineer null field. Catapult engineer section in questPanel.js (import * as CatapultEng). Events.IMPERIAL_SIEGE_CATAPULT_ENGINEER_CHANGED subscribed. CSS: @keyframes catapulteng-pulse (red/crimson), .catapulteng-section--active, .btn--catapulteng-commission (red), .btn--catapulteng-study (slate), .btn--catapulteng-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     }
   ],
   "session_history": [
@@ -1608,6 +1628,7 @@
     "Session 105 (T393-T394): Wandering Felt Maker (T393), Imperial Vineyard Master (T394)",
     "Session 106 (T395-T396): Wandering Herb Merchant (T395), Imperial Lantern Maker (T396)",
     "Session 107 (T397-T398): Wandering Ink Master (T397), Wandering Salt Merchant (T398)",
-    "Session 108 (T399-T400): Wandering Bronze Smith (T399), Imperial Aqueduct Builder (T400)"
+    "Session 108 (T399-T400): Wandering Bronze Smith (T399), Imperial Aqueduct Builder (T400)",
+    "Session 109 (T401-T402): Wandering Glass Painter (T401), Imperial Siege Catapult Engineer (T402)"
   ]
 }

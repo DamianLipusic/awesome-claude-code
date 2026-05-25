@@ -342,4 +342,6 @@ export const Events = Object.freeze({
   WANDERING_SALT_MERCHANT_CHANGED:         'wanderingSaltMerchantChanged',                            // T398: salt merchant spawned / commissioned / purchased / dismissed / expired
   WANDERING_BRONZE_SMITH_CHANGED:          'wanderingBronzeSmithChanged',                              // T399: bronze smith spawned / commissioned / purchased / dismissed / expired
   IMPERIAL_AQUEDUCT_BUILDER_CHANGED:       'imperialAqueductBuilderChanged',                           // T400: aqueduct builder spawned / commissioned / studied / dismissed / expired
+  WANDERING_GLASS_PAINTER_CHANGED:         'wanderingGlassPainterChanged',                              // T401: glass painter spawned / commissioned / purchased / dismissed / expired
+  IMPERIAL_SIEGE_CATAPULT_ENGINEER_CHANGED: 'imperialSiegeCatapultEngineerChanged',                    // T402: siege catapult engineer spawned / commissioned / studied / dismissed / expired
 });

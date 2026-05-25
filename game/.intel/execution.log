@@ -1343,3 +1343,18 @@ Built imperialMetalcaster.js: commissionMetalSculptures (25 iron + 20 stone → 
 Wired in main.js: import initImperialMetalcaster+imperialMetalcasterTick, registerSystem, initImperialMetalcaster() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _imperialMetalcasterSection() render + metalcaster-commission/metalcaster-purchase/metalcaster-away handlers to questPanel.js (import * as Metalcaster). Events.IMPERIAL_METALCASTER_CHANGED subscribed.
 CSS: @keyframes metalcaster-pulse (copper/orange theme), .metalcaster-section--active, .btn--metalcaster-commission (orange/copper), .btn--metalcaster-purchase (amber/gold), .btn--metalcaster-away (gray). Session 92.
+
+Session 109 — T401–T402: Wandering Glass Painter, Imperial Siege Catapult Engineer.
+Glass Painter: Medieval Age+, 10+ tiles, 14–19 min, 80s window. Commission Stained Glass Windows (25 stone + 20g → +0.22 stone/s 2.5min · +22 prestige · +10 morale), Purchase Painting Techniques (20 mana → +0.18 mana/s 2min · +15 prestige). Sky blue/cyan CSS theme. Imperial Siege Catapult Engineer: Iron Age+, 12+ tiles, 15–19 min, 75s window. Commission War Machines (35 iron + 20 wood → +0.25 iron/s 2.5min · +28 prestige · +10 morale), Study Torsion Physics (25 stone → +0.20 stone/s 2min · +18 prestige). Red/crimson CSS theme. Both fully wired into main.js (import, registerSystem, init x2, save/load) and questPanel.js (import, section render, handlers, ENCOUNTER_EVENTS). Events added to events.js.
+
+T401: Wandering Glass Painter — Medieval Age+, 10+ tiles, 14–19 min, 80s window.
+Built wanderingGlassPainter.js: commissionStainedGlassWindows (25 stone + 20g → +0.22 stone/s 2.5min +22 prestige +10 morale), purchasePaintingTechniques (20 mana → +0.18 mana/s 2min +15 prestige), sendGlassPainterAway (dismiss). Added WANDERING_GLASS_PAINTER_CHANGED event to events.js. state.wanderingGlassPainter null field.
+Wired in main.js: import initWanderingGlassPainter+wanderingGlassPainterTick, registerSystem, initWanderingGlassPainter() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingGlassPainterSection() render + glasspainter-commission/glasspainter-purchase/glasspainter-away handlers to questPanel.js (import * as GlassPainter). Events.WANDERING_GLASS_PAINTER_CHANGED subscribed.
+CSS: @keyframes glasspainter-pulse (sky blue theme), .glasspainter-section--active, .btn--glasspainter-commission (sky blue), .btn--glasspainter-purchase (violet), .btn--glasspainter-away (gray). Session 109.
+
+T402: Imperial Siege Catapult Engineer — Iron Age+, 12+ tiles, 15–19 min, 75s window.
+Built imperialSiegeCatapultEngineer.js: commissionWarMachines (35 iron + 20 wood → +0.25 iron/s 2.5min +28 prestige +10 morale), studyTorsionPhysics (25 stone → +0.20 stone/s 2min +18 prestige), sendSiegeCatapultEngineerAway (dismiss). Added IMPERIAL_SIEGE_CATAPULT_ENGINEER_CHANGED event to events.js. state.imperialSiegeCatapultEngineer null field.
+Wired in main.js: import initImperialSiegeCatapultEngineer+imperialSiegeCatapultEngineerTick, registerSystem, initImperialSiegeCatapultEngineer() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _imperialSiegeCatapultEngineerSection() render + catapulteng-commission/catapulteng-study/catapulteng-away handlers to questPanel.js (import * as CatapultEng). Events.IMPERIAL_SIEGE_CATAPULT_ENGINEER_CHANGED subscribed.
+CSS: @keyframes catapulteng-pulse (red/crimson theme), .catapulteng-section--active, .btn--catapulteng-commission (red), .btn--catapulteng-study (slate), .btn--catapulteng-away (gray). Session 109.

@@ -165,6 +165,8 @@ import * as InkMaster     from '../systems/wanderingInkMaster.js';           // 
 import * as SaltMerchant  from '../systems/wanderingSaltMerchant.js';        // T398
 import * as BronzeSmith   from '../systems/wanderingBronzeSmith.js';         // T399
 import * as AqueductBld   from '../systems/imperialAqueductBuilder.js';      // T400
+import * as GlassPainter  from '../systems/wanderingGlassPainter.js';        // T401
+import * as CatapultEng   from '../systems/imperialSiegeCatapultEngineer.js'; // T402
 
 let _panel = null;
 
@@ -358,6 +360,8 @@ function _encountersSection() {
     _wanderingSaltMerchantSection(),
     _wanderingBronzeSmithSection(),
     _imperialAqueductBuilderSection(),
+    _wanderingGlassPainterSection(),
+    _imperialSiegeCatapultEngineerSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -5445,6 +5449,72 @@ function _imperialAqueductBuilderSection() {
     </div>`;
 }
 
+function _wanderingGlassPainterSection() {
+  if (!GlassPainter.getActiveWanderingGlassPainter()) return '';
+  const secs   = GlassPainter.getGlassPainterSecsLeft();
+  const urgent = secs <= 15;
+  const stone  = state.resources?.stone ?? 0;
+  const gold   = state.resources?.gold  ?? 0;
+  const mana   = state.resources?.mana  ?? 0;
+  const canCommission = stone >= GlassPainter.COMMISSION_STONE_COST && gold >= GlassPainter.COMMISSION_GOLD_COST;
+  const canPurchase   = mana >= GlassPainter.PURCHASE_MANA_COST;
+  return `
+    <div class="glasspainter-section--active">
+      <div class="glasspainter-header">
+        <span class="glasspainter-title">🎨 Wandering Glass Painter</span>
+        <span class="glasspainter-timer${urgent ? ' glasspainter-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="glasspainter-desc">A wandering glass painter arrives carrying a leather satchel of coloured glass fragments, lead soldering tools, and rolled cartoons depicting luminous heraldic symbols — offering to commission magnificent stained glass windows for the imperial great hall, or to share refined glass painting techniques with the palace craftsmen.</div>
+      <div class="glasspainter-actions">
+        <button class="btn--glasspainter-commission${canCommission ? '' : ' btn--disabled'}" data-action="glasspainter-commission" ${canCommission ? '' : 'disabled'}>
+          🎨 Commission Stained Glass Windows — ${GlassPainter.COMMISSION_STONE_COST}🪨 + ${GlassPainter.COMMISSION_GOLD_COST}💰
+          <span class="glasspainter-cost">→ +${GlassPainter.COMMISSION_STONE_RATE} stone/s (2.5 min) · +${GlassPainter.COMMISSION_PRESTIGE_REWARD} prestige · +${GlassPainter.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--glasspainter-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="glasspainter-purchase" ${canPurchase ? '' : 'disabled'}>
+          🪟 Purchase Painting Techniques — ${GlassPainter.PURCHASE_MANA_COST}✨
+          <span class="glasspainter-cost">→ +${GlassPainter.PURCHASE_MANA_RATE} mana/s (2 min) · +${GlassPainter.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--glasspainter-away" data-action="glasspainter-away">
+          🚶 Send Away
+          <span class="glasspainter-cost">→ Glass painter departs with the coloured fragments</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _imperialSiegeCatapultEngineerSection() {
+  if (!CatapultEng.getActiveImperialSiegeCatapultEngineer()) return '';
+  const secs   = CatapultEng.getSiegeCatapultEngineerSecsLeft();
+  const urgent = secs <= 15;
+  const iron   = state.resources?.iron  ?? 0;
+  const wood   = state.resources?.wood  ?? 0;
+  const stone  = state.resources?.stone ?? 0;
+  const canCommission = iron >= CatapultEng.COMMISSION_IRON_COST && wood >= CatapultEng.COMMISSION_WOOD_COST;
+  const canStudy      = stone >= CatapultEng.STUDY_STONE_COST;
+  return `
+    <div class="catapulteng-section--active">
+      <div class="catapulteng-header">
+        <span class="catapulteng-title">⚔️ Imperial Siege Catapult Engineer</span>
+        <span class="catapulteng-timer${urgent ? ' catapulteng-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="catapulteng-desc">An imperial siege catapult engineer arrives bearing detailed technical drawings of onagers, trebuchets, and torsion-powered bolt-throwers — offering to commission a full war machine arsenal for the imperial siege corps, or to share advanced torsion physics and mechanical leverage principles with the imperial engineers.</div>
+      <div class="catapulteng-actions">
+        <button class="btn--catapulteng-commission${canCommission ? '' : ' btn--disabled'}" data-action="catapulteng-commission" ${canCommission ? '' : 'disabled'}>
+          ⚔️ Commission War Machines — ${CatapultEng.COMMISSION_IRON_COST}⚙️ + ${CatapultEng.COMMISSION_WOOD_COST}🪵
+          <span class="catapulteng-cost">→ +${CatapultEng.COMMISSION_IRON_RATE} iron/s (2.5 min) · +${CatapultEng.COMMISSION_PRESTIGE_REWARD} prestige · +${CatapultEng.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--catapulteng-study${canStudy ? '' : ' btn--disabled'}" data-action="catapulteng-study" ${canStudy ? '' : 'disabled'}>
+          📐 Study Torsion Physics — ${CatapultEng.STUDY_STONE_COST}🪨
+          <span class="catapulteng-cost">→ +${CatapultEng.STUDY_STONE_RATE} stone/s (2 min) · +${CatapultEng.STUDY_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--catapulteng-away" data-action="catapulteng-away">
+          🚶 Send Away
+          <span class="catapulteng-cost">→ Siege catapult engineer departs with the technical drawings</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -6058,6 +6128,14 @@ const _HANDLERS = {
   'aqueduct-commission': () => AqueductBld.commissionGrandAqueduct(),
   'aqueduct-study':      () => AqueductBld.studyHydraulicEngineering(),
   'aqueduct-away':       () => AqueductBld.sendAqueductBuilderAway(),
+
+  'glasspainter-commission': () => GlassPainter.commissionStainedGlassWindows(),
+  'glasspainter-purchase':   () => GlassPainter.purchasePaintingTechniques(),
+  'glasspainter-away':       () => GlassPainter.sendGlassPainterAway(),
+
+  'catapulteng-commission': () => CatapultEng.commissionWarMachines(),
+  'catapulteng-study':      () => CatapultEng.studyTorsionPhysics(),
+  'catapulteng-away':       () => CatapultEng.sendSiegeCatapultEngineerAway(),
 };
 
 function _handleClick(e) {
@@ -6230,6 +6308,8 @@ export function initQuestPanel() {
     Events.WANDERING_SALT_MERCHANT_CHANGED,
     Events.WANDERING_BRONZE_SMITH_CHANGED,
     Events.IMPERIAL_AQUEDUCT_BUILDER_CHANGED,
+    Events.WANDERING_GLASS_PAINTER_CHANGED,
+    Events.IMPERIAL_SIEGE_CATAPULT_ENGINEER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);
