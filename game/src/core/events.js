@@ -340,4 +340,6 @@ export const Events = Object.freeze({
   IMPERIAL_LANTERN_MAKER_CHANGED:           'imperialLanternMakerChanged',                             // T396: lantern maker spawned / commissioned / purchased / dismissed / expired
   WANDERING_INK_MASTER_CHANGED:            'wanderingInkMasterChanged',                               // T397: ink master spawned / commissioned / purchased / dismissed / expired
   WANDERING_SALT_MERCHANT_CHANGED:         'wanderingSaltMerchantChanged',                            // T398: salt merchant spawned / commissioned / purchased / dismissed / expired
+  WANDERING_BRONZE_SMITH_CHANGED:          'wanderingBronzeSmithChanged',                              // T399: bronze smith spawned / commissioned / purchased / dismissed / expired
+  IMPERIAL_AQUEDUCT_BUILDER_CHANGED:       'imperialAqueductBuilderChanged',                           // T400: aqueduct builder spawned / commissioned / studied / dismissed / expired
 });

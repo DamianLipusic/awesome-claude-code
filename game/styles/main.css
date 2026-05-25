@@ -21449,3 +21449,83 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--saltmerchant-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T399: Wandering Bronze Smith ────────────────────────────────────────── */
+@keyframes bronzesmith-pulse {
+  0%, 100% { box-shadow: 0 0 6px rgba(205, 127, 50, 0.25), 0 0 12px rgba(205, 127, 50, 0.10); }
+  50%       { box-shadow: 0 0 12px rgba(205, 127, 50, 0.45), 0 0 24px rgba(205, 127, 50, 0.20); }
+}
+.bronzesmith-section--active {
+  padding: 10px 12px;
+  background: linear-gradient(135deg, rgba(92, 50, 10, 0.22), rgba(60, 30, 5, 0.15));
+  border: 1px solid rgba(205, 127, 50, 0.40); border-radius: 8px;
+  margin-bottom: 10px; animation: bronzesmith-pulse 2.8s ease-in-out infinite;
+}
+.bronzesmith-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.bronzesmith-title  { font-weight: 700; font-size: 0.88rem; color: #e8a456; }
+.bronzesmith-timer  { font-size: 0.78rem; color: #e8a456; }
+.bronzesmith-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.bronzesmith-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.bronzesmith-actions { display: flex; flex-direction: column; gap: 5px; }
+.bronzesmith-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--bronzesmith-commission {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(92, 50, 10, 0.28), rgba(60, 30, 5, 0.20));
+  border: 1px solid rgba(205, 127, 50, 0.42); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #e8a456; text-align: left; transition: background 0.15s;
+}
+.btn--bronzesmith-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(92, 50, 10, 0.42), rgba(60, 30, 5, 0.30)); }
+.btn--bronzesmith-purchase {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(55, 65, 81, 0.24), rgba(31, 41, 55, 0.18));
+  border: 1px solid rgba(107, 114, 128, 0.36); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--bronzesmith-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(55, 65, 81, 0.36), rgba(31, 41, 55, 0.28)); }
+.btn--bronzesmith-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--bronzesmith-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T400: Imperial Aqueduct Builder ─────────────────────────────────────── */
+@keyframes aqueduct-pulse {
+  0%, 100% { box-shadow: 0 0 6px rgba(45, 212, 191, 0.25), 0 0 12px rgba(45, 212, 191, 0.10); }
+  50%       { box-shadow: 0 0 12px rgba(45, 212, 191, 0.45), 0 0 24px rgba(45, 212, 191, 0.20); }
+}
+.aqueduct-section--active {
+  padding: 10px 12px;
+  background: linear-gradient(135deg, rgba(10, 80, 75, 0.22), rgba(5, 55, 50, 0.15));
+  border: 1px solid rgba(45, 212, 191, 0.40); border-radius: 8px;
+  margin-bottom: 10px; animation: aqueduct-pulse 2.8s ease-in-out infinite;
+}
+.aqueduct-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.aqueduct-title  { font-weight: 700; font-size: 0.88rem; color: #5eead4; }
+.aqueduct-timer  { font-size: 0.78rem; color: #5eead4; }
+.aqueduct-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.aqueduct-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.aqueduct-actions { display: flex; flex-direction: column; gap: 5px; }
+.aqueduct-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--aqueduct-commission {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(10, 80, 75, 0.28), rgba(5, 55, 50, 0.20));
+  border: 1px solid rgba(45, 212, 191, 0.42); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #5eead4; text-align: left; transition: background 0.15s;
+}
+.btn--aqueduct-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(10, 80, 75, 0.42), rgba(5, 55, 50, 0.30)); }
+.btn--aqueduct-study {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(55, 48, 80, 0.24), rgba(35, 28, 55, 0.18));
+  border: 1px solid rgba(139, 92, 246, 0.36); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #a78bfa; text-align: left; transition: background 0.15s;
+}
+.btn--aqueduct-study:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(55, 48, 80, 0.36), rgba(35, 28, 55, 0.28)); }
+.btn--aqueduct-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--aqueduct-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

@@ -340,6 +340,8 @@ import { initWanderingHerbMerchant, wanderingHerbMerchantTick }       from './sy
 import { initImperialLanternMaker, imperialLanternMakerTick }         from './systems/imperialLanternMaker.js';         // T396
 import { initWanderingInkMaster, wanderingInkMasterTick }             from './systems/wanderingInkMaster.js';           // T397
 import { initWanderingSaltMerchant, wanderingSaltMerchantTick }       from './systems/wanderingSaltMerchant.js';        // T398
+import { initWanderingBronzeSmith, wanderingBronzeSmithTick }         from './systems/wanderingBronzeSmith.js';          // T399
+import { initImperialAqueductBuilder, imperialAqueductBuilderTick }   from './systems/imperialAqueductBuilder.js';      // T400
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -686,6 +688,8 @@ function _registerAllSystems() {
   registerSystem(imperialLanternMakerTick);         // T396
   registerSystem(wanderingInkMasterTick);           // T397
   registerSystem(wanderingSaltMerchantTick);        // T398
+  registerSystem(wanderingBronzeSmithTick);         // T399
+  registerSystem(imperialAqueductBuilderTick);      // T400
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -1017,6 +1021,8 @@ function _save() {
     imperialLanternMaker:          state.imperialLanternMaker,          // T396
     wanderingInkMaster:            state.wanderingInkMaster,            // T397
     wanderingSaltMerchant:         state.wanderingSaltMerchant,         // T398
+    wanderingBronzeSmith:          state.wanderingBronzeSmith,          // T399
+    imperialAqueductBuilder:       state.imperialAqueductBuilder,       // T400
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -1353,6 +1359,8 @@ function _applySave(s) {
   state.imperialLanternMaker       = s.imperialLanternMaker ?? null;       // T396
   state.wanderingInkMaster         = s.wanderingInkMaster ?? null;         // T397
   state.wanderingSaltMerchant      = s.wanderingSaltMerchant ?? null;      // T398
+  state.wanderingBronzeSmith       = s.wanderingBronzeSmith ?? null;       // T399
+  state.imperialAqueductBuilder    = s.imperialAqueductBuilder ?? null;    // T400
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -1695,6 +1703,8 @@ function _startFreshGame() {
   initImperialLanternMaker();         // T396
   initWanderingInkMaster();           // T397
   initWanderingSaltMerchant();        // T398
+  initWanderingBronzeSmith();         // T399
+  initImperialAqueductBuilder();      // T400
   initAchievements();
   initLeaderboard();
 }
@@ -2020,6 +2030,8 @@ function _startLoadedGame(savedData) {
   initImperialLanternMaker();         // T396
   initWanderingInkMaster();           // T397
   initWanderingSaltMerchant();        // T398
+  initWanderingBronzeSmith();         // T399
+  initImperialAqueductBuilder();      // T400
   initAchievements();
   initLeaderboard();
 }

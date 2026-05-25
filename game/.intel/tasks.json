@@ -1500,6 +1500,26 @@
       "description": "Periodic wandering salt merchant encounter: establish salt stores (25 food + 15g → +0.22 food/s 2.5min +18 prestige +10 morale), purchase salt reserves (20 stone → +0.15 stone/s 2min +12 prestige), send away. Bronze Age+, 8+ tiles, 12-16 min.",
       "completed_date": "2026-05-25",
       "notes": "Built wanderingSaltMerchant.js. WANDERING_SALT_MERCHANT_CHANGED event added to events.js. state.wanderingSaltMerchant null field. Salt merchant section in questPanel.js (import * as SaltMerchant). Events.WANDERING_SALT_MERCHANT_CHANGED subscribed. CSS: @keyframes saltmerchant-pulse (sky blue/light blue), .saltmerchant-section--active, .btn--saltmerchant-commission (sky blue), .btn--saltmerchant-purchase (amber/gold), .btn--saltmerchant-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T399",
+      "title": "Wandering Bronze Smith",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic wandering bronze smith encounter: commission imperial bronze works (25 iron + 15g → +0.22 iron/s 2.5min +20 prestige +10 morale), purchase alloy techniques (20 stone → +0.15 stone/s 2min +12 prestige), send away. Iron Age+, 10+ tiles, 11-15 min.",
+      "completed_date": "2026-05-25",
+      "notes": "Built wanderingBronzeSmith.js. WANDERING_BRONZE_SMITH_CHANGED event added to events.js. state.wanderingBronzeSmith null field. Bronze smith section in questPanel.js (import * as BronzeSmith). Events.WANDERING_BRONZE_SMITH_CHANGED subscribed. CSS: @keyframes bronzesmith-pulse (bronze/copper orange), .bronzesmith-section--active, .btn--bronzesmith-commission (bronze/amber), .btn--bronzesmith-purchase (slate/gray), .btn--bronzesmith-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T400",
+      "title": "Imperial Aqueduct Builder",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic imperial aqueduct builder encounter: commission grand aqueduct (30 stone + 20g → +0.25 food/s 2.5min +28 prestige +12 morale), study hydraulic engineering (25 iron → +0.20 iron/s 2min +18 prestige), send away. Medieval Age+, 12+ tiles, 16-20 min.",
+      "completed_date": "2026-05-25",
+      "notes": "Built imperialAqueductBuilder.js. IMPERIAL_AQUEDUCT_BUILDER_CHANGED event added to events.js. state.imperialAqueductBuilder null field. Aqueduct builder section in questPanel.js (import * as AqueductBld). Events.IMPERIAL_AQUEDUCT_BUILDER_CHANGED subscribed. CSS: @keyframes aqueduct-pulse (teal/cyan), .aqueduct-section--active, .btn--aqueduct-commission (teal), .btn--aqueduct-study (violet/purple), .btn--aqueduct-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     }
   ],
   "session_history": [
@@ -1587,6 +1607,7 @@
     "Session 104 (T391-T392): Wandering Candlemaker (T391), Imperial Grain Merchant (T392)",
     "Session 105 (T393-T394): Wandering Felt Maker (T393), Imperial Vineyard Master (T394)",
     "Session 106 (T395-T396): Wandering Herb Merchant (T395), Imperial Lantern Maker (T396)",
-    "Session 107 (T397-T398): Wandering Ink Master (T397), Wandering Salt Merchant (T398)"
+    "Session 107 (T397-T398): Wandering Ink Master (T397), Wandering Salt Merchant (T398)",
+    "Session 108 (T399-T400): Wandering Bronze Smith (T399), Imperial Aqueduct Builder (T400)"
   ]
 }

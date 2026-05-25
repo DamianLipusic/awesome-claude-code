@@ -163,6 +163,8 @@ import * as HerbMerchant  from '../systems/wanderingHerbMerchant.js';        // 
 import * as LanternMaker  from '../systems/imperialLanternMaker.js';         // T396
 import * as InkMaster     from '../systems/wanderingInkMaster.js';           // T397
 import * as SaltMerchant  from '../systems/wanderingSaltMerchant.js';        // T398
+import * as BronzeSmith   from '../systems/wanderingBronzeSmith.js';         // T399
+import * as AqueductBld   from '../systems/imperialAqueductBuilder.js';      // T400
 
 let _panel = null;
 
@@ -354,6 +356,8 @@ function _encountersSection() {
     _imperialLanternMakerSection(),
     _wanderingInkMasterSection(),
     _wanderingSaltMerchantSection(),
+    _wanderingBronzeSmithSection(),
+    _imperialAqueductBuilderSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -5375,6 +5379,72 @@ function _wanderingSaltMerchantSection() {
     </div>`;
 }
 
+function _wanderingBronzeSmithSection() {
+  if (!BronzeSmith.getActiveWanderingBronzeSmith()) return '';
+  const secs   = BronzeSmith.getBronzeSmithSecsLeft();
+  const urgent = secs <= 15;
+  const iron   = state.resources?.iron  ?? 0;
+  const gold   = state.resources?.gold  ?? 0;
+  const stone  = state.resources?.stone ?? 0;
+  const canCommission = iron >= BronzeSmith.COMMISSION_IRON_COST && gold >= BronzeSmith.COMMISSION_GOLD_COST;
+  const canPurchase   = stone >= BronzeSmith.PURCHASE_STONE_COST;
+  return `
+    <div class="bronzesmith-section--active">
+      <div class="bronzesmith-header">
+        <span class="bronzesmith-title">🔱 Wandering Bronze Smith</span>
+        <span class="bronzesmith-timer${urgent ? ' bronzesmith-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="bronzesmith-desc">A wandering bronze smith arrives at the imperial forge district carrying a heavy bronze-bound tool chest, leather bellows, and finely hammered copper-tin alloy samples — offering to commission extraordinary imperial bronze works and armaments, or to share alloying formulas with the imperial ore workers.</div>
+      <div class="bronzesmith-actions">
+        <button class="btn--bronzesmith-commission${canCommission ? '' : ' btn--disabled'}" data-action="bronzesmith-commission" ${canCommission ? '' : 'disabled'}>
+          🔱 Commission Imperial Bronze Works — ${BronzeSmith.COMMISSION_IRON_COST}⚙️ + ${BronzeSmith.COMMISSION_GOLD_COST}💰
+          <span class="bronzesmith-cost">→ +${BronzeSmith.COMMISSION_IRON_RATE} iron/s (2.5 min) · +${BronzeSmith.COMMISSION_PRESTIGE_REWARD} prestige · +${BronzeSmith.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--bronzesmith-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="bronzesmith-purchase" ${canPurchase ? '' : 'disabled'}>
+          🪨 Purchase Alloy Techniques — ${BronzeSmith.PURCHASE_STONE_COST}🪨
+          <span class="bronzesmith-cost">→ +${BronzeSmith.PURCHASE_STONE_RATE} stone/s (2 min) · +${BronzeSmith.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--bronzesmith-away" data-action="bronzesmith-away">
+          🚶 Send Away
+          <span class="bronzesmith-cost">→ Bronze smith departs with the tool chest</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _imperialAqueductBuilderSection() {
+  if (!AqueductBld.getActiveImperialAqueductBuilder()) return '';
+  const secs   = AqueductBld.getAqueductBuilderSecsLeft();
+  const urgent = secs <= 15;
+  const stone  = state.resources?.stone ?? 0;
+  const gold   = state.resources?.gold  ?? 0;
+  const iron   = state.resources?.iron  ?? 0;
+  const canCommission = stone >= AqueductBld.COMMISSION_STONE_COST && gold >= AqueductBld.COMMISSION_GOLD_COST;
+  const canStudy      = iron >= AqueductBld.STUDY_IRON_COST;
+  return `
+    <div class="aqueduct-section--active">
+      <div class="aqueduct-header">
+        <span class="aqueduct-title">🌊 Imperial Aqueduct Builder</span>
+        <span class="aqueduct-timer${urgent ? ' aqueduct-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="aqueduct-desc">An imperial aqueduct builder arrives bearing rolled architectural parchments, surveying instruments, and detailed hydraulic diagrams — offering to commission a magnificent grand aqueduct channelling fresh water through the imperial city, or to share hydraulic engineering principles with the imperial stonemasons and military engineers.</div>
+      <div class="aqueduct-actions">
+        <button class="btn--aqueduct-commission${canCommission ? '' : ' btn--disabled'}" data-action="aqueduct-commission" ${canCommission ? '' : 'disabled'}>
+          🌊 Commission Grand Aqueduct — ${AqueductBld.COMMISSION_STONE_COST}🪨 + ${AqueductBld.COMMISSION_GOLD_COST}💰
+          <span class="aqueduct-cost">→ +${AqueductBld.COMMISSION_FOOD_RATE} food/s (2.5 min) · +${AqueductBld.COMMISSION_PRESTIGE_REWARD} prestige · +${AqueductBld.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--aqueduct-study${canStudy ? '' : ' btn--disabled'}" data-action="aqueduct-study" ${canStudy ? '' : 'disabled'}>
+          ⚙️ Study Hydraulic Engineering — ${AqueductBld.STUDY_IRON_COST}⚙️
+          <span class="aqueduct-cost">→ +${AqueductBld.STUDY_IRON_RATE} iron/s (2 min) · +${AqueductBld.STUDY_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--aqueduct-away" data-action="aqueduct-away">
+          🚶 Send Away
+          <span class="aqueduct-cost">→ Aqueduct builder departs with the parchments</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -5980,6 +6050,14 @@ const _HANDLERS = {
   'saltmerchant-commission': () => SaltMerchant.establishSaltStores(),
   'saltmerchant-purchase':   () => SaltMerchant.purchaseSaltReserves(),
   'saltmerchant-away':       () => SaltMerchant.sendSaltMerchantAway(),
+
+  'bronzesmith-commission': () => BronzeSmith.commissionImperialBronzeWorks(),
+  'bronzesmith-purchase':   () => BronzeSmith.purchaseAlloyTechniques(),
+  'bronzesmith-away':       () => BronzeSmith.sendBronzeSmithAway(),
+
+  'aqueduct-commission': () => AqueductBld.commissionGrandAqueduct(),
+  'aqueduct-study':      () => AqueductBld.studyHydraulicEngineering(),
+  'aqueduct-away':       () => AqueductBld.sendAqueductBuilderAway(),
 };
 
 function _handleClick(e) {
@@ -6150,6 +6228,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_LANTERN_MAKER_CHANGED,
     Events.WANDERING_INK_MASTER_CHANGED,
     Events.WANDERING_SALT_MERCHANT_CHANGED,
+    Events.WANDERING_BRONZE_SMITH_CHANGED,
+    Events.IMPERIAL_AQUEDUCT_BUILDER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);
