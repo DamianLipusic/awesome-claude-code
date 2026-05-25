@@ -21369,3 +21369,83 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--lantern-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T397: Wandering Ink Master ──────────────────────────────────────────── */
+@keyframes inkmaster-pulse {
+  0%, 100% { box-shadow: 0 0 6px rgba(99, 102, 241, 0.25), 0 0 12px rgba(99, 102, 241, 0.10); }
+  50%       { box-shadow: 0 0 12px rgba(99, 102, 241, 0.45), 0 0 24px rgba(99, 102, 241, 0.20); }
+}
+.inkmaster-section--active {
+  padding: 10px 12px;
+  background: linear-gradient(135deg, rgba(49, 46, 129, 0.22), rgba(30, 27, 75, 0.15));
+  border: 1px solid rgba(99, 102, 241, 0.40); border-radius: 8px;
+  margin-bottom: 10px; animation: inkmaster-pulse 2.8s ease-in-out infinite;
+}
+.inkmaster-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.inkmaster-title  { font-weight: 700; font-size: 0.88rem; color: #a5b4fc; }
+.inkmaster-timer  { font-size: 0.78rem; color: #a5b4fc; }
+.inkmaster-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.inkmaster-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.inkmaster-actions { display: flex; flex-direction: column; gap: 5px; }
+.inkmaster-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--inkmaster-commission {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(49, 46, 129, 0.28), rgba(30, 27, 75, 0.20));
+  border: 1px solid rgba(99, 102, 241, 0.42); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #a5b4fc; text-align: left; transition: background 0.15s;
+}
+.btn--inkmaster-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(49, 46, 129, 0.42), rgba(30, 27, 75, 0.30)); }
+.btn--inkmaster-purchase {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(30, 65, 10, 0.24), rgba(18, 45, 5, 0.18));
+  border: 1px solid rgba(101, 163, 13, 0.36); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #84cc16; text-align: left; transition: background 0.15s;
+}
+.btn--inkmaster-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(30, 65, 10, 0.36), rgba(18, 45, 5, 0.28)); }
+.btn--inkmaster-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--inkmaster-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T398: Wandering Salt Merchant ───────────────────────────────────────── */
+@keyframes saltmerchant-pulse {
+  0%, 100% { box-shadow: 0 0 6px rgba(125, 211, 252, 0.25), 0 0 12px rgba(125, 211, 252, 0.10); }
+  50%       { box-shadow: 0 0 12px rgba(125, 211, 252, 0.45), 0 0 24px rgba(125, 211, 252, 0.20); }
+}
+.saltmerchant-section--active {
+  padding: 10px 12px;
+  background: linear-gradient(135deg, rgba(7, 89, 133, 0.22), rgba(3, 55, 80, 0.15));
+  border: 1px solid rgba(125, 211, 252, 0.40); border-radius: 8px;
+  margin-bottom: 10px; animation: saltmerchant-pulse 2.8s ease-in-out infinite;
+}
+.saltmerchant-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.saltmerchant-title  { font-weight: 700; font-size: 0.88rem; color: #7dd3fc; }
+.saltmerchant-timer  { font-size: 0.78rem; color: #7dd3fc; }
+.saltmerchant-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.saltmerchant-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.saltmerchant-actions { display: flex; flex-direction: column; gap: 5px; }
+.saltmerchant-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--saltmerchant-commission {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(7, 89, 133, 0.28), rgba(3, 55, 80, 0.20));
+  border: 1px solid rgba(125, 211, 252, 0.42); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #7dd3fc; text-align: left; transition: background 0.15s;
+}
+.btn--saltmerchant-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(7, 89, 133, 0.42), rgba(3, 55, 80, 0.30)); }
+.btn--saltmerchant-purchase {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(71, 60, 10, 0.24), rgba(50, 42, 5, 0.18));
+  border: 1px solid rgba(180, 150, 30, 0.36); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #d4b44a; text-align: left; transition: background 0.15s;
+}
+.btn--saltmerchant-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(71, 60, 10, 0.36), rgba(50, 42, 5, 0.28)); }
+.btn--saltmerchant-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--saltmerchant-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

@@ -161,6 +161,8 @@ import * as FeltMaker     from '../systems/wanderingFeltMaker.js';           // 
 import * as VineyardMaster from '../systems/imperialVineyardMaster.js';      // T394
 import * as HerbMerchant  from '../systems/wanderingHerbMerchant.js';        // T395
 import * as LanternMaker  from '../systems/imperialLanternMaker.js';         // T396
+import * as InkMaster     from '../systems/wanderingInkMaster.js';           // T397
+import * as SaltMerchant  from '../systems/wanderingSaltMerchant.js';        // T398
 
 let _panel = null;
 
@@ -350,6 +352,8 @@ function _encountersSection() {
     _imperialVineyardMasterSection(),
     _wanderingHerbMerchantSection(),
     _imperialLanternMakerSection(),
+    _wanderingInkMasterSection(),
+    _wanderingSaltMerchantSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -5305,6 +5309,72 @@ function _imperialLanternMakerSection() {
     </div>`;
 }
 
+function _wanderingInkMasterSection() {
+  if (!InkMaster.getActiveWanderingInkMaster()) return '';
+  const secs   = InkMaster.getInkMasterSecsLeft();
+  const urgent = secs <= 15;
+  const mana   = state.resources?.mana ?? 0;
+  const gold   = state.resources?.gold ?? 0;
+  const wood   = state.resources?.wood ?? 0;
+  const canCommission = mana >= InkMaster.COMMISSION_MANA_COST && gold >= InkMaster.COMMISSION_GOLD_COST;
+  const canPurchase   = wood >= InkMaster.PURCHASE_WOOD_COST;
+  return `
+    <div class="inkmaster-section--active">
+      <div class="inkmaster-header">
+        <span class="inkmaster-title">🖋️ Wandering Ink Master</span>
+        <span class="inkmaster-timer${urgent ? ' inkmaster-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="inkmaster-desc">A wandering ink master arrives at court bearing lacquered writing cases, fine brushes, and vials of rare pigment-infused inks — offering to commission extraordinary imperial scrollwork and illuminated edicts for the palace archives, or to share closely-guarded formulas for rare mineral inks with the imperial scribes.</div>
+      <div class="inkmaster-actions">
+        <button class="btn--inkmaster-commission${canCommission ? '' : ' btn--disabled'}" data-action="inkmaster-commission" ${canCommission ? '' : 'disabled'}>
+          🖋️ Commission Imperial Scrollwork — ${InkMaster.COMMISSION_MANA_COST}✨ + ${InkMaster.COMMISSION_GOLD_COST}💰
+          <span class="inkmaster-cost">→ +${InkMaster.COMMISSION_MANA_RATE} mana/s (2.5 min) · +${InkMaster.COMMISSION_PRESTIGE_REWARD} prestige · +${InkMaster.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--inkmaster-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="inkmaster-purchase" ${canPurchase ? '' : 'disabled'}>
+          📜 Purchase Rare Ink Formulas — ${InkMaster.PURCHASE_WOOD_COST}🪵
+          <span class="inkmaster-cost">→ +${InkMaster.PURCHASE_WOOD_RATE} wood/s (2 min) · +${InkMaster.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--inkmaster-away" data-action="inkmaster-away">
+          🚶 Send Away
+          <span class="inkmaster-cost">→ Ink master departs with the writing cases</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _wanderingSaltMerchantSection() {
+  if (!SaltMerchant.getActiveWanderingSaltMerchant()) return '';
+  const secs   = SaltMerchant.getSaltMerchantSecsLeft();
+  const urgent = secs <= 15;
+  const food   = state.resources?.food  ?? 0;
+  const gold   = state.resources?.gold  ?? 0;
+  const stone  = state.resources?.stone ?? 0;
+  const canCommission = food >= SaltMerchant.COMMISSION_FOOD_COST && gold >= SaltMerchant.COMMISSION_GOLD_COST;
+  const canPurchase   = stone >= SaltMerchant.PURCHASE_STONE_COST;
+  return `
+    <div class="saltmerchant-section--active">
+      <div class="saltmerchant-header">
+        <span class="saltmerchant-title">🧂 Wandering Salt Merchant</span>
+        <span class="saltmerchant-timer${urgent ? ' saltmerchant-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="saltmerchant-desc">A wandering salt merchant arrives at the imperial gates hauling heavy canvas sacks and sealed clay amphorae packed with high-quality mineral salts, sea-harvested crystals, and dried salt cakes — offering to establish abundant imperial salt stores or to exchange surplus reserves for mineral stockpiles.</div>
+      <div class="saltmerchant-actions">
+        <button class="btn--saltmerchant-commission${canCommission ? '' : ' btn--disabled'}" data-action="saltmerchant-commission" ${canCommission ? '' : 'disabled'}>
+          🧂 Establish Salt Stores — ${SaltMerchant.COMMISSION_FOOD_COST}🌾 + ${SaltMerchant.COMMISSION_GOLD_COST}💰
+          <span class="saltmerchant-cost">→ +${SaltMerchant.COMMISSION_FOOD_RATE} food/s (2.5 min) · +${SaltMerchant.COMMISSION_PRESTIGE_REWARD} prestige · +${SaltMerchant.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--saltmerchant-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="saltmerchant-purchase" ${canPurchase ? '' : 'disabled'}>
+          ⛏️ Purchase Salt Reserves — ${SaltMerchant.PURCHASE_STONE_COST}🪨
+          <span class="saltmerchant-cost">→ +${SaltMerchant.PURCHASE_STONE_RATE} stone/s (2 min) · +${SaltMerchant.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--saltmerchant-away" data-action="saltmerchant-away">
+          🚶 Send Away
+          <span class="saltmerchant-cost">→ Salt merchant departs with the sacks</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -5902,6 +5972,14 @@ const _HANDLERS = {
   'lantern-commission': () => LanternMaker.commissionFestivalLanterns(),
   'lantern-purchase':   () => LanternMaker.purchaseLanternCraft(),
   'lantern-away':       () => LanternMaker.sendLanternMakerAway(),
+
+  'inkmaster-commission': () => InkMaster.commissionImperialScrollwork(),
+  'inkmaster-purchase':   () => InkMaster.purchaseRareInkFormulas(),
+  'inkmaster-away':       () => InkMaster.sendInkMasterAway(),
+
+  'saltmerchant-commission': () => SaltMerchant.establishSaltStores(),
+  'saltmerchant-purchase':   () => SaltMerchant.purchaseSaltReserves(),
+  'saltmerchant-away':       () => SaltMerchant.sendSaltMerchantAway(),
 };
 
 function _handleClick(e) {
@@ -6070,6 +6148,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_VINEYARD_MASTER_CHANGED,
     Events.WANDERING_HERB_MERCHANT_CHANGED,
     Events.IMPERIAL_LANTERN_MAKER_CHANGED,
+    Events.WANDERING_INK_MASTER_CHANGED,
+    Events.WANDERING_SALT_MERCHANT_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

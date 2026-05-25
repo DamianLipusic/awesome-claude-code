@@ -338,4 +338,6 @@ export const Events = Object.freeze({
   IMPERIAL_VINEYARD_MASTER_CHANGED:         'imperialVineyardMasterChanged',                           // T394: vineyard master spawned / commissioned / purchased / dismissed / expired
   WANDERING_HERB_MERCHANT_CHANGED:          'wanderingHerbMerchantChanged',                            // T395: herb merchant spawned / commissioned / purchased / dismissed / expired
   IMPERIAL_LANTERN_MAKER_CHANGED:           'imperialLanternMakerChanged',                             // T396: lantern maker spawned / commissioned / purchased / dismissed / expired
+  WANDERING_INK_MASTER_CHANGED:            'wanderingInkMasterChanged',                               // T397: ink master spawned / commissioned / purchased / dismissed / expired
+  WANDERING_SALT_MERCHANT_CHANGED:         'wanderingSaltMerchantChanged',                            // T398: salt merchant spawned / commissioned / purchased / dismissed / expired
 });

@@ -1480,6 +1480,26 @@
       "description": "Periodic imperial lantern maker encounter: commission festival lanterns (25 mana + 20g → +0.25 mana/s 2.5min +22 prestige +12 morale), purchase lantern craft (20 wood → +0.18 wood/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-19 min.",
       "completed_date": "2026-05-24",
       "notes": "Created imperialLanternMaker.js system, added IMPERIAL_LANTERN_MAKER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialLanternMakerSection() and handlers to questPanel.js (import * as LanternMaker). Events.IMPERIAL_LANTERN_MAKER_CHANGED subscribed. Added lantern CSS (amber/orange pulse theme with lime-green purchase button, lantern- CSS prefix)."
+    },
+    {
+      "id": "T397",
+      "title": "Wandering Ink Master",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic wandering ink master encounter: commission imperial scrollwork (25 mana + 20g → +0.25 mana/s 2.5min +22 prestige +10 morale), purchase rare ink formulas (20 wood → +0.18 wood/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-18 min.",
+      "completed_date": "2026-05-25",
+      "notes": "Built wanderingInkMaster.js. WANDERING_INK_MASTER_CHANGED event added to events.js. state.wanderingInkMaster null field. Ink master section in questPanel.js (import * as InkMaster). Events.WANDERING_INK_MASTER_CHANGED subscribed. CSS: @keyframes inkmaster-pulse (indigo/violet), .inkmaster-section--active, .btn--inkmaster-commission (indigo), .btn--inkmaster-purchase (lime green), .btn--inkmaster-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T398",
+      "title": "Wandering Salt Merchant",
+      "status": "done",
+      "priority": 1,
+      "phase": 6,
+      "description": "Periodic wandering salt merchant encounter: establish salt stores (25 food + 15g → +0.22 food/s 2.5min +18 prestige +10 morale), purchase salt reserves (20 stone → +0.15 stone/s 2min +12 prestige), send away. Bronze Age+, 8+ tiles, 12-16 min.",
+      "completed_date": "2026-05-25",
+      "notes": "Built wanderingSaltMerchant.js. WANDERING_SALT_MERCHANT_CHANGED event added to events.js. state.wanderingSaltMerchant null field. Salt merchant section in questPanel.js (import * as SaltMerchant). Events.WANDERING_SALT_MERCHANT_CHANGED subscribed. CSS: @keyframes saltmerchant-pulse (sky blue/light blue), .saltmerchant-section--active, .btn--saltmerchant-commission (sky blue), .btn--saltmerchant-purchase (amber/gold), .btn--saltmerchant-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     }
   ],
   "session_history": [
@@ -1566,6 +1586,7 @@
     "Session 103 (T389-T390): Wandering Lute Maker (T389), Imperial Stonecutter's Guild (T390)",
     "Session 104 (T391-T392): Wandering Candlemaker (T391), Imperial Grain Merchant (T392)",
     "Session 105 (T393-T394): Wandering Felt Maker (T393), Imperial Vineyard Master (T394)",
-    "Session 106 (T395-T396): Wandering Herb Merchant (T395), Imperial Lantern Maker (T396)"
+    "Session 106 (T395-T396): Wandering Herb Merchant (T395), Imperial Lantern Maker (T396)",
+    "Session 107 (T397-T398): Wandering Ink Master (T397), Wandering Salt Merchant (T398)"
   ]
 }
