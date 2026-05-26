@@ -356,6 +356,8 @@ import { initWanderingBowMaker, wanderingBowMakerTick }               from './sy
 import { initImperialCheeseMerchant, imperialCheeseMerchantTick }     from './systems/imperialCheeseMerchant.js';         // T412
 import { initWanderingThatcher, wanderingThatcherTick }               from './systems/wanderingThatcher.js';              // T413
 import { initImperialMillstoneCutter, imperialMillstoneCutterTick }   from './systems/imperialMillstoneCutter.js';        // T414
+import { initWanderingPeatCutter, wanderingPeatCutterTick }           from './systems/wanderingPeatCutter.js';            // T415
+import { initImperialIconPainter, imperialIconPainterTick }           from './systems/imperialIconPainter.js';            // T416
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -718,6 +720,8 @@ function _registerAllSystems() {
   registerSystem(imperialCheeseMerchantTick);       // T412
   registerSystem(wanderingThatcherTick);            // T413
   registerSystem(imperialMillstoneCutterTick);      // T414
+  registerSystem(wanderingPeatCutterTick);          // T415
+  registerSystem(imperialIconPainterTick);          // T416
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -1065,6 +1069,8 @@ function _save() {
     imperialCheeseMerchant:       state.imperialCheeseMerchant,       // T412
     wanderingThatcher:            state.wanderingThatcher,            // T413
     imperialMillstoneCutter:      state.imperialMillstoneCutter,      // T414
+    wanderingPeatCutter:          state.wanderingPeatCutter,          // T415
+    imperialIconPainter:          state.imperialIconPainter,          // T416
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -1417,6 +1423,8 @@ function _applySave(s) {
   state.imperialCheeseMerchant    = s.imperialCheeseMerchant ?? null;     // T412
   state.wanderingThatcher         = s.wanderingThatcher ?? null;           // T413
   state.imperialMillstoneCutter   = s.imperialMillstoneCutter ?? null;     // T414
+  state.wanderingPeatCutter       = s.wanderingPeatCutter ?? null;         // T415
+  state.imperialIconPainter       = s.imperialIconPainter ?? null;         // T416
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -1775,6 +1783,8 @@ function _startFreshGame() {
   initImperialCheeseMerchant();       // T412
   initWanderingThatcher();            // T413
   initImperialMillstoneCutter();      // T414
+  initWanderingPeatCutter();          // T415
+  initImperialIconPainter();          // T416
   initAchievements();
   initLeaderboard();
 }
@@ -2116,6 +2126,8 @@ function _startLoadedGame(savedData) {
   initImperialCheeseMerchant();       // T412
   initWanderingThatcher();            // T413
   initImperialMillstoneCutter();      // T414
+  initWanderingPeatCutter();          // T415
+  initImperialIconPainter();          // T416
   initAchievements();
   initLeaderboard();
 }

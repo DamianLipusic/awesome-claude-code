@@ -1660,6 +1660,26 @@
       "description": "Periodic imperial millstone cutter encounter: commission grinding millstones (25 stone + 20g → +0.22 stone/s 2.5min +20 prestige +10 morale), purchase milling designs (20 iron → +0.18 iron/s 2min +15 prestige), send away. Iron Age+, 10+ tiles, 13-18 min.",
       "completed_date": "2026-05-26",
       "notes": "Built imperialMillstoneCutter.js. IMPERIAL_MILLSTONE_CUTTER_CHANGED event added to events.js. state.imperialMillstoneCutter null field. Millstone cutter section in questPanel.js (import * as MillstoneCutter). Events.IMPERIAL_MILLSTONE_CUTTER_CHANGED subscribed. CSS: @keyframes millstone-pulse (slate/silver theme), .millstone-section--active, .btn--millstone-commission (slate/silver), .btn--millstone-purchase (amber/gold), .btn--millstone-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T415",
+      "title": "Wandering Peat Cutter",
+      "status": "done",
+      "priority": 415,
+      "phase": 123,
+      "description": "Periodic wandering peat cutter encounter: commission peat hearths (20 food + 15 wood → +0.22 food/s 2.5min +15 prestige +10 morale), purchase peat-cutting lore (18g → +0.15 wood/s 2min +12 prestige), send away. Stone Age+, 6+ tiles, 11-15 min.",
+      "completed_date": "2026-05-26",
+      "notes": "Built wanderingPeatCutter.js. WANDERING_PEAT_CUTTER_CHANGED event added to events.js. state.wanderingPeatCutter null field. Peat cutter section in questPanel.js (import * as PeatCutter). Events.WANDERING_PEAT_CUTTER_CHANGED subscribed. CSS: @keyframes peatcutter-pulse (earthy brown/amber), .peatcutter-section--active, .btn--peatcutter-commission (brown-amber), .btn--peatcutter-purchase (green), .btn--peatcutter-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T416",
+      "title": "Imperial Icon Painter",
+      "status": "done",
+      "priority": 416,
+      "phase": 123,
+      "description": "Periodic imperial icon painter encounter: commission sacred icons (25 mana + 20g → +0.25 mana/s 2.5min +22 prestige +10 morale), purchase gilded iconography (20 stone → +0.18 stone/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-18 min.",
+      "completed_date": "2026-05-26",
+      "notes": "Built imperialIconPainter.js. IMPERIAL_ICON_PAINTER_CHANGED event added to events.js. state.imperialIconPainter null field. Icon painter section in questPanel.js (import * as IconPainter). Events.IMPERIAL_ICON_PAINTER_CHANGED subscribed. CSS: @keyframes iconpainter-pulse (gold/amber), .iconpainter-section--active, .btn--iconpainter-commission (gold/amber), .btn--iconpainter-purchase (slate), .btn--iconpainter-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     }
   ],
   "session_history": [
@@ -1755,6 +1775,7 @@
     "Session 112 (T407-T408): Wandering Chronicler (T407), Imperial Surveyor (T408)",
     "Session 113 (T409-T410): Wandering Tapestry Restorer (T409), Imperial Harbor Master (T410)",
     "Session 114 (T411-T412): Wandering Bow Maker (T411), Imperial Cheese Merchant (T412)",
-    "Session 115 (T413-T414): Wandering Thatcher (T413), Imperial Millstone Cutter (T414)"
+    "Session 115 (T413-T414): Wandering Thatcher (T413), Imperial Millstone Cutter (T414)",
+    "Session 116 (T415-T416): Wandering Peat Cutter (T415), Imperial Icon Painter (T416)"
   ]
 }

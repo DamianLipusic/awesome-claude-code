@@ -179,6 +179,8 @@ import * as BowMaker         from '../systems/wanderingBowMaker.js';           /
 import * as CheeseMerchant   from '../systems/imperialCheeseMerchant.js';      // T412
 import * as Thatcher          from '../systems/wanderingThatcher.js';            // T413
 import * as MillstoneCutter   from '../systems/imperialMillstoneCutter.js';      // T414
+import * as PeatCutter        from '../systems/wanderingPeatCutter.js';          // T415
+import * as IconPainter       from '../systems/imperialIconPainter.js';          // T416
 
 let _panel = null;
 
@@ -386,6 +388,8 @@ function _encountersSection() {
     _imperialCheeseMerchantSection(),
     _wanderingThatcherSection(),
     _imperialMillstoneCutterSection(),
+    _wanderingPeatCutterSection(),
+    _imperialIconPainterSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -5941,6 +5945,76 @@ function _imperialMillstoneCutterSection() {
     </div>`;
 }
 
+// ── T415 Wandering Peat Cutter ────────────────────────────────────────────
+
+function _wanderingPeatCutterSection() {
+  if (!PeatCutter.getActiveWanderingPeatCutter()) return '';
+  const secs   = PeatCutter.getPeatCutterSecsLeft();
+  const urgent = secs <= 15;
+  const food   = state.resources?.food ?? 0;
+  const wood   = state.resources?.wood ?? 0;
+  const gold   = state.resources?.gold ?? 0;
+  const canCommission = food >= PeatCutter.COMMISSION_FOOD_COST && wood >= PeatCutter.COMMISSION_WOOD_COST;
+  const canPurchase   = gold >= PeatCutter.PURCHASE_GOLD_COST;
+  return `
+    <div class="peatcutter-section--active">
+      <div class="peatcutter-header">
+        <span class="peatcutter-title">🪵 Wandering Peat Cutter</span>
+        <span class="peatcutter-timer${urgent ? ' peatcutter-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="peatcutter-desc">A wandering peat cutter arrives bearing iron-shod peat spades, curved breast-spades, and stacked blocks of air-dried blanket peat from high moorland bogs — offering to commission peat hearths across the imperial granaries, barracks, and longhouses, or to share centuries-old peat-cutting techniques for harvesting and stacking prime-grade sphagnum peat.</div>
+      <div class="peatcutter-actions">
+        <button class="btn--peatcutter-commission${canCommission ? '' : ' btn--disabled'}" data-action="peatcutter-commission" ${canCommission ? '' : 'disabled'}>
+          🪵 Commission Peat Hearths — ${PeatCutter.COMMISSION_FOOD_COST}🌾 + ${PeatCutter.COMMISSION_WOOD_COST}🪵
+          <span class="peatcutter-cost">→ +${PeatCutter.COMMISSION_FOOD_RATE} food/s (2.5 min) · +${PeatCutter.COMMISSION_PRESTIGE_REWARD} prestige · +${PeatCutter.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--peatcutter-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="peatcutter-purchase" ${canPurchase ? '' : 'disabled'}>
+          🌿 Purchase Peat-Cutting Lore — ${PeatCutter.PURCHASE_GOLD_COST}💰
+          <span class="peatcutter-cost">→ +${PeatCutter.PURCHASE_WOOD_RATE} wood/s (2 min) · +${PeatCutter.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--peatcutter-away" data-action="peatcutter-away">
+          🚶 Send Away
+          <span class="peatcutter-cost">→ Peat cutter departs with the blanket peat blocks</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T416 Imperial Icon Painter ────────────────────────────────────────────
+
+function _imperialIconPainterSection() {
+  if (!IconPainter.getActiveImperialIconPainter()) return '';
+  const secs   = IconPainter.getIconPainterSecsLeft();
+  const urgent = secs <= 15;
+  const mana   = state.resources?.mana  ?? 0;
+  const gold   = state.resources?.gold  ?? 0;
+  const stone  = state.resources?.stone ?? 0;
+  const canCommission = mana >= IconPainter.COMMISSION_MANA_COST && gold >= IconPainter.COMMISSION_GOLD_COST;
+  const canPurchase   = stone >= IconPainter.PURCHASE_STONE_COST;
+  return `
+    <div class="iconpainter-section--active">
+      <div class="iconpainter-header">
+        <span class="iconpainter-title">🎨 Imperial Icon Painter</span>
+        <span class="iconpainter-timer${urgent ? ' iconpainter-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="iconpainter-desc">An imperial icon painter arrives carrying gilded oak boards, ground lapis lazuli and malachite pigments, gold-leaf booklets, and fine squirrel-hair brushes — offering to commission sacred icons for every chapel, throne hall, and officer's quarters in the empire, or to sell the gilded iconography pattern book with canonical proportions and gold-leaf burnishing techniques.</div>
+      <div class="iconpainter-actions">
+        <button class="btn--iconpainter-commission${canCommission ? '' : ' btn--disabled'}" data-action="iconpainter-commission" ${canCommission ? '' : 'disabled'}>
+          🎨 Commission Sacred Icons — ${IconPainter.COMMISSION_MANA_COST}✨ + ${IconPainter.COMMISSION_GOLD_COST}💰
+          <span class="iconpainter-cost">→ +${IconPainter.COMMISSION_MANA_RATE} mana/s (2.5 min) · +${IconPainter.COMMISSION_PRESTIGE_REWARD} prestige · +${IconPainter.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--iconpainter-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="iconpainter-purchase" ${canPurchase ? '' : 'disabled'}>
+          📖 Purchase Gilded Iconography — ${IconPainter.PURCHASE_STONE_COST}🪨
+          <span class="iconpainter-cost">→ +${IconPainter.PURCHASE_STONE_RATE} stone/s (2 min) · +${IconPainter.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--iconpainter-away" data-action="iconpainter-away">
+          🚶 Send Away
+          <span class="iconpainter-cost">→ Icon painter departs with the gilded boards and pigments</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -6610,6 +6684,14 @@ const _HANDLERS = {
   'millstone-commission': () => MillstoneCutter.commissionGrindingMillstones(),
   'millstone-purchase':   () => MillstoneCutter.purchaseMillingDesigns(),
   'millstone-away':       () => MillstoneCutter.sendMillstoneCutterAway(),
+
+  'peatcutter-commission': () => PeatCutter.commissionPeatHearths(),
+  'peatcutter-purchase':   () => PeatCutter.purchasePeatCuttingLore(),
+  'peatcutter-away':       () => PeatCutter.sendPeatCutterAway(),
+
+  'iconpainter-commission': () => IconPainter.commissionSacredIcons(),
+  'iconpainter-purchase':   () => IconPainter.purchaseGildedIconography(),
+  'iconpainter-away':       () => IconPainter.sendIconPainterAway(),
 };
 
 function _handleClick(e) {
@@ -6796,6 +6878,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_CHEESE_MERCHANT_CHANGED,
     Events.WANDERING_THATCHER_CHANGED,
     Events.IMPERIAL_MILLSTONE_CUTTER_CHANGED,
+    Events.WANDERING_PEAT_CUTTER_CHANGED,
+    Events.IMPERIAL_ICON_PAINTER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

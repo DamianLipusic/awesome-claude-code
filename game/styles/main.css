@@ -22069,3 +22069,75 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--millstone-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T415 Wandering Peat Cutter ──────────────────────────────────────────── */
+@keyframes peatcutter-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(120, 80, 30, 0.00); }
+  50%       { box-shadow: 0 0 8px 3px rgba(180, 130, 60, 0.18); }
+}
+.peatcutter-section--active {
+  background: linear-gradient(135deg, rgba(120, 80, 30, 0.12), rgba(90, 55, 15, 0.07));
+  border: 1px solid rgba(180, 130, 60, 0.30); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: peatcutter-pulse 2.8s ease-in-out infinite;
+}
+.peatcutter-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.peatcutter-title  { font-weight: 700; font-size: 0.88rem; color: #d4a96a; }
+.peatcutter-timer  { font-size: 0.78rem; color: #d4a96a; }
+.peatcutter-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.peatcutter-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.peatcutter-actions { display: flex; flex-direction: column; gap: 5px; }
+.peatcutter-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--peatcutter-commission {
+  background: linear-gradient(135deg, rgba(120, 80, 30, 0.28), rgba(90, 55, 15, 0.18));
+  border: 1px solid rgba(180, 130, 60, 0.36); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #d4a96a; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--peatcutter-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(150, 100, 45, 0.38), rgba(110, 70, 25, 0.28)); }
+.btn--peatcutter-purchase {
+  background: linear-gradient(135deg, rgba(30, 100, 50, 0.22), rgba(20, 75, 35, 0.14));
+  border: 1px solid rgba(60, 160, 90, 0.32); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #6ee7b7; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--peatcutter-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(40, 120, 65, 0.30), rgba(25, 90, 45, 0.22)); }
+.btn--peatcutter-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--peatcutter-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T416 Imperial Icon Painter ──────────────────────────────────────────── */
+@keyframes iconpainter-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(200, 160, 40, 0.00); }
+  50%       { box-shadow: 0 0 8px 3px rgba(217, 180, 60, 0.20); }
+}
+.iconpainter-section--active {
+  background: linear-gradient(135deg, rgba(180, 140, 30, 0.12), rgba(140, 100, 15, 0.07));
+  border: 1px solid rgba(217, 180, 60, 0.30); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: iconpainter-pulse 2.8s ease-in-out infinite;
+}
+.iconpainter-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.iconpainter-title  { font-weight: 700; font-size: 0.88rem; color: #fcd34d; }
+.iconpainter-timer  { font-size: 0.78rem; color: #fcd34d; }
+.iconpainter-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.iconpainter-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.iconpainter-actions { display: flex; flex-direction: column; gap: 5px; }
+.iconpainter-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--iconpainter-commission {
+  background: linear-gradient(135deg, rgba(180, 140, 30, 0.28), rgba(140, 100, 15, 0.18));
+  border: 1px solid rgba(217, 180, 60, 0.38); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fcd34d; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--iconpainter-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(210, 165, 45, 0.38), rgba(170, 125, 25, 0.28)); }
+.btn--iconpainter-purchase {
+  background: linear-gradient(135deg, rgba(100, 116, 139, 0.22), rgba(71, 85, 105, 0.14));
+  border: 1px solid rgba(148, 163, 184, 0.32); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #cbd5e1; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--iconpainter-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(120, 136, 160, 0.30), rgba(90, 104, 126, 0.22)); }
+.btn--iconpainter-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--iconpainter-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
