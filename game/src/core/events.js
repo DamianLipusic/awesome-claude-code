@@ -358,4 +358,6 @@ export const Events = Object.freeze({
   IMPERIAL_MILLSTONE_CUTTER_CHANGED:       'imperialMillstoneCutterChanged',                              // T414: millstone cutter spawned / commissioned / purchased / dismissed / expired
   WANDERING_PEAT_CUTTER_CHANGED:           'wanderingPeatCutterChanged',                                  // T415: peat cutter spawned / commissioned / purchased / dismissed / expired
   IMPERIAL_ICON_PAINTER_CHANGED:           'imperialIconPainterChanged',                                  // T416: icon painter spawned / commissioned / purchased / dismissed / expired
+  WANDERING_WAX_TABLET_MAKER_CHANGED:      'wanderingWaxTabletMakerChanged',                               // T417: wax tablet maker spawned / commissioned / purchased / dismissed / expired
+  WANDERING_NET_MAKER_CHANGED:             'wanderingNetMakerChanged',                                     // T418: net maker spawned / commissioned / purchased / dismissed / expired
 });

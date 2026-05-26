@@ -181,6 +181,8 @@ import * as Thatcher          from '../systems/wanderingThatcher.js';           
 import * as MillstoneCutter   from '../systems/imperialMillstoneCutter.js';      // T414
 import * as PeatCutter        from '../systems/wanderingPeatCutter.js';          // T415
 import * as IconPainter       from '../systems/imperialIconPainter.js';          // T416
+import * as WaxTabletMaker   from '../systems/wanderingWaxTabletMaker.js';       // T417
+import * as NetMaker         from '../systems/wanderingNetMaker.js';             // T418
 
 let _panel = null;
 
@@ -390,6 +392,8 @@ function _encountersSection() {
     _imperialMillstoneCutterSection(),
     _wanderingPeatCutterSection(),
     _imperialIconPainterSection(),
+    _wanderingWaxTabletMakerSection(),
+    _wanderingNetMakerSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -6015,6 +6019,76 @@ function _imperialIconPainterSection() {
     </div>`;
 }
 
+// ── T417 Wandering Wax Tablet Maker ──────────────────────────────────────
+
+function _wanderingWaxTabletMakerSection() {
+  if (!WaxTabletMaker.getActiveWanderingWaxTabletMaker()) return '';
+  const secs   = WaxTabletMaker.getWaxTabletMakerSecsLeft();
+  const urgent = secs <= 15;
+  const mana   = state.resources?.mana  ?? 0;
+  const gold   = state.resources?.gold  ?? 0;
+  const stone  = state.resources?.stone ?? 0;
+  const canCommission = mana >= WaxTabletMaker.COMMISSION_MANA_COST && gold >= WaxTabletMaker.COMMISSION_GOLD_COST;
+  const canPurchase   = stone >= WaxTabletMaker.PURCHASE_STONE_COST;
+  return `
+    <div class="waxtablet-section--active">
+      <div class="waxtablet-header">
+        <span class="waxtablet-title">📋 Wandering Wax Tablet Maker</span>
+        <span class="waxtablet-timer${urgent ? ' waxtablet-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="waxtablet-desc">A wandering wax tablet maker arrives carrying freshly cast beeswax tablets in carved boxwood frames, bronze styli, and ivory spatulas — offering to commission imperial administrative records for every chancery and treasury office, or to sell the wax-tablet lore compendium detailing beeswax-to-resin ratios, stylus techniques, and storage-temperature guidance.</div>
+      <div class="waxtablet-actions">
+        <button class="btn--waxtablet-commission${canCommission ? '' : ' btn--disabled'}" data-action="waxtablet-commission" ${canCommission ? '' : 'disabled'}>
+          📋 Commission Imperial Wax Records — ${WaxTabletMaker.COMMISSION_MANA_COST}✨ + ${WaxTabletMaker.COMMISSION_GOLD_COST}💰
+          <span class="waxtablet-cost">→ +${WaxTabletMaker.COMMISSION_MANA_RATE} mana/s (2.5 min) · +${WaxTabletMaker.COMMISSION_PRESTIGE_REWARD} prestige · +${WaxTabletMaker.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--waxtablet-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="waxtablet-purchase" ${canPurchase ? '' : 'disabled'}>
+          📖 Purchase Wax Tablet Lore — ${WaxTabletMaker.PURCHASE_STONE_COST}🪨
+          <span class="waxtablet-cost">→ +${WaxTabletMaker.PURCHASE_STONE_RATE} stone/s (2 min) · +${WaxTabletMaker.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--waxtablet-away" data-action="waxtablet-away">
+          🚶 Send Away
+          <span class="waxtablet-cost">→ Wax tablet maker departs with the boxwood frames and styli</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T418 Wandering Net Maker ──────────────────────────────────────────────
+
+function _wanderingNetMakerSection() {
+  if (!NetMaker.getActiveWanderingNetMaker()) return '';
+  const secs   = NetMaker.getNetMakerSecsLeft();
+  const urgent = secs <= 15;
+  const wood   = state.resources?.wood ?? 0;
+  const food   = state.resources?.food ?? 0;
+  const gold   = state.resources?.gold ?? 0;
+  const canCommission = wood >= NetMaker.COMMISSION_WOOD_COST && food >= NetMaker.COMMISSION_FOOD_COST;
+  const canPurchase   = gold >= NetMaker.PURCHASE_GOLD_COST;
+  return `
+    <div class="netmaker-section--active">
+      <div class="netmaker-header">
+        <span class="netmaker-title">🎣 Wandering Net Maker</span>
+        <span class="netmaker-timer${urgent ? ' netmaker-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="netmaker-desc">A wandering net maker arrives with bolts of twisted linen cordage, wooden netting needles, mesh gauges, and lead sinkers — offering to commission imperial fishing nets for every river fishery and coastal harbour, or to sell the net-making secrets compendium detailing knot sequences, mesh-gauge selection, and cordage-soaking schedules.</div>
+      <div class="netmaker-actions">
+        <button class="btn--netmaker-commission${canCommission ? '' : ' btn--disabled'}" data-action="netmaker-commission" ${canCommission ? '' : 'disabled'}>
+          🎣 Commission Imperial Fishing Nets — ${NetMaker.COMMISSION_WOOD_COST}🪵 + ${NetMaker.COMMISSION_FOOD_COST}🌾
+          <span class="netmaker-cost">→ +${NetMaker.COMMISSION_FOOD_RATE} food/s (2.5 min) · +${NetMaker.COMMISSION_PRESTIGE_REWARD} prestige · +${NetMaker.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--netmaker-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="netmaker-purchase" ${canPurchase ? '' : 'disabled'}>
+          📖 Purchase Net-Making Secrets — ${NetMaker.PURCHASE_GOLD_COST}💰
+          <span class="netmaker-cost">→ +${NetMaker.PURCHASE_GOLD_RATE} gold/s (2 min) · +${NetMaker.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--netmaker-away" data-action="netmaker-away">
+          🚶 Send Away
+          <span class="netmaker-cost">→ Net maker departs with the cordage bolts and netting needles</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -6692,6 +6766,14 @@ const _HANDLERS = {
   'iconpainter-commission': () => IconPainter.commissionSacredIcons(),
   'iconpainter-purchase':   () => IconPainter.purchaseGildedIconography(),
   'iconpainter-away':       () => IconPainter.sendIconPainterAway(),
+
+  'waxtablet-commission': () => WaxTabletMaker.commissionImperialWaxRecords(),
+  'waxtablet-purchase':   () => WaxTabletMaker.purchaseWaxTabletLore(),
+  'waxtablet-away':       () => WaxTabletMaker.sendWaxTabletMakerAway(),
+
+  'netmaker-commission': () => NetMaker.commissionImperialFishingNets(),
+  'netmaker-purchase':   () => NetMaker.purchaseNetMakingSecrets(),
+  'netmaker-away':       () => NetMaker.sendNetMakerAway(),
 };
 
 function _handleClick(e) {
@@ -6880,6 +6962,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_MILLSTONE_CUTTER_CHANGED,
     Events.WANDERING_PEAT_CUTTER_CHANGED,
     Events.IMPERIAL_ICON_PAINTER_CHANGED,
+    Events.WANDERING_WAX_TABLET_MAKER_CHANGED,
+    Events.WANDERING_NET_MAKER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

@@ -22141,3 +22141,75 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--iconpainter-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T417 Wandering Wax Tablet Maker ─────────────────────────────────────── */
+@keyframes waxtablet-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(210, 185, 100, 0.00); }
+  50%       { box-shadow: 0 0 8px 3px rgba(210, 185, 100, 0.20); }
+}
+.waxtablet-section--active {
+  background: linear-gradient(135deg, rgba(180, 155, 70, 0.12), rgba(140, 115, 40, 0.07));
+  border: 1px solid rgba(210, 185, 100, 0.30); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: waxtablet-pulse 2.8s ease-in-out infinite;
+}
+.waxtablet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.waxtablet-title  { font-weight: 700; font-size: 0.88rem; color: #e5c97a; }
+.waxtablet-timer  { font-size: 0.78rem; color: #e5c97a; }
+.waxtablet-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.waxtablet-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.waxtablet-actions { display: flex; flex-direction: column; gap: 5px; }
+.waxtablet-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--waxtablet-commission {
+  background: linear-gradient(135deg, rgba(180, 155, 70, 0.28), rgba(140, 115, 40, 0.18));
+  border: 1px solid rgba(210, 185, 100, 0.38); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #e5c97a; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--waxtablet-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(200, 175, 90, 0.38), rgba(165, 135, 55, 0.28)); }
+.btn--waxtablet-purchase {
+  background: linear-gradient(135deg, rgba(100, 116, 139, 0.22), rgba(71, 85, 105, 0.14));
+  border: 1px solid rgba(148, 163, 184, 0.32); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #cbd5e1; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--waxtablet-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(120, 136, 160, 0.30), rgba(90, 104, 126, 0.22)); }
+.btn--waxtablet-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--waxtablet-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T418 Wandering Net Maker ────────────────────────────────────────────── */
+@keyframes netmaker-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.00); }
+  50%       { box-shadow: 0 0 8px 3px rgba(56, 189, 248, 0.20); }
+}
+.netmaker-section--active {
+  background: linear-gradient(135deg, rgba(14, 116, 166, 0.14), rgba(7, 89, 133, 0.08));
+  border: 1px solid rgba(56, 189, 248, 0.30); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: netmaker-pulse 2.8s ease-in-out infinite;
+}
+.netmaker-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.netmaker-title  { font-weight: 700; font-size: 0.88rem; color: #7dd3fc; }
+.netmaker-timer  { font-size: 0.78rem; color: #7dd3fc; }
+.netmaker-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.netmaker-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.netmaker-actions { display: flex; flex-direction: column; gap: 5px; }
+.netmaker-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--netmaker-commission {
+  background: linear-gradient(135deg, rgba(14, 116, 166, 0.28), rgba(7, 89, 133, 0.18));
+  border: 1px solid rgba(56, 189, 248, 0.38); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #7dd3fc; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--netmaker-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(20, 140, 200, 0.38), rgba(10, 110, 165, 0.28)); }
+.btn--netmaker-purchase {
+  background: linear-gradient(135deg, rgba(30, 100, 50, 0.22), rgba(20, 75, 35, 0.14));
+  border: 1px solid rgba(60, 160, 90, 0.32); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #6ee7b7; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--netmaker-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(40, 120, 65, 0.30), rgba(25, 90, 45, 0.22)); }
+.btn--netmaker-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--netmaker-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

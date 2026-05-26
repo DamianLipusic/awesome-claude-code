@@ -1680,6 +1680,26 @@
       "description": "Periodic imperial icon painter encounter: commission sacred icons (25 mana + 20g → +0.25 mana/s 2.5min +22 prestige +10 morale), purchase gilded iconography (20 stone → +0.18 stone/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-18 min.",
       "completed_date": "2026-05-26",
       "notes": "Built imperialIconPainter.js. IMPERIAL_ICON_PAINTER_CHANGED event added to events.js. state.imperialIconPainter null field. Icon painter section in questPanel.js (import * as IconPainter). Events.IMPERIAL_ICON_PAINTER_CHANGED subscribed. CSS: @keyframes iconpainter-pulse (gold/amber), .iconpainter-section--active, .btn--iconpainter-commission (gold/amber), .btn--iconpainter-purchase (slate), .btn--iconpainter-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T417",
+      "title": "Wandering Wax Tablet Maker",
+      "status": "done",
+      "priority": 417,
+      "phase": 124,
+      "description": "Periodic wandering wax tablet maker encounter: commission imperial wax records (25 mana + 20g → +0.25 mana/s 2.5min +22 prestige +10 morale), purchase wax tablet lore (20 stone → +0.18 stone/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-18 min.",
+      "completed_date": "2026-05-26",
+      "notes": "Built wanderingWaxTabletMaker.js. WANDERING_WAX_TABLET_MAKER_CHANGED event added to events.js. state.wanderingWaxTabletMaker null field. Wax tablet maker section in questPanel.js (import * as WaxTabletMaker). Events.WANDERING_WAX_TABLET_MAKER_CHANGED subscribed. CSS: @keyframes waxtablet-pulse (amber/gold parchment theme), .waxtablet-section--active, .btn--waxtablet-commission (amber/gold), .btn--waxtablet-purchase (slate), .btn--waxtablet-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T418",
+      "title": "Wandering Net Maker",
+      "status": "done",
+      "priority": 418,
+      "phase": 124,
+      "description": "Periodic wandering net maker encounter: commission imperial fishing nets (20 wood + 10 food → +0.22 food/s 2.5min +15 prestige +10 morale), purchase net-making secrets (18g → +0.15 gold/s 2min +10 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
+      "completed_date": "2026-05-26",
+      "notes": "Built wanderingNetMaker.js. WANDERING_NET_MAKER_CHANGED event added to events.js. state.wanderingNetMaker null field. Net maker section in questPanel.js (import * as NetMaker). Events.WANDERING_NET_MAKER_CHANGED subscribed. CSS: @keyframes netmaker-pulse (sky blue/ocean theme), .netmaker-section--active, .btn--netmaker-commission (sky blue), .btn--netmaker-purchase (green), .btn--netmaker-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     }
   ],
   "session_history": [
@@ -1776,6 +1796,7 @@
     "Session 113 (T409-T410): Wandering Tapestry Restorer (T409), Imperial Harbor Master (T410)",
     "Session 114 (T411-T412): Wandering Bow Maker (T411), Imperial Cheese Merchant (T412)",
     "Session 115 (T413-T414): Wandering Thatcher (T413), Imperial Millstone Cutter (T414)",
-    "Session 116 (T415-T416): Wandering Peat Cutter (T415), Imperial Icon Painter (T416)"
+    "Session 116 (T415-T416): Wandering Peat Cutter (T415), Imperial Icon Painter (T416)",
+    "Session 117 (T417-T418): Wandering Wax Tablet Maker (T417), Wandering Net Maker (T418)"
   ]
 }

@@ -358,6 +358,8 @@ import { initWanderingThatcher, wanderingThatcherTick }               from './sy
 import { initImperialMillstoneCutter, imperialMillstoneCutterTick }   from './systems/imperialMillstoneCutter.js';        // T414
 import { initWanderingPeatCutter, wanderingPeatCutterTick }           from './systems/wanderingPeatCutter.js';            // T415
 import { initImperialIconPainter, imperialIconPainterTick }           from './systems/imperialIconPainter.js';            // T416
+import { initWanderingWaxTabletMaker, wanderingWaxTabletMakerTick }   from './systems/wanderingWaxTabletMaker.js';         // T417
+import { initWanderingNetMaker, wanderingNetMakerTick }               from './systems/wanderingNetMaker.js';               // T418
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -722,6 +724,8 @@ function _registerAllSystems() {
   registerSystem(imperialMillstoneCutterTick);      // T414
   registerSystem(wanderingPeatCutterTick);          // T415
   registerSystem(imperialIconPainterTick);          // T416
+  registerSystem(wanderingWaxTabletMakerTick);      // T417
+  registerSystem(wanderingNetMakerTick);            // T418
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -1071,6 +1075,8 @@ function _save() {
     imperialMillstoneCutter:      state.imperialMillstoneCutter,      // T414
     wanderingPeatCutter:          state.wanderingPeatCutter,          // T415
     imperialIconPainter:          state.imperialIconPainter,          // T416
+    wanderingWaxTabletMaker:      state.wanderingWaxTabletMaker,      // T417
+    wanderingNetMaker:            state.wanderingNetMaker,            // T418
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -1425,6 +1431,8 @@ function _applySave(s) {
   state.imperialMillstoneCutter   = s.imperialMillstoneCutter ?? null;     // T414
   state.wanderingPeatCutter       = s.wanderingPeatCutter ?? null;         // T415
   state.imperialIconPainter       = s.imperialIconPainter ?? null;         // T416
+  state.wanderingWaxTabletMaker   = s.wanderingWaxTabletMaker ?? null;     // T417
+  state.wanderingNetMaker         = s.wanderingNetMaker ?? null;           // T418
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -1785,6 +1793,8 @@ function _startFreshGame() {
   initImperialMillstoneCutter();      // T414
   initWanderingPeatCutter();          // T415
   initImperialIconPainter();          // T416
+  initWanderingWaxTabletMaker();      // T417
+  initWanderingNetMaker();            // T418
   initAchievements();
   initLeaderboard();
 }
@@ -2128,6 +2138,8 @@ function _startLoadedGame(savedData) {
   initImperialMillstoneCutter();      // T414
   initWanderingPeatCutter();          // T415
   initImperialIconPainter();          // T416
+  initWanderingWaxTabletMaker();      // T417
+  initWanderingNetMaker();            // T418
   initAchievements();
   initLeaderboard();
 }
