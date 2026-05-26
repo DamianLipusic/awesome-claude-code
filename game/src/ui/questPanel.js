@@ -177,6 +177,8 @@ import * as TapestryRestorer from '../systems/wanderingTapestryRestorer.js'; // 
 import * as HarborMaster     from '../systems/imperialHarborMaster.js';      // T410
 import * as BowMaker         from '../systems/wanderingBowMaker.js';           // T411
 import * as CheeseMerchant   from '../systems/imperialCheeseMerchant.js';      // T412
+import * as Thatcher          from '../systems/wanderingThatcher.js';            // T413
+import * as MillstoneCutter   from '../systems/imperialMillstoneCutter.js';      // T414
 
 let _panel = null;
 
@@ -382,6 +384,8 @@ function _encountersSection() {
     _imperialHarborMasterSection(),
     _wanderingBowMakerSection(),
     _imperialCheeseMerchantSection(),
+    _wanderingThatcherSection(),
+    _imperialMillstoneCutterSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -5867,6 +5871,76 @@ function _imperialCheeseMerchantSection() {
     </div>`;
 }
 
+// ── T413 Wandering Thatcher ───────────────────────────────────────────────────
+
+function _wanderingThatcherSection() {
+  if (!Thatcher.getActiveWanderingThatcher()) return '';
+  const secs   = Thatcher.getThatcherSecsLeft();
+  const urgent = secs <= 15;
+  const wood   = state.resources?.wood ?? 0;
+  const food   = state.resources?.food ?? 0;
+  const gold   = state.resources?.gold ?? 0;
+  const canThatch   = wood >= Thatcher.THATCH_WOOD_COST && food >= Thatcher.THATCH_FOOD_COST;
+  const canPurchase = gold >= Thatcher.PURCHASE_GOLD_COST;
+  return `
+    <div class="thatcher-section--active">
+      <div class="thatcher-header">
+        <span class="thatcher-title">🌾 Wandering Thatcher</span>
+        <span class="thatcher-timer${urgent ? ' thatcher-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="thatcher-desc">A wandering thatcher arrives bearing bundles of long water-reed, rye straw, and prepared sedge grass — offering to thatch the imperial halls, granary roofs, and garrison longhouses with tight weatherproof layers, or to share centuries-old thatching techniques for selecting and layering the finest water-reed to produce roofs that last a generation.</div>
+      <div class="thatcher-actions">
+        <button class="btn--thatcher-thatch${canThatch ? '' : ' btn--disabled'}" data-action="thatcher-thatch" ${canThatch ? '' : 'disabled'}>
+          🌾 Thatch Imperial Halls — ${Thatcher.THATCH_WOOD_COST}🪵 + ${Thatcher.THATCH_FOOD_COST}🌾
+          <span class="thatcher-cost">→ +${Thatcher.THATCH_WOOD_RATE} wood/s (2.5 min) · +${Thatcher.THATCH_PRESTIGE_REWARD} prestige · +${Thatcher.THATCH_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--thatcher-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="thatcher-purchase" ${canPurchase ? '' : 'disabled'}>
+          🏠 Purchase Thatching Craft — ${Thatcher.PURCHASE_GOLD_COST}💰
+          <span class="thatcher-cost">→ +${Thatcher.PURCHASE_FOOD_RATE} food/s (2 min) · +${Thatcher.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--thatcher-away" data-action="thatcher-away">
+          🚶 Send Away
+          <span class="thatcher-cost">→ Thatcher departs with the water-reed bundles</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T414 Imperial Millstone Cutter ────────────────────────────────────────────
+
+function _imperialMillstoneCutterSection() {
+  if (!MillstoneCutter.getActiveImperialMillstoneCutter()) return '';
+  const secs   = MillstoneCutter.getMillstoneCutterSecsLeft();
+  const urgent = secs <= 15;
+  const stone  = state.resources?.stone ?? 0;
+  const gold   = state.resources?.gold  ?? 0;
+  const iron   = state.resources?.iron  ?? 0;
+  const canCommission = stone >= MillstoneCutter.COMMISSION_STONE_COST && gold >= MillstoneCutter.COMMISSION_GOLD_COST;
+  const canPurchase   = iron  >= MillstoneCutter.PURCHASE_IRON_COST;
+  return `
+    <div class="millstone-section--active">
+      <div class="millstone-header">
+        <span class="millstone-title">⚙️ Imperial Millstone Cutter</span>
+        <span class="millstone-timer${urgent ? ' millstone-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="millstone-desc">An imperial millstone cutter arrives bearing dressed gritstone and sandstone millstone pairs, iron-fitted runner and bedstone sets, and mill-house blueprint designs — offering to commission precision-balanced millstones for every grain mill and ore crusher in the realm, or to sell stone-dressing and furrow-cutting techniques for peak grinding efficiency.</div>
+      <div class="millstone-actions">
+        <button class="btn--millstone-commission${canCommission ? '' : ' btn--disabled'}" data-action="millstone-commission" ${canCommission ? '' : 'disabled'}>
+          ⚙️ Commission Grinding Millstones — ${MillstoneCutter.COMMISSION_STONE_COST}🪨 + ${MillstoneCutter.COMMISSION_GOLD_COST}💰
+          <span class="millstone-cost">→ +${MillstoneCutter.COMMISSION_STONE_RATE} stone/s (2.5 min) · +${MillstoneCutter.COMMISSION_PRESTIGE_REWARD} prestige · +${MillstoneCutter.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--millstone-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="millstone-purchase" ${canPurchase ? '' : 'disabled'}>
+          🪨 Purchase Milling Designs — ${MillstoneCutter.PURCHASE_IRON_COST}⚙️
+          <span class="millstone-cost">→ +${MillstoneCutter.PURCHASE_IRON_RATE} iron/s (2 min) · +${MillstoneCutter.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--millstone-away" data-action="millstone-away">
+          🚶 Send Away
+          <span class="millstone-cost">→ Millstone cutter departs with the gritstone pairs</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -6528,6 +6602,14 @@ const _HANDLERS = {
   'cheesemerchant-establish': () => CheeseMerchant.establishImperialDairy(),
   'cheesemerchant-purchase':  () => CheeseMerchant.purchaseAgedVarieties(),
   'cheesemerchant-away':      () => CheeseMerchant.sendCheeseMerchantAway(),
+
+  'thatcher-thatch':   () => Thatcher.thatchImperialHalls(),
+  'thatcher-purchase': () => Thatcher.purchaseThatchingCraft(),
+  'thatcher-away':     () => Thatcher.sendThatcherAway(),
+
+  'millstone-commission': () => MillstoneCutter.commissionGrindingMillstones(),
+  'millstone-purchase':   () => MillstoneCutter.purchaseMillingDesigns(),
+  'millstone-away':       () => MillstoneCutter.sendMillstoneCutterAway(),
 };
 
 function _handleClick(e) {
@@ -6712,6 +6794,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_HARBOR_MASTER_CHANGED,
     Events.WANDERING_BOW_MAKER_CHANGED,
     Events.IMPERIAL_CHEESE_MERCHANT_CHANGED,
+    Events.WANDERING_THATCHER_CHANGED,
+    Events.IMPERIAL_MILLSTONE_CUTTER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

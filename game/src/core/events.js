@@ -354,4 +354,6 @@ export const Events = Object.freeze({
   IMPERIAL_HARBOR_MASTER_CHANGED:           'imperialHarborMasterChanged',                                // T410: harbor master spawned / commissioned / studied / dismissed / expired
   WANDERING_BOW_MAKER_CHANGED:              'wanderingBowMakerChanged',                                   // T411: bow maker spawned / commissioned / purchased / dismissed / expired
   IMPERIAL_CHEESE_MERCHANT_CHANGED:         'imperialCheeseMerchantChanged',                              // T412: cheese merchant spawned / established / purchased / dismissed / expired
+  WANDERING_THATCHER_CHANGED:              'wanderingThatcherChanged',                                    // T413: thatcher spawned / thatched / purchased / dismissed / expired
+  IMPERIAL_MILLSTONE_CUTTER_CHANGED:       'imperialMillstoneCutterChanged',                              // T414: millstone cutter spawned / commissioned / purchased / dismissed / expired
 });
