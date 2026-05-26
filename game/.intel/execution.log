@@ -1367,3 +1367,18 @@ Built imperialSiegeCatapultEngineer.js: commissionWarMachines (35 iron + 20 wood
 Wired in main.js: import initImperialSiegeCatapultEngineer+imperialSiegeCatapultEngineerTick, registerSystem, initImperialSiegeCatapultEngineer() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _imperialSiegeCatapultEngineerSection() render + catapulteng-commission/catapulteng-study/catapulteng-away handlers to questPanel.js (import * as CatapultEng). Events.IMPERIAL_SIEGE_CATAPULT_ENGINEER_CHANGED subscribed.
 CSS: @keyframes catapulteng-pulse (red/crimson theme), .catapulteng-section--active, .btn--catapulteng-commission (red), .btn--catapulteng-study (slate), .btn--catapulteng-away (gray). Session 109.
+
+Session 113 — T409–T410: Wandering Tapestry Restorer, Imperial Harbor Master.
+Tapestry Restorer: Medieval Age+, 10+ tiles, 14–19 min, 80s window. Commission Tapestry Restoration (25 wood + 15 food → +0.22 wood/s 2.5min · +20 prestige · +10 morale), Learn Restoration Arts (18 mana → +0.15 mana/s 2min · +15 prestige). Pink/rose commission with violet learn CSS. Imperial Harbor Master: Iron Age+, 12+ tiles, 14–18 min, 80s window. Commission Harbor Works (30 wood + 20g → +0.25 wood/s 2.5min · +25 prestige · +12 morale), Study Maritime Law (25 stone → +0.20 stone/s 2min · +18 prestige). Sky blue commission with slate study CSS. Both fully wired into main.js (import, registerSystem, init x2, save/load) and questPanel.js (import, section render, handlers, ENCOUNTER_EVENTS). Events added to events.js.
+
+T409: Wandering Tapestry Restorer — Medieval Age+, 10+ tiles, 14–19 min, 80s window.
+Built wanderingTapestryRestorer.js: commissionTapestryRestoration (25 wood + 15 food → +0.22 wood/s 2.5min +20 prestige +10 morale), learnRestorationArts (18 mana → +0.15 mana/s 2min +15 prestige), sendTapestryRestorerAway (dismiss). Added WANDERING_TAPESTRY_RESTORER_CHANGED event to events.js. state.wanderingTapestryRestorer null field.
+Wired in main.js: import initWanderingTapestryRestorer+wanderingTapestryRestorerTick, registerSystem, initWanderingTapestryRestorer() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingTapestryRestorerSection() render + taprest-commission/taprest-learn/taprest-away handlers to questPanel.js (import * as TapestryRestorer). Events.WANDERING_TAPESTRY_RESTORER_CHANGED subscribed.
+CSS: @keyframes taprest-pulse (pink/rose theme), .taprest-section--active, .btn--taprest-commission (pink), .btn--taprest-learn (violet), .btn--taprest-away (gray). Session 113.
+
+T410: Imperial Harbor Master — Iron Age+, 12+ tiles, 14–18 min, 80s window.
+Built imperialHarborMaster.js: commissionHarborWorks (30 wood + 20g → +0.25 wood/s 2.5min +25 prestige +12 morale), studyMaritimeLaw (25 stone → +0.20 stone/s 2min +18 prestige), sendHarborMasterAway (dismiss). Added IMPERIAL_HARBOR_MASTER_CHANGED event to events.js. state.imperialHarborMaster null field.
+Wired in main.js: import initImperialHarborMaster+imperialHarborMasterTick, registerSystem, initImperialHarborMaster() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _imperialHarborMasterSection() render + harbormaster-commission/harbormaster-study/harbormaster-away handlers to questPanel.js (import * as HarborMaster). Events.IMPERIAL_HARBOR_MASTER_CHANGED subscribed.
+CSS: @keyframes harbormaster-pulse (sky blue theme), .harbormaster-section--active, .btn--harbormaster-commission (sky blue), .btn--harbormaster-study (slate), .btn--harbormaster-away (gray). Session 113.

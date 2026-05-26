@@ -1600,6 +1600,26 @@
       "description": "Periodic imperial surveyor encounter: commission land survey (30 stone + 20g → +0.25 stone/s 2.5min +25 prestige +12 morale), study survey methods (25 iron → +0.20 iron/s 2min +18 prestige), send away. Iron Age+, 12+ tiles, 14-18 min.",
       "completed_date": "2026-05-26",
       "notes": "Built imperialSurveyor.js. IMPERIAL_SURVEYOR_CHANGED event added to events.js. state.imperialSurveyor null field. Surveyor section in questPanel.js (import * as ImperialSurveyor). Events.IMPERIAL_SURVEYOR_CHANGED subscribed. CSS: @keyframes surveyor-pulse (slate/stone precision), .surveyor-section--active, .btn--surveyor-commission (slate), .btn--surveyor-study (amber/gold), .btn--surveyor-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T409",
+      "title": "Wandering Tapestry Restorer",
+      "status": "done",
+      "priority": 409,
+      "phase": 120,
+      "description": "Periodic wandering tapestry restorer encounter: commission tapestry restoration (25 wood + 15 food → +0.22 wood/s 2.5min +20 prestige +10 morale), learn restoration arts (18 mana → +0.15 mana/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-19 min.",
+      "completed_date": "2026-05-26",
+      "notes": "Built wanderingTapestryRestorer.js. WANDERING_TAPESTRY_RESTORER_CHANGED event added to events.js. state.wanderingTapestryRestorer null field. Tapestry restorer section in questPanel.js (import * as TapestryRestorer). Events.WANDERING_TAPESTRY_RESTORER_CHANGED subscribed. CSS: @keyframes taprest-pulse (pink/rose theme), .taprest-section--active, .btn--taprest-commission (pink), .btn--taprest-learn (violet), .btn--taprest-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T410",
+      "title": "Imperial Harbor Master",
+      "status": "done",
+      "priority": 410,
+      "phase": 120,
+      "description": "Periodic imperial harbor master encounter: commission harbor works (30 wood + 20g → +0.25 wood/s 2.5min +25 prestige +12 morale), study maritime law (25 stone → +0.20 stone/s 2min +18 prestige), send away. Iron Age+, 12+ tiles, 14-18 min.",
+      "completed_date": "2026-05-26",
+      "notes": "Built imperialHarborMaster.js. IMPERIAL_HARBOR_MASTER_CHANGED event added to events.js. state.imperialHarborMaster null field. Harbor master section in questPanel.js (import * as HarborMaster). Events.IMPERIAL_HARBOR_MASTER_CHANGED subscribed. CSS: @keyframes harbormaster-pulse (sky blue theme), .harbormaster-section--active, .btn--harbormaster-commission (sky blue), .btn--harbormaster-study (slate), .btn--harbormaster-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     }
   ],
   "session_history": [
@@ -1692,6 +1712,7 @@
     "Session 109 (T401-T402): Wandering Glass Painter (T401), Imperial Siege Catapult Engineer (T402)",
     "Session 110 (T403-T404): Wandering Wool Spinner (T403), Imperial Amber Merchant (T404)",
     "Session 111 (T405-T406): Wandering Sandglass Maker (T405), Imperial Bridge Builder (T406)",
-    "Session 112 (T407-T408): Wandering Chronicler (T407), Imperial Surveyor (T408)"
+    "Session 112 (T407-T408): Wandering Chronicler (T407), Imperial Surveyor (T408)",
+    "Session 113 (T409-T410): Wandering Tapestry Restorer (T409), Imperial Harbor Master (T410)"
   ]
 }

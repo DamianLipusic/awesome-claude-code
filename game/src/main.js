@@ -350,6 +350,8 @@ import { initWanderingSandglassMaker, wanderingSandglassMakerTick }   from './sy
 import { initImperialBridgeBuilder, imperialBridgeBuilderTick }       from './systems/imperialBridgeBuilder.js';         // T406
 import { initWanderingChronicler, wanderingChroniclerTick }           from './systems/wanderingChronicler.js';            // T407
 import { initImperialSurveyor, imperialSurveyorTick }                 from './systems/imperialSurveyor.js';               // T408
+import { initWanderingTapestryRestorer, wanderingTapestryRestorerTick } from './systems/wanderingTapestryRestorer.js';     // T409
+import { initImperialHarborMaster, imperialHarborMasterTick }          from './systems/imperialHarborMaster.js';           // T410
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -706,6 +708,8 @@ function _registerAllSystems() {
   registerSystem(imperialBridgeBuilderTick);         // T406
   registerSystem(wanderingChroniclerTick);           // T407
   registerSystem(imperialSurveyorTick);              // T408
+  registerSystem(wanderingTapestryRestorerTick);    // T409
+  registerSystem(imperialHarborMasterTick);         // T410
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -1047,6 +1051,8 @@ function _save() {
     imperialBridgeBuilder:         state.imperialBridgeBuilder,         // T406
     wanderingChronicler:           state.wanderingChronicler,           // T407
     imperialSurveyor:              state.imperialSurveyor,              // T408
+    wanderingTapestryRestorer:    state.wanderingTapestryRestorer,    // T409
+    imperialHarborMaster:         state.imperialHarborMaster,         // T410
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -1393,6 +1399,8 @@ function _applySave(s) {
   state.imperialBridgeBuilder      = s.imperialBridgeBuilder ?? null;      // T406
   state.wanderingChronicler        = s.wanderingChronicler ?? null;        // T407
   state.imperialSurveyor           = s.imperialSurveyor ?? null;           // T408
+  state.wanderingTapestryRestorer = s.wanderingTapestryRestorer ?? null; // T409
+  state.imperialHarborMaster      = s.imperialHarborMaster ?? null;      // T410
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -1745,6 +1753,8 @@ function _startFreshGame() {
   initImperialBridgeBuilder();         // T406
   initWanderingChronicler();           // T407
   initImperialSurveyor();              // T408
+  initWanderingTapestryRestorer();    // T409
+  initImperialHarborMaster();         // T410
   initAchievements();
   initLeaderboard();
 }
@@ -2080,6 +2090,8 @@ function _startLoadedGame(savedData) {
   initImperialBridgeBuilder();         // T406
   initWanderingChronicler();           // T407
   initImperialSurveyor();              // T408
+  initWanderingTapestryRestorer();    // T409
+  initImperialHarborMaster();         // T410
   initAchievements();
   initLeaderboard();
 }

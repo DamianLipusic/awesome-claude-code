@@ -350,4 +350,6 @@ export const Events = Object.freeze({
   IMPERIAL_BRIDGE_BUILDER_CHANGED:          'imperialBridgeBuilderChanged',                              // T406: bridge builder spawned / commissioned / studied / dismissed / expired
   WANDERING_CHRONICLER_CHANGED:             'wanderingChroniclerChanged',                                // T407: chronicler spawned / commissioned / purchased / dismissed / expired
   IMPERIAL_SURVEYOR_CHANGED:                'imperialSurveyorChanged',                                   // T408: surveyor spawned / commissioned / studied / dismissed / expired
+  WANDERING_TAPESTRY_RESTORER_CHANGED:      'wanderingTapestryRestorerChanged',                           // T409: tapestry restorer spawned / commissioned / learned / dismissed / expired
+  IMPERIAL_HARBOR_MASTER_CHANGED:           'imperialHarborMasterChanged',                                // T410: harbor master spawned / commissioned / studied / dismissed / expired
 });

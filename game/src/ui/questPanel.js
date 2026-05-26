@@ -173,6 +173,8 @@ import * as SandglassMaker from '../systems/wanderingSandglassMaker.js';       /
 import * as BridgeBuilder  from '../systems/imperialBridgeBuilder.js';         // T406
 import * as Chronicler    from '../systems/wanderingChronicler.js';            // T407
 import * as ImperialSurveyor from '../systems/imperialSurveyor.js';            // T408
+import * as TapestryRestorer from '../systems/wanderingTapestryRestorer.js'; // T409
+import * as HarborMaster     from '../systems/imperialHarborMaster.js';      // T410
 
 let _panel = null;
 
@@ -374,6 +376,8 @@ function _encountersSection() {
     _imperialBridgeBuilderSection(),
     _wanderingChroniclerSection(),
     _imperialSurveyorSection(),
+    _wanderingTapestryRestorerSection(),
+    _imperialHarborMasterSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -5724,6 +5728,72 @@ function _imperialSurveyorSection() {
     </div>`;
 }
 
+function _wanderingTapestryRestorerSection() {
+  if (!TapestryRestorer.getActiveWanderingTapestryRestorer()) return '';
+  const secs   = TapestryRestorer.getTapestryRestorerSecsLeft();
+  const urgent = secs <= 15;
+  const wood   = state.resources?.wood ?? 0;
+  const food   = state.resources?.food ?? 0;
+  const mana   = state.resources?.mana ?? 0;
+  const canCommission = wood >= TapestryRestorer.COMMISSION_WOOD_COST && food >= TapestryRestorer.COMMISSION_FOOD_COST;
+  const canLearn      = mana >= TapestryRestorer.LEARN_MANA_COST;
+  return `
+    <div class="taprest-section--active">
+      <div class="taprest-header">
+        <span class="taprest-title">🧵 Wandering Tapestry Restorer</span>
+        <span class="taprest-timer${urgent ? ' taprest-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="taprest-desc">A wandering tapestry restorer arrives bearing rolled linen canvases, embroidery frames, silk thread spools, and aged re-dyeing pigments — offering to restore the imperial tapestry collection depicting legendary conquests and dynastic allegories, or to teach the palace artisans advanced needle-work and mordant-dyeing techniques.</div>
+      <div class="taprest-actions">
+        <button class="btn--taprest-commission${canCommission ? '' : ' btn--disabled'}" data-action="taprest-commission" ${canCommission ? '' : 'disabled'}>
+          🧵 Commission Tapestry Restoration — ${TapestryRestorer.COMMISSION_WOOD_COST}🪵 + ${TapestryRestorer.COMMISSION_FOOD_COST}🌾
+          <span class="taprest-cost">→ +${TapestryRestorer.COMMISSION_WOOD_RATE} wood/s (2.5 min) · +${TapestryRestorer.COMMISSION_PRESTIGE_REWARD} prestige · +${TapestryRestorer.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--taprest-learn${canLearn ? '' : ' btn--disabled'}" data-action="taprest-learn" ${canLearn ? '' : 'disabled'}>
+          🎨 Learn Restoration Arts — ${TapestryRestorer.LEARN_MANA_COST}✨
+          <span class="taprest-cost">→ +${TapestryRestorer.LEARN_MANA_RATE} mana/s (2 min) · +${TapestryRestorer.LEARN_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--taprest-away" data-action="taprest-away">
+          🚶 Send Away
+          <span class="taprest-cost">→ Restorer departs with the embroidery frames and silk threads</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _imperialHarborMasterSection() {
+  if (!HarborMaster.getActiveImperialHarborMaster()) return '';
+  const secs   = HarborMaster.getHarborMasterSecsLeft();
+  const urgent = secs <= 15;
+  const wood   = state.resources?.wood  ?? 0;
+  const gold   = state.resources?.gold  ?? 0;
+  const stone  = state.resources?.stone ?? 0;
+  const canCommission = wood >= HarborMaster.COMMISSION_WOOD_COST && gold >= HarborMaster.COMMISSION_GOLD_COST;
+  const canStudy      = stone >= HarborMaster.STUDY_STONE_COST;
+  return `
+    <div class="harbormaster-section--active">
+      <div class="harbormaster-header">
+        <span class="harbormaster-title">⚓ Imperial Harbor Master</span>
+        <span class="harbormaster-timer${urgent ? ' harbormaster-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="harbormaster-desc">An imperial harbor master arrives bearing rolled nautical charts, timber-gauge calipers, iron anchor-chain samples, and dock-tariff ledgers — offering to oversee construction of new deep-water berths and cargo cranes to expand maritime trade capacity, or to share a comprehensive study of maritime law and tidal almanacs to maximise stone quarry barge efficiency.</div>
+      <div class="harbormaster-actions">
+        <button class="btn--harbormaster-commission${canCommission ? '' : ' btn--disabled'}" data-action="harbormaster-commission" ${canCommission ? '' : 'disabled'}>
+          ⚓ Commission Harbor Works — ${HarborMaster.COMMISSION_WOOD_COST}🪵 + ${HarborMaster.COMMISSION_GOLD_COST}💰
+          <span class="harbormaster-cost">→ +${HarborMaster.COMMISSION_WOOD_RATE} wood/s (2.5 min) · +${HarborMaster.COMMISSION_PRESTIGE_REWARD} prestige · +${HarborMaster.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--harbormaster-study${canStudy ? '' : ' btn--disabled'}" data-action="harbormaster-study" ${canStudy ? '' : 'disabled'}>
+          📖 Study Maritime Law — ${HarborMaster.STUDY_STONE_COST}🪨
+          <span class="harbormaster-cost">→ +${HarborMaster.STUDY_STONE_RATE} stone/s (2 min) · +${HarborMaster.STUDY_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--harbormaster-away" data-action="harbormaster-away">
+          🚶 Send Away
+          <span class="harbormaster-cost">→ Harbor master departs with the nautical charts and dock ledgers</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -6369,6 +6439,14 @@ const _HANDLERS = {
   'surveyor-commission': () => ImperialSurveyor.commissionLandSurvey(),
   'surveyor-study':      () => ImperialSurveyor.studySurveyMethods(),
   'surveyor-away':       () => ImperialSurveyor.sendSurveyorAway(),
+
+  'taprest-commission': () => TapestryRestorer.commissionTapestryRestoration(),
+  'taprest-learn':      () => TapestryRestorer.learnRestorationArts(),
+  'taprest-away':       () => TapestryRestorer.sendTapestryRestorerAway(),
+
+  'harbormaster-commission': () => HarborMaster.commissionHarborWorks(),
+  'harbormaster-study':      () => HarborMaster.studyMaritimeLaw(),
+  'harbormaster-away':       () => HarborMaster.sendHarborMasterAway(),
 };
 
 function _handleClick(e) {
@@ -6549,6 +6627,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_BRIDGE_BUILDER_CHANGED,
     Events.WANDERING_CHRONICLER_CHANGED,
     Events.IMPERIAL_SURVEYOR_CHANGED,
+    Events.WANDERING_TAPESTRY_RESTORER_CHANGED,
+    Events.IMPERIAL_HARBOR_MASTER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);
