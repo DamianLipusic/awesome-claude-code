@@ -1620,6 +1620,26 @@
       "description": "Periodic imperial harbor master encounter: commission harbor works (30 wood + 20g → +0.25 wood/s 2.5min +25 prestige +12 morale), study maritime law (25 stone → +0.20 stone/s 2min +18 prestige), send away. Iron Age+, 12+ tiles, 14-18 min.",
       "completed_date": "2026-05-26",
       "notes": "Built imperialHarborMaster.js. IMPERIAL_HARBOR_MASTER_CHANGED event added to events.js. state.imperialHarborMaster null field. Harbor master section in questPanel.js (import * as HarborMaster). Events.IMPERIAL_HARBOR_MASTER_CHANGED subscribed. CSS: @keyframes harbormaster-pulse (sky blue theme), .harbormaster-section--active, .btn--harbormaster-commission (sky blue), .btn--harbormaster-study (slate), .btn--harbormaster-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T411",
+      "title": "Wandering Bow Maker",
+      "status": "done",
+      "priority": 411,
+      "phase": 121,
+      "description": "Periodic wandering bow maker encounter: commission imperial longbows (25 wood + 15 iron → +0.22 wood/s 2.5min +20 prestige +10 morale), purchase bowyer secrets (20g → +0.15 iron/s 2min +15 prestige), send away. Iron Age+, 10+ tiles, 13-18 min.",
+      "completed_date": "2026-05-26",
+      "notes": "Built wanderingBowMaker.js. WANDERING_BOW_MAKER_CHANGED event added to events.js. state.wanderingBowMaker null field. Bow maker section in questPanel.js (import * as BowMaker). Events.WANDERING_BOW_MAKER_CHANGED subscribed. CSS: @keyframes bowmaker-pulse (lime green theme), .bowmaker-section--active, .btn--bowmaker-commission (lime), .btn--bowmaker-purchase (amber/gold), .btn--bowmaker-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T412",
+      "title": "Imperial Cheese Merchant",
+      "status": "done",
+      "priority": 412,
+      "phase": 121,
+      "description": "Periodic imperial cheese merchant encounter: establish imperial dairy (25 food + 15g → +0.25 food/s 2.5min +20 prestige +12 morale), purchase aged varieties (20 food → +0.18 food/s 2min +12 prestige), send away. Bronze Age+, 8+ tiles, 12-17 min.",
+      "completed_date": "2026-05-26",
+      "notes": "Built imperialCheeseMerchant.js. IMPERIAL_CHEESE_MERCHANT_CHANGED event added to events.js. state.imperialCheeseMerchant null field. Cheese merchant section in questPanel.js (import * as CheeseMerchant). Events.IMPERIAL_CHEESE_MERCHANT_CHANGED subscribed. CSS: @keyframes cheesemerchant-pulse (amber/gold theme), .cheesemerchant-section--active, .btn--cheesemerchant-establish (amber), .btn--cheesemerchant-purchase (emerald green), .btn--cheesemerchant-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     }
   ],
   "session_history": [
@@ -1713,6 +1733,7 @@
     "Session 110 (T403-T404): Wandering Wool Spinner (T403), Imperial Amber Merchant (T404)",
     "Session 111 (T405-T406): Wandering Sandglass Maker (T405), Imperial Bridge Builder (T406)",
     "Session 112 (T407-T408): Wandering Chronicler (T407), Imperial Surveyor (T408)",
-    "Session 113 (T409-T410): Wandering Tapestry Restorer (T409), Imperial Harbor Master (T410)"
+    "Session 113 (T409-T410): Wandering Tapestry Restorer (T409), Imperial Harbor Master (T410)",
+    "Session 114 (T411-T412): Wandering Bow Maker (T411), Imperial Cheese Merchant (T412)"
   ]
 }

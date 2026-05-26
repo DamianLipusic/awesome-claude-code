@@ -21919,3 +21919,81 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--harbormaster-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T411 Wandering Bow Maker ─────────────────────────────────────────────── */
+@keyframes bowmaker-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(132, 204, 22, 0.00), inset 0 0 0 0 rgba(132, 204, 22, 0.00); }
+  50%       { box-shadow: 0 0 8px 2px rgba(132, 204, 22, 0.18), inset 0 0 6px 0 rgba(132, 204, 22, 0.08); }
+}
+.bowmaker-section--active {
+  background: linear-gradient(135deg, rgba(40, 58, 10, 0.18), rgba(28, 42, 6, 0.12));
+  border: 1px solid rgba(132, 204, 22, 0.30); border-radius: 8px; padding: 10px;
+  margin-bottom: 10px; animation: bowmaker-pulse 2.8s ease-in-out infinite;
+}
+.bowmaker-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.bowmaker-title  { font-weight: 700; font-size: 0.88rem; color: #a3e635; }
+.bowmaker-timer  { font-size: 0.78rem; color: #a3e635; }
+.bowmaker-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.bowmaker-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.bowmaker-actions { display: flex; flex-direction: column; gap: 5px; }
+.bowmaker-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--bowmaker-commission {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(40, 58, 10, 0.26), rgba(28, 42, 6, 0.18));
+  border: 1px solid rgba(132, 204, 22, 0.40); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #a3e635; text-align: left; transition: background 0.15s;
+}
+.btn--bowmaker-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(40, 58, 10, 0.40), rgba(28, 42, 6, 0.28)); }
+.btn--bowmaker-purchase {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(71, 58, 18, 0.24), rgba(50, 40, 12, 0.18));
+  border: 1px solid rgba(234, 179, 8, 0.36); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fbbf24; text-align: left; transition: background 0.15s;
+}
+.btn--bowmaker-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(71, 58, 18, 0.38), rgba(50, 40, 12, 0.28)); }
+.btn--bowmaker-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--bowmaker-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T412 Imperial Cheese Merchant ───────────────────────────────────────── */
+@keyframes cheesemerchant-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.00), inset 0 0 0 0 rgba(251, 191, 36, 0.00); }
+  50%       { box-shadow: 0 0 8px 2px rgba(251, 191, 36, 0.18), inset 0 0 6px 0 rgba(251, 191, 36, 0.08); }
+}
+.cheesemerchant-section--active {
+  background: linear-gradient(135deg, rgba(80, 60, 8, 0.18), rgba(58, 42, 4, 0.12));
+  border: 1px solid rgba(251, 191, 36, 0.30); border-radius: 8px; padding: 10px;
+  margin-bottom: 10px; animation: cheesemerchant-pulse 2.8s ease-in-out infinite;
+}
+.cheesemerchant-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.cheesemerchant-title  { font-weight: 700; font-size: 0.88rem; color: #fcd34d; }
+.cheesemerchant-timer  { font-size: 0.78rem; color: #fcd34d; }
+.cheesemerchant-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.cheesemerchant-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.cheesemerchant-actions { display: flex; flex-direction: column; gap: 5px; }
+.cheesemerchant-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--cheesemerchant-establish {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(80, 60, 8, 0.26), rgba(58, 42, 4, 0.18));
+  border: 1px solid rgba(251, 191, 36, 0.40); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fcd34d; text-align: left; transition: background 0.15s;
+}
+.btn--cheesemerchant-establish:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(80, 60, 8, 0.40), rgba(58, 42, 4, 0.28)); }
+.btn--cheesemerchant-purchase {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(14, 68, 42, 0.22), rgba(9, 48, 28, 0.16));
+  border: 1px solid rgba(52, 211, 153, 0.36); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #6ee7b7; text-align: left; transition: background 0.15s;
+}
+.btn--cheesemerchant-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(14, 68, 42, 0.36), rgba(9, 48, 28, 0.26)); }
+.btn--cheesemerchant-away {
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--cheesemerchant-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

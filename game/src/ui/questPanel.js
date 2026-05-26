@@ -175,6 +175,8 @@ import * as Chronicler    from '../systems/wanderingChronicler.js';            /
 import * as ImperialSurveyor from '../systems/imperialSurveyor.js';            // T408
 import * as TapestryRestorer from '../systems/wanderingTapestryRestorer.js'; // T409
 import * as HarborMaster     from '../systems/imperialHarborMaster.js';      // T410
+import * as BowMaker         from '../systems/wanderingBowMaker.js';           // T411
+import * as CheeseMerchant   from '../systems/imperialCheeseMerchant.js';      // T412
 
 let _panel = null;
 
@@ -378,6 +380,8 @@ function _encountersSection() {
     _imperialSurveyorSection(),
     _wanderingTapestryRestorerSection(),
     _imperialHarborMasterSection(),
+    _wanderingBowMakerSection(),
+    _imperialCheeseMerchantSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -5794,6 +5798,75 @@ function _imperialHarborMasterSection() {
     </div>`;
 }
 
+// ── T411 Wandering Bow Maker ─────────────────────────────────────────────────
+
+function _wanderingBowMakerSection() {
+  if (!BowMaker.getActiveWanderingBowMaker()) return '';
+  const secs   = BowMaker.getBowMakerSecsLeft();
+  const urgent = secs <= 15;
+  const wood   = state.resources?.wood ?? 0;
+  const iron   = state.resources?.iron ?? 0;
+  const gold   = state.resources?.gold ?? 0;
+  const canCommission = wood >= BowMaker.COMMISSION_WOOD_COST && iron >= BowMaker.COMMISSION_IRON_COST;
+  const canPurchase   = gold >= BowMaker.PURCHASE_GOLD_COST;
+  return `
+    <div class="bowmaker-section--active">
+      <div class="bowmaker-header">
+        <span class="bowmaker-title">🏹 Wandering Bow Maker</span>
+        <span class="bowmaker-timer${urgent ? ' bowmaker-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="bowmaker-desc">A wandering bow maker arrives bearing long-stave yew blanks, ox-horn tip laminates, waxed linen strings, and a kit of drawknives and fletching jigs — offering to craft war-grade composite longbows for the imperial archer corps, or to share specialist stave-selection, moisture-tempering, and tension-calibration secrets.</div>
+      <div class="bowmaker-actions">
+        <button class="btn--bowmaker-commission${canCommission ? '' : ' btn--disabled'}" data-action="bowmaker-commission" ${canCommission ? '' : 'disabled'}>
+          🏹 Commission Imperial Longbows — ${BowMaker.COMMISSION_WOOD_COST}🪵 + ${BowMaker.COMMISSION_IRON_COST}⚙️
+          <span class="bowmaker-cost">→ +${BowMaker.COMMISSION_WOOD_RATE} wood/s (2.5 min) · +${BowMaker.COMMISSION_PRESTIGE_REWARD} prestige · +${BowMaker.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--bowmaker-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="bowmaker-purchase" ${canPurchase ? '' : 'disabled'}>
+          🪵 Purchase Bowyer Secrets — ${BowMaker.PURCHASE_GOLD_COST}💰
+          <span class="bowmaker-cost">→ +${BowMaker.PURCHASE_IRON_RATE} iron/s (2 min) · +${BowMaker.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--bowmaker-away" data-action="bowmaker-away">
+          🚶 Send Away
+          <span class="bowmaker-cost">→ Bow maker departs with the yew blanks and fletching jigs</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T412 Imperial Cheese Merchant ────────────────────────────────────────────
+
+function _imperialCheeseMerchantSection() {
+  if (!CheeseMerchant.getActiveImperialCheeseMerchant()) return '';
+  const secs   = CheeseMerchant.getCheeseMerchantSecsLeft();
+  const urgent = secs <= 15;
+  const food   = state.resources?.food ?? 0;
+  const gold   = state.resources?.gold ?? 0;
+  const canEstablish = food >= CheeseMerchant.ESTABLISH_FOOD_COST && gold >= CheeseMerchant.ESTABLISH_GOLD_COST;
+  const canPurchase  = food >= CheeseMerchant.PURCHASE_FOOD_COST;
+  return `
+    <div class="cheesemerchant-section--active">
+      <div class="cheesemerchant-header">
+        <span class="cheesemerchant-title">🧀 Imperial Cheese Merchant</span>
+        <span class="cheesemerchant-timer${urgent ? ' cheesemerchant-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="cheesemerchant-desc">An imperial cheese merchant arrives bearing waxed rounds of aged hard cheese, ceramic crocks of brine-cured soft varieties, and dairy-guild production contracts — offering to establish a permanent imperial dairy supplying palace kitchens and garrison mess halls, or to sell a curated selection of aged varieties from renowned provincial pastures.</div>
+      <div class="cheesemerchant-actions">
+        <button class="btn--cheesemerchant-establish${canEstablish ? '' : ' btn--disabled'}" data-action="cheesemerchant-establish" ${canEstablish ? '' : 'disabled'}>
+          🧀 Establish Imperial Dairy — ${CheeseMerchant.ESTABLISH_FOOD_COST}🌾 + ${CheeseMerchant.ESTABLISH_GOLD_COST}💰
+          <span class="cheesemerchant-cost">→ +${CheeseMerchant.ESTABLISH_FOOD_RATE} food/s (2.5 min) · +${CheeseMerchant.ESTABLISH_PRESTIGE_REWARD} prestige · +${CheeseMerchant.ESTABLISH_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--cheesemerchant-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="cheesemerchant-purchase" ${canPurchase ? '' : 'disabled'}>
+          🥛 Purchase Aged Varieties — ${CheeseMerchant.PURCHASE_FOOD_COST}🌾
+          <span class="cheesemerchant-cost">→ +${CheeseMerchant.PURCHASE_FOOD_RATE} food/s (2 min) · +${CheeseMerchant.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--cheesemerchant-away" data-action="cheesemerchant-away">
+          🚶 Send Away
+          <span class="cheesemerchant-cost">→ Cheese merchant departs with the waxed rounds and crocks</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -6447,6 +6520,14 @@ const _HANDLERS = {
   'harbormaster-commission': () => HarborMaster.commissionHarborWorks(),
   'harbormaster-study':      () => HarborMaster.studyMaritimeLaw(),
   'harbormaster-away':       () => HarborMaster.sendHarborMasterAway(),
+
+  'bowmaker-commission': () => BowMaker.commissionImperialLongbows(),
+  'bowmaker-purchase':   () => BowMaker.purchaseBoyerSecrets(),
+  'bowmaker-away':       () => BowMaker.sendBowMakerAway(),
+
+  'cheesemerchant-establish': () => CheeseMerchant.establishImperialDairy(),
+  'cheesemerchant-purchase':  () => CheeseMerchant.purchaseAgedVarieties(),
+  'cheesemerchant-away':      () => CheeseMerchant.sendCheeseMerchantAway(),
 };
 
 function _handleClick(e) {
@@ -6629,6 +6710,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_SURVEYOR_CHANGED,
     Events.WANDERING_TAPESTRY_RESTORER_CHANGED,
     Events.IMPERIAL_HARBOR_MASTER_CHANGED,
+    Events.WANDERING_BOW_MAKER_CHANGED,
+    Events.IMPERIAL_CHEESE_MERCHANT_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

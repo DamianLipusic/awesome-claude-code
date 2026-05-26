@@ -352,6 +352,8 @@ import { initWanderingChronicler, wanderingChroniclerTick }           from './sy
 import { initImperialSurveyor, imperialSurveyorTick }                 from './systems/imperialSurveyor.js';               // T408
 import { initWanderingTapestryRestorer, wanderingTapestryRestorerTick } from './systems/wanderingTapestryRestorer.js';     // T409
 import { initImperialHarborMaster, imperialHarborMasterTick }          from './systems/imperialHarborMaster.js';           // T410
+import { initWanderingBowMaker, wanderingBowMakerTick }               from './systems/wanderingBowMaker.js';              // T411
+import { initImperialCheeseMerchant, imperialCheeseMerchantTick }     from './systems/imperialCheeseMerchant.js';         // T412
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -710,6 +712,8 @@ function _registerAllSystems() {
   registerSystem(imperialSurveyorTick);              // T408
   registerSystem(wanderingTapestryRestorerTick);    // T409
   registerSystem(imperialHarborMasterTick);         // T410
+  registerSystem(wanderingBowMakerTick);            // T411
+  registerSystem(imperialCheeseMerchantTick);       // T412
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -1053,6 +1057,8 @@ function _save() {
     imperialSurveyor:              state.imperialSurveyor,              // T408
     wanderingTapestryRestorer:    state.wanderingTapestryRestorer,    // T409
     imperialHarborMaster:         state.imperialHarborMaster,         // T410
+    wanderingBowMaker:            state.wanderingBowMaker,            // T411
+    imperialCheeseMerchant:       state.imperialCheeseMerchant,       // T412
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -1401,6 +1407,8 @@ function _applySave(s) {
   state.imperialSurveyor           = s.imperialSurveyor ?? null;           // T408
   state.wanderingTapestryRestorer = s.wanderingTapestryRestorer ?? null; // T409
   state.imperialHarborMaster      = s.imperialHarborMaster ?? null;      // T410
+  state.wanderingBowMaker         = s.wanderingBowMaker ?? null;          // T411
+  state.imperialCheeseMerchant    = s.imperialCheeseMerchant ?? null;     // T412
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -1755,6 +1763,8 @@ function _startFreshGame() {
   initImperialSurveyor();              // T408
   initWanderingTapestryRestorer();    // T409
   initImperialHarborMaster();         // T410
+  initWanderingBowMaker();            // T411
+  initImperialCheeseMerchant();       // T412
   initAchievements();
   initLeaderboard();
 }
@@ -2092,6 +2102,8 @@ function _startLoadedGame(savedData) {
   initImperialSurveyor();              // T408
   initWanderingTapestryRestorer();    // T409
   initImperialHarborMaster();         // T410
+  initWanderingBowMaker();            // T411
+  initImperialCheeseMerchant();       // T412
   initAchievements();
   initLeaderboard();
 }
