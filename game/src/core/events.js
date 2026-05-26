@@ -348,4 +348,6 @@ export const Events = Object.freeze({
   IMPERIAL_AMBER_MERCHANT_CHANGED:          'imperialAmberMerchantChanged',                              // T404: amber merchant spawned / arranged / purchased / dismissed / expired
   WANDERING_SANDGLASS_MAKER_CHANGED:        'wanderingSandglassMakerChanged',                            // T405: sandglass maker spawned / commissioned / purchased / dismissed / expired
   IMPERIAL_BRIDGE_BUILDER_CHANGED:          'imperialBridgeBuilderChanged',                              // T406: bridge builder spawned / commissioned / studied / dismissed / expired
+  WANDERING_CHRONICLER_CHANGED:             'wanderingChroniclerChanged',                                // T407: chronicler spawned / commissioned / purchased / dismissed / expired
+  IMPERIAL_SURVEYOR_CHANGED:                'imperialSurveyorChanged',                                   // T408: surveyor spawned / commissioned / studied / dismissed / expired
 });

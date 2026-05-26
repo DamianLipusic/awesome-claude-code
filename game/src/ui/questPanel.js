@@ -171,6 +171,8 @@ import * as WoolSpinner   from '../systems/wanderingWoolSpinner.js';          //
 import * as AmberMerchant   from '../systems/imperialAmberMerchant.js';         // T404
 import * as SandglassMaker from '../systems/wanderingSandglassMaker.js';       // T405
 import * as BridgeBuilder  from '../systems/imperialBridgeBuilder.js';         // T406
+import * as Chronicler    from '../systems/wanderingChronicler.js';            // T407
+import * as ImperialSurveyor from '../systems/imperialSurveyor.js';            // T408
 
 let _panel = null;
 
@@ -370,6 +372,8 @@ function _encountersSection() {
     _imperialAmberMerchantSection(),
     _wanderingSandglassMakerSection(),
     _imperialBridgeBuilderSection(),
+    _wanderingChroniclerSection(),
+    _imperialSurveyorSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -5655,6 +5659,71 @@ function _imperialBridgeBuilderSection() {
     </div>`;
 }
 
+function _wanderingChroniclerSection() {
+  if (!Chronicler.getActiveWanderingChronicler()) return '';
+  const secs   = Chronicler.getChroniclerSecsLeft();
+  const urgent = secs <= 15;
+  const mana   = state.resources?.mana ?? 0;
+  const gold   = state.resources?.gold ?? 0;
+  const canCommission = mana >= Chronicler.COMMISSION_MANA_COST && gold >= Chronicler.COMMISSION_GOLD_COST;
+  const canPurchase   = gold >= Chronicler.PURCHASE_GOLD_COST;
+  return `
+    <div class="chronicler-section--active">
+      <div class="chronicler-header">
+        <span class="chronicler-title">📜 Wandering Chronicler</span>
+        <span class="chronicler-timer${urgent ? ' chronicler-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="chronicler-desc">A wandering chronicler arrives bearing leather-bound volumes of illustrated histories, annotated campaign maps, and gilded dynastic records — offering to compile a lavish imperial chronicle celebrating the empire's greatest deeds and ages, or to sell a rare compendium of historical trade records and merchant ledgers for economic insight.</div>
+      <div class="chronicler-actions">
+        <button class="btn--chronicler-commission${canCommission ? '' : ' btn--disabled'}" data-action="chronicler-commission" ${canCommission ? '' : 'disabled'}>
+          📜 Commission Imperial Chronicle — ${Chronicler.COMMISSION_MANA_COST}✨ + ${Chronicler.COMMISSION_GOLD_COST}💰
+          <span class="chronicler-cost">→ +${Chronicler.COMMISSION_MANA_RATE} mana/s (2.5 min) · +${Chronicler.COMMISSION_PRESTIGE_REWARD} prestige · +${Chronicler.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--chronicler-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="chronicler-purchase" ${canPurchase ? '' : 'disabled'}>
+          💰 Purchase Historical Compendium — ${Chronicler.PURCHASE_GOLD_COST}💰
+          <span class="chronicler-cost">→ +${Chronicler.PURCHASE_GOLD_RATE} gold/s (2 min) · +${Chronicler.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--chronicler-away" data-action="chronicler-away">
+          🚶 Send Away
+          <span class="chronicler-cost">→ Chronicler departs with the illustrated volumes</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _imperialSurveyorSection() {
+  if (!ImperialSurveyor.getActiveImperialSurveyor()) return '';
+  const secs   = ImperialSurveyor.getSurveyorSecsLeft();
+  const urgent = secs <= 15;
+  const stone  = state.resources?.stone ?? 0;
+  const gold   = state.resources?.gold  ?? 0;
+  const iron   = state.resources?.iron  ?? 0;
+  const canCommission = stone >= ImperialSurveyor.COMMISSION_STONE_COST && gold >= ImperialSurveyor.COMMISSION_GOLD_COST;
+  const canStudy      = iron  >= ImperialSurveyor.STUDY_IRON_COST;
+  return `
+    <div class="surveyor-section--active">
+      <div class="surveyor-header">
+        <span class="surveyor-title">📏 Imperial Surveyor</span>
+        <span class="surveyor-timer${urgent ? ' surveyor-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="surveyor-desc">An imperial surveyor arrives bearing long brass theodolites, wooden measuring rods, and rolled parchment survey maps — offering to conduct a comprehensive land survey identifying new quarry sites and road alignments that maximise stone extraction, or to sell engineering drawings explaining advanced survey instruments and load-bearing frame calculations.</div>
+      <div class="surveyor-actions">
+        <button class="btn--surveyor-commission${canCommission ? '' : ' btn--disabled'}" data-action="surveyor-commission" ${canCommission ? '' : 'disabled'}>
+          📏 Commission Land Survey — ${ImperialSurveyor.COMMISSION_STONE_COST}🪨 + ${ImperialSurveyor.COMMISSION_GOLD_COST}💰
+          <span class="surveyor-cost">→ +${ImperialSurveyor.COMMISSION_STONE_RATE} stone/s (2.5 min) · +${ImperialSurveyor.COMMISSION_PRESTIGE_REWARD} prestige · +${ImperialSurveyor.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--surveyor-study${canStudy ? '' : ' btn--disabled'}" data-action="surveyor-study" ${canStudy ? '' : 'disabled'}>
+          ⚙️ Study Survey Methods — ${ImperialSurveyor.STUDY_IRON_COST}⚙️
+          <span class="surveyor-cost">→ +${ImperialSurveyor.STUDY_IRON_RATE} iron/s (2 min) · +${ImperialSurveyor.STUDY_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--surveyor-away" data-action="surveyor-away">
+          🚶 Send Away
+          <span class="surveyor-cost">→ Surveyor departs with the theodolites and maps</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -6292,6 +6361,14 @@ const _HANDLERS = {
   'bridgebld-commission': () => BridgeBuilder.commissionImperialBridges(),
   'bridgebld-study':      () => BridgeBuilder.studyBridgeEngineering(),
   'bridgebld-away':       () => BridgeBuilder.sendBridgeBuilderAway(),
+
+  'chronicler-commission': () => Chronicler.commissionImperialChronicle(),
+  'chronicler-purchase':   () => Chronicler.purchaseHistoricalCompendium(),
+  'chronicler-away':       () => Chronicler.sendChroniclerAway(),
+
+  'surveyor-commission': () => ImperialSurveyor.commissionLandSurvey(),
+  'surveyor-study':      () => ImperialSurveyor.studySurveyMethods(),
+  'surveyor-away':       () => ImperialSurveyor.sendSurveyorAway(),
 };
 
 function _handleClick(e) {
@@ -6470,6 +6547,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_AMBER_MERCHANT_CHANGED,
     Events.WANDERING_SANDGLASS_MAKER_CHANGED,
     Events.IMPERIAL_BRIDGE_BUILDER_CHANGED,
+    Events.WANDERING_CHRONICLER_CHANGED,
+    Events.IMPERIAL_SURVEYOR_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

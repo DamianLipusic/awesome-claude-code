@@ -1580,6 +1580,26 @@
       "description": "Periodic imperial bridge builder encounter: commission imperial bridges (30 stone + 20g → +0.25 stone/s 2.5min +25 prestige +12 morale), study bridge engineering (25 iron → +0.20 iron/s 2min +18 prestige), send away. Iron Age+, 10+ tiles, 14-18 min.",
       "completed_date": "2026-05-25",
       "notes": "Built imperialBridgeBuilder.js. IMPERIAL_BRIDGE_BUILDER_CHANGED event added to events.js. state.imperialBridgeBuilder null field. Bridge builder section in questPanel.js (import * as BridgeBuilder). Events.IMPERIAL_BRIDGE_BUILDER_CHANGED subscribed. CSS: @keyframes bridgebld-pulse (slate/stone), .bridgebld-section--active, .btn--bridgebld-commission (slate), .btn--bridgebld-study (amber/gold), .btn--bridgebld-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T407",
+      "title": "Wandering Chronicler",
+      "status": "done",
+      "priority": 407,
+      "phase": 119,
+      "description": "Periodic wandering chronicler encounter: commission imperial chronicle (30 mana + 20g → +0.25 mana/s 2.5min +22 prestige +10 morale), purchase historical compendium (25g → +0.18 gold/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-18 min.",
+      "completed_date": "2026-05-26",
+      "notes": "Built wanderingChronicler.js. WANDERING_CHRONICLER_CHANGED event added to events.js. state.wanderingChronicler null field. Chronicler section in questPanel.js (import * as Chronicler). Events.WANDERING_CHRONICLER_CHANGED subscribed. CSS: @keyframes chronicler-pulse (warm amber), .chronicler-section--active, .btn--chronicler-commission (amber), .btn--chronicler-purchase (gold), .btn--chronicler-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T408",
+      "title": "Imperial Surveyor",
+      "status": "done",
+      "priority": 408,
+      "phase": 119,
+      "description": "Periodic imperial surveyor encounter: commission land survey (30 stone + 20g → +0.25 stone/s 2.5min +25 prestige +12 morale), study survey methods (25 iron → +0.20 iron/s 2min +18 prestige), send away. Iron Age+, 12+ tiles, 14-18 min.",
+      "completed_date": "2026-05-26",
+      "notes": "Built imperialSurveyor.js. IMPERIAL_SURVEYOR_CHANGED event added to events.js. state.imperialSurveyor null field. Surveyor section in questPanel.js (import * as ImperialSurveyor). Events.IMPERIAL_SURVEYOR_CHANGED subscribed. CSS: @keyframes surveyor-pulse (slate/stone precision), .surveyor-section--active, .btn--surveyor-commission (slate), .btn--surveyor-study (amber/gold), .btn--surveyor-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     }
   ],
   "session_history": [
@@ -1671,6 +1691,7 @@
     "Session 108 (T399-T400): Wandering Bronze Smith (T399), Imperial Aqueduct Builder (T400)",
     "Session 109 (T401-T402): Wandering Glass Painter (T401), Imperial Siege Catapult Engineer (T402)",
     "Session 110 (T403-T404): Wandering Wool Spinner (T403), Imperial Amber Merchant (T404)",
-    "Session 111 (T405-T406): Wandering Sandglass Maker (T405), Imperial Bridge Builder (T406)"
+    "Session 111 (T405-T406): Wandering Sandglass Maker (T405), Imperial Bridge Builder (T406)",
+    "Session 112 (T407-T408): Wandering Chronicler (T407), Imperial Surveyor (T408)"
   ]
 }
