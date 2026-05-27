@@ -1740,6 +1740,26 @@
       "description": "Periodic imperial robe maker encounter: commission imperial robes (25 mana + 20g → +0.22 mana/s 2.5min +20 prestige +10 morale), purchase fine fabrics (20 food → +0.18 food/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-19 min.",
       "completed_date": "2026-05-27",
       "notes": "Built imperialRobeMaker.js. IMPERIAL_ROBE_MAKER_CHANGED event added to events.js. state.imperialRobeMaker null field. Robe maker section in questPanel.js (import * as RobeMaker). Events.IMPERIAL_ROBE_MAKER_CHANGED subscribed. CSS: @keyframes robemaker-pulse (violet/purple), .robemaker-section--active, .btn--robemaker-commission (violet), .btn--robemaker-purchase (green), .btn--robemaker-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T423",
+      "title": "Wandering Fletcher",
+      "status": "done",
+      "priority": 423,
+      "phase": 127,
+      "description": "Periodic wandering fletcher encounter: commission arrow bundles (20 wood + 10 food → +0.22 food/s 2.5min +15 prestige +8 morale), purchase fletching craft (18g → +0.15 gold/s 2min +10 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
+      "completed_date": "2026-05-27",
+      "notes": "Built wanderingFletcher.js. WANDERING_FLETCHER_CHANGED event added to events.js. state.wanderingFletcher null field. Fletcher section in questPanel.js (import * as Fletcher). Events.WANDERING_FLETCHER_CHANGED subscribed. CSS: @keyframes fletcher-pulse (forest green), .fletcher-section--active, .btn--fletcher-commission (green), .btn--fletcher-purchase (amber/gold), .btn--fletcher-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T424",
+      "title": "Imperial Knifesmith",
+      "status": "done",
+      "priority": 424,
+      "phase": 127,
+      "description": "Periodic imperial knifesmith encounter: commission blade collection (25 iron + 15g → +0.22 iron/s 2.5min +22 prestige +10 morale), purchase blade craft (20 stone → +0.18 stone/s 2min +15 prestige), send away. Iron Age+, 10+ tiles, 13-18 min.",
+      "completed_date": "2026-05-27",
+      "notes": "Built imperialKnifesmith.js. IMPERIAL_KNIFESMITH_CHANGED event added to events.js. state.imperialKnifesmith null field. Knifesmith section in questPanel.js (import * as Knifesmith). Events.IMPERIAL_KNIFESMITH_CHANGED subscribed. CSS: @keyframes knifesmith-pulse (steel blue/slate), .knifesmith-section--active, .btn--knifesmith-commission (slate), .btn--knifesmith-purchase (amber/gold), .btn--knifesmith-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     }
   ],
   "session_history": [
@@ -1839,6 +1859,7 @@
     "Session 116 (T415-T416): Wandering Peat Cutter (T415), Imperial Icon Painter (T416)",
     "Session 117 (T417-T418): Wandering Wax Tablet Maker (T417), Wandering Net Maker (T418)",
     "Session 118 (T419-T420): Wandering Drum Maker (T419), Imperial Herbarium Keeper (T420)",
-    "Session 119 (T421-T422): Wandering Spear Maker (T421), Imperial Robe Maker (T422)"
+    "Session 119 (T421-T422): Wandering Spear Maker (T421), Imperial Robe Maker (T422)",
+    "Session 120 (T423-T424): Wandering Fletcher (T423), Imperial Knifesmith (T424)"
   ]
 }

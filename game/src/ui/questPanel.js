@@ -187,6 +187,8 @@ import * as DrumMaker        from '../systems/wanderingDrumMaker.js';           
 import * as HerbariumKeeper  from '../systems/imperialHerbariumKeeper.js';       // T420
 import * as SpearMaker       from '../systems/wanderingSpearMaker.js';           // T421
 import * as RobeMaker        from '../systems/imperialRobeMaker.js';             // T422
+import * as Fletcher         from '../systems/wanderingFletcher.js';             // T423
+import * as Knifesmith       from '../systems/imperialKnifesmith.js';            // T424
 
 let _panel = null;
 
@@ -402,6 +404,8 @@ function _encountersSection() {
     _imperialHerbariumKeeperSection(),
     _wanderingSpearMakerSection(),
     _imperialRobeMakerSection(),
+    _wanderingFletcherSection(),
+    _imperialKnifesmithSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -6237,6 +6241,76 @@ function _imperialRobeMakerSection() {
     </div>`;
 }
 
+// ── T423 Wandering Fletcher ───────────────────────────────────────────────
+
+function _wanderingFletcherSection() {
+  if (!Fletcher.getActiveWanderingFletcher()) return '';
+  const secs   = Fletcher.getFletcherSecsLeft();
+  const urgent = secs <= 15;
+  const wood   = state.resources?.wood ?? 0;
+  const food   = state.resources?.food ?? 0;
+  const gold   = state.resources?.gold ?? 0;
+  const canCommission = wood >= Fletcher.COMMISSION_WOOD_COST && food >= Fletcher.COMMISSION_FOOD_COST;
+  const canPurchase   = gold >= Fletcher.PURCHASE_GOLD_COST;
+  return `
+    <div class="fletcher-section--active">
+      <div class="fletcher-header">
+        <span class="fletcher-title">🏹 Wandering Fletcher</span>
+        <span class="fletcher-timer${urgent ? ' fletcher-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="fletcher-desc">A wandering fletcher arrives carrying bundled straight ash shafts, goose-feather flights split and trimmed to matching width, iron-tipped hunting points, finished arrow bundles bound in waxed thread, and pattern gauges — offering to commission a full supply of hunting arrows for the settlement's bow hunters and garrison archers, or to share the fletching craft that keeps every workshop producing flight-stable arrows.</div>
+      <div class="fletcher-actions">
+        <button class="btn--fletcher-commission${canCommission ? '' : ' btn--disabled'}" data-action="fletcher-commission" ${canCommission ? '' : 'disabled'}>
+          🏹 Commission Arrow Bundles — ${Fletcher.COMMISSION_WOOD_COST}🪵 + ${Fletcher.COMMISSION_FOOD_COST}🌾
+          <span class="fletcher-cost">→ +${Fletcher.COMMISSION_FOOD_RATE} food/s (2.5 min) · +${Fletcher.COMMISSION_PRESTIGE_REWARD} prestige · +${Fletcher.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--fletcher-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="fletcher-purchase" ${canPurchase ? '' : 'disabled'}>
+          📖 Purchase Fletching Craft — ${Fletcher.PURCHASE_GOLD_COST}💰
+          <span class="fletcher-cost">→ +${Fletcher.PURCHASE_GOLD_RATE} gold/s (2 min) · +${Fletcher.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--fletcher-away" data-action="fletcher-away">
+          🚶 Send Away
+          <span class="fletcher-cost">→ Fletcher re-bundles the arrows in oiled linen and departs the settlement</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T424 Imperial Knifesmith ──────────────────────────────────────────────
+
+function _imperialKnifesmithSection() {
+  if (!Knifesmith.getActiveImperialKnifesmith()) return '';
+  const secs   = Knifesmith.getKnifesmithSecsLeft();
+  const urgent = secs <= 15;
+  const iron   = state.resources?.iron ?? 0;
+  const gold   = state.resources?.gold ?? 0;
+  const stone  = state.resources?.stone ?? 0;
+  const canCommission = iron >= Knifesmith.COMMISSION_IRON_COST && gold >= Knifesmith.COMMISSION_GOLD_COST;
+  const canPurchase   = stone >= Knifesmith.PURCHASE_STONE_COST;
+  return `
+    <div class="knifesmith-section--active">
+      <div class="knifesmith-header">
+        <span class="knifesmith-title">⚔️ Imperial Knifesmith</span>
+        <span class="knifesmith-timer${urgent ? ' knifesmith-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="knifesmith-desc">An imperial knifesmith arrives with a presentation case of folded-iron hunting blades with bone and antler handles, skinning knives with hollow-ground bevels, butchering blades with broad stock, garrison utility knives with clip-point tips, and a grinding wheel for edge-dressing — offering to commission a full blade collection for the palace hunters and garrison, or to share blade-craft that keeps every smithy producing sharp-edged cutting tools from standard iron stocks.</div>
+      <div class="knifesmith-actions">
+        <button class="btn--knifesmith-commission${canCommission ? '' : ' btn--disabled'}" data-action="knifesmith-commission" ${canCommission ? '' : 'disabled'}>
+          ⚔️ Commission Blade Collection — ${Knifesmith.COMMISSION_IRON_COST}⚙️ + ${Knifesmith.COMMISSION_GOLD_COST}💰
+          <span class="knifesmith-cost">→ +${Knifesmith.COMMISSION_IRON_RATE} iron/s (2.5 min) · +${Knifesmith.COMMISSION_PRESTIGE_REWARD} prestige · +${Knifesmith.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--knifesmith-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="knifesmith-purchase" ${canPurchase ? '' : 'disabled'}>
+          📖 Purchase Blade Craft — ${Knifesmith.PURCHASE_STONE_COST}🪨
+          <span class="knifesmith-cost">→ +${Knifesmith.PURCHASE_STONE_RATE} stone/s (2 min) · +${Knifesmith.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--knifesmith-away" data-action="knifesmith-away">
+          🚶 Send Away
+          <span class="knifesmith-cost">→ Knifesmith closes the presentation case and departs the palace workshop</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -6936,6 +7010,14 @@ const _HANDLERS = {
   'robemaker-commission': () => RobeMaker.commissionImperialRobes(),
   'robemaker-purchase':   () => RobeMaker.purchaseFineFabrics(),
   'robemaker-away':       () => RobeMaker.sendRobeMakerAway(),
+
+  'fletcher-commission':  () => Fletcher.commissionArrowBundles(),
+  'fletcher-purchase':    () => Fletcher.purchaseFletchingCraft(),
+  'fletcher-away':        () => Fletcher.sendFletcherAway(),
+
+  'knifesmith-commission': () => Knifesmith.commissionBladeCollection(),
+  'knifesmith-purchase':   () => Knifesmith.purchaseBladeCraft(),
+  'knifesmith-away':       () => Knifesmith.sendKnifesmithAway(),
 };
 
 function _handleClick(e) {
@@ -7130,6 +7212,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_HERBARIUM_KEEPER_CHANGED,
     Events.WANDERING_SPEAR_MAKER_CHANGED,
     Events.IMPERIAL_ROBE_MAKER_CHANGED,
+    Events.WANDERING_FLETCHER_CHANGED,
+    Events.IMPERIAL_KNIFESMITH_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

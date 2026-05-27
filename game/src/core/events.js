@@ -364,4 +364,6 @@ export const Events = Object.freeze({
   IMPERIAL_HERBARIUM_KEEPER_CHANGED:       'imperialHerbariumKeeperChanged',                               // T420: herbarium keeper spawned / commissioned / purchased / dismissed / expired
   WANDERING_SPEAR_MAKER_CHANGED:           'wanderingSpearMakerChanged',                                    // T421: spear maker spawned / commissioned / purchased / dismissed / expired
   IMPERIAL_ROBE_MAKER_CHANGED:             'imperialRobeMakerChanged',                                      // T422: robe maker spawned / commissioned / purchased / dismissed / expired
+  WANDERING_FLETCHER_CHANGED:              'wanderingFletcherChanged',                                       // T423: fletcher spawned / commissioned / purchased / dismissed / expired
+  IMPERIAL_KNIFESMITH_CHANGED:             'imperialKnifesmithChanged',                                      // T424: knifesmith spawned / commissioned / purchased / dismissed / expired
 });

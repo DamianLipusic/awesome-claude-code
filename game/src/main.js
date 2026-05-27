@@ -364,6 +364,8 @@ import { initWanderingDrumMaker, wanderingDrumMakerTick }             from './sy
 import { initImperialHerbariumKeeper, imperialHerbariumKeeperTick }   from './systems/imperialHerbariumKeeper.js';          // T420
 import { initWanderingSpearMaker, wanderingSpearMakerTick }           from './systems/wanderingSpearMaker.js';              // T421
 import { initImperialRobeMaker, imperialRobeMakerTick }               from './systems/imperialRobeMaker.js';                // T422
+import { initWanderingFletcher, wanderingFletcherTick }               from './systems/wanderingFletcher.js';                // T423
+import { initImperialKnifesmith, imperialKnifesmithTick }             from './systems/imperialKnifesmith.js';               // T424
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -734,6 +736,8 @@ function _registerAllSystems() {
   registerSystem(imperialHerbariumKeeperTick);      // T420
   registerSystem(wanderingSpearMakerTick);          // T421
   registerSystem(imperialRobeMakerTick);            // T422
+  registerSystem(wanderingFletcherTick);            // T423
+  registerSystem(imperialKnifesmithTick);           // T424
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -1089,6 +1093,8 @@ function _save() {
     imperialHerbariumKeeper:      state.imperialHerbariumKeeper,      // T420
     wanderingSpearMaker:          state.wanderingSpearMaker,          // T421
     imperialRobeMaker:            state.imperialRobeMaker,            // T422
+    wanderingFletcher:            state.wanderingFletcher,            // T423
+    imperialKnifesmith:           state.imperialKnifesmith,           // T424
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -1449,6 +1455,8 @@ function _applySave(s) {
   state.imperialHerbariumKeeper   = s.imperialHerbariumKeeper ?? null;      // T420
   state.wanderingSpearMaker       = s.wanderingSpearMaker ?? null;          // T421
   state.imperialRobeMaker         = s.imperialRobeMaker ?? null;            // T422
+  state.wanderingFletcher         = s.wanderingFletcher ?? null;            // T423
+  state.imperialKnifesmith        = s.imperialKnifesmith ?? null;           // T424
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -1815,6 +1823,8 @@ function _startFreshGame() {
   initImperialHerbariumKeeper();      // T420
   initWanderingSpearMaker();          // T421
   initImperialRobeMaker();            // T422
+  initWanderingFletcher();            // T423
+  initImperialKnifesmith();           // T424
   initAchievements();
   initLeaderboard();
 }
@@ -2164,6 +2174,8 @@ function _startLoadedGame(savedData) {
   initImperialHerbariumKeeper();      // T420
   initWanderingSpearMaker();          // T421
   initImperialRobeMaker();            // T422
+  initWanderingFletcher();            // T423
+  initImperialKnifesmith();           // T424
   initAchievements();
   initLeaderboard();
 }
