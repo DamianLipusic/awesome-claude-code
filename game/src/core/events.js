@@ -360,4 +360,6 @@ export const Events = Object.freeze({
   IMPERIAL_ICON_PAINTER_CHANGED:           'imperialIconPainterChanged',                                  // T416: icon painter spawned / commissioned / purchased / dismissed / expired
   WANDERING_WAX_TABLET_MAKER_CHANGED:      'wanderingWaxTabletMakerChanged',                               // T417: wax tablet maker spawned / commissioned / purchased / dismissed / expired
   WANDERING_NET_MAKER_CHANGED:             'wanderingNetMakerChanged',                                     // T418: net maker spawned / commissioned / purchased / dismissed / expired
+  WANDERING_DRUM_MAKER_CHANGED:            'wanderingDrumMakerChanged',                                    // T419: drum maker spawned / commissioned / purchased / dismissed / expired
+  IMPERIAL_HERBARIUM_KEEPER_CHANGED:       'imperialHerbariumKeeperChanged',                               // T420: herbarium keeper spawned / commissioned / purchased / dismissed / expired
 });

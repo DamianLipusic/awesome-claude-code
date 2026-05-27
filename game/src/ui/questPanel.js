@@ -183,6 +183,8 @@ import * as PeatCutter        from '../systems/wanderingPeatCutter.js';         
 import * as IconPainter       from '../systems/imperialIconPainter.js';          // T416
 import * as WaxTabletMaker   from '../systems/wanderingWaxTabletMaker.js';       // T417
 import * as NetMaker         from '../systems/wanderingNetMaker.js';             // T418
+import * as DrumMaker        from '../systems/wanderingDrumMaker.js';            // T419
+import * as HerbariumKeeper  from '../systems/imperialHerbariumKeeper.js';       // T420
 
 let _panel = null;
 
@@ -394,6 +396,8 @@ function _encountersSection() {
     _imperialIconPainterSection(),
     _wanderingWaxTabletMakerSection(),
     _wanderingNetMakerSection(),
+    _wanderingDrumMakerSection(),
+    _imperialHerbariumKeeperSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -6089,6 +6093,76 @@ function _wanderingNetMakerSection() {
     </div>`;
 }
 
+// ── T419 Wandering Drum Maker ─────────────────────────────────────────────
+
+function _wanderingDrumMakerSection() {
+  if (!DrumMaker.getActiveWanderingDrumMaker()) return '';
+  const secs   = DrumMaker.getDrumMakerSecsLeft();
+  const urgent = secs <= 15;
+  const wood   = state.resources?.wood ?? 0;
+  const food   = state.resources?.food ?? 0;
+  const gold   = state.resources?.gold ?? 0;
+  const canCommission = wood >= DrumMaker.COMMISSION_WOOD_COST && food >= DrumMaker.COMMISSION_FOOD_COST;
+  const canPurchase   = gold >= DrumMaker.PURCHASE_GOLD_COST;
+  return `
+    <div class="drummaker-section--active">
+      <div class="drummaker-header">
+        <span class="drummaker-title">🥁 Wandering Drum Maker</span>
+        <span class="drummaker-timer${urgent ? ' drummaker-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="drummaker-desc">A wandering drum maker arrives with seasoned oak stave-drums, double goat-hide heads, carved bone tensioning pegs, and padded willow beaters — offering to commission ceremonial drums for the palace courtyard and garrison parade ground, or to sell the drum-making craft compendium detailing stave-selection, hide-soaking, and tension-tuning techniques.</div>
+      <div class="drummaker-actions">
+        <button class="btn--drummaker-commission${canCommission ? '' : ' btn--disabled'}" data-action="drummaker-commission" ${canCommission ? '' : 'disabled'}>
+          🥁 Commission Ceremonial Drums — ${DrumMaker.COMMISSION_WOOD_COST}🪵 + ${DrumMaker.COMMISSION_FOOD_COST}🌾
+          <span class="drummaker-cost">→ +${DrumMaker.COMMISSION_WOOD_RATE} wood/s (2.5 min) · +${DrumMaker.COMMISSION_PRESTIGE_REWARD} prestige · +${DrumMaker.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--drummaker-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="drummaker-purchase" ${canPurchase ? '' : 'disabled'}>
+          📖 Purchase Drum-Making Craft — ${DrumMaker.PURCHASE_GOLD_COST}💰
+          <span class="drummaker-cost">→ +${DrumMaker.PURCHASE_GOLD_RATE} gold/s (2 min) · +${DrumMaker.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--drummaker-away" data-action="drummaker-away">
+          🚶 Send Away
+          <span class="drummaker-cost">→ Drum maker departs with the oak stave-drums and goat-hide heads</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T420 Imperial Herbarium Keeper ────────────────────────────────────────
+
+function _imperialHerbariumKeeperSection() {
+  if (!HerbariumKeeper.getActiveImperialHerbariumKeeper()) return '';
+  const secs   = HerbariumKeeper.getHerbariumKeeperSecsLeft();
+  const urgent = secs <= 15;
+  const mana   = state.resources?.mana ?? 0;
+  const gold   = state.resources?.gold ?? 0;
+  const food   = state.resources?.food ?? 0;
+  const canCommission = mana >= HerbariumKeeper.COMMISSION_MANA_COST && gold >= HerbariumKeeper.COMMISSION_GOLD_COST;
+  const canPurchase   = food >= HerbariumKeeper.PURCHASE_FOOD_COST;
+  return `
+    <div class="herbarium-section--active">
+      <div class="herbarium-header">
+        <span class="herbarium-title">🌿 Imperial Herbarium Keeper</span>
+        <span class="herbarium-timer${urgent ? ' herbarium-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="herbarium-desc">An imperial herbarium keeper arrives with pressed-plant folios, copper-topped specimen vials, dried root bundles, and illustrated botanical charts — offering to commission a complete herbal compendium for the palace physic garden and apothecary stores, or to sell a curated selection of medicinal plants including valerian, yarrow, marsh-mallow, and elderflower.</div>
+      <div class="herbarium-actions">
+        <button class="btn--herbarium-commission${canCommission ? '' : ' btn--disabled'}" data-action="herbarium-commission" ${canCommission ? '' : 'disabled'}>
+          🌿 Commission Herbal Compendium — ${HerbariumKeeper.COMMISSION_MANA_COST}✨ + ${HerbariumKeeper.COMMISSION_GOLD_COST}💰
+          <span class="herbarium-cost">→ +${HerbariumKeeper.COMMISSION_MANA_RATE} mana/s (2.5 min) · +${HerbariumKeeper.COMMISSION_PRESTIGE_REWARD} prestige · +${HerbariumKeeper.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--herbarium-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="herbarium-purchase" ${canPurchase ? '' : 'disabled'}>
+          🌱 Purchase Medicinal Plants — ${HerbariumKeeper.PURCHASE_FOOD_COST}🌾
+          <span class="herbarium-cost">→ +${HerbariumKeeper.PURCHASE_FOOD_RATE} food/s (2 min) · +${HerbariumKeeper.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--herbarium-away" data-action="herbarium-away">
+          🚶 Send Away
+          <span class="herbarium-cost">→ Herbarium keeper departs with the calfskin folios and specimen vials</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -6774,6 +6848,12 @@ const _HANDLERS = {
   'netmaker-commission': () => NetMaker.commissionImperialFishingNets(),
   'netmaker-purchase':   () => NetMaker.purchaseNetMakingSecrets(),
   'netmaker-away':       () => NetMaker.sendNetMakerAway(),
+  'drummaker-commission': () => DrumMaker.commissionCeremonialDrums(),
+  'drummaker-purchase':   () => DrumMaker.purchaseDrumMakingCraft(),
+  'drummaker-away':       () => DrumMaker.sendDrumMakerAway(),
+  'herbarium-commission': () => HerbariumKeeper.commissionHerbalCompendium(),
+  'herbarium-purchase':   () => HerbariumKeeper.purchaseMedicinalPlants(),
+  'herbarium-away':       () => HerbariumKeeper.sendHerbariumKeeperAway(),
 };
 
 function _handleClick(e) {
@@ -6964,6 +7044,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_ICON_PAINTER_CHANGED,
     Events.WANDERING_WAX_TABLET_MAKER_CHANGED,
     Events.WANDERING_NET_MAKER_CHANGED,
+    Events.WANDERING_DRUM_MAKER_CHANGED,
+    Events.IMPERIAL_HERBARIUM_KEEPER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

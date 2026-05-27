@@ -22213,3 +22213,75 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--netmaker-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T419 Wandering Drum Maker ───────────────────────────────────────────── */
+@keyframes drummaker-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(217, 119, 6, 0.00); }
+  50%       { box-shadow: 0 0 8px 3px rgba(217, 119, 6, 0.22); }
+}
+.drummaker-section--active {
+  background: linear-gradient(135deg, rgba(120, 53, 15, 0.14), rgba(92, 30, 5, 0.08));
+  border: 1px solid rgba(217, 119, 6, 0.30); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: drummaker-pulse 2.8s ease-in-out infinite;
+}
+.drummaker-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.drummaker-title  { font-weight: 700; font-size: 0.88rem; color: #fbbf24; }
+.drummaker-timer  { font-size: 0.78rem; color: #fbbf24; }
+.drummaker-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.drummaker-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.drummaker-actions { display: flex; flex-direction: column; gap: 5px; }
+.drummaker-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--drummaker-commission {
+  background: linear-gradient(135deg, rgba(120, 53, 15, 0.28), rgba(92, 30, 5, 0.18));
+  border: 1px solid rgba(217, 119, 6, 0.38); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fbbf24; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--drummaker-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(145, 65, 18, 0.38), rgba(110, 40, 8, 0.28)); }
+.btn--drummaker-purchase {
+  background: linear-gradient(135deg, rgba(30, 100, 50, 0.22), rgba(20, 75, 35, 0.14));
+  border: 1px solid rgba(60, 160, 90, 0.32); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #6ee7b7; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--drummaker-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(40, 120, 65, 0.30), rgba(25, 90, 45, 0.22)); }
+.btn--drummaker-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--drummaker-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T420 Imperial Herbarium Keeper ──────────────────────────────────────── */
+@keyframes herbarium-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.00); }
+  50%       { box-shadow: 0 0 8px 3px rgba(16, 185, 129, 0.22); }
+}
+.herbarium-section--active {
+  background: linear-gradient(135deg, rgba(6, 78, 59, 0.14), rgba(4, 55, 40, 0.08));
+  border: 1px solid rgba(16, 185, 129, 0.30); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: herbarium-pulse 2.8s ease-in-out infinite;
+}
+.herbarium-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.herbarium-title  { font-weight: 700; font-size: 0.88rem; color: #6ee7b7; }
+.herbarium-timer  { font-size: 0.78rem; color: #6ee7b7; }
+.herbarium-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.herbarium-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.herbarium-actions { display: flex; flex-direction: column; gap: 5px; }
+.herbarium-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--herbarium-commission {
+  background: linear-gradient(135deg, rgba(6, 78, 59, 0.28), rgba(4, 55, 40, 0.18));
+  border: 1px solid rgba(16, 185, 129, 0.38); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #6ee7b7; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--herbarium-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(8, 100, 75, 0.38), rgba(5, 70, 52, 0.28)); }
+.btn--herbarium-purchase {
+  background: linear-gradient(135deg, rgba(20, 83, 45, 0.22), rgba(14, 60, 32, 0.14));
+  border: 1px solid rgba(74, 222, 128, 0.32); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #86efac; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--herbarium-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(25, 100, 55, 0.30), rgba(18, 75, 40, 0.22)); }
+.btn--herbarium-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--herbarium-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
