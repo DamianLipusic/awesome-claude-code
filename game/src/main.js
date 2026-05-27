@@ -368,6 +368,8 @@ import { initWanderingFletcher, wanderingFletcherTick }               from './sy
 import { initImperialKnifesmith, imperialKnifesmithTick }             from './systems/imperialKnifesmith.js';               // T424
 import { initWanderingSailMaker, wanderingSailMakerTick }             from './systems/wanderingSailMaker.js';               // T425
 import { initImperialChariotBuilder, imperialChariotBuilderTick }     from './systems/imperialChariotBuilder.js';           // T426
+import { initWanderingSeedMerchant, wanderingSeedMerchantTick }       from './systems/wanderingSeedMerchant.js';             // T427
+import { initImperialSilkscreenPainter, imperialSilkscreenPainterTick } from './systems/imperialSilkscreenPainter.js';      // T428
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -742,6 +744,8 @@ function _registerAllSystems() {
   registerSystem(imperialKnifesmithTick);           // T424
   registerSystem(wanderingSailMakerTick);           // T425
   registerSystem(imperialChariotBuilderTick);       // T426
+  registerSystem(wanderingSeedMerchantTick);        // T427
+  registerSystem(imperialSilkscreenPainterTick);    // T428
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -1101,6 +1105,8 @@ function _save() {
     imperialKnifesmith:           state.imperialKnifesmith,           // T424
     wanderingSailMaker:           state.wanderingSailMaker,           // T425
     imperialChariotBuilder:       state.imperialChariotBuilder,       // T426
+    wanderingSeedMerchant:        state.wanderingSeedMerchant,        // T427
+    imperialSilkscreenPainter:    state.imperialSilkscreenPainter,    // T428
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -1465,6 +1471,8 @@ function _applySave(s) {
   state.imperialKnifesmith        = s.imperialKnifesmith ?? null;           // T424
   state.wanderingSailMaker        = s.wanderingSailMaker ?? null;           // T425
   state.imperialChariotBuilder    = s.imperialChariotBuilder ?? null;       // T426
+  state.wanderingSeedMerchant     = s.wanderingSeedMerchant ?? null;        // T427
+  state.imperialSilkscreenPainter = s.imperialSilkscreenPainter ?? null;   // T428
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -1835,6 +1843,8 @@ function _startFreshGame() {
   initImperialKnifesmith();           // T424
   initWanderingSailMaker();           // T425
   initImperialChariotBuilder();       // T426
+  initWanderingSeedMerchant();        // T427
+  initImperialSilkscreenPainter();    // T428
   initAchievements();
   initLeaderboard();
 }
@@ -2188,6 +2198,8 @@ function _startLoadedGame(savedData) {
   initImperialKnifesmith();           // T424
   initWanderingSailMaker();           // T425
   initImperialChariotBuilder();       // T426
+  initWanderingSeedMerchant();        // T427
+  initImperialSilkscreenPainter();    // T428
   initAchievements();
   initLeaderboard();
 }

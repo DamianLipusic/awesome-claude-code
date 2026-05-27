@@ -1780,6 +1780,26 @@
       "description": "Periodic imperial chariot builder encounter: commission war chariots (25 wood + 20 iron → +0.22 iron/s 2.5min +22 prestige +12 morale), purchase chariot designs (20g → +0.18 gold/s 2min +15 prestige), send away. Bronze Age+, 8+ tiles, 13-18 min.",
       "completed_date": "2026-05-27",
       "notes": "Built imperialChariotBuilder.js. IMPERIAL_CHARIOT_BUILDER_CHANGED event added to events.js. state.imperialChariotBuilder null field. Chariot builder section in questPanel.js (import * as ChariotBuilder). Events.IMPERIAL_CHARIOT_BUILDER_CHANGED subscribed. CSS: @keyframes chariotbld-pulse (amber/gold), .chariotbld-section--active, .btn--chariotbld-commission (amber/gold), .btn--chariotbld-purchase (slate), .btn--chariotbld-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T427",
+      "title": "Wandering Seed Merchant",
+      "status": "done",
+      "priority": 427,
+      "phase": 129,
+      "description": "Periodic wandering seed merchant encounter: purchase rare seed collection (25 food → +0.25 food/s 2.5min +15 prestige +10 morale), exchange crop cultivation lore (18g → +0.15 gold/s 2min +10 prestige), send away. Stone Age+, 6+ tiles, 11-15 min.",
+      "completed_date": "2026-05-27",
+      "notes": "Built wanderingSeedMerchant.js. WANDERING_SEED_MERCHANT_CHANGED event added to events.js. state.wanderingSeedMerchant null field. Seed merchant section in questPanel.js (import * as SeedMerchant). Events.WANDERING_SEED_MERCHANT_CHANGED subscribed. CSS: @keyframes seedmerchant-pulse (spring green), .seedmerchant-section--active, .btn--seedmerchant-purchase (green), .btn--seedmerchant-exchange (amber/gold), .btn--seedmerchant-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T428",
+      "title": "Imperial Silkscreen Painter",
+      "status": "done",
+      "priority": 428,
+      "phase": 129,
+      "description": "Periodic imperial silkscreen painter encounter: commission painted screen panels (20 mana + 20g → +0.22 mana/s 2.5min +20 prestige +10 morale), purchase painting pigment formulas (18 wood → +0.18 wood/s 2min +12 prestige), send away. Medieval Age+, 10+ tiles, 14-18 min.",
+      "completed_date": "2026-05-27",
+      "notes": "Built imperialSilkscreenPainter.js. IMPERIAL_SILKSCREEN_PAINTER_CHANGED event added to events.js. state.imperialSilkscreenPainter null field. Silkscreen painter section in questPanel.js (import * as SilkPainter). Events.IMPERIAL_SILKSCREEN_PAINTER_CHANGED subscribed. CSS: @keyframes silkpaint-pulse (violet/purple), .silkpaint-section--active, .btn--silkpaint-commission (violet), .btn--silkpaint-purchase (green), .btn--silkpaint-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     }
   ],
   "session_history": [
@@ -1881,6 +1901,7 @@
     "Session 118 (T419-T420): Wandering Drum Maker (T419), Imperial Herbarium Keeper (T420)",
     "Session 119 (T421-T422): Wandering Spear Maker (T421), Imperial Robe Maker (T422)",
     "Session 120 (T423-T424): Wandering Fletcher (T423), Imperial Knifesmith (T424)",
-    "Session 121 (T425-T426): Wandering Sail Maker (T425), Imperial Chariot Builder (T426)"
+    "Session 121 (T425-T426): Wandering Sail Maker (T425), Imperial Chariot Builder (T426)",
+    "Session 122 (T427-T428): Wandering Seed Merchant (T427), Imperial Silkscreen Painter (T428)"
   ]
 }

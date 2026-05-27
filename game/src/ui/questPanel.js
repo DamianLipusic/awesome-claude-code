@@ -191,6 +191,8 @@ import * as Fletcher         from '../systems/wanderingFletcher.js';            
 import * as Knifesmith       from '../systems/imperialKnifesmith.js';            // T424
 import * as SailMaker        from '../systems/wanderingSailMaker.js';            // T425
 import * as ChariotBuilder   from '../systems/imperialChariotBuilder.js';        // T426
+import * as SeedMerchant     from '../systems/wanderingSeedMerchant.js';         // T427
+import * as SilkPainter      from '../systems/imperialSilkscreenPainter.js';    // T428
 
 let _panel = null;
 
@@ -410,6 +412,8 @@ function _encountersSection() {
     _imperialKnifesmithSection(),
     _wanderingSailMakerSection(),
     _imperialChariotBuilderSection(),
+    _wanderingSeedMerchantSection(),
+    _imperialSilkscreenPainterSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -6385,6 +6389,75 @@ function _imperialChariotBuilderSection() {
     </div>`;
 }
 
+// ── T427 Wandering Seed Merchant ──────────────────────────────────────────
+
+function _wanderingSeedMerchantSection() {
+  if (!SeedMerchant.getActiveWanderingSeedMerchant()) return '';
+  const secs        = SeedMerchant.getSeedMerchantSecsLeft();
+  const urgent      = secs <= 15;
+  const food        = state.resources?.food ?? 0;
+  const gold        = state.resources?.gold ?? 0;
+  const canPurchase = food >= SeedMerchant.PURCHASE_FOOD_COST;
+  const canExchange = gold >= SeedMerchant.EXCHANGE_GOLD_COST;
+  return `
+    <div class="seedmerchant-section--active">
+      <div class="seedmerchant-header">
+        <span class="seedmerchant-title">🌱 Wandering Seed Merchant</span>
+        <span class="seedmerchant-timer${urgent ? ' seedmerchant-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="seedmerchant-desc">A wandering seed merchant arrives carrying linen pouches of cultivated grain varieties selected over many growing seasons — emmer and einkorn wheats with large full kernels, hulled barley strains with tight husks, a nitrogen-fixing lentil variety yielding two to three times the planted volume, and short-season broad bean stock — offering to sell the rare seed collection that replenishes and improves the empire's agricultural stock, or to share accumulated crop cultivation lore from farmers across the wider region.</div>
+      <div class="seedmerchant-actions">
+        <button class="btn--seedmerchant-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="seedmerchant-purchase" ${canPurchase ? '' : 'disabled'}>
+          🌱 Purchase Rare Seed Collection — ${SeedMerchant.PURCHASE_FOOD_COST}🌾
+          <span class="seedmerchant-cost">→ +${SeedMerchant.PURCHASE_FOOD_RATE} food/s (2.5 min) · +${SeedMerchant.PURCHASE_PRESTIGE_REWARD} prestige · +${SeedMerchant.PURCHASE_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--seedmerchant-exchange${canExchange ? '' : ' btn--disabled'}" data-action="seedmerchant-exchange" ${canExchange ? '' : 'disabled'}>
+          📖 Exchange Crop Cultivation Lore — ${SeedMerchant.EXCHANGE_GOLD_COST}💰
+          <span class="seedmerchant-cost">→ +${SeedMerchant.EXCHANGE_GOLD_RATE} gold/s (2 min) · +${SeedMerchant.EXCHANGE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--seedmerchant-away" data-action="seedmerchant-away">
+          🚶 Send Away
+          <span class="seedmerchant-cost">→ Seed merchant closes the travelling chest and departs along the field-track</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T428 Imperial Silkscreen Painter ─────────────────────────────────────
+
+function _imperialSilkscreenPainterSection() {
+  if (!SilkPainter.getActiveImperialSilkscreenPainter()) return '';
+  const secs          = SilkPainter.getSilkscreenPainterSecsLeft();
+  const urgent        = secs <= 15;
+  const mana          = state.resources?.mana ?? 0;
+  const gold          = state.resources?.gold ?? 0;
+  const wood          = state.resources?.wood ?? 0;
+  const canCommission = mana >= SilkPainter.COMMISSION_MANA_COST && gold >= SilkPainter.COMMISSION_GOLD_COST;
+  const canPurchase   = wood >= SilkPainter.PURCHASE_WOOD_COST;
+  return `
+    <div class="silkpaint-section--active">
+      <div class="silkpaint-header">
+        <span class="silkpaint-title">🎨 Imperial Silkscreen Painter</span>
+        <span class="silkpaint-timer${urgent ? ' silkpaint-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="silkpaint-desc">An imperial silkscreen painter arrives at the palace carrying fine-mesh silk screens stretched over hardwood frames — each hand-drawn with a linseed oil and pine resin pattern resist, together with powdered mineral pigments from lapis lazuli, malachite, cinnabar, and white lead oxide mixed into colour-fast paste that transfers through the mesh in a single squeegee pass — offering to commission a full set of painted panels for the throne room and banqueting hall, or to share pigment formulas and screen-cutting methods allowing every workshop to produce consistent high-quality decoration.</div>
+      <div class="silkpaint-actions">
+        <button class="btn--silkpaint-commission${canCommission ? '' : ' btn--disabled'}" data-action="silkpaint-commission" ${canCommission ? '' : 'disabled'}>
+          🎨 Commission Painted Screen Panels — ${SilkPainter.COMMISSION_MANA_COST}✨ + ${SilkPainter.COMMISSION_GOLD_COST}💰
+          <span class="silkpaint-cost">→ +${SilkPainter.COMMISSION_MANA_RATE} mana/s (2.5 min) · +${SilkPainter.COMMISSION_PRESTIGE_REWARD} prestige · +${SilkPainter.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--silkpaint-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="silkpaint-purchase" ${canPurchase ? '' : 'disabled'}>
+          🖌️ Purchase Painting Pigment Formulas — ${SilkPainter.PURCHASE_WOOD_COST}🪵
+          <span class="silkpaint-cost">→ +${SilkPainter.PURCHASE_WOOD_RATE} wood/s (2 min) · +${SilkPainter.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--silkpaint-away" data-action="silkpaint-away">
+          🚶 Send Away
+          <span class="silkpaint-cost">→ Silkscreen painter wraps the frames and departs the palace workshop</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -7100,6 +7173,14 @@ const _HANDLERS = {
   'chariotbld-commission': () => ChariotBuilder.commissionWarChariots(),
   'chariotbld-purchase':   () => ChariotBuilder.purchaseChariotDesigns(),
   'chariotbld-away':       () => ChariotBuilder.sendChariotBuilderAway(),
+
+  'seedmerchant-purchase': () => SeedMerchant.purchaseRareSeeds(),
+  'seedmerchant-exchange': () => SeedMerchant.exchangeCropLore(),
+  'seedmerchant-away':     () => SeedMerchant.sendSeedMerchantAway(),
+
+  'silkpaint-commission':  () => SilkPainter.commissionPaintedScreenPanels(),
+  'silkpaint-purchase':    () => SilkPainter.purchasePaintingPigmentFormulas(),
+  'silkpaint-away':        () => SilkPainter.sendSilkscreenPainterAway(),
 };
 
 function _handleClick(e) {
@@ -7298,6 +7379,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_KNIFESMITH_CHANGED,
     Events.WANDERING_SAIL_MAKER_CHANGED,
     Events.IMPERIAL_CHARIOT_BUILDER_CHANGED,
+    Events.WANDERING_SEED_MERCHANT_CHANGED,
+    Events.IMPERIAL_SILKSCREEN_PAINTER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

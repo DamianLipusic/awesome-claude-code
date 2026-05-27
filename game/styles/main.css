@@ -22501,3 +22501,75 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--chariotbld-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T427 Wandering Seed Merchant ────────────────────────────────────────── */
+@keyframes seedmerchant-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.00); }
+  50%       { box-shadow: 0 0 8px 3px rgba(34, 197, 94, 0.22); }
+}
+.seedmerchant-section--active {
+  background: linear-gradient(135deg, rgba(5, 46, 22, 0.14), rgba(3, 30, 14, 0.08));
+  border: 1px solid rgba(34, 197, 94, 0.30); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: seedmerchant-pulse 2.8s ease-in-out infinite;
+}
+.seedmerchant-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.seedmerchant-title  { font-weight: 700; font-size: 0.88rem; color: #4ade80; }
+.seedmerchant-timer  { font-size: 0.78rem; color: #4ade80; }
+.seedmerchant-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.seedmerchant-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.seedmerchant-actions { display: flex; flex-direction: column; gap: 5px; }
+.seedmerchant-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--seedmerchant-purchase {
+  background: linear-gradient(135deg, rgba(5, 46, 22, 0.28), rgba(3, 30, 14, 0.18));
+  border: 1px solid rgba(34, 197, 94, 0.38); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #4ade80; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--seedmerchant-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(7, 60, 28, 0.38), rgba(5, 40, 18, 0.28)); }
+.btn--seedmerchant-exchange {
+  background: linear-gradient(135deg, rgba(92, 78, 10, 0.22), rgba(68, 58, 6, 0.14));
+  border: 1px solid rgba(202, 168, 20, 0.32); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fbbf24; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--seedmerchant-exchange:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(112, 96, 14, 0.30), rgba(85, 72, 10, 0.22)); }
+.btn--seedmerchant-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--seedmerchant-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T428 Imperial Silkscreen Painter ────────────────────────────────────── */
+@keyframes silkpaint-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(167, 139, 250, 0.00); }
+  50%       { box-shadow: 0 0 8px 3px rgba(167, 139, 250, 0.22); }
+}
+.silkpaint-section--active {
+  background: linear-gradient(135deg, rgba(46, 16, 101, 0.14), rgba(30, 10, 68, 0.08));
+  border: 1px solid rgba(167, 139, 250, 0.30); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: silkpaint-pulse 2.8s ease-in-out infinite;
+}
+.silkpaint-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.silkpaint-title  { font-weight: 700; font-size: 0.88rem; color: #c4b5fd; }
+.silkpaint-timer  { font-size: 0.78rem; color: #c4b5fd; }
+.silkpaint-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.silkpaint-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.silkpaint-actions { display: flex; flex-direction: column; gap: 5px; }
+.silkpaint-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--silkpaint-commission {
+  background: linear-gradient(135deg, rgba(46, 16, 101, 0.28), rgba(30, 10, 68, 0.18));
+  border: 1px solid rgba(167, 139, 250, 0.38); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #c4b5fd; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--silkpaint-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(60, 22, 130, 0.38), rgba(40, 14, 88, 0.28)); }
+.btn--silkpaint-purchase {
+  background: linear-gradient(135deg, rgba(10, 46, 18, 0.22), rgba(6, 30, 12, 0.14));
+  border: 1px solid rgba(34, 197, 94, 0.32); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #4ade80; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--silkpaint-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(14, 60, 24, 0.30), rgba(8, 40, 16, 0.22)); }
+.btn--silkpaint-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--silkpaint-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
