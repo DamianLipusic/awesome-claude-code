@@ -366,6 +366,8 @@ import { initWanderingSpearMaker, wanderingSpearMakerTick }           from './sy
 import { initImperialRobeMaker, imperialRobeMakerTick }               from './systems/imperialRobeMaker.js';                // T422
 import { initWanderingFletcher, wanderingFletcherTick }               from './systems/wanderingFletcher.js';                // T423
 import { initImperialKnifesmith, imperialKnifesmithTick }             from './systems/imperialKnifesmith.js';               // T424
+import { initWanderingSailMaker, wanderingSailMakerTick }             from './systems/wanderingSailMaker.js';               // T425
+import { initImperialChariotBuilder, imperialChariotBuilderTick }     from './systems/imperialChariotBuilder.js';           // T426
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -738,6 +740,8 @@ function _registerAllSystems() {
   registerSystem(imperialRobeMakerTick);            // T422
   registerSystem(wanderingFletcherTick);            // T423
   registerSystem(imperialKnifesmithTick);           // T424
+  registerSystem(wanderingSailMakerTick);           // T425
+  registerSystem(imperialChariotBuilderTick);       // T426
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -1095,6 +1099,8 @@ function _save() {
     imperialRobeMaker:            state.imperialRobeMaker,            // T422
     wanderingFletcher:            state.wanderingFletcher,            // T423
     imperialKnifesmith:           state.imperialKnifesmith,           // T424
+    wanderingSailMaker:           state.wanderingSailMaker,           // T425
+    imperialChariotBuilder:       state.imperialChariotBuilder,       // T426
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -1457,6 +1463,8 @@ function _applySave(s) {
   state.imperialRobeMaker         = s.imperialRobeMaker ?? null;            // T422
   state.wanderingFletcher         = s.wanderingFletcher ?? null;            // T423
   state.imperialKnifesmith        = s.imperialKnifesmith ?? null;           // T424
+  state.wanderingSailMaker        = s.wanderingSailMaker ?? null;           // T425
+  state.imperialChariotBuilder    = s.imperialChariotBuilder ?? null;       // T426
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -1825,6 +1833,8 @@ function _startFreshGame() {
   initImperialRobeMaker();            // T422
   initWanderingFletcher();            // T423
   initImperialKnifesmith();           // T424
+  initWanderingSailMaker();           // T425
+  initImperialChariotBuilder();       // T426
   initAchievements();
   initLeaderboard();
 }
@@ -2176,6 +2186,8 @@ function _startLoadedGame(savedData) {
   initImperialRobeMaker();            // T422
   initWanderingFletcher();            // T423
   initImperialKnifesmith();           // T424
+  initWanderingSailMaker();           // T425
+  initImperialChariotBuilder();       // T426
   initAchievements();
   initLeaderboard();
 }

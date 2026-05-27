@@ -1760,6 +1760,26 @@
       "description": "Periodic imperial knifesmith encounter: commission blade collection (25 iron + 15g → +0.22 iron/s 2.5min +22 prestige +10 morale), purchase blade craft (20 stone → +0.18 stone/s 2min +15 prestige), send away. Iron Age+, 10+ tiles, 13-18 min.",
       "completed_date": "2026-05-27",
       "notes": "Built imperialKnifesmith.js. IMPERIAL_KNIFESMITH_CHANGED event added to events.js. state.imperialKnifesmith null field. Knifesmith section in questPanel.js (import * as Knifesmith). Events.IMPERIAL_KNIFESMITH_CHANGED subscribed. CSS: @keyframes knifesmith-pulse (steel blue/slate), .knifesmith-section--active, .btn--knifesmith-commission (slate), .btn--knifesmith-purchase (amber/gold), .btn--knifesmith-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T425",
+      "title": "Wandering Sail Maker",
+      "status": "done",
+      "priority": 425,
+      "phase": 128,
+      "description": "Periodic wandering sail maker encounter: commission sailing canvas (20 wood + 10 food → +0.22 wood/s 2.5min +15 prestige +8 morale), purchase sail-making lore (18g → +0.15 gold/s 2min +10 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
+      "completed_date": "2026-05-27",
+      "notes": "Built wanderingSailMaker.js. WANDERING_SAIL_MAKER_CHANGED event added to events.js. state.wanderingSailMaker null field. Sail maker section in questPanel.js (import * as SailMaker). Events.WANDERING_SAIL_MAKER_CHANGED subscribed. CSS: @keyframes sailmaker-pulse (sky blue), .sailmaker-section--active, .btn--sailmaker-commission (sky blue), .btn--sailmaker-purchase (amber/gold), .btn--sailmaker-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T426",
+      "title": "Imperial Chariot Builder",
+      "status": "done",
+      "priority": 426,
+      "phase": 128,
+      "description": "Periodic imperial chariot builder encounter: commission war chariots (25 wood + 20 iron → +0.22 iron/s 2.5min +22 prestige +12 morale), purchase chariot designs (20g → +0.18 gold/s 2min +15 prestige), send away. Bronze Age+, 8+ tiles, 13-18 min.",
+      "completed_date": "2026-05-27",
+      "notes": "Built imperialChariotBuilder.js. IMPERIAL_CHARIOT_BUILDER_CHANGED event added to events.js. state.imperialChariotBuilder null field. Chariot builder section in questPanel.js (import * as ChariotBuilder). Events.IMPERIAL_CHARIOT_BUILDER_CHANGED subscribed. CSS: @keyframes chariotbld-pulse (amber/gold), .chariotbld-section--active, .btn--chariotbld-commission (amber/gold), .btn--chariotbld-purchase (slate), .btn--chariotbld-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     }
   ],
   "session_history": [
@@ -1860,6 +1880,7 @@
     "Session 117 (T417-T418): Wandering Wax Tablet Maker (T417), Wandering Net Maker (T418)",
     "Session 118 (T419-T420): Wandering Drum Maker (T419), Imperial Herbarium Keeper (T420)",
     "Session 119 (T421-T422): Wandering Spear Maker (T421), Imperial Robe Maker (T422)",
-    "Session 120 (T423-T424): Wandering Fletcher (T423), Imperial Knifesmith (T424)"
+    "Session 120 (T423-T424): Wandering Fletcher (T423), Imperial Knifesmith (T424)",
+    "Session 121 (T425-T426): Wandering Sail Maker (T425), Imperial Chariot Builder (T426)"
   ]
 }

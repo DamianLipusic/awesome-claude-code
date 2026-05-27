@@ -189,6 +189,8 @@ import * as SpearMaker       from '../systems/wanderingSpearMaker.js';          
 import * as RobeMaker        from '../systems/imperialRobeMaker.js';             // T422
 import * as Fletcher         from '../systems/wanderingFletcher.js';             // T423
 import * as Knifesmith       from '../systems/imperialKnifesmith.js';            // T424
+import * as SailMaker        from '../systems/wanderingSailMaker.js';            // T425
+import * as ChariotBuilder   from '../systems/imperialChariotBuilder.js';        // T426
 
 let _panel = null;
 
@@ -406,6 +408,8 @@ function _encountersSection() {
     _imperialRobeMakerSection(),
     _wanderingFletcherSection(),
     _imperialKnifesmithSection(),
+    _wanderingSailMakerSection(),
+    _imperialChariotBuilderSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -6311,6 +6315,76 @@ function _imperialKnifesmithSection() {
     </div>`;
 }
 
+// ── T425 Wandering Sail Maker ─────────────────────────────────────────────
+
+function _wanderingSailMakerSection() {
+  if (!SailMaker.getActiveWanderingSailMaker()) return '';
+  const secs   = SailMaker.getSailMakerSecsLeft();
+  const urgent = secs <= 15;
+  const wood   = state.resources?.wood ?? 0;
+  const food   = state.resources?.food ?? 0;
+  const gold   = state.resources?.gold ?? 0;
+  const canCommission = wood >= SailMaker.COMMISSION_WOOD_COST && food >= SailMaker.COMMISSION_FOOD_COST;
+  const canPurchase   = gold >= SailMaker.PURCHASE_GOLD_COST;
+  return `
+    <div class="sailmaker-section--active">
+      <div class="sailmaker-header">
+        <span class="sailmaker-title">⛵ Wandering Sail Maker</span>
+        <span class="sailmaker-timer${urgent ? ' sailmaker-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="sailmaker-desc">A wandering sail maker arrives carrying bolts of tallow-and-beeswax-dressed heavy linen canvas, rolls of ripstop weave for river-barge canopies, coils of tarred hemp rope for bolt-ropes, brass sail-rings for corner patches, and sail-panel layout patterns for the empire's river-barge and coastal fishing-boat mast configurations — offering to commission a full supply of rigged sails for the waterway fleet, or to share sail-making craft that keeps every workshop producing durable wind-tight canvas.</div>
+      <div class="sailmaker-actions">
+        <button class="btn--sailmaker-commission${canCommission ? '' : ' btn--disabled'}" data-action="sailmaker-commission" ${canCommission ? '' : 'disabled'}>
+          ⛵ Commission Sailing Canvas — ${SailMaker.COMMISSION_WOOD_COST}🪵 + ${SailMaker.COMMISSION_FOOD_COST}🌾
+          <span class="sailmaker-cost">→ +${SailMaker.COMMISSION_WOOD_RATE} wood/s (2.5 min) · +${SailMaker.COMMISSION_PRESTIGE_REWARD} prestige · +${SailMaker.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--sailmaker-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="sailmaker-purchase" ${canPurchase ? '' : 'disabled'}>
+          📖 Purchase Sail-Making Lore — ${SailMaker.PURCHASE_GOLD_COST}💰
+          <span class="sailmaker-cost">→ +${SailMaker.PURCHASE_GOLD_RATE} gold/s (2 min) · +${SailMaker.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--sailmaker-away" data-action="sailmaker-away">
+          🚶 Send Away
+          <span class="sailmaker-cost">→ Sail maker re-rolls the canvas bolts and departs along the riverside path</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T426 Imperial Chariot Builder ─────────────────────────────────────────
+
+function _imperialChariotBuilderSection() {
+  if (!ChariotBuilder.getActiveImperialChariotBuilder()) return '';
+  const secs   = ChariotBuilder.getChariotBuilderSecsLeft();
+  const urgent = secs <= 15;
+  const wood   = state.resources?.wood ?? 0;
+  const iron   = state.resources?.iron ?? 0;
+  const gold   = state.resources?.gold ?? 0;
+  const canCommission = wood >= ChariotBuilder.COMMISSION_WOOD_COST && iron >= ChariotBuilder.COMMISSION_IRON_COST;
+  const canPurchase   = gold >= ChariotBuilder.PURCHASE_GOLD_COST;
+  return `
+    <div class="chariotbld-section--active">
+      <div class="chariotbld-header">
+        <span class="chariotbld-title">🏇 Imperial Chariot Builder</span>
+        <span class="chariotbld-timer${urgent ? ' chariotbld-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="chariotbld-desc">An imperial chariot builder arrives at the palace stable-yard carrying bent-wood wheel rims shaped to exact radius, elm spoke blanks dressed to a uniform taper, bronze-bushed wheel hubs, a lightweight wicker-sided fighting platform on a bronze axle bar, and joinery templates for the pole, yoke, and floor-frame joints — offering to commission a full fleet of war chariots for the palace cavalry and chariot-archer corps, or to share chariot-building designs allowing every workshop to produce fighting vehicles from existing stocks.</div>
+      <div class="chariotbld-actions">
+        <button class="btn--chariotbld-commission${canCommission ? '' : ' btn--disabled'}" data-action="chariotbld-commission" ${canCommission ? '' : 'disabled'}>
+          🏇 Commission War Chariots — ${ChariotBuilder.COMMISSION_WOOD_COST}🪵 + ${ChariotBuilder.COMMISSION_IRON_COST}⚙️
+          <span class="chariotbld-cost">→ +${ChariotBuilder.COMMISSION_IRON_RATE} iron/s (2.5 min) · +${ChariotBuilder.COMMISSION_PRESTIGE_REWARD} prestige · +${ChariotBuilder.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--chariotbld-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="chariotbld-purchase" ${canPurchase ? '' : 'disabled'}>
+          📖 Purchase Chariot Designs — ${ChariotBuilder.PURCHASE_GOLD_COST}💰
+          <span class="chariotbld-cost">→ +${ChariotBuilder.PURCHASE_GOLD_RATE} gold/s (2 min) · +${ChariotBuilder.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--chariotbld-away" data-action="chariotbld-away">
+          🚶 Send Away
+          <span class="chariotbld-cost">→ Chariot builder packs the wheel-rim forms and departs the palace stable-yard</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -7018,6 +7092,14 @@ const _HANDLERS = {
   'knifesmith-commission': () => Knifesmith.commissionBladeCollection(),
   'knifesmith-purchase':   () => Knifesmith.purchaseBladeCraft(),
   'knifesmith-away':       () => Knifesmith.sendKnifesmithAway(),
+
+  'sailmaker-commission':  () => SailMaker.commissionSailingCanvas(),
+  'sailmaker-purchase':    () => SailMaker.purchaseSailMakingLore(),
+  'sailmaker-away':        () => SailMaker.sendSailMakerAway(),
+
+  'chariotbld-commission': () => ChariotBuilder.commissionWarChariots(),
+  'chariotbld-purchase':   () => ChariotBuilder.purchaseChariotDesigns(),
+  'chariotbld-away':       () => ChariotBuilder.sendChariotBuilderAway(),
 };
 
 function _handleClick(e) {
@@ -7214,6 +7296,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_ROBE_MAKER_CHANGED,
     Events.WANDERING_FLETCHER_CHANGED,
     Events.IMPERIAL_KNIFESMITH_CHANGED,
+    Events.WANDERING_SAIL_MAKER_CHANGED,
+    Events.IMPERIAL_CHARIOT_BUILDER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);
