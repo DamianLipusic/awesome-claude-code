@@ -1800,6 +1800,26 @@
       "description": "Periodic imperial silkscreen painter encounter: commission painted screen panels (20 mana + 20g → +0.22 mana/s 2.5min +20 prestige +10 morale), purchase painting pigment formulas (18 wood → +0.18 wood/s 2min +12 prestige), send away. Medieval Age+, 10+ tiles, 14-18 min.",
       "completed_date": "2026-05-27",
       "notes": "Built imperialSilkscreenPainter.js. IMPERIAL_SILKSCREEN_PAINTER_CHANGED event added to events.js. state.imperialSilkscreenPainter null field. Silkscreen painter section in questPanel.js (import * as SilkPainter). Events.IMPERIAL_SILKSCREEN_PAINTER_CHANGED subscribed. CSS: @keyframes silkpaint-pulse (violet/purple), .silkpaint-section--active, .btn--silkpaint-commission (violet), .btn--silkpaint-purchase (green), .btn--silkpaint-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T429",
+      "title": "Wandering Woodcutter",
+      "status": "done",
+      "priority": 429,
+      "phase": 130,
+      "description": "Periodic wandering woodcutter encounter: commission firewood bundles (20 wood → +0.22 wood/s 2.5min +15 prestige +8 morale), purchase forest management lore (18g → +0.15 gold/s 2min +10 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
+      "completed_date": "2026-05-27",
+      "notes": "Built wanderingWoodcutter.js. WANDERING_WOODCUTTER_CHANGED event added to events.js. state.wanderingWoodcutter null field. Woodcutter section in questPanel.js (import * as Woodcutter). Events.WANDERING_WOODCUTTER_CHANGED subscribed. CSS: @keyframes woodcutter-pulse (lime/forest green), .woodcutter-section--active, .btn--woodcutter-commission (lime green), .btn--woodcutter-purchase (amber/gold), .btn--woodcutter-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T430",
+      "title": "Imperial Mason's Guild",
+      "status": "done",
+      "priority": 430,
+      "phase": 130,
+      "description": "Periodic imperial mason's guild encounter: commission stone masonry works (30 stone + 20g → +0.25 stone/s 2.5min +25 prestige +12 morale), purchase guild masonry secrets (25 iron → +0.20 iron/s 2min +18 prestige), send away. Iron Age+, 12+ tiles, 14-18 min.",
+      "completed_date": "2026-05-27",
+      "notes": "Built imperialMasonsGuild.js. IMPERIAL_MASONS_GUILD_CHANGED event added to events.js. state.imperialMasonsGuild null field. Mason's guild section in questPanel.js (import * as MasonsGuild). Events.IMPERIAL_MASONS_GUILD_CHANGED subscribed. CSS: @keyframes masonsguild-pulse (slate/stone gray), .masonsguild-section--active, .btn--masonsguild-commission (slate/stone), .btn--masonsguild-purchase (amber/gold), .btn--masonsguild-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     }
   ],
   "session_history": [
@@ -1902,6 +1922,7 @@
     "Session 119 (T421-T422): Wandering Spear Maker (T421), Imperial Robe Maker (T422)",
     "Session 120 (T423-T424): Wandering Fletcher (T423), Imperial Knifesmith (T424)",
     "Session 121 (T425-T426): Wandering Sail Maker (T425), Imperial Chariot Builder (T426)",
-    "Session 122 (T427-T428): Wandering Seed Merchant (T427), Imperial Silkscreen Painter (T428)"
+    "Session 122 (T427-T428): Wandering Seed Merchant (T427), Imperial Silkscreen Painter (T428)",
+    "Session 123 (T429-T430): Wandering Woodcutter (T429), Imperial Mason's Guild (T430)"
   ]
 }

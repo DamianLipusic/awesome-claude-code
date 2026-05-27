@@ -193,6 +193,8 @@ import * as SailMaker        from '../systems/wanderingSailMaker.js';           
 import * as ChariotBuilder   from '../systems/imperialChariotBuilder.js';        // T426
 import * as SeedMerchant     from '../systems/wanderingSeedMerchant.js';         // T427
 import * as SilkPainter      from '../systems/imperialSilkscreenPainter.js';    // T428
+import * as Woodcutter       from '../systems/wanderingWoodcutter.js';           // T429
+import * as MasonsGuild      from '../systems/imperialMasonsGuild.js';           // T430
 
 let _panel = null;
 
@@ -414,6 +416,8 @@ function _encountersSection() {
     _imperialChariotBuilderSection(),
     _wanderingSeedMerchantSection(),
     _imperialSilkscreenPainterSection(),
+    _wanderingWoodcutterSection(),
+    _imperialMasonsGuildSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -6458,6 +6462,75 @@ function _imperialSilkscreenPainterSection() {
     </div>`;
 }
 
+// ── T429 Wandering Woodcutter ─────────────────────────────────────────────
+
+function _wanderingWoodcutterSection() {
+  if (!Woodcutter.getActiveWanderingWoodcutter()) return '';
+  const secs          = Woodcutter.getWoodcutterSecsLeft();
+  const urgent        = secs <= 15;
+  const wood          = state.resources?.wood ?? 0;
+  const gold          = state.resources?.gold ?? 0;
+  const canCommission = wood >= Woodcutter.COMMISSION_WOOD_COST;
+  const canPurchase   = gold >= Woodcutter.PURCHASE_GOLD_COST;
+  return `
+    <div class="woodcutter-section--active">
+      <div class="woodcutter-header">
+        <span class="woodcutter-title">🪓 Wandering Woodcutter</span>
+        <span class="woodcutter-timer${urgent ? ' woodcutter-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="woodcutter-desc">A wandering woodcutter arrives carrying a broad-bladed felling axe worn smooth by years of daily swinging through oak, ash, elm, and coppiced hazel — the felled trunks limbed, crosscut, and bundled into faggots stacked for minimal lifting, together with a splitting maul that parts billets cleanly along the grain into flat-faced firewood that stacks tightly and seasons quickly — offering to commission a full run of firewood bundles from the current standing timber, or to share the accumulated forest management lore allowing every settlement woodward to select the right species, cut cycle, and stacking method.</div>
+      <div class="woodcutter-actions">
+        <button class="btn--woodcutter-commission${canCommission ? '' : ' btn--disabled'}" data-action="woodcutter-commission" ${canCommission ? '' : 'disabled'}>
+          🪓 Commission Firewood Bundles — ${Woodcutter.COMMISSION_WOOD_COST}🪵
+          <span class="woodcutter-cost">→ +${Woodcutter.COMMISSION_WOOD_RATE} wood/s (2.5 min) · +${Woodcutter.COMMISSION_PRESTIGE_REWARD} prestige · +${Woodcutter.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--woodcutter-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="woodcutter-purchase" ${canPurchase ? '' : 'disabled'}>
+          📖 Purchase Forest Management Lore — ${Woodcutter.PURCHASE_GOLD_COST}💰
+          <span class="woodcutter-cost">→ +${Woodcutter.PURCHASE_GOLD_RATE} gold/s (2 min) · +${Woodcutter.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--woodcutter-away" data-action="woodcutter-away">
+          🚶 Send Away
+          <span class="woodcutter-cost">→ Woodcutter shoulders the axe and departs along the woodland track</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T430 Imperial Mason's Guild ───────────────────────────────────────────
+
+function _imperialMasonsGuildSection() {
+  if (!MasonsGuild.getActiveImperialMasonsGuild()) return '';
+  const secs          = MasonsGuild.getMasonsGuildSecsLeft();
+  const urgent        = secs <= 15;
+  const stone         = state.resources?.stone ?? 0;
+  const gold          = state.resources?.gold ?? 0;
+  const iron          = state.resources?.iron ?? 0;
+  const canCommission = stone >= MasonsGuild.COMMISSION_STONE_COST && gold >= MasonsGuild.COMMISSION_GOLD_COST;
+  const canPurchase   = iron >= MasonsGuild.PURCHASE_IRON_COST;
+  return `
+    <div class="masonsguild-section--active">
+      <div class="masonsguild-header">
+        <span class="masonsguild-title">🏛️ Imperial Mason's Guild</span>
+        <span class="masonsguild-timer${urgent ? ' masonsguild-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="masonsguild-desc">A delegation from the imperial mason's guild arrives carrying master drawings on vellum — elevation sections through the full wall thickness from rubble core to dressed ashlar face, mortar joint profiles with exact aggregate grading and lime-to-sand ratios, voussoir templates for arches and vault ribs, and a bound ledger of stone performance records — offering to commission a complete stone masonry expansion of the imperial fortifications using guild labour and current stone stockpile, or to purchase the guild's complete masonry secrets for mortar preparation, ashlar dressing, and arch construction.</div>
+      <div class="masonsguild-actions">
+        <button class="btn--masonsguild-commission${canCommission ? '' : ' btn--disabled'}" data-action="masonsguild-commission" ${canCommission ? '' : 'disabled'}>
+          🏛️ Commission Stone Masonry Works — ${MasonsGuild.COMMISSION_STONE_COST}🪨 + ${MasonsGuild.COMMISSION_GOLD_COST}💰
+          <span class="masonsguild-cost">→ +${MasonsGuild.COMMISSION_STONE_RATE} stone/s (2.5 min) · +${MasonsGuild.COMMISSION_PRESTIGE_REWARD} prestige · +${MasonsGuild.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--masonsguild-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="masonsguild-purchase" ${canPurchase ? '' : 'disabled'}>
+          📐 Purchase Guild Masonry Secrets — ${MasonsGuild.PURCHASE_IRON_COST}⚙️
+          <span class="masonsguild-cost">→ +${MasonsGuild.PURCHASE_IRON_RATE} iron/s (2 min) · +${MasonsGuild.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--masonsguild-away" data-action="masonsguild-away">
+          🚶 Send Away
+          <span class="masonsguild-cost">→ Guild delegation rolls up the master drawings and departs the palace</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -7181,6 +7254,14 @@ const _HANDLERS = {
   'silkpaint-commission':  () => SilkPainter.commissionPaintedScreenPanels(),
   'silkpaint-purchase':    () => SilkPainter.purchasePaintingPigmentFormulas(),
   'silkpaint-away':        () => SilkPainter.sendSilkscreenPainterAway(),
+
+  'woodcutter-commission': () => Woodcutter.commissionFirewoodBundles(),
+  'woodcutter-purchase':   () => Woodcutter.purchaseForestManagementLore(),
+  'woodcutter-away':       () => Woodcutter.sendWoodcutterAway(),
+
+  'masonsguild-commission': () => MasonsGuild.commissionStoneMasonryWorks(),
+  'masonsguild-purchase':   () => MasonsGuild.purchaseGuildMasonrySecrets(),
+  'masonsguild-away':       () => MasonsGuild.sendMasonsGuildAway(),
 };
 
 function _handleClick(e) {
@@ -7381,6 +7462,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_CHARIOT_BUILDER_CHANGED,
     Events.WANDERING_SEED_MERCHANT_CHANGED,
     Events.IMPERIAL_SILKSCREEN_PAINTER_CHANGED,
+    Events.WANDERING_WOODCUTTER_CHANGED,
+    Events.IMPERIAL_MASONS_GUILD_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

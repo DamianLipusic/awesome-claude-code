@@ -22573,3 +22573,75 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--silkpaint-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T429 Wandering Woodcutter ───────────────────────────────────────────── */
+@keyframes woodcutter-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.00); }
+  50%       { box-shadow: 0 0 8px 3px rgba(74, 222, 128, 0.22); }
+}
+.woodcutter-section--active {
+  background: linear-gradient(135deg, rgba(5, 46, 22, 0.14), rgba(3, 30, 14, 0.08));
+  border: 1px solid rgba(74, 222, 128, 0.30); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: woodcutter-pulse 2.8s ease-in-out infinite;
+}
+.woodcutter-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.woodcutter-title  { font-weight: 700; font-size: 0.88rem; color: #4ade80; }
+.woodcutter-timer  { font-size: 0.78rem; color: #4ade80; }
+.woodcutter-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.woodcutter-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.woodcutter-actions { display: flex; flex-direction: column; gap: 5px; }
+.woodcutter-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--woodcutter-commission {
+  background: linear-gradient(135deg, rgba(5, 46, 22, 0.28), rgba(3, 30, 14, 0.18));
+  border: 1px solid rgba(74, 222, 128, 0.38); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #4ade80; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--woodcutter-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(7, 60, 28, 0.38), rgba(5, 40, 18, 0.28)); }
+.btn--woodcutter-purchase {
+  background: linear-gradient(135deg, rgba(92, 78, 10, 0.22), rgba(68, 58, 6, 0.14));
+  border: 1px solid rgba(202, 168, 20, 0.32); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fbbf24; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--woodcutter-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(112, 96, 14, 0.30), rgba(85, 72, 10, 0.22)); }
+.btn--woodcutter-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--woodcutter-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T430 Imperial Mason's Guild ─────────────────────────────────────────── */
+@keyframes masonsguild-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(148, 163, 184, 0.00); }
+  50%       { box-shadow: 0 0 8px 3px rgba(148, 163, 184, 0.22); }
+}
+.masonsguild-section--active {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.14), rgba(15, 23, 42, 0.08));
+  border: 1px solid rgba(148, 163, 184, 0.30); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: masonsguild-pulse 2.8s ease-in-out infinite;
+}
+.masonsguild-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.masonsguild-title  { font-weight: 700; font-size: 0.88rem; color: #cbd5e1; }
+.masonsguild-timer  { font-size: 0.78rem; color: #cbd5e1; }
+.masonsguild-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.masonsguild-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.masonsguild-actions { display: flex; flex-direction: column; gap: 5px; }
+.masonsguild-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--masonsguild-commission {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.28), rgba(15, 23, 42, 0.18));
+  border: 1px solid rgba(148, 163, 184, 0.38); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #cbd5e1; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--masonsguild-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(40, 55, 78, 0.38), rgba(20, 30, 55, 0.28)); }
+.btn--masonsguild-purchase {
+  background: linear-gradient(135deg, rgba(92, 78, 10, 0.22), rgba(68, 58, 6, 0.14));
+  border: 1px solid rgba(202, 168, 20, 0.32); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fbbf24; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--masonsguild-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(112, 96, 14, 0.30), rgba(85, 72, 10, 0.22)); }
+.btn--masonsguild-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--masonsguild-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

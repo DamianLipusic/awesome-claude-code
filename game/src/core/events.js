@@ -370,4 +370,6 @@ export const Events = Object.freeze({
   IMPERIAL_CHARIOT_BUILDER_CHANGED:        'imperialChariotBuilderChanged',                                  // T426: chariot builder spawned / commissioned / purchased / dismissed / expired
   WANDERING_SEED_MERCHANT_CHANGED:         'wanderingSeedMerchantChanged',                                   // T427: seed merchant spawned / purchased / exchanged / dismissed / expired
   IMPERIAL_SILKSCREEN_PAINTER_CHANGED:     'imperialSilkscreenPainterChanged',                               // T428: silkscreen painter spawned / commissioned / purchased / dismissed / expired
+  WANDERING_WOODCUTTER_CHANGED:            'wanderingWoodcutterChanged',                                     // T429: woodcutter spawned / commissioned / purchased / dismissed / expired
+  IMPERIAL_MASONS_GUILD_CHANGED:           'imperialMasonsGuildChanged',                                     // T430: mason's guild spawned / commissioned / purchased / dismissed / expired
 });
