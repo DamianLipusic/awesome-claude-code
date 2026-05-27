@@ -185,6 +185,8 @@ import * as WaxTabletMaker   from '../systems/wanderingWaxTabletMaker.js';      
 import * as NetMaker         from '../systems/wanderingNetMaker.js';             // T418
 import * as DrumMaker        from '../systems/wanderingDrumMaker.js';            // T419
 import * as HerbariumKeeper  from '../systems/imperialHerbariumKeeper.js';       // T420
+import * as SpearMaker       from '../systems/wanderingSpearMaker.js';           // T421
+import * as RobeMaker        from '../systems/imperialRobeMaker.js';             // T422
 
 let _panel = null;
 
@@ -398,6 +400,8 @@ function _encountersSection() {
     _wanderingNetMakerSection(),
     _wanderingDrumMakerSection(),
     _imperialHerbariumKeeperSection(),
+    _wanderingSpearMakerSection(),
+    _imperialRobeMakerSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -6163,6 +6167,76 @@ function _imperialHerbariumKeeperSection() {
     </div>`;
 }
 
+// ── T421 Wandering Spear Maker ────────────────────────────────────────────
+
+function _wanderingSpearMakerSection() {
+  if (!SpearMaker.getActiveWanderingSpearMaker()) return '';
+  const secs   = SpearMaker.getSpearMakerSecsLeft();
+  const urgent = secs <= 15;
+  const wood   = state.resources?.wood ?? 0;
+  const food   = state.resources?.food ?? 0;
+  const gold   = state.resources?.gold ?? 0;
+  const canCommission = wood >= SpearMaker.COMMISSION_WOOD_COST && food >= SpearMaker.COMMISSION_FOOD_COST;
+  const canPurchase   = gold >= SpearMaker.PURCHASE_GOLD_COST;
+  return `
+    <div class="spearmaker-section--active">
+      <div class="spearmaker-header">
+        <span class="spearmaker-title">🏹 Wandering Spear Maker</span>
+        <span class="spearmaker-timer${urgent ? ' spearmaker-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="spearmaker-desc">A wandering spear maker arrives carrying fire-hardened ash shafts, iron-tipped hunting points, balanced throwing spears, and short thrusting spears — offering to commission a full set of hunting implements for the empire's frontier hunters and garrison troops, or to share the spear-crafting lore that keeps every workshop stocked with well-balanced hunting spears.</div>
+      <div class="spearmaker-actions">
+        <button class="btn--spearmaker-commission${canCommission ? '' : ' btn--disabled'}" data-action="spearmaker-commission" ${canCommission ? '' : 'disabled'}>
+          🏹 Commission Hunting Spears — ${SpearMaker.COMMISSION_WOOD_COST}🪵 + ${SpearMaker.COMMISSION_FOOD_COST}🌾
+          <span class="spearmaker-cost">→ +${SpearMaker.COMMISSION_FOOD_RATE} food/s (2.5 min) · +${SpearMaker.COMMISSION_PRESTIGE_REWARD} prestige · +${SpearMaker.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--spearmaker-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="spearmaker-purchase" ${canPurchase ? '' : 'disabled'}>
+          📖 Purchase Spear-Crafting Lore — ${SpearMaker.PURCHASE_GOLD_COST}💰
+          <span class="spearmaker-cost">→ +${SpearMaker.PURCHASE_GOLD_RATE} gold/s (2 min) · +${SpearMaker.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--spearmaker-away" data-action="spearmaker-away">
+          🚶 Send Away
+          <span class="spearmaker-cost">→ Spear maker re-bundles the ash poles and departs the settlement</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T422 Imperial Robe Maker ──────────────────────────────────────────────
+
+function _imperialRobeMakerSection() {
+  if (!RobeMaker.getActiveImperialRobeMaker()) return '';
+  const secs   = RobeMaker.getRobeMakerSecsLeft();
+  const urgent = secs <= 15;
+  const mana   = state.resources?.mana ?? 0;
+  const gold   = state.resources?.gold ?? 0;
+  const food   = state.resources?.food ?? 0;
+  const canCommission = mana >= RobeMaker.COMMISSION_MANA_COST && gold >= RobeMaker.COMMISSION_GOLD_COST;
+  const canPurchase   = food >= RobeMaker.PURCHASE_FOOD_COST;
+  return `
+    <div class="robemaker-section--active">
+      <div class="robemaker-header">
+        <span class="robemaker-title">🎭 Imperial Robe Maker</span>
+        <span class="robemaker-timer${urgent ? ' robemaker-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="robemaker-desc">An imperial robe maker arrives with bolts of richly dyed woollen cloth, silk brocade trimmed with northern fur, embroidered ceremonial mantles stitched with gold and silver thread, and fitted court robes lined with fine linen — offering to commission a full ceremonial collection for the palace court, or to sell a bolt of fine fabric that raises the morale of palace workers and courtiers.</div>
+      <div class="robemaker-actions">
+        <button class="btn--robemaker-commission${canCommission ? '' : ' btn--disabled'}" data-action="robemaker-commission" ${canCommission ? '' : 'disabled'}>
+          🎭 Commission Imperial Robes — ${RobeMaker.COMMISSION_MANA_COST}✨ + ${RobeMaker.COMMISSION_GOLD_COST}💰
+          <span class="robemaker-cost">→ +${RobeMaker.COMMISSION_MANA_RATE} mana/s (2.5 min) · +${RobeMaker.COMMISSION_PRESTIGE_REWARD} prestige · +${RobeMaker.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--robemaker-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="robemaker-purchase" ${canPurchase ? '' : 'disabled'}>
+          🧵 Purchase Fine Fabrics — ${RobeMaker.PURCHASE_FOOD_COST}🌾
+          <span class="robemaker-cost">→ +${RobeMaker.PURCHASE_FOOD_RATE} food/s (2 min) · +${RobeMaker.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--robemaker-away" data-action="robemaker-away">
+          🚶 Send Away
+          <span class="robemaker-cost">→ Robe maker re-folds the silk brocade and departs the palace</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -6854,6 +6928,14 @@ const _HANDLERS = {
   'herbarium-commission': () => HerbariumKeeper.commissionHerbalCompendium(),
   'herbarium-purchase':   () => HerbariumKeeper.purchaseMedicinalPlants(),
   'herbarium-away':       () => HerbariumKeeper.sendHerbariumKeeperAway(),
+
+  'spearmaker-commission': () => SpearMaker.commissionHuntingSpears(),
+  'spearmaker-purchase':   () => SpearMaker.purchaseSpearCraftingLore(),
+  'spearmaker-away':       () => SpearMaker.sendSpearMakerAway(),
+
+  'robemaker-commission': () => RobeMaker.commissionImperialRobes(),
+  'robemaker-purchase':   () => RobeMaker.purchaseFineFabrics(),
+  'robemaker-away':       () => RobeMaker.sendRobeMakerAway(),
 };
 
 function _handleClick(e) {
@@ -7046,6 +7128,8 @@ export function initQuestPanel() {
     Events.WANDERING_NET_MAKER_CHANGED,
     Events.WANDERING_DRUM_MAKER_CHANGED,
     Events.IMPERIAL_HERBARIUM_KEEPER_CHANGED,
+    Events.WANDERING_SPEAR_MAKER_CHANGED,
+    Events.IMPERIAL_ROBE_MAKER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

@@ -362,4 +362,6 @@ export const Events = Object.freeze({
   WANDERING_NET_MAKER_CHANGED:             'wanderingNetMakerChanged',                                     // T418: net maker spawned / commissioned / purchased / dismissed / expired
   WANDERING_DRUM_MAKER_CHANGED:            'wanderingDrumMakerChanged',                                    // T419: drum maker spawned / commissioned / purchased / dismissed / expired
   IMPERIAL_HERBARIUM_KEEPER_CHANGED:       'imperialHerbariumKeeperChanged',                               // T420: herbarium keeper spawned / commissioned / purchased / dismissed / expired
+  WANDERING_SPEAR_MAKER_CHANGED:           'wanderingSpearMakerChanged',                                    // T421: spear maker spawned / commissioned / purchased / dismissed / expired
+  IMPERIAL_ROBE_MAKER_CHANGED:             'imperialRobeMakerChanged',                                      // T422: robe maker spawned / commissioned / purchased / dismissed / expired
 });

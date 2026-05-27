@@ -22285,3 +22285,75 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--herbarium-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T421 Wandering Spear Maker ──────────────────────────────────────────── */
+@keyframes spearmaker-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(161, 94, 30, 0.00); }
+  50%       { box-shadow: 0 0 8px 3px rgba(161, 94, 30, 0.22); }
+}
+.spearmaker-section--active {
+  background: linear-gradient(135deg, rgba(92, 45, 8, 0.14), rgba(70, 30, 5, 0.08));
+  border: 1px solid rgba(161, 94, 30, 0.30); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: spearmaker-pulse 2.8s ease-in-out infinite;
+}
+.spearmaker-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.spearmaker-title  { font-weight: 700; font-size: 0.88rem; color: #d97706; }
+.spearmaker-timer  { font-size: 0.78rem; color: #d97706; }
+.spearmaker-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.spearmaker-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.spearmaker-actions { display: flex; flex-direction: column; gap: 5px; }
+.spearmaker-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--spearmaker-commission {
+  background: linear-gradient(135deg, rgba(92, 45, 8, 0.28), rgba(70, 30, 5, 0.18));
+  border: 1px solid rgba(161, 94, 30, 0.38); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #d97706; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--spearmaker-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(110, 55, 10, 0.38), rgba(85, 38, 8, 0.28)); }
+.btn--spearmaker-purchase {
+  background: linear-gradient(135deg, rgba(20, 75, 95, 0.22), rgba(15, 55, 70, 0.14));
+  border: 1px solid rgba(56, 189, 248, 0.32); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #7dd3fc; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--spearmaker-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(25, 95, 120, 0.30), rgba(18, 72, 92, 0.22)); }
+.btn--spearmaker-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--spearmaker-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T422 Imperial Robe Maker ────────────────────────────────────────────── */
+@keyframes robemaker-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.00); }
+  50%       { box-shadow: 0 0 8px 3px rgba(139, 92, 246, 0.22); }
+}
+.robemaker-section--active {
+  background: linear-gradient(135deg, rgba(60, 20, 90, 0.14), rgba(45, 12, 68, 0.08));
+  border: 1px solid rgba(139, 92, 246, 0.30); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: robemaker-pulse 2.8s ease-in-out infinite;
+}
+.robemaker-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.robemaker-title  { font-weight: 700; font-size: 0.88rem; color: #c4b5fd; }
+.robemaker-timer  { font-size: 0.78rem; color: #c4b5fd; }
+.robemaker-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.robemaker-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.robemaker-actions { display: flex; flex-direction: column; gap: 5px; }
+.robemaker-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--robemaker-commission {
+  background: linear-gradient(135deg, rgba(60, 20, 90, 0.28), rgba(45, 12, 68, 0.18));
+  border: 1px solid rgba(139, 92, 246, 0.38); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #c4b5fd; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--robemaker-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(75, 28, 112, 0.38), rgba(58, 16, 88, 0.28)); }
+.btn--robemaker-purchase {
+  background: linear-gradient(135deg, rgba(30, 80, 45, 0.22), rgba(20, 60, 32, 0.14));
+  border: 1px solid rgba(74, 222, 128, 0.32); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #86efac; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--robemaker-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(38, 100, 58, 0.30), rgba(25, 76, 40, 0.22)); }
+.btn--robemaker-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--robemaker-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

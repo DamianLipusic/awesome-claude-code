@@ -1720,6 +1720,26 @@
       "description": "Periodic imperial herbarium keeper encounter: commission herbal compendium (25 mana + 15g → +0.22 mana/s 2.5min +20 prestige +10 morale), purchase medicinal plants (20 food → +0.18 food/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-19 min.",
       "completed_date": "2026-05-27",
       "notes": "Built imperialHerbariumKeeper.js. IMPERIAL_HERBARIUM_KEEPER_CHANGED event added to events.js. state.imperialHerbariumKeeper null field. Herbarium keeper section in questPanel.js (import * as HerbariumKeeper). Events.IMPERIAL_HERBARIUM_KEEPER_CHANGED subscribed. CSS: @keyframes herbarium-pulse (emerald/mint green), .herbarium-section--active, .btn--herbarium-commission (emerald green), .btn--herbarium-purchase (light green), .btn--herbarium-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T421",
+      "title": "Wandering Spear Maker",
+      "status": "done",
+      "priority": 421,
+      "phase": 126,
+      "description": "Periodic wandering spear maker encounter: commission hunting spears (20 wood + 10 food → +0.22 food/s 2.5min +15 prestige +8 morale), purchase spear-crafting lore (18g → +0.15 gold/s 2min +10 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
+      "completed_date": "2026-05-27",
+      "notes": "Built wanderingSpearMaker.js. WANDERING_SPEAR_MAKER_CHANGED event added to events.js. state.wanderingSpearMaker null field. Spear maker section in questPanel.js (import * as SpearMaker). Events.WANDERING_SPEAR_MAKER_CHANGED subscribed. CSS: @keyframes spearmaker-pulse (amber/brown), .spearmaker-section--active, .btn--spearmaker-commission (amber/brown), .btn--spearmaker-purchase (sky blue), .btn--spearmaker-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T422",
+      "title": "Imperial Robe Maker",
+      "status": "done",
+      "priority": 422,
+      "phase": 126,
+      "description": "Periodic imperial robe maker encounter: commission imperial robes (25 mana + 20g → +0.22 mana/s 2.5min +20 prestige +10 morale), purchase fine fabrics (20 food → +0.18 food/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-19 min.",
+      "completed_date": "2026-05-27",
+      "notes": "Built imperialRobeMaker.js. IMPERIAL_ROBE_MAKER_CHANGED event added to events.js. state.imperialRobeMaker null field. Robe maker section in questPanel.js (import * as RobeMaker). Events.IMPERIAL_ROBE_MAKER_CHANGED subscribed. CSS: @keyframes robemaker-pulse (violet/purple), .robemaker-section--active, .btn--robemaker-commission (violet), .btn--robemaker-purchase (green), .btn--robemaker-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     }
   ],
   "session_history": [
@@ -1818,6 +1838,7 @@
     "Session 115 (T413-T414): Wandering Thatcher (T413), Imperial Millstone Cutter (T414)",
     "Session 116 (T415-T416): Wandering Peat Cutter (T415), Imperial Icon Painter (T416)",
     "Session 117 (T417-T418): Wandering Wax Tablet Maker (T417), Wandering Net Maker (T418)",
-    "Session 118 (T419-T420): Wandering Drum Maker (T419), Imperial Herbarium Keeper (T420)"
+    "Session 118 (T419-T420): Wandering Drum Maker (T419), Imperial Herbarium Keeper (T420)",
+    "Session 119 (T421-T422): Wandering Spear Maker (T421), Imperial Robe Maker (T422)"
   ]
 }
