@@ -201,6 +201,8 @@ import * as DyeMerchant      from '../systems/wanderingDyeMerchant.js';         
 import * as CartAcad         from '../systems/imperialCartographersAcademy.js';  // T434
 import * as FlaxWeaver       from '../systems/wanderingFlaxWeaver.js';           // T435
 import * as OilpressMaster   from '../systems/imperialOilpressMaster.js';        // T436
+import * as LimeBurner       from '../systems/wanderingLimeBurner.js';           // T437
+import * as MosaicMaster     from '../systems/imperialMosaicMaster.js';          // T438
 
 let _panel = null;
 
@@ -430,6 +432,8 @@ function _encountersSection() {
     _imperialCartographersAcademySection(),
     _wanderingFlaxWeaverSection(),
     _imperialOilpressMasterSection(),
+    _wanderingLimeBurnerSection(),
+    _imperialMosaicMasterSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -6752,6 +6756,76 @@ function _imperialOilpressMasterSection() {
     </div>`;
 }
 
+// ── T437 Wandering Lime Burner ──────────────────────────────────────────────
+
+function _wanderingLimeBurnerSection() {
+  if (!LimeBurner.getActiveWanderingLimeBurner()) return '';
+  const secs           = LimeBurner.getLimeBurnerSecsLeft();
+  const urgent         = secs <= 20;
+  const stone          = Math.floor(state.resources.stone ?? 0);
+  const food           = Math.floor(state.resources.food  ?? 0);
+  const gold           = Math.floor(state.resources.gold  ?? 0);
+  const canCommission  = stone >= LimeBurner.COMMISSION_STONE_COST && food >= LimeBurner.COMMISSION_FOOD_COST;
+  const canPurchase    = gold >= LimeBurner.PURCHASE_GOLD_COST;
+  return `
+    <div class="limeburner-section--active">
+      <div class="limeburner-header">
+        <span class="limeburner-title">🪨 Wandering Lime Burner</span>
+        <span class="limeburner-timer${urgent ? ' limeburner-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="limeburner-desc">A wandering lime burner arrives leading a pack mule loaded with rough-quarried limestone chunks — offering to commission a full run of lime mortar burned in a fieldstone kiln using local stone and wood fuel, producing calcium hydroxide putty that sets into lasting building mortar, or to share the complete calcination and slaking sequence for reliable lime production from local limestone outcrops.</div>
+      <div class="limeburner-actions">
+        <button class="btn--limeburner-commission${canCommission ? '' : ' btn--disabled'}" data-action="limeburner-commission" ${canCommission ? '' : 'disabled'}>
+          🪨 Commission Lime Mortar Works — ${LimeBurner.COMMISSION_STONE_COST}🪨 + ${LimeBurner.COMMISSION_FOOD_COST}🌾
+          <span class="limeburner-cost">→ +${LimeBurner.COMMISSION_STONE_RATE} stone/s (2.5 min) · +${LimeBurner.COMMISSION_PRESTIGE_REWARD} prestige · +${LimeBurner.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--limeburner-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="limeburner-purchase" ${canPurchase ? '' : 'disabled'}>
+          📖 Purchase Kiln Techniques — ${LimeBurner.PURCHASE_GOLD_COST}💰
+          <span class="limeburner-cost">→ +${LimeBurner.PURCHASE_FOOD_RATE} food/s (2 min) · +${LimeBurner.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--limeburner-away" data-action="limeburner-away">
+          🚶 Send Away
+          <span class="limeburner-cost">→ Lime burner re-loads the limestone onto the pack mule and departs</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T438 Imperial Mosaic Master ─────────────────────────────────────────────
+
+function _imperialMosaicMasterSection() {
+  if (!MosaicMaster.getActiveImperialMosaicMaster()) return '';
+  const secs           = MosaicMaster.getMosaicMasterSecsLeft();
+  const urgent         = secs <= 20;
+  const stone          = Math.floor(state.resources.stone ?? 0);
+  const gold           = Math.floor(state.resources.gold  ?? 0);
+  const mana           = Math.floor(state.resources.mana  ?? 0);
+  const canCommission  = stone >= MosaicMaster.COMMISSION_STONE_COST && gold >= MosaicMaster.COMMISSION_GOLD_COST;
+  const canPurchase    = mana >= MosaicMaster.PURCHASE_MANA_COST;
+  return `
+    <div class="mosaicmaster-section--active">
+      <div class="mosaicmaster-header">
+        <span class="mosaicmaster-title">🎨 Imperial Mosaic Master</span>
+        <span class="mosaicmaster-timer${urgent ? ' mosaicmaster-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="mosaicmaster-desc">An imperial mosaic master arrives carrying a satchel of stone tesserae — marble whites, terracotta reds, basalt blacks, and glazed ceramic blues — individually cut and sorted by colour and material, offering to commission a grand mosaic hall pavement in intricate geometric and figural designs, or to share tesserae selection and laying techniques for reliable mosaic execution from locally sourced stone.</div>
+      <div class="mosaicmaster-actions">
+        <button class="btn--mosaicmaster-commission${canCommission ? '' : ' btn--disabled'}" data-action="mosaicmaster-commission" ${canCommission ? '' : 'disabled'}>
+          🎨 Commission Grand Mosaic Hall — ${MosaicMaster.COMMISSION_STONE_COST}🪨 + ${MosaicMaster.COMMISSION_GOLD_COST}💰
+          <span class="mosaicmaster-cost">→ +${MosaicMaster.COMMISSION_STONE_RATE} stone/s (2.5 min) · +${MosaicMaster.COMMISSION_PRESTIGE_REWARD} prestige · +${MosaicMaster.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--mosaicmaster-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="mosaicmaster-purchase" ${canPurchase ? '' : 'disabled'}>
+          📖 Purchase Tesserae Techniques — ${MosaicMaster.PURCHASE_MANA_COST}✨
+          <span class="mosaicmaster-cost">→ +${MosaicMaster.PURCHASE_MANA_RATE} mana/s (2 min) · +${MosaicMaster.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--mosaicmaster-away" data-action="mosaicmaster-away">
+          🚶 Send Away
+          <span class="mosaicmaster-cost">→ Mosaic master re-seals the tessera bags and departs along the road</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -7507,6 +7581,14 @@ const _HANDLERS = {
   'oilpress-commission': () => OilpressMaster.commissionOliveOilPress(),
   'oilpress-purchase':   () => OilpressMaster.purchasePressingTechniques(),
   'oilpress-away':       () => OilpressMaster.sendOilpressMasterAway(),
+
+  'limeburner-commission': () => LimeBurner.commissionLimeMortarWorks(),
+  'limeburner-purchase':   () => LimeBurner.purchaseKilnTechniques(),
+  'limeburner-away':       () => LimeBurner.sendLimeBurnerAway(),
+
+  'mosaicmaster-commission': () => MosaicMaster.commissionGrandMosaicHall(),
+  'mosaicmaster-purchase':   () => MosaicMaster.purchaseTesseraeTechniques(),
+  'mosaicmaster-away':       () => MosaicMaster.sendMosaicMasterAway(),
 };
 
 function _handleClick(e) {
@@ -7715,6 +7797,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_CARTOGRAPHERS_ACADEMY_CHANGED,
     Events.WANDERING_FLAX_WEAVER_CHANGED,
     Events.IMPERIAL_OILPRESS_MASTER_CHANGED,
+    Events.WANDERING_LIME_BURNER_CHANGED,
+    Events.IMPERIAL_MOSAIC_MASTER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

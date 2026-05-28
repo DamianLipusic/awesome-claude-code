@@ -22861,3 +22861,75 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--oilpress-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T437 Wandering Lime Burner ──────────────────────────────────────────── */
+@keyframes limeburner-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(203, 213, 225, 0); }
+  50%       { box-shadow: 0 0 0 4px rgba(203, 213, 225, 0.18); }
+}
+.limeburner-section--active {
+  background: linear-gradient(135deg, rgba(51, 65, 85, 0.18), rgba(30, 41, 59, 0.10));
+  border: 1px solid rgba(203, 213, 225, 0.35); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: limeburner-pulse 2.8s ease-in-out infinite;
+}
+.limeburner-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.limeburner-title  { font-weight: 700; font-size: 0.88rem; color: #cbd5e1; }
+.limeburner-timer  { font-size: 0.78rem; color: #cbd5e1; }
+.limeburner-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.limeburner-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.limeburner-actions { display: flex; flex-direction: column; gap: 5px; }
+.limeburner-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--limeburner-commission {
+  background: linear-gradient(135deg, rgba(51, 65, 85, 0.22), rgba(30, 41, 59, 0.14));
+  border: 1px solid rgba(203, 213, 225, 0.40); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #cbd5e1; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--limeburner-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(51, 65, 85, 0.32), rgba(30, 41, 59, 0.24)); }
+.btn--limeburner-purchase {
+  background: linear-gradient(135deg, rgba(92, 78, 10, 0.18), rgba(68, 58, 6, 0.10));
+  border: 1px solid rgba(202, 168, 20, 0.35); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fbbf24; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--limeburner-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(92, 78, 10, 0.28), rgba(68, 58, 6, 0.18)); }
+.btn--limeburner-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--limeburner-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T438 Imperial Mosaic Master ─────────────────────────────────────────── */
+@keyframes mosaicmaster-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0); }
+  50%       { box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.18); }
+}
+.mosaicmaster-section--active {
+  background: linear-gradient(135deg, rgba(7, 60, 96, 0.18), rgba(4, 40, 66, 0.10));
+  border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: mosaicmaster-pulse 2.8s ease-in-out infinite;
+}
+.mosaicmaster-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.mosaicmaster-title  { font-weight: 700; font-size: 0.88rem; color: #7dd3fc; }
+.mosaicmaster-timer  { font-size: 0.78rem; color: #7dd3fc; }
+.mosaicmaster-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.mosaicmaster-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.mosaicmaster-actions { display: flex; flex-direction: column; gap: 5px; }
+.mosaicmaster-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--mosaicmaster-commission {
+  background: linear-gradient(135deg, rgba(7, 60, 96, 0.22), rgba(4, 40, 66, 0.14));
+  border: 1px solid rgba(56, 189, 248, 0.40); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #7dd3fc; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--mosaicmaster-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(7, 60, 96, 0.32), rgba(4, 40, 66, 0.24)); }
+.btn--mosaicmaster-purchase {
+  background: linear-gradient(135deg, rgba(55, 48, 163, 0.18), rgba(35, 28, 120, 0.10));
+  border: 1px solid rgba(129, 140, 248, 0.35); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #818cf8; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--mosaicmaster-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(55, 48, 163, 0.28), rgba(35, 28, 120, 0.18)); }
+.btn--mosaicmaster-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--mosaicmaster-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

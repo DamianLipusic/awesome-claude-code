@@ -1880,6 +1880,26 @@
       "description": "Periodic imperial oilpress master encounter: commission olive oil press (25 food + 20g → +0.22 food/s 2.5min +20 prestige +12 morale), purchase pressing techniques (20 stone → +0.18 stone/s 2min +15 prestige), send away. Bronze Age+, 8+ tiles, 13-17 min.",
       "completed_date": "2026-05-28",
       "notes": "Built imperialOilpressMaster.js. IMPERIAL_OILPRESS_MASTER_CHANGED event added to events.js. state.imperialOilpressMaster null field. Oilpress master section in questPanel.js (import * as OilpressMaster). Events.IMPERIAL_OILPRESS_MASTER_CHANGED subscribed. CSS: @keyframes oilpress-pulse (golden yellow/olive), .oilpress-section--active, .btn--oilpress-commission (yellow/gold), .btn--oilpress-purchase (slate), .btn--oilpress-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T437",
+      "title": "Wandering Lime Burner",
+      "status": "done",
+      "priority": 437,
+      "phase": 134,
+      "description": "Periodic wandering lime burner encounter: commission lime mortar works (20 stone + 15 food → +0.20 stone/s 2.5min +15 prestige +8 morale), purchase kiln techniques (18g → +0.15 food/s 2min +10 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
+      "completed_date": "2026-05-28",
+      "notes": "Built wanderingLimeBurner.js. WANDERING_LIME_BURNER_CHANGED event added to events.js. state.wanderingLimeBurner null field. Lime burner section in questPanel.js (import * as LimeBurner). Events.WANDERING_LIME_BURNER_CHANGED subscribed. CSS: @keyframes limeburner-pulse (slate/stone gray), .limeburner-section--active, .btn--limeburner-commission (slate/stone), .btn--limeburner-purchase (amber/gold), .btn--limeburner-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T438",
+      "title": "Imperial Mosaic Master",
+      "status": "done",
+      "priority": 438,
+      "phase": 134,
+      "description": "Periodic imperial mosaic master encounter: commission grand mosaic hall (25 stone + 20g → +0.22 stone/s 2.5min +22 prestige +12 morale), purchase tesserae techniques (20 mana → +0.18 mana/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-18 min.",
+      "completed_date": "2026-05-28",
+      "notes": "Built imperialMosaicMaster.js. IMPERIAL_MOSAIC_MASTER_CHANGED event added to events.js. state.imperialMosaicMaster null field. Mosaic master section in questPanel.js (import * as MosaicMaster). Events.IMPERIAL_MOSAIC_MASTER_CHANGED subscribed. CSS: @keyframes mosaicmaster-pulse (sky blue/azure), .mosaicmaster-section--active, .btn--mosaicmaster-commission (sky blue/azure), .btn--mosaicmaster-purchase (indigo/violet), .btn--mosaicmaster-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     }
   ],
   "session_history": [
@@ -1986,6 +2006,7 @@
     "Session 123 (T429-T430): Wandering Woodcutter (T429), Imperial Mason's Guild (T430)",
     "Session 124 (T431-T432): Wandering Knife Sharpener (T431), Imperial Fresco Painter (T432)",
     "Session 125 (T433-T434): Wandering Dye Merchant (T433), Imperial Cartographer's Academy (T434)",
-    "Session 126 (T435-T436): Wandering Flax Weaver (T435), Imperial Oilpress Master (T436)"
+    "Session 126 (T435-T436): Wandering Flax Weaver (T435), Imperial Oilpress Master (T436)",
+    "Session 127 (T437-T438): Wandering Lime Burner (T437), Imperial Mosaic Master (T438)"
   ]
 }

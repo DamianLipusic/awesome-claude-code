@@ -378,6 +378,8 @@ import { initWanderingDyeMerchant, wanderingDyeMerchantTick }         from './sy
 import { initImperialCartographersAcademy, imperialCartographersAcademyTick } from './systems/imperialCartographersAcademy.js'; // T434
 import { initWanderingFlaxWeaver, wanderingFlaxWeaverTick }           from './systems/wanderingFlaxWeaver.js';               // T435
 import { initImperialOilpressMaster, imperialOilpressMasterTick }     from './systems/imperialOilpressMaster.js';            // T436
+import { initWanderingLimeBurner, wanderingLimeBurnerTick }           from './systems/wanderingLimeBurner.js';               // T437
+import { initImperialMosaicMaster, imperialMosaicMasterTick }         from './systems/imperialMosaicMaster.js';              // T438
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -762,6 +764,8 @@ function _registerAllSystems() {
   registerSystem(imperialCartographersAcademyTick); // T434
   registerSystem(wanderingFlaxWeaverTick);          // T435
   registerSystem(imperialOilpressMasterTick);       // T436
+  registerSystem(wanderingLimeBurnerTick);          // T437
+  registerSystem(imperialMosaicMasterTick);         // T438
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -1131,6 +1135,8 @@ function _save() {
     imperialCartographersAcademy: state.imperialCartographersAcademy, // T434
     wanderingFlaxWeaver:          state.wanderingFlaxWeaver,          // T435
     imperialOilpressMaster:       state.imperialOilpressMaster,       // T436
+    wanderingLimeBurner:          state.wanderingLimeBurner,          // T437
+    imperialMosaicMaster:         state.imperialMosaicMaster,         // T438
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -1505,6 +1511,8 @@ function _applySave(s) {
   state.imperialCartographersAcademy   = s.imperialCartographersAcademy ?? null;    // T434
   state.wanderingFlaxWeaver            = s.wanderingFlaxWeaver ?? null;             // T435
   state.imperialOilpressMaster         = s.imperialOilpressMaster ?? null;          // T436
+  state.wanderingLimeBurner            = s.wanderingLimeBurner ?? null;             // T437
+  state.imperialMosaicMaster           = s.imperialMosaicMaster ?? null;            // T438
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -1885,6 +1893,8 @@ function _startFreshGame() {
   initImperialCartographersAcademy(); // T434
   initWanderingFlaxWeaver();          // T435
   initImperialOilpressMaster();       // T436
+  initWanderingLimeBurner();          // T437
+  initImperialMosaicMaster();         // T438
   initAchievements();
   initLeaderboard();
 }
@@ -2248,6 +2258,8 @@ function _startLoadedGame(savedData) {
   initImperialCartographersAcademy(); // T434
   initWanderingFlaxWeaver();          // T435
   initImperialOilpressMaster();       // T436
+  initWanderingLimeBurner();          // T437
+  initImperialMosaicMaster();         // T438
   initAchievements();
   initLeaderboard();
 }

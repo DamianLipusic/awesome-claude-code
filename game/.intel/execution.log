@@ -1,3 +1,18 @@
+Session 127 — T437–T438: Wandering Lime Burner, Imperial Mosaic Master.
+Lime Burner: Stone Age+, 6+ tiles, 12-16 min spawn, 80s window. Commission Lime Mortar Works (20 stone + 15 food → +0.20 stone/s 2.5min · +15 prestige · +8 morale), Purchase Kiln Techniques (18g → +0.15 food/s 2min · +10 prestige). Slate/stone gray pulse CSS (amber/gold purchase button, limeburner- CSS prefix). Mosaic Master: Medieval Age+, 10+ tiles, 14-18 min spawn, 80s window. Commission Grand Mosaic Hall (25 stone + 20g → +0.22 stone/s 2.5min · +22 prestige · +12 morale), Purchase Tesserae Techniques (20 mana → +0.18 mana/s 2min · +15 prestige). Sky blue/azure pulse CSS (indigo/violet purchase button, mosaicmaster- CSS prefix). Both fully wired into main.js (import, registerSystem, init x2, save/load) and questPanel.js (import, section render, handlers, ENCOUNTER_EVENTS). Events added to events.js.
+
+T437: Wandering Lime Burner — Stone Age+, 6+ tiles, 12–16 min, 80s window.
+Built wanderingLimeBurner.js: commissionLimeMortarWorks (20 stone + 15 food → +0.20 stone/s 2.5min +15 prestige +8 morale), purchaseKilnTechniques (18g → +0.15 food/s 2min +10 prestige), sendLimeBurnerAway (dismiss). Added WANDERING_LIME_BURNER_CHANGED event to events.js. state.wanderingLimeBurner null field.
+Wired in main.js: import initWanderingLimeBurner+wanderingLimeBurnerTick, registerSystem, initWanderingLimeBurner() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingLimeBurnerSection() render + limeburner-commission/limeburner-purchase/limeburner-away handlers to questPanel.js (import * as LimeBurner). Events.WANDERING_LIME_BURNER_CHANGED subscribed.
+CSS: @keyframes limeburner-pulse (slate/stone gray theme), .limeburner-section--active, .btn--limeburner-commission (slate/stone), .btn--limeburner-purchase (amber/gold), .btn--limeburner-away (gray). Session 127.
+
+T438: Imperial Mosaic Master — Medieval Age+, 10+ tiles, 14–18 min, 80s window.
+Built imperialMosaicMaster.js: commissionGrandMosaicHall (25 stone + 20g → +0.22 stone/s 2.5min +22 prestige +12 morale), purchaseTesseraeTechniques (20 mana → +0.18 mana/s 2min +15 prestige), sendMosaicMasterAway (dismiss). Added IMPERIAL_MOSAIC_MASTER_CHANGED event to events.js. state.imperialMosaicMaster null field.
+Wired in main.js: import initImperialMosaicMaster+imperialMosaicMasterTick, registerSystem, initImperialMosaicMaster() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _imperialMosaicMasterSection() render + mosaicmaster-commission/mosaicmaster-purchase/mosaicmaster-away handlers to questPanel.js (import * as MosaicMaster). Events.IMPERIAL_MOSAIC_MASTER_CHANGED subscribed.
+CSS: @keyframes mosaicmaster-pulse (sky blue/azure theme), .mosaicmaster-section--active, .btn--mosaicmaster-commission (sky blue/azure), .btn--mosaicmaster-purchase (indigo/violet), .btn--mosaicmaster-away (gray). Session 127.
+
 Session 126 — T435–T436: Wandering Flax Weaver, Imperial Oilpress Master.
 Flax Weaver: Stone Age+, 6+ tiles, 12-16 min spawn, 80s window. Commission Linen Cloth (20 food + 15 wood → +0.22 food/s 2.5min · +18 prestige · +8 morale), Purchase Weaving Lore (18g → +0.15 gold/s 2min · +12 prestige). Sage green/mint pulse CSS (amber/gold purchase button, flaxweaver- CSS prefix). Oilpress Master: Bronze Age+, 8+ tiles, 13-17 min spawn, 80s window. Commission Olive Oil Press (25 food + 20g → +0.22 food/s 2.5min · +20 prestige · +12 morale), Purchase Pressing Techniques (20 stone → +0.18 stone/s 2min · +15 prestige). Golden yellow/olive pulse CSS (slate purchase button, oilpress- CSS prefix). Both fully wired into main.js (import, registerSystem, init x2, save/load) and questPanel.js (import, section render, handlers, ENCOUNTER_EVENTS). Events added to events.js.
 
