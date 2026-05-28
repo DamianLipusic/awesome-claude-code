@@ -23001,3 +23001,75 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--granarymaster-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T441: Wandering Wicker Weaver ──────────────────────────────── */
+@keyframes wickerweaver-pulse {
+  0%, 100% { border-color: rgba(120, 80, 30, 0.45); box-shadow: 0 0 6px rgba(120, 80, 30, 0.18); }
+  50%       { border-color: rgba(160, 110, 50, 0.65); box-shadow: 0 0 12px rgba(160, 110, 50, 0.30); }
+}
+.wickerweaver-section--active {
+  background: linear-gradient(135deg, rgba(58, 38, 12, 0.18), rgba(38, 22, 6, 0.10));
+  border: 1px solid rgba(120, 80, 30, 0.45); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: wickerweaver-pulse 2.8s ease-in-out infinite;
+}
+.wickerweaver-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.wickerweaver-title  { font-weight: 700; font-size: 0.88rem; color: #d97706; }
+.wickerweaver-timer  { font-size: 0.78rem; color: #d97706; }
+.wickerweaver-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.wickerweaver-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.wickerweaver-actions { display: flex; flex-direction: column; gap: 5px; }
+.wickerweaver-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--wickerweaver-commission {
+  background: linear-gradient(135deg, rgba(58, 38, 12, 0.22), rgba(38, 22, 6, 0.14));
+  border: 1px solid rgba(120, 80, 30, 0.40); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #d97706; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--wickerweaver-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(58, 38, 12, 0.32), rgba(38, 22, 6, 0.24)); }
+.btn--wickerweaver-purchase {
+  background: linear-gradient(135deg, rgba(161, 98, 7, 0.18), rgba(120, 68, 4, 0.10));
+  border: 1px solid rgba(251, 191, 36, 0.35); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fbbf24; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--wickerweaver-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(161, 98, 7, 0.28), rgba(120, 68, 4, 0.18)); }
+.btn--wickerweaver-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--wickerweaver-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T442: Imperial Well Builder ────────────────────────────────── */
+@keyframes wellbuilder-pulse {
+  0%, 100% { border-color: rgba(56, 100, 148, 0.45); box-shadow: 0 0 6px rgba(56, 100, 148, 0.18); }
+  50%       { border-color: rgba(96, 145, 200, 0.65); box-shadow: 0 0 12px rgba(96, 145, 200, 0.30); }
+}
+.wellbuilder-section--active {
+  background: linear-gradient(135deg, rgba(14, 40, 72, 0.18), rgba(8, 24, 48, 0.10));
+  border: 1px solid rgba(56, 100, 148, 0.45); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: wellbuilder-pulse 2.8s ease-in-out infinite;
+}
+.wellbuilder-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.wellbuilder-title  { font-weight: 700; font-size: 0.88rem; color: #7dd3fc; }
+.wellbuilder-timer  { font-size: 0.78rem; color: #7dd3fc; }
+.wellbuilder-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.wellbuilder-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.wellbuilder-actions { display: flex; flex-direction: column; gap: 5px; }
+.wellbuilder-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--wellbuilder-commission {
+  background: linear-gradient(135deg, rgba(14, 40, 72, 0.22), rgba(8, 24, 48, 0.14));
+  border: 1px solid rgba(56, 100, 148, 0.40); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #7dd3fc; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--wellbuilder-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(14, 40, 72, 0.32), rgba(8, 24, 48, 0.24)); }
+.btn--wellbuilder-purchase {
+  background: linear-gradient(135deg, rgba(20, 83, 45, 0.18), rgba(12, 54, 28, 0.10));
+  border: 1px solid rgba(74, 222, 128, 0.35); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #4ade80; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--wellbuilder-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(20, 83, 45, 0.28), rgba(12, 54, 28, 0.18)); }
+.btn--wellbuilder-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--wellbuilder-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

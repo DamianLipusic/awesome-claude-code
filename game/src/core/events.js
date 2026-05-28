@@ -382,4 +382,6 @@ export const Events = Object.freeze({
   IMPERIAL_MOSAIC_MASTER_CHANGED:          'imperialMosaicMasterChanged',                                      // T438: mosaic master spawned / commissioned / purchased / dismissed / expired
   WANDERING_TAR_MAKER_CHANGED:             'wanderingTarMakerChanged',                                         // T439: tar maker spawned / commissioned / purchased / dismissed / expired
   IMPERIAL_GRANARY_MASTER_CHANGED:         'imperialGranaryMasterChanged',                                     // T440: granary master spawned / commissioned / purchased / dismissed / expired
+  WANDERING_WICKER_WEAVER_CHANGED:         'wanderingWickerWeaverChanged',                                     // T441: wicker weaver spawned / commissioned / purchased / dismissed / expired
+  IMPERIAL_WELL_BUILDER_CHANGED:           'imperialWellBuilderChanged',                                       // T442: well builder spawned / commissioned / purchased / dismissed / expired
 });

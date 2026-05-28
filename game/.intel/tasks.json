@@ -1918,6 +1918,26 @@
       "status": "done",
       "phase": 135,
       "notes": "Built imperialGranaryMaster.js: commissionImperialGranary (25 food + 20g -> +0.22 food/s 2.5min +22 prestige +12 morale), purchaseStorageTechniques (20 mana -> +0.18 mana/s 2min +15 prestige), sendGranaryMasterAway (dismiss). Added IMPERIAL_GRANARY_MASTER_CHANGED event to events.js. state.imperialGranaryMaster null field. Wired in main.js: import initImperialGranaryMaster+imperialGranaryMasterTick, registerSystem, initImperialGranaryMaster() in _startFreshGame+_startLoadedGame, save/load fields. Added _imperialGranaryMasterSection() render + granarymaster-commission/granarymaster-purchase/granarymaster-away handlers to questPanel.js (import * as GranaryMaster). Events.IMPERIAL_GRANARY_MASTER_CHANGED subscribed. CSS: @keyframes granarymaster-pulse (warm amber/golden grain theme), .granarymaster-section--active, .btn--granarymaster-commission (amber/gold), .btn--granarymaster-purchase (indigo/violet mana), .btn--granarymaster-away (gray). Session 128."
+    },
+    {
+      "id": "T441",
+      "title": "Wandering Wicker Weaver",
+      "status": "done",
+      "priority": 441,
+      "phase": 129,
+      "description": "Periodic wandering wicker weaver encounter: commission wicker works (20 wood → +0.22 wood/s 2.5min · +18 prestige · +8 morale), purchase weaving patterns (18g → +0.15 gold/s 2min · +12 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
+      "completed_date": "2026-05-28",
+      "notes": "Built wanderingWickerWeaver.js. WANDERING_WICKER_WEAVER_CHANGED event added to events.js. state.wanderingWickerWeaver null field. Wicker weaver section in questPanel.js (import * as WickerWeaver). Events.WANDERING_WICKER_WEAVER_CHANGED subscribed. CSS: @keyframes wickerweaver-pulse (warm amber/brown wicker theme), .wickerweaver-section--active, .btn--wickerweaver-commission (amber), .btn--wickerweaver-purchase (gold), .btn--wickerweaver-away (gray). Wired main.js: import, registerSystem, init x2, save/load. Session 129."
+    },
+    {
+      "id": "T442",
+      "title": "Imperial Well Builder",
+      "status": "done",
+      "priority": 442,
+      "phase": 129,
+      "description": "Periodic imperial well builder encounter: commission well construction (25 stone + 20g → +0.22 stone/s 2.5min · +20 prestige · +12 morale), purchase well-sinking methods (20 food → +0.18 food/s 2min · +15 prestige), send away. Bronze Age+, 8+ tiles, 13-17 min.",
+      "completed_date": "2026-05-28",
+      "notes": "Built imperialWellBuilder.js. IMPERIAL_WELL_BUILDER_CHANGED event added to events.js. state.imperialWellBuilder null field. Well builder section in questPanel.js (import * as WellBuilder). Events.IMPERIAL_WELL_BUILDER_CHANGED subscribed. CSS: @keyframes wellbuilder-pulse (sky blue/water theme), .wellbuilder-section--active, .btn--wellbuilder-commission (sky blue), .btn--wellbuilder-purchase (green), .btn--wellbuilder-away (gray). Wired main.js: import, registerSystem, init x2, save/load. Session 129."
     }
   ],
   "session_history": [
@@ -2026,6 +2046,7 @@
     "Session 125 (T433-T434): Wandering Dye Merchant (T433), Imperial Cartographer's Academy (T434)",
     "Session 126 (T435-T436): Wandering Flax Weaver (T435), Imperial Oilpress Master (T436)",
     "Session 127 (T437-T438): Wandering Lime Burner (T437), Imperial Mosaic Master (T438)",
-    "Session 128 (T439-T440): Wandering Tar Maker (T439), Imperial Granary Master (T440)"
+    "Session 128 (T439-T440): Wandering Tar Maker (T439), Imperial Granary Master (T440)",
+    "Session 129 (T441-T442): Wandering Wicker Weaver (T441), Imperial Well Builder (T442)"
   ]
 }

@@ -1,3 +1,18 @@
+Session 129 — T441–T442: Wandering Wicker Weaver, Imperial Well Builder.
+Wicker Weaver: Stone Age+, 6+ tiles, 12-16 min spawn, 80s window. Commission Wicker Works (20 wood → +0.22 wood/s 2.5min · +18 prestige · +8 morale), Purchase Weaving Patterns (18g → +0.15 gold/s 2min · +12 prestige). Warm amber/brown wicker pulse CSS (gold purchase button, wickerweaver- CSS prefix). Well Builder: Bronze Age+, 8+ tiles, 13-17 min spawn, 80s window. Commission Well Construction (25 stone + 20g → +0.22 stone/s 2.5min · +20 prestige · +12 morale), Purchase Well-Sinking Methods (20 food → +0.18 food/s 2min · +15 prestige). Sky blue/water pulse CSS (green purchase button, wellbuilder- CSS prefix). Both fully wired into main.js (import, registerSystem, init x2, save/load) and questPanel.js (import, section render, handlers, ENCOUNTER_EVENTS). Events added to events.js.
+
+T441: Wandering Wicker Weaver — Stone Age+, 6+ tiles, 12–16 min, 80s window.
+Built wanderingWickerWeaver.js: commissionWickerWorks (20 wood → +0.22 wood/s 2.5min +18 prestige +8 morale), purchaseWeavingPatterns (18g → +0.15 gold/s 2min +12 prestige), sendWickerWeaverAway (dismiss). Added WANDERING_WICKER_WEAVER_CHANGED event to events.js. state.wanderingWickerWeaver null field.
+Wired in main.js: import initWanderingWickerWeaver+wanderingWickerWeaverTick, registerSystem, initWanderingWickerWeaver() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingWickerWeaverSection() render + wickerweaver-commission/wickerweaver-purchase/wickerweaver-away handlers to questPanel.js (import * as WickerWeaver). Events.WANDERING_WICKER_WEAVER_CHANGED subscribed.
+CSS: @keyframes wickerweaver-pulse (warm amber/brown wicker theme), .wickerweaver-section--active, .btn--wickerweaver-commission (amber), .btn--wickerweaver-purchase (gold), .btn--wickerweaver-away (gray). Session 129.
+
+T442: Imperial Well Builder — Bronze Age+, 8+ tiles, 13–17 min, 80s window.
+Built imperialWellBuilder.js: commissionWellConstruction (25 stone + 20g → +0.22 stone/s 2.5min +20 prestige +12 morale), purchaseWellSinkingMethods (20 food → +0.18 food/s 2min +15 prestige), sendWellBuilderAway (dismiss). Added IMPERIAL_WELL_BUILDER_CHANGED event to events.js. state.imperialWellBuilder null field.
+Wired in main.js: import initImperialWellBuilder+imperialWellBuilderTick, registerSystem, initImperialWellBuilder() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _imperialWellBuilderSection() render + wellbuilder-commission/wellbuilder-purchase/wellbuilder-away handlers to questPanel.js (import * as WellBuilder). Events.IMPERIAL_WELL_BUILDER_CHANGED subscribed.
+CSS: @keyframes wellbuilder-pulse (sky blue/water theme), .wellbuilder-section--active, .btn--wellbuilder-commission (sky blue), .btn--wellbuilder-purchase (green), .btn--wellbuilder-away (gray). Session 129.
+
 Session 127 — T437–T438: Wandering Lime Burner, Imperial Mosaic Master.
 Lime Burner: Stone Age+, 6+ tiles, 12-16 min spawn, 80s window. Commission Lime Mortar Works (20 stone + 15 food → +0.20 stone/s 2.5min · +15 prestige · +8 morale), Purchase Kiln Techniques (18g → +0.15 food/s 2min · +10 prestige). Slate/stone gray pulse CSS (amber/gold purchase button, limeburner- CSS prefix). Mosaic Master: Medieval Age+, 10+ tiles, 14-18 min spawn, 80s window. Commission Grand Mosaic Hall (25 stone + 20g → +0.22 stone/s 2.5min · +22 prestige · +12 morale), Purchase Tesserae Techniques (20 mana → +0.18 mana/s 2min · +15 prestige). Sky blue/azure pulse CSS (indigo/violet purchase button, mosaicmaster- CSS prefix). Both fully wired into main.js (import, registerSystem, init x2, save/load) and questPanel.js (import, section render, handlers, ENCOUNTER_EVENTS). Events added to events.js.
 

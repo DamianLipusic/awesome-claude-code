@@ -205,6 +205,8 @@ import * as LimeBurner       from '../systems/wanderingLimeBurner.js';          
 import * as MosaicMaster     from '../systems/imperialMosaicMaster.js';          // T438
 import * as TarMaker         from '../systems/wanderingTarMaker.js';             // T439
 import * as GranaryMaster    from '../systems/imperialGranaryMaster.js';         // T440
+import * as WickerWeaver     from '../systems/wanderingWickerWeaver.js';         // T441
+import * as WellBuilder      from '../systems/imperialWellBuilder.js';           // T442
 
 let _panel = null;
 
@@ -438,6 +440,8 @@ function _encountersSection() {
     _imperialMosaicMasterSection(),
     _wanderingTarMakerSection(),
     _imperialGranaryMasterSection(),
+    _wanderingWickerWeaverSection(),
+    _imperialWellBuilderSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -6898,6 +6902,71 @@ function _imperialGranaryMasterSection() {
     </div>`;
 }
 
+function _wanderingWickerWeaverSection() {
+  if (!WickerWeaver.getActiveWanderingWickerWeaver()) return '';
+  const secs        = WickerWeaver.getWickerWeaverSecsLeft();
+  const urgent      = secs <= 20;
+  const wood        = state.resources.wood  ?? 0;
+  const gold        = state.resources.gold  ?? 0;
+  const canCommission = wood >= WickerWeaver.COMMISSION_WOOD_COST;
+  const canPurchase   = gold >= WickerWeaver.PURCHASE_GOLD_COST;
+  return `
+    <div class="wickerweaver-section--active">
+      <div class="wickerweaver-header">
+        <span class="wickerweaver-title">🧺 Wandering Wicker Weaver</span>
+        <span class="wickerweaver-timer${urgent ? ' wickerweaver-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="wickerweaver-desc">A wandering wicker weaver arrives carrying freshly-cut willow withies and a full kit of splitting irons and packing tools — offering to commission a complete run of wicker furniture and storage goods using fine Somerset-style full willow weave on turned wooden stands, or to share the complete splitting, staking, and border techniques for reliable wicker production from locally harvested withies.</div>
+      <div class="wickerweaver-actions">
+        <button class="btn--wickerweaver-commission${canCommission ? '' : ' btn--disabled'}" data-action="wickerweaver-commission" ${canCommission ? '' : 'disabled'}>
+          🧺 Commission Wicker Works — ${WickerWeaver.COMMISSION_WOOD_COST}🪵
+          <span class="wickerweaver-cost">→ +${WickerWeaver.COMMISSION_WOOD_RATE} wood/s (2.5 min) · +${WickerWeaver.COMMISSION_PRESTIGE_REWARD} prestige · +${WickerWeaver.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--wickerweaver-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="wickerweaver-purchase" ${canPurchase ? '' : 'disabled'}>
+          📖 Purchase Weaving Patterns — ${WickerWeaver.PURCHASE_GOLD_COST}💰
+          <span class="wickerweaver-cost">→ +${WickerWeaver.PURCHASE_GOLD_RATE} gold/s (2 min) · +${WickerWeaver.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--wickerweaver-away" data-action="wickerweaver-away">
+          🚶 Send Away
+          <span class="wickerweaver-cost">→ Wicker weaver bundles the soaked withies back into the carry cloth and departs</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _imperialWellBuilderSection() {
+  if (!WellBuilder.getActiveImperialWellBuilder()) return '';
+  const secs        = WellBuilder.getWellBuilderSecsLeft();
+  const urgent      = secs <= 20;
+  const stone       = state.resources.stone ?? 0;
+  const gold        = state.resources.gold  ?? 0;
+  const food        = state.resources.food  ?? 0;
+  const canCommission = stone >= WellBuilder.COMMISSION_STONE_COST && gold >= WellBuilder.COMMISSION_GOLD_COST;
+  const canPurchase   = food >= WellBuilder.PURCHASE_FOOD_COST;
+  return `
+    <div class="wellbuilder-section--active">
+      <div class="wellbuilder-header">
+        <span class="wellbuilder-title">🏗️ Imperial Well Builder</span>
+        <span class="wellbuilder-timer${urgent ? ' wellbuilder-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="wellbuilder-desc">An imperial well builder arrives carrying architectural drawings for the standard imperial-specification deep well — voussoir stone rings, lime-mortared upper courses, iron-banded windlass frame, and octagonal canopy — offering to commission a full well sinking to imperial specification at the optimal aquifer location, or to share the complete well-sinking methods for reliable water supply as the settlement expands.</div>
+      <div class="wellbuilder-actions">
+        <button class="btn--wellbuilder-commission${canCommission ? '' : ' btn--disabled'}" data-action="wellbuilder-commission" ${canCommission ? '' : 'disabled'}>
+          🏗️ Commission Well Construction — ${WellBuilder.COMMISSION_STONE_COST}🪨 + ${WellBuilder.COMMISSION_GOLD_COST}💰
+          <span class="wellbuilder-cost">→ +${WellBuilder.COMMISSION_STONE_RATE} stone/s (2.5 min) · +${WellBuilder.COMMISSION_PRESTIGE_REWARD} prestige · +${WellBuilder.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--wellbuilder-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="wellbuilder-purchase" ${canPurchase ? '' : 'disabled'}>
+          📖 Purchase Well-Sinking Methods — ${WellBuilder.PURCHASE_FOOD_COST}🌾
+          <span class="wellbuilder-cost">→ +${WellBuilder.PURCHASE_FOOD_RATE} food/s (2 min) · +${WellBuilder.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--wellbuilder-away" data-action="wellbuilder-away">
+          🚶 Send Away
+          <span class="wellbuilder-cost">→ Well builder re-rolls the architectural drawings and departs along the road</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -7669,6 +7738,14 @@ const _HANDLERS = {
   'granarymaster-commission': () => GranaryMaster.commissionImperialGranary(),
   'granarymaster-purchase':   () => GranaryMaster.purchaseStorageTechniques(),
   'granarymaster-away':       () => GranaryMaster.sendGranaryMasterAway(),
+
+  'wickerweaver-commission': () => WickerWeaver.commissionWickerWorks(),
+  'wickerweaver-purchase':   () => WickerWeaver.purchaseWeavingPatterns(),
+  'wickerweaver-away':       () => WickerWeaver.sendWickerWeaverAway(),
+
+  'wellbuilder-commission': () => WellBuilder.commissionWellConstruction(),
+  'wellbuilder-purchase':   () => WellBuilder.purchaseWellSinkingMethods(),
+  'wellbuilder-away':       () => WellBuilder.sendWellBuilderAway(),
 };
 
 function _handleClick(e) {
@@ -7881,6 +7958,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_MOSAIC_MASTER_CHANGED,
     Events.WANDERING_TAR_MAKER_CHANGED,
     Events.IMPERIAL_GRANARY_MASTER_CHANGED,
+    Events.WANDERING_WICKER_WEAVER_CHANGED,
+    Events.IMPERIAL_WELL_BUILDER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);
