@@ -374,4 +374,6 @@ export const Events = Object.freeze({
   IMPERIAL_MASONS_GUILD_CHANGED:           'imperialMasonsGuildChanged',                                     // T430: mason's guild spawned / commissioned / purchased / dismissed / expired
   WANDERING_KNIFE_SHARPENER_CHANGED:       'wanderingKnifeSharpenerChanged',                                  // T431: knife sharpener spawned / sharpened / purchased / dismissed / expired
   IMPERIAL_FRESCO_PAINTER_CHANGED:         'imperialFrescoPainterChanged',                                    // T432: fresco painter spawned / commissioned / purchased / dismissed / expired
+  WANDERING_DYE_MERCHANT_CHANGED:          'wanderingDyeMerchantChanged',                                     // T433: dye merchant spawned / commissioned / purchased / dismissed / expired
+  IMPERIAL_CARTOGRAPHERS_ACADEMY_CHANGED:  'imperialCartographersAcademyChanged',                             // T434: cartographer's academy spawned / commissioned / studied / dismissed / expired
 });

@@ -197,6 +197,8 @@ import * as Woodcutter       from '../systems/wanderingWoodcutter.js';          
 import * as MasonsGuild      from '../systems/imperialMasonsGuild.js';           // T430
 import * as KnifeSharpener   from '../systems/wanderingKnifeSharpener.js';       // T431
 import * as FrescoPainter    from '../systems/imperialFrescoPainter.js';         // T432
+import * as DyeMerchant      from '../systems/wanderingDyeMerchant.js';          // T433
+import * as CartAcad         from '../systems/imperialCartographersAcademy.js';  // T434
 
 let _panel = null;
 
@@ -422,6 +424,8 @@ function _encountersSection() {
     _imperialMasonsGuildSection(),
     _wanderingKnifeSharpenerSection(),
     _imperialFrescoPainterSection(),
+    _wanderingDyeMerchantSection(),
+    _imperialCartographersAcademySection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -6604,6 +6608,76 @@ function _imperialFrescoPainterSection() {
     </div>`;
 }
 
+// ── T433 Wandering Dye Merchant ───────────────────────────────────────────────
+
+function _wanderingDyeMerchantSection() {
+  if (!DyeMerchant.getActiveWanderingDyeMerchant()) return '';
+  const secs           = DyeMerchant.getDyeMerchantSecsLeft();
+  const urgent         = secs <= 20;
+  const food           = state.resources.food ?? 0;
+  const wood           = state.resources.wood ?? 0;
+  const gold           = state.resources.gold ?? 0;
+  const canCommission  = food >= DyeMerchant.COMMISSION_FOOD_COST && wood >= DyeMerchant.COMMISSION_WOOD_COST;
+  const canPurchase    = gold >= DyeMerchant.PURCHASE_GOLD_COST;
+  return `
+    <div class="dyemerch-section--active">
+      <div class="dyemerch-header">
+        <span class="dyemerch-title">🎨 Wandering Dye Merchant</span>
+        <span class="dyemerch-timer${urgent ? ' dyemerch-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="dyemerch-desc">A wandering dye merchant arrives carrying a heavy pack of dry pigment cakes wrapped in oiled linen — weld yellow, woad blue, madder red blocks, and a sealed clay pot of kermes granules — along with alum mordant cakes and tin-salt fixatives for shifting hue toward imperial crimson, offering to commission a full dye works that colours the settlement's cloth output in prestige imperial colours, or to share the mordanting and vatting knowledge that keeps a dye workshop reliably producing vibrant colours from locally-available materials.</div>
+      <div class="dyemerch-actions">
+        <button class="btn--dyemerch-commission${canCommission ? '' : ' btn--disabled'}" data-action="dyemerch-commission" ${canCommission ? '' : 'disabled'}>
+          🎨 Commission Royal Dyes — ${DyeMerchant.COMMISSION_FOOD_COST}🌾 + ${DyeMerchant.COMMISSION_WOOD_COST}🪵
+          <span class="dyemerch-cost">→ +${DyeMerchant.COMMISSION_FOOD_RATE} food/s (2.5 min) · +${DyeMerchant.COMMISSION_PRESTIGE_REWARD} prestige · +${DyeMerchant.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--dyemerch-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="dyemerch-purchase" ${canPurchase ? '' : 'disabled'}>
+          📖 Purchase Dye Secrets — ${DyeMerchant.PURCHASE_GOLD_COST}💰
+          <span class="dyemerch-cost">→ +${DyeMerchant.PURCHASE_GOLD_RATE} gold/s (2 min) · +${DyeMerchant.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--dyemerch-away" data-action="dyemerch-away">
+          🚶 Send Away
+          <span class="dyemerch-cost">→ Dye merchant rewraps the pigment cakes and departs along the trade road</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T434 Imperial Cartographer's Academy ─────────────────────────────────────
+
+function _imperialCartographersAcademySection() {
+  if (!CartAcad.getActiveImperialCartographersAcademy()) return '';
+  const secs           = CartAcad.getCartographersAcademySecsLeft();
+  const urgent         = secs <= 20;
+  const iron           = state.resources.iron ?? 0;
+  const gold           = state.resources.gold ?? 0;
+  const mana           = state.resources.mana ?? 0;
+  const canCommission  = iron >= CartAcad.COMMISSION_IRON_COST && gold >= CartAcad.COMMISSION_GOLD_COST;
+  const canStudy       = mana >= CartAcad.STUDY_MANA_COST;
+  return `
+    <div class="cartacad-section--active">
+      <div class="cartacad-header">
+        <span class="cartacad-title">🗺️ Imperial Cartographer's Academy</span>
+        <span class="cartacad-timer${urgent ? ' cartacad-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="cartacad-desc">A delegation from the imperial cartographer's academy arrives carrying a brass theodolite on a mahogany tripod, a plane table with telescopic alidade, surveying chains of standardised length, a clinometer for slope measurement, and a portfolio of blank parchment pre-printed with the imperial triangulation grid — offering to commission a complete ground survey of the settlement's territory establishing precise boundaries and elevations for road planning, aqueduct routing, and military advance, or to share the advanced plane-table triangulation method for ongoing independent survey capability.</div>
+      <div class="cartacad-actions">
+        <button class="btn--cartacad-commission${canCommission ? '' : ' btn--disabled'}" data-action="cartacad-commission" ${canCommission ? '' : 'disabled'}>
+          🗺️ Commission Grand Survey — ${CartAcad.COMMISSION_IRON_COST}⚙️ + ${CartAcad.COMMISSION_GOLD_COST}💰
+          <span class="cartacad-cost">→ +${CartAcad.COMMISSION_IRON_RATE} iron/s (2.5 min) · +${CartAcad.COMMISSION_PRESTIGE_REWARD} prestige · +${CartAcad.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--cartacad-study${canStudy ? '' : ' btn--disabled'}" data-action="cartacad-study" ${canStudy ? '' : 'disabled'}>
+          📖 Study Cartography Methods — ${CartAcad.STUDY_MANA_COST}✨
+          <span class="cartacad-cost">→ +${CartAcad.STUDY_MANA_RATE} mana/s (2 min) · +${CartAcad.STUDY_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--cartacad-away" data-action="cartacad-away">
+          🚶 Send Away
+          <span class="cartacad-cost">→ Delegation repacks instruments and departs toward the next survey territory</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -7343,6 +7417,14 @@ const _HANDLERS = {
   'frescopainter-commission': () => FrescoPainter.commissionImperialFrescoes(),
   'frescopainter-purchase':   () => FrescoPainter.purchasePaintingTechniques(),
   'frescopainter-away':       () => FrescoPainter.sendFrescoPainterAway(),
+
+  'dyemerch-commission': () => DyeMerchant.commissionRoyalDyes(),
+  'dyemerch-purchase':   () => DyeMerchant.purchaseDyeSecrets(),
+  'dyemerch-away':       () => DyeMerchant.sendDyeMerchantAway(),
+
+  'cartacad-commission': () => CartAcad.commissionGrandSurvey(),
+  'cartacad-study':      () => CartAcad.studyCartographyMethods(),
+  'cartacad-away':       () => CartAcad.sendCartographersAcademyAway(),
 };
 
 function _handleClick(e) {
@@ -7547,6 +7629,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_MASONS_GUILD_CHANGED,
     Events.WANDERING_KNIFE_SHARPENER_CHANGED,
     Events.IMPERIAL_FRESCO_PAINTER_CHANGED,
+    Events.WANDERING_DYE_MERCHANT_CHANGED,
+    Events.IMPERIAL_CARTOGRAPHERS_ACADEMY_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

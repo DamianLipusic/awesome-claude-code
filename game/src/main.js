@@ -374,6 +374,8 @@ import { initWanderingWoodcutter, wanderingWoodcutterTick }           from './sy
 import { initImperialMasonsGuild, imperialMasonsGuildTick }           from './systems/imperialMasonsGuild.js';              // T430
 import { initWanderingKnifeSharpener, wanderingKnifeSharpenerTick }   from './systems/wanderingKnifeSharpener.js';          // T431
 import { initImperialFrescoPainter, imperialFrescoPainterTick }       from './systems/imperialFrescoPainter.js';            // T432
+import { initWanderingDyeMerchant, wanderingDyeMerchantTick }         from './systems/wanderingDyeMerchant.js';             // T433
+import { initImperialCartographersAcademy, imperialCartographersAcademyTick } from './systems/imperialCartographersAcademy.js'; // T434
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -754,6 +756,8 @@ function _registerAllSystems() {
   registerSystem(imperialMasonsGuildTick);          // T430
   registerSystem(wanderingKnifeSharpenerTick);      // T431
   registerSystem(imperialFrescoPainterTick);        // T432
+  registerSystem(wanderingDyeMerchantTick);         // T433
+  registerSystem(imperialCartographersAcademyTick); // T434
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -1119,6 +1123,8 @@ function _save() {
     imperialMasonsGuild:          state.imperialMasonsGuild,          // T430
     wanderingKnifeSharpener:      state.wanderingKnifeSharpener,      // T431
     imperialFrescoPainter:        state.imperialFrescoPainter,        // T432
+    wanderingDyeMerchant:         state.wanderingDyeMerchant,         // T433
+    imperialCartographersAcademy: state.imperialCartographersAcademy, // T434
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -1487,8 +1493,10 @@ function _applySave(s) {
   state.imperialSilkscreenPainter = s.imperialSilkscreenPainter ?? null;   // T428
   state.wanderingWoodcutter       = s.wanderingWoodcutter ?? null;         // T429
   state.imperialMasonsGuild       = s.imperialMasonsGuild ?? null;         // T430
-  state.wanderingKnifeSharpener   = s.wanderingKnifeSharpener ?? null;    // T431
-  state.imperialFrescoPainter     = s.imperialFrescoPainter ?? null;      // T432
+  state.wanderingKnifeSharpener        = s.wanderingKnifeSharpener ?? null;         // T431
+  state.imperialFrescoPainter          = s.imperialFrescoPainter ?? null;           // T432
+  state.wanderingDyeMerchant           = s.wanderingDyeMerchant ?? null;            // T433
+  state.imperialCartographersAcademy   = s.imperialCartographersAcademy ?? null;    // T434
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -1865,6 +1873,8 @@ function _startFreshGame() {
   initImperialMasonsGuild();          // T430
   initWanderingKnifeSharpener();      // T431
   initImperialFrescoPainter();        // T432
+  initWanderingDyeMerchant();         // T433
+  initImperialCartographersAcademy(); // T434
   initAchievements();
   initLeaderboard();
 }
@@ -2224,6 +2234,8 @@ function _startLoadedGame(savedData) {
   initImperialMasonsGuild();          // T430
   initWanderingKnifeSharpener();      // T431
   initImperialFrescoPainter();        // T432
+  initWanderingDyeMerchant();         // T433
+  initImperialCartographersAcademy(); // T434
   initAchievements();
   initLeaderboard();
 }

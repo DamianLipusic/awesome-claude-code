@@ -1840,6 +1840,26 @@
       "description": "Periodic imperial fresco painter encounter: commission imperial frescoes (25 mana + 20g → +0.22 mana/s 2.5min +22 prestige +10 morale), purchase painting techniques (20 stone → +0.18 stone/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-18 min.",
       "completed_date": "2026-05-28",
       "notes": "Built imperialFrescoPainter.js. IMPERIAL_FRESCO_PAINTER_CHANGED event added to events.js. state.imperialFrescoPainter null field. Fresco painter section in questPanel.js (import * as FrescoPainter). Events.IMPERIAL_FRESCO_PAINTER_CHANGED subscribed. CSS: @keyframes frescopainter-pulse (orange/amber), .frescopainter-section--active, .btn--frescopainter-commission (violet/purple), .btn--frescopainter-purchase (slate), .btn--frescopainter-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T433",
+      "title": "Wandering Dye Merchant",
+      "status": "done",
+      "priority": 433,
+      "phase": 132,
+      "description": "Periodic wandering dye merchant encounter: commission royal dyes (20 food + 15 wood → +0.22 food/s 2.5min +18 prestige +10 morale), purchase dye secrets (18g → +0.15 gold/s 2min +12 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
+      "completed_date": "2026-05-28",
+      "notes": "Built wanderingDyeMerchant.js. WANDERING_DYE_MERCHANT_CHANGED event added to events.js. state.wanderingDyeMerchant null field. Dye merchant section in questPanel.js (import * as DyeMerchant). Events.WANDERING_DYE_MERCHANT_CHANGED subscribed. CSS: @keyframes dyemerch-pulse (violet/purple), .dyemerch-section--active, .btn--dyemerch-commission (violet), .btn--dyemerch-purchase (amber/gold), .btn--dyemerch-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T434",
+      "title": "Imperial Cartographer's Academy",
+      "status": "done",
+      "priority": 434,
+      "phase": 132,
+      "description": "Periodic imperial cartographer's academy encounter: commission grand survey (30 iron + 20g → +0.22 iron/s 2.5min +22 prestige +10 morale), study cartography methods (25 mana → +0.20 mana/s 2min +18 prestige), send away. Iron Age+, 12+ tiles, 15-19 min.",
+      "completed_date": "2026-05-28",
+      "notes": "Built imperialCartographersAcademy.js. IMPERIAL_CARTOGRAPHERS_ACADEMY_CHANGED event added to events.js. state.imperialCartographersAcademy null field. Cartographer's academy section in questPanel.js (import * as CartAcad). Events.IMPERIAL_CARTOGRAPHERS_ACADEMY_CHANGED subscribed. CSS: @keyframes cartacad-pulse (teal/cyan), .cartacad-section--active, .btn--cartacad-commission (teal), .btn--cartacad-study (indigo/violet), .btn--cartacad-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     }
   ],
   "session_history": [
@@ -1944,6 +1964,7 @@
     "Session 121 (T425-T426): Wandering Sail Maker (T425), Imperial Chariot Builder (T426)",
     "Session 122 (T427-T428): Wandering Seed Merchant (T427), Imperial Silkscreen Painter (T428)",
     "Session 123 (T429-T430): Wandering Woodcutter (T429), Imperial Mason's Guild (T430)",
-    "Session 124 (T431-T432): Wandering Knife Sharpener (T431), Imperial Fresco Painter (T432)"
+    "Session 124 (T431-T432): Wandering Knife Sharpener (T431), Imperial Fresco Painter (T432)",
+    "Session 125 (T433-T434): Wandering Dye Merchant (T433), Imperial Cartographer's Academy (T434)"
   ]
 }

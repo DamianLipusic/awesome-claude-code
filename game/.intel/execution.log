@@ -1,3 +1,18 @@
+Session 125 — T433–T434: Wandering Dye Merchant, Imperial Cartographer's Academy.
+Dye Merchant: Stone Age+, 6+ tiles, 12-16 min spawn, 80s window. Commission Royal Dyes (20 food + 15 wood → +0.22 food/s 2.5min · +18 prestige · +10 morale), Purchase Dye Secrets (18g → +0.15 gold/s 2min · +12 prestige). Violet/purple pulse CSS (amber/gold purchase button, dyemerch- CSS prefix). Cartographer's Academy: Iron Age+, 12+ tiles, 15-19 min spawn, 80s window. Commission Grand Survey (30 iron + 20g → +0.22 iron/s 2.5min · +22 prestige · +10 morale), Study Cartography Methods (25 mana → +0.20 mana/s 2min · +18 prestige). Teal/cyan pulse CSS (indigo/violet study button, cartacad- CSS prefix). Both fully wired into main.js (import, registerSystem, init x2, save/load) and questPanel.js (import, section render, handlers, ENCOUNTER_EVENTS). Events added to events.js.
+
+T433: Wandering Dye Merchant — Stone Age+, 6+ tiles, 12–16 min, 80s window.
+Built wanderingDyeMerchant.js: commissionRoyalDyes (20 food + 15 wood → +0.22 food/s 2.5min +18 prestige +10 morale), purchaseDyeSecrets (18g → +0.15 gold/s 2min +12 prestige), sendDyeMerchantAway (dismiss). Added WANDERING_DYE_MERCHANT_CHANGED event to events.js. state.wanderingDyeMerchant null field.
+Wired in main.js: import initWanderingDyeMerchant+wanderingDyeMerchantTick, registerSystem, initWanderingDyeMerchant() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingDyeMerchantSection() render + dyemerch-commission/dyemerch-purchase/dyemerch-away handlers to questPanel.js (import * as DyeMerchant). Events.WANDERING_DYE_MERCHANT_CHANGED subscribed.
+CSS: @keyframes dyemerch-pulse (violet/purple theme), .dyemerch-section--active, .btn--dyemerch-commission (violet), .btn--dyemerch-purchase (amber/gold), .btn--dyemerch-away (gray). Session 125.
+
+T434: Imperial Cartographer's Academy — Iron Age+, 12+ tiles, 15–19 min, 80s window.
+Built imperialCartographersAcademy.js: commissionGrandSurvey (30 iron + 20g → +0.22 iron/s 2.5min +22 prestige +10 morale), studyCartographyMethods (25 mana → +0.20 mana/s 2min +18 prestige), sendCartographersAcademyAway (dismiss). Added IMPERIAL_CARTOGRAPHERS_ACADEMY_CHANGED event to events.js. state.imperialCartographersAcademy null field.
+Wired in main.js: import initImperialCartographersAcademy+imperialCartographersAcademyTick, registerSystem, initImperialCartographersAcademy() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _imperialCartographersAcademySection() render + cartacad-commission/cartacad-study/cartacad-away handlers to questPanel.js (import * as CartAcad). Events.IMPERIAL_CARTOGRAPHERS_ACADEMY_CHANGED subscribed.
+CSS: @keyframes cartacad-pulse (teal/cyan theme), .cartacad-section--active, .btn--cartacad-commission (teal), .btn--cartacad-study (indigo/violet), .btn--cartacad-away (gray). Session 125.
+
 Session 124 — T431–T432: Wandering Knife Sharpener, Imperial Fresco Painter.
 Knife Sharpener: Stone Age+, 6+ tiles, 11-15 min spawn, 80s window. Sharpen Imperial Tools (15 iron → +0.20 iron/s 2.5min · +18 prestige · +8 morale), Purchase Sharpening Lore (18g → +0.15 gold/s 2min · +12 prestige). Amber/gold pulse CSS (slate purchase button, knifesharp- CSS prefix). Fresco Painter: Medieval Age+, 10+ tiles, 14-18 min spawn, 80s window. Commission Imperial Frescoes (25 mana + 20g → +0.22 mana/s 2.5min · +22 prestige · +10 morale), Purchase Painting Techniques (20 stone → +0.18 stone/s 2min · +15 prestige). Orange/amber pulse CSS (violet commission button, slate purchase button, frescopainter- CSS prefix). Both fully wired into main.js (import, registerSystem, init x2, save/load) and questPanel.js (import, section render, handlers, ENCOUNTER_EVENTS). Events added to events.js.
 
