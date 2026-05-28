@@ -927,7 +927,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic wandering basketweaver encounter: weave imperial baskets (20 wood → +0.22 wood/s 2.5min +18 prestige +8 morale), purchase weaving patterns (18g → +0.15 gold/s 2min +12 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
+      "description": "Periodic wandering basketweaver encounter: weave imperial baskets (20 wood \u2192 +0.22 wood/s 2.5min +18 prestige +8 morale), purchase weaving patterns (18g \u2192 +0.15 gold/s 2min +12 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
       "completed_date": "2026-05-20",
       "notes": "Created wanderingBasketweaver.js system, added WANDERING_BASKETWEAVER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingBasketweaverSection() and handlers to questPanel.js (import * as Basketweaver). Events.WANDERING_BASKETWEAVER_CHANGED subscribed. Added basketweaver CSS (warm amber/brown theme)."
     },
@@ -937,7 +937,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic wandering charcoal maker encounter: commission charcoal works (20 wood + 10 food → +0.20 iron/s 2.5min +15 prestige +8 morale), purchase char-burning lore (18g → +0.15 food/s 2min +10 prestige), send away. Stone Age+, 6+ tiles, 13-17 min.",
+      "description": "Periodic wandering charcoal maker encounter: commission charcoal works (20 wood + 10 food \u2192 +0.20 iron/s 2.5min +15 prestige +8 morale), purchase char-burning lore (18g \u2192 +0.15 food/s 2min +10 prestige), send away. Stone Age+, 6+ tiles, 13-17 min.",
       "completed_date": "2026-05-20",
       "notes": "Created wanderingCharcoalMaker.js system, added WANDERING_CHARCOAL_MAKER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingCharcoalMakerSection() and handlers to questPanel.js (import * as CharcoalMaker). Events.WANDERING_CHARCOAL_MAKER_CHANGED subscribed. Added charcoal CSS (dark slate/gray with amber accent theme)."
     },
@@ -947,7 +947,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic wandering tanner encounter: commission imperial leatherworks (20 food + 15 wood → +0.22 food/s 2.5min +18 prestige +10 morale), purchase tanning secrets (18g → +0.15 gold/s 2min +12 prestige), send away. Bronze Age+, 8+ tiles, 12-17 min.",
+      "description": "Periodic wandering tanner encounter: commission imperial leatherworks (20 food + 15 wood \u2192 +0.22 food/s 2.5min +18 prestige +10 morale), purchase tanning secrets (18g \u2192 +0.15 gold/s 2min +12 prestige), send away. Bronze Age+, 8+ tiles, 12-17 min.",
       "completed_date": "2026-05-20",
       "notes": "Created wanderingTanner.js system, added WANDERING_TANNER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingTannerSection() and handlers to questPanel.js (import * as Tanner). Events.WANDERING_TANNER_CHANGED subscribed. Added tanner CSS (warm brown/leather theme)."
     },
@@ -957,7 +957,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic imperial glassmaker encounter: commission crystal workshop (20 iron + 15 stone → +0.22 iron/s 2.5min +20 prestige +12 morale), purchase glass formulas (20g → +0.15 stone/s 2min +15 prestige), send away. Iron Age+, 10+ tiles, 14-19 min.",
+      "description": "Periodic imperial glassmaker encounter: commission crystal workshop (20 iron + 15 stone \u2192 +0.22 iron/s 2.5min +20 prestige +12 morale), purchase glass formulas (20g \u2192 +0.15 stone/s 2min +15 prestige), send away. Iron Age+, 10+ tiles, 14-19 min.",
       "completed_date": "2026-05-20",
       "notes": "Created imperialGlassmaker.js system, added IMPERIAL_GLASSMAKER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialGlassmakerSection() and handlers to questPanel.js (import * as IGlassmaker). Events.IMPERIAL_GLASSMAKER_CHANGED subscribed. Added glassmaker CSS (cyan/teal crystal theme)."
     },
@@ -967,7 +967,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic wandering inkmaker encounter: commission illuminated scripts (20 mana + 15g → +0.22 mana/s 2.5min +20 prestige +8 morale), purchase ink formulas (18 wood → +0.18 wood/s 2min +12 prestige), send away. Medieval Age+, 8+ tiles, 13-17 min.",
+      "description": "Periodic wandering inkmaker encounter: commission illuminated scripts (20 mana + 15g \u2192 +0.22 mana/s 2.5min +20 prestige +8 morale), purchase ink formulas (18 wood \u2192 +0.18 wood/s 2min +12 prestige), send away. Medieval Age+, 8+ tiles, 13-17 min.",
       "completed_date": "2026-05-20",
       "notes": "Created wanderingInkmaker.js system, added WANDERING_INKMAKER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingInkmakerSection() and handlers to questPanel.js (import * as Inkmaker). Events.WANDERING_INKMAKER_CHANGED subscribed. Added inkmaker CSS (violet/purple theme)."
     },
@@ -977,7 +977,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic imperial dockmaster encounter: establish trading docks (25 wood + 20g → +0.25 wood/s 2.5min +22 prestige +10 morale), commission harbor works (20 iron → +0.18 iron/s 2min +15 prestige), send away. Iron Age+, 10+ tiles, 13-18 min.",
+      "description": "Periodic imperial dockmaster encounter: establish trading docks (25 wood + 20g \u2192 +0.25 wood/s 2.5min +22 prestige +10 morale), commission harbor works (20 iron \u2192 +0.18 iron/s 2min +15 prestige), send away. Iron Age+, 10+ tiles, 13-18 min.",
       "completed_date": "2026-05-20",
       "notes": "Created imperialDockmaster.js system, added IMPERIAL_DOCKMASTER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialDockmasterSection() and handlers to questPanel.js (import * as Dockmaster). Events.IMPERIAL_DOCKMASTER_CHANGED subscribed. Added dockmaster CSS (sky blue/ocean theme)."
     },
@@ -987,7 +987,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic wandering storyteller encounter: commission epic chronicle (25g → +0.2 gold/s 2.5min +20 prestige +12 morale), listen to ancient tales (free → +10 morale +8 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
+      "description": "Periodic wandering storyteller encounter: commission epic chronicle (25g \u2192 +0.2 gold/s 2.5min +20 prestige +12 morale), listen to ancient tales (free \u2192 +10 morale +8 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
       "completed_date": "2026-05-20",
       "notes": "Created wanderingStoryteller.js system, added WANDERING_STORYTELLER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingStorytellerSection() and handlers to questPanel.js (import * as Storyteller). Events.WANDERING_STORYTELLER_CHANGED subscribed. Added storyteller CSS (amber/gold theme)."
     },
@@ -997,7 +997,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic imperial lore master encounter: commission imperial codex collection (35 mana + 20g → +0.28 mana/s 2.5min +25 prestige +10 morale), purchase ancient lore scrolls (25g → +0.18 gold/s 2min +18 prestige), send away. Medieval Age+, 12+ tiles, 16-20 min.",
+      "description": "Periodic imperial lore master encounter: commission imperial codex collection (35 mana + 20g \u2192 +0.28 mana/s 2.5min +25 prestige +10 morale), purchase ancient lore scrolls (25g \u2192 +0.18 gold/s 2min +18 prestige), send away. Medieval Age+, 12+ tiles, 16-20 min.",
       "completed_date": "2026-05-20",
       "notes": "Created imperialLoreMaster.js system, added IMPERIAL_LORE_MASTER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialLoreMasterSection() and handlers to questPanel.js (import * as LoreMaster). Events.IMPERIAL_LORE_MASTER_CHANGED subscribed. Added lore master CSS (violet/purple theme)."
     },
@@ -1007,7 +1007,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic wandering toymaker encounter: commission royal toys (20 wood → +0.2 wood/s 2.5min +15 prestige +12 morale), share crafting patterns (18g → +0.15 gold/s 2min +10 prestige), send away. Stone Age+, 6+ tiles, 11-15 min.",
+      "description": "Periodic wandering toymaker encounter: commission royal toys (20 wood \u2192 +0.2 wood/s 2.5min +15 prestige +12 morale), share crafting patterns (18g \u2192 +0.15 gold/s 2min +10 prestige), send away. Stone Age+, 6+ tiles, 11-15 min.",
       "completed_date": "2026-05-21",
       "notes": "Created wanderingToymaker.js system, added WANDERING_TOYMAKER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingToymakerSection() and handlers to questPanel.js (import * as Toymaker). Events.WANDERING_TOYMAKER_CHANGED subscribed. Added toymaker CSS (violet/purple theme)."
     },
@@ -1017,7 +1017,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic imperial ferryman encounter: establish ferry routes (20 wood + 15g → +0.22 wood/s 2.5min +18 prestige +10 morale), purchase river charts (20g → +0.15 gold/s 2min +12 prestige), send away. Bronze Age+, 8+ tiles, 12-17 min.",
+      "description": "Periodic imperial ferryman encounter: establish ferry routes (20 wood + 15g \u2192 +0.22 wood/s 2.5min +18 prestige +10 morale), purchase river charts (20g \u2192 +0.15 gold/s 2min +12 prestige), send away. Bronze Age+, 8+ tiles, 12-17 min.",
       "completed_date": "2026-05-21",
       "notes": "Created imperialFerryman.js system, added IMPERIAL_FERRYMAN_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialFerrymanSection() and handlers to questPanel.js (import * as Ferryman). Events.IMPERIAL_FERRYMAN_CHANGED subscribed. Added ferryman CSS (cyan/teal theme)."
     },
@@ -1027,7 +1027,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic wandering mosaic maker encounter: commission imperial mosaic (20 stone + 15g → +0.20 stone/s 2.5min +20 prestige +10 morale), exchange pattern lore (18g → +0.15 gold/s 2min +12 prestige), send away. Bronze Age+, 8+ tiles, 12-17 min.",
+      "description": "Periodic wandering mosaic maker encounter: commission imperial mosaic (20 stone + 15g \u2192 +0.20 stone/s 2.5min +20 prestige +10 morale), exchange pattern lore (18g \u2192 +0.15 gold/s 2min +12 prestige), send away. Bronze Age+, 8+ tiles, 12-17 min.",
       "completed_date": "2026-05-21",
       "notes": "Created wanderingMosaicMaker.js system, added WANDERING_MOSAIC_MAKER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingMosaicMakerSection() and handlers to questPanel.js (import * as MosaicMaker). Events.WANDERING_MOSAIC_MAKER_CHANGED subscribed. Added mosaic CSS (warm orange/amber theme)."
     },
@@ -1037,7 +1037,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic imperial bathhouse builder encounter: construct bathhouse complex (30 stone + 20g → +0.22 stone/s 2.5min +25 prestige +15 morale), share engineering plans (25 mana → +0.18 mana/s 2min +18 prestige), send away. Medieval Age+, 12+ tiles, 15-20 min.",
+      "description": "Periodic imperial bathhouse builder encounter: construct bathhouse complex (30 stone + 20g \u2192 +0.22 stone/s 2.5min +25 prestige +15 morale), share engineering plans (25 mana \u2192 +0.18 mana/s 2min +18 prestige), send away. Medieval Age+, 12+ tiles, 15-20 min.",
       "completed_date": "2026-05-21",
       "notes": "Created imperialBathhouseBuilder.js system, added IMPERIAL_BATHHOUSE_BUILDER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialBathhouseBuilderSection() and handlers to questPanel.js (import * as BHBuilder). Events.IMPERIAL_BATHHOUSE_BUILDER_CHANGED subscribed. Added bathhouse CSS (teal/mint theme with violet plans button)."
     },
@@ -1047,7 +1047,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic wandering bell founder encounter: commission temple bells (25 iron + 20 stone → +0.22 iron/s 2.5min +20 prestige +12 morale), purchase bell-casting secrets (22g → +0.15 gold/s 2min +15 prestige), send away. Bronze Age+, 8+ tiles, 12-17 min.",
+      "description": "Periodic wandering bell founder encounter: commission temple bells (25 iron + 20 stone \u2192 +0.22 iron/s 2.5min +20 prestige +12 morale), purchase bell-casting secrets (22g \u2192 +0.15 gold/s 2min +15 prestige), send away. Bronze Age+, 8+ tiles, 12-17 min.",
       "completed_date": "2026-05-21",
       "notes": "Created wanderingBellFounder.js system, added WANDERING_BELL_FOUNDER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingBellFounderSection() and handlers to questPanel.js (import * as BellFounder). Events.WANDERING_BELL_FOUNDER_CHANGED subscribed. Added bellfdr CSS (orange/amber theme with bronze tones)."
     },
@@ -1057,7 +1057,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic imperial marble cutter encounter: commission marble columns (30 stone + 20 iron → +0.22 stone/s 2.5min +25 prestige +10 morale), exchange cutting techniques (20g → +0.15 iron/s 2min +15 prestige), send away. Iron Age+, 10+ tiles, 13-18 min.",
+      "description": "Periodic imperial marble cutter encounter: commission marble columns (30 stone + 20 iron \u2192 +0.22 stone/s 2.5min +25 prestige +10 morale), exchange cutting techniques (20g \u2192 +0.15 iron/s 2min +15 prestige), send away. Iron Age+, 10+ tiles, 13-18 min.",
       "completed_date": "2026-05-21",
       "notes": "Created imperialMarbleCutter.js system, added IMPERIAL_MARBLE_CUTTER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialMarbleCutterSection() and handlers to questPanel.js (import * as MarbleCutter). Events.IMPERIAL_MARBLE_CUTTER_CHANGED subscribed. Added marble CSS (slate/silver theme with amber exchange button)."
     },
@@ -1067,7 +1067,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic wandering parchment maker encounter: commission royal parchments (20 wood + 15 mana → +0.22 mana/s 2.5min +20 prestige +8 morale), purchase writing materials (18g → +0.15 gold/s 2min +12 prestige), send away. Medieval Age+, 10+ tiles, 14-18 min.",
+      "description": "Periodic wandering parchment maker encounter: commission royal parchments (20 wood + 15 mana \u2192 +0.22 mana/s 2.5min +20 prestige +8 morale), purchase writing materials (18g \u2192 +0.15 gold/s 2min +12 prestige), send away. Medieval Age+, 10+ tiles, 14-18 min.",
       "completed_date": "2026-05-21",
       "notes": "Created wanderingParchmentMaker.js system, added WANDERING_PARCHMENT_MAKER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingParchmentMakerSection() and handlers to questPanel.js (import * as ParchmentMaker). Events.WANDERING_PARCHMENT_MAKER_CHANGED subscribed. Added parchment CSS (warm parchment/cream theme with violet commission button and amber purchase button)."
     },
@@ -1077,7 +1077,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic wandering incense maker encounter: prepare sacred incense (20 food + 15 mana → +0.20 food/s 2.5min +18 prestige +12 morale), purchase aromatic blends (20g → +0.15 gold/s 2min +12 prestige), send away. Bronze Age+, 8+ tiles, 12-16 min.",
+      "description": "Periodic wandering incense maker encounter: prepare sacred incense (20 food + 15 mana \u2192 +0.20 food/s 2.5min +18 prestige +12 morale), purchase aromatic blends (20g \u2192 +0.15 gold/s 2min +12 prestige), send away. Bronze Age+, 8+ tiles, 12-16 min.",
       "completed_date": "2026-05-21",
       "notes": "Created wanderingIncenseMaker.js system, added WANDERING_INCENSE_MAKER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingIncenseMakerSection() and handlers to questPanel.js (import * as IncenseMaker). Events.WANDERING_INCENSE_MAKER_CHANGED subscribed. Added incense CSS (violet/purple smoky theme with mint green purchase button)."
     },
@@ -1087,7 +1087,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic wandering furrier encounter: commission royal pelt works (25 food → +0.22 food/s 2.5min +18 prestige +10 morale), purchase pelt collection (20g → +0.15 gold/s 2min +12 prestige), send away. Stone Age+, 6+ tiles, 11-15 min.",
+      "description": "Periodic wandering furrier encounter: commission royal pelt works (25 food \u2192 +0.22 food/s 2.5min +18 prestige +10 morale), purchase pelt collection (20g \u2192 +0.15 gold/s 2min +12 prestige), send away. Stone Age+, 6+ tiles, 11-15 min.",
       "completed_date": "2026-05-21",
       "notes": "Created wanderingFurrier.js system, added WANDERING_FURRIER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingFurrierSection() and handlers to questPanel.js (import * as Furrier). Events.WANDERING_FURRIER_CHANGED subscribed. Added furrier CSS (amber/orange pelt theme with gold purchase button)."
     },
@@ -1097,7 +1097,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic imperial wool merchant encounter: trade wool supplies (20 food + 15 wood → +0.22 food/s 2.5min +18 prestige +8 morale), purchase wool goods (18g → +0.15 wood/s 2min +12 prestige), send away. Bronze Age+, 8+ tiles, 12-17 min.",
+      "description": "Periodic imperial wool merchant encounter: trade wool supplies (20 food + 15 wood \u2192 +0.22 food/s 2.5min +18 prestige +8 morale), purchase wool goods (18g \u2192 +0.15 wood/s 2min +12 prestige), send away. Bronze Age+, 8+ tiles, 12-17 min.",
       "completed_date": "2026-05-21",
       "notes": "Created imperialWoolMerchant.js system, added IMPERIAL_WOOL_MERCHANT_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialWoolMerchantSection() and handlers to questPanel.js (import * as WoolMerchant). Events.IMPERIAL_WOOL_MERCHANT_CHANGED subscribed. Added wool CSS (emerald green fleece theme with lime purchase button)."
     },
@@ -1107,7 +1107,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic wandering horse trader encounter: purchase prize stallions (35g → +0.2 gold/s 2.5min +22 prestige +12 morale), trade saddle equipment (20 iron + 15 food → +0.18 iron/s 2min +15 prestige +8 morale), send away. Iron Age+, 10+ tiles, 12-17 min.",
+      "description": "Periodic wandering horse trader encounter: purchase prize stallions (35g \u2192 +0.2 gold/s 2.5min +22 prestige +12 morale), trade saddle equipment (20 iron + 15 food \u2192 +0.18 iron/s 2min +15 prestige +8 morale), send away. Iron Age+, 10+ tiles, 12-17 min.",
       "completed_date": "2026-05-21",
       "notes": "Created wanderingHorseTrader.js system, added WANDERING_HORSE_TRADER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingHorseTraderSection() and handlers to questPanel.js (import * as HorseTrader). Events.WANDERING_HORSE_TRADER_CHANGED subscribed. Added horse CSS (warm chestnut/brown theme with slate trade button)."
     },
@@ -1117,7 +1117,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic imperial silk weaver encounter: commission silk tapestries (25 mana + 20g → +0.2 mana/s 2.5min +22 prestige +10 morale), purchase silk bolts (20 food → +0.18 food/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-18 min.",
+      "description": "Periodic imperial silk weaver encounter: commission silk tapestries (25 mana + 20g \u2192 +0.2 mana/s 2.5min +22 prestige +10 morale), purchase silk bolts (20 food \u2192 +0.18 food/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-18 min.",
       "completed_date": "2026-05-21",
       "notes": "Created imperialSilkWeaver.js system, added IMPERIAL_SILK_WEAVER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialSilkWeaverSection() and handlers to questPanel.js (import * as SilkWeaver). Events.IMPERIAL_SILK_WEAVER_CHANGED subscribed. Added silk CSS (rich violet/purple silk theme with crimson purchase button)."
     },
@@ -1127,7 +1127,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic wandering gem merchant encounter: trade precious gems (25 stone + 20g → +0.22 stone/s 2.5min +20 prestige +10 morale), purchase gem collection (22g → +0.18 gold/s 2min +15 prestige), send away. Bronze Age+, 8+ tiles, 13-17 min.",
+      "description": "Periodic wandering gem merchant encounter: trade precious gems (25 stone + 20g \u2192 +0.22 stone/s 2.5min +20 prestige +10 morale), purchase gem collection (22g \u2192 +0.18 gold/s 2min +15 prestige), send away. Bronze Age+, 8+ tiles, 13-17 min.",
       "completed_date": "2026-05-22",
       "notes": "Created wanderingGemMerchant.js system, added WANDERING_GEM_MERCHANT_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingGemMerchantSection() and handlers to questPanel.js (import * as GemMerchant). Events.WANDERING_GEM_MERCHANT_CHANGED subscribed. Added gem CSS (violet/purple gem theme with amber purchase button)."
     },
@@ -1137,7 +1137,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic imperial siege master encounter: commission war engines (30 iron + 20 wood → +0.22 iron/s 2.5min +25 prestige +10 morale), purchase siege plans (25g → +0.18 gold/s 2min +18 prestige), send away. Iron Age+, 12+ tiles, 15-19 min.",
+      "description": "Periodic imperial siege master encounter: commission war engines (30 iron + 20 wood \u2192 +0.22 iron/s 2.5min +25 prestige +10 morale), purchase siege plans (25g \u2192 +0.18 gold/s 2min +18 prestige), send away. Iron Age+, 12+ tiles, 15-19 min.",
       "completed_date": "2026-05-22",
       "notes": "Created imperialSiegeMaster.js system, added IMPERIAL_SIEGE_MASTER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialSiegeMasterSection() and handlers to questPanel.js (import * as SiegeMaster). Events.IMPERIAL_SIEGE_MASTER_CHANGED subscribed. Added siege CSS (red/crimson war theme with slate purchase button)."
     },
@@ -1147,7 +1147,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic wandering hat maker encounter: commission royal headwear (20 food + 15 wood → +0.22 food/s 2.5min +18 prestige +10 morale), purchase hat-making craft (18g → +0.15 gold/s 2min +12 prestige), send away. Stone Age+, 6+ tiles, 11-15 min.",
+      "description": "Periodic wandering hat maker encounter: commission royal headwear (20 food + 15 wood \u2192 +0.22 food/s 2.5min +18 prestige +10 morale), purchase hat-making craft (18g \u2192 +0.15 gold/s 2min +12 prestige), send away. Stone Age+, 6+ tiles, 11-15 min.",
       "completed_date": "2026-05-22",
       "notes": "Created wanderingHatMaker.js system, added WANDERING_HAT_MAKER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingHatMakerSection() and handlers to questPanel.js (import * as HatMaker). Events.WANDERING_HAT_MAKER_CHANGED subscribed. Added hatmaker CSS (violet/purple theme with amber purchase button)."
     },
@@ -1157,7 +1157,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic imperial goldsmith encounter: commission golden regalia (25 iron + 20g → +0.22 iron/s 2.5min +22 prestige +12 morale), purchase gold crafting secrets (20 stone → +0.18 stone/s 2min +15 prestige), send away. Iron Age+, 10+ tiles, 13-18 min.",
+      "description": "Periodic imperial goldsmith encounter: commission golden regalia (25 iron + 20g \u2192 +0.22 iron/s 2.5min +22 prestige +12 morale), purchase gold crafting secrets (20 stone \u2192 +0.18 stone/s 2min +15 prestige), send away. Iron Age+, 10+ tiles, 13-18 min.",
       "completed_date": "2026-05-22",
       "notes": "Created imperialGoldsmith.js system, added IMPERIAL_GOLDSMITH_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialGoldsmithSection() and handlers to questPanel.js (import * as Goldsmith). Events.IMPERIAL_GOLDSMITH_CHANGED subscribed. Added goldsmith CSS (gold/amber theme with slate purchase button)."
     },
@@ -1167,7 +1167,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic wandering oil merchant encounter: purchase olive oil reserves (25 food → +0.25 food/s 2.5min +18 prestige +10 morale), trade oil lamp supplies (15 wood + 15g → +0.18 gold/s 2min +12 prestige), send away. Bronze Age+, 8+ tiles, 13-17 min.",
+      "description": "Periodic wandering oil merchant encounter: purchase olive oil reserves (25 food \u2192 +0.25 food/s 2.5min +18 prestige +10 morale), trade oil lamp supplies (15 wood + 15g \u2192 +0.18 gold/s 2min +12 prestige), send away. Bronze Age+, 8+ tiles, 13-17 min.",
       "completed_date": "2026-05-22",
       "notes": "Created wanderingOilMerchant.js system, added WANDERING_OIL_MERCHANT_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingOilMerchantSection() and handlers to questPanel.js (import * as OilMerchant). Events.WANDERING_OIL_MERCHANT_CHANGED subscribed. Added oilmerchant CSS (golden-yellow purchase with green trade theme)."
     },
@@ -1177,7 +1177,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic imperial quarryman encounter: commission stone works (25 stone + 20g → +0.22 stone/s 2.5min +22 prestige +12 morale), exchange quarrying techniques (20 iron → +0.18 iron/s 2min +15 prestige), send away. Iron Age+, 10+ tiles, 14-18 min.",
+      "description": "Periodic imperial quarryman encounter: commission stone works (25 stone + 20g \u2192 +0.22 stone/s 2.5min +22 prestige +12 morale), exchange quarrying techniques (20 iron \u2192 +0.18 iron/s 2min +15 prestige), send away. Iron Age+, 10+ tiles, 14-18 min.",
       "completed_date": "2026-05-22",
       "notes": "Created imperialQuarryman.js system, added IMPERIAL_QUARRYMAN_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialQuarrymanSection() and handlers to questPanel.js (import * as Quarryman). Events.IMPERIAL_QUARRYMAN_CHANGED subscribed. Added quarryman CSS (slate/stone-gray commission with amber exchange theme)."
     },
@@ -1187,7 +1187,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic wandering soap maker encounter: commission imperial soap works (20 food + 15 wood → +0.20 food/s 2.5min +15 prestige +10 morale), purchase aromatic soaps (18g → +0.15 gold/s 2min +10 prestige), send away. Stone Age+, 6+ tiles, 11-15 min.",
+      "description": "Periodic wandering soap maker encounter: commission imperial soap works (20 food + 15 wood \u2192 +0.20 food/s 2.5min +15 prestige +10 morale), purchase aromatic soaps (18g \u2192 +0.15 gold/s 2min +10 prestige), send away. Stone Age+, 6+ tiles, 11-15 min.",
       "completed_date": "2026-05-22",
       "notes": "Created wanderingSoapMaker.js system, added WANDERING_SOAP_MAKER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingSoapMakerSection() and handlers to questPanel.js (import * as SoapMaker). Events.WANDERING_SOAP_MAKER_CHANGED subscribed. Added soapmaker CSS (mint/sage green theme with lighter green purchase button)."
     },
@@ -1197,7 +1197,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic imperial metalcaster encounter: commission metal sculptures (25 iron + 20 stone → +0.22 iron/s 2.5min +22 prestige +12 morale), purchase cast metal goods (22g → +0.18 gold/s 2min +15 prestige), send away. Iron Age+, 10+ tiles, 13-18 min.",
+      "description": "Periodic imperial metalcaster encounter: commission metal sculptures (25 iron + 20 stone \u2192 +0.22 iron/s 2.5min +22 prestige +12 morale), purchase cast metal goods (22g \u2192 +0.18 gold/s 2min +15 prestige), send away. Iron Age+, 10+ tiles, 13-18 min.",
       "completed_date": "2026-05-22",
       "notes": "Created imperialMetalcaster.js system, added IMPERIAL_METALCASTER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialMetalcasterSection() and handlers to questPanel.js (import * as Metalcaster). Events.IMPERIAL_METALCASTER_CHANGED subscribed. Added metalcaster CSS (copper/orange commission with amber purchase theme)."
     },
@@ -1207,7 +1207,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic wandering glove maker encounter: craft riding gloves (20 food + 15 wood → +0.22 food/s 2.5min +18 prestige +8 morale), purchase leather gloves (18g → +0.15 gold/s 2min +12 prestige), send away. Stone Age+, 6+ tiles, 11-15 min.",
+      "description": "Periodic wandering glove maker encounter: craft riding gloves (20 food + 15 wood \u2192 +0.22 food/s 2.5min +18 prestige +8 morale), purchase leather gloves (18g \u2192 +0.15 gold/s 2min +12 prestige), send away. Stone Age+, 6+ tiles, 11-15 min.",
       "completed_date": "2026-05-22",
       "notes": "Created wanderingGloveMaker.js system, added WANDERING_GLOVE_MAKER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingGloveMakerSection() and handlers to questPanel.js (import * as GloveMaker). Events.WANDERING_GLOVE_MAKER_CHANGED subscribed. Added glovemaker CSS (warm leather/tan brown theme with gold purchase button)."
     },
@@ -1217,7 +1217,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic imperial telescope maker encounter: commission naval telescope (25 iron + 20 mana → +0.22 iron/s 2.5min +22 prestige +10 morale), purchase celestial lens (25g → +0.18 mana/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 15-20 min.",
+      "description": "Periodic imperial telescope maker encounter: commission naval telescope (25 iron + 20 mana \u2192 +0.22 iron/s 2.5min +22 prestige +10 morale), purchase celestial lens (25g \u2192 +0.18 mana/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 15-20 min.",
       "completed_date": "2026-05-22",
       "notes": "Created imperialTelescopeMaker.js system, added IMPERIAL_TELESCOPE_MAKER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialTelescopeMakerSection() and handlers to questPanel.js (import * as TelescopeMkr). Events.IMPERIAL_TELESCOPE_MAKER_CHANGED subscribed. Added telescope CSS (indigo/violet cosmic theme with violet purchase button)."
     },
@@ -1227,7 +1227,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic wandering paper maker encounter: commission illuminated sheets (20 wood + 15 mana → +0.22 mana/s 2.5min +20 prestige +8 morale), purchase fine paper (18g → +0.15 gold/s 2min +12 prestige), send away. Medieval Age+, 10+ tiles, 14-18 min.",
+      "description": "Periodic wandering paper maker encounter: commission illuminated sheets (20 wood + 15 mana \u2192 +0.22 mana/s 2.5min +20 prestige +8 morale), purchase fine paper (18g \u2192 +0.15 gold/s 2min +12 prestige), send away. Medieval Age+, 10+ tiles, 14-18 min.",
       "completed_date": "2026-05-22",
       "notes": "Created wanderingPaperMaker.js system, added WANDERING_PAPER_MAKER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingPaperMakerSection() and handlers to questPanel.js (import * as PaperMaker). Events.WANDERING_PAPER_MAKER_CHANGED subscribed. Added papermaker CSS (parchment/amber theme with violet commission button and gold purchase button)."
     },
@@ -1237,7 +1237,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic imperial coin minter encounter: commission golden coins (25 iron + 20g → +0.22 iron/s 2.5min +22 prestige +12 morale), purchase minting secrets (20 stone → +0.18 stone/s 2min +15 prestige), send away. Iron Age+, 10+ tiles, 14-18 min.",
+      "description": "Periodic imperial coin minter encounter: commission golden coins (25 iron + 20g \u2192 +0.22 iron/s 2.5min +22 prestige +12 morale), purchase minting secrets (20 stone \u2192 +0.18 stone/s 2min +15 prestige), send away. Iron Age+, 10+ tiles, 14-18 min.",
       "completed_date": "2026-05-22",
       "notes": "Created imperialCoinMinter.js system, added IMPERIAL_COIN_MINTER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialCoinMinterSection() and handlers to questPanel.js (import * as CoinMinter). Events.IMPERIAL_COIN_MINTER_CHANGED subscribed. Added coinminter CSS (gold/amber theme with slate purchase button)."
     },
@@ -1247,7 +1247,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic wandering cartographer's guild encounter: commission regional survey (25 wood + 15g → +0.22 wood/s 2.5min +20 prestige +8 morale), purchase surveying instruments (20g → +0.15 gold/s 2min +12 prestige), send away. Bronze Age+, 8+ tiles, 12-17 min.",
+      "description": "Periodic wandering cartographer's guild encounter: commission regional survey (25 wood + 15g \u2192 +0.22 wood/s 2.5min +20 prestige +8 morale), purchase surveying instruments (20g \u2192 +0.15 gold/s 2min +12 prestige), send away. Bronze Age+, 8+ tiles, 12-17 min.",
       "completed_date": "2026-05-23",
       "notes": "Created wanderingCartographerGuild.js system, added WANDERING_CARTOGRAPHER_GUILD_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingCartographerGuildSection() and handlers to questPanel.js (import * as CartGuild). Events.WANDERING_CARTOGRAPHER_GUILD_CHANGED subscribed. Added cartguild CSS (teal/cyan theme with amber purchase button)."
     },
@@ -1257,7 +1257,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic imperial spymaster encounter: commission intelligence network (30 iron + 20g → +0.22 iron/s 2.5min +25 prestige +10 morale), purchase cipher codes (25 mana → +0.20 mana/s 2min +18 prestige), send away. Iron Age+, 12+ tiles, 15-20 min.",
+      "description": "Periodic imperial spymaster encounter: commission intelligence network (30 iron + 20g \u2192 +0.22 iron/s 2.5min +25 prestige +10 morale), purchase cipher codes (25 mana \u2192 +0.20 mana/s 2min +18 prestige), send away. Iron Age+, 12+ tiles, 15-20 min.",
       "completed_date": "2026-05-23",
       "notes": "Created imperialSpymaster.js system, added IMPERIAL_SPYMASTER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialSpymasterSection() and handlers to questPanel.js (import * as Spymaster). Events.IMPERIAL_SPYMASTER_CHANGED subscribed. Added spymaster CSS (indigo/violet theme with light purple cipher button)."
     },
@@ -1267,7 +1267,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic wandering gem polisher encounter: commission royal gem collection (20 iron + 15 stone → +0.20 iron/s 2.5min +22 prestige +10 morale), purchase polishing techniques (22g → +0.15 stone/s 2min +15 prestige), send away. Iron Age+, 10+ tiles, 13-18 min.",
+      "description": "Periodic wandering gem polisher encounter: commission royal gem collection (20 iron + 15 stone \u2192 +0.20 iron/s 2.5min +22 prestige +10 morale), purchase polishing techniques (22g \u2192 +0.15 stone/s 2min +15 prestige), send away. Iron Age+, 10+ tiles, 13-18 min.",
       "completed_date": "2026-05-23",
       "notes": "Created wanderingGemPolisher.js system, added WANDERING_GEM_POLISHER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingGemPolisherSection() and handlers to questPanel.js (import * as GemPolisher). Events.WANDERING_GEM_POLISHER_CHANGED subscribed. Added gempolisher CSS (violet/purple gem theme with slate purchase button)."
     },
@@ -1277,7 +1277,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic imperial astrolabe maker encounter: commission navigation astrolabe (25 iron + 20 mana → +0.22 mana/s 2.5min +22 prestige +10 morale), purchase celestial charts (22g → +0.18 gold/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 15-20 min.",
+      "description": "Periodic imperial astrolabe maker encounter: commission navigation astrolabe (25 iron + 20 mana \u2192 +0.22 mana/s 2.5min +22 prestige +10 morale), purchase celestial charts (22g \u2192 +0.18 gold/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 15-20 min.",
       "completed_date": "2026-05-23",
       "notes": "Created imperialAstrolabeMaker.js system, added IMPERIAL_ASTROLABE_MAKER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialAstrolabeMakerSection() and handlers to questPanel.js (import * as AstrolabeMkr). Events.IMPERIAL_ASTROLABE_MAKER_CHANGED subscribed. Added astrolabe CSS (sky blue/cyan theme with amber purchase button)."
     },
@@ -1287,7 +1287,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic wandering locksmith encounter: craft imperial vault locks (20 iron + 15 stone → +0.22 iron/s 2.5min +20 prestige +10 morale), share lock-making craft (18g → +0.15 gold/s 2min +12 prestige), send away. Iron Age+, 10+ tiles, 13-18 min.",
+      "description": "Periodic wandering locksmith encounter: craft imperial vault locks (20 iron + 15 stone \u2192 +0.22 iron/s 2.5min +20 prestige +10 morale), share lock-making craft (18g \u2192 +0.15 gold/s 2min +12 prestige), send away. Iron Age+, 10+ tiles, 13-18 min.",
       "completed_date": "2026-05-23",
       "notes": "Created wanderingLocksmith.js system, added WANDERING_LOCKSMITH_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingLocksmithSection() and handlers to questPanel.js (import * as Locksmith). Events.WANDERING_LOCKSMITH_CHANGED subscribed. Added locksmith CSS (slate/steel-blue theme with amber share button)."
     },
@@ -1297,7 +1297,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic imperial calligrapher encounter: commission imperial decrees (25 mana + 20g → +0.25 mana/s 2.5min +22 prestige +8 morale), purchase script collection (20g → +0.18 gold/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-19 min.",
+      "description": "Periodic imperial calligrapher encounter: commission imperial decrees (25 mana + 20g \u2192 +0.25 mana/s 2.5min +22 prestige +8 morale), purchase script collection (20g \u2192 +0.18 gold/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-19 min.",
       "completed_date": "2026-05-23",
       "notes": "Created imperialCalligrapher.js system, added IMPERIAL_CALLIGRAPHER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialCalligrapherSection() and handlers to questPanel.js (import * as Calligrapher). Events.IMPERIAL_CALLIGRAPHER_CHANGED subscribed. Added calligrapher CSS (indigo/violet theme with amber purchase button)."
     },
@@ -1307,7 +1307,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic wandering coppersmith encounter: commission copper tools (20 iron + 15g → +0.20 iron/s 2.5min +18 prestige +10 morale), purchase coppersmith secrets (18 stone → +0.15 stone/s 2min +12 prestige), send away. Bronze Age+, 8+ tiles, 12-17 min.",
+      "description": "Periodic wandering coppersmith encounter: commission copper tools (20 iron + 15g \u2192 +0.20 iron/s 2.5min +18 prestige +10 morale), purchase coppersmith secrets (18 stone \u2192 +0.15 stone/s 2min +12 prestige), send away. Bronze Age+, 8+ tiles, 12-17 min.",
       "completed_date": "2026-05-23",
       "notes": "Created wanderingCoppersmith.js system, added WANDERING_COPPERSMITH_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingCoppersmithSection() and handlers to questPanel.js (import * as Coppersmith). Events.WANDERING_COPPERSMITH_CHANGED subscribed. Added coppersmith CSS (warm copper/orange-amber theme with slate purchase button)."
     },
@@ -1317,7 +1317,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic imperial scrivener encounter: commission royal scrolls (25 mana + 20g → +0.25 mana/s 2.5min +22 prestige +8 morale), purchase scrivener's compendium (22 wood → +0.18 wood/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-19 min.",
+      "description": "Periodic imperial scrivener encounter: commission royal scrolls (25 mana + 20g \u2192 +0.25 mana/s 2.5min +22 prestige +8 morale), purchase scrivener's compendium (22 wood \u2192 +0.18 wood/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-19 min.",
       "completed_date": "2026-05-23",
       "notes": "Created imperialScrivener.js system, added IMPERIAL_SCRIVENER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialScrivenerSection() and handlers to questPanel.js (import * as Scrivener). Events.IMPERIAL_SCRIVENER_CHANGED subscribed. Added scrivener CSS (teal/ocean green theme with green purchase button)."
     },
@@ -1327,7 +1327,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic wandering mirror maker encounter: commission polished mirrors (20 iron + 15 stone → +0.20 iron/s 2.5min +20 prestige +10 morale), purchase mirror-making craft (18g → +0.15 gold/s 2min +12 prestige), send away. Iron Age+, 10+ tiles, 13-17 min.",
+      "description": "Periodic wandering mirror maker encounter: commission polished mirrors (20 iron + 15 stone \u2192 +0.20 iron/s 2.5min +20 prestige +10 morale), purchase mirror-making craft (18g \u2192 +0.15 gold/s 2min +12 prestige), send away. Iron Age+, 10+ tiles, 13-17 min.",
       "completed_date": "2026-05-23",
       "notes": "Created wanderingMirrorMaker.js system, added WANDERING_MIRROR_MAKER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingMirrorMakerSection() and handlers to questPanel.js (import * as MirrorMaker). Events.WANDERING_MIRROR_MAKER_CHANGED subscribed. Added mirror CSS (silver/slate theme with gold purchase button)."
     },
@@ -1337,7 +1337,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic imperial flower merchant encounter: arrange imperial gardens (25 food + 15g → +0.22 food/s 2.5min +20 prestige +12 morale), purchase seasonal blooms (20 food → +0.15 food/s 2min +12 prestige), send away. Bronze Age+, 8+ tiles, 12-17 min.",
+      "description": "Periodic imperial flower merchant encounter: arrange imperial gardens (25 food + 15g \u2192 +0.22 food/s 2.5min +20 prestige +12 morale), purchase seasonal blooms (20 food \u2192 +0.15 food/s 2min +12 prestige), send away. Bronze Age+, 8+ tiles, 12-17 min.",
       "completed_date": "2026-05-23",
       "notes": "Created imperialFlowerMerchant.js system, added IMPERIAL_FLOWER_MERCHANT_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialFlowerMerchantSection() and handlers to questPanel.js (import * as FlowerMerchant). Events.IMPERIAL_FLOWER_MERCHANT_CHANGED subscribed. Added flower CSS (rose/pink floral theme with green purchase button)."
     },
@@ -1347,7 +1347,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic wandering dressmaker encounter: sew imperial gowns (20 food + 15 wood → +0.22 food/s 2.5min +18 prestige +8 morale), purchase dressmaking patterns (18g → +0.15 gold/s 2min +12 prestige), send away. Stone Age+, 6+ tiles, 11-15 min.",
+      "description": "Periodic wandering dressmaker encounter: sew imperial gowns (20 food + 15 wood \u2192 +0.22 food/s 2.5min +18 prestige +8 morale), purchase dressmaking patterns (18g \u2192 +0.15 gold/s 2min +12 prestige), send away. Stone Age+, 6+ tiles, 11-15 min.",
       "completed_date": "2026-05-23",
       "notes": "Created wanderingDressmaker.js system, added WANDERING_DRESSMAKER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingDressmakertSection() and handlers to questPanel.js (import * as Dressmaker). Events.WANDERING_DRESSMAKER_CHANGED subscribed. Added dress CSS (rose/pink theme with gold purchase button)."
     },
@@ -1357,7 +1357,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic imperial tile setter encounter: commission imperial tilework (25 stone + 15g → +0.22 stone/s 2.5min +20 prestige +10 morale), purchase tile patterns (18 iron → +0.15 iron/s 2min +12 prestige), send away. Bronze Age+, 8+ tiles, 13-17 min.",
+      "description": "Periodic imperial tile setter encounter: commission imperial tilework (25 stone + 15g \u2192 +0.22 stone/s 2.5min +20 prestige +10 morale), purchase tile patterns (18 iron \u2192 +0.15 iron/s 2min +12 prestige), send away. Bronze Age+, 8+ tiles, 13-17 min.",
       "completed_date": "2026-05-23",
       "notes": "Created imperialTileSetter.js system, added IMPERIAL_TILE_SETTER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialTileSetterSection() and handlers to questPanel.js (import * as TileSetter). Events.IMPERIAL_TILE_SETTER_CHANGED subscribed. Added tileset CSS (orange/amber theme with slate purchase button)."
     },
@@ -1367,7 +1367,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic imperial banner weaver encounter: weave imperial battle banners (25 wood + 20g → +0.25 wood/s 2.5min +22 prestige +12 morale), purchase heraldic patterns (22g → +0.18 gold/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-18 min.",
+      "description": "Periodic imperial banner weaver encounter: weave imperial battle banners (25 wood + 20g \u2192 +0.25 wood/s 2.5min +22 prestige +12 morale), purchase heraldic patterns (22g \u2192 +0.18 gold/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-18 min.",
       "completed_date": "2026-05-24",
       "notes": "Created imperialBannerWeaver.js system, added IMPERIAL_BANNER_WEAVER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialBannerWeaverSection() and handlers to questPanel.js (import * as BannerWeaver). Events.IMPERIAL_BANNER_WEAVER_CHANGED subscribed. Added banner CSS (crimson/scarlet pulse theme with gold purchase button)."
     },
@@ -1377,7 +1377,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic wandering bone carver encounter: commission ancestral carvings (20 food + 10 stone → +0.20 food/s 2.5min +15 prestige +10 morale), purchase carved artifacts (18g → +0.15 stone/s 2min +10 prestige), send away. Stone Age+, 6+ tiles, 11-15 min.",
+      "description": "Periodic wandering bone carver encounter: commission ancestral carvings (20 food + 10 stone \u2192 +0.20 food/s 2.5min +15 prestige +10 morale), purchase carved artifacts (18g \u2192 +0.15 stone/s 2min +10 prestige), send away. Stone Age+, 6+ tiles, 11-15 min.",
       "completed_date": "2026-05-24",
       "notes": "Created wanderingBoneCarver.js system, added WANDERING_BONE_CARVER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingBoneCarverSection() and handlers to questPanel.js (import * as BoneCarver). Events.WANDERING_BONE_CARVER_CHANGED subscribed. Added bone CSS (earthy ivory/tan pulse theme with slate purchase button)."
     },
@@ -1387,7 +1387,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic wandering tapestry maker encounter: commission imperial tapestry (25 wood + 20g → +0.25 wood/s 2.5min +20 prestige +12 morale), purchase tapestry patterns (20g → +0.18 gold/s 2min +15 prestige), send away. Bronze Age+, 8+ tiles, 12-17 min.",
+      "description": "Periodic wandering tapestry maker encounter: commission imperial tapestry (25 wood + 20g \u2192 +0.25 wood/s 2.5min +20 prestige +12 morale), purchase tapestry patterns (20g \u2192 +0.18 gold/s 2min +15 prestige), send away. Bronze Age+, 8+ tiles, 12-17 min.",
       "completed_date": "2026-05-24",
       "notes": "Created wanderingTapestryMaker.js system, added WANDERING_TAPESTRY_MAKER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingTapestryMakerSection() and handlers to questPanel.js (import * as TapestryMaker). Events.WANDERING_TAPESTRY_MAKER_CHANGED subscribed. Added tapestry CSS (rose/pink pulse theme with gold purchase button)."
     },
@@ -1397,7 +1397,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic imperial siege architect encounter: commission siege towers (30 iron + 20 stone → +0.22 iron/s 2.5min +25 prestige +12 morale), study fortification designs (25g → +0.18 stone/s 2min +18 prestige), send away. Iron Age+, 12+ tiles, 15-20 min.",
+      "description": "Periodic imperial siege architect encounter: commission siege towers (30 iron + 20 stone \u2192 +0.22 iron/s 2.5min +25 prestige +12 morale), study fortification designs (25g \u2192 +0.18 stone/s 2min +18 prestige), send away. Iron Age+, 12+ tiles, 15-20 min.",
       "completed_date": "2026-05-24",
       "notes": "Created imperialSiegeArchitect.js system, added IMPERIAL_SIEGE_ARCHITECT_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialSiegeArchitectSection() and handlers to questPanel.js (import * as SiegeArchitect). Events.IMPERIAL_SIEGE_ARCHITECT_CHANGED subscribed. Added sarch CSS (slate/steel pulse theme with amber study button)."
     },
@@ -1407,7 +1407,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic wandering lute maker encounter: commission court lutes (20 wood + 15g → +0.22 wood/s 2.5min +18 prestige +12 morale), purchase instrument patterns (18g → +0.15 gold/s 2min +10 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
+      "description": "Periodic wandering lute maker encounter: commission court lutes (20 wood + 15g \u2192 +0.22 wood/s 2.5min +18 prestige +12 morale), purchase instrument patterns (18g \u2192 +0.15 gold/s 2min +10 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
       "completed_date": "2026-05-24",
       "notes": "Created wanderingLuteMaker.js system, added WANDERING_LUTE_MAKER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingLuteMakerSection() and handlers to questPanel.js (import * as LuteMaker). Events.WANDERING_LUTE_MAKER_CHANGED subscribed. Added lute CSS (warm cedar/amber pulse theme with gold purchase button, lute- CSS prefix)."
     },
@@ -1417,7 +1417,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic wandering candlemaker encounter: commission royal candles (20 food + 15 wood → +0.20 food/s 2.5min +15 prestige +10 morale), purchase wax formulas (18g → +0.15 gold/s 2min +10 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
+      "description": "Periodic wandering candlemaker encounter: commission royal candles (20 food + 15 wood \u2192 +0.20 food/s 2.5min +15 prestige +10 morale), purchase wax formulas (18g \u2192 +0.15 gold/s 2min +10 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
       "completed_date": "2026-05-24",
       "notes": "Created wanderingCandlemaker.js system, added WANDERING_CANDLEMAKER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingCandlemakerSection() and handlers to questPanel.js (import * as Candlemaker). Events.WANDERING_CANDLEMAKER_CHANGED subscribed. Added candlemaker CSS (warm amber/beeswax theme with gray purchase button)."
     },
@@ -1427,7 +1427,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic imperial grain merchant encounter: establish grain stores (25 food + 15g → +0.25 food/s 2.5min +20 prestige +12 morale), purchase milling rights (20 wood → +0.18 wood/s 2min +15 prestige), send away. Bronze Age+, 8+ tiles, 12-17 min.",
+      "description": "Periodic imperial grain merchant encounter: establish grain stores (25 food + 15g \u2192 +0.25 food/s 2.5min +20 prestige +12 morale), purchase milling rights (20 wood \u2192 +0.18 wood/s 2min +15 prestige), send away. Bronze Age+, 8+ tiles, 12-17 min.",
       "completed_date": "2026-05-24",
       "notes": "Created imperialGrainMerchant.js system, added IMPERIAL_GRAIN_MERCHANT_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialGrainMerchantSection() and handlers to questPanel.js (import * as GrainMerchant). Events.IMPERIAL_GRAIN_MERCHANT_CHANGED subscribed. Added grain CSS (spring green establish with amber milling rights theme)."
     },
@@ -1437,7 +1437,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic imperial stonecutter's guild encounter: commission grand stoneworks (30 stone + 25g → +0.25 stone/s 2.5min +25 prestige +12 morale), purchase stonecutting lore (25 iron → +0.20 iron/s 2min +18 prestige), send away. Iron Age+, 12+ tiles, 14-18 min.",
+      "description": "Periodic imperial stonecutter's guild encounter: commission grand stoneworks (30 stone + 25g \u2192 +0.25 stone/s 2.5min +25 prestige +12 morale), purchase stonecutting lore (25 iron \u2192 +0.20 iron/s 2min +18 prestige), send away. Iron Age+, 12+ tiles, 14-18 min.",
       "completed_date": "2026-05-24",
       "notes": "Created imperialStonecutterGuild.js system, added IMPERIAL_STONECUTTER_GUILD_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialStonecutterGuildSection() and handlers to questPanel.js (import * as SCGuild). Events.IMPERIAL_STONECUTTER_GUILD_CHANGED subscribed. Added scguild CSS (slate/gray pulse theme with amber purchase button, scguild- CSS prefix)."
     },
@@ -1447,7 +1447,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic wandering felt maker encounter: commission felt carpets (20 food + 15 wood → +0.22 food/s 2.5min +18 prestige +8 morale), purchase felting techniques (18g → +0.15 gold/s 2min +12 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
+      "description": "Periodic wandering felt maker encounter: commission felt carpets (20 food + 15 wood \u2192 +0.22 food/s 2.5min +18 prestige +8 morale), purchase felting techniques (18g \u2192 +0.15 gold/s 2min +12 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
       "completed_date": "2026-05-24",
       "notes": "Created wanderingFeltMaker.js system, added WANDERING_FELT_MAKER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingFeltMakerSection() and handlers to questPanel.js (import * as FeltMaker). Events.WANDERING_FELT_MAKER_CHANGED subscribed. Added feltmaker CSS (warm ochre/brown pulse theme with green purchase button, feltmaker- CSS prefix)."
     },
@@ -1457,7 +1457,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic imperial vineyard master encounter: commission wine cellar (25 food + 20g → +0.25 food/s 2.5min +20 prestige +12 morale), purchase vineyard secrets (20 wood → +0.18 wood/s 2min +15 prestige), send away. Bronze Age+, 8+ tiles, 13-17 min.",
+      "description": "Periodic imperial vineyard master encounter: commission wine cellar (25 food + 20g \u2192 +0.25 food/s 2.5min +20 prestige +12 morale), purchase vineyard secrets (20 wood \u2192 +0.18 wood/s 2min +15 prestige), send away. Bronze Age+, 8+ tiles, 13-17 min.",
       "completed_date": "2026-05-24",
       "notes": "Created imperialVineyardMaster.js system, added IMPERIAL_VINEYARD_MASTER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialVineyardMasterSection() and handlers to questPanel.js (import * as VineyardMaster). Events.IMPERIAL_VINEYARD_MASTER_CHANGED subscribed. Added vineyard CSS (deep purple/fuchsia pulse theme with lime purchase button, vineyard- CSS prefix)."
     },
@@ -1467,7 +1467,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic wandering herb merchant encounter: commission herbal remedies (25 food → +0.25 food/s 2.5min +18 prestige +12 morale), purchase herb lore (18g → +0.15 gold/s 2min +12 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
+      "description": "Periodic wandering herb merchant encounter: commission herbal remedies (25 food \u2192 +0.25 food/s 2.5min +18 prestige +12 morale), purchase herb lore (18g \u2192 +0.15 gold/s 2min +12 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
       "completed_date": "2026-05-24",
       "notes": "Created wanderingHerbMerchant.js system, added WANDERING_HERB_MERCHANT_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _wanderingHerbMerchantSection() and handlers to questPanel.js (import * as HerbMerchant). Events.WANDERING_HERB_MERCHANT_CHANGED subscribed. Added herbmerchant CSS (emerald green pulse theme with amber purchase button, herbmerchant- CSS prefix)."
     },
@@ -1477,7 +1477,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic imperial lantern maker encounter: commission festival lanterns (25 mana + 20g → +0.25 mana/s 2.5min +22 prestige +12 morale), purchase lantern craft (20 wood → +0.18 wood/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-19 min.",
+      "description": "Periodic imperial lantern maker encounter: commission festival lanterns (25 mana + 20g \u2192 +0.25 mana/s 2.5min +22 prestige +12 morale), purchase lantern craft (20 wood \u2192 +0.18 wood/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-19 min.",
       "completed_date": "2026-05-24",
       "notes": "Created imperialLanternMaker.js system, added IMPERIAL_LANTERN_MAKER_CHANGED event to events.js, wired into main.js (import, registerSystem, init fresh/loaded, save/load). Added _imperialLanternMakerSection() and handlers to questPanel.js (import * as LanternMaker). Events.IMPERIAL_LANTERN_MAKER_CHANGED subscribed. Added lantern CSS (amber/orange pulse theme with lime-green purchase button, lantern- CSS prefix)."
     },
@@ -1487,7 +1487,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic wandering ink master encounter: commission imperial scrollwork (25 mana + 20g → +0.25 mana/s 2.5min +22 prestige +10 morale), purchase rare ink formulas (20 wood → +0.18 wood/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-18 min.",
+      "description": "Periodic wandering ink master encounter: commission imperial scrollwork (25 mana + 20g \u2192 +0.25 mana/s 2.5min +22 prestige +10 morale), purchase rare ink formulas (20 wood \u2192 +0.18 wood/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-18 min.",
       "completed_date": "2026-05-25",
       "notes": "Built wanderingInkMaster.js. WANDERING_INK_MASTER_CHANGED event added to events.js. state.wanderingInkMaster null field. Ink master section in questPanel.js (import * as InkMaster). Events.WANDERING_INK_MASTER_CHANGED subscribed. CSS: @keyframes inkmaster-pulse (indigo/violet), .inkmaster-section--active, .btn--inkmaster-commission (indigo), .btn--inkmaster-purchase (lime green), .btn--inkmaster-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     },
@@ -1497,7 +1497,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic wandering salt merchant encounter: establish salt stores (25 food + 15g → +0.22 food/s 2.5min +18 prestige +10 morale), purchase salt reserves (20 stone → +0.15 stone/s 2min +12 prestige), send away. Bronze Age+, 8+ tiles, 12-16 min.",
+      "description": "Periodic wandering salt merchant encounter: establish salt stores (25 food + 15g \u2192 +0.22 food/s 2.5min +18 prestige +10 morale), purchase salt reserves (20 stone \u2192 +0.15 stone/s 2min +12 prestige), send away. Bronze Age+, 8+ tiles, 12-16 min.",
       "completed_date": "2026-05-25",
       "notes": "Built wanderingSaltMerchant.js. WANDERING_SALT_MERCHANT_CHANGED event added to events.js. state.wanderingSaltMerchant null field. Salt merchant section in questPanel.js (import * as SaltMerchant). Events.WANDERING_SALT_MERCHANT_CHANGED subscribed. CSS: @keyframes saltmerchant-pulse (sky blue/light blue), .saltmerchant-section--active, .btn--saltmerchant-commission (sky blue), .btn--saltmerchant-purchase (amber/gold), .btn--saltmerchant-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     },
@@ -1507,7 +1507,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic wandering bronze smith encounter: commission imperial bronze works (25 iron + 15g → +0.22 iron/s 2.5min +20 prestige +10 morale), purchase alloy techniques (20 stone → +0.15 stone/s 2min +12 prestige), send away. Iron Age+, 10+ tiles, 11-15 min.",
+      "description": "Periodic wandering bronze smith encounter: commission imperial bronze works (25 iron + 15g \u2192 +0.22 iron/s 2.5min +20 prestige +10 morale), purchase alloy techniques (20 stone \u2192 +0.15 stone/s 2min +12 prestige), send away. Iron Age+, 10+ tiles, 11-15 min.",
       "completed_date": "2026-05-25",
       "notes": "Built wanderingBronzeSmith.js. WANDERING_BRONZE_SMITH_CHANGED event added to events.js. state.wanderingBronzeSmith null field. Bronze smith section in questPanel.js (import * as BronzeSmith). Events.WANDERING_BRONZE_SMITH_CHANGED subscribed. CSS: @keyframes bronzesmith-pulse (bronze/copper orange), .bronzesmith-section--active, .btn--bronzesmith-commission (bronze/amber), .btn--bronzesmith-purchase (slate/gray), .btn--bronzesmith-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     },
@@ -1517,7 +1517,7 @@
       "status": "done",
       "priority": 1,
       "phase": 6,
-      "description": "Periodic imperial aqueduct builder encounter: commission grand aqueduct (30 stone + 20g → +0.25 food/s 2.5min +28 prestige +12 morale), study hydraulic engineering (25 iron → +0.20 iron/s 2min +18 prestige), send away. Medieval Age+, 12+ tiles, 16-20 min.",
+      "description": "Periodic imperial aqueduct builder encounter: commission grand aqueduct (30 stone + 20g \u2192 +0.25 food/s 2.5min +28 prestige +12 morale), study hydraulic engineering (25 iron \u2192 +0.20 iron/s 2min +18 prestige), send away. Medieval Age+, 12+ tiles, 16-20 min.",
       "completed_date": "2026-05-25",
       "notes": "Built imperialAqueductBuilder.js. IMPERIAL_AQUEDUCT_BUILDER_CHANGED event added to events.js. state.imperialAqueductBuilder null field. Aqueduct builder section in questPanel.js (import * as AqueductBld). Events.IMPERIAL_AQUEDUCT_BUILDER_CHANGED subscribed. CSS: @keyframes aqueduct-pulse (teal/cyan), .aqueduct-section--active, .btn--aqueduct-commission (teal), .btn--aqueduct-study (violet/purple), .btn--aqueduct-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     },
@@ -1527,7 +1527,7 @@
       "status": "done",
       "priority": 401,
       "phase": 116,
-      "description": "Periodic wandering glass painter encounter: commission stained glass windows (25 stone + 20g → +0.22 stone/s 2.5min +22 prestige +10 morale), purchase painting techniques (20 mana → +0.18 mana/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-19 min.",
+      "description": "Periodic wandering glass painter encounter: commission stained glass windows (25 stone + 20g \u2192 +0.22 stone/s 2.5min +22 prestige +10 morale), purchase painting techniques (20 mana \u2192 +0.18 mana/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-19 min.",
       "completed_date": "2026-05-25",
       "notes": "Built wanderingGlassPainter.js. WANDERING_GLASS_PAINTER_CHANGED event added to events.js. state.wanderingGlassPainter null field. Glass painter section in questPanel.js (import * as GlassPainter). Events.WANDERING_GLASS_PAINTER_CHANGED subscribed. CSS: @keyframes glasspainter-pulse (sky blue/cyan), .glasspainter-section--active, .btn--glasspainter-commission (sky blue), .btn--glasspainter-purchase (violet), .btn--glasspainter-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     },
@@ -1537,7 +1537,7 @@
       "status": "done",
       "priority": 402,
       "phase": 116,
-      "description": "Periodic imperial siege catapult engineer encounter: commission war machines (35 iron + 20 wood → +0.25 iron/s 2.5min +28 prestige +10 morale), study torsion physics (25 stone → +0.20 stone/s 2min +18 prestige), send away. Iron Age+, 12+ tiles, 15-19 min.",
+      "description": "Periodic imperial siege catapult engineer encounter: commission war machines (35 iron + 20 wood \u2192 +0.25 iron/s 2.5min +28 prestige +10 morale), study torsion physics (25 stone \u2192 +0.20 stone/s 2min +18 prestige), send away. Iron Age+, 12+ tiles, 15-19 min.",
       "completed_date": "2026-05-25",
       "notes": "Built imperialSiegeCatapultEngineer.js. IMPERIAL_SIEGE_CATAPULT_ENGINEER_CHANGED event added to events.js. state.imperialSiegeCatapultEngineer null field. Catapult engineer section in questPanel.js (import * as CatapultEng). Events.IMPERIAL_SIEGE_CATAPULT_ENGINEER_CHANGED subscribed. CSS: @keyframes catapulteng-pulse (red/crimson), .catapulteng-section--active, .btn--catapulteng-commission (red), .btn--catapulteng-study (slate), .btn--catapulteng-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     },
@@ -1547,7 +1547,7 @@
       "status": "done",
       "priority": 403,
       "phase": 117,
-      "description": "Periodic wandering wool spinner encounter: commission royal wool cloth (20 food + 15g → +0.2 food/s 2.5min +18 prestige +10 morale), purchase spinning techniques (15 wood → +0.15 wood/s 2min +12 prestige), send away. Stone Age+, 6+ tiles, 11-16 min.",
+      "description": "Periodic wandering wool spinner encounter: commission royal wool cloth (20 food + 15g \u2192 +0.2 food/s 2.5min +18 prestige +10 morale), purchase spinning techniques (15 wood \u2192 +0.15 wood/s 2min +12 prestige), send away. Stone Age+, 6+ tiles, 11-16 min.",
       "completed_date": "2026-05-25",
       "notes": "Built wanderingWoolSpinner.js. WANDERING_WOOL_SPINNER_CHANGED event added to events.js. state.wanderingWoolSpinner null field. Wool spinner section in questPanel.js (import * as WoolSpinner). Events.WANDERING_WOOL_SPINNER_CHANGED subscribed. CSS: @keyframes woolspinner-pulse (warm cream/golden), .woolspinner-section--active, .btn--woolspinner-commission (golden cream), .btn--woolspinner-purchase (green), .btn--woolspinner-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     },
@@ -1557,7 +1557,7 @@
       "status": "done",
       "priority": 404,
       "phase": 117,
-      "description": "Periodic imperial amber merchant encounter: arrange Baltic amber trade (25 food + 20g → +0.22 gold/s 2.5min +20 prestige +10 morale), purchase amber specimens (18 stone → +0.15 stone/s 2min +12 prestige), send away. Bronze Age+, 8+ tiles, 13-18 min.",
+      "description": "Periodic imperial amber merchant encounter: arrange Baltic amber trade (25 food + 20g \u2192 +0.22 gold/s 2.5min +20 prestige +10 morale), purchase amber specimens (18 stone \u2192 +0.15 stone/s 2min +12 prestige), send away. Bronze Age+, 8+ tiles, 13-18 min.",
       "completed_date": "2026-05-25",
       "notes": "Built imperialAmberMerchant.js. IMPERIAL_AMBER_MERCHANT_CHANGED event added to events.js. state.imperialAmberMerchant null field. Amber merchant section in questPanel.js (import * as AmberMerchant). Events.IMPERIAL_AMBER_MERCHANT_CHANGED subscribed. CSS: @keyframes ambermerchant-pulse (warm amber/golden orange), .ambermerchant-section--active, .btn--ambermerchant-arrange (amber/gold), .btn--ambermerchant-purchase (slate), .btn--ambermerchant-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     },
@@ -1567,7 +1567,7 @@
       "status": "done",
       "priority": 405,
       "phase": 118,
-      "description": "Periodic wandering sandglass maker encounter: commission imperial hourglasses (20 stone + 15g → +0.20 stone/s 2.5min +18 prestige +10 morale), purchase glass-sand lore (18 iron → +0.15 iron/s 2min +12 prestige), send away. Stone Age+, 6+ tiles, 12-17 min.",
+      "description": "Periodic wandering sandglass maker encounter: commission imperial hourglasses (20 stone + 15g \u2192 +0.20 stone/s 2.5min +18 prestige +10 morale), purchase glass-sand lore (18 iron \u2192 +0.15 iron/s 2min +12 prestige), send away. Stone Age+, 6+ tiles, 12-17 min.",
       "completed_date": "2026-05-25",
       "notes": "Built wanderingSandglassMaker.js. WANDERING_SANDGLASS_MAKER_CHANGED event added to events.js. state.wanderingSandglassMaker null field. Sandglass maker section in questPanel.js (import * as SandglassMaker). Events.WANDERING_SANDGLASS_MAKER_CHANGED subscribed. CSS: @keyframes sandglass-pulse (teal/cyan), .sandglass-section--active, .btn--sandglass-commission (teal), .btn--sandglass-purchase (green), .btn--sandglass-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     },
@@ -1577,7 +1577,7 @@
       "status": "done",
       "priority": 406,
       "phase": 118,
-      "description": "Periodic imperial bridge builder encounter: commission imperial bridges (30 stone + 20g → +0.25 stone/s 2.5min +25 prestige +12 morale), study bridge engineering (25 iron → +0.20 iron/s 2min +18 prestige), send away. Iron Age+, 10+ tiles, 14-18 min.",
+      "description": "Periodic imperial bridge builder encounter: commission imperial bridges (30 stone + 20g \u2192 +0.25 stone/s 2.5min +25 prestige +12 morale), study bridge engineering (25 iron \u2192 +0.20 iron/s 2min +18 prestige), send away. Iron Age+, 10+ tiles, 14-18 min.",
       "completed_date": "2026-05-25",
       "notes": "Built imperialBridgeBuilder.js. IMPERIAL_BRIDGE_BUILDER_CHANGED event added to events.js. state.imperialBridgeBuilder null field. Bridge builder section in questPanel.js (import * as BridgeBuilder). Events.IMPERIAL_BRIDGE_BUILDER_CHANGED subscribed. CSS: @keyframes bridgebld-pulse (slate/stone), .bridgebld-section--active, .btn--bridgebld-commission (slate), .btn--bridgebld-study (amber/gold), .btn--bridgebld-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     },
@@ -1587,7 +1587,7 @@
       "status": "done",
       "priority": 407,
       "phase": 119,
-      "description": "Periodic wandering chronicler encounter: commission imperial chronicle (30 mana + 20g → +0.25 mana/s 2.5min +22 prestige +10 morale), purchase historical compendium (25g → +0.18 gold/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-18 min.",
+      "description": "Periodic wandering chronicler encounter: commission imperial chronicle (30 mana + 20g \u2192 +0.25 mana/s 2.5min +22 prestige +10 morale), purchase historical compendium (25g \u2192 +0.18 gold/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-18 min.",
       "completed_date": "2026-05-26",
       "notes": "Built wanderingChronicler.js. WANDERING_CHRONICLER_CHANGED event added to events.js. state.wanderingChronicler null field. Chronicler section in questPanel.js (import * as Chronicler). Events.WANDERING_CHRONICLER_CHANGED subscribed. CSS: @keyframes chronicler-pulse (warm amber), .chronicler-section--active, .btn--chronicler-commission (amber), .btn--chronicler-purchase (gold), .btn--chronicler-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     },
@@ -1597,7 +1597,7 @@
       "status": "done",
       "priority": 408,
       "phase": 119,
-      "description": "Periodic imperial surveyor encounter: commission land survey (30 stone + 20g → +0.25 stone/s 2.5min +25 prestige +12 morale), study survey methods (25 iron → +0.20 iron/s 2min +18 prestige), send away. Iron Age+, 12+ tiles, 14-18 min.",
+      "description": "Periodic imperial surveyor encounter: commission land survey (30 stone + 20g \u2192 +0.25 stone/s 2.5min +25 prestige +12 morale), study survey methods (25 iron \u2192 +0.20 iron/s 2min +18 prestige), send away. Iron Age+, 12+ tiles, 14-18 min.",
       "completed_date": "2026-05-26",
       "notes": "Built imperialSurveyor.js. IMPERIAL_SURVEYOR_CHANGED event added to events.js. state.imperialSurveyor null field. Surveyor section in questPanel.js (import * as ImperialSurveyor). Events.IMPERIAL_SURVEYOR_CHANGED subscribed. CSS: @keyframes surveyor-pulse (slate/stone precision), .surveyor-section--active, .btn--surveyor-commission (slate), .btn--surveyor-study (amber/gold), .btn--surveyor-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     },
@@ -1607,7 +1607,7 @@
       "status": "done",
       "priority": 409,
       "phase": 120,
-      "description": "Periodic wandering tapestry restorer encounter: commission tapestry restoration (25 wood + 15 food → +0.22 wood/s 2.5min +20 prestige +10 morale), learn restoration arts (18 mana → +0.15 mana/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-19 min.",
+      "description": "Periodic wandering tapestry restorer encounter: commission tapestry restoration (25 wood + 15 food \u2192 +0.22 wood/s 2.5min +20 prestige +10 morale), learn restoration arts (18 mana \u2192 +0.15 mana/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-19 min.",
       "completed_date": "2026-05-26",
       "notes": "Built wanderingTapestryRestorer.js. WANDERING_TAPESTRY_RESTORER_CHANGED event added to events.js. state.wanderingTapestryRestorer null field. Tapestry restorer section in questPanel.js (import * as TapestryRestorer). Events.WANDERING_TAPESTRY_RESTORER_CHANGED subscribed. CSS: @keyframes taprest-pulse (pink/rose theme), .taprest-section--active, .btn--taprest-commission (pink), .btn--taprest-learn (violet), .btn--taprest-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     },
@@ -1617,7 +1617,7 @@
       "status": "done",
       "priority": 410,
       "phase": 120,
-      "description": "Periodic imperial harbor master encounter: commission harbor works (30 wood + 20g → +0.25 wood/s 2.5min +25 prestige +12 morale), study maritime law (25 stone → +0.20 stone/s 2min +18 prestige), send away. Iron Age+, 12+ tiles, 14-18 min.",
+      "description": "Periodic imperial harbor master encounter: commission harbor works (30 wood + 20g \u2192 +0.25 wood/s 2.5min +25 prestige +12 morale), study maritime law (25 stone \u2192 +0.20 stone/s 2min +18 prestige), send away. Iron Age+, 12+ tiles, 14-18 min.",
       "completed_date": "2026-05-26",
       "notes": "Built imperialHarborMaster.js. IMPERIAL_HARBOR_MASTER_CHANGED event added to events.js. state.imperialHarborMaster null field. Harbor master section in questPanel.js (import * as HarborMaster). Events.IMPERIAL_HARBOR_MASTER_CHANGED subscribed. CSS: @keyframes harbormaster-pulse (sky blue theme), .harbormaster-section--active, .btn--harbormaster-commission (sky blue), .btn--harbormaster-study (slate), .btn--harbormaster-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     },
@@ -1627,7 +1627,7 @@
       "status": "done",
       "priority": 411,
       "phase": 121,
-      "description": "Periodic wandering bow maker encounter: commission imperial longbows (25 wood + 15 iron → +0.22 wood/s 2.5min +20 prestige +10 morale), purchase bowyer secrets (20g → +0.15 iron/s 2min +15 prestige), send away. Iron Age+, 10+ tiles, 13-18 min.",
+      "description": "Periodic wandering bow maker encounter: commission imperial longbows (25 wood + 15 iron \u2192 +0.22 wood/s 2.5min +20 prestige +10 morale), purchase bowyer secrets (20g \u2192 +0.15 iron/s 2min +15 prestige), send away. Iron Age+, 10+ tiles, 13-18 min.",
       "completed_date": "2026-05-26",
       "notes": "Built wanderingBowMaker.js. WANDERING_BOW_MAKER_CHANGED event added to events.js. state.wanderingBowMaker null field. Bow maker section in questPanel.js (import * as BowMaker). Events.WANDERING_BOW_MAKER_CHANGED subscribed. CSS: @keyframes bowmaker-pulse (lime green theme), .bowmaker-section--active, .btn--bowmaker-commission (lime), .btn--bowmaker-purchase (amber/gold), .btn--bowmaker-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     },
@@ -1637,7 +1637,7 @@
       "status": "done",
       "priority": 412,
       "phase": 121,
-      "description": "Periodic imperial cheese merchant encounter: establish imperial dairy (25 food + 15g → +0.25 food/s 2.5min +20 prestige +12 morale), purchase aged varieties (20 food → +0.18 food/s 2min +12 prestige), send away. Bronze Age+, 8+ tiles, 12-17 min.",
+      "description": "Periodic imperial cheese merchant encounter: establish imperial dairy (25 food + 15g \u2192 +0.25 food/s 2.5min +20 prestige +12 morale), purchase aged varieties (20 food \u2192 +0.18 food/s 2min +12 prestige), send away. Bronze Age+, 8+ tiles, 12-17 min.",
       "completed_date": "2026-05-26",
       "notes": "Built imperialCheeseMerchant.js. IMPERIAL_CHEESE_MERCHANT_CHANGED event added to events.js. state.imperialCheeseMerchant null field. Cheese merchant section in questPanel.js (import * as CheeseMerchant). Events.IMPERIAL_CHEESE_MERCHANT_CHANGED subscribed. CSS: @keyframes cheesemerchant-pulse (amber/gold theme), .cheesemerchant-section--active, .btn--cheesemerchant-establish (amber), .btn--cheesemerchant-purchase (emerald green), .btn--cheesemerchant-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     },
@@ -1647,7 +1647,7 @@
       "status": "done",
       "priority": 413,
       "phase": 122,
-      "description": "Periodic wandering thatcher encounter: thatch imperial halls (20 wood + 10 food → +0.22 wood/s 2.5min +15 prestige +8 morale), purchase thatching craft (18g → +0.15 food/s 2min +10 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
+      "description": "Periodic wandering thatcher encounter: thatch imperial halls (20 wood + 10 food \u2192 +0.22 wood/s 2.5min +15 prestige +8 morale), purchase thatching craft (18g \u2192 +0.15 food/s 2min +10 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
       "completed_date": "2026-05-26",
       "notes": "Built wanderingThatcher.js. WANDERING_THATCHER_CHANGED event added to events.js. state.wanderingThatcher null field. Thatcher section in questPanel.js (import * as Thatcher). Events.WANDERING_THATCHER_CHANGED subscribed. CSS: @keyframes thatcher-pulse (lime/yellow-green theme), .thatcher-section--active, .btn--thatcher-thatch (lime green), .btn--thatcher-purchase (emerald green), .btn--thatcher-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     },
@@ -1657,7 +1657,7 @@
       "status": "done",
       "priority": 414,
       "phase": 122,
-      "description": "Periodic imperial millstone cutter encounter: commission grinding millstones (25 stone + 20g → +0.22 stone/s 2.5min +20 prestige +10 morale), purchase milling designs (20 iron → +0.18 iron/s 2min +15 prestige), send away. Iron Age+, 10+ tiles, 13-18 min.",
+      "description": "Periodic imperial millstone cutter encounter: commission grinding millstones (25 stone + 20g \u2192 +0.22 stone/s 2.5min +20 prestige +10 morale), purchase milling designs (20 iron \u2192 +0.18 iron/s 2min +15 prestige), send away. Iron Age+, 10+ tiles, 13-18 min.",
       "completed_date": "2026-05-26",
       "notes": "Built imperialMillstoneCutter.js. IMPERIAL_MILLSTONE_CUTTER_CHANGED event added to events.js. state.imperialMillstoneCutter null field. Millstone cutter section in questPanel.js (import * as MillstoneCutter). Events.IMPERIAL_MILLSTONE_CUTTER_CHANGED subscribed. CSS: @keyframes millstone-pulse (slate/silver theme), .millstone-section--active, .btn--millstone-commission (slate/silver), .btn--millstone-purchase (amber/gold), .btn--millstone-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     },
@@ -1667,7 +1667,7 @@
       "status": "done",
       "priority": 415,
       "phase": 123,
-      "description": "Periodic wandering peat cutter encounter: commission peat hearths (20 food + 15 wood → +0.22 food/s 2.5min +15 prestige +10 morale), purchase peat-cutting lore (18g → +0.15 wood/s 2min +12 prestige), send away. Stone Age+, 6+ tiles, 11-15 min.",
+      "description": "Periodic wandering peat cutter encounter: commission peat hearths (20 food + 15 wood \u2192 +0.22 food/s 2.5min +15 prestige +10 morale), purchase peat-cutting lore (18g \u2192 +0.15 wood/s 2min +12 prestige), send away. Stone Age+, 6+ tiles, 11-15 min.",
       "completed_date": "2026-05-26",
       "notes": "Built wanderingPeatCutter.js. WANDERING_PEAT_CUTTER_CHANGED event added to events.js. state.wanderingPeatCutter null field. Peat cutter section in questPanel.js (import * as PeatCutter). Events.WANDERING_PEAT_CUTTER_CHANGED subscribed. CSS: @keyframes peatcutter-pulse (earthy brown/amber), .peatcutter-section--active, .btn--peatcutter-commission (brown-amber), .btn--peatcutter-purchase (green), .btn--peatcutter-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     },
@@ -1677,7 +1677,7 @@
       "status": "done",
       "priority": 416,
       "phase": 123,
-      "description": "Periodic imperial icon painter encounter: commission sacred icons (25 mana + 20g → +0.25 mana/s 2.5min +22 prestige +10 morale), purchase gilded iconography (20 stone → +0.18 stone/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-18 min.",
+      "description": "Periodic imperial icon painter encounter: commission sacred icons (25 mana + 20g \u2192 +0.25 mana/s 2.5min +22 prestige +10 morale), purchase gilded iconography (20 stone \u2192 +0.18 stone/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-18 min.",
       "completed_date": "2026-05-26",
       "notes": "Built imperialIconPainter.js. IMPERIAL_ICON_PAINTER_CHANGED event added to events.js. state.imperialIconPainter null field. Icon painter section in questPanel.js (import * as IconPainter). Events.IMPERIAL_ICON_PAINTER_CHANGED subscribed. CSS: @keyframes iconpainter-pulse (gold/amber), .iconpainter-section--active, .btn--iconpainter-commission (gold/amber), .btn--iconpainter-purchase (slate), .btn--iconpainter-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     },
@@ -1687,7 +1687,7 @@
       "status": "done",
       "priority": 417,
       "phase": 124,
-      "description": "Periodic wandering wax tablet maker encounter: commission imperial wax records (25 mana + 20g → +0.25 mana/s 2.5min +22 prestige +10 morale), purchase wax tablet lore (20 stone → +0.18 stone/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-18 min.",
+      "description": "Periodic wandering wax tablet maker encounter: commission imperial wax records (25 mana + 20g \u2192 +0.25 mana/s 2.5min +22 prestige +10 morale), purchase wax tablet lore (20 stone \u2192 +0.18 stone/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-18 min.",
       "completed_date": "2026-05-26",
       "notes": "Built wanderingWaxTabletMaker.js. WANDERING_WAX_TABLET_MAKER_CHANGED event added to events.js. state.wanderingWaxTabletMaker null field. Wax tablet maker section in questPanel.js (import * as WaxTabletMaker). Events.WANDERING_WAX_TABLET_MAKER_CHANGED subscribed. CSS: @keyframes waxtablet-pulse (amber/gold parchment theme), .waxtablet-section--active, .btn--waxtablet-commission (amber/gold), .btn--waxtablet-purchase (slate), .btn--waxtablet-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     },
@@ -1697,7 +1697,7 @@
       "status": "done",
       "priority": 418,
       "phase": 124,
-      "description": "Periodic wandering net maker encounter: commission imperial fishing nets (20 wood + 10 food → +0.22 food/s 2.5min +15 prestige +10 morale), purchase net-making secrets (18g → +0.15 gold/s 2min +10 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
+      "description": "Periodic wandering net maker encounter: commission imperial fishing nets (20 wood + 10 food \u2192 +0.22 food/s 2.5min +15 prestige +10 morale), purchase net-making secrets (18g \u2192 +0.15 gold/s 2min +10 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
       "completed_date": "2026-05-26",
       "notes": "Built wanderingNetMaker.js. WANDERING_NET_MAKER_CHANGED event added to events.js. state.wanderingNetMaker null field. Net maker section in questPanel.js (import * as NetMaker). Events.WANDERING_NET_MAKER_CHANGED subscribed. CSS: @keyframes netmaker-pulse (sky blue/ocean theme), .netmaker-section--active, .btn--netmaker-commission (sky blue), .btn--netmaker-purchase (green), .btn--netmaker-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     },
@@ -1707,7 +1707,7 @@
       "status": "done",
       "priority": 419,
       "phase": 125,
-      "description": "Periodic wandering drum maker encounter: commission ceremonial drums (20 wood + 10 food → +0.22 wood/s 2.5min +15 prestige +10 morale), purchase drum-making craft (18g → +0.15 gold/s 2min +10 prestige), send away. Stone Age+, 6+ tiles, 11-15 min.",
+      "description": "Periodic wandering drum maker encounter: commission ceremonial drums (20 wood + 10 food \u2192 +0.22 wood/s 2.5min +15 prestige +10 morale), purchase drum-making craft (18g \u2192 +0.15 gold/s 2min +10 prestige), send away. Stone Age+, 6+ tiles, 11-15 min.",
       "completed_date": "2026-05-27",
       "notes": "Built wanderingDrumMaker.js. WANDERING_DRUM_MAKER_CHANGED event added to events.js. state.wanderingDrumMaker null field. Drum maker section in questPanel.js (import * as DrumMaker). Events.WANDERING_DRUM_MAKER_CHANGED subscribed. CSS: @keyframes drummaker-pulse (warm amber/crimson), .drummaker-section--active, .btn--drummaker-commission (amber), .btn--drummaker-purchase (green), .btn--drummaker-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     },
@@ -1717,7 +1717,7 @@
       "status": "done",
       "priority": 420,
       "phase": 125,
-      "description": "Periodic imperial herbarium keeper encounter: commission herbal compendium (25 mana + 15g → +0.22 mana/s 2.5min +20 prestige +10 morale), purchase medicinal plants (20 food → +0.18 food/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-19 min.",
+      "description": "Periodic imperial herbarium keeper encounter: commission herbal compendium (25 mana + 15g \u2192 +0.22 mana/s 2.5min +20 prestige +10 morale), purchase medicinal plants (20 food \u2192 +0.18 food/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-19 min.",
       "completed_date": "2026-05-27",
       "notes": "Built imperialHerbariumKeeper.js. IMPERIAL_HERBARIUM_KEEPER_CHANGED event added to events.js. state.imperialHerbariumKeeper null field. Herbarium keeper section in questPanel.js (import * as HerbariumKeeper). Events.IMPERIAL_HERBARIUM_KEEPER_CHANGED subscribed. CSS: @keyframes herbarium-pulse (emerald/mint green), .herbarium-section--active, .btn--herbarium-commission (emerald green), .btn--herbarium-purchase (light green), .btn--herbarium-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     },
@@ -1727,7 +1727,7 @@
       "status": "done",
       "priority": 421,
       "phase": 126,
-      "description": "Periodic wandering spear maker encounter: commission hunting spears (20 wood + 10 food → +0.22 food/s 2.5min +15 prestige +8 morale), purchase spear-crafting lore (18g → +0.15 gold/s 2min +10 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
+      "description": "Periodic wandering spear maker encounter: commission hunting spears (20 wood + 10 food \u2192 +0.22 food/s 2.5min +15 prestige +8 morale), purchase spear-crafting lore (18g \u2192 +0.15 gold/s 2min +10 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
       "completed_date": "2026-05-27",
       "notes": "Built wanderingSpearMaker.js. WANDERING_SPEAR_MAKER_CHANGED event added to events.js. state.wanderingSpearMaker null field. Spear maker section in questPanel.js (import * as SpearMaker). Events.WANDERING_SPEAR_MAKER_CHANGED subscribed. CSS: @keyframes spearmaker-pulse (amber/brown), .spearmaker-section--active, .btn--spearmaker-commission (amber/brown), .btn--spearmaker-purchase (sky blue), .btn--spearmaker-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     },
@@ -1737,7 +1737,7 @@
       "status": "done",
       "priority": 422,
       "phase": 126,
-      "description": "Periodic imperial robe maker encounter: commission imperial robes (25 mana + 20g → +0.22 mana/s 2.5min +20 prestige +10 morale), purchase fine fabrics (20 food → +0.18 food/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-19 min.",
+      "description": "Periodic imperial robe maker encounter: commission imperial robes (25 mana + 20g \u2192 +0.22 mana/s 2.5min +20 prestige +10 morale), purchase fine fabrics (20 food \u2192 +0.18 food/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-19 min.",
       "completed_date": "2026-05-27",
       "notes": "Built imperialRobeMaker.js. IMPERIAL_ROBE_MAKER_CHANGED event added to events.js. state.imperialRobeMaker null field. Robe maker section in questPanel.js (import * as RobeMaker). Events.IMPERIAL_ROBE_MAKER_CHANGED subscribed. CSS: @keyframes robemaker-pulse (violet/purple), .robemaker-section--active, .btn--robemaker-commission (violet), .btn--robemaker-purchase (green), .btn--robemaker-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     },
@@ -1747,7 +1747,7 @@
       "status": "done",
       "priority": 423,
       "phase": 127,
-      "description": "Periodic wandering fletcher encounter: commission arrow bundles (20 wood + 10 food → +0.22 food/s 2.5min +15 prestige +8 morale), purchase fletching craft (18g → +0.15 gold/s 2min +10 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
+      "description": "Periodic wandering fletcher encounter: commission arrow bundles (20 wood + 10 food \u2192 +0.22 food/s 2.5min +15 prestige +8 morale), purchase fletching craft (18g \u2192 +0.15 gold/s 2min +10 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
       "completed_date": "2026-05-27",
       "notes": "Built wanderingFletcher.js. WANDERING_FLETCHER_CHANGED event added to events.js. state.wanderingFletcher null field. Fletcher section in questPanel.js (import * as Fletcher). Events.WANDERING_FLETCHER_CHANGED subscribed. CSS: @keyframes fletcher-pulse (forest green), .fletcher-section--active, .btn--fletcher-commission (green), .btn--fletcher-purchase (amber/gold), .btn--fletcher-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     },
@@ -1757,7 +1757,7 @@
       "status": "done",
       "priority": 424,
       "phase": 127,
-      "description": "Periodic imperial knifesmith encounter: commission blade collection (25 iron + 15g → +0.22 iron/s 2.5min +22 prestige +10 morale), purchase blade craft (20 stone → +0.18 stone/s 2min +15 prestige), send away. Iron Age+, 10+ tiles, 13-18 min.",
+      "description": "Periodic imperial knifesmith encounter: commission blade collection (25 iron + 15g \u2192 +0.22 iron/s 2.5min +22 prestige +10 morale), purchase blade craft (20 stone \u2192 +0.18 stone/s 2min +15 prestige), send away. Iron Age+, 10+ tiles, 13-18 min.",
       "completed_date": "2026-05-27",
       "notes": "Built imperialKnifesmith.js. IMPERIAL_KNIFESMITH_CHANGED event added to events.js. state.imperialKnifesmith null field. Knifesmith section in questPanel.js (import * as Knifesmith). Events.IMPERIAL_KNIFESMITH_CHANGED subscribed. CSS: @keyframes knifesmith-pulse (steel blue/slate), .knifesmith-section--active, .btn--knifesmith-commission (slate), .btn--knifesmith-purchase (amber/gold), .btn--knifesmith-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     },
@@ -1767,7 +1767,7 @@
       "status": "done",
       "priority": 425,
       "phase": 128,
-      "description": "Periodic wandering sail maker encounter: commission sailing canvas (20 wood + 10 food → +0.22 wood/s 2.5min +15 prestige +8 morale), purchase sail-making lore (18g → +0.15 gold/s 2min +10 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
+      "description": "Periodic wandering sail maker encounter: commission sailing canvas (20 wood + 10 food \u2192 +0.22 wood/s 2.5min +15 prestige +8 morale), purchase sail-making lore (18g \u2192 +0.15 gold/s 2min +10 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
       "completed_date": "2026-05-27",
       "notes": "Built wanderingSailMaker.js. WANDERING_SAIL_MAKER_CHANGED event added to events.js. state.wanderingSailMaker null field. Sail maker section in questPanel.js (import * as SailMaker). Events.WANDERING_SAIL_MAKER_CHANGED subscribed. CSS: @keyframes sailmaker-pulse (sky blue), .sailmaker-section--active, .btn--sailmaker-commission (sky blue), .btn--sailmaker-purchase (amber/gold), .btn--sailmaker-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     },
@@ -1777,7 +1777,7 @@
       "status": "done",
       "priority": 426,
       "phase": 128,
-      "description": "Periodic imperial chariot builder encounter: commission war chariots (25 wood + 20 iron → +0.22 iron/s 2.5min +22 prestige +12 morale), purchase chariot designs (20g → +0.18 gold/s 2min +15 prestige), send away. Bronze Age+, 8+ tiles, 13-18 min.",
+      "description": "Periodic imperial chariot builder encounter: commission war chariots (25 wood + 20 iron \u2192 +0.22 iron/s 2.5min +22 prestige +12 morale), purchase chariot designs (20g \u2192 +0.18 gold/s 2min +15 prestige), send away. Bronze Age+, 8+ tiles, 13-18 min.",
       "completed_date": "2026-05-27",
       "notes": "Built imperialChariotBuilder.js. IMPERIAL_CHARIOT_BUILDER_CHANGED event added to events.js. state.imperialChariotBuilder null field. Chariot builder section in questPanel.js (import * as ChariotBuilder). Events.IMPERIAL_CHARIOT_BUILDER_CHANGED subscribed. CSS: @keyframes chariotbld-pulse (amber/gold), .chariotbld-section--active, .btn--chariotbld-commission (amber/gold), .btn--chariotbld-purchase (slate), .btn--chariotbld-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     },
@@ -1787,7 +1787,7 @@
       "status": "done",
       "priority": 427,
       "phase": 129,
-      "description": "Periodic wandering seed merchant encounter: purchase rare seed collection (25 food → +0.25 food/s 2.5min +15 prestige +10 morale), exchange crop cultivation lore (18g → +0.15 gold/s 2min +10 prestige), send away. Stone Age+, 6+ tiles, 11-15 min.",
+      "description": "Periodic wandering seed merchant encounter: purchase rare seed collection (25 food \u2192 +0.25 food/s 2.5min +15 prestige +10 morale), exchange crop cultivation lore (18g \u2192 +0.15 gold/s 2min +10 prestige), send away. Stone Age+, 6+ tiles, 11-15 min.",
       "completed_date": "2026-05-27",
       "notes": "Built wanderingSeedMerchant.js. WANDERING_SEED_MERCHANT_CHANGED event added to events.js. state.wanderingSeedMerchant null field. Seed merchant section in questPanel.js (import * as SeedMerchant). Events.WANDERING_SEED_MERCHANT_CHANGED subscribed. CSS: @keyframes seedmerchant-pulse (spring green), .seedmerchant-section--active, .btn--seedmerchant-purchase (green), .btn--seedmerchant-exchange (amber/gold), .btn--seedmerchant-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     },
@@ -1797,7 +1797,7 @@
       "status": "done",
       "priority": 428,
       "phase": 129,
-      "description": "Periodic imperial silkscreen painter encounter: commission painted screen panels (20 mana + 20g → +0.22 mana/s 2.5min +20 prestige +10 morale), purchase painting pigment formulas (18 wood → +0.18 wood/s 2min +12 prestige), send away. Medieval Age+, 10+ tiles, 14-18 min.",
+      "description": "Periodic imperial silkscreen painter encounter: commission painted screen panels (20 mana + 20g \u2192 +0.22 mana/s 2.5min +20 prestige +10 morale), purchase painting pigment formulas (18 wood \u2192 +0.18 wood/s 2min +12 prestige), send away. Medieval Age+, 10+ tiles, 14-18 min.",
       "completed_date": "2026-05-27",
       "notes": "Built imperialSilkscreenPainter.js. IMPERIAL_SILKSCREEN_PAINTER_CHANGED event added to events.js. state.imperialSilkscreenPainter null field. Silkscreen painter section in questPanel.js (import * as SilkPainter). Events.IMPERIAL_SILKSCREEN_PAINTER_CHANGED subscribed. CSS: @keyframes silkpaint-pulse (violet/purple), .silkpaint-section--active, .btn--silkpaint-commission (violet), .btn--silkpaint-purchase (green), .btn--silkpaint-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     },
@@ -1807,7 +1807,7 @@
       "status": "done",
       "priority": 429,
       "phase": 130,
-      "description": "Periodic wandering woodcutter encounter: commission firewood bundles (20 wood → +0.22 wood/s 2.5min +15 prestige +8 morale), purchase forest management lore (18g → +0.15 gold/s 2min +10 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
+      "description": "Periodic wandering woodcutter encounter: commission firewood bundles (20 wood \u2192 +0.22 wood/s 2.5min +15 prestige +8 morale), purchase forest management lore (18g \u2192 +0.15 gold/s 2min +10 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
       "completed_date": "2026-05-27",
       "notes": "Built wanderingWoodcutter.js. WANDERING_WOODCUTTER_CHANGED event added to events.js. state.wanderingWoodcutter null field. Woodcutter section in questPanel.js (import * as Woodcutter). Events.WANDERING_WOODCUTTER_CHANGED subscribed. CSS: @keyframes woodcutter-pulse (lime/forest green), .woodcutter-section--active, .btn--woodcutter-commission (lime green), .btn--woodcutter-purchase (amber/gold), .btn--woodcutter-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     },
@@ -1817,7 +1817,7 @@
       "status": "done",
       "priority": 430,
       "phase": 130,
-      "description": "Periodic imperial mason's guild encounter: commission stone masonry works (30 stone + 20g → +0.25 stone/s 2.5min +25 prestige +12 morale), purchase guild masonry secrets (25 iron → +0.20 iron/s 2min +18 prestige), send away. Iron Age+, 12+ tiles, 14-18 min.",
+      "description": "Periodic imperial mason's guild encounter: commission stone masonry works (30 stone + 20g \u2192 +0.25 stone/s 2.5min +25 prestige +12 morale), purchase guild masonry secrets (25 iron \u2192 +0.20 iron/s 2min +18 prestige), send away. Iron Age+, 12+ tiles, 14-18 min.",
       "completed_date": "2026-05-27",
       "notes": "Built imperialMasonsGuild.js. IMPERIAL_MASONS_GUILD_CHANGED event added to events.js. state.imperialMasonsGuild null field. Mason's guild section in questPanel.js (import * as MasonsGuild). Events.IMPERIAL_MASONS_GUILD_CHANGED subscribed. CSS: @keyframes masonsguild-pulse (slate/stone gray), .masonsguild-section--active, .btn--masonsguild-commission (slate/stone), .btn--masonsguild-purchase (amber/gold), .btn--masonsguild-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     },
@@ -1827,7 +1827,7 @@
       "status": "done",
       "priority": 431,
       "phase": 131,
-      "description": "Periodic wandering knife sharpener encounter: sharpen imperial tools (15 iron → +0.20 iron/s 2.5min +18 prestige +8 morale), purchase sharpening lore (18g → +0.15 gold/s 2min +12 prestige), send away. Stone Age+, 6+ tiles, 11-15 min.",
+      "description": "Periodic wandering knife sharpener encounter: sharpen imperial tools (15 iron \u2192 +0.20 iron/s 2.5min +18 prestige +8 morale), purchase sharpening lore (18g \u2192 +0.15 gold/s 2min +12 prestige), send away. Stone Age+, 6+ tiles, 11-15 min.",
       "completed_date": "2026-05-28",
       "notes": "Built wanderingKnifeSharpener.js. WANDERING_KNIFE_SHARPENER_CHANGED event added to events.js. state.wanderingKnifeSharpener null field. Knife sharpener section in questPanel.js (import * as KnifeSharpener). Events.WANDERING_KNIFE_SHARPENER_CHANGED subscribed. CSS: @keyframes knifesharp-pulse (amber/gold), .knifesharp-section--active, .btn--knifesharp-sharpen (amber/gold), .btn--knifesharp-purchase (slate), .btn--knifesharp-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     },
@@ -1837,7 +1837,7 @@
       "status": "done",
       "priority": 432,
       "phase": 131,
-      "description": "Periodic imperial fresco painter encounter: commission imperial frescoes (25 mana + 20g → +0.22 mana/s 2.5min +22 prestige +10 morale), purchase painting techniques (20 stone → +0.18 stone/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-18 min.",
+      "description": "Periodic imperial fresco painter encounter: commission imperial frescoes (25 mana + 20g \u2192 +0.22 mana/s 2.5min +22 prestige +10 morale), purchase painting techniques (20 stone \u2192 +0.18 stone/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-18 min.",
       "completed_date": "2026-05-28",
       "notes": "Built imperialFrescoPainter.js. IMPERIAL_FRESCO_PAINTER_CHANGED event added to events.js. state.imperialFrescoPainter null field. Fresco painter section in questPanel.js (import * as FrescoPainter). Events.IMPERIAL_FRESCO_PAINTER_CHANGED subscribed. CSS: @keyframes frescopainter-pulse (orange/amber), .frescopainter-section--active, .btn--frescopainter-commission (violet/purple), .btn--frescopainter-purchase (slate), .btn--frescopainter-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     },
@@ -1847,7 +1847,7 @@
       "status": "done",
       "priority": 433,
       "phase": 132,
-      "description": "Periodic wandering dye merchant encounter: commission royal dyes (20 food + 15 wood → +0.22 food/s 2.5min +18 prestige +10 morale), purchase dye secrets (18g → +0.15 gold/s 2min +12 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
+      "description": "Periodic wandering dye merchant encounter: commission royal dyes (20 food + 15 wood \u2192 +0.22 food/s 2.5min +18 prestige +10 morale), purchase dye secrets (18g \u2192 +0.15 gold/s 2min +12 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
       "completed_date": "2026-05-28",
       "notes": "Built wanderingDyeMerchant.js. WANDERING_DYE_MERCHANT_CHANGED event added to events.js. state.wanderingDyeMerchant null field. Dye merchant section in questPanel.js (import * as DyeMerchant). Events.WANDERING_DYE_MERCHANT_CHANGED subscribed. CSS: @keyframes dyemerch-pulse (violet/purple), .dyemerch-section--active, .btn--dyemerch-commission (violet), .btn--dyemerch-purchase (amber/gold), .btn--dyemerch-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     },
@@ -1857,7 +1857,7 @@
       "status": "done",
       "priority": 434,
       "phase": 132,
-      "description": "Periodic imperial cartographer's academy encounter: commission grand survey (30 iron + 20g → +0.22 iron/s 2.5min +22 prestige +10 morale), study cartography methods (25 mana → +0.20 mana/s 2min +18 prestige), send away. Iron Age+, 12+ tiles, 15-19 min.",
+      "description": "Periodic imperial cartographer's academy encounter: commission grand survey (30 iron + 20g \u2192 +0.22 iron/s 2.5min +22 prestige +10 morale), study cartography methods (25 mana \u2192 +0.20 mana/s 2min +18 prestige), send away. Iron Age+, 12+ tiles, 15-19 min.",
       "completed_date": "2026-05-28",
       "notes": "Built imperialCartographersAcademy.js. IMPERIAL_CARTOGRAPHERS_ACADEMY_CHANGED event added to events.js. state.imperialCartographersAcademy null field. Cartographer's academy section in questPanel.js (import * as CartAcad). Events.IMPERIAL_CARTOGRAPHERS_ACADEMY_CHANGED subscribed. CSS: @keyframes cartacad-pulse (teal/cyan), .cartacad-section--active, .btn--cartacad-commission (teal), .btn--cartacad-study (indigo/violet), .btn--cartacad-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     },
@@ -1867,7 +1867,7 @@
       "status": "done",
       "priority": 435,
       "phase": 133,
-      "description": "Periodic wandering flax weaver encounter: commission linen cloth (20 food + 15 wood → +0.22 food/s 2.5min +18 prestige +8 morale), purchase weaving lore (18g → +0.15 gold/s 2min +12 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
+      "description": "Periodic wandering flax weaver encounter: commission linen cloth (20 food + 15 wood \u2192 +0.22 food/s 2.5min +18 prestige +8 morale), purchase weaving lore (18g \u2192 +0.15 gold/s 2min +12 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
       "completed_date": "2026-05-28",
       "notes": "Built wanderingFlaxWeaver.js. WANDERING_FLAX_WEAVER_CHANGED event added to events.js. state.wanderingFlaxWeaver null field. Flax weaver section in questPanel.js (import * as FlaxWeaver). Events.WANDERING_FLAX_WEAVER_CHANGED subscribed. CSS: @keyframes flaxweaver-pulse (sage green/mint), .flaxweaver-section--active, .btn--flaxweaver-commission (green), .btn--flaxweaver-purchase (amber/gold), .btn--flaxweaver-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     },
@@ -1877,7 +1877,7 @@
       "status": "done",
       "priority": 436,
       "phase": 133,
-      "description": "Periodic imperial oilpress master encounter: commission olive oil press (25 food + 20g → +0.22 food/s 2.5min +20 prestige +12 morale), purchase pressing techniques (20 stone → +0.18 stone/s 2min +15 prestige), send away. Bronze Age+, 8+ tiles, 13-17 min.",
+      "description": "Periodic imperial oilpress master encounter: commission olive oil press (25 food + 20g \u2192 +0.22 food/s 2.5min +20 prestige +12 morale), purchase pressing techniques (20 stone \u2192 +0.18 stone/s 2min +15 prestige), send away. Bronze Age+, 8+ tiles, 13-17 min.",
       "completed_date": "2026-05-28",
       "notes": "Built imperialOilpressMaster.js. IMPERIAL_OILPRESS_MASTER_CHANGED event added to events.js. state.imperialOilpressMaster null field. Oilpress master section in questPanel.js (import * as OilpressMaster). Events.IMPERIAL_OILPRESS_MASTER_CHANGED subscribed. CSS: @keyframes oilpress-pulse (golden yellow/olive), .oilpress-section--active, .btn--oilpress-commission (yellow/gold), .btn--oilpress-purchase (slate), .btn--oilpress-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     },
@@ -1887,7 +1887,7 @@
       "status": "done",
       "priority": 437,
       "phase": 134,
-      "description": "Periodic wandering lime burner encounter: commission lime mortar works (20 stone + 15 food → +0.20 stone/s 2.5min +15 prestige +8 morale), purchase kiln techniques (18g → +0.15 food/s 2min +10 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
+      "description": "Periodic wandering lime burner encounter: commission lime mortar works (20 stone + 15 food \u2192 +0.20 stone/s 2.5min +15 prestige +8 morale), purchase kiln techniques (18g \u2192 +0.15 food/s 2min +10 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
       "completed_date": "2026-05-28",
       "notes": "Built wanderingLimeBurner.js. WANDERING_LIME_BURNER_CHANGED event added to events.js. state.wanderingLimeBurner null field. Lime burner section in questPanel.js (import * as LimeBurner). Events.WANDERING_LIME_BURNER_CHANGED subscribed. CSS: @keyframes limeburner-pulse (slate/stone gray), .limeburner-section--active, .btn--limeburner-commission (slate/stone), .btn--limeburner-purchase (amber/gold), .btn--limeburner-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     },
@@ -1897,9 +1897,27 @@
       "status": "done",
       "priority": 438,
       "phase": 134,
-      "description": "Periodic imperial mosaic master encounter: commission grand mosaic hall (25 stone + 20g → +0.22 stone/s 2.5min +22 prestige +12 morale), purchase tesserae techniques (20 mana → +0.18 mana/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-18 min.",
+      "description": "Periodic imperial mosaic master encounter: commission grand mosaic hall (25 stone + 20g \u2192 +0.22 stone/s 2.5min +22 prestige +12 morale), purchase tesserae techniques (20 mana \u2192 +0.18 mana/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-18 min.",
       "completed_date": "2026-05-28",
       "notes": "Built imperialMosaicMaster.js. IMPERIAL_MOSAIC_MASTER_CHANGED event added to events.js. state.imperialMosaicMaster null field. Mosaic master section in questPanel.js (import * as MosaicMaster). Events.IMPERIAL_MOSAIC_MASTER_CHANGED subscribed. CSS: @keyframes mosaicmaster-pulse (sky blue/azure), .mosaicmaster-section--active, .btn--mosaicmaster-commission (sky blue/azure), .btn--mosaicmaster-purchase (indigo/violet), .btn--mosaicmaster-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T439",
+      "title": "Wandering Tar Maker",
+      "description": "Stone Age+, 6+ tiles, 12-16 min spawn, 80s window. Commission Tar Kiln Works (20 wood + 15 food -> +0.20 wood/s 2.5min +15 prestige +8 morale), Purchase Distillation Techniques (18g -> +0.15 gold/s 2min +10 prestige), Send Away.",
+      "priority": 439,
+      "status": "done",
+      "phase": 135,
+      "notes": "Built wanderingTarMaker.js: commissionTarKilnWorks (20 wood + 15 food -> +0.20 wood/s 2.5min +15 prestige +8 morale), purchaseDistillationTechniques (18g -> +0.15 gold/s 2min +10 prestige), sendTarMakerAway (dismiss). Added WANDERING_TAR_MAKER_CHANGED event to events.js. state.wanderingTarMaker null field. Wired in main.js: import initWanderingTarMaker+wanderingTarMakerTick, registerSystem, initWanderingTarMaker() in _startFreshGame+_startLoadedGame, save/load fields. Added _wanderingTarMakerSection() render + tarmaker-commission/tarmaker-purchase/tarmaker-away handlers to questPanel.js (import * as TarMaker). Events.WANDERING_TAR_MAKER_CHANGED subscribed. CSS: @keyframes tarmaker-pulse (amber/orange tar theme), .tarmaker-section--active, .btn--tarmaker-commission (orange/amber), .btn--tarmaker-purchase (amber/gold), .btn--tarmaker-away (gray). Session 128."
+    },
+    {
+      "id": "T440",
+      "title": "Imperial Granary Master",
+      "description": "Iron Age+, 10+ tiles, 14-18 min spawn, 80s window. Commission Imperial Granary (25 food + 20g -> +0.22 food/s 2.5min +22 prestige +12 morale), Purchase Storage Techniques (20 mana -> +0.18 mana/s 2min +15 prestige), Send Away.",
+      "priority": 440,
+      "status": "done",
+      "phase": 135,
+      "notes": "Built imperialGranaryMaster.js: commissionImperialGranary (25 food + 20g -> +0.22 food/s 2.5min +22 prestige +12 morale), purchaseStorageTechniques (20 mana -> +0.18 mana/s 2min +15 prestige), sendGranaryMasterAway (dismiss). Added IMPERIAL_GRANARY_MASTER_CHANGED event to events.js. state.imperialGranaryMaster null field. Wired in main.js: import initImperialGranaryMaster+imperialGranaryMasterTick, registerSystem, initImperialGranaryMaster() in _startFreshGame+_startLoadedGame, save/load fields. Added _imperialGranaryMasterSection() render + granarymaster-commission/granarymaster-purchase/granarymaster-away handlers to questPanel.js (import * as GranaryMaster). Events.IMPERIAL_GRANARY_MASTER_CHANGED subscribed. CSS: @keyframes granarymaster-pulse (warm amber/golden grain theme), .granarymaster-section--active, .btn--granarymaster-commission (amber/gold), .btn--granarymaster-purchase (indigo/violet mana), .btn--granarymaster-away (gray). Session 128."
     }
   ],
   "session_history": [
@@ -2007,6 +2025,7 @@
     "Session 124 (T431-T432): Wandering Knife Sharpener (T431), Imperial Fresco Painter (T432)",
     "Session 125 (T433-T434): Wandering Dye Merchant (T433), Imperial Cartographer's Academy (T434)",
     "Session 126 (T435-T436): Wandering Flax Weaver (T435), Imperial Oilpress Master (T436)",
-    "Session 127 (T437-T438): Wandering Lime Burner (T437), Imperial Mosaic Master (T438)"
+    "Session 127 (T437-T438): Wandering Lime Burner (T437), Imperial Mosaic Master (T438)",
+    "Session 128 (T439-T440): Wandering Tar Maker (T439), Imperial Granary Master (T440)"
   ]
 }

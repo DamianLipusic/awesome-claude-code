@@ -380,4 +380,6 @@ export const Events = Object.freeze({
   IMPERIAL_OILPRESS_MASTER_CHANGED:        'imperialOilpressMasterChanged',                                   // T436: oilpress master spawned / commissioned / purchased / dismissed / expired
   WANDERING_LIME_BURNER_CHANGED:           'wanderingLimeBurnerChanged',                                       // T437: lime burner spawned / commissioned / purchased / dismissed / expired
   IMPERIAL_MOSAIC_MASTER_CHANGED:          'imperialMosaicMasterChanged',                                      // T438: mosaic master spawned / commissioned / purchased / dismissed / expired
+  WANDERING_TAR_MAKER_CHANGED:             'wanderingTarMakerChanged',                                         // T439: tar maker spawned / commissioned / purchased / dismissed / expired
+  IMPERIAL_GRANARY_MASTER_CHANGED:         'imperialGranaryMasterChanged',                                     // T440: granary master spawned / commissioned / purchased / dismissed / expired
 });

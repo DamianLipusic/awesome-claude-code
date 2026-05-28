@@ -203,6 +203,8 @@ import * as FlaxWeaver       from '../systems/wanderingFlaxWeaver.js';          
 import * as OilpressMaster   from '../systems/imperialOilpressMaster.js';        // T436
 import * as LimeBurner       from '../systems/wanderingLimeBurner.js';           // T437
 import * as MosaicMaster     from '../systems/imperialMosaicMaster.js';          // T438
+import * as TarMaker         from '../systems/wanderingTarMaker.js';             // T439
+import * as GranaryMaster    from '../systems/imperialGranaryMaster.js';         // T440
 
 let _panel = null;
 
@@ -434,6 +436,8 @@ function _encountersSection() {
     _imperialOilpressMasterSection(),
     _wanderingLimeBurnerSection(),
     _imperialMosaicMasterSection(),
+    _wanderingTarMakerSection(),
+    _imperialGranaryMasterSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -6826,6 +6830,74 @@ function _imperialMosaicMasterSection() {
     </div>`;
 }
 
+// ── T439 Wandering Tar Maker ─────────────────────────────────────────────────
+function _wanderingTarMakerSection() {
+  if (!TarMaker.getActiveWanderingTarMaker()) return '';
+  const secs        = TarMaker.getTarMakerSecsLeft();
+  const urgent      = secs <= 20;
+  const wood        = state.resources.wood  ?? 0;
+  const food        = state.resources.food  ?? 0;
+  const gold        = state.resources.gold  ?? 0;
+  const canCommission = wood >= TarMaker.COMMISSION_WOOD_COST && food >= TarMaker.COMMISSION_FOOD_COST;
+  const canPurchase   = gold >= TarMaker.PURCHASE_GOLD_COST;
+  return `
+    <div class="tarmaker-section--active">
+      <div class="tarmaker-header">
+        <span class="tarmaker-title">🔥 Wandering Tar Maker</span>
+        <span class="tarmaker-timer${urgent ? ' tarmaker-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="tarmaker-desc">A wandering tar maker arrives leading a cart of birch bark rolls and resinous pine root billets, offering to commission a full tar kiln run over two days for high-quality wood tar used in waterproofing and preservation, or to share the dry distillation and condensation sequence for reliable local tar production.</div>
+      <div class="tarmaker-actions">
+        <button class="btn--tarmaker-commission${canCommission ? '' : ' btn--disabled'}" data-action="tarmaker-commission" ${canCommission ? '' : 'disabled'}>
+          🔥 Commission Tar Kiln Works — ${TarMaker.COMMISSION_WOOD_COST}🪵 + ${TarMaker.COMMISSION_FOOD_COST}🌾
+          <span class="tarmaker-cost">→ +${TarMaker.COMMISSION_WOOD_RATE} wood/s (2.5 min) · +${TarMaker.COMMISSION_PRESTIGE_REWARD} prestige · +${TarMaker.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--tarmaker-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="tarmaker-purchase" ${canPurchase ? '' : 'disabled'}>
+          📖 Purchase Distillation Techniques — ${TarMaker.PURCHASE_GOLD_COST}💰
+          <span class="tarmaker-cost">→ +${TarMaker.PURCHASE_GOLD_RATE} gold/s (2 min) · +${TarMaker.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--tarmaker-away" data-action="tarmaker-away">
+          🚶 Send Away
+          <span class="tarmaker-cost">→ Tar maker re-loads the bark rolls and departs along the road</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T440 Imperial Granary Master ─────────────────────────────────────────────
+function _imperialGranaryMasterSection() {
+  if (!GranaryMaster.getActiveImperialGranaryMaster()) return '';
+  const secs        = GranaryMaster.getGranaryMasterSecsLeft();
+  const urgent      = secs <= 20;
+  const food        = state.resources.food  ?? 0;
+  const gold        = state.resources.gold  ?? 0;
+  const mana        = state.resources.mana  ?? 0;
+  const canCommission = food >= GranaryMaster.COMMISSION_FOOD_COST && gold >= GranaryMaster.COMMISSION_GOLD_COST;
+  const canPurchase   = mana >= GranaryMaster.PURCHASE_MANA_COST;
+  return `
+    <div class="granarymaster-section--active">
+      <div class="granarymaster-header">
+        <span class="granarymaster-title">🏗️ Imperial Granary Master</span>
+        <span class="granarymaster-timer${urgent ? ' granarymaster-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="granarymaster-desc">An imperial granary master arrives bearing architectural drawings for the standard raised-floor ventilated granary design with staddle stone pillars and ashlar walls, offering to commission a full imperial-specification granary expansion for superior food preservation, or to share the complete storage optimisation and pest management techniques.</div>
+      <div class="granarymaster-actions">
+        <button class="btn--granarymaster-commission${canCommission ? '' : ' btn--disabled'}" data-action="granarymaster-commission" ${canCommission ? '' : 'disabled'}>
+          🏗️ Commission Imperial Granary — ${GranaryMaster.COMMISSION_FOOD_COST}🌾 + ${GranaryMaster.COMMISSION_GOLD_COST}💰
+          <span class="granarymaster-cost">→ +${GranaryMaster.COMMISSION_FOOD_RATE} food/s (2.5 min) · +${GranaryMaster.COMMISSION_PRESTIGE_REWARD} prestige · +${GranaryMaster.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--granarymaster-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="granarymaster-purchase" ${canPurchase ? '' : 'disabled'}>
+          📖 Purchase Storage Techniques — ${GranaryMaster.PURCHASE_MANA_COST}✨
+          <span class="granarymaster-cost">→ +${GranaryMaster.PURCHASE_MANA_RATE} mana/s (2 min) · +${GranaryMaster.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--granarymaster-away" data-action="granarymaster-away">
+          🚶 Send Away
+          <span class="granarymaster-cost">→ Granary master re-rolls the architectural drawings and departs along the road</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -7589,6 +7661,14 @@ const _HANDLERS = {
   'mosaicmaster-commission': () => MosaicMaster.commissionGrandMosaicHall(),
   'mosaicmaster-purchase':   () => MosaicMaster.purchaseTesseraeTechniques(),
   'mosaicmaster-away':       () => MosaicMaster.sendMosaicMasterAway(),
+
+  'tarmaker-commission': () => TarMaker.commissionTarKilnWorks(),
+  'tarmaker-purchase':   () => TarMaker.purchaseDistillationTechniques(),
+  'tarmaker-away':       () => TarMaker.sendTarMakerAway(),
+
+  'granarymaster-commission': () => GranaryMaster.commissionImperialGranary(),
+  'granarymaster-purchase':   () => GranaryMaster.purchaseStorageTechniques(),
+  'granarymaster-away':       () => GranaryMaster.sendGranaryMasterAway(),
 };
 
 function _handleClick(e) {
@@ -7799,6 +7879,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_OILPRESS_MASTER_CHANGED,
     Events.WANDERING_LIME_BURNER_CHANGED,
     Events.IMPERIAL_MOSAIC_MASTER_CHANGED,
+    Events.WANDERING_TAR_MAKER_CHANGED,
+    Events.IMPERIAL_GRANARY_MASTER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

@@ -22933,3 +22933,71 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--mosaicmaster-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+@keyframes tarmaker-pulse {
+  0%, 100% { border-color: rgba(180, 83, 9, 0.45); box-shadow: 0 0 6px rgba(180, 83, 9, 0.18); }
+  50%       { border-color: rgba(217, 119, 6, 0.65); box-shadow: 0 0 12px rgba(217, 119, 6, 0.30); }
+}
+.tarmaker-section--active {
+  background: linear-gradient(135deg, rgba(92, 40, 4, 0.18), rgba(60, 25, 2, 0.10));
+  border: 1px solid rgba(180, 83, 9, 0.45); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: tarmaker-pulse 2.8s ease-in-out infinite;
+}
+.tarmaker-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.tarmaker-title  { font-weight: 700; font-size: 0.88rem; color: #fb923c; }
+.tarmaker-timer  { font-size: 0.78rem; color: #fb923c; }
+.tarmaker-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.tarmaker-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.tarmaker-actions { display: flex; flex-direction: column; gap: 5px; }
+.tarmaker-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--tarmaker-commission {
+  background: linear-gradient(135deg, rgba(92, 40, 4, 0.22), rgba(60, 25, 2, 0.14));
+  border: 1px solid rgba(180, 83, 9, 0.40); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fb923c; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--tarmaker-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(92, 40, 4, 0.32), rgba(60, 25, 2, 0.24)); }
+.btn--tarmaker-purchase {
+  background: linear-gradient(135deg, rgba(92, 68, 4, 0.18), rgba(60, 44, 2, 0.10));
+  border: 1px solid rgba(217, 119, 6, 0.35); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fbbf24; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--tarmaker-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(92, 68, 4, 0.28), rgba(60, 44, 2, 0.18)); }
+.btn--tarmaker-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--tarmaker-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+@keyframes granarymaster-pulse {
+  0%, 100% { border-color: rgba(161, 98, 7, 0.45); box-shadow: 0 0 6px rgba(161, 98, 7, 0.18); }
+  50%       { border-color: rgba(202, 138, 4, 0.65); box-shadow: 0 0 12px rgba(202, 138, 4, 0.30); }
+}
+.granarymaster-section--active {
+  background: linear-gradient(135deg, rgba(78, 48, 3, 0.18), rgba(50, 30, 2, 0.10));
+  border: 1px solid rgba(161, 98, 7, 0.45); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: granarymaster-pulse 2.8s ease-in-out infinite;
+}
+.granarymaster-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.granarymaster-title  { font-weight: 700; font-size: 0.88rem; color: #fcd34d; }
+.granarymaster-timer  { font-size: 0.78rem; color: #fcd34d; }
+.granarymaster-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.granarymaster-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.granarymaster-actions { display: flex; flex-direction: column; gap: 5px; }
+.granarymaster-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--granarymaster-commission {
+  background: linear-gradient(135deg, rgba(78, 48, 3, 0.22), rgba(50, 30, 2, 0.14));
+  border: 1px solid rgba(161, 98, 7, 0.40); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fcd34d; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--granarymaster-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(78, 48, 3, 0.32), rgba(50, 30, 2, 0.24)); }
+.btn--granarymaster-purchase {
+  background: linear-gradient(135deg, rgba(55, 48, 163, 0.18), rgba(35, 28, 120, 0.10));
+  border: 1px solid rgba(129, 140, 248, 0.35); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #818cf8; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--granarymaster-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(55, 48, 163, 0.28), rgba(35, 28, 120, 0.18)); }
+.btn--granarymaster-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--granarymaster-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

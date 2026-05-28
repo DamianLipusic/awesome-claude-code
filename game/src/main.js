@@ -380,6 +380,8 @@ import { initWanderingFlaxWeaver, wanderingFlaxWeaverTick }           from './sy
 import { initImperialOilpressMaster, imperialOilpressMasterTick }     from './systems/imperialOilpressMaster.js';            // T436
 import { initWanderingLimeBurner, wanderingLimeBurnerTick }           from './systems/wanderingLimeBurner.js';               // T437
 import { initImperialMosaicMaster, imperialMosaicMasterTick }         from './systems/imperialMosaicMaster.js';              // T438
+import { initWanderingTarMaker, wanderingTarMakerTick }               from './systems/wanderingTarMaker.js';                 // T439
+import { initImperialGranaryMaster, imperialGranaryMasterTick }       from './systems/imperialGranaryMaster.js';             // T440
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -766,6 +768,8 @@ function _registerAllSystems() {
   registerSystem(imperialOilpressMasterTick);       // T436
   registerSystem(wanderingLimeBurnerTick);          // T437
   registerSystem(imperialMosaicMasterTick);         // T438
+  registerSystem(wanderingTarMakerTick);            // T439
+  registerSystem(imperialGranaryMasterTick);        // T440
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -1137,6 +1141,8 @@ function _save() {
     imperialOilpressMaster:       state.imperialOilpressMaster,       // T436
     wanderingLimeBurner:          state.wanderingLimeBurner,          // T437
     imperialMosaicMaster:         state.imperialMosaicMaster,         // T438
+    wanderingTarMaker:            state.wanderingTarMaker,            // T439
+    imperialGranaryMaster:        state.imperialGranaryMaster,        // T440
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -1513,6 +1519,8 @@ function _applySave(s) {
   state.imperialOilpressMaster         = s.imperialOilpressMaster ?? null;          // T436
   state.wanderingLimeBurner            = s.wanderingLimeBurner ?? null;             // T437
   state.imperialMosaicMaster           = s.imperialMosaicMaster ?? null;            // T438
+  state.wanderingTarMaker              = s.wanderingTarMaker ?? null;               // T439
+  state.imperialGranaryMaster          = s.imperialGranaryMaster ?? null;           // T440
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -1895,6 +1903,8 @@ function _startFreshGame() {
   initImperialOilpressMaster();       // T436
   initWanderingLimeBurner();          // T437
   initImperialMosaicMaster();         // T438
+  initWanderingTarMaker();            // T439
+  initImperialGranaryMaster();        // T440
   initAchievements();
   initLeaderboard();
 }
@@ -2260,6 +2270,8 @@ function _startLoadedGame(savedData) {
   initImperialOilpressMaster();       // T436
   initWanderingLimeBurner();          // T437
   initImperialMosaicMaster();         // T438
+  initWanderingTarMaker();            // T439
+  initImperialGranaryMaster();        // T440
   initAchievements();
   initLeaderboard();
 }

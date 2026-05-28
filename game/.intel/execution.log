@@ -1463,3 +1463,18 @@ Built imperialHarborMaster.js: commissionHarborWorks (30 wood + 20g → +0.25 wo
 Wired in main.js: import initImperialHarborMaster+imperialHarborMasterTick, registerSystem, initImperialHarborMaster() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _imperialHarborMasterSection() render + harbormaster-commission/harbormaster-study/harbormaster-away handlers to questPanel.js (import * as HarborMaster). Events.IMPERIAL_HARBOR_MASTER_CHANGED subscribed.
 CSS: @keyframes harbormaster-pulse (sky blue theme), .harbormaster-section--active, .btn--harbormaster-commission (sky blue), .btn--harbormaster-study (slate), .btn--harbormaster-away (gray). Session 113.
+
+Session 128 — T439–T440: Wandering Tar Maker, Imperial Granary Master.
+Tar Maker: Stone Age+, 6+ tiles, 12–16 min, 80s window. Commission Tar Kiln Works (20 wood + 15 food → +0.20 wood/s 2.5min · +15 prestige · +8 morale), Purchase Distillation Techniques (18g → +0.15 gold/s 2min · +10 prestige). Amber/orange CSS theme. Imperial Granary Master: Iron Age+, 10+ tiles, 14–18 min, 80s window. Commission Imperial Granary (25 food + 20g → +0.22 food/s 2.5min · +22 prestige · +12 morale), Purchase Storage Techniques (20 mana → +0.18 mana/s 2min · +15 prestige). Warm amber/golden CSS theme. Both fully wired into main.js (import, registerSystem, init x2, save/load) and questPanel.js (import, section render, handlers, ENCOUNTER_EVENTS). Events added to events.js.
+
+T439: Wandering Tar Maker — Stone Age+, 6+ tiles, 12–16 min, 80s window.
+Built wanderingTarMaker.js: commissionTarKilnWorks (20 wood + 15 food → +0.20 wood/s 2.5min +15 prestige +8 morale), purchaseDistillationTechniques (18g → +0.15 gold/s 2min +10 prestige), sendTarMakerAway (dismiss). Added WANDERING_TAR_MAKER_CHANGED event to events.js. state.wanderingTarMaker null field.
+Wired in main.js: import initWanderingTarMaker+wanderingTarMakerTick, registerSystem, initWanderingTarMaker() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingTarMakerSection() render + tarmaker-commission/tarmaker-purchase/tarmaker-away handlers to questPanel.js (import * as TarMaker). Events.WANDERING_TAR_MAKER_CHANGED subscribed.
+CSS: @keyframes tarmaker-pulse (amber/orange tar theme), .tarmaker-section--active, .btn--tarmaker-commission (orange/amber), .btn--tarmaker-purchase (amber/gold), .btn--tarmaker-away (gray). Session 128.
+
+T440: Imperial Granary Master — Iron Age+, 10+ tiles, 14–18 min, 80s window.
+Built imperialGranaryMaster.js: commissionImperialGranary (25 food + 20g → +0.22 food/s 2.5min +22 prestige +12 morale), purchaseStorageTechniques (20 mana → +0.18 mana/s 2min +15 prestige), sendGranaryMasterAway (dismiss). Added IMPERIAL_GRANARY_MASTER_CHANGED event to events.js. state.imperialGranaryMaster null field.
+Wired in main.js: import initImperialGranaryMaster+imperialGranaryMasterTick, registerSystem, initImperialGranaryMaster() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _imperialGranaryMasterSection() render + granarymaster-commission/granarymaster-purchase/granarymaster-away handlers to questPanel.js (import * as GranaryMaster). Events.IMPERIAL_GRANARY_MASTER_CHANGED subscribed.
+CSS: @keyframes granarymaster-pulse (warm amber/golden grain theme), .granarymaster-section--active, .btn--granarymaster-commission (amber/gold), .btn--granarymaster-purchase (indigo/violet mana), .btn--granarymaster-away (gray). Session 128.
