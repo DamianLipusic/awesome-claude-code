@@ -22789,3 +22789,75 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--cartacad-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T435 Wandering Flax Weaver ──────────────────────────────────────────── */
+@keyframes flaxweaver-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(134, 239, 172, 0); }
+  50%       { box-shadow: 0 0 0 4px rgba(134, 239, 172, 0.18); }
+}
+.flaxweaver-section--active {
+  background: linear-gradient(135deg, rgba(20, 83, 45, 0.18), rgba(10, 55, 28, 0.10));
+  border: 1px solid rgba(134, 239, 172, 0.35); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: flaxweaver-pulse 2.8s ease-in-out infinite;
+}
+.flaxweaver-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.flaxweaver-title  { font-weight: 700; font-size: 0.88rem; color: #86efac; }
+.flaxweaver-timer  { font-size: 0.78rem; color: #86efac; }
+.flaxweaver-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.flaxweaver-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.flaxweaver-actions { display: flex; flex-direction: column; gap: 5px; }
+.flaxweaver-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--flaxweaver-commission {
+  background: linear-gradient(135deg, rgba(20, 83, 45, 0.22), rgba(10, 55, 28, 0.14));
+  border: 1px solid rgba(134, 239, 172, 0.40); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #86efac; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--flaxweaver-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(20, 83, 45, 0.32), rgba(10, 55, 28, 0.24)); }
+.btn--flaxweaver-purchase {
+  background: linear-gradient(135deg, rgba(92, 78, 10, 0.18), rgba(68, 58, 6, 0.10));
+  border: 1px solid rgba(202, 168, 20, 0.35); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fbbf24; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--flaxweaver-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(92, 78, 10, 0.28), rgba(68, 58, 6, 0.18)); }
+.btn--flaxweaver-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--flaxweaver-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T436 Imperial Oilpress Master ───────────────────────────────────────── */
+@keyframes oilpress-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0); }
+  50%       { box-shadow: 0 0 0 4px rgba(234, 179, 8, 0.18); }
+}
+.oilpress-section--active {
+  background: linear-gradient(135deg, rgba(78, 63, 5, 0.18), rgba(58, 46, 3, 0.10));
+  border: 1px solid rgba(234, 179, 8, 0.35); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: oilpress-pulse 2.8s ease-in-out infinite;
+}
+.oilpress-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.oilpress-title  { font-weight: 700; font-size: 0.88rem; color: #fde047; }
+.oilpress-timer  { font-size: 0.78rem; color: #fde047; }
+.oilpress-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.oilpress-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.oilpress-actions { display: flex; flex-direction: column; gap: 5px; }
+.oilpress-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--oilpress-commission {
+  background: linear-gradient(135deg, rgba(78, 63, 5, 0.22), rgba(58, 46, 3, 0.14));
+  border: 1px solid rgba(234, 179, 8, 0.40); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fde047; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--oilpress-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(78, 63, 5, 0.32), rgba(58, 46, 3, 0.24)); }
+.btn--oilpress-purchase {
+  background: linear-gradient(135deg, rgba(51, 65, 85, 0.18), rgba(30, 41, 59, 0.10));
+  border: 1px solid rgba(148, 163, 184, 0.35); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #cbd5e1; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--oilpress-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(51, 65, 85, 0.28), rgba(30, 41, 59, 0.18)); }
+.btn--oilpress-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--oilpress-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

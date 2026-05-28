@@ -1,3 +1,18 @@
+Session 126 — T435–T436: Wandering Flax Weaver, Imperial Oilpress Master.
+Flax Weaver: Stone Age+, 6+ tiles, 12-16 min spawn, 80s window. Commission Linen Cloth (20 food + 15 wood → +0.22 food/s 2.5min · +18 prestige · +8 morale), Purchase Weaving Lore (18g → +0.15 gold/s 2min · +12 prestige). Sage green/mint pulse CSS (amber/gold purchase button, flaxweaver- CSS prefix). Oilpress Master: Bronze Age+, 8+ tiles, 13-17 min spawn, 80s window. Commission Olive Oil Press (25 food + 20g → +0.22 food/s 2.5min · +20 prestige · +12 morale), Purchase Pressing Techniques (20 stone → +0.18 stone/s 2min · +15 prestige). Golden yellow/olive pulse CSS (slate purchase button, oilpress- CSS prefix). Both fully wired into main.js (import, registerSystem, init x2, save/load) and questPanel.js (import, section render, handlers, ENCOUNTER_EVENTS). Events added to events.js.
+
+T435: Wandering Flax Weaver — Stone Age+, 6+ tiles, 12–16 min, 80s window.
+Built wanderingFlaxWeaver.js: commissionLinenCloth (20 food + 15 wood → +0.22 food/s 2.5min +18 prestige +8 morale), purchaseWeavingLore (18g → +0.15 gold/s 2min +12 prestige), sendFlaxWeaverAway (dismiss). Added WANDERING_FLAX_WEAVER_CHANGED event to events.js. state.wanderingFlaxWeaver null field.
+Wired in main.js: import initWanderingFlaxWeaver+wanderingFlaxWeaverTick, registerSystem, initWanderingFlaxWeaver() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingFlaxWeaverSection() render + flaxweaver-commission/flaxweaver-purchase/flaxweaver-away handlers to questPanel.js (import * as FlaxWeaver). Events.WANDERING_FLAX_WEAVER_CHANGED subscribed.
+CSS: @keyframes flaxweaver-pulse (sage green/mint theme), .flaxweaver-section--active, .btn--flaxweaver-commission (green), .btn--flaxweaver-purchase (amber/gold), .btn--flaxweaver-away (gray). Session 126.
+
+T436: Imperial Oilpress Master — Bronze Age+, 8+ tiles, 13–17 min, 80s window.
+Built imperialOilpressMaster.js: commissionOliveOilPress (25 food + 20g → +0.22 food/s 2.5min +20 prestige +12 morale), purchasePressingTechniques (20 stone → +0.18 stone/s 2min +15 prestige), sendOilpressMasterAway (dismiss). Added IMPERIAL_OILPRESS_MASTER_CHANGED event to events.js. state.imperialOilpressMaster null field.
+Wired in main.js: import initImperialOilpressMaster+imperialOilpressMasterTick, registerSystem, initImperialOilpressMaster() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _imperialOilpressMasterSection() render + oilpress-commission/oilpress-purchase/oilpress-away handlers to questPanel.js (import * as OilpressMaster). Events.IMPERIAL_OILPRESS_MASTER_CHANGED subscribed.
+CSS: @keyframes oilpress-pulse (golden yellow/olive theme), .oilpress-section--active, .btn--oilpress-commission (yellow/gold), .btn--oilpress-purchase (slate/gray), .btn--oilpress-away (gray). Session 126.
+
 Session 125 — T433–T434: Wandering Dye Merchant, Imperial Cartographer's Academy.
 Dye Merchant: Stone Age+, 6+ tiles, 12-16 min spawn, 80s window. Commission Royal Dyes (20 food + 15 wood → +0.22 food/s 2.5min · +18 prestige · +10 morale), Purchase Dye Secrets (18g → +0.15 gold/s 2min · +12 prestige). Violet/purple pulse CSS (amber/gold purchase button, dyemerch- CSS prefix). Cartographer's Academy: Iron Age+, 12+ tiles, 15-19 min spawn, 80s window. Commission Grand Survey (30 iron + 20g → +0.22 iron/s 2.5min · +22 prestige · +10 morale), Study Cartography Methods (25 mana → +0.20 mana/s 2min · +18 prestige). Teal/cyan pulse CSS (indigo/violet study button, cartacad- CSS prefix). Both fully wired into main.js (import, registerSystem, init x2, save/load) and questPanel.js (import, section render, handlers, ENCOUNTER_EVENTS). Events added to events.js.
 

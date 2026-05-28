@@ -1860,6 +1860,26 @@
       "description": "Periodic imperial cartographer's academy encounter: commission grand survey (30 iron + 20g → +0.22 iron/s 2.5min +22 prestige +10 morale), study cartography methods (25 mana → +0.20 mana/s 2min +18 prestige), send away. Iron Age+, 12+ tiles, 15-19 min.",
       "completed_date": "2026-05-28",
       "notes": "Built imperialCartographersAcademy.js. IMPERIAL_CARTOGRAPHERS_ACADEMY_CHANGED event added to events.js. state.imperialCartographersAcademy null field. Cartographer's academy section in questPanel.js (import * as CartAcad). Events.IMPERIAL_CARTOGRAPHERS_ACADEMY_CHANGED subscribed. CSS: @keyframes cartacad-pulse (teal/cyan), .cartacad-section--active, .btn--cartacad-commission (teal), .btn--cartacad-study (indigo/violet), .btn--cartacad-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T435",
+      "title": "Wandering Flax Weaver",
+      "status": "done",
+      "priority": 435,
+      "phase": 133,
+      "description": "Periodic wandering flax weaver encounter: commission linen cloth (20 food + 15 wood → +0.22 food/s 2.5min +18 prestige +8 morale), purchase weaving lore (18g → +0.15 gold/s 2min +12 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
+      "completed_date": "2026-05-28",
+      "notes": "Built wanderingFlaxWeaver.js. WANDERING_FLAX_WEAVER_CHANGED event added to events.js. state.wanderingFlaxWeaver null field. Flax weaver section in questPanel.js (import * as FlaxWeaver). Events.WANDERING_FLAX_WEAVER_CHANGED subscribed. CSS: @keyframes flaxweaver-pulse (sage green/mint), .flaxweaver-section--active, .btn--flaxweaver-commission (green), .btn--flaxweaver-purchase (amber/gold), .btn--flaxweaver-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T436",
+      "title": "Imperial Oilpress Master",
+      "status": "done",
+      "priority": 436,
+      "phase": 133,
+      "description": "Periodic imperial oilpress master encounter: commission olive oil press (25 food + 20g → +0.22 food/s 2.5min +20 prestige +12 morale), purchase pressing techniques (20 stone → +0.18 stone/s 2min +15 prestige), send away. Bronze Age+, 8+ tiles, 13-17 min.",
+      "completed_date": "2026-05-28",
+      "notes": "Built imperialOilpressMaster.js. IMPERIAL_OILPRESS_MASTER_CHANGED event added to events.js. state.imperialOilpressMaster null field. Oilpress master section in questPanel.js (import * as OilpressMaster). Events.IMPERIAL_OILPRESS_MASTER_CHANGED subscribed. CSS: @keyframes oilpress-pulse (golden yellow/olive), .oilpress-section--active, .btn--oilpress-commission (yellow/gold), .btn--oilpress-purchase (slate), .btn--oilpress-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     }
   ],
   "session_history": [
@@ -1965,6 +1985,7 @@
     "Session 122 (T427-T428): Wandering Seed Merchant (T427), Imperial Silkscreen Painter (T428)",
     "Session 123 (T429-T430): Wandering Woodcutter (T429), Imperial Mason's Guild (T430)",
     "Session 124 (T431-T432): Wandering Knife Sharpener (T431), Imperial Fresco Painter (T432)",
-    "Session 125 (T433-T434): Wandering Dye Merchant (T433), Imperial Cartographer's Academy (T434)"
+    "Session 125 (T433-T434): Wandering Dye Merchant (T433), Imperial Cartographer's Academy (T434)",
+    "Session 126 (T435-T436): Wandering Flax Weaver (T435), Imperial Oilpress Master (T436)"
   ]
 }

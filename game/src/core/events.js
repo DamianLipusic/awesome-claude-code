@@ -376,4 +376,6 @@ export const Events = Object.freeze({
   IMPERIAL_FRESCO_PAINTER_CHANGED:         'imperialFrescoPainterChanged',                                    // T432: fresco painter spawned / commissioned / purchased / dismissed / expired
   WANDERING_DYE_MERCHANT_CHANGED:          'wanderingDyeMerchantChanged',                                     // T433: dye merchant spawned / commissioned / purchased / dismissed / expired
   IMPERIAL_CARTOGRAPHERS_ACADEMY_CHANGED:  'imperialCartographersAcademyChanged',                             // T434: cartographer's academy spawned / commissioned / studied / dismissed / expired
+  WANDERING_FLAX_WEAVER_CHANGED:           'wanderingFlaxWeaverChanged',                                      // T435: flax weaver spawned / commissioned / purchased / dismissed / expired
+  IMPERIAL_OILPRESS_MASTER_CHANGED:        'imperialOilpressMasterChanged',                                   // T436: oilpress master spawned / commissioned / purchased / dismissed / expired
 });

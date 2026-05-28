@@ -199,6 +199,8 @@ import * as KnifeSharpener   from '../systems/wanderingKnifeSharpener.js';      
 import * as FrescoPainter    from '../systems/imperialFrescoPainter.js';         // T432
 import * as DyeMerchant      from '../systems/wanderingDyeMerchant.js';          // T433
 import * as CartAcad         from '../systems/imperialCartographersAcademy.js';  // T434
+import * as FlaxWeaver       from '../systems/wanderingFlaxWeaver.js';           // T435
+import * as OilpressMaster   from '../systems/imperialOilpressMaster.js';        // T436
 
 let _panel = null;
 
@@ -426,6 +428,8 @@ function _encountersSection() {
     _imperialFrescoPainterSection(),
     _wanderingDyeMerchantSection(),
     _imperialCartographersAcademySection(),
+    _wanderingFlaxWeaverSection(),
+    _imperialOilpressMasterSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -6678,6 +6682,76 @@ function _imperialCartographersAcademySection() {
     </div>`;
 }
 
+// ── T435 Wandering Flax Weaver ────────────────────────────────────────────────
+
+function _wanderingFlaxWeaverSection() {
+  if (!FlaxWeaver.getActiveWanderingFlaxWeaver()) return '';
+  const secs           = FlaxWeaver.getFlaxWeaverSecsLeft();
+  const urgent         = secs <= 20;
+  const food           = state.resources.food ?? 0;
+  const wood           = state.resources.wood ?? 0;
+  const gold           = state.resources.gold ?? 0;
+  const canCommission  = food >= FlaxWeaver.COMMISSION_FOOD_COST && wood >= FlaxWeaver.COMMISSION_WOOD_COST;
+  const canPurchase    = gold >= FlaxWeaver.PURCHASE_GOLD_COST;
+  return `
+    <div class="flaxweaver-section--active">
+      <div class="flaxweaver-header">
+        <span class="flaxweaver-title">🌿 Wandering Flax Weaver</span>
+        <span class="flaxweaver-timer${urgent ? ' flaxweaver-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="flaxweaver-desc">A wandering flax weaver arrives carrying a portable upright loom strapped to a wooden frame — the warp threads already dressed with water-retted linen yarn spun from long bast fibres separated from flax stalks by retting in slow-moving water, then dried, broken on a flax brake, scutched, and hackled into a smooth lustrous preparation — offering to commission a run of fine bleached linen cloth woven in the settlement's colours, or to share the complete water-retting and preparation sequence for reliable linen production from field-grown flax.</div>
+      <div class="flaxweaver-actions">
+        <button class="btn--flaxweaver-commission${canCommission ? '' : ' btn--disabled'}" data-action="flaxweaver-commission" ${canCommission ? '' : 'disabled'}>
+          🌿 Commission Linen Cloth — ${FlaxWeaver.COMMISSION_FOOD_COST}🌾 + ${FlaxWeaver.COMMISSION_WOOD_COST}🪵
+          <span class="flaxweaver-cost">→ +${FlaxWeaver.COMMISSION_FOOD_RATE} food/s (2.5 min) · +${FlaxWeaver.COMMISSION_PRESTIGE_REWARD} prestige · +${FlaxWeaver.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--flaxweaver-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="flaxweaver-purchase" ${canPurchase ? '' : 'disabled'}>
+          📖 Purchase Weaving Lore — ${FlaxWeaver.PURCHASE_GOLD_COST}💰
+          <span class="flaxweaver-cost">→ +${FlaxWeaver.PURCHASE_GOLD_RATE} gold/s (2 min) · +${FlaxWeaver.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--flaxweaver-away" data-action="flaxweaver-away">
+          🚶 Send Away
+          <span class="flaxweaver-cost">→ Flax weaver re-straps the portable loom and departs along the road</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T436 Imperial Oilpress Master ─────────────────────────────────────────────
+
+function _imperialOilpressMasterSection() {
+  if (!OilpressMaster.getActiveImperialOilpressMaster()) return '';
+  const secs           = OilpressMaster.getOilpressMasterSecsLeft();
+  const urgent         = secs <= 20;
+  const food           = state.resources.food ?? 0;
+  const gold           = state.resources.gold ?? 0;
+  const stone          = state.resources.stone ?? 0;
+  const canCommission  = food >= OilpressMaster.COMMISSION_FOOD_COST && gold >= OilpressMaster.COMMISSION_GOLD_COST;
+  const canPurchase    = stone >= OilpressMaster.PURCHASE_STONE_COST;
+  return `
+    <div class="oilpress-section--active">
+      <div class="oilpress-header">
+        <span class="oilpress-title">🫒 Imperial Oilpress Master</span>
+        <span class="oilpress-timer${urgent ? ' oilpress-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="oilpress-desc">An imperial oilpress master arrives carrying a chest of iron press fittings — the screw head plate, follower board with central screw socket, and lead collection basin template — along with a small amphora of high-quality first-pressing oil, offering to commission a complete olive oil press installation establishing a reliable oil extraction operation, or to share the beam press construction method and pressing sequence for independent oil production from locally-grown oleaginous crops.</div>
+      <div class="oilpress-actions">
+        <button class="btn--oilpress-commission${canCommission ? '' : ' btn--disabled'}" data-action="oilpress-commission" ${canCommission ? '' : 'disabled'}>
+          🫒 Commission Olive Oil Press — ${OilpressMaster.COMMISSION_FOOD_COST}🌾 + ${OilpressMaster.COMMISSION_GOLD_COST}💰
+          <span class="oilpress-cost">→ +${OilpressMaster.COMMISSION_FOOD_RATE} food/s (2.5 min) · +${OilpressMaster.COMMISSION_PRESTIGE_REWARD} prestige · +${OilpressMaster.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--oilpress-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="oilpress-purchase" ${canPurchase ? '' : 'disabled'}>
+          📖 Purchase Pressing Techniques — ${OilpressMaster.PURCHASE_STONE_COST}🪨
+          <span class="oilpress-cost">→ +${OilpressMaster.PURCHASE_STONE_RATE} stone/s (2 min) · +${OilpressMaster.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--oilpress-away" data-action="oilpress-away">
+          🚶 Send Away
+          <span class="oilpress-cost">→ Oilpress master repacks the iron fittings and departs along the road</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -7425,6 +7499,14 @@ const _HANDLERS = {
   'cartacad-commission': () => CartAcad.commissionGrandSurvey(),
   'cartacad-study':      () => CartAcad.studyCartographyMethods(),
   'cartacad-away':       () => CartAcad.sendCartographersAcademyAway(),
+
+  'flaxweaver-commission': () => FlaxWeaver.commissionLinenCloth(),
+  'flaxweaver-purchase':   () => FlaxWeaver.purchaseWeavingLore(),
+  'flaxweaver-away':       () => FlaxWeaver.sendFlaxWeaverAway(),
+
+  'oilpress-commission': () => OilpressMaster.commissionOliveOilPress(),
+  'oilpress-purchase':   () => OilpressMaster.purchasePressingTechniques(),
+  'oilpress-away':       () => OilpressMaster.sendOilpressMasterAway(),
 };
 
 function _handleClick(e) {
@@ -7631,6 +7713,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_FRESCO_PAINTER_CHANGED,
     Events.WANDERING_DYE_MERCHANT_CHANGED,
     Events.IMPERIAL_CARTOGRAPHERS_ACADEMY_CHANGED,
+    Events.WANDERING_FLAX_WEAVER_CHANGED,
+    Events.IMPERIAL_OILPRESS_MASTER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);
