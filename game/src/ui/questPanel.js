@@ -195,6 +195,8 @@ import * as SeedMerchant     from '../systems/wanderingSeedMerchant.js';        
 import * as SilkPainter      from '../systems/imperialSilkscreenPainter.js';    // T428
 import * as Woodcutter       from '../systems/wanderingWoodcutter.js';           // T429
 import * as MasonsGuild      from '../systems/imperialMasonsGuild.js';           // T430
+import * as KnifeSharpener   from '../systems/wanderingKnifeSharpener.js';       // T431
+import * as FrescoPainter    from '../systems/imperialFrescoPainter.js';         // T432
 
 let _panel = null;
 
@@ -418,6 +420,8 @@ function _encountersSection() {
     _imperialSilkscreenPainterSection(),
     _wanderingWoodcutterSection(),
     _imperialMasonsGuildSection(),
+    _wanderingKnifeSharpenerSection(),
+    _imperialFrescoPainterSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -6531,6 +6535,75 @@ function _imperialMasonsGuildSection() {
     </div>`;
 }
 
+// ── T431 Wandering Knife Sharpener ────────────────────────────────────────────
+
+function _wanderingKnifeSharpenerSection() {
+  if (!KnifeSharpener.getActiveWanderingKnifeSharpener()) return '';
+  const secs        = KnifeSharpener.getKnifeSharpenerSecsLeft();
+  const urgent      = secs <= 20;
+  const iron        = state.resources.iron  ?? 0;
+  const gold        = state.resources.gold  ?? 0;
+  const canSharpen  = iron >= KnifeSharpener.SHARPEN_IRON_COST;
+  const canPurchase = gold >= KnifeSharpener.PURCHASE_GOLD_COST;
+  return `
+    <div class="knifesharp-section--active">
+      <div class="knifesharp-header">
+        <span class="knifesharp-title">🔪 Wandering Knife Sharpener</span>
+        <span class="knifesharp-timer${urgent ? ' knifesharp-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="knifesharp-desc">A wandering knife sharpener arrives carrying a leather satchel packed with water stones graded from coarse through medium to a mirror-smooth finishing stone, a horsehide strop tacked to an oak board, and hand-forged angle guides that hold each blade at the precise bevel angle matching the original smith's grind — offering to sharpen the settlement's full inventory of iron tools to a working edge that holds through a full season of daily use, or to share the accumulated knowledge of stone selection, angle judgement, and strop technique.</div>
+      <div class="knifesharp-actions">
+        <button class="btn--knifesharp-sharpen${canSharpen ? '' : ' btn--disabled'}" data-action="knifesharp-sharpen" ${canSharpen ? '' : 'disabled'}>
+          🔪 Sharpen Imperial Tools — ${KnifeSharpener.SHARPEN_IRON_COST}⚙️
+          <span class="knifesharp-cost">→ +${KnifeSharpener.SHARPEN_IRON_RATE} iron/s (2.5 min) · +${KnifeSharpener.SHARPEN_PRESTIGE_REWARD} prestige · +${KnifeSharpener.SHARPEN_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--knifesharp-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="knifesharp-purchase" ${canPurchase ? '' : 'disabled'}>
+          📖 Purchase Sharpening Lore — ${KnifeSharpener.PURCHASE_GOLD_COST}💰
+          <span class="knifesharp-cost">→ +${KnifeSharpener.PURCHASE_GOLD_RATE} gold/s (2 min) · +${KnifeSharpener.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--knifesharp-away" data-action="knifesharp-away">
+          🚶 Send Away
+          <span class="knifesharp-cost">→ Knife sharpener repacks the stones and departs along the road</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── T432 Imperial Fresco Painter ──────────────────────────────────────────────
+
+function _imperialFrescoPainterSection() {
+  if (!FrescoPainter.getActiveImperialFrescoPainter()) return '';
+  const secs           = FrescoPainter.getFrescoPainterSecsLeft();
+  const urgent         = secs <= 20;
+  const mana           = state.resources.mana  ?? 0;
+  const gold           = state.resources.gold  ?? 0;
+  const stone          = state.resources.stone ?? 0;
+  const canCommission  = mana >= FrescoPainter.COMMISSION_MANA_COST && gold >= FrescoPainter.COMMISSION_GOLD_COST;
+  const canPurchase    = stone >= FrescoPainter.PURCHASE_STONE_COST;
+  return `
+    <div class="frescopainter-section--active">
+      <div class="frescopainter-header">
+        <span class="frescopainter-title">🖌️ Imperial Fresco Painter</span>
+        <span class="frescopainter-timer${urgent ? ' frescopainter-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="frescopainter-desc">An imperial fresco painter arrives carrying ox-hair brushes in a fleece-lined wooden case — from broad flat brushes for arriccio and intonaco plaster coats through medium rounds for sinopia outlines, down to the finest point brush for gold-leaf detail work — along with dry pigments ground to the particle size that bonds permanently into wet lime plaster as it carbonates, offering to paint a full programme of imperial frescoes across the great hall walls in the buon fresco method that will remain legible for centuries, or to share the accumulated craft knowledge of plaster preparation, pigment selection, and brushwork sequence.</div>
+      <div class="frescopainter-actions">
+        <button class="btn--frescopainter-commission${canCommission ? '' : ' btn--disabled'}" data-action="frescopainter-commission" ${canCommission ? '' : 'disabled'}>
+          🖌️ Commission Imperial Frescoes — ${FrescoPainter.COMMISSION_MANA_COST}✨ + ${FrescoPainter.COMMISSION_GOLD_COST}💰
+          <span class="frescopainter-cost">→ +${FrescoPainter.COMMISSION_MANA_RATE} mana/s (2.5 min) · +${FrescoPainter.COMMISSION_PRESTIGE_REWARD} prestige · +${FrescoPainter.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--frescopainter-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="frescopainter-purchase" ${canPurchase ? '' : 'disabled'}>
+          📖 Purchase Painting Techniques — ${FrescoPainter.PURCHASE_STONE_COST}🪨
+          <span class="frescopainter-cost">→ +${FrescoPainter.PURCHASE_STONE_RATE} stone/s (2 min) · +${FrescoPainter.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--frescopainter-away" data-action="frescopainter-away">
+          🚶 Send Away
+          <span class="frescopainter-cost">→ Fresco painter repacks the brushes and departs toward the next commission</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -7262,6 +7335,14 @@ const _HANDLERS = {
   'masonsguild-commission': () => MasonsGuild.commissionStoneMasonryWorks(),
   'masonsguild-purchase':   () => MasonsGuild.purchaseGuildMasonrySecrets(),
   'masonsguild-away':       () => MasonsGuild.sendMasonsGuildAway(),
+
+  'knifesharp-sharpen':  () => KnifeSharpener.sharpenImperialTools(),
+  'knifesharp-purchase': () => KnifeSharpener.purchaseSharpeningLore(),
+  'knifesharp-away':     () => KnifeSharpener.sendKnifeSharpenerAway(),
+
+  'frescopainter-commission': () => FrescoPainter.commissionImperialFrescoes(),
+  'frescopainter-purchase':   () => FrescoPainter.purchasePaintingTechniques(),
+  'frescopainter-away':       () => FrescoPainter.sendFrescoPainterAway(),
 };
 
 function _handleClick(e) {
@@ -7464,6 +7545,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_SILKSCREEN_PAINTER_CHANGED,
     Events.WANDERING_WOODCUTTER_CHANGED,
     Events.IMPERIAL_MASONS_GUILD_CHANGED,
+    Events.WANDERING_KNIFE_SHARPENER_CHANGED,
+    Events.IMPERIAL_FRESCO_PAINTER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

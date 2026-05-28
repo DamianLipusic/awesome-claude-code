@@ -1820,6 +1820,26 @@
       "description": "Periodic imperial mason's guild encounter: commission stone masonry works (30 stone + 20g → +0.25 stone/s 2.5min +25 prestige +12 morale), purchase guild masonry secrets (25 iron → +0.20 iron/s 2min +18 prestige), send away. Iron Age+, 12+ tiles, 14-18 min.",
       "completed_date": "2026-05-27",
       "notes": "Built imperialMasonsGuild.js. IMPERIAL_MASONS_GUILD_CHANGED event added to events.js. state.imperialMasonsGuild null field. Mason's guild section in questPanel.js (import * as MasonsGuild). Events.IMPERIAL_MASONS_GUILD_CHANGED subscribed. CSS: @keyframes masonsguild-pulse (slate/stone gray), .masonsguild-section--active, .btn--masonsguild-commission (slate/stone), .btn--masonsguild-purchase (amber/gold), .btn--masonsguild-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T431",
+      "title": "Wandering Knife Sharpener",
+      "status": "done",
+      "priority": 431,
+      "phase": 131,
+      "description": "Periodic wandering knife sharpener encounter: sharpen imperial tools (15 iron → +0.20 iron/s 2.5min +18 prestige +8 morale), purchase sharpening lore (18g → +0.15 gold/s 2min +12 prestige), send away. Stone Age+, 6+ tiles, 11-15 min.",
+      "completed_date": "2026-05-28",
+      "notes": "Built wanderingKnifeSharpener.js. WANDERING_KNIFE_SHARPENER_CHANGED event added to events.js. state.wanderingKnifeSharpener null field. Knife sharpener section in questPanel.js (import * as KnifeSharpener). Events.WANDERING_KNIFE_SHARPENER_CHANGED subscribed. CSS: @keyframes knifesharp-pulse (amber/gold), .knifesharp-section--active, .btn--knifesharp-sharpen (amber/gold), .btn--knifesharp-purchase (slate), .btn--knifesharp-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
+    },
+    {
+      "id": "T432",
+      "title": "Imperial Fresco Painter",
+      "status": "done",
+      "priority": 432,
+      "phase": 131,
+      "description": "Periodic imperial fresco painter encounter: commission imperial frescoes (25 mana + 20g → +0.22 mana/s 2.5min +22 prestige +10 morale), purchase painting techniques (20 stone → +0.18 stone/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-18 min.",
+      "completed_date": "2026-05-28",
+      "notes": "Built imperialFrescoPainter.js. IMPERIAL_FRESCO_PAINTER_CHANGED event added to events.js. state.imperialFrescoPainter null field. Fresco painter section in questPanel.js (import * as FrescoPainter). Events.IMPERIAL_FRESCO_PAINTER_CHANGED subscribed. CSS: @keyframes frescopainter-pulse (orange/amber), .frescopainter-section--active, .btn--frescopainter-commission (violet/purple), .btn--frescopainter-purchase (slate), .btn--frescopainter-away (gray). Wired main.js: import, registerSystem, init x2, save/load."
     }
   ],
   "session_history": [
@@ -1923,6 +1943,7 @@
     "Session 120 (T423-T424): Wandering Fletcher (T423), Imperial Knifesmith (T424)",
     "Session 121 (T425-T426): Wandering Sail Maker (T425), Imperial Chariot Builder (T426)",
     "Session 122 (T427-T428): Wandering Seed Merchant (T427), Imperial Silkscreen Painter (T428)",
-    "Session 123 (T429-T430): Wandering Woodcutter (T429), Imperial Mason's Guild (T430)"
+    "Session 123 (T429-T430): Wandering Woodcutter (T429), Imperial Mason's Guild (T430)",
+    "Session 124 (T431-T432): Wandering Knife Sharpener (T431), Imperial Fresco Painter (T432)"
   ]
 }

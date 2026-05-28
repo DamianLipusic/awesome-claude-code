@@ -22645,3 +22645,75 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--masonsguild-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T431 Wandering Knife Sharpener ───────────────────────────────────────── */
+@keyframes knifesharp-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0); }
+  50%       { box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.18); }
+}
+.knifesharp-section--active {
+  background: linear-gradient(135deg, rgba(92, 78, 10, 0.18), rgba(68, 58, 6, 0.10));
+  border: 1px solid rgba(202, 168, 20, 0.35); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: knifesharp-pulse 2.8s ease-in-out infinite;
+}
+.knifesharp-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.knifesharp-title  { font-weight: 700; font-size: 0.88rem; color: #fbbf24; }
+.knifesharp-timer  { font-size: 0.78rem; color: #fbbf24; }
+.knifesharp-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.knifesharp-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.knifesharp-actions { display: flex; flex-direction: column; gap: 5px; }
+.knifesharp-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--knifesharp-sharpen {
+  background: linear-gradient(135deg, rgba(92, 78, 10, 0.28), rgba(68, 58, 6, 0.18));
+  border: 1px solid rgba(202, 168, 20, 0.40); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fbbf24; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--knifesharp-sharpen:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(112, 96, 14, 0.38), rgba(85, 72, 10, 0.28)); }
+.btn--knifesharp-purchase {
+  background: linear-gradient(135deg, rgba(50, 58, 72, 0.18), rgba(30, 40, 55, 0.12));
+  border: 1px solid rgba(100, 116, 139, 0.35); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #94a3b8; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--knifesharp-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(50, 58, 72, 0.30), rgba(30, 40, 55, 0.22)); }
+.btn--knifesharp-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--knifesharp-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T432 Imperial Fresco Painter ─────────────────────────────────────────── */
+@keyframes frescopainter-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(251, 146, 60, 0); }
+  50%       { box-shadow: 0 0 0 4px rgba(251, 146, 60, 0.18); }
+}
+.frescopainter-section--active {
+  background: linear-gradient(135deg, rgba(90, 50, 20, 0.18), rgba(65, 35, 12, 0.10));
+  border: 1px solid rgba(251, 146, 60, 0.35); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: frescopainter-pulse 2.8s ease-in-out infinite;
+}
+.frescopainter-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.frescopainter-title  { font-weight: 700; font-size: 0.88rem; color: #fb923c; }
+.frescopainter-timer  { font-size: 0.78rem; color: #fb923c; }
+.frescopainter-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.frescopainter-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.frescopainter-actions { display: flex; flex-direction: column; gap: 5px; }
+.frescopainter-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--frescopainter-commission {
+  background: linear-gradient(135deg, rgba(109, 40, 217, 0.22), rgba(79, 20, 170, 0.14));
+  border: 1px solid rgba(167, 139, 250, 0.40); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #a78bfa; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--frescopainter-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(109, 40, 217, 0.32), rgba(79, 20, 170, 0.24)); }
+.btn--frescopainter-purchase {
+  background: linear-gradient(135deg, rgba(50, 58, 72, 0.18), rgba(30, 40, 55, 0.12));
+  border: 1px solid rgba(100, 116, 139, 0.35); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #94a3b8; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--frescopainter-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(50, 58, 72, 0.30), rgba(30, 40, 55, 0.22)); }
+.btn--frescopainter-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--frescopainter-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
