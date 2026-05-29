@@ -1,3 +1,18 @@
+Session 133 — T449–T450: Wandering Amber Carver, Imperial Silk Dyer.
+Amber Carver: Stone Age+, 6+ tiles, 12-16 min spawn, 80s window. Commission Amber Ornaments (20 stone + 15g → +0.22 stone/s 2.5min · +18 prestige · +8 morale), Purchase Amber Carving Lore (18g → +0.15 gold/s 2min · +12 prestige). Warm amber/orange pulse CSS (yellow/gold purchase button, ambercarver- CSS prefix). Silk Dyer: Medieval Age+, 10+ tiles, 14-18 min spawn, 80s window. Commission Imperial Silk Dyes (25 mana + 20g → +0.22 mana/s 2.5min · +22 prestige · +12 morale), Purchase Dyeing Techniques (20 wood → +0.18 wood/s 2min · +15 prestige). Violet/purple silk dye pulse CSS (green purchase button, silkdyer- CSS prefix). Both fully wired into main.js (import, registerSystem, init x2, save/load) and questPanel.js (import, section render, handlers, ENCOUNTER_EVENTS). Events added to events.js.
+
+T449: Wandering Amber Carver — Stone Age+, 6+ tiles, 12–16 min, 80s window.
+Built wanderingAmberCarver.js: commissionAmberOrnaments (20 stone + 15g → +0.22 stone/s 2.5min +18 prestige +8 morale), purchaseAmberCarvingLore (18g → +0.15 gold/s 2min +12 prestige), sendAmberCarverAway (dismiss). Added WANDERING_AMBER_CARVER_CHANGED event to events.js. state.wanderingAmberCarver null field.
+Wired in main.js: import initWanderingAmberCarver+wanderingAmberCarverTick, registerSystem, initWanderingAmberCarver() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingAmberCarverSection() render + ambercarver-commission/ambercarver-purchase/ambercarver-away handlers to questPanel.js (import * as AmberCarver). Events.WANDERING_AMBER_CARVER_CHANGED subscribed.
+CSS: @keyframes ambercarver-pulse (warm amber/orange theme), .ambercarver-section--active, .btn--ambercarver-commission (orange/amber), .btn--ambercarver-purchase (yellow/gold), .btn--ambercarver-away (gray). Session 133.
+
+T450: Imperial Silk Dyer — Medieval Age+, 10+ tiles, 14–18 min, 80s window.
+Built imperialSilkDyer.js: commissionImperialSilkDyes (25 mana + 20g → +0.22 mana/s 2.5min +22 prestige +12 morale), purchaseDyeingTechniques (20 wood → +0.18 wood/s 2min +15 prestige), sendSilkDyerAway (dismiss). Added IMPERIAL_SILK_DYER_CHANGED event to events.js. state.imperialSilkDyer null field.
+Wired in main.js: import initImperialSilkDyer+imperialSilkDyerTick, registerSystem, initImperialSilkDyer() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _imperialSilkDyerSection() render + silkdyer-commission/silkdyer-purchase/silkdyer-away handlers to questPanel.js (import * as SilkDyer). Events.IMPERIAL_SILK_DYER_CHANGED subscribed.
+CSS: @keyframes silkdyer-pulse (violet/purple silk dye theme), .silkdyer-section--active, .btn--silkdyer-commission (violet/purple), .btn--silkdyer-purchase (green), .btn--silkdyer-away (gray). Session 133.
+
 Session 132 — T447–T448: Wandering Bellows Maker, Imperial Olive Grove Master.
 Bellows Maker: Stone Age+, 6+ tiles, 12-16 min spawn, 80s window. Commission Forge Bellows (20 wood + 15 food → +0.22 wood/s 2.5min · +15 prestige · +8 morale), Purchase Bellows-Making Lore (18g → +0.15 gold/s 2min · +10 prestige). Dark orange/rust forge pulse CSS (amber/gold purchase button, bellowsmaker- CSS prefix). Olive Grove Master: Bronze Age+, 8+ tiles, 13-17 min spawn, 80s window. Commission Olive Cultivation (25 food + 20g → +0.22 food/s 2.5min · +20 prestige · +12 morale), Purchase Orchard Management Lore (20 wood → +0.18 wood/s 2min · +15 prestige). Olive green/lime pulse CSS (light green purchase button, olivegrove- CSS prefix). Both fully wired into main.js (import, registerSystem, init x2, save/load) and questPanel.js (import, section render, handlers, ENCOUNTER_EVENTS). Events added to events.js.
 

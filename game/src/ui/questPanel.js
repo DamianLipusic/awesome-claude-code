@@ -213,6 +213,8 @@ import * as HornCarver       from '../systems/wanderingHornCarver.js';          
 import * as ReedMerchant     from '../systems/imperialReedMerchant.js';          // T446
 import * as BellowsMaker     from '../systems/wanderingBellowsMaker.js';         // T447
 import * as OliveGroveMaster from '../systems/imperialOliveGroveMaster.js';      // T448
+import * as AmberCarver      from '../systems/wanderingAmberCarver.js';          // T449
+import * as SilkDyer         from '../systems/imperialSilkDyer.js';              // T450
 
 let _panel = null;
 
@@ -454,6 +456,8 @@ function _encountersSection() {
     _imperialReedMerchantSection(),
     _wanderingBellowsMakerSection(),
     _imperialOliveGroveMasterSection(),
+    _wanderingAmberCarverSection(),
+    _imperialSilkDyerSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -7177,6 +7181,71 @@ function _imperialOliveGroveMasterSection() {
     </div>`;
 }
 
+function _wanderingAmberCarverSection() {
+  if (!AmberCarver.getActiveWanderingAmberCarver()) return '';
+  const secs         = AmberCarver.getAmberCarverSecsLeft();
+  const urgent       = secs <= 20;
+  const stone        = Math.floor(state.resources.stone ?? 0);
+  const gold         = Math.floor(state.resources.gold  ?? 0);
+  const canCommission = stone >= AmberCarver.COMMISSION_STONE_COST && gold >= AmberCarver.COMMISSION_GOLD_COST;
+  const canPurchase   = gold >= AmberCarver.PURCHASE_GOLD_COST;
+  return `
+    <div class="ambercarver-section--active">
+      <div class="ambercarver-header">
+        <span class="ambercarver-title">🪨 Wandering Amber Carver</span>
+        <span class="ambercarver-timer${urgent ? ' ambercarver-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="ambercarver-desc">A wandering amber carver arrives carrying a leather satchel of raw Baltic amber nodules — irregular lumps of fossilised resin in shades from pale lemon to deep cognac — along with copper burins, a sandstone grinding block, and finished pieces including pendants, gaming counters, and amber-inlaid bracelet cuffs, offering to commission a full set of amber ornaments for the settlement's nobles, or to share the complete carving and polishing methods.</div>
+      <div class="ambercarver-actions">
+        <button class="btn--ambercarver-commission${canCommission ? '' : ' btn--disabled'}" data-action="ambercarver-commission" ${canCommission ? '' : 'disabled'}>
+          🪨 Commission Amber Ornaments — ${AmberCarver.COMMISSION_STONE_COST}🪨 + ${AmberCarver.COMMISSION_GOLD_COST}💰
+          <span class="ambercarver-cost">→ +${AmberCarver.COMMISSION_STONE_RATE} stone/s (2.5 min) · +${AmberCarver.COMMISSION_PRESTIGE_REWARD} prestige · +${AmberCarver.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--ambercarver-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="ambercarver-purchase" ${canPurchase ? '' : 'disabled'}>
+          📖 Purchase Amber Carving Lore — ${AmberCarver.PURCHASE_GOLD_COST}💰
+          <span class="ambercarver-cost">→ +${AmberCarver.PURCHASE_GOLD_RATE} gold/s (2 min) · +${AmberCarver.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--ambercarver-away" data-action="ambercarver-away">
+          🚶 Send Away
+          <span class="ambercarver-cost">→ Amber carver packs the raw nodules back into the leather satchel and departs</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _imperialSilkDyerSection() {
+  if (!SilkDyer.getActiveImperialSilkDyer()) return '';
+  const secs         = SilkDyer.getSilkDyerSecsLeft();
+  const urgent       = secs <= 20;
+  const mana         = Math.floor(state.resources.mana ?? 0);
+  const gold         = Math.floor(state.resources.gold ?? 0);
+  const wood         = Math.floor(state.resources.wood ?? 0);
+  const canCommission = mana >= SilkDyer.COMMISSION_MANA_COST && gold >= SilkDyer.COMMISSION_GOLD_COST;
+  const canPurchase   = wood >= SilkDyer.PURCHASE_WOOD_COST;
+  return `
+    <div class="silkdyer-section--active">
+      <div class="silkdyer-header">
+        <span class="silkdyer-title">🎨 Imperial Silk Dyer</span>
+        <span class="silkdyer-timer${urgent ? ' silkdyer-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="silkdyer-desc">An imperial silk dyer arrives carrying sealed ceramic jars of prepared dyestuffs — indigo paste from fermented woad, crimson powder from dried kermes insects, rich ochre from roasted iron clay, and a violet mordant solution — along with copper dye vats, silk colour sample panels, and complete mordanting charts, offering to commission a full run of imperial silk dyes for the settlement's weavers, or to purchase the complete dyeing and mordanting methods.</div>
+      <div class="silkdyer-actions">
+        <button class="btn--silkdyer-commission${canCommission ? '' : ' btn--disabled'}" data-action="silkdyer-commission" ${canCommission ? '' : 'disabled'}>
+          🎨 Commission Imperial Silk Dyes — ${SilkDyer.COMMISSION_MANA_COST}✨ + ${SilkDyer.COMMISSION_GOLD_COST}💰
+          <span class="silkdyer-cost">→ +${SilkDyer.COMMISSION_MANA_RATE} mana/s (2.5 min) · +${SilkDyer.COMMISSION_PRESTIGE_REWARD} prestige · +${SilkDyer.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--silkdyer-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="silkdyer-purchase" ${canPurchase ? '' : 'disabled'}>
+          📖 Purchase Dyeing Techniques — ${SilkDyer.PURCHASE_WOOD_COST}🪵
+          <span class="silkdyer-cost">→ +${SilkDyer.PURCHASE_WOOD_RATE} wood/s (2 min) · +${SilkDyer.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--silkdyer-away" data-action="silkdyer-away">
+          🚶 Send Away
+          <span class="silkdyer-cost">→ Silk dyer seals the ceramic dye jars and departs with a courteous bow</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -7980,6 +8049,14 @@ const _HANDLERS = {
   'olivegrove-commission': () => OliveGroveMaster.commissionOliveCultivation(),
   'olivegrove-purchase':   () => OliveGroveMaster.purchaseOrchardManagementLore(),
   'olivegrove-away':       () => OliveGroveMaster.sendOliveGroveMasterAway(),
+
+  'ambercarver-commission': () => AmberCarver.commissionAmberOrnaments(),
+  'ambercarver-purchase':   () => AmberCarver.purchaseAmberCarvingLore(),
+  'ambercarver-away':       () => AmberCarver.sendAmberCarverAway(),
+
+  'silkdyer-commission': () => SilkDyer.commissionImperialSilkDyes(),
+  'silkdyer-purchase':   () => SilkDyer.purchaseDyeingTechniques(),
+  'silkdyer-away':       () => SilkDyer.sendSilkDyerAway(),
 };
 
 function _handleClick(e) {
@@ -8200,6 +8277,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_REED_MERCHANT_CHANGED,
     Events.WANDERING_BELLOWS_MAKER_CHANGED,
     Events.IMPERIAL_OLIVE_GROVE_MASTER_CHANGED,
+    Events.WANDERING_AMBER_CARVER_CHANGED,
+    Events.IMPERIAL_SILK_DYER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

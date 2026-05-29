@@ -23289,3 +23289,73 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--olivegrove-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+@keyframes ambercarver-pulse {
+  0%, 100% { border-color: rgba(180, 100, 20, 0.45); box-shadow: 0 0 6px rgba(180, 100, 20, 0.18); }
+  50%       { border-color: rgba(220, 140, 40, 0.65); box-shadow: 0 0 12px rgba(220, 140, 40, 0.30); }
+}
+.ambercarver-section--active {
+  background: linear-gradient(135deg, rgba(60, 30, 5, 0.18), rgba(40, 18, 2, 0.10));
+  border: 1px solid rgba(180, 100, 20, 0.45); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: ambercarver-pulse 2.8s ease-in-out infinite;
+}
+.ambercarver-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.ambercarver-title  { font-weight: 700; font-size: 0.88rem; color: #fb923c; }
+.ambercarver-timer  { font-size: 0.78rem; color: #fb923c; }
+.ambercarver-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.ambercarver-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.ambercarver-actions { display: flex; flex-direction: column; gap: 5px; }
+.ambercarver-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--ambercarver-commission {
+  background: linear-gradient(135deg, rgba(60, 30, 5, 0.22), rgba(40, 18, 2, 0.14));
+  border: 1px solid rgba(180, 100, 20, 0.40); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fb923c; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--ambercarver-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(60, 30, 5, 0.32), rgba(40, 18, 2, 0.24)); }
+.btn--ambercarver-purchase {
+  background: linear-gradient(135deg, rgba(120, 80, 8, 0.18), rgba(80, 52, 4, 0.10));
+  border: 1px solid rgba(251, 191, 36, 0.35); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fcd34d; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--ambercarver-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(120, 80, 8, 0.28), rgba(80, 52, 4, 0.18)); }
+.btn--ambercarver-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--ambercarver-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+@keyframes silkdyer-pulse {
+  0%, 100% { border-color: rgba(109, 40, 217, 0.45); box-shadow: 0 0 6px rgba(109, 40, 217, 0.18); }
+  50%       { border-color: rgba(147, 51, 234, 0.65); box-shadow: 0 0 12px rgba(147, 51, 234, 0.30); }
+}
+.silkdyer-section--active {
+  background: linear-gradient(135deg, rgba(30, 10, 60, 0.18), rgba(18, 5, 40, 0.10));
+  border: 1px solid rgba(109, 40, 217, 0.45); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: silkdyer-pulse 2.8s ease-in-out infinite;
+}
+.silkdyer-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.silkdyer-title  { font-weight: 700; font-size: 0.88rem; color: #c084fc; }
+.silkdyer-timer  { font-size: 0.78rem; color: #c084fc; }
+.silkdyer-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.silkdyer-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.silkdyer-actions { display: flex; flex-direction: column; gap: 5px; }
+.silkdyer-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--silkdyer-commission {
+  background: linear-gradient(135deg, rgba(30, 10, 60, 0.22), rgba(18, 5, 40, 0.14));
+  border: 1px solid rgba(109, 40, 217, 0.40); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #c084fc; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--silkdyer-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(30, 10, 60, 0.32), rgba(18, 5, 40, 0.24)); }
+.btn--silkdyer-purchase {
+  background: linear-gradient(135deg, rgba(20, 40, 10, 0.18), rgba(12, 28, 5, 0.10));
+  border: 1px solid rgba(134, 239, 172, 0.35); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #86efac; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--silkdyer-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(20, 40, 10, 0.28), rgba(12, 28, 5, 0.18)); }
+.btn--silkdyer-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--silkdyer-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

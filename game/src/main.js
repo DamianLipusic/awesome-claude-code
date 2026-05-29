@@ -390,6 +390,8 @@ import { initWanderingHornCarver, wanderingHornCarverTick }           from './sy
 import { initImperialReedMerchant, imperialReedMerchantTick }         from './systems/imperialReedMerchant.js';              // T446
 import { initWanderingBellowsMaker, wanderingBellowsMakerTick }       from './systems/wanderingBellowsMaker.js';             // T447
 import { initImperialOliveGroveMaster, imperialOliveGroveMasterTick } from './systems/imperialOliveGroveMaster.js';          // T448
+import { initWanderingAmberCarver, wanderingAmberCarverTick }         from './systems/wanderingAmberCarver.js';              // T449
+import { initImperialSilkDyer, imperialSilkDyerTick }                 from './systems/imperialSilkDyer.js';                  // T450
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -786,6 +788,8 @@ function _registerAllSystems() {
   registerSystem(imperialReedMerchantTick);         // T446
   registerSystem(wanderingBellowsMakerTick);        // T447
   registerSystem(imperialOliveGroveMasterTick);     // T448
+  registerSystem(wanderingAmberCarverTick);         // T449
+  registerSystem(imperialSilkDyerTick);             // T450
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -1167,6 +1171,8 @@ function _save() {
     imperialReedMerchant:         state.imperialReedMerchant,         // T446
     wanderingBellowsMaker:        state.wanderingBellowsMaker,        // T447
     imperialOliveGroveMaster:     state.imperialOliveGroveMaster,     // T448
+    wanderingAmberCarver:         state.wanderingAmberCarver,         // T449
+    imperialSilkDyer:             state.imperialSilkDyer,             // T450
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -1553,6 +1559,8 @@ function _applySave(s) {
   state.imperialReedMerchant           = s.imperialReedMerchant ?? null;            // T446
   state.wanderingBellowsMaker          = s.wanderingBellowsMaker ?? null;           // T447
   state.imperialOliveGroveMaster       = s.imperialOliveGroveMaster ?? null;        // T448
+  state.wanderingAmberCarver           = s.wanderingAmberCarver ?? null;            // T449
+  state.imperialSilkDyer               = s.imperialSilkDyer ?? null;               // T450
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -1945,6 +1953,8 @@ function _startFreshGame() {
   initImperialReedMerchant();         // T446
   initWanderingBellowsMaker();        // T447
   initImperialOliveGroveMaster();     // T448
+  initWanderingAmberCarver();         // T449
+  initImperialSilkDyer();             // T450
   initAchievements();
   initLeaderboard();
 }
@@ -2320,6 +2330,8 @@ function _startLoadedGame(savedData) {
   initImperialReedMerchant();         // T446
   initWanderingBellowsMaker();        // T447
   initImperialOliveGroveMaster();     // T448
+  initWanderingAmberCarver();         // T449
+  initImperialSilkDyer();             // T450
   initAchievements();
   initLeaderboard();
 }

@@ -1998,6 +1998,26 @@
       "description": "Periodic imperial olive grove master encounter: commission olive cultivation (25 food + 20g → +0.22 food/s 2.5min · +20 prestige · +12 morale), purchase orchard management lore (20 wood → +0.18 wood/s 2min · +15 prestige), send away. Bronze Age+, 8+ tiles, 13-17 min.",
       "completed_date": "2026-05-29",
       "notes": "Built imperialOliveGroveMaster.js. IMPERIAL_OLIVE_GROVE_MASTER_CHANGED event added to events.js. state.imperialOliveGroveMaster null field. Olive grove master section in questPanel.js (import * as OliveGroveMaster). Events.IMPERIAL_OLIVE_GROVE_MASTER_CHANGED subscribed. CSS: @keyframes olivegrove-pulse (olive green/lime theme), .olivegrove-section--active, .btn--olivegrove-commission (lime green), .btn--olivegrove-purchase (light green), .btn--olivegrove-away (gray). Wired main.js: import, registerSystem, init x2, save/load. Session 132."
+    },
+    {
+      "id": "T449",
+      "title": "Wandering Amber Carver",
+      "status": "done",
+      "priority": 1,
+      "phase": 133,
+      "description": "Periodic wandering amber carver encounter: commission amber ornaments (20 stone + 15g → +0.22 stone/s 2.5min +18 prestige +8 morale), purchase amber carving lore (18g → +0.15 gold/s 2min +12 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
+      "completed_date": "2026-05-29",
+      "notes": "Built wanderingAmberCarver.js. WANDERING_AMBER_CARVER_CHANGED event added to events.js. state.wanderingAmberCarver null field. Amber carver section in questPanel.js (import * as AmberCarver). Events.WANDERING_AMBER_CARVER_CHANGED subscribed. CSS: @keyframes ambercarver-pulse (warm amber/orange theme), .ambercarver-section--active, .btn--ambercarver-commission (orange/amber), .btn--ambercarver-purchase (yellow/gold), .btn--ambercarver-away (gray). Wired main.js: import, registerSystem, init x2, save/load. Session 133."
+    },
+    {
+      "id": "T450",
+      "title": "Imperial Silk Dyer",
+      "status": "done",
+      "priority": 1,
+      "phase": 133,
+      "description": "Periodic imperial silk dyer encounter: commission imperial silk dyes (25 mana + 20g → +0.22 mana/s 2.5min +22 prestige +12 morale), purchase dyeing techniques (20 wood → +0.18 wood/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-18 min.",
+      "completed_date": "2026-05-29",
+      "notes": "Built imperialSilkDyer.js. IMPERIAL_SILK_DYER_CHANGED event added to events.js. state.imperialSilkDyer null field. Silk dyer section in questPanel.js (import * as SilkDyer). Events.IMPERIAL_SILK_DYER_CHANGED subscribed. CSS: @keyframes silkdyer-pulse (violet/purple silk dye theme), .silkdyer-section--active, .btn--silkdyer-commission (violet/purple), .btn--silkdyer-purchase (green), .btn--silkdyer-away (gray). Wired main.js: import, registerSystem, init x2, save/load. Session 133."
     }
   ],
   "session_history": [
@@ -2110,6 +2130,7 @@
     "Session 129 (T441-T442): Wandering Wicker Weaver (T441), Imperial Well Builder (T442)",
     "Session 130 (T443-T444): Wandering Brickmaker (T443), Imperial Thread Merchant (T444)",
     "Session 131 (T445-T446): Wandering Horn Carver (T445), Imperial Reed Merchant (T446)",
-    "Session 132 (T447-T448): Wandering Bellows Maker (T447), Imperial Olive Grove Master (T448)"
+    "Session 132 (T447-T448): Wandering Bellows Maker (T447), Imperial Olive Grove Master (T448)",
+    "Session 133 (T449-T450): Wandering Amber Carver (T449), Imperial Silk Dyer (T450)"
   ]
 }
