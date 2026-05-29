@@ -1958,6 +1958,26 @@
       "description": "Periodic imperial thread merchant encounter: arrange imperial thread supply (25 food + 20g → +0.22 food/s 2.5min · +22 prestige · +12 morale), purchase silk thread collection (20 mana → +0.18 mana/s 2min · +15 prestige), send away. Medieval Age+, 10+ tiles, 14-19 min.",
       "completed_date": "2026-05-29",
       "notes": "Built imperialThreadMerchant.js. IMPERIAL_THREAD_MERCHANT_CHANGED event added to events.js. state.imperialThreadMerchant null field. Thread merchant section in questPanel.js (import * as ThreadMerchant). Events.IMPERIAL_THREAD_MERCHANT_CHANGED subscribed. CSS: @keyframes threadmerchant-pulse (violet/purple silk theme), .threadmerchant-section--active, .btn--threadmerchant-commission (violet/purple), .btn--threadmerchant-purchase (light purple/lavender), .btn--threadmerchant-away (gray). Wired main.js: import, registerSystem, init x2, save/load. Session 130."
+    },
+    {
+      "id": "T445",
+      "title": "Wandering Horn Carver",
+      "status": "done",
+      "priority": 445,
+      "phase": 137,
+      "description": "Periodic wandering horn carver encounter: commission horn artifacts (20 food + 10 stone → +0.20 food/s 2.5min · +15 prestige · +8 morale), purchase horn-carving lore (18g → +0.15 gold/s 2min · +10 prestige), send away. Stone Age+, 6+ tiles, 11-15 min.",
+      "completed_date": "2026-05-29",
+      "notes": "Built wanderingHornCarver.js. WANDERING_HORN_CARVER_CHANGED event added to events.js. state.wanderingHornCarver null field. Horn carver section in questPanel.js (import * as HornCarver). Events.WANDERING_HORN_CARVER_CHANGED subscribed. CSS: @keyframes horncarver-pulse (warm ivory/tan horn theme), .horncarver-section--active, .btn--horncarver-commission (tan/amber), .btn--horncarver-purchase (gold), .btn--horncarver-away (gray). Wired main.js: import, registerSystem, init x2, save/load. Session 131."
+    },
+    {
+      "id": "T446",
+      "title": "Imperial Reed Merchant",
+      "status": "done",
+      "priority": 446,
+      "phase": 137,
+      "description": "Periodic imperial reed merchant encounter: establish reed trade route (25 wood + 20g → +0.22 wood/s 2.5min · +20 prestige · +12 morale), purchase reed harvest techniques (20 food → +0.18 food/s 2min · +15 prestige), send away. Bronze Age+, 8+ tiles, 13-17 min.",
+      "completed_date": "2026-05-29",
+      "notes": "Built imperialReedMerchant.js. IMPERIAL_REED_MERCHANT_CHANGED event added to events.js. state.imperialReedMerchant null field. Reed merchant section in questPanel.js (import * as ReedMerchant). Events.IMPERIAL_REED_MERCHANT_CHANGED subscribed. CSS: @keyframes reedmerchant-pulse (green/olive reed theme), .reedmerchant-section--active, .btn--reedmerchant-commission (green), .btn--reedmerchant-purchase (light green), .btn--reedmerchant-away (gray). Wired main.js: import, registerSystem, init x2, save/load. Session 131."
     }
   ],
   "session_history": [
@@ -2068,6 +2088,7 @@
     "Session 127 (T437-T438): Wandering Lime Burner (T437), Imperial Mosaic Master (T438)",
     "Session 128 (T439-T440): Wandering Tar Maker (T439), Imperial Granary Master (T440)",
     "Session 129 (T441-T442): Wandering Wicker Weaver (T441), Imperial Well Builder (T442)",
-    "Session 130 (T443-T444): Wandering Brickmaker (T443), Imperial Thread Merchant (T444)"
+    "Session 130 (T443-T444): Wandering Brickmaker (T443), Imperial Thread Merchant (T444)",
+    "Session 131 (T445-T446): Wandering Horn Carver (T445), Imperial Reed Merchant (T446)"
   ]
 }

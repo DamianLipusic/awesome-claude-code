@@ -209,6 +209,8 @@ import * as WickerWeaver     from '../systems/wanderingWickerWeaver.js';        
 import * as WellBuilder      from '../systems/imperialWellBuilder.js';           // T442
 import * as Brickmaker       from '../systems/wanderingBrickmaker.js';           // T443
 import * as ThreadMerchant   from '../systems/imperialThreadMerchant.js';        // T444
+import * as HornCarver       from '../systems/wanderingHornCarver.js';           // T445
+import * as ReedMerchant     from '../systems/imperialReedMerchant.js';          // T446
 
 let _panel = null;
 
@@ -446,6 +448,8 @@ function _encountersSection() {
     _imperialWellBuilderSection(),
     _wanderingBrickmakerSection(),
     _imperialThreadMerchantSection(),
+    _wanderingHornCarverSection(),
+    _imperialReedMerchantSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -7037,6 +7041,72 @@ function _imperialThreadMerchantSection() {
     </div>`;
 }
 
+function _wanderingHornCarverSection() {
+  if (!HornCarver.getActiveWanderingHornCarver()) return '';
+  const secs         = HornCarver.getHornCarverSecsLeft();
+  const urgent       = secs <= 20;
+  const food         = state.resources.food  ?? 0;
+  const stone        = state.resources.stone ?? 0;
+  const gold         = state.resources.gold  ?? 0;
+  const canCommission = food >= HornCarver.COMMISSION_FOOD_COST && stone >= HornCarver.COMMISSION_STONE_COST;
+  const canPurchase   = gold >= HornCarver.PURCHASE_GOLD_COST;
+  return `
+    <div class="horncarver-section--active">
+      <div class="horncarver-header">
+        <span class="horncarver-title">🦌 Wandering Horn Carver</span>
+        <span class="horncarver-timer${urgent ? ' horncarver-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="horncarver-desc">A wandering horn carver arrives carrying a satchel of finely worked horn artifacts — knife handles, drinking vessels, decorative inlay panels, and hunting call horns — offering to commission a complete set of horn goods for the settlement's workshops and ceremonial halls, or to share the full methods for processing and carving animal horn.</div>
+      <div class="horncarver-actions">
+        <button class="btn--horncarver-commission${canCommission ? '' : ' btn--disabled'}" data-action="horncarver-commission" ${canCommission ? '' : 'disabled'}>
+          🦌 Commission Horn Artifacts — ${HornCarver.COMMISSION_FOOD_COST}🌾 + ${HornCarver.COMMISSION_STONE_COST}🪨
+          <span class="horncarver-cost">→ +${HornCarver.COMMISSION_FOOD_RATE} food/s (2.5 min) · +${HornCarver.COMMISSION_PRESTIGE_REWARD} prestige · +${HornCarver.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--horncarver-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="horncarver-purchase" ${canPurchase ? '' : 'disabled'}>
+          📖 Purchase Horn-Carving Lore — ${HornCarver.PURCHASE_GOLD_COST}💰
+          <span class="horncarver-cost">→ +${HornCarver.PURCHASE_GOLD_RATE} gold/s (2 min) · +${HornCarver.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--horncarver-away" data-action="horncarver-away">
+          🚶 Send Away
+          <span class="horncarver-cost">→ Horn carver wraps the remaining pieces in oiled cloth and departs</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _imperialReedMerchantSection() {
+  if (!ReedMerchant.getActiveImperialReedMerchant()) return '';
+  const secs         = ReedMerchant.getReedMerchantSecsLeft();
+  const urgent       = secs <= 20;
+  const wood         = state.resources.wood  ?? 0;
+  const gold         = state.resources.gold  ?? 0;
+  const food         = state.resources.food  ?? 0;
+  const canCommission = wood >= ReedMerchant.COMMISSION_WOOD_COST && gold >= ReedMerchant.COMMISSION_GOLD_COST;
+  const canPurchase   = food >= ReedMerchant.PURCHASE_FOOD_COST;
+  return `
+    <div class="reedmerchant-section--active">
+      <div class="reedmerchant-header">
+        <span class="reedmerchant-title">🌿 Imperial Reed Merchant</span>
+        <span class="reedmerchant-timer${urgent ? ' reedmerchant-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="reedmerchant-desc">An imperial reed merchant arrives with a flat-bottomed barge stacked high with graded bundles of cured marsh reed — thatching, weaving, writing, and construction grades — offering to establish a standing monthly supply route or to share the complete methods for harvesting and curing the highest-grade reed from local wetland margins.</div>
+      <div class="reedmerchant-actions">
+        <button class="btn--reedmerchant-commission${canCommission ? '' : ' btn--disabled'}" data-action="reedmerchant-commission" ${canCommission ? '' : 'disabled'}>
+          🌿 Establish Reed Trade Route — ${ReedMerchant.COMMISSION_WOOD_COST}🪵 + ${ReedMerchant.COMMISSION_GOLD_COST}💰
+          <span class="reedmerchant-cost">→ +${ReedMerchant.COMMISSION_WOOD_RATE} wood/s (2.5 min) · +${ReedMerchant.COMMISSION_PRESTIGE_REWARD} prestige · +${ReedMerchant.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--reedmerchant-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="reedmerchant-purchase" ${canPurchase ? '' : 'disabled'}>
+          📖 Purchase Reed Harvest Techniques — ${ReedMerchant.PURCHASE_FOOD_COST}🌾
+          <span class="reedmerchant-cost">→ +${ReedMerchant.PURCHASE_FOOD_RATE} food/s (2 min) · +${ReedMerchant.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--reedmerchant-away" data-action="reedmerchant-away">
+          🚶 Send Away
+          <span class="reedmerchant-cost">→ Reed merchant poles the barge back out into the current and continues along the river route</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -7824,6 +7894,14 @@ const _HANDLERS = {
   'threadmerchant-commission': () => ThreadMerchant.arrangeImperialThreadSupply(),
   'threadmerchant-purchase':   () => ThreadMerchant.purchaseSilkThreadCollection(),
   'threadmerchant-away':       () => ThreadMerchant.sendThreadMerchantAway(),
+
+  'horncarver-commission': () => HornCarver.commissionHornArtifacts(),
+  'horncarver-purchase':   () => HornCarver.purchaseHornCarvingLore(),
+  'horncarver-away':       () => HornCarver.sendHornCarverAway(),
+
+  'reedmerchant-commission': () => ReedMerchant.establishReedTradeRoute(),
+  'reedmerchant-purchase':   () => ReedMerchant.purchaseReedHarvestTechniques(),
+  'reedmerchant-away':       () => ReedMerchant.sendReedMerchantAway(),
 };
 
 function _handleClick(e) {
@@ -8040,6 +8118,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_WELL_BUILDER_CHANGED,
     Events.WANDERING_BRICKMAKER_CHANGED,
     Events.IMPERIAL_THREAD_MERCHANT_CHANGED,
+    Events.WANDERING_HORN_CARVER_CHANGED,
+    Events.IMPERIAL_REED_MERCHANT_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

@@ -1508,3 +1508,18 @@ Built imperialGranaryMaster.js: commissionImperialGranary (25 food + 20g → +0.
 Wired in main.js: import initImperialGranaryMaster+imperialGranaryMasterTick, registerSystem, initImperialGranaryMaster() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _imperialGranaryMasterSection() render + granarymaster-commission/granarymaster-purchase/granarymaster-away handlers to questPanel.js (import * as GranaryMaster). Events.IMPERIAL_GRANARY_MASTER_CHANGED subscribed.
 CSS: @keyframes granarymaster-pulse (warm amber/golden grain theme), .granarymaster-section--active, .btn--granarymaster-commission (amber/gold), .btn--granarymaster-purchase (indigo/violet mana), .btn--granarymaster-away (gray). Session 128.
+
+Session 131 — T445–T446: Wandering Horn Carver, Imperial Reed Merchant.
+Horn Carver: Stone Age+, 6+ tiles, 11–15 min, 80s window. Commission Horn Artifacts (20 food + 10 stone → +0.20 food/s 2.5min · +15 prestige · +8 morale), Purchase Horn-Carving Lore (18g → +0.15 gold/s 2min · +10 prestige). Warm ivory/tan horn CSS theme. Imperial Reed Merchant: Bronze Age+, 8+ tiles, 13–17 min, 80s window. Establish Reed Trade Route (25 wood + 20g → +0.22 wood/s 2.5min · +20 prestige · +12 morale), Purchase Reed Harvest Techniques (20 food → +0.18 food/s 2min · +15 prestige). Green/olive reed CSS theme. Both fully wired into main.js (import, registerSystem, init x2, save/load) and questPanel.js (import, section render, handlers, ENCOUNTER_EVENTS). Events added to events.js.
+
+T445: Wandering Horn Carver — Stone Age+, 6+ tiles, 11–15 min, 80s window.
+Built wanderingHornCarver.js: commissionHornArtifacts (20 food + 10 stone → +0.20 food/s 2.5min +15 prestige +8 morale), purchaseHornCarvingLore (18g → +0.15 gold/s 2min +10 prestige), sendHornCarverAway (dismiss). Added WANDERING_HORN_CARVER_CHANGED event to events.js. state.wanderingHornCarver null field.
+Wired in main.js: import initWanderingHornCarver+wanderingHornCarverTick, registerSystem, initWanderingHornCarver() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingHornCarverSection() render + horncarver-commission/horncarver-purchase/horncarver-away handlers to questPanel.js (import * as HornCarver). Events.WANDERING_HORN_CARVER_CHANGED subscribed.
+CSS: @keyframes horncarver-pulse (warm ivory/tan horn theme), .horncarver-section--active, .btn--horncarver-commission (tan/amber), .btn--horncarver-purchase (gold), .btn--horncarver-away (gray). Session 131.
+
+T446: Imperial Reed Merchant — Bronze Age+, 8+ tiles, 13–17 min, 80s window.
+Built imperialReedMerchant.js: establishReedTradeRoute (25 wood + 20g → +0.22 wood/s 2.5min +20 prestige +12 morale), purchaseReedHarvestTechniques (20 food → +0.18 food/s 2min +15 prestige), sendReedMerchantAway (dismiss). Added IMPERIAL_REED_MERCHANT_CHANGED event to events.js. state.imperialReedMerchant null field.
+Wired in main.js: import initImperialReedMerchant+imperialReedMerchantTick, registerSystem, initImperialReedMerchant() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _imperialReedMerchantSection() render + reedmerchant-commission/reedmerchant-purchase/reedmerchant-away handlers to questPanel.js (import * as ReedMerchant). Events.IMPERIAL_REED_MERCHANT_CHANGED subscribed.
+CSS: @keyframes reedmerchant-pulse (green/olive reed theme), .reedmerchant-section--active, .btn--reedmerchant-commission (green), .btn--reedmerchant-purchase (light green), .btn--reedmerchant-away (gray). Session 131.

@@ -23145,3 +23145,75 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--threadmerchant-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T445: Wandering Horn Carver ─────────────────────────────────── */
+@keyframes horncarver-pulse {
+  0%, 100% { border-color: rgba(160, 120, 60, 0.45); box-shadow: 0 0 6px rgba(160, 120, 60, 0.18); }
+  50%       { border-color: rgba(200, 160, 90, 0.65); box-shadow: 0 0 12px rgba(200, 160, 90, 0.30); }
+}
+.horncarver-section--active {
+  background: linear-gradient(135deg, rgba(64, 42, 14, 0.18), rgba(40, 26, 8, 0.10));
+  border: 1px solid rgba(160, 120, 60, 0.45); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: horncarver-pulse 2.8s ease-in-out infinite;
+}
+.horncarver-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.horncarver-title  { font-weight: 700; font-size: 0.88rem; color: #d4a96a; }
+.horncarver-timer  { font-size: 0.78rem; color: #d4a96a; }
+.horncarver-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.horncarver-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.horncarver-actions { display: flex; flex-direction: column; gap: 5px; }
+.horncarver-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--horncarver-commission {
+  background: linear-gradient(135deg, rgba(64, 42, 14, 0.22), rgba(40, 26, 8, 0.14));
+  border: 1px solid rgba(160, 120, 60, 0.40); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #d4a96a; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--horncarver-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(64, 42, 14, 0.32), rgba(40, 26, 8, 0.24)); }
+.btn--horncarver-purchase {
+  background: linear-gradient(135deg, rgba(161, 130, 7, 0.18), rgba(120, 92, 4, 0.10));
+  border: 1px solid rgba(251, 191, 36, 0.35); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fbbf24; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--horncarver-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(161, 130, 7, 0.28), rgba(120, 92, 4, 0.18)); }
+.btn--horncarver-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--horncarver-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T446: Imperial Reed Merchant ────────────────────────────────── */
+@keyframes reedmerchant-pulse {
+  0%, 100% { border-color: rgba(40, 130, 60, 0.45); box-shadow: 0 0 6px rgba(40, 130, 60, 0.18); }
+  50%       { border-color: rgba(60, 170, 90, 0.65); box-shadow: 0 0 12px rgba(60, 170, 90, 0.30); }
+}
+.reedmerchant-section--active {
+  background: linear-gradient(135deg, rgba(10, 52, 22, 0.18), rgba(6, 32, 14, 0.10));
+  border: 1px solid rgba(40, 130, 60, 0.45); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: reedmerchant-pulse 2.8s ease-in-out infinite;
+}
+.reedmerchant-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.reedmerchant-title  { font-weight: 700; font-size: 0.88rem; color: #4ade80; }
+.reedmerchant-timer  { font-size: 0.78rem; color: #4ade80; }
+.reedmerchant-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.reedmerchant-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.reedmerchant-actions { display: flex; flex-direction: column; gap: 5px; }
+.reedmerchant-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--reedmerchant-commission {
+  background: linear-gradient(135deg, rgba(10, 52, 22, 0.22), rgba(6, 32, 14, 0.14));
+  border: 1px solid rgba(40, 130, 60, 0.40); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #4ade80; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--reedmerchant-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(10, 52, 22, 0.32), rgba(6, 32, 14, 0.24)); }
+.btn--reedmerchant-purchase {
+  background: linear-gradient(135deg, rgba(20, 83, 45, 0.18), rgba(12, 54, 28, 0.10));
+  border: 1px solid rgba(74, 222, 128, 0.35); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #86efac; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--reedmerchant-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(20, 83, 45, 0.28), rgba(12, 54, 28, 0.18)); }
+.btn--reedmerchant-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--reedmerchant-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
