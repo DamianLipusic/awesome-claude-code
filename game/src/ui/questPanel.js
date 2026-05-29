@@ -211,6 +211,8 @@ import * as Brickmaker       from '../systems/wanderingBrickmaker.js';          
 import * as ThreadMerchant   from '../systems/imperialThreadMerchant.js';        // T444
 import * as HornCarver       from '../systems/wanderingHornCarver.js';           // T445
 import * as ReedMerchant     from '../systems/imperialReedMerchant.js';          // T446
+import * as BellowsMaker     from '../systems/wanderingBellowsMaker.js';         // T447
+import * as OliveGroveMaster from '../systems/imperialOliveGroveMaster.js';      // T448
 
 let _panel = null;
 
@@ -450,6 +452,8 @@ function _encountersSection() {
     _imperialThreadMerchantSection(),
     _wanderingHornCarverSection(),
     _imperialReedMerchantSection(),
+    _wanderingBellowsMakerSection(),
+    _imperialOliveGroveMasterSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -7107,6 +7111,72 @@ function _imperialReedMerchantSection() {
     </div>`;
 }
 
+function _wanderingBellowsMakerSection() {
+  if (!BellowsMaker.getActiveWanderingBellowsMaker()) return '';
+  const secs         = BellowsMaker.getBellowsMakerSecsLeft();
+  const urgent       = secs <= 20;
+  const wood         = state.resources.wood  ?? 0;
+  const food         = state.resources.food  ?? 0;
+  const gold         = state.resources.gold  ?? 0;
+  const canCommission = wood >= BellowsMaker.COMMISSION_WOOD_COST && food >= BellowsMaker.COMMISSION_FOOD_COST;
+  const canPurchase   = gold >= BellowsMaker.PURCHASE_GOLD_COST;
+  return `
+    <div class="bellowsmaker-section--active">
+      <div class="bellowsmaker-header">
+        <span class="bellowsmaker-title">🔥 Wandering Bellows Maker</span>
+        <span class="bellowsmaker-timer${urgent ? ' bellowsmaker-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="bellowsmaker-desc">A wandering bellows maker arrives carrying a pair of finished forge bellows — thick ox-hide panels stitched around a rigid wooden frame with a tapered iron nozzle — offering to commission a full set of forge bellows for the settlement's smiths and kiln operators, or to share the complete methods for making replacement bellows from local materials.</div>
+      <div class="bellowsmaker-actions">
+        <button class="btn--bellowsmaker-commission${canCommission ? '' : ' btn--disabled'}" data-action="bellowsmaker-commission" ${canCommission ? '' : 'disabled'}>
+          🔥 Commission Forge Bellows — ${BellowsMaker.COMMISSION_WOOD_COST}🪵 + ${BellowsMaker.COMMISSION_FOOD_COST}🌾
+          <span class="bellowsmaker-cost">→ +${BellowsMaker.COMMISSION_WOOD_RATE} wood/s (2.5 min) · +${BellowsMaker.COMMISSION_PRESTIGE_REWARD} prestige · +${BellowsMaker.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--bellowsmaker-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="bellowsmaker-purchase" ${canPurchase ? '' : 'disabled'}>
+          📖 Purchase Bellows-Making Lore — ${BellowsMaker.PURCHASE_GOLD_COST}💰
+          <span class="bellowsmaker-cost">→ +${BellowsMaker.PURCHASE_GOLD_RATE} gold/s (2 min) · +${BellowsMaker.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--bellowsmaker-away" data-action="bellowsmaker-away">
+          🚶 Send Away
+          <span class="bellowsmaker-cost">→ Bellows maker ties the finished bellows in oiled canvas and departs</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _imperialOliveGroveMasterSection() {
+  if (!OliveGroveMaster.getActiveImperialOliveGroveMaster()) return '';
+  const secs         = OliveGroveMaster.getOliveGroveMasterSecsLeft();
+  const urgent       = secs <= 20;
+  const food         = state.resources.food  ?? 0;
+  const gold         = state.resources.gold  ?? 0;
+  const wood         = state.resources.wood  ?? 0;
+  const canCommission = food >= OliveGroveMaster.COMMISSION_FOOD_COST && gold >= OliveGroveMaster.COMMISSION_GOLD_COST;
+  const canPurchase   = wood >= OliveGroveMaster.PURCHASE_WOOD_COST;
+  return `
+    <div class="olivegrove-section--active">
+      <div class="olivegrove-header">
+        <span class="olivegrove-title">🫒 Imperial Olive Grove Master</span>
+        <span class="olivegrove-timer${urgent ? ' olivegrove-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="olivegrove-desc">An imperial olive grove master arrives carrying pressed olive oil samples, sprouted cuttings wrapped in damp moss, and forty years of grove management records — offering to commission a complete olive cultivation program for the settlement's agricultural lands, or to purchase the full grove management records and pressing methods.</div>
+      <div class="olivegrove-actions">
+        <button class="btn--olivegrove-commission${canCommission ? '' : ' btn--disabled'}" data-action="olivegrove-commission" ${canCommission ? '' : 'disabled'}>
+          🫒 Commission Olive Cultivation — ${OliveGroveMaster.COMMISSION_FOOD_COST}🌾 + ${OliveGroveMaster.COMMISSION_GOLD_COST}💰
+          <span class="olivegrove-cost">→ +${OliveGroveMaster.COMMISSION_FOOD_RATE} food/s (2.5 min) · +${OliveGroveMaster.COMMISSION_PRESTIGE_REWARD} prestige · +${OliveGroveMaster.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--olivegrove-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="olivegrove-purchase" ${canPurchase ? '' : 'disabled'}>
+          📖 Purchase Orchard Management Lore — ${OliveGroveMaster.PURCHASE_WOOD_COST}🪵
+          <span class="olivegrove-cost">→ +${OliveGroveMaster.PURCHASE_WOOD_RATE} wood/s (2 min) · +${OliveGroveMaster.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--olivegrove-away" data-action="olivegrove-away">
+          🚶 Send Away
+          <span class="olivegrove-cost">→ Olive grove master rolls the parchment records into the satchel and departs</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -7902,6 +7972,14 @@ const _HANDLERS = {
   'reedmerchant-commission': () => ReedMerchant.establishReedTradeRoute(),
   'reedmerchant-purchase':   () => ReedMerchant.purchaseReedHarvestTechniques(),
   'reedmerchant-away':       () => ReedMerchant.sendReedMerchantAway(),
+
+  'bellowsmaker-commission': () => BellowsMaker.commissionForgeBellows(),
+  'bellowsmaker-purchase':   () => BellowsMaker.purchaseBellowsMakingLore(),
+  'bellowsmaker-away':       () => BellowsMaker.sendBellowsMakerAway(),
+
+  'olivegrove-commission': () => OliveGroveMaster.commissionOliveCultivation(),
+  'olivegrove-purchase':   () => OliveGroveMaster.purchaseOrchardManagementLore(),
+  'olivegrove-away':       () => OliveGroveMaster.sendOliveGroveMasterAway(),
 };
 
 function _handleClick(e) {
@@ -8120,6 +8198,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_THREAD_MERCHANT_CHANGED,
     Events.WANDERING_HORN_CARVER_CHANGED,
     Events.IMPERIAL_REED_MERCHANT_CHANGED,
+    Events.WANDERING_BELLOWS_MAKER_CHANGED,
+    Events.IMPERIAL_OLIVE_GROVE_MASTER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

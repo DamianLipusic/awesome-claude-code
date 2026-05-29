@@ -388,4 +388,6 @@ export const Events = Object.freeze({
   IMPERIAL_THREAD_MERCHANT_CHANGED:        'imperialThreadMerchantChanged',                                     // T444: thread merchant spawned / commissioned / purchased / dismissed / expired
   WANDERING_HORN_CARVER_CHANGED:           'wanderingHornCarverChanged',                                        // T445: horn carver spawned / commissioned / purchased / dismissed / expired
   IMPERIAL_REED_MERCHANT_CHANGED:          'imperialReedMerchantChanged',                                       // T446: reed merchant spawned / commissioned / purchased / dismissed / expired
+  WANDERING_BELLOWS_MAKER_CHANGED:         'wanderingBellowsMakerChanged',                                      // T447: bellows maker spawned / commissioned / purchased / dismissed / expired
+  IMPERIAL_OLIVE_GROVE_MASTER_CHANGED:     'imperialOliveGroveMasterChanged',                                   // T448: olive grove master spawned / commissioned / purchased / dismissed / expired
 });

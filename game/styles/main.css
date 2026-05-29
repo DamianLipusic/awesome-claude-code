@@ -23217,3 +23217,75 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--reedmerchant-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T447: Wandering Bellows Maker ───────────────────────────────── */
+@keyframes bellowsmaker-pulse {
+  0%, 100% { border-color: rgba(180, 70, 20, 0.45); box-shadow: 0 0 6px rgba(180, 70, 20, 0.18); }
+  50%       { border-color: rgba(220, 100, 40, 0.65); box-shadow: 0 0 12px rgba(220, 100, 40, 0.30); }
+}
+.bellowsmaker-section--active {
+  background: linear-gradient(135deg, rgba(60, 20, 6, 0.18), rgba(40, 12, 4, 0.10));
+  border: 1px solid rgba(180, 70, 20, 0.45); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: bellowsmaker-pulse 2.8s ease-in-out infinite;
+}
+.bellowsmaker-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.bellowsmaker-title  { font-weight: 700; font-size: 0.88rem; color: #fb923c; }
+.bellowsmaker-timer  { font-size: 0.78rem; color: #fb923c; }
+.bellowsmaker-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.bellowsmaker-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.bellowsmaker-actions { display: flex; flex-direction: column; gap: 5px; }
+.bellowsmaker-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--bellowsmaker-commission {
+  background: linear-gradient(135deg, rgba(60, 20, 6, 0.22), rgba(40, 12, 4, 0.14));
+  border: 1px solid rgba(180, 70, 20, 0.40); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fb923c; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--bellowsmaker-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(60, 20, 6, 0.32), rgba(40, 12, 4, 0.24)); }
+.btn--bellowsmaker-purchase {
+  background: linear-gradient(135deg, rgba(161, 98, 7, 0.18), rgba(120, 68, 4, 0.10));
+  border: 1px solid rgba(251, 191, 36, 0.35); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fbbf24; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--bellowsmaker-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(161, 98, 7, 0.28), rgba(120, 68, 4, 0.18)); }
+.btn--bellowsmaker-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--bellowsmaker-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T448: Imperial Olive Grove Master ───────────────────────────── */
+@keyframes olivegrove-pulse {
+  0%, 100% { border-color: rgba(85, 120, 40, 0.45); box-shadow: 0 0 6px rgba(85, 120, 40, 0.18); }
+  50%       { border-color: rgba(115, 160, 55, 0.65); box-shadow: 0 0 12px rgba(115, 160, 55, 0.30); }
+}
+.olivegrove-section--active {
+  background: linear-gradient(135deg, rgba(30, 50, 12, 0.18), rgba(18, 32, 6, 0.10));
+  border: 1px solid rgba(85, 120, 40, 0.45); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: olivegrove-pulse 2.8s ease-in-out infinite;
+}
+.olivegrove-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.olivegrove-title  { font-weight: 700; font-size: 0.88rem; color: #a3e635; }
+.olivegrove-timer  { font-size: 0.78rem; color: #a3e635; }
+.olivegrove-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.olivegrove-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.olivegrove-actions { display: flex; flex-direction: column; gap: 5px; }
+.olivegrove-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--olivegrove-commission {
+  background: linear-gradient(135deg, rgba(30, 50, 12, 0.22), rgba(18, 32, 6, 0.14));
+  border: 1px solid rgba(85, 120, 40, 0.40); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #a3e635; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--olivegrove-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(30, 50, 12, 0.32), rgba(18, 32, 6, 0.24)); }
+.btn--olivegrove-purchase {
+  background: linear-gradient(135deg, rgba(20, 83, 45, 0.18), rgba(12, 54, 28, 0.10));
+  border: 1px solid rgba(74, 222, 128, 0.35); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #86efac; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--olivegrove-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(20, 83, 45, 0.28), rgba(12, 54, 28, 0.18)); }
+.btn--olivegrove-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--olivegrove-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
