@@ -23073,3 +23073,75 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--wellbuilder-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T443: Wandering Brickmaker ─────────────────────────────────── */
+@keyframes brickmaker-pulse {
+  0%, 100% { border-color: rgba(160, 80, 40, 0.45); box-shadow: 0 0 6px rgba(160, 80, 40, 0.18); }
+  50%       { border-color: rgba(200, 110, 60, 0.65); box-shadow: 0 0 12px rgba(200, 110, 60, 0.30); }
+}
+.brickmaker-section--active {
+  background: linear-gradient(135deg, rgba(64, 26, 10, 0.18), rgba(40, 14, 6, 0.10));
+  border: 1px solid rgba(160, 80, 40, 0.45); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: brickmaker-pulse 2.8s ease-in-out infinite;
+}
+.brickmaker-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.brickmaker-title  { font-weight: 700; font-size: 0.88rem; color: #fb923c; }
+.brickmaker-timer  { font-size: 0.78rem; color: #fb923c; }
+.brickmaker-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.brickmaker-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.brickmaker-actions { display: flex; flex-direction: column; gap: 5px; }
+.brickmaker-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--brickmaker-commission {
+  background: linear-gradient(135deg, rgba(64, 26, 10, 0.22), rgba(40, 14, 6, 0.14));
+  border: 1px solid rgba(160, 80, 40, 0.40); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fb923c; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--brickmaker-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(64, 26, 10, 0.32), rgba(40, 14, 6, 0.24)); }
+.btn--brickmaker-purchase {
+  background: linear-gradient(135deg, rgba(161, 98, 7, 0.18), rgba(120, 68, 4, 0.10));
+  border: 1px solid rgba(251, 191, 36, 0.35); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fbbf24; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--brickmaker-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(161, 98, 7, 0.28), rgba(120, 68, 4, 0.18)); }
+.btn--brickmaker-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--brickmaker-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T444: Imperial Thread Merchant ─────────────────────────────── */
+@keyframes threadmerchant-pulse {
+  0%, 100% { border-color: rgba(120, 60, 180, 0.45); box-shadow: 0 0 6px rgba(120, 60, 180, 0.18); }
+  50%       { border-color: rgba(160, 90, 220, 0.65); box-shadow: 0 0 12px rgba(160, 90, 220, 0.30); }
+}
+.threadmerchant-section--active {
+  background: linear-gradient(135deg, rgba(46, 18, 80, 0.18), rgba(28, 10, 52, 0.10));
+  border: 1px solid rgba(120, 60, 180, 0.45); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: threadmerchant-pulse 2.8s ease-in-out infinite;
+}
+.threadmerchant-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.threadmerchant-title  { font-weight: 700; font-size: 0.88rem; color: #c084fc; }
+.threadmerchant-timer  { font-size: 0.78rem; color: #c084fc; }
+.threadmerchant-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.threadmerchant-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.threadmerchant-actions { display: flex; flex-direction: column; gap: 5px; }
+.threadmerchant-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--threadmerchant-commission {
+  background: linear-gradient(135deg, rgba(46, 18, 80, 0.22), rgba(28, 10, 52, 0.14));
+  border: 1px solid rgba(120, 60, 180, 0.40); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #c084fc; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--threadmerchant-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(46, 18, 80, 0.32), rgba(28, 10, 52, 0.24)); }
+.btn--threadmerchant-purchase {
+  background: linear-gradient(135deg, rgba(55, 14, 120, 0.18), rgba(35, 8, 90, 0.10));
+  border: 1px solid rgba(167, 139, 250, 0.35); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #a78bfa; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--threadmerchant-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(55, 14, 120, 0.28), rgba(35, 8, 90, 0.18)); }
+.btn--threadmerchant-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--threadmerchant-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

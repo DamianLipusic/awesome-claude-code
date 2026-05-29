@@ -207,6 +207,8 @@ import * as TarMaker         from '../systems/wanderingTarMaker.js';            
 import * as GranaryMaster    from '../systems/imperialGranaryMaster.js';         // T440
 import * as WickerWeaver     from '../systems/wanderingWickerWeaver.js';         // T441
 import * as WellBuilder      from '../systems/imperialWellBuilder.js';           // T442
+import * as Brickmaker       from '../systems/wanderingBrickmaker.js';           // T443
+import * as ThreadMerchant   from '../systems/imperialThreadMerchant.js';        // T444
 
 let _panel = null;
 
@@ -442,6 +444,8 @@ function _encountersSection() {
     _imperialGranaryMasterSection(),
     _wanderingWickerWeaverSection(),
     _imperialWellBuilderSection(),
+    _wanderingBrickmakerSection(),
+    _imperialThreadMerchantSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -6967,6 +6971,72 @@ function _imperialWellBuilderSection() {
     </div>`;
 }
 
+function _wanderingBrickmakerSection() {
+  if (!Brickmaker.getActiveWanderingBrickmaker()) return '';
+  const secs        = Brickmaker.getBrickmakerSecsLeft();
+  const urgent      = secs <= 20;
+  const stone       = state.resources.stone ?? 0;
+  const food        = state.resources.food  ?? 0;
+  const gold        = state.resources.gold  ?? 0;
+  const canCommission = stone >= Brickmaker.COMMISSION_STONE_COST && food >= Brickmaker.COMMISSION_FOOD_COST;
+  const canPurchase   = gold  >= Brickmaker.PURCHASE_GOLD_COST;
+  return `
+    <div class="brickmaker-section--active">
+      <div class="brickmaker-header">
+        <span class="brickmaker-title">🧱 Wandering Brickmaker</span>
+        <span class="brickmaker-timer${urgent ? ' brickmaker-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="brickmaker-desc">A wandering brickmaker arrives with a mule laden with freshly kiln-fired bricks — offering to commission a complete run of building bricks for construction projects and workshop furnace linings, or to share the full moulding, drying, and kiln-stacking methods for reliable brick production from local clay deposits.</div>
+      <div class="brickmaker-actions">
+        <button class="btn--brickmaker-commission${canCommission ? '' : ' btn--disabled'}" data-action="brickmaker-commission" ${canCommission ? '' : 'disabled'}>
+          🧱 Commission Kiln-Fired Brickworks — ${Brickmaker.COMMISSION_STONE_COST}🪨 + ${Brickmaker.COMMISSION_FOOD_COST}🌾
+          <span class="brickmaker-cost">→ +${Brickmaker.COMMISSION_STONE_RATE} stone/s (2.5 min) · +${Brickmaker.COMMISSION_PRESTIGE_REWARD} prestige · +${Brickmaker.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--brickmaker-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="brickmaker-purchase" ${canPurchase ? '' : 'disabled'}>
+          📖 Purchase Brick-Firing Lore — ${Brickmaker.PURCHASE_GOLD_COST}💰
+          <span class="brickmaker-cost">→ +${Brickmaker.PURCHASE_GOLD_RATE} gold/s (2 min) · +${Brickmaker.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--brickmaker-away" data-action="brickmaker-away">
+          🚶 Send Away
+          <span class="brickmaker-cost">→ Brickmaker loads the remaining bricks back onto the mule and departs</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _imperialThreadMerchantSection() {
+  if (!ThreadMerchant.getActiveImperialThreadMerchant()) return '';
+  const secs        = ThreadMerchant.getThreadMerchantSecsLeft();
+  const urgent      = secs <= 20;
+  const food        = state.resources.food ?? 0;
+  const gold        = state.resources.gold ?? 0;
+  const mana        = state.resources.mana ?? 0;
+  const canCommission = food >= ThreadMerchant.COMMISSION_FOOD_COST && gold >= ThreadMerchant.COMMISSION_GOLD_COST;
+  const canPurchase   = mana >= ThreadMerchant.PURCHASE_MANA_COST;
+  return `
+    <div class="threadmerchant-section--active">
+      <div class="threadmerchant-header">
+        <span class="threadmerchant-title">🧵 Imperial Thread Merchant</span>
+        <span class="threadmerchant-timer${urgent ? ' threadmerchant-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="threadmerchant-desc">An imperial thread merchant arrives bearing a lacquered chest of finest silk thread wound on polished wooden bobbins — dyed to consistent weight-fast colours and graded by count for warp, weft, and embroidery work — offering to arrange a standing imperial thread supply or to sell a substantial collection from the current season's finest dyehouse output.</div>
+      <div class="threadmerchant-actions">
+        <button class="btn--threadmerchant-commission${canCommission ? '' : ' btn--disabled'}" data-action="threadmerchant-commission" ${canCommission ? '' : 'disabled'}>
+          🧵 Arrange Imperial Thread Supply — ${ThreadMerchant.COMMISSION_FOOD_COST}🌾 + ${ThreadMerchant.COMMISSION_GOLD_COST}💰
+          <span class="threadmerchant-cost">→ +${ThreadMerchant.COMMISSION_FOOD_RATE} food/s (2.5 min) · +${ThreadMerchant.COMMISSION_PRESTIGE_REWARD} prestige · +${ThreadMerchant.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--threadmerchant-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="threadmerchant-purchase" ${canPurchase ? '' : 'disabled'}>
+          📦 Purchase Silk Thread Collection — ${ThreadMerchant.PURCHASE_MANA_COST}✨
+          <span class="threadmerchant-cost">→ +${ThreadMerchant.PURCHASE_MANA_RATE} mana/s (2 min) · +${ThreadMerchant.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--threadmerchant-away" data-action="threadmerchant-away">
+          🚶 Send Away
+          <span class="threadmerchant-cost">→ Thread merchant closes the lacquered chest and departs along the merchant road</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -7746,6 +7816,14 @@ const _HANDLERS = {
   'wellbuilder-commission': () => WellBuilder.commissionWellConstruction(),
   'wellbuilder-purchase':   () => WellBuilder.purchaseWellSinkingMethods(),
   'wellbuilder-away':       () => WellBuilder.sendWellBuilderAway(),
+
+  'brickmaker-commission': () => Brickmaker.commissionKilnFiredBrickworks(),
+  'brickmaker-purchase':   () => Brickmaker.purchaseBrickFiringLore(),
+  'brickmaker-away':       () => Brickmaker.sendBrickmakerAway(),
+
+  'threadmerchant-commission': () => ThreadMerchant.arrangeImperialThreadSupply(),
+  'threadmerchant-purchase':   () => ThreadMerchant.purchaseSilkThreadCollection(),
+  'threadmerchant-away':       () => ThreadMerchant.sendThreadMerchantAway(),
 };
 
 function _handleClick(e) {
@@ -7960,6 +8038,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_GRANARY_MASTER_CHANGED,
     Events.WANDERING_WICKER_WEAVER_CHANGED,
     Events.IMPERIAL_WELL_BUILDER_CHANGED,
+    Events.WANDERING_BRICKMAKER_CHANGED,
+    Events.IMPERIAL_THREAD_MERCHANT_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

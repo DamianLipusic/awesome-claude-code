@@ -384,4 +384,6 @@ export const Events = Object.freeze({
   IMPERIAL_GRANARY_MASTER_CHANGED:         'imperialGranaryMasterChanged',                                     // T440: granary master spawned / commissioned / purchased / dismissed / expired
   WANDERING_WICKER_WEAVER_CHANGED:         'wanderingWickerWeaverChanged',                                     // T441: wicker weaver spawned / commissioned / purchased / dismissed / expired
   IMPERIAL_WELL_BUILDER_CHANGED:           'imperialWellBuilderChanged',                                       // T442: well builder spawned / commissioned / purchased / dismissed / expired
+  WANDERING_BRICKMAKER_CHANGED:            'wanderingBrickmakerChanged',                                        // T443: brickmaker spawned / commissioned / purchased / dismissed / expired
+  IMPERIAL_THREAD_MERCHANT_CHANGED:        'imperialThreadMerchantChanged',                                     // T444: thread merchant spawned / commissioned / purchased / dismissed / expired
 });

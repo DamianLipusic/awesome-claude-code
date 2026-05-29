@@ -384,6 +384,8 @@ import { initWanderingTarMaker, wanderingTarMakerTick }               from './sy
 import { initImperialGranaryMaster, imperialGranaryMasterTick }       from './systems/imperialGranaryMaster.js';             // T440
 import { initWanderingWickerWeaver, wanderingWickerWeaverTick }       from './systems/wanderingWickerWeaver.js';             // T441
 import { initImperialWellBuilder, imperialWellBuilderTick }           from './systems/imperialWellBuilder.js';               // T442
+import { initWanderingBrickmaker, wanderingBrickmakerTick }           from './systems/wanderingBrickmaker.js';               // T443
+import { initImperialThreadMerchant, imperialThreadMerchantTick }     from './systems/imperialThreadMerchant.js';             // T444
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -774,6 +776,8 @@ function _registerAllSystems() {
   registerSystem(imperialGranaryMasterTick);        // T440
   registerSystem(wanderingWickerWeaverTick);        // T441
   registerSystem(imperialWellBuilderTick);          // T442
+  registerSystem(wanderingBrickmakerTick);          // T443
+  registerSystem(imperialThreadMerchantTick);       // T444
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -1149,6 +1153,8 @@ function _save() {
     imperialGranaryMaster:        state.imperialGranaryMaster,        // T440
     wanderingWickerWeaver:        state.wanderingWickerWeaver,        // T441
     imperialWellBuilder:          state.imperialWellBuilder,          // T442
+    wanderingBrickmaker:          state.wanderingBrickmaker,          // T443
+    imperialThreadMerchant:       state.imperialThreadMerchant,       // T444
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -1529,6 +1535,8 @@ function _applySave(s) {
   state.imperialGranaryMaster          = s.imperialGranaryMaster ?? null;           // T440
   state.wanderingWickerWeaver          = s.wanderingWickerWeaver ?? null;           // T441
   state.imperialWellBuilder            = s.imperialWellBuilder ?? null;             // T442
+  state.wanderingBrickmaker            = s.wanderingBrickmaker ?? null;             // T443
+  state.imperialThreadMerchant         = s.imperialThreadMerchant ?? null;          // T444
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -1915,6 +1923,8 @@ function _startFreshGame() {
   initImperialGranaryMaster();        // T440
   initWanderingWickerWeaver();        // T441
   initImperialWellBuilder();          // T442
+  initWanderingBrickmaker();          // T443
+  initImperialThreadMerchant();       // T444
   initAchievements();
   initLeaderboard();
 }
@@ -2284,6 +2294,8 @@ function _startLoadedGame(savedData) {
   initImperialGranaryMaster();        // T440
   initWanderingWickerWeaver();        // T441
   initImperialWellBuilder();          // T442
+  initWanderingBrickmaker();          // T443
+  initImperialThreadMerchant();       // T444
   initAchievements();
   initLeaderboard();
 }

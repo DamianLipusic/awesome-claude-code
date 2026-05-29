@@ -1938,6 +1938,26 @@
       "description": "Periodic imperial well builder encounter: commission well construction (25 stone + 20g → +0.22 stone/s 2.5min · +20 prestige · +12 morale), purchase well-sinking methods (20 food → +0.18 food/s 2min · +15 prestige), send away. Bronze Age+, 8+ tiles, 13-17 min.",
       "completed_date": "2026-05-28",
       "notes": "Built imperialWellBuilder.js. IMPERIAL_WELL_BUILDER_CHANGED event added to events.js. state.imperialWellBuilder null field. Well builder section in questPanel.js (import * as WellBuilder). Events.IMPERIAL_WELL_BUILDER_CHANGED subscribed. CSS: @keyframes wellbuilder-pulse (sky blue/water theme), .wellbuilder-section--active, .btn--wellbuilder-commission (sky blue), .btn--wellbuilder-purchase (green), .btn--wellbuilder-away (gray). Wired main.js: import, registerSystem, init x2, save/load. Session 129."
+    },
+    {
+      "id": "T443",
+      "title": "Wandering Brickmaker",
+      "status": "done",
+      "priority": 443,
+      "phase": 136,
+      "description": "Periodic wandering brickmaker encounter: commission kiln-fired brickworks (20 stone + 15 food → +0.22 stone/s 2.5min · +18 prestige · +10 morale), purchase brick-firing lore (18g → +0.15 gold/s 2min · +12 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
+      "completed_date": "2026-05-29",
+      "notes": "Built wanderingBrickmaker.js. WANDERING_BRICKMAKER_CHANGED event added to events.js. state.wanderingBrickmaker null field. Brickmaker section in questPanel.js (import * as Brickmaker). Events.WANDERING_BRICKMAKER_CHANGED subscribed. CSS: @keyframes brickmaker-pulse (terracotta/brick-red orange theme), .brickmaker-section--active, .btn--brickmaker-commission (orange/terracotta), .btn--brickmaker-purchase (amber/gold), .btn--brickmaker-away (gray). Wired main.js: import, registerSystem, init x2, save/load. Session 130."
+    },
+    {
+      "id": "T444",
+      "title": "Imperial Thread Merchant",
+      "status": "done",
+      "priority": 444,
+      "phase": 136,
+      "description": "Periodic imperial thread merchant encounter: arrange imperial thread supply (25 food + 20g → +0.22 food/s 2.5min · +22 prestige · +12 morale), purchase silk thread collection (20 mana → +0.18 mana/s 2min · +15 prestige), send away. Medieval Age+, 10+ tiles, 14-19 min.",
+      "completed_date": "2026-05-29",
+      "notes": "Built imperialThreadMerchant.js. IMPERIAL_THREAD_MERCHANT_CHANGED event added to events.js. state.imperialThreadMerchant null field. Thread merchant section in questPanel.js (import * as ThreadMerchant). Events.IMPERIAL_THREAD_MERCHANT_CHANGED subscribed. CSS: @keyframes threadmerchant-pulse (violet/purple silk theme), .threadmerchant-section--active, .btn--threadmerchant-commission (violet/purple), .btn--threadmerchant-purchase (light purple/lavender), .btn--threadmerchant-away (gray). Wired main.js: import, registerSystem, init x2, save/load. Session 130."
     }
   ],
   "session_history": [
@@ -2047,6 +2067,7 @@
     "Session 126 (T435-T436): Wandering Flax Weaver (T435), Imperial Oilpress Master (T436)",
     "Session 127 (T437-T438): Wandering Lime Burner (T437), Imperial Mosaic Master (T438)",
     "Session 128 (T439-T440): Wandering Tar Maker (T439), Imperial Granary Master (T440)",
-    "Session 129 (T441-T442): Wandering Wicker Weaver (T441), Imperial Well Builder (T442)"
+    "Session 129 (T441-T442): Wandering Wicker Weaver (T441), Imperial Well Builder (T442)",
+    "Session 130 (T443-T444): Wandering Brickmaker (T443), Imperial Thread Merchant (T444)"
   ]
 }
