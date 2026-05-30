@@ -215,6 +215,8 @@ import * as BellowsMaker     from '../systems/wanderingBellowsMaker.js';        
 import * as OliveGroveMaster from '../systems/imperialOliveGroveMaster.js';      // T448
 import * as AmberCarver      from '../systems/wanderingAmberCarver.js';          // T449
 import * as SilkDyer         from '../systems/imperialSilkDyer.js';              // T450
+import * as PitchMaker       from '../systems/wanderingPitchMaker.js';           // T451
+import * as WeighMaster      from '../systems/imperialWeighMaster.js';           // T452
 
 let _panel = null;
 
@@ -458,6 +460,8 @@ function _encountersSection() {
     _imperialOliveGroveMasterSection(),
     _wanderingAmberCarverSection(),
     _imperialSilkDyerSection(),
+    _wanderingPitchMakerSection(),
+    _imperialWeighMasterSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -7246,6 +7250,72 @@ function _imperialSilkDyerSection() {
     </div>`;
 }
 
+function _wanderingPitchMakerSection() {
+  if (!PitchMaker.getActiveWanderingPitchMaker()) return '';
+  const secs         = PitchMaker.getPitchMakerSecsLeft();
+  const urgent       = secs <= 20;
+  const wood         = Math.floor(state.resources.wood ?? 0);
+  const food         = Math.floor(state.resources.food ?? 0);
+  const gold         = Math.floor(state.resources.gold ?? 0);
+  const canCommission = wood >= PitchMaker.COMMISSION_WOOD_COST && food >= PitchMaker.COMMISSION_FOOD_COST;
+  const canPurchase   = gold >= PitchMaker.PURCHASE_GOLD_COST;
+  return `
+    <div class="pitchmaker-section--active">
+      <div class="pitchmaker-header">
+        <span class="pitchmaker-title">🪵 Wandering Pitch Maker</span>
+        <span class="pitchmaker-timer${urgent ? ' pitchmaker-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="pitchmaker-desc">A wandering pitch maker arrives carrying sealed clay pots of black pine pitch and birch tar — thick viscous waterproofing compounds produced by slow pyrolysis in sealed kilns — along with application spatulas, sample caulked timber planks, and iron heating pots, offering to commission a complete pitch works installation for boat builders and barrel makers, or to share the full pyrolysis and blending methods.</div>
+      <div class="pitchmaker-actions">
+        <button class="btn--pitchmaker-commission${canCommission ? '' : ' btn--disabled'}" data-action="pitchmaker-commission" ${canCommission ? '' : 'disabled'}>
+          🪵 Commission Pitch Works — ${PitchMaker.COMMISSION_WOOD_COST}🪵 + ${PitchMaker.COMMISSION_FOOD_COST}🌾
+          <span class="pitchmaker-cost">→ +${PitchMaker.COMMISSION_WOOD_RATE} wood/s (2.5 min) · +${PitchMaker.COMMISSION_PRESTIGE_REWARD} prestige · +${PitchMaker.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--pitchmaker-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="pitchmaker-purchase" ${canPurchase ? '' : 'disabled'}>
+          📖 Purchase Pitch-Making Lore — ${PitchMaker.PURCHASE_GOLD_COST}💰
+          <span class="pitchmaker-cost">→ +${PitchMaker.PURCHASE_GOLD_RATE} gold/s (2 min) · +${PitchMaker.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--pitchmaker-away" data-action="pitchmaker-away">
+          🚶 Send Away
+          <span class="pitchmaker-cost">→ Pitch maker seals the clay pots and departs along the forest track</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _imperialWeighMasterSection() {
+  if (!WeighMaster.getActiveImperialWeighMaster()) return '';
+  const secs         = WeighMaster.getWeighMasterSecsLeft();
+  const urgent       = secs <= 20;
+  const iron         = Math.floor(state.resources.iron ?? 0);
+  const gold         = Math.floor(state.resources.gold ?? 0);
+  const mana         = Math.floor(state.resources.mana ?? 0);
+  const canCommission = iron >= WeighMaster.COMMISSION_IRON_COST && gold >= WeighMaster.COMMISSION_GOLD_COST;
+  const canPurchase   = mana >= WeighMaster.PURCHASE_MANA_COST;
+  return `
+    <div class="weighmaster-section--active">
+      <div class="weighmaster-header">
+        <span class="weighmaster-title">⚖️ Imperial Weigh Master</span>
+        <span class="weighmaster-timer${urgent ? ' weighmaster-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="weighmaster-desc">An imperial weigh master arrives carrying sealed bronze reference weights stamped with the imperial seal, a folding balance beam with agate pivot bearings, iron beam weights for the market scales, and the official weights and measures ordinance, offering to commission a full set of imperial standard scales and certified weights for the market and treasury, or to purchase the complete standardisation and calibration methods.</div>
+      <div class="weighmaster-actions">
+        <button class="btn--weighmaster-commission${canCommission ? '' : ' btn--disabled'}" data-action="weighmaster-commission" ${canCommission ? '' : 'disabled'}>
+          ⚖️ Commission Imperial Scales — ${WeighMaster.COMMISSION_IRON_COST}⚙️ + ${WeighMaster.COMMISSION_GOLD_COST}💰
+          <span class="weighmaster-cost">→ +${WeighMaster.COMMISSION_IRON_RATE} iron/s (2.5 min) · +${WeighMaster.COMMISSION_PRESTIGE_REWARD} prestige · +${WeighMaster.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--weighmaster-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="weighmaster-purchase" ${canPurchase ? '' : 'disabled'}>
+          📖 Purchase Standardized Measures — ${WeighMaster.PURCHASE_MANA_COST}✨
+          <span class="weighmaster-cost">→ +${WeighMaster.PURCHASE_MANA_RATE} mana/s (2 min) · +${WeighMaster.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--weighmaster-away" data-action="weighmaster-away">
+          🚶 Send Away
+          <span class="weighmaster-cost">→ Weigh master packs the reference weights and departs with a formal bow</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -8057,6 +8127,14 @@ const _HANDLERS = {
   'silkdyer-commission': () => SilkDyer.commissionImperialSilkDyes(),
   'silkdyer-purchase':   () => SilkDyer.purchaseDyeingTechniques(),
   'silkdyer-away':       () => SilkDyer.sendSilkDyerAway(),
+
+  'pitchmaker-commission': () => PitchMaker.commissionPitchWorks(),
+  'pitchmaker-purchase':   () => PitchMaker.purchasePitchMakingLore(),
+  'pitchmaker-away':       () => PitchMaker.sendPitchMakerAway(),
+
+  'weighmaster-commission': () => WeighMaster.commissionImperialScales(),
+  'weighmaster-purchase':   () => WeighMaster.purchaseStandardizedMeasures(),
+  'weighmaster-away':       () => WeighMaster.sendWeighMasterAway(),
 };
 
 function _handleClick(e) {
@@ -8279,6 +8357,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_OLIVE_GROVE_MASTER_CHANGED,
     Events.WANDERING_AMBER_CARVER_CHANGED,
     Events.IMPERIAL_SILK_DYER_CHANGED,
+    Events.WANDERING_PITCH_MAKER_CHANGED,
+    Events.IMPERIAL_WEIGH_MASTER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

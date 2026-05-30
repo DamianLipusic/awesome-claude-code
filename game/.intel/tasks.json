@@ -2018,6 +2018,26 @@
       "description": "Periodic imperial silk dyer encounter: commission imperial silk dyes (25 mana + 20g → +0.22 mana/s 2.5min +22 prestige +12 morale), purchase dyeing techniques (20 wood → +0.18 wood/s 2min +15 prestige), send away. Medieval Age+, 10+ tiles, 14-18 min.",
       "completed_date": "2026-05-29",
       "notes": "Built imperialSilkDyer.js. IMPERIAL_SILK_DYER_CHANGED event added to events.js. state.imperialSilkDyer null field. Silk dyer section in questPanel.js (import * as SilkDyer). Events.IMPERIAL_SILK_DYER_CHANGED subscribed. CSS: @keyframes silkdyer-pulse (violet/purple silk dye theme), .silkdyer-section--active, .btn--silkdyer-commission (violet/purple), .btn--silkdyer-purchase (green), .btn--silkdyer-away (gray). Wired main.js: import, registerSystem, init x2, save/load. Session 133."
+    },
+    {
+      "id": "T451",
+      "title": "Wandering Pitch Maker",
+      "status": "done",
+      "priority": 451,
+      "phase": 134,
+      "description": "Periodic wandering pitch maker encounter: commission pitch works (20 wood + 15 food → +0.22 wood/s 2.5min · +15 prestige · +8 morale), purchase pitch-making lore (18g → +0.15 gold/s 2min · +10 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
+      "completed_date": "2026-05-30",
+      "notes": "Built wanderingPitchMaker.js. WANDERING_PITCH_MAKER_CHANGED event added to events.js. state.wanderingPitchMaker null field. Pitch maker section in questPanel.js (import * as PitchMaker). Events.WANDERING_PITCH_MAKER_CHANGED subscribed. CSS: @keyframes pitchmaker-pulse (dark brown/tar theme), .pitchmaker-section--active, .btn--pitchmaker-commission (dark amber/brown), .btn--pitchmaker-purchase (yellow/gold), .btn--pitchmaker-away (gray). Wired main.js: import, registerSystem, init x2, save/load. Session 134."
+    },
+    {
+      "id": "T452",
+      "title": "Imperial Weigh Master",
+      "status": "done",
+      "priority": 452,
+      "phase": 134,
+      "description": "Periodic imperial weigh master encounter: commission imperial scales (25 iron + 20g → +0.22 iron/s 2.5min · +22 prestige · +10 morale), purchase standardized measures (20 mana → +0.18 mana/s 2min · +15 prestige), send away. Medieval Age+, 10+ tiles, 15-19 min.",
+      "completed_date": "2026-05-30",
+      "notes": "Built imperialWeighMaster.js. IMPERIAL_WEIGH_MASTER_CHANGED event added to events.js. state.imperialWeighMaster null field. Weigh master section in questPanel.js (import * as WeighMaster). Events.IMPERIAL_WEIGH_MASTER_CHANGED subscribed. CSS: @keyframes weighmaster-pulse (brass/amber gold theme), .weighmaster-section--active, .btn--weighmaster-commission (amber/dark gold), .btn--weighmaster-purchase (violet/purple), .btn--weighmaster-away (gray). Wired main.js: import, registerSystem, init x2, save/load. Session 134."
     }
   ],
   "session_history": [
@@ -2131,6 +2151,7 @@
     "Session 130 (T443-T444): Wandering Brickmaker (T443), Imperial Thread Merchant (T444)",
     "Session 131 (T445-T446): Wandering Horn Carver (T445), Imperial Reed Merchant (T446)",
     "Session 132 (T447-T448): Wandering Bellows Maker (T447), Imperial Olive Grove Master (T448)",
-    "Session 133 (T449-T450): Wandering Amber Carver (T449), Imperial Silk Dyer (T450)"
+    "Session 133 (T449-T450): Wandering Amber Carver (T449), Imperial Silk Dyer (T450)",
+    "Session 134 (T451-T452): Wandering Pitch Maker (T451), Imperial Weigh Master (T452)"
   ]
 }

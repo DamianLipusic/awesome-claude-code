@@ -1,3 +1,18 @@
+Session 134 — T451–T452: Wandering Pitch Maker, Imperial Weigh Master.
+Pitch Maker: Stone Age+, 6+ tiles, 12-16 min spawn, 80s window. Commission Pitch Works (20 wood + 15 food → +0.22 wood/s 2.5min · +15 prestige · +8 morale), Purchase Pitch-Making Lore (18g → +0.15 gold/s 2min · +10 prestige). Dark brown/tar pulse CSS (yellow/gold purchase button, pitchmaker- CSS prefix). Weigh Master: Medieval Age+, 10+ tiles, 15-19 min spawn, 80s window. Commission Imperial Scales (25 iron + 20g → +0.22 iron/s 2.5min · +22 prestige · +10 morale), Purchase Standardized Measures (20 mana → +0.18 mana/s 2min · +15 prestige). Brass/amber gold pulse CSS (violet purchase button, weighmaster- CSS prefix). Both fully wired into main.js (import, registerSystem, init x2, save/load) and questPanel.js (import, section render, handlers, ENCOUNTER_EVENTS). Events added to events.js.
+
+T451: Wandering Pitch Maker — Stone Age+, 6+ tiles, 12–16 min, 80s window.
+Built wanderingPitchMaker.js: commissionPitchWorks (20 wood + 15 food → +0.22 wood/s 2.5min +15 prestige +8 morale), purchasePitchMakingLore (18g → +0.15 gold/s 2min +10 prestige), sendPitchMakerAway (dismiss). Added WANDERING_PITCH_MAKER_CHANGED event to events.js. state.wanderingPitchMaker null field.
+Wired in main.js: import initWanderingPitchMaker+wanderingPitchMakerTick, registerSystem, initWanderingPitchMaker() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingPitchMakerSection() render + pitchmaker-commission/pitchmaker-purchase/pitchmaker-away handlers to questPanel.js (import * as PitchMaker). Events.WANDERING_PITCH_MAKER_CHANGED subscribed.
+CSS: @keyframes pitchmaker-pulse (dark brown/tar theme), .pitchmaker-section--active, .btn--pitchmaker-commission (dark amber/brown), .btn--pitchmaker-purchase (yellow/gold), .btn--pitchmaker-away (gray). Session 134.
+
+T452: Imperial Weigh Master — Medieval Age+, 10+ tiles, 15–19 min, 80s window.
+Built imperialWeighMaster.js: commissionImperialScales (25 iron + 20g → +0.22 iron/s 2.5min +22 prestige +10 morale), purchaseStandardizedMeasures (20 mana → +0.18 mana/s 2min +15 prestige), sendWeighMasterAway (dismiss). Added IMPERIAL_WEIGH_MASTER_CHANGED event to events.js. state.imperialWeighMaster null field.
+Wired in main.js: import initImperialWeighMaster+imperialWeighMasterTick, registerSystem, initImperialWeighMaster() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _imperialWeighMasterSection() render + weighmaster-commission/weighmaster-purchase/weighmaster-away handlers to questPanel.js (import * as WeighMaster). Events.IMPERIAL_WEIGH_MASTER_CHANGED subscribed.
+CSS: @keyframes weighmaster-pulse (brass/amber gold theme), .weighmaster-section--active, .btn--weighmaster-commission (amber/dark gold), .btn--weighmaster-purchase (violet/purple), .btn--weighmaster-away (gray). Session 134.
+
 Session 133 — T449–T450: Wandering Amber Carver, Imperial Silk Dyer.
 Amber Carver: Stone Age+, 6+ tiles, 12-16 min spawn, 80s window. Commission Amber Ornaments (20 stone + 15g → +0.22 stone/s 2.5min · +18 prestige · +8 morale), Purchase Amber Carving Lore (18g → +0.15 gold/s 2min · +12 prestige). Warm amber/orange pulse CSS (yellow/gold purchase button, ambercarver- CSS prefix). Silk Dyer: Medieval Age+, 10+ tiles, 14-18 min spawn, 80s window. Commission Imperial Silk Dyes (25 mana + 20g → +0.22 mana/s 2.5min · +22 prestige · +12 morale), Purchase Dyeing Techniques (20 wood → +0.18 wood/s 2min · +15 prestige). Violet/purple silk dye pulse CSS (green purchase button, silkdyer- CSS prefix). Both fully wired into main.js (import, registerSystem, init x2, save/load) and questPanel.js (import, section render, handlers, ENCOUNTER_EVENTS). Events added to events.js.
 

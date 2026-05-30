@@ -392,4 +392,6 @@ export const Events = Object.freeze({
   IMPERIAL_OLIVE_GROVE_MASTER_CHANGED:     'imperialOliveGroveMasterChanged',                                   // T448: olive grove master spawned / commissioned / purchased / dismissed / expired
   WANDERING_AMBER_CARVER_CHANGED:          'wanderingAmberCarverChanged',                                       // T449: amber carver spawned / commissioned / purchased / dismissed / expired
   IMPERIAL_SILK_DYER_CHANGED:              'imperialSilkDyerChanged',                                           // T450: silk dyer spawned / commissioned / purchased / dismissed / expired
+  WANDERING_PITCH_MAKER_CHANGED:           'wanderingPitchMakerChanged',                                        // T451: pitch maker spawned / commissioned / purchased / dismissed / expired
+  IMPERIAL_WEIGH_MASTER_CHANGED:           'imperialWeighMasterChanged',                                        // T452: weigh master spawned / commissioned / purchased / dismissed / expired
 });
