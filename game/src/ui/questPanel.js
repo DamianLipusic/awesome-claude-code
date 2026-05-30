@@ -221,6 +221,8 @@ import * as FlaxSpinner      from '../systems/wanderingFlaxSpinner.js';         
 import * as SaltWorksMaster  from '../systems/imperialSaltWorksMaster.js';       // T454
 import * as ClothMerchant    from '../systems/wanderingClothMerchant.js';        // T455
 import * as CopperMerchant   from '../systems/imperialCopperMerchant.js';        // T456
+import * as PearlDiver       from '../systems/wanderingPearlDiver.js';           // T457
+import * as CarpetMaker      from '../systems/imperialCarpetMaker.js';           // T458
 
 let _panel = null;
 
@@ -470,6 +472,8 @@ function _encountersSection() {
     _imperialSaltWorksMasterSection(),
     _wanderingClothMerchantSection(),
     _imperialCopperMerchantSection(),
+    _wanderingPearlDiverSection(),
+    _imperialCarpetMakerSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -7455,6 +7459,71 @@ function _imperialCopperMerchantSection() {
     </div>`;
 }
 
+function _wanderingPearlDiverSection() {
+  if (!PearlDiver.getActiveWanderingPearlDiver()) return '';
+  const secs         = PearlDiver.getPearlDiverSecsLeft();
+  const urgent       = secs <= 20;
+  const stone        = state.resources.stone ?? 0;
+  const gold         = state.resources.gold ?? 0;
+  const canTrade     = stone >= PearlDiver.TRADE_STONE_COST;
+  const canPurchase  = gold  >= PearlDiver.PURCHASE_GOLD_COST;
+  return `
+    <div class="pearldiver-section--active">
+      <div class="pearldiver-header">
+        <span class="pearldiver-title">🦪 Wandering Pearl Diver</span>
+        <span class="pearldiver-timer${urgent ? ' pearldiver-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="pearldiver-desc">A wandering pearl diver arrives with shallow wooden trays lined with damp moss displaying freshwater pearls harvested from river mussels and lake beds upstream — ranging from creamy white through pale silver to faint rose, separated by size using graduated wire gauges, with the finest specimens in a lacquered box — offering to trade the season's harvest for worked stone to build a riverside drying station, or to sell a guide to the best pearl-bearing mussel beds.</div>
+      <div class="pearldiver-actions">
+        <button class="btn--pearldiver-trade${canTrade ? '' : ' btn--disabled'}" data-action="pearldiver-trade" ${canTrade ? '' : 'disabled'}>
+          🦪 Trade Rare Pearls — ${PearlDiver.TRADE_STONE_COST}🪨
+          <span class="pearldiver-cost">→ +${PearlDiver.TRADE_STONE_RATE} stone/s (2.5 min) · +${PearlDiver.TRADE_PRESTIGE_REWARD} prestige · +${PearlDiver.TRADE_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--pearldiver-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="pearldiver-purchase" ${canPurchase ? '' : 'disabled'}>
+          📜 Purchase Pearl Diving Guide — ${PearlDiver.PURCHASE_GOLD_COST}💰
+          <span class="pearldiver-cost">→ +${PearlDiver.PURCHASE_GOLD_RATE} gold/s (2 min) · +${PearlDiver.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--pearldiver-away" data-action="pearldiver-away">
+          🚶 Send Away
+          <span class="pearldiver-cost">→ Pearl diver repacks the trays and departs upstream</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _imperialCarpetMakerSection() {
+  if (!CarpetMaker.getActiveImperialCarpetMaker()) return '';
+  const secs         = CarpetMaker.getCarpetMakerSecsLeft();
+  const urgent       = secs <= 20;
+  const mana         = state.resources.mana ?? 0;
+  const gold         = state.resources.gold ?? 0;
+  const food         = state.resources.food ?? 0;
+  const canCommission = mana >= CarpetMaker.COMMISSION_MANA_COST && gold >= CarpetMaker.COMMISSION_GOLD_COST;
+  const canPurchase   = food >= CarpetMaker.PURCHASE_FOOD_COST;
+  return `
+    <div class="carpetmaker-section--active">
+      <div class="carpetmaker-header">
+        <span class="carpetmaker-title">🎨 Imperial Carpet Maker</span>
+        <span class="carpetmaker-timer${urgent ? ' carpetmaker-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="carpetmaker-desc">An imperial carpet maker arrives with mounted samples of hand-knotted carpets — each sample board showing a section of repeating pattern in full colour, with the back exposed to reveal the Ghiordes knot structure, individual woollen tufts tied around warp thread pairs and packed with an iron comb — offering to commission imperial carpets woven to required dimensions and heraldic colours, or to provide full knotting and dyeing technique instruction to establish a local carpet workshop.</div>
+      <div class="carpetmaker-actions">
+        <button class="btn--carpetmaker-commission${canCommission ? '' : ' btn--disabled'}" data-action="carpetmaker-commission" ${canCommission ? '' : 'disabled'}>
+          🎨 Commission Imperial Carpets — ${CarpetMaker.COMMISSION_MANA_COST}✨ + ${CarpetMaker.COMMISSION_GOLD_COST}💰
+          <span class="carpetmaker-cost">→ +${CarpetMaker.COMMISSION_MANA_RATE} mana/s (2.5 min) · +${CarpetMaker.COMMISSION_PRESTIGE_REWARD} prestige · +${CarpetMaker.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--carpetmaker-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="carpetmaker-purchase" ${canPurchase ? '' : 'disabled'}>
+          📚 Purchase Knotting Techniques — ${CarpetMaker.PURCHASE_FOOD_COST}🌾
+          <span class="carpetmaker-cost">→ +${CarpetMaker.PURCHASE_FOOD_RATE} food/s (2 min) · +${CarpetMaker.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--carpetmaker-away" data-action="carpetmaker-away">
+          🚶 Send Away
+          <span class="carpetmaker-cost">→ Carpet maker rolls up the sample boards and departs</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -8290,6 +8359,14 @@ const _HANDLERS = {
   'coppermerchant-trade':    () => CopperMerchant.arrangeCopperTrade(),
   'coppermerchant-purchase': () => CopperMerchant.purchaseAlloySecrets(),
   'coppermerchant-away':     () => CopperMerchant.sendCopperMerchantAway(),
+
+  'pearldiver-trade':    () => PearlDiver.tradeRarePearls(),
+  'pearldiver-purchase': () => PearlDiver.purchasePearlDivingGuide(),
+  'pearldiver-away':     () => PearlDiver.sendPearlDiverAway(),
+
+  'carpetmaker-commission': () => CarpetMaker.commissionImperialCarpets(),
+  'carpetmaker-purchase':   () => CarpetMaker.purchaseKnottingTechniques(),
+  'carpetmaker-away':       () => CarpetMaker.sendCarpetMakerAway(),
 };
 
 function _handleClick(e) {
@@ -8518,6 +8595,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_SALT_WORKS_MASTER_CHANGED,
     Events.WANDERING_CLOTH_MERCHANT_CHANGED,
     Events.IMPERIAL_COPPER_MERCHANT_CHANGED,
+    Events.WANDERING_PEARL_DIVER_CHANGED,
+    Events.IMPERIAL_CARPET_MAKER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

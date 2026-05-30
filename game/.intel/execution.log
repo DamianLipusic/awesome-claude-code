@@ -1,3 +1,18 @@
+Session 137 — T457–T458: Wandering Pearl Diver, Imperial Carpet Maker.
+Pearl Diver: Bronze Age+, 8+ tiles, 12-17 min spawn, 80s window. Trade Rare Pearls (20 stone → +0.22 stone/s 2.5min · +20 prestige · +10 morale), Purchase Pearl Diving Guide (25g → +0.18 gold/s 2min · +15 prestige). Sea blue/cyan pearl-white glow CSS (amber/gold purchase button, pearldiver- CSS prefix). Carpet Maker: Medieval Age+, 10+ tiles, 15-20 min spawn, 80s window. Commission Imperial Carpets (25 mana + 20g → +0.22 mana/s 2.5min · +22 prestige · +12 morale), Purchase Knotting Techniques (20 food → +0.18 food/s 2min · +15 prestige). Deep violet/purple CSS (emerald green purchase button, carpetmaker- CSS prefix). Both fully wired into main.js (import, registerSystem, init x2, save/load) and questPanel.js (import, section render, handlers, ENCOUNTER_EVENTS). Events added to events.js.
+
+T457: Wandering Pearl Diver — Bronze Age+, 8+ tiles, 12–17 min, 80s window.
+Built wanderingPearlDiver.js: tradeRarePearls (20 stone → +0.22 stone/s 2.5min +20 prestige +10 morale), purchasePearlDivingGuide (25g → +0.18 gold/s 2min +15 prestige), sendPearlDiverAway (dismiss). Added WANDERING_PEARL_DIVER_CHANGED event to events.js. state.wanderingPearlDiver null field.
+Wired in main.js: import initWanderingPearlDiver+wanderingPearlDiverTick, registerSystem, initWanderingPearlDiver() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingPearlDiverSection() render + pearldiver-trade/pearldiver-purchase/pearldiver-away handlers to questPanel.js (import * as PearlDiver). Events.WANDERING_PEARL_DIVER_CHANGED subscribed.
+CSS: @keyframes pearldiver-pulse (sea blue/cyan pearl-white glow), .pearldiver-section--active, .btn--pearldiver-trade (sky blue), .btn--pearldiver-purchase (amber/gold), .btn--pearldiver-away (gray). Session 137.
+
+T458: Imperial Carpet Maker — Medieval Age+, 10+ tiles, 15–20 min, 80s window.
+Built imperialCarpetMaker.js: commissionImperialCarpets (25 mana + 20g → +0.22 mana/s 2.5min +22 prestige +12 morale), purchaseKnottingTechniques (20 food → +0.18 food/s 2min +15 prestige), sendCarpetMakerAway (dismiss). Added IMPERIAL_CARPET_MAKER_CHANGED event to events.js. state.imperialCarpetMaker null field.
+Wired in main.js: import initImperialCarpetMaker+imperialCarpetMakerTick, registerSystem, initImperialCarpetMaker() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _imperialCarpetMakerSection() render + carpetmaker-commission/carpetmaker-purchase/carpetmaker-away handlers to questPanel.js (import * as CarpetMaker). Events.IMPERIAL_CARPET_MAKER_CHANGED subscribed.
+CSS: @keyframes carpetmaker-pulse (deep violet/purple carpet theme), .carpetmaker-section--active, .btn--carpetmaker-commission (violet/purple), .btn--carpetmaker-purchase (emerald green), .btn--carpetmaker-away (gray). Session 137.
+
 Session 136 — T455–T456: Wandering Cloth Merchant, Imperial Copper Merchant.
 Cloth Merchant: Stone Age+, 6+ tiles, 11-15 min spawn, 80s window. Purchase Fine Cloth (20 food → +0.22 food/s 2.5min · +18 prestige · +10 morale), Trade for Textile Knowledge (18g → +0.15 gold/s 2min · +12 prestige). Amber/yellow linen CSS (green trade button, clothmerchant- CSS prefix). Copper Merchant: Bronze Age+, 8+ tiles, 13-17 min spawn, 80s window. Arrange Copper Trade (25 iron + 20g → +0.22 iron/s 2.5min · +22 prestige · +12 morale), Purchase Alloy Secrets (20 stone → +0.18 stone/s 2min · +15 prestige). Orange/copper CSS (slate purchase button, coppermerchant- CSS prefix). Both fully wired into main.js (import, registerSystem, init x2, save/load) and questPanel.js (import, section render, handlers, ENCOUNTER_EVENTS). Events added to events.js.
 

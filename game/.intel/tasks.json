@@ -2078,6 +2078,26 @@
       "description": "Periodic imperial copper merchant encounter: arrange copper trade (25 iron + 20g -> +0.22 iron/s 2.5min · +22 prestige · +12 morale), purchase alloy secrets (20 stone -> +0.18 stone/s 2min · +15 prestige), send away. Bronze Age+, 8+ tiles, 13-17 min.",
       "completed_date": "2026-05-30",
       "notes": "Built imperialCopperMerchant.js. IMPERIAL_COPPER_MERCHANT_CHANGED event added to events.js. state.imperialCopperMerchant null field. Copper merchant section in questPanel.js (import * as CopperMerchant). Events.IMPERIAL_COPPER_MERCHANT_CHANGED subscribed. CSS: @keyframes coppermerchant-pulse (orange/copper theme), .coppermerchant-section--active, .btn--coppermerchant-trade (orange/copper), .btn--coppermerchant-purchase (slate/gray), .btn--coppermerchant-away (gray). Wired main.js: import, registerSystem, init x2, save/load. Session 136."
+    },
+    {
+      "id": "T457",
+      "title": "Wandering Pearl Diver",
+      "status": "done",
+      "priority": 457,
+      "phase": 141,
+      "description": "Periodic wandering pearl diver encounter: trade rare pearls (20 stone -> +0.22 stone/s 2.5min · +20 prestige · +10 morale), purchase pearl diving guide (25g -> +0.18 gold/s 2min · +15 prestige), send away. Bronze Age+, 8+ tiles, 12-17 min.",
+      "completed_date": "2026-05-30",
+      "notes": "Built wanderingPearlDiver.js. WANDERING_PEARL_DIVER_CHANGED event added to events.js. state.wanderingPearlDiver null field. Pearl diver section in questPanel.js (import * as PearlDiver). Events.WANDERING_PEARL_DIVER_CHANGED subscribed. CSS: @keyframes pearldiver-pulse (sea blue/cyan pearl-white glow), .pearldiver-section--active, .btn--pearldiver-trade (sky blue), .btn--pearldiver-purchase (amber/gold), .btn--pearldiver-away (gray). Wired main.js: import, registerSystem, init x2, save/load. Session 137."
+    },
+    {
+      "id": "T458",
+      "title": "Imperial Carpet Maker",
+      "status": "done",
+      "priority": 458,
+      "phase": 141,
+      "description": "Periodic imperial carpet maker encounter: commission imperial carpets (25 mana + 20g -> +0.22 mana/s 2.5min · +22 prestige · +12 morale), purchase knotting techniques (20 food -> +0.18 food/s 2min · +15 prestige), send away. Medieval Age+, 10+ tiles, 15-20 min.",
+      "completed_date": "2026-05-30",
+      "notes": "Built imperialCarpetMaker.js. IMPERIAL_CARPET_MAKER_CHANGED event added to events.js. state.imperialCarpetMaker null field. Carpet maker section in questPanel.js (import * as CarpetMaker). Events.IMPERIAL_CARPET_MAKER_CHANGED subscribed. CSS: @keyframes carpetmaker-pulse (deep burgundy/violet rich carpet theme), .carpetmaker-section--active, .btn--carpetmaker-commission (violet/purple), .btn--carpetmaker-purchase (emerald green), .btn--carpetmaker-away (gray). Wired main.js: import, registerSystem, init x2, save/load. Session 137."
     }
   ],
   "session_history": [
@@ -2194,6 +2214,7 @@
     "Session 133 (T449-T450): Wandering Amber Carver (T449), Imperial Silk Dyer (T450)",
     "Session 134 (T451-T452): Wandering Pitch Maker (T451), Imperial Weigh Master (T452)",
     "Session 135 (T453-T454): Wandering Flax Spinner (T453), Imperial Salt Works Master (T454)",
-    "Session 136 (T455-T456): Wandering Cloth Merchant (T455), Imperial Copper Merchant (T456)"
+    "Session 136 (T455-T456): Wandering Cloth Merchant (T455), Imperial Copper Merchant (T456)",
+    "Session 137 (T457-T458): Wandering Pearl Diver (T457), Imperial Carpet Maker (T458)"
   ]
 }

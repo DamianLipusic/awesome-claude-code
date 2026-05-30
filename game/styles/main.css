@@ -23571,3 +23571,75 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--coppermerchant-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T457 Wandering Pearl Diver ────────────────────────────────────────── */
+@keyframes pearldiver-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(125, 211, 252, 0.0); }
+  50%       { box-shadow: 0 0 8px 2px rgba(125, 211, 252, 0.32); }
+}
+.pearldiver-section--active {
+  background: linear-gradient(135deg, rgba(14, 30, 40, 0.55), rgba(8, 20, 28, 0.40));
+  border: 1px solid rgba(125, 211, 252, 0.30); border-radius: 8px; padding: 10px;
+  margin-bottom: 10px; animation: pearldiver-pulse 2.8s ease-in-out infinite;
+}
+.pearldiver-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.pearldiver-title  { font-weight: 700; font-size: 0.88rem; color: #7dd3fc; }
+.pearldiver-timer  { font-size: 0.78rem; color: #7dd3fc; }
+.pearldiver-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.pearldiver-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.pearldiver-actions { display: flex; flex-direction: column; gap: 5px; }
+.pearldiver-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--pearldiver-trade {
+  background: linear-gradient(135deg, rgba(10, 24, 36, 0.30), rgba(6, 14, 20, 0.20));
+  border: 1px solid rgba(125, 211, 252, 0.35); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #7dd3fc; text-align: left; transition: background 0.15s;
+}
+.btn--pearldiver-trade:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(14, 30, 48, 0.36), rgba(8, 18, 28, 0.26)); }
+.btn--pearldiver-purchase {
+  background: linear-gradient(135deg, rgba(20, 16, 8, 0.28), rgba(12, 10, 4, 0.18));
+  border: 1px solid rgba(251, 191, 36, 0.32); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fbbf24; text-align: left; transition: background 0.15s;
+}
+.btn--pearldiver-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(28, 22, 10, 0.34), rgba(16, 12, 6, 0.24)); }
+.btn--pearldiver-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--pearldiver-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T458 Imperial Carpet Maker ─────────────────────────────────────────── */
+@keyframes carpetmaker-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(167, 139, 250, 0.0); }
+  50%       { box-shadow: 0 0 8px 2px rgba(167, 139, 250, 0.32); }
+}
+.carpetmaker-section--active {
+  background: linear-gradient(135deg, rgba(22, 14, 36, 0.55), rgba(14, 8, 24, 0.40));
+  border: 1px solid rgba(167, 139, 250, 0.30); border-radius: 8px; padding: 10px;
+  margin-bottom: 10px; animation: carpetmaker-pulse 2.8s ease-in-out infinite;
+}
+.carpetmaker-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.carpetmaker-title  { font-weight: 700; font-size: 0.88rem; color: #a78bfa; }
+.carpetmaker-timer  { font-size: 0.78rem; color: #a78bfa; }
+.carpetmaker-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.carpetmaker-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.carpetmaker-actions { display: flex; flex-direction: column; gap: 5px; }
+.carpetmaker-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--carpetmaker-commission {
+  background: linear-gradient(135deg, rgba(20, 12, 32, 0.30), rgba(12, 6, 20, 0.20));
+  border: 1px solid rgba(167, 139, 250, 0.35); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #a78bfa; text-align: left; transition: background 0.15s;
+}
+.btn--carpetmaker-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(26, 16, 40, 0.36), rgba(16, 8, 26, 0.26)); }
+.btn--carpetmaker-purchase {
+  background: linear-gradient(135deg, rgba(10, 24, 14, 0.28), rgba(6, 14, 8, 0.18));
+  border: 1px solid rgba(74, 222, 128, 0.32); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #4ade80; text-align: left; transition: background 0.15s;
+}
+.btn--carpetmaker-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(14, 30, 18, 0.34), rgba(8, 18, 10, 0.24)); }
+.btn--carpetmaker-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--carpetmaker-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
