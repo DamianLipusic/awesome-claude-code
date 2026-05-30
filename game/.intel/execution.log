@@ -1568,3 +1568,18 @@ Built imperialReedMerchant.js: establishReedTradeRoute (25 wood + 20g → +0.22 
 Wired in main.js: import initImperialReedMerchant+imperialReedMerchantTick, registerSystem, initImperialReedMerchant() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _imperialReedMerchantSection() render + reedmerchant-commission/reedmerchant-purchase/reedmerchant-away handlers to questPanel.js (import * as ReedMerchant). Events.IMPERIAL_REED_MERCHANT_CHANGED subscribed.
 CSS: @keyframes reedmerchant-pulse (green/olive reed theme), .reedmerchant-section--active, .btn--reedmerchant-commission (green), .btn--reedmerchant-purchase (light green), .btn--reedmerchant-away (gray). Session 131.
+
+Session 135 — T453–T454: Wandering Flax Spinner, Imperial Salt Works Master.
+Flax Spinner: Stone Age+, 6+ tiles, 11–15 min, 80s window. Commission Linen Thread Works (20 wood + 15 food → +0.20 wood/s 2.5min · +15 prestige · +8 morale), Purchase Spinning Techniques (18g → +0.15 gold/s 2min · +10 prestige). Sky blue/linen CSS theme. Imperial Salt Works Master: Bronze Age+, 8+ tiles, 13–17 min, 80s window. Commission Salt Evaporation Works (25 food + 20g → +0.22 food/s 2.5min · +20 prestige · +12 morale), Purchase Salt Harvesting Lore (20 stone → +0.18 stone/s 2min · +15 prestige). Cyan/aqua CSS theme. Both fully wired into main.js (import, registerSystem, init x2, save/load) and questPanel.js (import, section render, handlers, ENCOUNTER_EVENTS). Events added to events.js.
+
+T453: Wandering Flax Spinner — Stone Age+, 6+ tiles, 11–15 min, 80s window.
+Built wanderingFlaxSpinner.js: commissionLinenThreadWorks (20 wood + 15 food → +0.20 wood/s 2.5min +15 prestige +8 morale), purchaseSpinningTechniques (18g → +0.15 gold/s 2min +10 prestige), sendFlaxSpinnerAway (dismiss). Added WANDERING_FLAX_SPINNER_CHANGED event to events.js. state.wanderingFlaxSpinner null field.
+Wired in main.js: import initWanderingFlaxSpinner+wanderingFlaxSpinnerTick, registerSystem, initWanderingFlaxSpinner() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingFlaxSpinnerSection() render + flaxspinner-commission/flaxspinner-purchase/flaxspinner-away handlers to questPanel.js (import * as FlaxSpinner). Events.WANDERING_FLAX_SPINNER_CHANGED subscribed.
+CSS: @keyframes flaxspinner-pulse (light blue/linen theme), .flaxspinner-section--active, .btn--flaxspinner-commission (sky blue), .btn--flaxspinner-purchase (green), .btn--flaxspinner-away (gray). Session 135.
+
+T454: Imperial Salt Works Master — Bronze Age+, 8+ tiles, 13–17 min, 80s window.
+Built imperialSaltWorksMaster.js: commissionSaltEvaporationWorks (25 food + 20g → +0.22 food/s 2.5min +20 prestige +12 morale), purchaseSaltHarvestingLore (20 stone → +0.18 stone/s 2min +15 prestige), sendSaltWorksMasterAway (dismiss). Added IMPERIAL_SALT_WORKS_MASTER_CHANGED event to events.js. state.imperialSaltWorksMaster null field.
+Wired in main.js: import initImperialSaltWorksMaster+imperialSaltWorksMasterTick, registerSystem, initImperialSaltWorksMaster() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _imperialSaltWorksMasterSection() render + saltworksmaster-commission/saltworksmaster-purchase/saltworksmaster-away handlers to questPanel.js (import * as SaltWorksMaster). Events.IMPERIAL_SALT_WORKS_MASTER_CHANGED subscribed.
+CSS: @keyframes saltworksmaster-pulse (cyan/aqua salt theme), .saltworksmaster-section--active, .btn--saltworksmaster-commission (cyan), .btn--saltworksmaster-purchase (violet), .btn--saltworksmaster-away (gray). Session 135.

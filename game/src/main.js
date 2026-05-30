@@ -394,6 +394,8 @@ import { initWanderingAmberCarver, wanderingAmberCarverTick }         from './sy
 import { initImperialSilkDyer, imperialSilkDyerTick }                 from './systems/imperialSilkDyer.js';                  // T450
 import { initWanderingPitchMaker, wanderingPitchMakerTick }           from './systems/wanderingPitchMaker.js';               // T451
 import { initImperialWeighMaster, imperialWeighMasterTick }           from './systems/imperialWeighMaster.js';               // T452
+import { initWanderingFlaxSpinner, wanderingFlaxSpinnerTick }         from './systems/wanderingFlaxSpinner.js';              // T453
+import { initImperialSaltWorksMaster, imperialSaltWorksMasterTick }   from './systems/imperialSaltWorksMaster.js';           // T454
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -794,6 +796,8 @@ function _registerAllSystems() {
   registerSystem(imperialSilkDyerTick);             // T450
   registerSystem(wanderingPitchMakerTick);          // T451
   registerSystem(imperialWeighMasterTick);          // T452
+  registerSystem(wanderingFlaxSpinnerTick);         // T453
+  registerSystem(imperialSaltWorksMasterTick);      // T454
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -1179,6 +1183,8 @@ function _save() {
     imperialSilkDyer:             state.imperialSilkDyer,             // T450
     wanderingPitchMaker:          state.wanderingPitchMaker,          // T451
     imperialWeighMaster:          state.imperialWeighMaster,          // T452
+    wanderingFlaxSpinner:         state.wanderingFlaxSpinner,         // T453
+    imperialSaltWorksMaster:      state.imperialSaltWorksMaster,      // T454
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -1569,6 +1575,8 @@ function _applySave(s) {
   state.imperialSilkDyer               = s.imperialSilkDyer ?? null;               // T450
   state.wanderingPitchMaker            = s.wanderingPitchMaker ?? null;             // T451
   state.imperialWeighMaster            = s.imperialWeighMaster ?? null;             // T452
+  state.wanderingFlaxSpinner           = s.wanderingFlaxSpinner ?? null;            // T453
+  state.imperialSaltWorksMaster        = s.imperialSaltWorksMaster ?? null;         // T454
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -1965,6 +1973,8 @@ function _startFreshGame() {
   initImperialSilkDyer();             // T450
   initWanderingPitchMaker();          // T451
   initImperialWeighMaster();          // T452
+  initWanderingFlaxSpinner();         // T453
+  initImperialSaltWorksMaster();      // T454
   initAchievements();
   initLeaderboard();
 }
@@ -2344,6 +2354,8 @@ function _startLoadedGame(savedData) {
   initImperialSilkDyer();             // T450
   initWanderingPitchMaker();          // T451
   initImperialWeighMaster();          // T452
+  initWanderingFlaxSpinner();         // T453
+  initImperialSaltWorksMaster();      // T454
   initAchievements();
   initLeaderboard();
 }

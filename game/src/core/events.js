@@ -394,4 +394,6 @@ export const Events = Object.freeze({
   IMPERIAL_SILK_DYER_CHANGED:              'imperialSilkDyerChanged',                                           // T450: silk dyer spawned / commissioned / purchased / dismissed / expired
   WANDERING_PITCH_MAKER_CHANGED:           'wanderingPitchMakerChanged',                                        // T451: pitch maker spawned / commissioned / purchased / dismissed / expired
   IMPERIAL_WEIGH_MASTER_CHANGED:           'imperialWeighMasterChanged',                                        // T452: weigh master spawned / commissioned / purchased / dismissed / expired
+  WANDERING_FLAX_SPINNER_CHANGED:          'wanderingFlaxSpinnerChanged',                                       // T453: flax spinner spawned / commissioned / purchased / dismissed / expired
+  IMPERIAL_SALT_WORKS_MASTER_CHANGED:      'imperialSaltWorksMasterChanged',                                    // T454: salt works master spawned / commissioned / purchased / dismissed / expired
 });

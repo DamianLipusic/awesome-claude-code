@@ -217,6 +217,8 @@ import * as AmberCarver      from '../systems/wanderingAmberCarver.js';         
 import * as SilkDyer         from '../systems/imperialSilkDyer.js';              // T450
 import * as PitchMaker       from '../systems/wanderingPitchMaker.js';           // T451
 import * as WeighMaster      from '../systems/imperialWeighMaster.js';           // T452
+import * as FlaxSpinner      from '../systems/wanderingFlaxSpinner.js';          // T453
+import * as SaltWorksMaster  from '../systems/imperialSaltWorksMaster.js';       // T454
 
 let _panel = null;
 
@@ -462,6 +464,8 @@ function _encountersSection() {
     _imperialSilkDyerSection(),
     _wanderingPitchMakerSection(),
     _imperialWeighMasterSection(),
+    _wanderingFlaxSpinnerSection(),
+    _imperialSaltWorksMasterSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -7316,6 +7320,72 @@ function _imperialWeighMasterSection() {
     </div>`;
 }
 
+function _wanderingFlaxSpinnerSection() {
+  if (!FlaxSpinner.getActiveWanderingFlaxSpinner()) return '';
+  const secs         = FlaxSpinner.getFlaxSpinnerSecsLeft();
+  const urgent       = secs <= 20;
+  const wood         = Math.floor(state.resources.wood ?? 0);
+  const food         = Math.floor(state.resources.food ?? 0);
+  const gold         = Math.floor(state.resources.gold ?? 0);
+  const canCommission = wood >= FlaxSpinner.COMMISSION_WOOD_COST && food >= FlaxSpinner.COMMISSION_FOOD_COST;
+  const canPurchase   = gold >= FlaxSpinner.PURCHASE_GOLD_COST;
+  return `
+    <div class="flaxspinner-section--active">
+      <div class="flaxspinner-header">
+        <span class="flaxspinner-title">🧵 Wandering Flax Spinner</span>
+        <span class="flaxspinner-timer${urgent ? ' flaxspinner-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="flaxspinner-desc">A wandering flax spinner arrives pulling a hand cart loaded with bundles of retted flax straw — pale cream bast fibres separated from the woody shive by stream retting — along with iron hackle boards, drop spindles with fired clay whorls, and sample skeins of fine linen thread, offering to commission a full linen thread works for the settlement's weavers and rope-makers, or to share the complete retting, breaking, scutching, and spinning sequence for reliable linen production.</div>
+      <div class="flaxspinner-actions">
+        <button class="btn--flaxspinner-commission${canCommission ? '' : ' btn--disabled'}" data-action="flaxspinner-commission" ${canCommission ? '' : 'disabled'}>
+          🧵 Commission Linen Thread Works — ${FlaxSpinner.COMMISSION_WOOD_COST}🪵 + ${FlaxSpinner.COMMISSION_FOOD_COST}🌾
+          <span class="flaxspinner-cost">→ +${FlaxSpinner.COMMISSION_WOOD_RATE} wood/s (2.5 min) · +${FlaxSpinner.COMMISSION_PRESTIGE_REWARD} prestige · +${FlaxSpinner.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--flaxspinner-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="flaxspinner-purchase" ${canPurchase ? '' : 'disabled'}>
+          📖 Purchase Spinning Techniques — ${FlaxSpinner.PURCHASE_GOLD_COST}💰
+          <span class="flaxspinner-cost">→ +${FlaxSpinner.PURCHASE_GOLD_RATE} gold/s (2 min) · +${FlaxSpinner.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--flaxspinner-away" data-action="flaxspinner-away">
+          🚶 Send Away
+          <span class="flaxspinner-cost">→ Flax spinner re-bundles the retted straw and departs along the road</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _imperialSaltWorksMasterSection() {
+  if (!SaltWorksMaster.getActiveImperialSaltWorksMaster()) return '';
+  const secs         = SaltWorksMaster.getSaltWorksMasterSecsLeft();
+  const urgent       = secs <= 20;
+  const food         = Math.floor(state.resources.food ?? 0);
+  const gold         = Math.floor(state.resources.gold ?? 0);
+  const stone        = Math.floor(state.resources.stone ?? 0);
+  const canCommission = food >= SaltWorksMaster.COMMISSION_FOOD_COST && gold >= SaltWorksMaster.COMMISSION_GOLD_COST;
+  const canPurchase   = stone >= SaltWorksMaster.PURCHASE_STONE_COST;
+  return `
+    <div class="saltworksmaster-section--active">
+      <div class="saltworksmaster-header">
+        <span class="saltworksmaster-title">🧂 Imperial Salt Works Master</span>
+        <span class="saltworksmaster-timer${urgent ? ' saltworksmaster-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="saltworksmaster-desc">An imperial salt works master arrives carrying sealed glazed amphorae of sun-evaporated sea salt harvested from graduated evaporation pans — pure white crystals prized throughout the empire for preservation and flavour — along with pan design drawings and calibrated brine density floats, offering to commission a full salt evaporation works alongside the nearest water source, or to share the complete evaporation pan design and harvest sequence for independent salt production.</div>
+      <div class="saltworksmaster-actions">
+        <button class="btn--saltworksmaster-commission${canCommission ? '' : ' btn--disabled'}" data-action="saltworksmaster-commission" ${canCommission ? '' : 'disabled'}>
+          🧂 Commission Salt Evaporation Works — ${SaltWorksMaster.COMMISSION_FOOD_COST}🌾 + ${SaltWorksMaster.COMMISSION_GOLD_COST}💰
+          <span class="saltworksmaster-cost">→ +${SaltWorksMaster.COMMISSION_FOOD_RATE} food/s (2.5 min) · +${SaltWorksMaster.COMMISSION_PRESTIGE_REWARD} prestige · +${SaltWorksMaster.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--saltworksmaster-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="saltworksmaster-purchase" ${canPurchase ? '' : 'disabled'}>
+          📖 Purchase Salt Harvesting Lore — ${SaltWorksMaster.PURCHASE_STONE_COST}🪨
+          <span class="saltworksmaster-cost">→ +${SaltWorksMaster.PURCHASE_STONE_RATE} stone/s (2 min) · +${SaltWorksMaster.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--saltworksmaster-away" data-action="saltworksmaster-away">
+          🚶 Send Away
+          <span class="saltworksmaster-cost">→ Salt works master reseals the glazed amphorae and departs with a formal bow</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -8135,6 +8205,14 @@ const _HANDLERS = {
   'weighmaster-commission': () => WeighMaster.commissionImperialScales(),
   'weighmaster-purchase':   () => WeighMaster.purchaseStandardizedMeasures(),
   'weighmaster-away':       () => WeighMaster.sendWeighMasterAway(),
+
+  'flaxspinner-commission': () => FlaxSpinner.commissionLinenThreadWorks(),
+  'flaxspinner-purchase':   () => FlaxSpinner.purchaseSpinningTechniques(),
+  'flaxspinner-away':       () => FlaxSpinner.sendFlaxSpinnerAway(),
+
+  'saltworksmaster-commission': () => SaltWorksMaster.commissionSaltEvaporationWorks(),
+  'saltworksmaster-purchase':   () => SaltWorksMaster.purchaseSaltHarvestingLore(),
+  'saltworksmaster-away':       () => SaltWorksMaster.sendSaltWorksMasterAway(),
 };
 
 function _handleClick(e) {
@@ -8359,6 +8437,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_SILK_DYER_CHANGED,
     Events.WANDERING_PITCH_MAKER_CHANGED,
     Events.IMPERIAL_WEIGH_MASTER_CHANGED,
+    Events.WANDERING_FLAX_SPINNER_CHANGED,
+    Events.IMPERIAL_SALT_WORKS_MASTER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);
