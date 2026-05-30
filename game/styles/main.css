@@ -23499,3 +23499,75 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--saltworksmaster-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T455: Wandering Cloth Merchant ─────────────────────────────────────── */
+@keyframes clothmerchant-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.00); }
+  50%       { box-shadow: 0 0 8px 2px rgba(251, 191, 36, 0.18); }
+}
+.clothmerchant-section--active {
+  background: linear-gradient(135deg, rgba(30, 24, 8, 0.18), rgba(18, 14, 4, 0.10));
+  border: 1px solid rgba(251, 191, 36, 0.45); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: clothmerchant-pulse 2.8s ease-in-out infinite;
+}
+.clothmerchant-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.clothmerchant-title  { font-weight: 700; font-size: 0.88rem; color: #fbbf24; }
+.clothmerchant-timer  { font-size: 0.78rem; color: #fbbf24; }
+.clothmerchant-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.clothmerchant-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.clothmerchant-actions { display: flex; flex-direction: column; gap: 5px; }
+.clothmerchant-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--clothmerchant-purchase {
+  background: linear-gradient(135deg, rgba(30, 24, 8, 0.22), rgba(18, 14, 4, 0.14));
+  border: 1px solid rgba(251, 191, 36, 0.40); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fbbf24; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--clothmerchant-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(30, 24, 8, 0.32), rgba(18, 14, 4, 0.24)); }
+.btn--clothmerchant-trade {
+  background: linear-gradient(135deg, rgba(14, 24, 14, 0.18), rgba(8, 14, 8, 0.10));
+  border: 1px solid rgba(74, 222, 128, 0.35); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #4ade80; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--clothmerchant-trade:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(14, 24, 14, 0.28), rgba(8, 14, 8, 0.18)); }
+.btn--clothmerchant-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--clothmerchant-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T456: Imperial Copper Merchant ─────────────────────────────────────── */
+@keyframes coppermerchant-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(251, 146, 60, 0.00); }
+  50%       { box-shadow: 0 0 8px 2px rgba(251, 146, 60, 0.20); }
+}
+.coppermerchant-section--active {
+  background: linear-gradient(135deg, rgba(30, 18, 6, 0.18), rgba(18, 10, 4, 0.10));
+  border: 1px solid rgba(251, 146, 60, 0.45); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: coppermerchant-pulse 2.8s ease-in-out infinite;
+}
+.coppermerchant-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.coppermerchant-title  { font-weight: 700; font-size: 0.88rem; color: #fb923c; }
+.coppermerchant-timer  { font-size: 0.78rem; color: #fb923c; }
+.coppermerchant-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.coppermerchant-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.coppermerchant-actions { display: flex; flex-direction: column; gap: 5px; }
+.coppermerchant-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--coppermerchant-trade {
+  background: linear-gradient(135deg, rgba(30, 18, 6, 0.22), rgba(18, 10, 4, 0.14));
+  border: 1px solid rgba(251, 146, 60, 0.40); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fb923c; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--coppermerchant-trade:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(30, 18, 6, 0.32), rgba(18, 10, 4, 0.24)); }
+.btn--coppermerchant-purchase {
+  background: linear-gradient(135deg, rgba(22, 24, 30, 0.18), rgba(12, 14, 18, 0.10));
+  border: 1px solid rgba(148, 163, 184, 0.35); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #94a3b8; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--coppermerchant-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(22, 24, 30, 0.28), rgba(12, 14, 18, 0.18)); }
+.btn--coppermerchant-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--coppermerchant-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

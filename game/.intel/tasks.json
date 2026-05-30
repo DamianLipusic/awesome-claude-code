@@ -2058,6 +2058,26 @@
       "description": "Periodic imperial salt works master encounter: commission salt evaporation works (25 food + 20g -> +0.22 food/s 2.5min · +20 prestige · +12 morale), purchase salt harvesting lore (20 stone -> +0.18 stone/s 2min · +15 prestige), send away. Bronze Age+, 8+ tiles, 13-17 min.",
       "completed_date": "2026-05-30",
       "notes": "Built imperialSaltWorksMaster.js. IMPERIAL_SALT_WORKS_MASTER_CHANGED event added to events.js. state.imperialSaltWorksMaster null field. Salt works master section in questPanel.js (import * as SaltWorksMaster). Events.IMPERIAL_SALT_WORKS_MASTER_CHANGED subscribed. CSS: @keyframes saltworksmaster-pulse (cyan/aqua salt theme), .saltworksmaster-section--active, .btn--saltworksmaster-commission (cyan), .btn--saltworksmaster-purchase (violet), .btn--saltworksmaster-away (gray). Wired main.js: import, registerSystem, init x2, save/load. Session 135."
+    },
+    {
+      "id": "T455",
+      "title": "Wandering Cloth Merchant",
+      "status": "done",
+      "priority": 455,
+      "phase": 140,
+      "description": "Periodic wandering cloth merchant encounter: purchase fine cloth (20 food -> +0.22 food/s 2.5min · +18 prestige · +10 morale), trade for textile knowledge (18g -> +0.15 gold/s 2min · +12 prestige), send away. Stone Age+, 6+ tiles, 11-15 min.",
+      "completed_date": "2026-05-30",
+      "notes": "Built wanderingClothMerchant.js. WANDERING_CLOTH_MERCHANT_CHANGED event added to events.js. state.wanderingClothMerchant null field. Cloth merchant section in questPanel.js (import * as ClothMerchant). Events.WANDERING_CLOTH_MERCHANT_CHANGED subscribed. CSS: @keyframes clothmerchant-pulse (amber/yellow linen theme), .clothmerchant-section--active, .btn--clothmerchant-purchase (amber/gold), .btn--clothmerchant-trade (green), .btn--clothmerchant-away (gray). Wired main.js: import, registerSystem, init x2, save/load. Session 136."
+    },
+    {
+      "id": "T456",
+      "title": "Imperial Copper Merchant",
+      "status": "done",
+      "priority": 456,
+      "phase": 140,
+      "description": "Periodic imperial copper merchant encounter: arrange copper trade (25 iron + 20g -> +0.22 iron/s 2.5min · +22 prestige · +12 morale), purchase alloy secrets (20 stone -> +0.18 stone/s 2min · +15 prestige), send away. Bronze Age+, 8+ tiles, 13-17 min.",
+      "completed_date": "2026-05-30",
+      "notes": "Built imperialCopperMerchant.js. IMPERIAL_COPPER_MERCHANT_CHANGED event added to events.js. state.imperialCopperMerchant null field. Copper merchant section in questPanel.js (import * as CopperMerchant). Events.IMPERIAL_COPPER_MERCHANT_CHANGED subscribed. CSS: @keyframes coppermerchant-pulse (orange/copper theme), .coppermerchant-section--active, .btn--coppermerchant-trade (orange/copper), .btn--coppermerchant-purchase (slate/gray), .btn--coppermerchant-away (gray). Wired main.js: import, registerSystem, init x2, save/load. Session 136."
     }
   ],
   "session_history": [
@@ -2172,6 +2192,8 @@
     "Session 131 (T445-T446): Wandering Horn Carver (T445), Imperial Reed Merchant (T446)",
     "Session 132 (T447-T448): Wandering Bellows Maker (T447), Imperial Olive Grove Master (T448)",
     "Session 133 (T449-T450): Wandering Amber Carver (T449), Imperial Silk Dyer (T450)",
-    "Session 134 (T451-T452): Wandering Pitch Maker (T451), Imperial Weigh Master (T452)"
+    "Session 134 (T451-T452): Wandering Pitch Maker (T451), Imperial Weigh Master (T452)",
+    "Session 135 (T453-T454): Wandering Flax Spinner (T453), Imperial Salt Works Master (T454)",
+    "Session 136 (T455-T456): Wandering Cloth Merchant (T455), Imperial Copper Merchant (T456)"
   ]
 }

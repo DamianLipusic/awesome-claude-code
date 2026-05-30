@@ -396,4 +396,6 @@ export const Events = Object.freeze({
   IMPERIAL_WEIGH_MASTER_CHANGED:           'imperialWeighMasterChanged',                                        // T452: weigh master spawned / commissioned / purchased / dismissed / expired
   WANDERING_FLAX_SPINNER_CHANGED:          'wanderingFlaxSpinnerChanged',                                       // T453: flax spinner spawned / commissioned / purchased / dismissed / expired
   IMPERIAL_SALT_WORKS_MASTER_CHANGED:      'imperialSaltWorksMasterChanged',                                    // T454: salt works master spawned / commissioned / purchased / dismissed / expired
+  WANDERING_CLOTH_MERCHANT_CHANGED:        'wanderingClothMerchantChanged',                                     // T455: cloth merchant spawned / purchased / traded / dismissed / expired
+  IMPERIAL_COPPER_MERCHANT_CHANGED:        'imperialCopperMerchantChanged',                                     // T456: copper merchant spawned / traded / purchased / dismissed / expired
 });

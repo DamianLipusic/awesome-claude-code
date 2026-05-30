@@ -219,6 +219,8 @@ import * as PitchMaker       from '../systems/wanderingPitchMaker.js';          
 import * as WeighMaster      from '../systems/imperialWeighMaster.js';           // T452
 import * as FlaxSpinner      from '../systems/wanderingFlaxSpinner.js';          // T453
 import * as SaltWorksMaster  from '../systems/imperialSaltWorksMaster.js';       // T454
+import * as ClothMerchant    from '../systems/wanderingClothMerchant.js';        // T455
+import * as CopperMerchant   from '../systems/imperialCopperMerchant.js';        // T456
 
 let _panel = null;
 
@@ -466,6 +468,8 @@ function _encountersSection() {
     _imperialWeighMasterSection(),
     _wanderingFlaxSpinnerSection(),
     _imperialSaltWorksMasterSection(),
+    _wanderingClothMerchantSection(),
+    _imperialCopperMerchantSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -7386,6 +7390,71 @@ function _imperialSaltWorksMasterSection() {
     </div>`;
 }
 
+function _wanderingClothMerchantSection() {
+  if (!ClothMerchant.getActiveWanderingClothMerchant()) return '';
+  const secs         = ClothMerchant.getClothMerchantSecsLeft();
+  const urgent       = secs <= 20;
+  const food         = Math.floor(state.resources.food ?? 0);
+  const gold         = Math.floor(state.resources.gold ?? 0);
+  const canPurchase  = food >= ClothMerchant.PURCHASE_FOOD_COST;
+  const canTrade     = gold >= ClothMerchant.TRADE_GOLD_COST;
+  return `
+    <div class="clothmerchant-section--active">
+      <div class="clothmerchant-header">
+        <span class="clothmerchant-title">🧵 Wandering Cloth Merchant</span>
+        <span class="clothmerchant-timer${urgent ? ' clothmerchant-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="clothmerchant-desc">A wandering cloth merchant arrives with a handcart loaded with bolts of undyed and naturally-dyed linen, lengths of wool broadcloth, bleached thread, bone needles and iron pins, dye lot sample swatches showing mordant consistency, and scale weights — offering to sell a season's supply of fine cloth to the settlement's tailors and weavers, or to exchange regional price lists and weaving pattern tablets to improve local thread counts.</div>
+      <div class="clothmerchant-actions">
+        <button class="btn--clothmerchant-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="clothmerchant-purchase" ${canPurchase ? '' : 'disabled'}>
+          🧵 Purchase Fine Cloth — ${ClothMerchant.PURCHASE_FOOD_COST}🌾
+          <span class="clothmerchant-cost">→ +${ClothMerchant.PURCHASE_FOOD_RATE} food/s (2.5 min) · +${ClothMerchant.PURCHASE_PRESTIGE_REWARD} prestige · +${ClothMerchant.PURCHASE_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--clothmerchant-trade${canTrade ? '' : ' btn--disabled'}" data-action="clothmerchant-trade" ${canTrade ? '' : 'disabled'}>
+          📖 Trade for Textile Knowledge — ${ClothMerchant.TRADE_GOLD_COST}💰
+          <span class="clothmerchant-cost">→ +${ClothMerchant.TRADE_GOLD_RATE} gold/s (2 min) · +${ClothMerchant.TRADE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--clothmerchant-away" data-action="clothmerchant-away">
+          🚶 Send Away
+          <span class="clothmerchant-cost">→ Cloth merchant secures the bolts and continues along the road</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _imperialCopperMerchantSection() {
+  if (!CopperMerchant.getActiveImperialCopperMerchant()) return '';
+  const secs         = CopperMerchant.getCopperMerchantSecsLeft();
+  const urgent       = secs <= 20;
+  const iron         = Math.floor(state.resources.iron ?? 0);
+  const gold         = Math.floor(state.resources.gold ?? 0);
+  const stone        = Math.floor(state.resources.stone ?? 0);
+  const canTrade     = iron >= CopperMerchant.TRADE_IRON_COST && gold >= CopperMerchant.TRADE_GOLD_COST;
+  const canPurchase  = stone >= CopperMerchant.PURCHASE_STONE_COST;
+  return `
+    <div class="coppermerchant-section--active">
+      <div class="coppermerchant-header">
+        <span class="coppermerchant-title">🔶 Imperial Copper Merchant</span>
+        <span class="coppermerchant-timer${urgent ? ' coppermerchant-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="coppermerchant-desc">An imperial copper merchant arrives with a covered wagon carrying rectangular copper ingots, bundles of drawn copper wire in various gauges, alloy test bars showing different tin addition proportions, mint assay certificates attesting ingot purity, and casting crucibles — offering to arrange a regular copper trade agreement for the settlement's smiths and artisans, or to sell the full alloy composition specifications and smelting temperatures for the most useful bronze grades.</div>
+      <div class="coppermerchant-actions">
+        <button class="btn--coppermerchant-trade${canTrade ? '' : ' btn--disabled'}" data-action="coppermerchant-trade" ${canTrade ? '' : 'disabled'}>
+          🔶 Arrange Copper Trade — ${CopperMerchant.TRADE_IRON_COST}⚙️ + ${CopperMerchant.TRADE_GOLD_COST}💰
+          <span class="coppermerchant-cost">→ +${CopperMerchant.TRADE_IRON_RATE} iron/s (2.5 min) · +${CopperMerchant.TRADE_PRESTIGE_REWARD} prestige · +${CopperMerchant.TRADE_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--coppermerchant-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="coppermerchant-purchase" ${canPurchase ? '' : 'disabled'}>
+          📖 Purchase Alloy Secrets — ${CopperMerchant.PURCHASE_STONE_COST}🪨
+          <span class="coppermerchant-cost">→ +${CopperMerchant.PURCHASE_STONE_RATE} stone/s (2 min) · +${CopperMerchant.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--coppermerchant-away" data-action="coppermerchant-away">
+          🚶 Send Away
+          <span class="coppermerchant-cost">→ Copper merchant covers the ingot wagon and continues along the trade road</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -8213,6 +8282,14 @@ const _HANDLERS = {
   'saltworksmaster-commission': () => SaltWorksMaster.commissionSaltEvaporationWorks(),
   'saltworksmaster-purchase':   () => SaltWorksMaster.purchaseSaltHarvestingLore(),
   'saltworksmaster-away':       () => SaltWorksMaster.sendSaltWorksMasterAway(),
+
+  'clothmerchant-purchase': () => ClothMerchant.purchaseFineCloth(),
+  'clothmerchant-trade':    () => ClothMerchant.tradeForTextileKnowledge(),
+  'clothmerchant-away':     () => ClothMerchant.sendClothMerchantAway(),
+
+  'coppermerchant-trade':    () => CopperMerchant.arrangeCopperTrade(),
+  'coppermerchant-purchase': () => CopperMerchant.purchaseAlloySecrets(),
+  'coppermerchant-away':     () => CopperMerchant.sendCopperMerchantAway(),
 };
 
 function _handleClick(e) {
@@ -8439,6 +8516,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_WEIGH_MASTER_CHANGED,
     Events.WANDERING_FLAX_SPINNER_CHANGED,
     Events.IMPERIAL_SALT_WORKS_MASTER_CHANGED,
+    Events.WANDERING_CLOTH_MERCHANT_CHANGED,
+    Events.IMPERIAL_COPPER_MERCHANT_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

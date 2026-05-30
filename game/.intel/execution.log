@@ -1,3 +1,18 @@
+Session 136 — T455–T456: Wandering Cloth Merchant, Imperial Copper Merchant.
+Cloth Merchant: Stone Age+, 6+ tiles, 11-15 min spawn, 80s window. Purchase Fine Cloth (20 food → +0.22 food/s 2.5min · +18 prestige · +10 morale), Trade for Textile Knowledge (18g → +0.15 gold/s 2min · +12 prestige). Amber/yellow linen CSS (green trade button, clothmerchant- CSS prefix). Copper Merchant: Bronze Age+, 8+ tiles, 13-17 min spawn, 80s window. Arrange Copper Trade (25 iron + 20g → +0.22 iron/s 2.5min · +22 prestige · +12 morale), Purchase Alloy Secrets (20 stone → +0.18 stone/s 2min · +15 prestige). Orange/copper CSS (slate purchase button, coppermerchant- CSS prefix). Both fully wired into main.js (import, registerSystem, init x2, save/load) and questPanel.js (import, section render, handlers, ENCOUNTER_EVENTS). Events added to events.js.
+
+T455: Wandering Cloth Merchant — Stone Age+, 6+ tiles, 11–15 min, 80s window.
+Built wanderingClothMerchant.js: purchaseFineCloth (20 food → +0.22 food/s 2.5min +18 prestige +10 morale), tradeForTextileKnowledge (18g → +0.15 gold/s 2min +12 prestige), sendClothMerchantAway (dismiss). Added WANDERING_CLOTH_MERCHANT_CHANGED event to events.js. state.wanderingClothMerchant null field.
+Wired in main.js: import initWanderingClothMerchant+wanderingClothMerchantTick, registerSystem, initWanderingClothMerchant() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingClothMerchantSection() render + clothmerchant-purchase/clothmerchant-trade/clothmerchant-away handlers to questPanel.js (import * as ClothMerchant). Events.WANDERING_CLOTH_MERCHANT_CHANGED subscribed.
+CSS: @keyframes clothmerchant-pulse (amber/yellow linen theme), .clothmerchant-section--active, .btn--clothmerchant-purchase (amber/gold), .btn--clothmerchant-trade (green), .btn--clothmerchant-away (gray). Session 136.
+
+T456: Imperial Copper Merchant — Bronze Age+, 8+ tiles, 13–17 min, 80s window.
+Built imperialCopperMerchant.js: arrangeCopperTrade (25 iron + 20g → +0.22 iron/s 2.5min +22 prestige +12 morale), purchaseAlloySecrets (20 stone → +0.18 stone/s 2min +15 prestige), sendCopperMerchantAway (dismiss). Added IMPERIAL_COPPER_MERCHANT_CHANGED event to events.js. state.imperialCopperMerchant null field.
+Wired in main.js: import initImperialCopperMerchant+imperialCopperMerchantTick, registerSystem, initImperialCopperMerchant() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _imperialCopperMerchantSection() render + coppermerchant-trade/coppermerchant-purchase/coppermerchant-away handlers to questPanel.js (import * as CopperMerchant). Events.IMPERIAL_COPPER_MERCHANT_CHANGED subscribed.
+CSS: @keyframes coppermerchant-pulse (orange/copper theme), .coppermerchant-section--active, .btn--coppermerchant-trade (orange/copper), .btn--coppermerchant-purchase (slate/gray), .btn--coppermerchant-away (gray). Session 136.
+
 Session 134 — T451–T452: Wandering Pitch Maker, Imperial Weigh Master.
 Pitch Maker: Stone Age+, 6+ tiles, 12-16 min spawn, 80s window. Commission Pitch Works (20 wood + 15 food → +0.22 wood/s 2.5min · +15 prestige · +8 morale), Purchase Pitch-Making Lore (18g → +0.15 gold/s 2min · +10 prestige). Dark brown/tar pulse CSS (yellow/gold purchase button, pitchmaker- CSS prefix). Weigh Master: Medieval Age+, 10+ tiles, 15-19 min spawn, 80s window. Commission Imperial Scales (25 iron + 20g → +0.22 iron/s 2.5min · +22 prestige · +10 morale), Purchase Standardized Measures (20 mana → +0.18 mana/s 2min · +15 prestige). Brass/amber gold pulse CSS (violet purchase button, weighmaster- CSS prefix). Both fully wired into main.js (import, registerSystem, init x2, save/load) and questPanel.js (import, section render, handlers, ENCOUNTER_EVENTS). Events added to events.js.
 
