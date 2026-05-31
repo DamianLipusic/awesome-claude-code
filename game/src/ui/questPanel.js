@@ -227,6 +227,8 @@ import * as PigmentMerchant  from '../systems/wanderingPigmentMerchant.js';     
 import * as Millwright       from '../systems/imperialMillwright.js';            // T460
 import * as TallowChandler   from '../systems/wanderingTallowChandler.js';        // T461
 import * as RopeWalkMaster   from '../systems/imperialRopeWalkMaster.js';         // T462
+import * as CanoeBuilder     from '../systems/wanderingCanoeBuilder.js';           // T463
+import * as MarblePolisher   from '../systems/imperialMarblePolisher.js';          // T464
 
 let _panel = null;
 
@@ -482,6 +484,8 @@ function _encountersSection() {
     _imperialMillwrightSection(),
     _wanderingTallowChandlerSection(),
     _imperialRopeWalkMasterSection(),
+    _wanderingCanoeBuilderSection(),
+    _imperialMarblePolisherSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -7663,6 +7667,72 @@ function _imperialRopeWalkMasterSection() {
     </div>`;
 }
 
+function _wanderingCanoeBuilderSection() {
+  if (!CanoeBuilder.getActiveWanderingCanoeBuilder()) return '';
+  const secs         = CanoeBuilder.getCanoeBuilderSecsLeft();
+  const urgent       = secs <= 20;
+  const wood = state.resources.wood ?? 0;
+  const food = state.resources.food ?? 0;
+  const gold = state.resources.gold ?? 0;
+  const canCommission = wood >= CanoeBuilder.COMMISSION_WOOD_COST && food >= CanoeBuilder.COMMISSION_FOOD_COST;
+  const canPurchase   = gold >= CanoeBuilder.PURCHASE_GOLD_COST;
+  return `
+    <div class="canoebuilder-section--active">
+      <div class="canoebuilder-header">
+        <span class="canoebuilder-title">🛶 Wandering Canoe Builder</span>
+        <span class="canoebuilder-timer${urgent ? ' canoebuilder-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="canoebuilder-desc">A wandering canoe builder arrives carrying adzes, cedar-bark caulking, and a scale model of a flat-bottomed river cargo canoe — offering to commission a complete river fleet for cargo and fishing, or to teach the full craft for year-round boat production.</div>
+      <div class="canoebuilder-actions">
+        <button class="btn--canoebuilder-commission${canCommission ? '' : ' btn--disabled'}" data-action="canoebuilder-commission" ${canCommission ? '' : 'disabled'}>
+          🛶 Commission River Fleet — ${CanoeBuilder.COMMISSION_WOOD_COST}🪵 + ${CanoeBuilder.COMMISSION_FOOD_COST}🌾
+          <span class="canoebuilder-cost">→ +${CanoeBuilder.COMMISSION_WOOD_RATE} wood/s (2.5 min) · +${CanoeBuilder.COMMISSION_PRESTIGE_REWARD} prestige · +${CanoeBuilder.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--canoebuilder-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="canoebuilder-purchase" ${canPurchase ? '' : 'disabled'}>
+          📜 Purchase Boat Building Lore — ${CanoeBuilder.PURCHASE_GOLD_COST}💰
+          <span class="canoebuilder-cost">→ +${CanoeBuilder.PURCHASE_GOLD_RATE} gold/s (2 min) · +${CanoeBuilder.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--canoebuilder-away" data-action="canoebuilder-away">
+          🚶 Send Away
+          <span class="canoebuilder-cost">→ Canoe builder lashes the scale model to the pack-frame and departs</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _imperialMarblePolisherSection() {
+  if (!MarblePolisher.getActiveImperialMarblePolisher()) return '';
+  const secs         = MarblePolisher.getMarblePolisherSecsLeft();
+  const urgent       = secs <= 20;
+  const stone = state.resources.stone ?? 0;
+  const gold  = state.resources.gold  ?? 0;
+  const iron  = state.resources.iron  ?? 0;
+  const canCommission = stone >= MarblePolisher.COMMISSION_STONE_COST && gold >= MarblePolisher.COMMISSION_GOLD_COST;
+  const canExchange   = iron  >= MarblePolisher.EXCHANGE_IRON_COST;
+  return `
+    <div class="marblepolisher-section--active">
+      <div class="marblepolisher-header">
+        <span class="marblepolisher-title">🏛️ Imperial Marble Polisher</span>
+        <span class="marblepolisher-timer${urgent ? ' marblepolisher-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="marblepolisher-desc">An imperial marble polisher arrives with progressive abrasive tablets — from coarse sandstone through pumice and tin oxide to a final hematite burnish — offering to commission a polished marble works installation for imperial architecture, or to teach the full polishing methodology.</div>
+      <div class="marblepolisher-actions">
+        <button class="btn--marblepolisher-commission${canCommission ? '' : ' btn--disabled'}" data-action="marblepolisher-commission" ${canCommission ? '' : 'disabled'}>
+          🏛️ Commission Polished Marble Works — ${MarblePolisher.COMMISSION_STONE_COST}🪨 + ${MarblePolisher.COMMISSION_GOLD_COST}💰
+          <span class="marblepolisher-cost">→ +${MarblePolisher.COMMISSION_STONE_RATE} stone/s (2.5 min) · +${MarblePolisher.COMMISSION_PRESTIGE_REWARD} prestige · +${MarblePolisher.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--marblepolisher-exchange${canExchange ? '' : ' btn--disabled'}" data-action="marblepolisher-exchange" ${canExchange ? '' : 'disabled'}>
+          🪨 Exchange Polishing Methods — ${MarblePolisher.EXCHANGE_IRON_COST}⚙️
+          <span class="marblepolisher-cost">→ +${MarblePolisher.EXCHANGE_IRON_RATE} iron/s (2 min) · +${MarblePolisher.EXCHANGE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--marblepolisher-away" data-action="marblepolisher-away">
+          🚶 Send Away
+          <span class="marblepolisher-cost">→ Marble polisher wraps the abrasive tablets in oiled cloth and departs</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -8522,6 +8592,14 @@ const _HANDLERS = {
   'ropewalk-commission': () => RopeWalkMaster.commissionImperialRopeWalk(),
   'ropewalk-purchase':   () => RopeWalkMaster.purchaseRopeMakingLore(),
   'ropewalk-away':       () => RopeWalkMaster.sendRopeWalkMasterAway(),
+
+  'canoebuilder-commission': () => CanoeBuilder.commissionRiverFleet(),
+  'canoebuilder-purchase':   () => CanoeBuilder.purchaseBoatBuildingLore(),
+  'canoebuilder-away':       () => CanoeBuilder.sendCanoeBuilderAway(),
+
+  'marblepolisher-commission': () => MarblePolisher.commissionPolishedMarbleWorks(),
+  'marblepolisher-exchange':   () => MarblePolisher.exchangePolishingMethods(),
+  'marblepolisher-away':       () => MarblePolisher.sendMarblePolisherAway(),
 };
 
 function _handleClick(e) {
@@ -8756,6 +8834,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_MILLWRIGHT_CHANGED,
     Events.WANDERING_TALLOW_CHANDLER_CHANGED,
     Events.IMPERIAL_ROPE_WALK_MASTER_CHANGED,
+    Events.WANDERING_CANOE_BUILDER_CHANGED,
+    Events.IMPERIAL_MARBLE_POLISHER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

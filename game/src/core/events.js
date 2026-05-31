@@ -404,4 +404,6 @@ export const Events = Object.freeze({
   IMPERIAL_MILLWRIGHT_CHANGED:             'imperialMillwrightChanged',                                         // T460: millwright spawned / commissioned / purchased / dismissed / expired
   WANDERING_TALLOW_CHANDLER_CHANGED:       'wanderingTallowChandlerChanged',                                     // T461: tallow chandler spawned / commissioned / purchased / dismissed / expired
   IMPERIAL_ROPE_WALK_MASTER_CHANGED:       'imperialRopeWalkMasterChanged',                                      // T462: rope walk master spawned / commissioned / purchased / dismissed / expired
+  WANDERING_CANOE_BUILDER_CHANGED:         'wanderingCanoeBuilderChanged',                                       // T463: canoe builder spawned / commissioned / purchased / dismissed / expired
+  IMPERIAL_MARBLE_POLISHER_CHANGED:        'imperialMarblePolisherChanged',                                      // T464: marble polisher spawned / commissioned / exchanged / dismissed / expired
 });

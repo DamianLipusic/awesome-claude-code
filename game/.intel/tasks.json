@@ -2138,6 +2138,26 @@
       "description": "Periodic imperial rope walk master encounter: commission imperial rope walk (25 iron + 20g -> +0.22 iron/s 2.5min · +22 prestige · +12 morale), purchase rope-making lore (20 wood -> +0.18 wood/s 2min · +15 prestige), send away. Iron Age+, 10+ tiles, 14-18 min.",
       "completed_date": "2026-05-31",
       "notes": "Built imperialRopeWalkMaster.js. IMPERIAL_ROPE_WALK_MASTER_CHANGED event added to events.js. state.imperialRopeWalkMaster null field. Rope walk master section in questPanel.js (import * as RopeWalkMaster). Events.IMPERIAL_ROPE_WALK_MASTER_CHANGED subscribed. CSS: @keyframes ropewalk-pulse (slate/hemp brown rope walk theme), .ropewalk-section--active, .btn--ropewalk-commission (slate/gray), .btn--ropewalk-purchase (muted green), .btn--ropewalk-away (gray). Wired main.js: import, registerSystem, init x2, save/load. Session 139."
+    },
+    {
+      "id": "T463",
+      "title": "Wandering Canoe Builder",
+      "status": "done",
+      "priority": 463,
+      "phase": 144,
+      "description": "Periodic wandering canoe builder encounter: commission river fleet (20 wood + 15 food -> +0.22 wood/s 2.5min · +18 prestige · +10 morale), purchase boat building lore (18g -> +0.15 gold/s 2min · +12 prestige), send away. Bronze Age+, 8+ tiles, 12-16 min.",
+      "completed_date": "2026-05-31",
+      "notes": "Built wanderingCanoeBuilder.js. WANDERING_CANOE_BUILDER_CHANGED event added to events.js. state.wanderingCanoeBuilder null field. Canoe builder section in questPanel.js (import * as CanoeBuilder). Events.WANDERING_CANOE_BUILDER_CHANGED subscribed. CSS: @keyframes canoebuilder-pulse (sky blue/river theme), .canoebuilder-section--active, .btn--canoebuilder-commission (sky blue), .btn--canoebuilder-purchase (amber/gold), .btn--canoebuilder-away (gray). Wired main.js: import, registerSystem, init x2, save/load. Session 140."
+    },
+    {
+      "id": "T464",
+      "title": "Imperial Marble Polisher",
+      "status": "done",
+      "priority": 464,
+      "phase": 144,
+      "description": "Periodic imperial marble polisher encounter: commission polished marble works (25 stone + 20g -> +0.22 stone/s 2.5min · +22 prestige · +12 morale), exchange polishing methods (20 iron -> +0.18 iron/s 2min · +15 prestige), send away. Iron Age+, 10+ tiles, 13-17 min.",
+      "completed_date": "2026-05-31",
+      "notes": "Built imperialMarblePolisher.js. IMPERIAL_MARBLE_POLISHER_CHANGED event added to events.js. state.imperialMarblePolisher null field. Marble polisher section in questPanel.js (import * as MarblePolisher). Events.IMPERIAL_MARBLE_POLISHER_CHANGED subscribed. CSS: @keyframes marblepolisher-pulse (silver/marble gray theme), .marblepolisher-section--active, .btn--marblepolisher-commission (silver/slate), .btn--marblepolisher-exchange (amber/gold), .btn--marblepolisher-away (gray). Wired main.js: import, registerSystem, init x2, save/load. Session 140."
     }
   ],
   "session_history": [
@@ -2257,6 +2277,7 @@
     "Session 136 (T455-T456): Wandering Cloth Merchant (T455), Imperial Copper Merchant (T456)",
     "Session 137 (T457-T458): Wandering Pearl Diver (T457), Imperial Carpet Maker (T458)",
     "Session 138 (T459-T460): Wandering Pigment Merchant (T459), Imperial Millwright (T460)",
-    "Session 139 (T461-T462): Wandering Tallow Chandler (T461), Imperial Rope Walk Master (T462)"
+    "Session 139 (T461-T462): Wandering Tallow Chandler (T461), Imperial Rope Walk Master (T462)",
+    "Session 140 (T463-T464): Wandering Canoe Builder (T463), Imperial Marble Polisher (T464)"
   ]
 }

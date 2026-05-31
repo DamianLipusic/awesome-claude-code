@@ -404,6 +404,8 @@ import { initWanderingPigmentMerchant, wanderingPigmentMerchantTick } from './sy
 import { initImperialMillwright, imperialMillwrightTick }             from './systems/imperialMillwright.js';                // T460
 import { initWanderingTallowChandler, wanderingTallowChandlerTick }   from './systems/wanderingTallowChandler.js';            // T461
 import { initImperialRopeWalkMaster, imperialRopeWalkMasterTick }     from './systems/imperialRopeWalkMaster.js';              // T462
+import { initWanderingCanoeBuilder, wanderingCanoeBuilderTick }       from './systems/wanderingCanoeBuilder.js';               // T463
+import { initImperialMarblePolisher, imperialMarblePolisherTick }     from './systems/imperialMarblePolisher.js';              // T464
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -814,6 +816,8 @@ function _registerAllSystems() {
   registerSystem(imperialMillwrightTick);           // T460
   registerSystem(wanderingTallowChandlerTick);      // T461
   registerSystem(imperialRopeWalkMasterTick);       // T462
+  registerSystem(wanderingCanoeBuilderTick);        // T463
+  registerSystem(imperialMarblePolisherTick);       // T464
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -1209,6 +1213,8 @@ function _save() {
     imperialMillwright:           state.imperialMillwright,           // T460
     wanderingTallowChandler:      state.wanderingTallowChandler,      // T461
     imperialRopeWalkMaster:       state.imperialRopeWalkMaster,       // T462
+    wanderingCanoeBuilder:        state.wanderingCanoeBuilder,        // T463
+    imperialMarblePolisher:       state.imperialMarblePolisher,       // T464
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -1609,6 +1615,8 @@ function _applySave(s) {
   state.imperialMillwright             = s.imperialMillwright ?? null;               // T460
   state.wanderingTallowChandler        = s.wanderingTallowChandler ?? null;           // T461
   state.imperialRopeWalkMaster         = s.imperialRopeWalkMaster ?? null;            // T462
+  state.wanderingCanoeBuilder          = s.wanderingCanoeBuilder ?? null;             // T463
+  state.imperialMarblePolisher         = s.imperialMarblePolisher ?? null;            // T464
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -2015,6 +2023,8 @@ function _startFreshGame() {
   initImperialMillwright();           // T460
   initWanderingTallowChandler();      // T461
   initImperialRopeWalkMaster();       // T462
+  initWanderingCanoeBuilder();        // T463
+  initImperialMarblePolisher();       // T464
   initAchievements();
   initLeaderboard();
 }
@@ -2404,6 +2414,8 @@ function _startLoadedGame(savedData) {
   initImperialMillwright();           // T460
   initWanderingTallowChandler();      // T461
   initImperialRopeWalkMaster();       // T462
+  initWanderingCanoeBuilder();        // T463
+  initImperialMarblePolisher();       // T464
   initAchievements();
   initLeaderboard();
 }
