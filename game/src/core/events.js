@@ -402,4 +402,6 @@ export const Events = Object.freeze({
   IMPERIAL_CARPET_MAKER_CHANGED:           'imperialCarpetMakerChanged',                                        // T458: carpet maker spawned / commissioned / purchased / dismissed / expired
   WANDERING_PIGMENT_MERCHANT_CHANGED:      'wanderingPigmentMerchantChanged',                                   // T459: pigment merchant spawned / arranged / purchased / dismissed / expired
   IMPERIAL_MILLWRIGHT_CHANGED:             'imperialMillwrightChanged',                                         // T460: millwright spawned / commissioned / purchased / dismissed / expired
+  WANDERING_TALLOW_CHANDLER_CHANGED:       'wanderingTallowChandlerChanged',                                     // T461: tallow chandler spawned / commissioned / purchased / dismissed / expired
+  IMPERIAL_ROPE_WALK_MASTER_CHANGED:       'imperialRopeWalkMasterChanged',                                      // T462: rope walk master spawned / commissioned / purchased / dismissed / expired
 });

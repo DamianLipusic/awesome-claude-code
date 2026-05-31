@@ -225,6 +225,8 @@ import * as PearlDiver       from '../systems/wanderingPearlDiver.js';          
 import * as CarpetMaker      from '../systems/imperialCarpetMaker.js';           // T458
 import * as PigmentMerchant  from '../systems/wanderingPigmentMerchant.js';      // T459
 import * as Millwright       from '../systems/imperialMillwright.js';            // T460
+import * as TallowChandler   from '../systems/wanderingTallowChandler.js';        // T461
+import * as RopeWalkMaster   from '../systems/imperialRopeWalkMaster.js';         // T462
 
 let _panel = null;
 
@@ -478,6 +480,8 @@ function _encountersSection() {
     _imperialCarpetMakerSection(),
     _wanderingPigmentMerchantSection(),
     _imperialMillwrightSection(),
+    _wanderingTallowChandlerSection(),
+    _imperialRopeWalkMasterSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -7593,6 +7597,72 @@ function _imperialMillwrightSection() {
     </div>`;
 }
 
+function _wanderingTallowChandlerSection() {
+  if (!TallowChandler.getActiveWanderingTallowChandler()) return '';
+  const secs         = TallowChandler.getTallowChandlerSecsLeft();
+  const urgent       = secs <= 20;
+  const food = state.resources.food ?? 0;
+  const wood = state.resources.wood ?? 0;
+  const gold = state.resources.gold ?? 0;
+  const canCommission = food >= TallowChandler.COMMISSION_FOOD_COST && wood >= TallowChandler.COMMISSION_WOOD_COST;
+  const canPurchase   = gold >= TallowChandler.PURCHASE_GOLD_COST;
+  return `
+    <div class="tallowchandler-section--active">
+      <div class="tallowchandler-header">
+        <span class="tallowchandler-title">🕯️ Wandering Tallow Chandler</span>
+        <span class="tallowchandler-timer${urgent ? ' tallowchandler-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="tallowchandler-desc">A wandering tallow chandler arrives with bundles of rush-wicks and blocks of pale yellowish tallow — offering to commission a complete run of tallow candles for the settlement's halls and workshops, or to teach the full chandlery craft for year-round candle production.</div>
+      <div class="tallowchandler-actions">
+        <button class="btn--tallowchandler-commission${canCommission ? '' : ' btn--disabled'}" data-action="tallowchandler-commission" ${canCommission ? '' : 'disabled'}>
+          🕯️ Commission Tallow Candles — ${TallowChandler.COMMISSION_FOOD_COST}🌾 + ${TallowChandler.COMMISSION_WOOD_COST}🪵
+          <span class="tallowchandler-cost">→ +${TallowChandler.COMMISSION_FOOD_RATE} food/s (2.5 min) · +${TallowChandler.COMMISSION_PRESTIGE_REWARD} prestige · +${TallowChandler.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--tallowchandler-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="tallowchandler-purchase" ${canPurchase ? '' : 'disabled'}>
+          📜 Purchase Chandler's Formulas — ${TallowChandler.PURCHASE_GOLD_COST}💰
+          <span class="tallowchandler-cost">→ +${TallowChandler.PURCHASE_GOLD_RATE} gold/s (2 min) · +${TallowChandler.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--tallowchandler-away" data-action="tallowchandler-away">
+          🚶 Send Away
+          <span class="tallowchandler-cost">→ Chandler bundles up the dipping frames and departs</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _imperialRopeWalkMasterSection() {
+  if (!RopeWalkMaster.getActiveImperialRopeWalkMaster()) return '';
+  const secs           = RopeWalkMaster.getRopeWalkMasterSecsLeft();
+  const urgent         = secs <= 20;
+  const iron = state.resources.iron ?? 0;
+  const gold = state.resources.gold ?? 0;
+  const wood = state.resources.wood ?? 0;
+  const canCommission = iron >= RopeWalkMaster.COMMISSION_IRON_COST && gold >= RopeWalkMaster.COMMISSION_GOLD_COST;
+  const canPurchase   = wood >= RopeWalkMaster.PURCHASE_WOOD_COST;
+  return `
+    <div class="ropewalk-section--active">
+      <div class="ropewalk-header">
+        <span class="ropewalk-title">⚓ Imperial Rope Walk Master</span>
+        <span class="ropewalk-timer${urgent ? ' ropewalk-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="ropewalk-desc">An imperial rope walk master arrives carrying a sample coil of three-strand hawser and detailed specifications for establishing a full rope walk — offering to commission a complete rope walk installation with equipment and initial production run, or to sell the specification drawings and calculation tables.</div>
+      <div class="ropewalk-actions">
+        <button class="btn--ropewalk-commission${canCommission ? '' : ' btn--disabled'}" data-action="ropewalk-commission" ${canCommission ? '' : 'disabled'}>
+          ⚓ Commission Imperial Rope Walk — ${RopeWalkMaster.COMMISSION_IRON_COST}⚙️ + ${RopeWalkMaster.COMMISSION_GOLD_COST}💰
+          <span class="ropewalk-cost">→ +${RopeWalkMaster.COMMISSION_IRON_RATE} iron/s (2.5 min) · +${RopeWalkMaster.COMMISSION_PRESTIGE_REWARD} prestige · +${RopeWalkMaster.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--ropewalk-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="ropewalk-purchase" ${canPurchase ? '' : 'disabled'}>
+          📐 Purchase Rope-Making Lore — ${RopeWalkMaster.PURCHASE_WOOD_COST}🪵
+          <span class="ropewalk-cost">→ +${RopeWalkMaster.PURCHASE_WOOD_RATE} wood/s (2 min) · +${RopeWalkMaster.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--ropewalk-away" data-action="ropewalk-away">
+          🚶 Send Away
+          <span class="ropewalk-cost">→ Rope walk master coils up the sample hawser and departs</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -8444,6 +8514,14 @@ const _HANDLERS = {
   'millwright-commission': () => Millwright.commissionImperialGristMill(),
   'millwright-purchase':   () => Millwright.purchaseMillwrightDrawings(),
   'millwright-away':       () => Millwright.sendMillwrightAway(),
+
+  'tallowchandler-commission': () => TallowChandler.commissionTallowCandles(),
+  'tallowchandler-purchase':   () => TallowChandler.purchaseChandlerFormulas(),
+  'tallowchandler-away':       () => TallowChandler.sendTallowChandlerAway(),
+
+  'ropewalk-commission': () => RopeWalkMaster.commissionImperialRopeWalk(),
+  'ropewalk-purchase':   () => RopeWalkMaster.purchaseRopeMakingLore(),
+  'ropewalk-away':       () => RopeWalkMaster.sendRopeWalkMasterAway(),
 };
 
 function _handleClick(e) {
@@ -8676,6 +8754,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_CARPET_MAKER_CHANGED,
     Events.WANDERING_PIGMENT_MERCHANT_CHANGED,
     Events.IMPERIAL_MILLWRIGHT_CHANGED,
+    Events.WANDERING_TALLOW_CHANDLER_CHANGED,
+    Events.IMPERIAL_ROPE_WALK_MASTER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

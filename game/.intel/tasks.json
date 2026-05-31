@@ -2118,6 +2118,26 @@
       "description": "Periodic imperial millwright encounter: commission imperial grist mill (25 iron + 20g -> +0.22 iron/s 2.5min · +22 prestige · +12 morale), purchase millwright drawings (20 stone -> +0.18 stone/s 2min · +15 prestige), send away. Iron Age+, 12+ tiles, 14-18 min.",
       "completed_date": "2026-05-31",
       "notes": "Built imperialMillwright.js. IMPERIAL_MILLWRIGHT_CHANGED event added to events.js. state.imperialMillwright null field. Millwright section in questPanel.js (import * as Millwright). Events.IMPERIAL_MILLWRIGHT_CHANGED subscribed. CSS: @keyframes millwright-pulse (slate/stone gray mill engineering theme), .millwright-section--active, .btn--millwright-commission (slate/gray), .btn--millwright-purchase (amber/gold), .btn--millwright-away (gray). Wired main.js: import, registerSystem, init x2, save/load. Session 138."
+    },
+    {
+      "id": "T461",
+      "title": "Wandering Tallow Chandler",
+      "status": "done",
+      "priority": 461,
+      "phase": 143,
+      "description": "Periodic wandering tallow chandler encounter: commission tallow candles (20 food + 15 wood -> +0.22 food/s 2.5min · +15 prestige · +8 morale), purchase chandler's formulas (18 gold -> +0.15 gold/s 2min · +10 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
+      "completed_date": "2026-05-31",
+      "notes": "Built wanderingTallowChandler.js. WANDERING_TALLOW_CHANDLER_CHANGED event added to events.js. state.wanderingTallowChandler null field. Tallow chandler section in questPanel.js (import * as TallowChandler). Events.WANDERING_TALLOW_CHANDLER_CHANGED subscribed. CSS: @keyframes tallowchandler-pulse (warm amber/cream tallow candle glow), .tallowchandler-section--active, .btn--tallowchandler-commission (amber/yellow), .btn--tallowchandler-purchase (dark gold), .btn--tallowchandler-away (gray). Wired main.js: import, registerSystem, init x2, save/load. Session 139."
+    },
+    {
+      "id": "T462",
+      "title": "Imperial Rope Walk Master",
+      "status": "done",
+      "priority": 462,
+      "phase": 143,
+      "description": "Periodic imperial rope walk master encounter: commission imperial rope walk (25 iron + 20g -> +0.22 iron/s 2.5min · +22 prestige · +12 morale), purchase rope-making lore (20 wood -> +0.18 wood/s 2min · +15 prestige), send away. Iron Age+, 10+ tiles, 14-18 min.",
+      "completed_date": "2026-05-31",
+      "notes": "Built imperialRopeWalkMaster.js. IMPERIAL_ROPE_WALK_MASTER_CHANGED event added to events.js. state.imperialRopeWalkMaster null field. Rope walk master section in questPanel.js (import * as RopeWalkMaster). Events.IMPERIAL_ROPE_WALK_MASTER_CHANGED subscribed. CSS: @keyframes ropewalk-pulse (slate/hemp brown rope walk theme), .ropewalk-section--active, .btn--ropewalk-commission (slate/gray), .btn--ropewalk-purchase (muted green), .btn--ropewalk-away (gray). Wired main.js: import, registerSystem, init x2, save/load. Session 139."
     }
   ],
   "session_history": [
@@ -2236,6 +2256,7 @@
     "Session 135 (T453-T454): Wandering Flax Spinner (T453), Imperial Salt Works Master (T454)",
     "Session 136 (T455-T456): Wandering Cloth Merchant (T455), Imperial Copper Merchant (T456)",
     "Session 137 (T457-T458): Wandering Pearl Diver (T457), Imperial Carpet Maker (T458)",
-    "Session 138 (T459-T460): Wandering Pigment Merchant (T459), Imperial Millwright (T460)"
+    "Session 138 (T459-T460): Wandering Pigment Merchant (T459), Imperial Millwright (T460)",
+    "Session 139 (T461-T462): Wandering Tallow Chandler (T461), Imperial Rope Walk Master (T462)"
   ]
 }
