@@ -229,6 +229,8 @@ import * as TallowChandler   from '../systems/wanderingTallowChandler.js';      
 import * as RopeWalkMaster   from '../systems/imperialRopeWalkMaster.js';         // T462
 import * as CanoeBuilder     from '../systems/wanderingCanoeBuilder.js';           // T463
 import * as MarblePolisher   from '../systems/imperialMarblePolisher.js';          // T464
+import * as CharcoalBurner   from '../systems/wanderingCharcoalBurner.js';         // T465
+import * as CourierMaster    from '../systems/imperialCourierMaster.js';            // T466
 
 let _panel = null;
 
@@ -486,6 +488,8 @@ function _encountersSection() {
     _imperialRopeWalkMasterSection(),
     _wanderingCanoeBuilderSection(),
     _imperialMarblePolisherSection(),
+    _wanderingCharcoalBurnerSection(),
+    _imperialCourierMasterSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -7733,6 +7737,72 @@ function _imperialMarblePolisherSection() {
     </div>`;
 }
 
+function _wanderingCharcoalBurnerSection() {
+  if (!CharcoalBurner.getActiveWanderingCharcoalBurner()) return '';
+  const secs         = CharcoalBurner.getCharcoalBurnerSecsLeft();
+  const urgent       = secs <= 20;
+  const wood = state.resources.wood ?? 0;
+  const food = state.resources.food ?? 0;
+  const gold = state.resources.gold ?? 0;
+  const canCommission = wood >= CharcoalBurner.COMMISSION_WOOD_COST && food >= CharcoalBurner.COMMISSION_FOOD_COST;
+  const canPurchase   = gold >= CharcoalBurner.PURCHASE_GOLD_COST;
+  return `
+    <div class="charcoalburner-section--active">
+      <div class="charcoalburner-header">
+        <span class="charcoalburner-title">🪵 Wandering Charcoal Burner</span>
+        <span class="charcoalburner-timer${urgent ? ' charcoalburner-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="charcoalburner-desc">A wandering charcoal burner arrives carrying a covered iron pot of glowing hardwood coals and green timber poles — offering to commission a charcoal works using the slow-smouldering mound technique that yields dense, clean-burning charcoal ideal for smiths' forges and pottery kilns, or to teach the full burning craft.</div>
+      <div class="charcoalburner-actions">
+        <button class="btn--charcoalburner-commission${canCommission ? '' : ' btn--disabled'}" data-action="charcoalburner-commission" ${canCommission ? '' : 'disabled'}>
+          🪵 Commission Charcoal Works — ${CharcoalBurner.COMMISSION_WOOD_COST}🌲 + ${CharcoalBurner.COMMISSION_FOOD_COST}🌾
+          <span class="charcoalburner-cost">→ +${CharcoalBurner.COMMISSION_WOOD_RATE} wood/s (2.5 min) · +${CharcoalBurner.COMMISSION_PRESTIGE_REWARD} prestige · +${CharcoalBurner.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--charcoalburner-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="charcoalburner-purchase" ${canPurchase ? '' : 'disabled'}>
+          📜 Purchase Charcoal Burning Lore — ${CharcoalBurner.PURCHASE_GOLD_COST}💰
+          <span class="charcoalburner-cost">→ +${CharcoalBurner.PURCHASE_GOLD_RATE} gold/s (2 min) · +${CharcoalBurner.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--charcoalburner-away" data-action="charcoalburner-away">
+          🚶 Send Away
+          <span class="charcoalburner-cost">→ Charcoal burner smothers the iron pot and trudges away through the tree line</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _imperialCourierMasterSection() {
+  if (!CourierMaster.getActiveImperialCourierMaster()) return '';
+  const secs         = CourierMaster.getCourierMasterSecsLeft();
+  const urgent       = secs <= 20;
+  const mana  = state.resources.mana  ?? 0;
+  const gold  = state.resources.gold  ?? 0;
+  const stone = state.resources.stone ?? 0;
+  const canEstablish = mana >= CourierMaster.ESTABLISH_MANA_COST && gold >= CourierMaster.ESTABLISH_GOLD_COST;
+  const canPurchase  = stone >= CourierMaster.PURCHASE_STONE_COST;
+  return `
+    <div class="couriermaster-section--active">
+      <div class="couriermaster-header">
+        <span class="couriermaster-title">📯 Imperial Courier Master</span>
+        <span class="couriermaster-timer${urgent ? ' couriermaster-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="couriermaster-desc">An imperial courier master arrives bearing sealed route-ledgers and the official courier-route atlas — the seven great post roads converging on the capital in a wheel-spoke pattern — offering to establish a full relay network into the empire's postal system, or to sell official route charts for the settlement's own messengers.</div>
+      <div class="couriermaster-actions">
+        <button class="btn--couriermaster-establish${canEstablish ? '' : ' btn--disabled'}" data-action="couriermaster-establish" ${canEstablish ? '' : 'disabled'}>
+          📯 Establish Courier Network — ${CourierMaster.ESTABLISH_MANA_COST}✨ + ${CourierMaster.ESTABLISH_GOLD_COST}💰
+          <span class="couriermaster-cost">→ +${CourierMaster.ESTABLISH_MANA_RATE} mana/s (2.5 min) · +${CourierMaster.ESTABLISH_PRESTIGE_REWARD} prestige · +${CourierMaster.ESTABLISH_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--couriermaster-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="couriermaster-purchase" ${canPurchase ? '' : 'disabled'}>
+          📜 Purchase Route Charts — ${CourierMaster.PURCHASE_STONE_COST}🪨
+          <span class="couriermaster-cost">→ +${CourierMaster.PURCHASE_STONE_RATE} stone/s (2 min) · +${CourierMaster.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--couriermaster-away" data-action="couriermaster-away">
+          🚶 Send Away
+          <span class="couriermaster-cost">→ Courier master seals the satchel and sets off down the post road</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -8600,6 +8670,14 @@ const _HANDLERS = {
   'marblepolisher-commission': () => MarblePolisher.commissionPolishedMarbleWorks(),
   'marblepolisher-exchange':   () => MarblePolisher.exchangePolishingMethods(),
   'marblepolisher-away':       () => MarblePolisher.sendMarblePolisherAway(),
+
+  'charcoalburner-commission': () => CharcoalBurner.commissionCharcoalWorks(),
+  'charcoalburner-purchase':   () => CharcoalBurner.purchaseCharcoalBurningLore(),
+  'charcoalburner-away':       () => CharcoalBurner.sendCharcoalBurnerAway(),
+
+  'couriermaster-establish':   () => CourierMaster.establishCourierNetwork(),
+  'couriermaster-purchase':    () => CourierMaster.purchaseRouteCharts(),
+  'couriermaster-away':        () => CourierMaster.sendCourierMasterAway(),
 };
 
 function _handleClick(e) {
@@ -8836,6 +8914,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_ROPE_WALK_MASTER_CHANGED,
     Events.WANDERING_CANOE_BUILDER_CHANGED,
     Events.IMPERIAL_MARBLE_POLISHER_CHANGED,
+    Events.WANDERING_CHARCOAL_BURNER_CHANGED,
+    Events.IMPERIAL_COURIER_MASTER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);
