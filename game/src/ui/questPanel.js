@@ -223,6 +223,8 @@ import * as ClothMerchant    from '../systems/wanderingClothMerchant.js';       
 import * as CopperMerchant   from '../systems/imperialCopperMerchant.js';        // T456
 import * as PearlDiver       from '../systems/wanderingPearlDiver.js';           // T457
 import * as CarpetMaker      from '../systems/imperialCarpetMaker.js';           // T458
+import * as PigmentMerchant  from '../systems/wanderingPigmentMerchant.js';      // T459
+import * as Millwright       from '../systems/imperialMillwright.js';            // T460
 
 let _panel = null;
 
@@ -474,6 +476,8 @@ function _encountersSection() {
     _imperialCopperMerchantSection(),
     _wanderingPearlDiverSection(),
     _imperialCarpetMakerSection(),
+    _wanderingPigmentMerchantSection(),
+    _imperialMillwrightSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -7524,6 +7528,71 @@ function _imperialCarpetMakerSection() {
     </div>`;
 }
 
+function _wanderingPigmentMerchantSection() {
+  if (!PigmentMerchant.getActiveWanderingPigmentMerchant()) return '';
+  const secs        = PigmentMerchant.getPigmentMerchantSecsLeft();
+  const urgent      = secs <= 20;
+  const stone       = state.resources.stone ?? 0;
+  const gold        = state.resources.gold  ?? 0;
+  const canArrange  = stone >= PigmentMerchant.ARRANGE_STONE_COST && gold >= PigmentMerchant.ARRANGE_GOLD_COST;
+  const canPurchase = gold  >= PigmentMerchant.PURCHASE_GOLD_COST;
+  return `
+    <div class="pigmentmerchant-section--active">
+      <div class="pigmentmerchant-header">
+        <span class="pigmentmerchant-title">🎨 Wandering Pigment Merchant</span>
+        <span class="pigmentmerchant-timer${urgent ? ' pigmentmerchant-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="pigmentmerchant-desc">A wandering pigment merchant arrives with leather-strapped sample cases — divided wooden trays holding mineral pigments in raw form: ochres and siennas from pale yellow through burnt orange to deep reddish-brown, azurite and malachite ground to gradations of aquamarine and verdigris, galena for black, vermilion in a sealed compartment — offering to supply fired-clay pots of tinted lime wash pigments, or to sell a comprehensive mineral dye manual covering extraction, mordant preparation, and textile-fixing techniques.</div>
+      <div class="pigmentmerchant-actions">
+        <button class="btn--pigmentmerchant-arrange${canArrange ? '' : ' btn--disabled'}" data-action="pigmentmerchant-arrange" ${canArrange ? '' : 'disabled'}>
+          🎨 Arrange Pigment Supply — ${PigmentMerchant.ARRANGE_STONE_COST}🪨 + ${PigmentMerchant.ARRANGE_GOLD_COST}💰
+          <span class="pigmentmerchant-cost">→ +${PigmentMerchant.ARRANGE_STONE_RATE} stone/s (2.5 min) · +${PigmentMerchant.ARRANGE_PRESTIGE_REWARD} prestige · +${PigmentMerchant.ARRANGE_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--pigmentmerchant-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="pigmentmerchant-purchase" ${canPurchase ? '' : 'disabled'}>
+          📚 Purchase Dye Formulas — ${PigmentMerchant.PURCHASE_GOLD_COST}💰
+          <span class="pigmentmerchant-cost">→ +${PigmentMerchant.PURCHASE_GOLD_RATE} gold/s (2 min) · +${PigmentMerchant.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--pigmentmerchant-away" data-action="pigmentmerchant-away">
+          🚶 Send Away
+          <span class="pigmentmerchant-cost">→ Merchant repacks the mineral sample cases and departs</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _imperialMillwrightSection() {
+  if (!Millwright.getActiveImperialMillwright()) return '';
+  const secs          = Millwright.getMillwrightSecsLeft();
+  const urgent        = secs <= 20;
+  const iron          = state.resources.iron  ?? 0;
+  const gold          = state.resources.gold  ?? 0;
+  const stone         = state.resources.stone ?? 0;
+  const canCommission = iron >= Millwright.COMMISSION_IRON_COST && gold >= Millwright.COMMISSION_GOLD_COST;
+  const canPurchase   = stone >= Millwright.PURCHASE_STONE_COST;
+  return `
+    <div class="millwright-section--active">
+      <div class="millwright-header">
+        <span class="millwright-title">⚙️ Imperial Millwright</span>
+        <span class="millwright-timer${urgent ? ' millwright-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="millwright-desc">An imperial millwright arrives with a portfolio of large-format mill construction drawings — oiled-paper sheets showing plan views, cross-sections, and detail elevations of water-powered grist mills in horizontal, undershot, and overshot wheel configurations, each annotated with dimensional calculations matching shaft diameter, millstone weight, and stone-dressing pattern to required grain throughput — offering to construct a complete imperial grist mill, or to sell the full portfolio of drawings and calculation tables.</div>
+      <div class="millwright-actions">
+        <button class="btn--millwright-commission${canCommission ? '' : ' btn--disabled'}" data-action="millwright-commission" ${canCommission ? '' : 'disabled'}>
+          ⚙️ Commission Imperial Grist Mill — ${Millwright.COMMISSION_IRON_COST}⚙️ + ${Millwright.COMMISSION_GOLD_COST}💰
+          <span class="millwright-cost">→ +${Millwright.COMMISSION_IRON_RATE} iron/s (2.5 min) · +${Millwright.COMMISSION_PRESTIGE_REWARD} prestige · +${Millwright.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--millwright-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="millwright-purchase" ${canPurchase ? '' : 'disabled'}>
+          📐 Purchase Millwright's Drawings — ${Millwright.PURCHASE_STONE_COST}🪨
+          <span class="millwright-cost">→ +${Millwright.PURCHASE_STONE_RATE} stone/s (2 min) · +${Millwright.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--millwright-away" data-action="millwright-away">
+          🚶 Send Away
+          <span class="millwright-cost">→ Millwright rolls up the construction drawings and departs</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -8367,6 +8436,14 @@ const _HANDLERS = {
   'carpetmaker-commission': () => CarpetMaker.commissionImperialCarpets(),
   'carpetmaker-purchase':   () => CarpetMaker.purchaseKnottingTechniques(),
   'carpetmaker-away':       () => CarpetMaker.sendCarpetMakerAway(),
+
+  'pigmentmerchant-arrange':  () => PigmentMerchant.arrangePigmentSupply(),
+  'pigmentmerchant-purchase': () => PigmentMerchant.purchaseDyeFormulas(),
+  'pigmentmerchant-away':     () => PigmentMerchant.sendPigmentMerchantAway(),
+
+  'millwright-commission': () => Millwright.commissionImperialGristMill(),
+  'millwright-purchase':   () => Millwright.purchaseMillwrightDrawings(),
+  'millwright-away':       () => Millwright.sendMillwrightAway(),
 };
 
 function _handleClick(e) {
@@ -8597,6 +8674,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_COPPER_MERCHANT_CHANGED,
     Events.WANDERING_PEARL_DIVER_CHANGED,
     Events.IMPERIAL_CARPET_MAKER_CHANGED,
+    Events.WANDERING_PIGMENT_MERCHANT_CHANGED,
+    Events.IMPERIAL_MILLWRIGHT_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

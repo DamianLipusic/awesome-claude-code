@@ -23643,3 +23643,75 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--carpetmaker-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T459 Wandering Pigment Merchant ────────────────────────────────────── */
+@keyframes pigmentmerchant-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(217, 119, 6, 0.0); }
+  50%       { box-shadow: 0 0 8px 2px rgba(217, 119, 6, 0.30); }
+}
+.pigmentmerchant-section--active {
+  background: linear-gradient(135deg, rgba(32, 20, 6, 0.55), rgba(20, 12, 4, 0.40));
+  border: 1px solid rgba(217, 119, 6, 0.30); border-radius: 8px; padding: 10px;
+  margin-bottom: 10px; animation: pigmentmerchant-pulse 2.8s ease-in-out infinite;
+}
+.pigmentmerchant-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.pigmentmerchant-title  { font-weight: 700; font-size: 0.88rem; color: #d97706; }
+.pigmentmerchant-timer  { font-size: 0.78rem; color: #d97706; }
+.pigmentmerchant-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.pigmentmerchant-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.pigmentmerchant-actions { display: flex; flex-direction: column; gap: 5px; }
+.pigmentmerchant-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--pigmentmerchant-arrange {
+  background: linear-gradient(135deg, rgba(28, 16, 4, 0.30), rgba(18, 10, 2, 0.20));
+  border: 1px solid rgba(217, 119, 6, 0.38); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #d97706; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--pigmentmerchant-arrange:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(36, 22, 6, 0.38), rgba(24, 14, 4, 0.26)); }
+.btn--pigmentmerchant-purchase {
+  background: linear-gradient(135deg, rgba(20, 16, 6, 0.26), rgba(12, 10, 4, 0.16));
+  border: 1px solid rgba(251, 191, 36, 0.32); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fbbf24; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--pigmentmerchant-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(28, 22, 8, 0.32), rgba(18, 14, 4, 0.22)); }
+.btn--pigmentmerchant-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--pigmentmerchant-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T460 Imperial Millwright ────────────────────────────────────────────── */
+@keyframes millwright-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(148, 163, 184, 0.0); }
+  50%       { box-shadow: 0 0 8px 2px rgba(148, 163, 184, 0.28); }
+}
+.millwright-section--active {
+  background: linear-gradient(135deg, rgba(20, 22, 28, 0.55), rgba(12, 14, 18, 0.40));
+  border: 1px solid rgba(148, 163, 184, 0.28); border-radius: 8px; padding: 10px;
+  margin-bottom: 10px; animation: millwright-pulse 2.8s ease-in-out infinite;
+}
+.millwright-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.millwright-title  { font-weight: 700; font-size: 0.88rem; color: #94a3b8; }
+.millwright-timer  { font-size: 0.78rem; color: #94a3b8; }
+.millwright-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.millwright-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.millwright-actions { display: flex; flex-direction: column; gap: 5px; }
+.millwright-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--millwright-commission {
+  background: linear-gradient(135deg, rgba(16, 18, 24, 0.30), rgba(10, 12, 16, 0.20));
+  border: 1px solid rgba(148, 163, 184, 0.35); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #94a3b8; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--millwright-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(22, 24, 30, 0.36), rgba(14, 16, 20, 0.26)); }
+.btn--millwright-purchase {
+  background: linear-gradient(135deg, rgba(20, 16, 8, 0.26), rgba(14, 10, 4, 0.16));
+  border: 1px solid rgba(251, 191, 36, 0.32); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fbbf24; text-align: left; padding: 6px 10px; transition: background 0.15s;
+}
+.btn--millwright-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(28, 22, 10, 0.32), rgba(18, 14, 6, 0.22)); }
+.btn--millwright-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--millwright-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

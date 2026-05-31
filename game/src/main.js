@@ -400,6 +400,8 @@ import { initWanderingClothMerchant, wanderingClothMerchantTick }     from './sy
 import { initImperialCopperMerchant, imperialCopperMerchantTick }     from './systems/imperialCopperMerchant.js';            // T456
 import { initWanderingPearlDiver, wanderingPearlDiverTick }           from './systems/wanderingPearlDiver.js';               // T457
 import { initImperialCarpetMaker, imperialCarpetMakerTick }           from './systems/imperialCarpetMaker.js';               // T458
+import { initWanderingPigmentMerchant, wanderingPigmentMerchantTick } from './systems/wanderingPigmentMerchant.js';          // T459
+import { initImperialMillwright, imperialMillwrightTick }             from './systems/imperialMillwright.js';                // T460
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -806,6 +808,8 @@ function _registerAllSystems() {
   registerSystem(imperialCopperMerchantTick);       // T456
   registerSystem(wanderingPearlDiverTick);          // T457
   registerSystem(imperialCarpetMakerTick);          // T458
+  registerSystem(wanderingPigmentMerchantTick);     // T459
+  registerSystem(imperialMillwrightTick);           // T460
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -1197,6 +1201,8 @@ function _save() {
     imperialCopperMerchant:       state.imperialCopperMerchant,       // T456
     wanderingPearlDiver:          state.wanderingPearlDiver,          // T457
     imperialCarpetMaker:          state.imperialCarpetMaker,          // T458
+    wanderingPigmentMerchant:     state.wanderingPigmentMerchant,     // T459
+    imperialMillwright:           state.imperialMillwright,           // T460
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -1593,6 +1599,8 @@ function _applySave(s) {
   state.imperialCopperMerchant         = s.imperialCopperMerchant ?? null;           // T456
   state.wanderingPearlDiver            = s.wanderingPearlDiver ?? null;              // T457
   state.imperialCarpetMaker            = s.imperialCarpetMaker ?? null;              // T458
+  state.wanderingPigmentMerchant       = s.wanderingPigmentMerchant ?? null;         // T459
+  state.imperialMillwright             = s.imperialMillwright ?? null;               // T460
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -1995,6 +2003,8 @@ function _startFreshGame() {
   initImperialCopperMerchant();       // T456
   initWanderingPearlDiver();          // T457
   initImperialCarpetMaker();          // T458
+  initWanderingPigmentMerchant();     // T459
+  initImperialMillwright();           // T460
   initAchievements();
   initLeaderboard();
 }
@@ -2380,6 +2390,8 @@ function _startLoadedGame(savedData) {
   initImperialCopperMerchant();       // T456
   initWanderingPearlDiver();          // T457
   initImperialCarpetMaker();          // T458
+  initWanderingPigmentMerchant();     // T459
+  initImperialMillwright();           // T460
   initAchievements();
   initLeaderboard();
 }

@@ -2098,6 +2098,26 @@
       "description": "Periodic imperial carpet maker encounter: commission imperial carpets (25 mana + 20g -> +0.22 mana/s 2.5min · +22 prestige · +12 morale), purchase knotting techniques (20 food -> +0.18 food/s 2min · +15 prestige), send away. Medieval Age+, 10+ tiles, 15-20 min.",
       "completed_date": "2026-05-30",
       "notes": "Built imperialCarpetMaker.js. IMPERIAL_CARPET_MAKER_CHANGED event added to events.js. state.imperialCarpetMaker null field. Carpet maker section in questPanel.js (import * as CarpetMaker). Events.IMPERIAL_CARPET_MAKER_CHANGED subscribed. CSS: @keyframes carpetmaker-pulse (deep burgundy/violet rich carpet theme), .carpetmaker-section--active, .btn--carpetmaker-commission (violet/purple), .btn--carpetmaker-purchase (emerald green), .btn--carpetmaker-away (gray). Wired main.js: import, registerSystem, init x2, save/load. Session 137."
+    },
+    {
+      "id": "T459",
+      "title": "Wandering Pigment Merchant",
+      "status": "done",
+      "priority": 459,
+      "phase": 142,
+      "description": "Periodic wandering pigment merchant encounter: arrange pigment supply (20 stone + 15g -> +0.22 stone/s 2.5min · +18 prestige · +10 morale), purchase dye formulas (18g -> +0.15 gold/s 2min · +12 prestige), send away. Bronze Age+, 8+ tiles, 12-16 min.",
+      "completed_date": "2026-05-31",
+      "notes": "Built wanderingPigmentMerchant.js. WANDERING_PIGMENT_MERCHANT_CHANGED event added to events.js. state.wanderingPigmentMerchant null field. Pigment merchant section in questPanel.js (import * as PigmentMerchant). Events.WANDERING_PIGMENT_MERCHANT_CHANGED subscribed. CSS: @keyframes pigmentmerchant-pulse (ochre/amber mineral pigment theme), .pigmentmerchant-section--active, .btn--pigmentmerchant-arrange (amber/ochre), .btn--pigmentmerchant-purchase (gold), .btn--pigmentmerchant-away (gray). Wired main.js: import, registerSystem, init x2, save/load. Session 138."
+    },
+    {
+      "id": "T460",
+      "title": "Imperial Millwright",
+      "status": "done",
+      "priority": 460,
+      "phase": 142,
+      "description": "Periodic imperial millwright encounter: commission imperial grist mill (25 iron + 20g -> +0.22 iron/s 2.5min · +22 prestige · +12 morale), purchase millwright drawings (20 stone -> +0.18 stone/s 2min · +15 prestige), send away. Iron Age+, 12+ tiles, 14-18 min.",
+      "completed_date": "2026-05-31",
+      "notes": "Built imperialMillwright.js. IMPERIAL_MILLWRIGHT_CHANGED event added to events.js. state.imperialMillwright null field. Millwright section in questPanel.js (import * as Millwright). Events.IMPERIAL_MILLWRIGHT_CHANGED subscribed. CSS: @keyframes millwright-pulse (slate/stone gray mill engineering theme), .millwright-section--active, .btn--millwright-commission (slate/gray), .btn--millwright-purchase (amber/gold), .btn--millwright-away (gray). Wired main.js: import, registerSystem, init x2, save/load. Session 138."
     }
   ],
   "session_history": [
@@ -2215,6 +2235,7 @@
     "Session 134 (T451-T452): Wandering Pitch Maker (T451), Imperial Weigh Master (T452)",
     "Session 135 (T453-T454): Wandering Flax Spinner (T453), Imperial Salt Works Master (T454)",
     "Session 136 (T455-T456): Wandering Cloth Merchant (T455), Imperial Copper Merchant (T456)",
-    "Session 137 (T457-T458): Wandering Pearl Diver (T457), Imperial Carpet Maker (T458)"
+    "Session 137 (T457-T458): Wandering Pearl Diver (T457), Imperial Carpet Maker (T458)",
+    "Session 138 (T459-T460): Wandering Pigment Merchant (T459), Imperial Millwright (T460)"
   ]
 }
