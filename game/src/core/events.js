@@ -408,4 +408,6 @@ export const Events = Object.freeze({
   IMPERIAL_MARBLE_POLISHER_CHANGED:        'imperialMarblePolisherChanged',                                      // T464: marble polisher spawned / commissioned / exchanged / dismissed / expired
   WANDERING_CHARCOAL_BURNER_CHANGED:       'wanderingCharcoalBurnerChanged',                                     // T465: charcoal burner spawned / commissioned / purchased / dismissed / expired
   IMPERIAL_COURIER_MASTER_CHANGED:         'imperialCourierMasterChanged',                                       // T466: courier master spawned / established / purchased / dismissed / expired
+  WANDERING_LACE_MAKER_CHANGED:           'wanderingLaceMakerChanged',                                          // T467: lace maker spawned / commissioned / purchased / dismissed / expired
+  IMPERIAL_GLASSWORKS_MASTER_CHANGED:     'imperialGlassworksMasterChanged',                                    // T468: glassworks master spawned / commissioned / purchased / dismissed / expired
 });

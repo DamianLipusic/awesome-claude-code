@@ -231,6 +231,8 @@ import * as CanoeBuilder     from '../systems/wanderingCanoeBuilder.js';        
 import * as MarblePolisher   from '../systems/imperialMarblePolisher.js';          // T464
 import * as CharcoalBurner   from '../systems/wanderingCharcoalBurner.js';         // T465
 import * as CourierMaster    from '../systems/imperialCourierMaster.js';            // T466
+import * as LaceMaker        from '../systems/wanderingLaceMaker.js';              // T467
+import * as GlassworksMaster from '../systems/imperialGlassworksMaster.js';        // T468
 
 let _panel = null;
 
@@ -490,6 +492,8 @@ function _encountersSection() {
     _imperialMarblePolisherSection(),
     _wanderingCharcoalBurnerSection(),
     _imperialCourierMasterSection(),
+    _wanderingLaceMakerSection(),
+    _imperialGlassworksMasterSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -7803,6 +7807,72 @@ function _imperialCourierMasterSection() {
     </div>`;
 }
 
+function _wanderingLaceMakerSection() {
+  if (!LaceMaker.getActiveWanderingLaceMaker()) return '';
+  const secs         = LaceMaker.getLaceMakerSecsLeft();
+  const urgent       = secs <= 20;
+  const food         = state.resources.food  ?? 0;
+  const wood         = state.resources.wood  ?? 0;
+  const gold         = state.resources.gold  ?? 0;
+  const canCommission = food >= LaceMaker.COMMISSION_FOOD_COST && wood >= LaceMaker.COMMISSION_WOOD_COST;
+  const canPurchase   = gold >= LaceMaker.PURCHASE_GOLD_COST;
+  return `
+    <div class="lacemaker-section--active">
+      <div class="lacemaker-header">
+        <span class="lacemaker-title">🪢 Wandering Lace Maker</span>
+        <span class="lacemaker-timer${urgent ? ' lacemaker-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="lacemaker-desc">A wandering lace maker arrives carrying bobbins, a brass lace-pillow frame, and finished lacework — delicate knotted linen from simple diamond lattices to elaborate floral medallions. She offers to commission royal lacework panels for the ceremonial halls, or to sell pattern drafts so local weavers can begin production independently.</div>
+      <div class="lacemaker-actions">
+        <button class="btn--lacemaker-commission${canCommission ? '' : ' btn--disabled'}" data-action="lacemaker-commission" ${canCommission ? '' : 'disabled'}>
+          🪢 Commission Royal Lacework — ${LaceMaker.COMMISSION_FOOD_COST}🌾 + ${LaceMaker.COMMISSION_WOOD_COST}🪵
+          <span class="lacemaker-cost">→ +${LaceMaker.COMMISSION_FOOD_RATE} food/s (2.5 min) · +${LaceMaker.COMMISSION_PRESTIGE_REWARD} prestige · +${LaceMaker.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--lacemaker-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="lacemaker-purchase" ${canPurchase ? '' : 'disabled'}>
+          📜 Purchase Lace-Making Patterns — ${LaceMaker.PURCHASE_GOLD_COST}💰
+          <span class="lacemaker-cost">→ +${LaceMaker.PURCHASE_GOLD_RATE} gold/s (2 min) · +${LaceMaker.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--lacemaker-away" data-action="lacemaker-away">
+          🚶 Send Away
+          <span class="lacemaker-cost">→ Lace maker rolls up the bobbins and sets off down the road</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _imperialGlassworksMasterSection() {
+  if (!GlassworksMaster.getActiveImperialGlassworksMaster()) return '';
+  const secs         = GlassworksMaster.getGlassworksMasterSecsLeft();
+  const urgent       = secs <= 20;
+  const stone        = state.resources.stone ?? 0;
+  const gold         = state.resources.gold  ?? 0;
+  const mana         = state.resources.mana  ?? 0;
+  const canCommission = stone >= GlassworksMaster.COMMISSION_STONE_COST && gold >= GlassworksMaster.COMMISSION_GOLD_COST;
+  const canPurchase   = mana  >= GlassworksMaster.PURCHASE_MANA_COST;
+  return `
+    <div class="glassworksmstr-section--active">
+      <div class="glassworksmstr-header">
+        <span class="glassworksmstr-title">🏛️ Imperial Glassworks Master</span>
+        <span class="glassworksmstr-timer${urgent ? ' glassworksmstr-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="glassworksmstr-desc">An imperial glassworks master arrives bearing coloured glass samples — amber, cobalt, and clear crystal — and architectural drawings for a grand glass dome above the settlement's central hall, its lead-came panels flooding the interior with coloured light at midday. Offers to commission the dome installation, or to sell proprietary glass-casting formulas.</div>
+      <div class="glassworksmstr-actions">
+        <button class="btn--glassworksmstr-commission${canCommission ? '' : ' btn--disabled'}" data-action="glassworksmstr-commission" ${canCommission ? '' : 'disabled'}>
+          🏛️ Commission Imperial Glass Dome — ${GlassworksMaster.COMMISSION_STONE_COST}🪨 + ${GlassworksMaster.COMMISSION_GOLD_COST}💰
+          <span class="glassworksmstr-cost">→ +${GlassworksMaster.COMMISSION_STONE_RATE} stone/s (2.5 min) · +${GlassworksMaster.COMMISSION_PRESTIGE_REWARD} prestige · +${GlassworksMaster.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--glassworksmstr-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="glassworksmstr-purchase" ${canPurchase ? '' : 'disabled'}>
+          📜 Purchase Glass-Casting Formulas — ${GlassworksMaster.PURCHASE_MANA_COST}✨
+          <span class="glassworksmstr-cost">→ +${GlassworksMaster.PURCHASE_MANA_RATE} mana/s (2 min) · +${GlassworksMaster.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--glassworksmstr-away" data-action="glassworksmstr-away">
+          🚶 Send Away
+          <span class="glassworksmstr-cost">→ Glassworks master wraps the samples and departs to seek a patron elsewhere</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -8678,6 +8748,12 @@ const _HANDLERS = {
   'couriermaster-establish':   () => CourierMaster.establishCourierNetwork(),
   'couriermaster-purchase':    () => CourierMaster.purchaseRouteCharts(),
   'couriermaster-away':        () => CourierMaster.sendCourierMasterAway(),
+  'lacemaker-commission':      () => LaceMaker.commissionRoyalLacework(),
+  'lacemaker-purchase':        () => LaceMaker.purchaseLaceMakingPatterns(),
+  'lacemaker-away':            () => LaceMaker.sendLaceMakerAway(),
+  'glassworksmstr-commission': () => GlassworksMaster.commissionImperialGlassDome(),
+  'glassworksmstr-purchase':   () => GlassworksMaster.purchaseGlassCastingFormulas(),
+  'glassworksmstr-away':       () => GlassworksMaster.sendGlassworksMasterAway(),
 };
 
 function _handleClick(e) {
@@ -8916,6 +8992,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_MARBLE_POLISHER_CHANGED,
     Events.WANDERING_CHARCOAL_BURNER_CHANGED,
     Events.IMPERIAL_COURIER_MASTER_CHANGED,
+    Events.WANDERING_LACE_MAKER_CHANGED,
+    Events.IMPERIAL_GLASSWORKS_MASTER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

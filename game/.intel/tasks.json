@@ -2178,6 +2178,26 @@
       "description": "Periodic imperial courier master encounter: establish courier network (25 mana + 20g -> +0.22 mana/s 2.5min \u00b7 +22 prestige \u00b7 +12 morale), purchase route charts (20 stone -> +0.18 stone/s 2min \u00b7 +15 prestige), send away. Medieval Age+, 10+ tiles, 15-19 min.",
       "completed_date": "2026-05-31",
       "notes": "Built imperialCourierMaster.js. IMPERIAL_COURIER_MASTER_CHANGED event added to events.js. state.imperialCourierMaster null field. Courier master section in questPanel.js (import * as CourierMaster). Events.IMPERIAL_COURIER_MASTER_CHANGED subscribed. CSS: @keyframes couriermaster-pulse (royal blue/indigo theme), .couriermaster-section--active, .btn--couriermaster-establish (royal blue/indigo), .btn--couriermaster-purchase (slate/gray), .btn--couriermaster-away (gray). Wired main.js: import, registerSystem, init x2, save/load. Session 141."
+    },
+    {
+      "id": "T467",
+      "title": "Wandering Lace Maker",
+      "status": "done",
+      "priority": 467,
+      "phase": 146,
+      "description": "Periodic wandering lace maker encounter: commission royal lacework (20 food + 15 wood → +0.22 food/s 2.5min · +18 prestige · +10 morale), purchase lace-making patterns (18g → +0.15 gold/s 2min · +12 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
+      "completed_date": "2026-05-31",
+      "notes": "Built wanderingLaceMaker.js. WANDERING_LACE_MAKER_CHANGED event added to events.js. state.wanderingLaceMaker null field. Lace maker section in questPanel.js (import * as LaceMaker). Events.WANDERING_LACE_MAKER_CHANGED subscribed. CSS: @keyframes lacemaker-pulse (warm cream/lavender lace theme), .lacemaker-section--active, .btn--lacemaker-commission (rose/pink), .btn--lacemaker-purchase (amber/gold), .btn--lacemaker-away (gray). Wired main.js: import, registerSystem, init x2, save/load. Session 142."
+    },
+    {
+      "id": "T468",
+      "title": "Imperial Glassworks Master",
+      "status": "done",
+      "priority": 468,
+      "phase": 146,
+      "description": "Periodic imperial glassworks master encounter: commission imperial glass dome (25 stone + 20g → +0.22 stone/s 2.5min · +22 prestige · +12 morale), purchase glass-casting formulas (20 mana → +0.18 mana/s 2min · +15 prestige), send away. Medieval Age+, 10+ tiles, 15-19 min.",
+      "completed_date": "2026-05-31",
+      "notes": "Built imperialGlassworksMaster.js. IMPERIAL_GLASSWORKS_MASTER_CHANGED event added to events.js. state.imperialGlassworksMaster null field. Glassworks master section in questPanel.js (import * as GlassworksMaster). Events.IMPERIAL_GLASSWORKS_MASTER_CHANGED subscribed. CSS: @keyframes glassworksmstr-pulse (cyan/teal crystal glass theme), .glassworksmstr-section--active, .btn--glassworksmstr-commission (cyan/teal), .btn--glassworksmstr-purchase (violet/purple), .btn--glassworksmstr-away (gray). Wired main.js: import, registerSystem, init x2, save/load. Session 142."
     }
   ],
   "session_history": [
@@ -2299,6 +2319,7 @@
     "Session 138 (T459-T460): Wandering Pigment Merchant (T459), Imperial Millwright (T460)",
     "Session 139 (T461-T462): Wandering Tallow Chandler (T461), Imperial Rope Walk Master (T462)",
     "Session 140 (T463-T464): Wandering Canoe Builder (T463), Imperial Marble Polisher (T464)",
-    "Session 141 (T465-T466): Wandering Charcoal Burner (T465), Imperial Courier Master (T466)"
+    "Session 141 (T465-T466): Wandering Charcoal Burner (T465), Imperial Courier Master (T466)",
+    "Session 142 (T467-T468): Wandering Lace Maker (T467), Imperial Glassworks Master (T468)"
   ]
 }

@@ -23931,3 +23931,73 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--couriermaster-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+@keyframes lacemaker-pulse {
+  0%, 100% { box-shadow: 0 0 6px rgba(236, 200, 220, 0.18), 0 0 0 1px rgba(220, 170, 200, 0.14); }
+  50%       { box-shadow: 0 0 14px rgba(240, 210, 230, 0.36), 0 0 0 1px rgba(230, 180, 210, 0.24); }
+}
+.lacemaker-section--active {
+  background: linear-gradient(135deg, rgba(24, 14, 20, 0.55), rgba(18, 10, 16, 0.40));
+  border: 1px solid rgba(220, 160, 200, 0.28); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: lacemaker-pulse 2.8s ease-in-out infinite;
+}
+.lacemaker-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.lacemaker-title  { font-weight: 700; font-size: 0.88rem; color: #e8c4d8; }
+.lacemaker-timer  { font-size: 0.78rem; color: #e8c4d8; }
+.lacemaker-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.lacemaker-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.lacemaker-actions { display: flex; flex-direction: column; gap: 5px; }
+.lacemaker-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--lacemaker-commission {
+  background: linear-gradient(135deg, rgba(24, 14, 20, 0.32), rgba(18, 10, 16, 0.22));
+  border: 1px solid rgba(220, 160, 200, 0.38); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #e8c4d8; text-align: left; transition: background 0.15s; padding: 6px 8px;
+}
+.btn--lacemaker-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(32, 18, 26, 0.42), rgba(22, 12, 20, 0.30)); }
+.btn--lacemaker-purchase {
+  background: linear-gradient(135deg, rgba(22, 16, 10, 0.28), rgba(16, 12, 8, 0.18));
+  border: 1px solid rgba(200, 170, 100, 0.30); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #d4b06a; text-align: left; transition: background 0.15s; padding: 6px 8px;
+}
+.btn--lacemaker-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(28, 20, 12, 0.36), rgba(20, 14, 10, 0.26)); }
+.btn--lacemaker-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--lacemaker-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+@keyframes glassworksmstr-pulse {
+  0%, 100% { box-shadow: 0 0 6px rgba(100, 220, 240, 0.18), 0 0 0 1px rgba(80, 200, 220, 0.14); }
+  50%       { box-shadow: 0 0 14px rgba(120, 230, 250, 0.36), 0 0 0 1px rgba(100, 210, 230, 0.24); }
+}
+.glassworksmstr-section--active {
+  background: linear-gradient(135deg, rgba(8, 22, 26, 0.55), rgba(6, 16, 20, 0.40));
+  border: 1px solid rgba(80, 200, 220, 0.28); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: glassworksmstr-pulse 2.8s ease-in-out infinite;
+}
+.glassworksmstr-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.glassworksmstr-title  { font-weight: 700; font-size: 0.88rem; color: #7ae0f0; }
+.glassworksmstr-timer  { font-size: 0.78rem; color: #7ae0f0; }
+.glassworksmstr-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.glassworksmstr-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.glassworksmstr-actions { display: flex; flex-direction: column; gap: 5px; }
+.glassworksmstr-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--glassworksmstr-commission {
+  background: linear-gradient(135deg, rgba(8, 22, 26, 0.32), rgba(6, 16, 20, 0.22));
+  border: 1px solid rgba(80, 200, 220, 0.38); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #7ae0f0; text-align: left; transition: background 0.15s; padding: 6px 8px;
+}
+.btn--glassworksmstr-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(10, 28, 32, 0.42), rgba(8, 20, 24, 0.30)); }
+.btn--glassworksmstr-purchase {
+  background: linear-gradient(135deg, rgba(14, 10, 22, 0.28), rgba(10, 8, 18, 0.18));
+  border: 1px solid rgba(160, 100, 220, 0.30); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #c084fc; text-align: left; transition: background 0.15s; padding: 6px 8px;
+}
+.btn--glassworksmstr-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(18, 12, 28, 0.36), rgba(12, 10, 22, 0.26)); }
+.btn--glassworksmstr-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--glassworksmstr-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

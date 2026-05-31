@@ -408,6 +408,8 @@ import { initWanderingCanoeBuilder, wanderingCanoeBuilderTick }       from './sy
 import { initImperialMarblePolisher, imperialMarblePolisherTick }     from './systems/imperialMarblePolisher.js';              // T464
 import { initWanderingCharcoalBurner, wanderingCharcoalBurnerTick }   from './systems/wanderingCharcoalBurner.js';             // T465
 import { initImperialCourierMaster, imperialCourierMasterTick }       from './systems/imperialCourierMaster.js';               // T466
+import { initWanderingLaceMaker, wanderingLaceMakerTick }             from './systems/wanderingLaceMaker.js';                  // T467
+import { initImperialGlassworksMaster, imperialGlassworksMasterTick } from './systems/imperialGlassworksMaster.js';            // T468
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -822,6 +824,8 @@ function _registerAllSystems() {
   registerSystem(imperialMarblePolisherTick);       // T464
   registerSystem(wanderingCharcoalBurnerTick);      // T465
   registerSystem(imperialCourierMasterTick);        // T466
+  registerSystem(wanderingLaceMakerTick);           // T467
+  registerSystem(imperialGlassworksMasterTick);     // T468
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -1221,6 +1225,8 @@ function _save() {
     imperialMarblePolisher:       state.imperialMarblePolisher,       // T464
     wanderingCharcoalBurner:      state.wanderingCharcoalBurner,      // T465
     imperialCourierMaster:        state.imperialCourierMaster,        // T466
+    wanderingLaceMaker:           state.wanderingLaceMaker,           // T467
+    imperialGlassworksMaster:     state.imperialGlassworksMaster,     // T468
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -1625,6 +1631,8 @@ function _applySave(s) {
   state.imperialMarblePolisher         = s.imperialMarblePolisher ?? null;            // T464
   state.wanderingCharcoalBurner        = s.wanderingCharcoalBurner ?? null;           // T465
   state.imperialCourierMaster          = s.imperialCourierMaster ?? null;             // T466
+  state.wanderingLaceMaker             = s.wanderingLaceMaker ?? null;               // T467
+  state.imperialGlassworksMaster       = s.imperialGlassworksMaster ?? null;         // T468
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -2035,6 +2043,8 @@ function _startFreshGame() {
   initImperialMarblePolisher();       // T464
   initWanderingCharcoalBurner();      // T465
   initImperialCourierMaster();        // T466
+  initWanderingLaceMaker();           // T467
+  initImperialGlassworksMaster();     // T468
   initAchievements();
   initLeaderboard();
 }
@@ -2428,6 +2438,8 @@ function _startLoadedGame(savedData) {
   initImperialMarblePolisher();       // T464
   initWanderingCharcoalBurner();      // T465
   initImperialCourierMaster();        // T466
+  initWanderingLaceMaker();           // T467
+  initImperialGlassworksMaster();     // T468
   initAchievements();
   initLeaderboard();
 }
