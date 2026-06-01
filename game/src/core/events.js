@@ -414,4 +414,6 @@ export const Events = Object.freeze({
   IMPERIAL_COTTON_MERCHANT_CHANGED:       'imperialCottonMerchantChanged',                                      // T470: cotton merchant spawned / traded / purchased / dismissed / expired
   WANDERING_COMB_MAKER_CHANGED:           'wanderingCombMakerChanged',                                          // T471: comb maker spawned / commissioned / purchased / dismissed / expired
   IMPERIAL_POTTERY_MASTER_CHANGED:        'imperialPotteryMasterChanged',                                       // T472: pottery master spawned / commissioned / studied / dismissed / expired
+  WANDERING_RUSH_MAT_MAKER_CHANGED:       'wanderingRushMatMakerChanged',                                       // T473: rush mat maker spawned / commissioned / purchased / dismissed / expired
+  IMPERIAL_SPYGLASS_MAKER_CHANGED:        'imperialSpyglassMakerChanged',                                       // T474: spyglass maker spawned / commissioned / studied / dismissed / expired
 });

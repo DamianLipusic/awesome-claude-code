@@ -237,6 +237,8 @@ import * as SandalMaker      from '../systems/wanderingSandalMaker.js';         
 import * as CottonMerchant   from '../systems/imperialCottonMerchant.js';          // T470
 import * as CombMaker        from '../systems/wanderingCombMaker.js';              // T471
 import * as PotteryMaster    from '../systems/imperialPotteryMaster.js';           // T472
+import * as RushMatMaker     from '../systems/wanderingRushMatMaker.js';           // T473
+import * as SpyglassMaker    from '../systems/imperialSpyglassMaker.js';           // T474
 
 let _panel = null;
 
@@ -502,6 +504,8 @@ function _encountersSection() {
     _imperialCottonMerchantSection(),
     _wanderingCombMakerSection(),
     _imperialPotteryMasterSection(),
+    _wanderingRushMatMakerSection(),
+    _imperialSpyglassMakerSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -8013,6 +8017,72 @@ function _imperialPotteryMasterSection() {
     </div>`;
 }
 
+function _wanderingRushMatMakerSection() {
+  if (!RushMatMaker.getActiveWanderingRushMatMaker()) return '';
+  const secs          = RushMatMaker.getRushMatMakerSecsLeft();
+  const urgent        = secs <= 20;
+  const food          = state.resources.food  ?? 0;
+  const wood          = state.resources.wood  ?? 0;
+  const gold          = state.resources.gold  ?? 0;
+  const canCommission = food >= RushMatMaker.COMMISSION_FOOD_COST && wood >= RushMatMaker.COMMISSION_WOOD_COST;
+  const canPurchase   = gold >= RushMatMaker.PURCHASE_GOLD_COST;
+  return `
+    <div class="rushmatmaker-section--active">
+      <div class="rushmatmaker-header">
+        <span class="rushmatmaker-title">🌾 Wandering Rush Mat Maker</span>
+        <span class="rushmatmaker-timer${urgent ? ' rushmatmaker-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="rushmatmaker-desc">A wandering rush mat maker arrives carrying bundles of dried sedge and bulrush sorted by thickness — along with finished mats in tabby weave for doorstep use, tighter twill weave for hall floors, and coiled-rush mats sealed with braided edges. Offers to commission a supply of rush floor-coverings for the settlement's households, or to sell the rush mat-weaving craft for local artisans.</div>
+      <div class="rushmatmaker-actions">
+        <button class="btn--rushmatmaker-commission${canCommission ? '' : ' btn--disabled'}" data-action="rushmatmaker-commission" ${canCommission ? '' : 'disabled'}>
+          🌾 Commission Rush Mat Collection — ${RushMatMaker.COMMISSION_FOOD_COST}🌾 + ${RushMatMaker.COMMISSION_WOOD_COST}🪵
+          <span class="rushmatmaker-cost">→ +${RushMatMaker.COMMISSION_FOOD_RATE} food/s (2.5 min) · +${RushMatMaker.COMMISSION_PRESTIGE_REWARD} prestige · +${RushMatMaker.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--rushmatmaker-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="rushmatmaker-purchase" ${canPurchase ? '' : 'disabled'}>
+          📜 Purchase Rush Mat Craft — ${RushMatMaker.PURCHASE_GOLD_COST}💰
+          <span class="rushmatmaker-cost">→ +${RushMatMaker.PURCHASE_GOLD_RATE} gold/s (2 min) · +${RushMatMaker.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--rushmatmaker-away" data-action="rushmatmaker-away">
+          🚶 Send Away
+          <span class="rushmatmaker-cost">→ Rush mat maker bundles the unsold mats and continues along the marsh track</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _imperialSpyglassMakerSection() {
+  if (!SpyglassMaker.getActiveImperialSpyglassMaker()) return '';
+  const secs          = SpyglassMaker.getSpyglassMakerSecsLeft();
+  const urgent        = secs <= 20;
+  const iron          = state.resources.iron  ?? 0;
+  const gold          = state.resources.gold  ?? 0;
+  const mana          = state.resources.mana  ?? 0;
+  const canCommission = iron >= SpyglassMaker.COMMISSION_IRON_COST && gold >= SpyglassMaker.COMMISSION_GOLD_COST;
+  const canStudy      = mana >= SpyglassMaker.STUDY_MANA_COST;
+  return `
+    <div class="spyglassmaker-section--active">
+      <div class="spyglassmaker-header">
+        <span class="spyglassmaker-title">🔭 Imperial Spyglass Maker</span>
+        <span class="spyglassmaker-timer${urgent ? ' spyglassmaker-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="spyglassmaker-desc">An imperial spyglass maker arrives carrying a fitted case of demonstration instruments — single-draw spyglasses with polished bone draw-tubes, a leather-wrapped two-draw model, and a large fixed-focus telescope on a tilting wooden stand — along with a portfolio of lens-grinding designs. Offers to commission a collection of imperial spyglasses for the settlement's commanders, or to teach the lens-grinding arts to skilled craftspeople.</div>
+      <div class="spyglassmaker-actions">
+        <button class="btn--spyglassmaker-commission${canCommission ? '' : ' btn--disabled'}" data-action="spyglassmaker-commission" ${canCommission ? '' : 'disabled'}>
+          🔭 Commission Imperial Spyglass Collection — ${SpyglassMaker.COMMISSION_IRON_COST}⚙️ + ${SpyglassMaker.COMMISSION_GOLD_COST}💰
+          <span class="spyglassmaker-cost">→ +${SpyglassMaker.COMMISSION_IRON_RATE} iron/s (2.5 min) · +${SpyglassMaker.COMMISSION_PRESTIGE_REWARD} prestige · +${SpyglassMaker.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--spyglassmaker-study${canStudy ? '' : ' btn--disabled'}" data-action="spyglassmaker-study" ${canStudy ? '' : 'disabled'}>
+          📜 Study Lens-Grinding Arts — ${SpyglassMaker.STUDY_MANA_COST}✨
+          <span class="spyglassmaker-cost">→ +${SpyglassMaker.STUDY_MANA_RATE} mana/s (2 min) · +${SpyglassMaker.STUDY_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--spyglassmaker-away" data-action="spyglassmaker-away">
+          🚶 Send Away
+          <span class="spyglassmaker-cost">→ Spyglass maker latches the instrument case and departs for a more ambitious settlement</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -8906,6 +8976,14 @@ const _HANDLERS = {
   'potterymaster-commission':  () => PotteryMaster.commissionGrandPotteryWorks(),
   'potterymaster-study':       () => PotteryMaster.studyCeramicArts(),
   'potterymaster-away':        () => PotteryMaster.sendPotteryMasterAway(),
+
+  'rushmatmaker-commission':   () => RushMatMaker.commissionRushMatCollection(),
+  'rushmatmaker-purchase':     () => RushMatMaker.purchaseRushMatCraft(),
+  'rushmatmaker-away':         () => RushMatMaker.sendRushMatMakerAway(),
+
+  'spyglassmaker-commission':  () => SpyglassMaker.commissionImperialSpyglassCollection(),
+  'spyglassmaker-study':       () => SpyglassMaker.studyLensGrindingArts(),
+  'spyglassmaker-away':        () => SpyglassMaker.sendSpyglassMakerAway(),
 };
 
 function _handleClick(e) {
@@ -9150,6 +9228,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_COTTON_MERCHANT_CHANGED,
     Events.WANDERING_COMB_MAKER_CHANGED,
     Events.IMPERIAL_POTTERY_MASTER_CHANGED,
+    Events.WANDERING_RUSH_MAT_MAKER_CHANGED,
+    Events.IMPERIAL_SPYGLASS_MAKER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

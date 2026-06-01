@@ -2236,6 +2236,24 @@
       "status": "done",
       "phase": 148,
       "notes": "Built imperialPotteryMaster.js: commissionGrandPotteryWorks (25 stone + 20g -> +0.22 stone/s 2.5min +22 prestige +12 morale), studyCeramicArts (20 mana -> +0.18 mana/s 2min +15 prestige), sendPotteryMasterAway (dismiss). Added IMPERIAL_POTTERY_MASTER_CHANGED event to events.js. state.imperialPotteryMaster null field. Wired in main.js: import, registerSystem, init x2, save/load. Added _imperialPotteryMasterSection() + potterymaster-commission/potterymaster-study/potterymaster-away handlers to questPanel.js. CSS: @keyframes potterymaster-pulse (terracotta/clay orange-brown theme), .potterymaster-section--active, .btn--potterymaster-commission (terracotta/orange), .btn--potterymaster-study (violet/indigo mana), .btn--potterymaster-away (gray)."
+    },
+    {
+      "id": "T473",
+      "title": "Wandering Rush Mat Maker",
+      "description": "Periodic wandering rush mat maker encounter: commission rush mat collection (20 food + 15 wood -> +0.20 food/s 2.5min \u00b7 +15 prestige \u00b7 +8 morale), purchase rush mat craft (18g -> +0.15 gold/s 2min \u00b7 +10 prestige). Stone Age+, 6+ tiles, 12-16 min spawn, 80s window.",
+      "priority": 473,
+      "status": "done",
+      "phase": 149,
+      "notes": "Built wanderingRushMatMaker.js: commissionRushMatCollection (20 food + 15 wood -> +0.20 food/s 2.5min +15 prestige +8 morale), purchaseRushMatCraft (18g -> +0.15 gold/s 2min +10 prestige), sendRushMatMakerAway (dismiss). Added WANDERING_RUSH_MAT_MAKER_CHANGED event to events.js. state.wanderingRushMatMaker null field. Wired in main.js: import, registerSystem, init x2, save/load. Added _wanderingRushMatMakerSection() + rushmatmaker-commission/rushmatmaker-purchase/rushmatmaker-away handlers to questPanel.js. CSS: @keyframes rushmatmaker-pulse (straw/marsh green theme), .rushmatmaker-section--active, .btn--rushmatmaker-commission (sage green), .btn--rushmatmaker-purchase (amber/gold), .btn--rushmatmaker-away (gray). Session 145."
+    },
+    {
+      "id": "T474",
+      "title": "Imperial Spyglass Maker",
+      "description": "Periodic imperial spyglass maker encounter: commission imperial spyglass collection (25 iron + 20g -> +0.22 iron/s 2.5min \u00b7 +22 prestige \u00b7 +12 morale), study lens-grinding arts (20 mana -> +0.18 mana/s 2min \u00b7 +15 prestige). Medieval Age+, 10+ tiles, 14-18 min spawn, 75s window.",
+      "priority": 474,
+      "status": "done",
+      "phase": 149,
+      "notes": "Built imperialSpyglassMaker.js: commissionImperialSpyglassCollection (25 iron + 20g -> +0.22 iron/s 2.5min +22 prestige +12 morale), studyLensGrindingArts (20 mana -> +0.18 mana/s 2min +15 prestige), sendSpyglassMakerAway (dismiss). Added IMPERIAL_SPYGLASS_MAKER_CHANGED event to events.js. state.imperialSpyglassMaker null field. Wired in main.js: import, registerSystem, init x2, save/load. Added _imperialSpyglassMakerSection() + spyglassmaker-commission/spyglassmaker-study/spyglassmaker-away handlers to questPanel.js. CSS: @keyframes spyglassmaker-pulse (navy/teal optical glass theme), .spyglassmaker-section--active, .btn--spyglassmaker-commission (sky blue), .btn--spyglassmaker-study (violet/purple mana), .btn--spyglassmaker-away (gray). Session 145."
     }
   ],
   "session_history": [
@@ -2359,9 +2377,10 @@
     "Session 140 (T463-T464): Wandering Canoe Builder (T463), Imperial Marble Polisher (T464)",
     "Session 141 (T465-T466): Wandering Charcoal Burner (T465), Imperial Courier Master (T466)",
     "Session 142 (T467-T468): Wandering Lace Maker (T467), Imperial Glassworks Master (T468)",
-    "Session 143 (T469-T470): Wandering Sandal Maker (T469), Imperial Cotton Merchant (T470)"
+    "Session 143 (T469-T470): Wandering Sandal Maker (T469), Imperial Cotton Merchant (T470)",
+    "Session 144 (T471-T472): Wandering Comb Maker (T471), Imperial Pottery Master (T472)"
   ],
   "sessions": [
-    "Session 144 (T471-T472): Wandering Comb Maker (T471), Imperial Pottery Master (T472)"
+    "Session 145 (T473-T474): Wandering Rush Mat Maker (T473), Imperial Spyglass Maker (T474)"
   ]
 }

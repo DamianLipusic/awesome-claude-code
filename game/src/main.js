@@ -414,6 +414,8 @@ import { initWanderingSandalMaker, wanderingSandalMakerTick }         from './sy
 import { initImperialCottonMerchant, imperialCottonMerchantTick }     from './systems/imperialCottonMerchant.js';              // T470
 import { initWanderingCombMaker, wanderingCombMakerTick }             from './systems/wanderingCombMaker.js';                  // T471
 import { initImperialPotteryMaster, imperialPotteryMasterTick }       from './systems/imperialPotteryMaster.js';               // T472
+import { initWanderingRushMatMaker, wanderingRushMatMakerTick }       from './systems/wanderingRushMatMaker.js';               // T473
+import { initImperialSpyglassMaker, imperialSpyglassMakerTick }       from './systems/imperialSpyglassMaker.js';               // T474
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -834,6 +836,8 @@ function _registerAllSystems() {
   registerSystem(imperialCottonMerchantTick);       // T470
   registerSystem(wanderingCombMakerTick);           // T471
   registerSystem(imperialPotteryMasterTick);        // T472
+  registerSystem(wanderingRushMatMakerTick);        // T473
+  registerSystem(imperialSpyglassMakerTick);        // T474
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -1239,6 +1243,8 @@ function _save() {
     imperialCottonMerchant:       state.imperialCottonMerchant,       // T470
     wanderingCombMaker:           state.wanderingCombMaker,           // T471
     imperialPotteryMaster:        state.imperialPotteryMaster,        // T472
+    wanderingRushMatMaker:        state.wanderingRushMatMaker,        // T473
+    imperialSpyglassMaker:        state.imperialSpyglassMaker,        // T474
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -1649,6 +1655,8 @@ function _applySave(s) {
   state.imperialCottonMerchant         = s.imperialCottonMerchant ?? null;           // T470
   state.wanderingCombMaker             = s.wanderingCombMaker ?? null;               // T471
   state.imperialPotteryMaster          = s.imperialPotteryMaster ?? null;            // T472
+  state.wanderingRushMatMaker          = s.wanderingRushMatMaker ?? null;            // T473
+  state.imperialSpyglassMaker          = s.imperialSpyglassMaker ?? null;            // T474
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -2065,6 +2073,8 @@ function _startFreshGame() {
   initImperialCottonMerchant();       // T470
   initWanderingCombMaker();           // T471
   initImperialPotteryMaster();        // T472
+  initWanderingRushMatMaker();        // T473
+  initImperialSpyglassMaker();        // T474
   initAchievements();
   initLeaderboard();
 }
@@ -2464,6 +2474,8 @@ function _startLoadedGame(savedData) {
   initImperialCottonMerchant();       // T470
   initWanderingCombMaker();           // T471
   initImperialPotteryMaster();        // T472
+  initWanderingRushMatMaker();        // T473
+  initImperialSpyglassMaker();        // T474
   initAchievements();
   initLeaderboard();
 }

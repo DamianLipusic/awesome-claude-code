@@ -24141,3 +24141,75 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--potterymaster-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T473 Wandering Rush Mat Maker ─────────────────────────────────────── */
+@keyframes rushmatmaker-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(132, 169, 90, 0.00); }
+  50%       { box-shadow: 0 0 8px 2px rgba(132, 169, 90, 0.18); }
+}
+.rushmatmaker-section--active {
+  background: linear-gradient(135deg, rgba(132, 169, 90, 0.08), rgba(101, 130, 65, 0.05));
+  border: 1px solid rgba(132, 169, 90, 0.28); border-radius: 8px; padding: 10px;
+  margin-bottom: 10px; animation: rushmatmaker-pulse 2.8s ease-in-out infinite;
+}
+.rushmatmaker-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.rushmatmaker-title  { font-weight: 700; font-size: 0.88rem; color: #a3be6e; }
+.rushmatmaker-timer  { font-size: 0.78rem; color: #a3be6e; }
+.rushmatmaker-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.rushmatmaker-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.rushmatmaker-actions { display: flex; flex-direction: column; gap: 5px; }
+.rushmatmaker-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--rushmatmaker-commission {
+  background: linear-gradient(135deg, rgba(132, 169, 90, 0.15), rgba(101, 130, 65, 0.10));
+  border: 1px solid rgba(132, 169, 90, 0.35); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #a3be6e; text-align: left; transition: background 0.15s;
+}
+.btn--rushmatmaker-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(132, 169, 90, 0.25), rgba(101, 130, 65, 0.18)); }
+.btn--rushmatmaker-purchase {
+  background: linear-gradient(135deg, rgba(202, 175, 84, 0.15), rgba(160, 138, 60, 0.10));
+  border: 1px solid rgba(202, 175, 84, 0.35); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #d4b96a; text-align: left; transition: background 0.15s;
+}
+.btn--rushmatmaker-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(202, 175, 84, 0.25), rgba(160, 138, 60, 0.18)); }
+.btn--rushmatmaker-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--rushmatmaker-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T474 Imperial Spyglass Maker ──────────────────────────────────────── */
+@keyframes spyglassmaker-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(56, 139, 186, 0.00); }
+  50%       { box-shadow: 0 0 8px 2px rgba(56, 139, 186, 0.20); }
+}
+.spyglassmaker-section--active {
+  background: linear-gradient(135deg, rgba(56, 139, 186, 0.08), rgba(30, 90, 140, 0.05));
+  border: 1px solid rgba(56, 139, 186, 0.28); border-radius: 8px; padding: 10px;
+  margin-bottom: 10px; animation: spyglassmaker-pulse 2.8s ease-in-out infinite;
+}
+.spyglassmaker-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.spyglassmaker-title  { font-weight: 700; font-size: 0.88rem; color: #60a5c8; }
+.spyglassmaker-timer  { font-size: 0.78rem; color: #60a5c8; }
+.spyglassmaker-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.spyglassmaker-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.spyglassmaker-actions { display: flex; flex-direction: column; gap: 5px; }
+.spyglassmaker-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--spyglassmaker-commission {
+  background: linear-gradient(135deg, rgba(56, 139, 186, 0.15), rgba(30, 90, 140, 0.10));
+  border: 1px solid rgba(56, 139, 186, 0.35); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #60a5c8; text-align: left; transition: background 0.15s;
+}
+.btn--spyglassmaker-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(56, 139, 186, 0.25), rgba(30, 90, 140, 0.18)); }
+.btn--spyglassmaker-study {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(109, 60, 200, 0.10));
+  border: 1px solid rgba(139, 92, 246, 0.35); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #a78bfa; text-align: left; transition: background 0.15s;
+}
+.btn--spyglassmaker-study:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(139, 92, 246, 0.25), rgba(109, 60, 200, 0.18)); }
+.btn--spyglassmaker-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--spyglassmaker-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
