@@ -235,6 +235,8 @@ import * as LaceMaker        from '../systems/wanderingLaceMaker.js';           
 import * as GlassworksMaster from '../systems/imperialGlassworksMaster.js';        // T468
 import * as SandalMaker      from '../systems/wanderingSandalMaker.js';            // T469
 import * as CottonMerchant   from '../systems/imperialCottonMerchant.js';          // T470
+import * as CombMaker        from '../systems/wanderingCombMaker.js';              // T471
+import * as PotteryMaster    from '../systems/imperialPotteryMaster.js';           // T472
 
 let _panel = null;
 
@@ -498,6 +500,8 @@ function _encountersSection() {
     _imperialGlassworksMasterSection(),
     _wanderingSandalMakerSection(),
     _imperialCottonMerchantSection(),
+    _wanderingCombMakerSection(),
+    _imperialPotteryMasterSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -7943,6 +7947,72 @@ function _imperialCottonMerchantSection() {
     </div>`;
 }
 
+function _wanderingCombMakerSection() {
+  if (!CombMaker.getActiveWanderingCombMaker()) return '';
+  const secs          = CombMaker.getCombMakerSecsLeft();
+  const urgent        = secs <= 20;
+  const food          = state.resources.food  ?? 0;
+  const stone         = state.resources.stone ?? 0;
+  const gold          = state.resources.gold  ?? 0;
+  const canCommission = food >= CombMaker.COMMISSION_FOOD_COST && stone >= CombMaker.COMMISSION_STONE_COST;
+  const canPurchase   = gold >= CombMaker.PURCHASE_GOLD_COST;
+  return `
+    <div class="combmaker-section--active">
+      <div class="combmaker-header">
+        <span class="combmaker-title">🪮 Wandering Comb Maker</span>
+        <span class="combmaker-timer${urgent ? ' combmaker-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="combmaker-desc">A wandering comb maker arrives carrying a leather roll of bone-working tools — fine-toothed saws, rasps, and beeswax polishing cloths — along with a tray of finished combs: narrow dressing combs, broader parting combs with decorated spines, and double-sided combs for clearing tangles. Offers to commission a batch of bone combs for the settlement's households, or to sell the comb-making craft for local artisans.</div>
+      <div class="combmaker-actions">
+        <button class="btn--combmaker-commission${canCommission ? '' : ' btn--disabled'}" data-action="combmaker-commission" ${canCommission ? '' : 'disabled'}>
+          🪮 Commission Bone Comb Set — ${CombMaker.COMMISSION_FOOD_COST}🌾 + ${CombMaker.COMMISSION_STONE_COST}🪨
+          <span class="combmaker-cost">→ +${CombMaker.COMMISSION_FOOD_RATE} food/s (2.5 min) · +${CombMaker.COMMISSION_PRESTIGE_REWARD} prestige · +${CombMaker.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--combmaker-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="combmaker-purchase" ${canPurchase ? '' : 'disabled'}>
+          📜 Purchase Comb-Making Craft — ${CombMaker.PURCHASE_GOLD_COST}💰
+          <span class="combmaker-cost">→ +${CombMaker.PURCHASE_GOLD_RATE} gold/s (2 min) · +${CombMaker.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--combmaker-away" data-action="combmaker-away">
+          🚶 Send Away
+          <span class="combmaker-cost">→ Comb maker rolls up the tools and heads down the road</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _imperialPotteryMasterSection() {
+  if (!PotteryMaster.getActiveImperialPotteryMaster()) return '';
+  const secs          = PotteryMaster.getPotteryMasterSecsLeft();
+  const urgent        = secs <= 20;
+  const stone         = state.resources.stone ?? 0;
+  const gold          = state.resources.gold  ?? 0;
+  const mana          = state.resources.mana  ?? 0;
+  const canCommission = stone >= PotteryMaster.COMMISSION_STONE_COST && gold >= PotteryMaster.COMMISSION_GOLD_COST;
+  const canStudy      = mana >= PotteryMaster.STUDY_MANA_COST;
+  return `
+    <div class="potterymaster-section--active">
+      <div class="potterymaster-header">
+        <span class="potterymaster-title">🏺 Imperial Pottery Master</span>
+        <span class="potterymaster-timer${urgent ? ' potterymaster-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="potterymaster-desc">An imperial pottery master arrives bearing a display chest of wheel-thrown storage jars, coarse red-fired cooking vessels, and fine grey slip-decorated presentation bowls, along with workshop plans for kiln layout and wheel-pit dimensions. Offers to commission a grand pottery works, or to teach advanced ceramic arts to the settlement's craftspeople.</div>
+      <div class="potterymaster-actions">
+        <button class="btn--potterymaster-commission${canCommission ? '' : ' btn--disabled'}" data-action="potterymaster-commission" ${canCommission ? '' : 'disabled'}>
+          🏺 Commission Grand Pottery Works — ${PotteryMaster.COMMISSION_STONE_COST}🪨 + ${PotteryMaster.COMMISSION_GOLD_COST}💰
+          <span class="potterymaster-cost">→ +${PotteryMaster.COMMISSION_STONE_RATE} stone/s (2.5 min) · +${PotteryMaster.COMMISSION_PRESTIGE_REWARD} prestige · +${PotteryMaster.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--potterymaster-study${canStudy ? '' : ' btn--disabled'}" data-action="potterymaster-study" ${canStudy ? '' : 'disabled'}>
+          📜 Study Ceramic Arts — ${PotteryMaster.STUDY_MANA_COST}✨
+          <span class="potterymaster-cost">→ +${PotteryMaster.STUDY_MANA_RATE} mana/s (2 min) · +${PotteryMaster.STUDY_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--potterymaster-away" data-action="potterymaster-away">
+          🚶 Send Away
+          <span class="potterymaster-cost">→ Pottery master latches the display chest and departs</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -8830,6 +8900,12 @@ const _HANDLERS = {
   'cottonmerchant-trade':      () => CottonMerchant.arrangeCottonTrade(),
   'cottonmerchant-purchase':   () => CottonMerchant.purchaseCottonWeavingLore(),
   'cottonmerchant-away':       () => CottonMerchant.sendCottonMerchantAway(),
+  'combmaker-commission':      () => CombMaker.commissionBoneCombSet(),
+  'combmaker-purchase':        () => CombMaker.purchaseCombMakingCraft(),
+  'combmaker-away':            () => CombMaker.sendCombMakerAway(),
+  'potterymaster-commission':  () => PotteryMaster.commissionGrandPotteryWorks(),
+  'potterymaster-study':       () => PotteryMaster.studyCeramicArts(),
+  'potterymaster-away':        () => PotteryMaster.sendPotteryMasterAway(),
 };
 
 function _handleClick(e) {
@@ -9072,6 +9148,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_GLASSWORKS_MASTER_CHANGED,
     Events.WANDERING_SANDAL_MAKER_CHANGED,
     Events.IMPERIAL_COTTON_MERCHANT_CHANGED,
+    Events.WANDERING_COMB_MAKER_CHANGED,
+    Events.IMPERIAL_POTTERY_MASTER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

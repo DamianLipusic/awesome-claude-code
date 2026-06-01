@@ -24071,3 +24071,73 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--cottonmerchant-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+@keyframes combmaker-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(230, 220, 195, 0.00); }
+  50%       { box-shadow: 0 0 8px 2px rgba(230, 220, 195, 0.18); }
+}
+.combmaker-section--active {
+  background: linear-gradient(135deg, rgba(22, 20, 14, 0.30), rgba(16, 14, 10, 0.20));
+  border: 1px solid rgba(200, 185, 145, 0.32); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: combmaker-pulse 2.8s ease-in-out infinite;
+}
+.combmaker-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.combmaker-title  { font-weight: 700; font-size: 0.88rem; color: #d4b896; }
+.combmaker-timer  { font-size: 0.78rem; color: #d4b896; }
+.combmaker-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.combmaker-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.combmaker-actions { display: flex; flex-direction: column; gap: 5px; }
+.combmaker-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--combmaker-commission {
+  background: linear-gradient(135deg, rgba(26, 20, 10, 0.30), rgba(18, 14, 7, 0.20));
+  border: 1px solid rgba(200, 175, 120, 0.35); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #d4b896; text-align: left; transition: background 0.15s; padding: 6px 8px;
+}
+.btn--combmaker-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(32, 24, 12, 0.42), rgba(22, 18, 9, 0.30)); }
+.btn--combmaker-purchase {
+  background: linear-gradient(135deg, rgba(22, 18, 8, 0.28), rgba(16, 12, 5, 0.18));
+  border: 1px solid rgba(180, 155, 90, 0.30); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #c4a470; text-align: left; transition: background 0.15s; padding: 6px 8px;
+}
+.btn--combmaker-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(28, 22, 10, 0.36), rgba(20, 16, 7, 0.26)); }
+.btn--combmaker-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--combmaker-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+@keyframes potterymaster-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(210, 120, 60, 0.00); }
+  50%       { box-shadow: 0 0 8px 2px rgba(210, 120, 60, 0.18); }
+}
+.potterymaster-section--active {
+  background: linear-gradient(135deg, rgba(22, 12, 6, 0.30), rgba(16, 9, 4, 0.20));
+  border: 1px solid rgba(190, 100, 50, 0.32); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: potterymaster-pulse 2.8s ease-in-out infinite;
+}
+.potterymaster-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.potterymaster-title  { font-weight: 700; font-size: 0.88rem; color: #d4805a; }
+.potterymaster-timer  { font-size: 0.78rem; color: #d4805a; }
+.potterymaster-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.potterymaster-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.potterymaster-actions { display: flex; flex-direction: column; gap: 5px; }
+.potterymaster-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--potterymaster-commission {
+  background: linear-gradient(135deg, rgba(24, 10, 4, 0.30), rgba(16, 7, 3, 0.20));
+  border: 1px solid rgba(190, 95, 45, 0.35); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #d4805a; text-align: left; transition: background 0.15s; padding: 6px 8px;
+}
+.btn--potterymaster-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(30, 13, 5, 0.42), rgba(20, 9, 4, 0.30)); }
+.btn--potterymaster-study {
+  background: linear-gradient(135deg, rgba(10, 8, 22, 0.28), rgba(7, 5, 16, 0.18));
+  border: 1px solid rgba(120, 100, 200, 0.30); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #a090d0; text-align: left; transition: background 0.15s; padding: 6px 8px;
+}
+.btn--potterymaster-study:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(14, 11, 28, 0.36), rgba(10, 8, 20, 0.26)); }
+.btn--potterymaster-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--potterymaster-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

@@ -2185,7 +2185,7 @@
       "status": "done",
       "priority": 467,
       "phase": 146,
-      "description": "Periodic wandering lace maker encounter: commission royal lacework (20 food + 15 wood → +0.22 food/s 2.5min · +18 prestige · +10 morale), purchase lace-making patterns (18g → +0.15 gold/s 2min · +12 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
+      "description": "Periodic wandering lace maker encounter: commission royal lacework (20 food + 15 wood \u2192 +0.22 food/s 2.5min \u00b7 +18 prestige \u00b7 +10 morale), purchase lace-making patterns (18g \u2192 +0.15 gold/s 2min \u00b7 +12 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
       "completed_date": "2026-05-31",
       "notes": "Built wanderingLaceMaker.js. WANDERING_LACE_MAKER_CHANGED event added to events.js. state.wanderingLaceMaker null field. Lace maker section in questPanel.js (import * as LaceMaker). Events.WANDERING_LACE_MAKER_CHANGED subscribed. CSS: @keyframes lacemaker-pulse (warm cream/lavender lace theme), .lacemaker-section--active, .btn--lacemaker-commission (rose/pink), .btn--lacemaker-purchase (amber/gold), .btn--lacemaker-away (gray). Wired main.js: import, registerSystem, init x2, save/load. Session 142."
     },
@@ -2195,7 +2195,7 @@
       "status": "done",
       "priority": 468,
       "phase": 146,
-      "description": "Periodic imperial glassworks master encounter: commission imperial glass dome (25 stone + 20g → +0.22 stone/s 2.5min · +22 prestige · +12 morale), purchase glass-casting formulas (20 mana → +0.18 mana/s 2min · +15 prestige), send away. Medieval Age+, 10+ tiles, 15-19 min.",
+      "description": "Periodic imperial glassworks master encounter: commission imperial glass dome (25 stone + 20g \u2192 +0.22 stone/s 2.5min \u00b7 +22 prestige \u00b7 +12 morale), purchase glass-casting formulas (20 mana \u2192 +0.18 mana/s 2min \u00b7 +15 prestige), send away. Medieval Age+, 10+ tiles, 15-19 min.",
       "completed_date": "2026-05-31",
       "notes": "Built imperialGlassworksMaster.js. IMPERIAL_GLASSWORKS_MASTER_CHANGED event added to events.js. state.imperialGlassworksMaster null field. Glassworks master section in questPanel.js (import * as GlassworksMaster). Events.IMPERIAL_GLASSWORKS_MASTER_CHANGED subscribed. CSS: @keyframes glassworksmstr-pulse (cyan/teal crystal glass theme), .glassworksmstr-section--active, .btn--glassworksmstr-commission (cyan/teal), .btn--glassworksmstr-purchase (violet/purple), .btn--glassworksmstr-away (gray). Wired main.js: import, registerSystem, init x2, save/load. Session 142."
     },
@@ -2205,7 +2205,7 @@
       "status": "done",
       "priority": 469,
       "phase": 147,
-      "description": "Periodic wandering sandal maker encounter: commission leather sandals (20 food + 15 wood → +0.22 food/s 2.5min · +15 prestige · +10 morale), purchase sandal-making craft (18g → +0.15 gold/s 2min · +10 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
+      "description": "Periodic wandering sandal maker encounter: commission leather sandals (20 food + 15 wood \u2192 +0.22 food/s 2.5min \u00b7 +15 prestige \u00b7 +10 morale), purchase sandal-making craft (18g \u2192 +0.15 gold/s 2min \u00b7 +10 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
       "completed_date": "2026-06-01",
       "notes": "Built wanderingSandalMaker.js. WANDERING_SANDAL_MAKER_CHANGED event added to events.js. state.wanderingSandalMaker null field. Sandal maker section in questPanel.js (import * as SandalMaker). Events.WANDERING_SANDAL_MAKER_CHANGED subscribed. CSS: @keyframes sandalmaker-pulse (warm terracotta/leather brown theme), .sandalmaker-section--active, .btn--sandalmaker-commission (terracotta/amber), .btn--sandalmaker-purchase (gold/yellow), .btn--sandalmaker-away (gray). Wired main.js: import, registerSystem, init x2, save/load. Session 143."
     },
@@ -2215,9 +2215,27 @@
       "status": "done",
       "priority": 470,
       "phase": 147,
-      "description": "Periodic imperial cotton merchant encounter: arrange cotton trade (25 food + 20g → +0.22 food/s 2.5min · +20 prestige · +12 morale), purchase cotton weaving lore (20 wood → +0.18 wood/s 2min · +15 prestige), send away. Bronze Age+, 8+ tiles, 13-17 min.",
+      "description": "Periodic imperial cotton merchant encounter: arrange cotton trade (25 food + 20g \u2192 +0.22 food/s 2.5min \u00b7 +20 prestige \u00b7 +12 morale), purchase cotton weaving lore (20 wood \u2192 +0.18 wood/s 2min \u00b7 +15 prestige), send away. Bronze Age+, 8+ tiles, 13-17 min.",
       "completed_date": "2026-06-01",
       "notes": "Built imperialCottonMerchant.js. IMPERIAL_COTTON_MERCHANT_CHANGED event added to events.js. state.imperialCottonMerchant null field. Cotton merchant section in questPanel.js (import * as CottonMerchant). Events.IMPERIAL_COTTON_MERCHANT_CHANGED subscribed. CSS: @keyframes cottonmerchant-pulse (soft sage green/cotton theme), .cottonmerchant-section--active, .btn--cottonmerchant-trade (sage green), .btn--cottonmerchant-purchase (light green), .btn--cottonmerchant-away (gray). Wired main.js: import, registerSystem, init x2, save/load. Session 143."
+    },
+    {
+      "id": "T471",
+      "title": "Wandering Comb Maker",
+      "description": "Periodic wandering comb maker encounter: commission bone comb set (20 food + 10 stone -> +0.20 food/s 2.5min \u00b7 +15 prestige \u00b7 +8 morale), purchase comb-making craft (18g -> +0.15 gold/s 2min \u00b7 +10 prestige). Stone Age+, 6+ tiles, 11-15 min spawn, 80s window.",
+      "priority": 471,
+      "status": "done",
+      "phase": 148,
+      "notes": "Built wanderingCombMaker.js: commissionBoneCombSet (20 food + 10 stone -> +0.20 food/s 2.5min +15 prestige +8 morale), purchaseCombMakingCraft (18g -> +0.15 gold/s 2min +10 prestige), sendCombMakerAway (dismiss). Added WANDERING_COMB_MAKER_CHANGED event to events.js. state.wanderingCombMaker null field. Wired in main.js: import, registerSystem, init x2, save/load. Added _wanderingCombMakerSection() + combmaker-commission/combmaker-purchase/combmaker-away handlers to questPanel.js. CSS: @keyframes combmaker-pulse (ivory/bone theme), .combmaker-section--active, .btn--combmaker-commission (tan/amber), .btn--combmaker-purchase (gold), .btn--combmaker-away (gray)."
+    },
+    {
+      "id": "T472",
+      "title": "Imperial Pottery Master",
+      "description": "Periodic imperial pottery master encounter: commission grand pottery works (25 stone + 20g -> +0.22 stone/s 2.5min \u00b7 +22 prestige \u00b7 +12 morale), study ceramic arts (20 mana -> +0.18 mana/s 2min \u00b7 +15 prestige). Iron Age+, 10+ tiles, 14-18 min spawn, 75s window.",
+      "priority": 472,
+      "status": "done",
+      "phase": 148,
+      "notes": "Built imperialPotteryMaster.js: commissionGrandPotteryWorks (25 stone + 20g -> +0.22 stone/s 2.5min +22 prestige +12 morale), studyCeramicArts (20 mana -> +0.18 mana/s 2min +15 prestige), sendPotteryMasterAway (dismiss). Added IMPERIAL_POTTERY_MASTER_CHANGED event to events.js. state.imperialPotteryMaster null field. Wired in main.js: import, registerSystem, init x2, save/load. Added _imperialPotteryMasterSection() + potterymaster-commission/potterymaster-study/potterymaster-away handlers to questPanel.js. CSS: @keyframes potterymaster-pulse (terracotta/clay orange-brown theme), .potterymaster-section--active, .btn--potterymaster-commission (terracotta/orange), .btn--potterymaster-study (violet/indigo mana), .btn--potterymaster-away (gray)."
     }
   ],
   "session_history": [
@@ -2342,5 +2360,8 @@
     "Session 141 (T465-T466): Wandering Charcoal Burner (T465), Imperial Courier Master (T466)",
     "Session 142 (T467-T468): Wandering Lace Maker (T467), Imperial Glassworks Master (T468)",
     "Session 143 (T469-T470): Wandering Sandal Maker (T469), Imperial Cotton Merchant (T470)"
+  ],
+  "sessions": [
+    "Session 144 (T471-T472): Wandering Comb Maker (T471), Imperial Pottery Master (T472)"
   ]
 }

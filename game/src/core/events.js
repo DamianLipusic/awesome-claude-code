@@ -412,4 +412,6 @@ export const Events = Object.freeze({
   IMPERIAL_GLASSWORKS_MASTER_CHANGED:     'imperialGlassworksMasterChanged',                                    // T468: glassworks master spawned / commissioned / purchased / dismissed / expired
   WANDERING_SANDAL_MAKER_CHANGED:         'wanderingSandalMakerChanged',                                        // T469: sandal maker spawned / commissioned / purchased / dismissed / expired
   IMPERIAL_COTTON_MERCHANT_CHANGED:       'imperialCottonMerchantChanged',                                      // T470: cotton merchant spawned / traded / purchased / dismissed / expired
+  WANDERING_COMB_MAKER_CHANGED:           'wanderingCombMakerChanged',                                          // T471: comb maker spawned / commissioned / purchased / dismissed / expired
+  IMPERIAL_POTTERY_MASTER_CHANGED:        'imperialPotteryMasterChanged',                                       // T472: pottery master spawned / commissioned / studied / dismissed / expired
 });

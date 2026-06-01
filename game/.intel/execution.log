@@ -1703,3 +1703,18 @@ Built imperialSaltWorksMaster.js: commissionSaltEvaporationWorks (25 food + 20g 
 Wired in main.js: import initImperialSaltWorksMaster+imperialSaltWorksMasterTick, registerSystem, initImperialSaltWorksMaster() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _imperialSaltWorksMasterSection() render + saltworksmaster-commission/saltworksmaster-purchase/saltworksmaster-away handlers to questPanel.js (import * as SaltWorksMaster). Events.IMPERIAL_SALT_WORKS_MASTER_CHANGED subscribed.
 CSS: @keyframes saltworksmaster-pulse (cyan/aqua salt theme), .saltworksmaster-section--active, .btn--saltworksmaster-commission (cyan), .btn--saltworksmaster-purchase (violet), .btn--saltworksmaster-away (gray). Session 135.
+
+Session 144 — T471–T472: Wandering Comb Maker, Imperial Pottery Master.
+Comb Maker: Stone Age+, 6+ tiles, 11–15 min, 80s window. Commission Bone Comb Set (20 food + 10 stone → +0.20 food/s 2.5min · +15 prestige · +8 morale), Purchase Comb-Making Craft (18g → +0.15 gold/s 2min · +10 prestige). Ivory/bone CSS theme. Imperial Pottery Master: Iron Age+, 10+ tiles, 14–18 min, 75s window. Commission Grand Pottery Works (25 stone + 20g → +0.22 stone/s 2.5min · +22 prestige · +12 morale), Study Ceramic Arts (20 mana → +0.18 mana/s 2min · +15 prestige). Terracotta/clay orange-brown CSS theme. Both fully wired into main.js (import, registerSystem, init x2, save/load) and questPanel.js (import, section render, handlers, ENCOUNTER_EVENTS). Events added to events.js.
+
+T471: Wandering Comb Maker — Stone Age+, 6+ tiles, 11–15 min, 80s window.
+Built wanderingCombMaker.js: commissionBoneCombSet (20 food + 10 stone → +0.20 food/s 2.5min +15 prestige +8 morale), purchaseCombMakingCraft (18g → +0.15 gold/s 2min +10 prestige), sendCombMakerAway (dismiss). Added WANDERING_COMB_MAKER_CHANGED event to events.js. state.wanderingCombMaker null field.
+Wired in main.js: import initWanderingCombMaker+wanderingCombMakerTick, registerSystem, initWanderingCombMaker() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingCombMakerSection() render + combmaker-commission/combmaker-purchase/combmaker-away handlers to questPanel.js (import * as CombMaker). Events.WANDERING_COMB_MAKER_CHANGED subscribed.
+CSS: @keyframes combmaker-pulse (ivory/bone cream theme), .combmaker-section--active, .btn--combmaker-commission (tan/amber), .btn--combmaker-purchase (gold), .btn--combmaker-away (gray). Session 144.
+
+T472: Imperial Pottery Master — Iron Age+, 10+ tiles, 14–18 min, 75s window.
+Built imperialPotteryMaster.js: commissionGrandPotteryWorks (25 stone + 20g → +0.22 stone/s 2.5min +22 prestige +12 morale), studyCeramicArts (20 mana → +0.18 mana/s 2min +15 prestige), sendPotteryMasterAway (dismiss). Added IMPERIAL_POTTERY_MASTER_CHANGED event to events.js. state.imperialPotteryMaster null field.
+Wired in main.js: import initImperialPotteryMaster+imperialPotteryMasterTick, registerSystem, initImperialPotteryMaster() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _imperialPotteryMasterSection() render + potterymaster-commission/potterymaster-study/potterymaster-away handlers to questPanel.js (import * as PotteryMaster). Events.IMPERIAL_POTTERY_MASTER_CHANGED subscribed.
+CSS: @keyframes potterymaster-pulse (terracotta/clay orange-brown theme), .potterymaster-section--active, .btn--potterymaster-commission (terracotta/orange), .btn--potterymaster-study (violet/indigo mana), .btn--potterymaster-away (gray). Session 144.
