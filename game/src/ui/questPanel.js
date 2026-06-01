@@ -239,6 +239,8 @@ import * as CombMaker        from '../systems/wanderingCombMaker.js';           
 import * as PotteryMaster    from '../systems/imperialPotteryMaster.js';           // T472
 import * as RushMatMaker     from '../systems/wanderingRushMatMaker.js';           // T473
 import * as SpyglassMaker    from '../systems/imperialSpyglassMaker.js';           // T474
+import * as LoomKeeper       from '../systems/wanderingLoomKeeper.js';             // T475
+import * as PorcelainMaster  from '../systems/imperialPorcelainMaster.js';         // T476
 
 let _panel = null;
 
@@ -506,6 +508,8 @@ function _encountersSection() {
     _imperialPotteryMasterSection(),
     _wanderingRushMatMakerSection(),
     _imperialSpyglassMakerSection(),
+    _wanderingLoomKeeperSection(),
+    _imperialPorcelainMasterSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -8083,6 +8087,72 @@ function _imperialSpyglassMakerSection() {
     </div>`;
 }
 
+function _wanderingLoomKeeperSection() {
+  if (!LoomKeeper.getActiveWanderingLoomKeeper()) return '';
+  const secs          = LoomKeeper.getLoomKeeperSecsLeft();
+  const urgent        = secs <= 20;
+  const wood          = state.resources.wood  ?? 0;
+  const food          = state.resources.food  ?? 0;
+  const gold          = state.resources.gold  ?? 0;
+  const canCommission = wood >= LoomKeeper.COMMISSION_WOOD_COST && food >= LoomKeeper.COMMISSION_FOOD_COST;
+  const canPurchase   = gold >= LoomKeeper.PURCHASE_GOLD_COST;
+  return `
+    <div class="loomkeeper-section--active">
+      <div class="loomkeeper-header">
+        <span class="loomkeeper-title">🪡 Wandering Loom Keeper</span>
+        <span class="loomkeeper-timer${urgent ? ' loomkeeper-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="loomkeeper-desc">A wandering loom keeper arrives carrying a collapsible upright loom in a canvas sack — two-beam frame, heddle rod, shed stick, and beater batten — along with finished cloth samples in tabby weave, striped twill, and chevron-pattern belt. Offers to commission a supply of woven cloth for the settlement's households, or to sell the loom-weaving lore for local weavers.</div>
+      <div class="loomkeeper-actions">
+        <button class="btn--loomkeeper-commission${canCommission ? '' : ' btn--disabled'}" data-action="loomkeeper-commission" ${canCommission ? '' : 'disabled'}>
+          🪡 Commission Woven Cloth Works — ${LoomKeeper.COMMISSION_WOOD_COST}🪵 + ${LoomKeeper.COMMISSION_FOOD_COST}🌾
+          <span class="loomkeeper-cost">→ +${LoomKeeper.COMMISSION_FOOD_RATE} food/s (2.5 min) · +${LoomKeeper.COMMISSION_PRESTIGE_REWARD} prestige · +${LoomKeeper.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--loomkeeper-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="loomkeeper-purchase" ${canPurchase ? '' : 'disabled'}>
+          📜 Purchase Loom-Weaving Lore — ${LoomKeeper.PURCHASE_GOLD_COST}💰
+          <span class="loomkeeper-cost">→ +${LoomKeeper.PURCHASE_GOLD_RATE} gold/s (2 min) · +${LoomKeeper.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--loomkeeper-away" data-action="loomkeeper-away">
+          🚶 Send Away
+          <span class="loomkeeper-cost">→ Loom keeper repacks the frame and continues to the next settlement</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _imperialPorcelainMasterSection() {
+  if (!PorcelainMaster.getActiveImperialPorcelainMaster()) return '';
+  const secs          = PorcelainMaster.getPorcelainMasterSecsLeft();
+  const urgent        = secs <= 20;
+  const stone         = state.resources.stone ?? 0;
+  const gold          = state.resources.gold  ?? 0;
+  const mana          = state.resources.mana  ?? 0;
+  const canCommission = stone >= PorcelainMaster.COMMISSION_STONE_COST && gold >= PorcelainMaster.COMMISSION_GOLD_COST;
+  const canStudy      = mana >= PorcelainMaster.STUDY_MANA_COST;
+  return `
+    <div class="porcelainmaster-section--active">
+      <div class="porcelainmaster-header">
+        <span class="porcelainmaster-title">🏺 Imperial Porcelain Master</span>
+        <span class="porcelainmaster-timer${urgent ? ' porcelainmaster-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="porcelainmaster-desc">An imperial porcelain master arrives carrying a locked display case — a celadon-glazed vase with faint crackle, translucent white bowls that ring when struck, and a cobalt-decorated lidded jar — along with glaze formulas and kiln-stacking diagrams. Offers to commission porcelain masterworks for the settlement, or to teach glazing techniques to skilled potters.</div>
+      <div class="porcelainmaster-actions">
+        <button class="btn--porcelainmaster-commission${canCommission ? '' : ' btn--disabled'}" data-action="porcelainmaster-commission" ${canCommission ? '' : 'disabled'}>
+          🏺 Commission Porcelain Masterworks — ${PorcelainMaster.COMMISSION_STONE_COST}🪨 + ${PorcelainMaster.COMMISSION_GOLD_COST}💰
+          <span class="porcelainmaster-cost">→ +${PorcelainMaster.COMMISSION_STONE_RATE} stone/s (2.5 min) · +${PorcelainMaster.COMMISSION_PRESTIGE_REWARD} prestige · +${PorcelainMaster.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--porcelainmaster-study${canStudy ? '' : ' btn--disabled'}" data-action="porcelainmaster-study" ${canStudy ? '' : 'disabled'}>
+          📜 Study Glazing Techniques — ${PorcelainMaster.STUDY_MANA_COST}✨
+          <span class="porcelainmaster-cost">→ +${PorcelainMaster.STUDY_MANA_RATE} mana/s (2 min) · +${PorcelainMaster.STUDY_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--porcelainmaster-away" data-action="porcelainmaster-away">
+          🚶 Send Away
+          <span class="porcelainmaster-cost">→ Porcelain master closes the display case and departs for a more discerning settlement</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -8984,6 +9054,14 @@ const _HANDLERS = {
   'spyglassmaker-commission':  () => SpyglassMaker.commissionImperialSpyglassCollection(),
   'spyglassmaker-study':       () => SpyglassMaker.studyLensGrindingArts(),
   'spyglassmaker-away':        () => SpyglassMaker.sendSpyglassMakerAway(),
+
+  'loomkeeper-commission':     () => LoomKeeper.commissionWovenClothWorks(),
+  'loomkeeper-purchase':       () => LoomKeeper.purchaseLoomWeavingLore(),
+  'loomkeeper-away':           () => LoomKeeper.sendLoomKeeperAway(),
+
+  'porcelainmaster-commission': () => PorcelainMaster.commissionPorcelainMasterworks(),
+  'porcelainmaster-study':      () => PorcelainMaster.studyGlazingTechniques(),
+  'porcelainmaster-away':       () => PorcelainMaster.sendPorcelainMasterAway(),
 };
 
 function _handleClick(e) {
@@ -9230,6 +9308,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_POTTERY_MASTER_CHANGED,
     Events.WANDERING_RUSH_MAT_MAKER_CHANGED,
     Events.IMPERIAL_SPYGLASS_MAKER_CHANGED,
+    Events.WANDERING_LOOM_KEEPER_CHANGED,
+    Events.IMPERIAL_PORCELAIN_MASTER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);
