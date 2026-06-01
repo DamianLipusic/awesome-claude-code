@@ -2198,6 +2198,26 @@
       "description": "Periodic imperial glassworks master encounter: commission imperial glass dome (25 stone + 20g → +0.22 stone/s 2.5min · +22 prestige · +12 morale), purchase glass-casting formulas (20 mana → +0.18 mana/s 2min · +15 prestige), send away. Medieval Age+, 10+ tiles, 15-19 min.",
       "completed_date": "2026-05-31",
       "notes": "Built imperialGlassworksMaster.js. IMPERIAL_GLASSWORKS_MASTER_CHANGED event added to events.js. state.imperialGlassworksMaster null field. Glassworks master section in questPanel.js (import * as GlassworksMaster). Events.IMPERIAL_GLASSWORKS_MASTER_CHANGED subscribed. CSS: @keyframes glassworksmstr-pulse (cyan/teal crystal glass theme), .glassworksmstr-section--active, .btn--glassworksmstr-commission (cyan/teal), .btn--glassworksmstr-purchase (violet/purple), .btn--glassworksmstr-away (gray). Wired main.js: import, registerSystem, init x2, save/load. Session 142."
+    },
+    {
+      "id": "T469",
+      "title": "Wandering Sandal Maker",
+      "status": "done",
+      "priority": 469,
+      "phase": 147,
+      "description": "Periodic wandering sandal maker encounter: commission leather sandals (20 food + 15 wood → +0.22 food/s 2.5min · +15 prestige · +10 morale), purchase sandal-making craft (18g → +0.15 gold/s 2min · +10 prestige), send away. Stone Age+, 6+ tiles, 12-16 min.",
+      "completed_date": "2026-06-01",
+      "notes": "Built wanderingSandalMaker.js. WANDERING_SANDAL_MAKER_CHANGED event added to events.js. state.wanderingSandalMaker null field. Sandal maker section in questPanel.js (import * as SandalMaker). Events.WANDERING_SANDAL_MAKER_CHANGED subscribed. CSS: @keyframes sandalmaker-pulse (warm terracotta/leather brown theme), .sandalmaker-section--active, .btn--sandalmaker-commission (terracotta/amber), .btn--sandalmaker-purchase (gold/yellow), .btn--sandalmaker-away (gray). Wired main.js: import, registerSystem, init x2, save/load. Session 143."
+    },
+    {
+      "id": "T470",
+      "title": "Imperial Cotton Merchant",
+      "status": "done",
+      "priority": 470,
+      "phase": 147,
+      "description": "Periodic imperial cotton merchant encounter: arrange cotton trade (25 food + 20g → +0.22 food/s 2.5min · +20 prestige · +12 morale), purchase cotton weaving lore (20 wood → +0.18 wood/s 2min · +15 prestige), send away. Bronze Age+, 8+ tiles, 13-17 min.",
+      "completed_date": "2026-06-01",
+      "notes": "Built imperialCottonMerchant.js. IMPERIAL_COTTON_MERCHANT_CHANGED event added to events.js. state.imperialCottonMerchant null field. Cotton merchant section in questPanel.js (import * as CottonMerchant). Events.IMPERIAL_COTTON_MERCHANT_CHANGED subscribed. CSS: @keyframes cottonmerchant-pulse (soft sage green/cotton theme), .cottonmerchant-section--active, .btn--cottonmerchant-trade (sage green), .btn--cottonmerchant-purchase (light green), .btn--cottonmerchant-away (gray). Wired main.js: import, registerSystem, init x2, save/load. Session 143."
     }
   ],
   "session_history": [
@@ -2320,6 +2340,7 @@
     "Session 139 (T461-T462): Wandering Tallow Chandler (T461), Imperial Rope Walk Master (T462)",
     "Session 140 (T463-T464): Wandering Canoe Builder (T463), Imperial Marble Polisher (T464)",
     "Session 141 (T465-T466): Wandering Charcoal Burner (T465), Imperial Courier Master (T466)",
-    "Session 142 (T467-T468): Wandering Lace Maker (T467), Imperial Glassworks Master (T468)"
+    "Session 142 (T467-T468): Wandering Lace Maker (T467), Imperial Glassworks Master (T468)",
+    "Session 143 (T469-T470): Wandering Sandal Maker (T469), Imperial Cotton Merchant (T470)"
   ]
 }

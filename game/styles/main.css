@@ -24001,3 +24001,73 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--glassworksmstr-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+@keyframes sandalmaker-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(180, 100, 40, 0.00); }
+  50%       { box-shadow: 0 0 8px 2px rgba(180, 100, 40, 0.22); }
+}
+.sandalmaker-section--active {
+  background: linear-gradient(135deg, rgba(22, 12, 5, 0.30), rgba(14, 8, 3, 0.20));
+  border: 1px solid rgba(180, 100, 40, 0.32); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: sandalmaker-pulse 2.8s ease-in-out infinite;
+}
+.sandalmaker-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.sandalmaker-title  { font-weight: 700; font-size: 0.88rem; color: #c2844a; }
+.sandalmaker-timer  { font-size: 0.78rem; color: #c2844a; }
+.sandalmaker-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.sandalmaker-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.sandalmaker-actions { display: flex; flex-direction: column; gap: 5px; }
+.sandalmaker-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--sandalmaker-commission {
+  background: linear-gradient(135deg, rgba(22, 10, 4, 0.30), rgba(14, 7, 3, 0.20));
+  border: 1px solid rgba(180, 100, 40, 0.35); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #c2844a; text-align: left; transition: background 0.15s; padding: 6px 8px;
+}
+.btn--sandalmaker-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(28, 14, 5, 0.42), rgba(20, 10, 3, 0.30)); }
+.btn--sandalmaker-purchase {
+  background: linear-gradient(135deg, rgba(18, 14, 4, 0.28), rgba(12, 10, 3, 0.18));
+  border: 1px solid rgba(200, 160, 40, 0.30); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #d4aa30; text-align: left; transition: background 0.15s; padding: 6px 8px;
+}
+.btn--sandalmaker-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(22, 18, 5, 0.36), rgba(16, 12, 4, 0.26)); }
+.btn--sandalmaker-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--sandalmaker-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+@keyframes cottonmerchant-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(220, 220, 200, 0.00); }
+  50%       { box-shadow: 0 0 8px 2px rgba(220, 220, 200, 0.18); }
+}
+.cottonmerchant-section--active {
+  background: linear-gradient(135deg, rgba(20, 22, 18, 0.30), rgba(14, 16, 12, 0.20));
+  border: 1px solid rgba(180, 200, 140, 0.32); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px; animation: cottonmerchant-pulse 2.8s ease-in-out infinite;
+}
+.cottonmerchant-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.cottonmerchant-title  { font-weight: 700; font-size: 0.88rem; color: #a8c870; }
+.cottonmerchant-timer  { font-size: 0.78rem; color: #a8c870; }
+.cottonmerchant-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.cottonmerchant-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.cottonmerchant-actions { display: flex; flex-direction: column; gap: 5px; }
+.cottonmerchant-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--cottonmerchant-trade {
+  background: linear-gradient(135deg, rgba(10, 20, 6, 0.30), rgba(7, 14, 4, 0.20));
+  border: 1px solid rgba(140, 190, 80, 0.35); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #a8c870; text-align: left; transition: background 0.15s; padding: 6px 8px;
+}
+.btn--cottonmerchant-trade:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(14, 26, 8, 0.42), rgba(10, 18, 6, 0.30)); }
+.btn--cottonmerchant-purchase {
+  background: linear-gradient(135deg, rgba(8, 18, 5, 0.28), rgba(5, 12, 3, 0.18));
+  border: 1px solid rgba(100, 160, 60, 0.30); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #86b554; text-align: left; transition: background 0.15s; padding: 6px 8px;
+}
+.btn--cottonmerchant-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(10, 22, 6, 0.36), rgba(7, 16, 4, 0.26)); }
+.btn--cottonmerchant-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--cottonmerchant-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

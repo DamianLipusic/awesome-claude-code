@@ -233,6 +233,8 @@ import * as CharcoalBurner   from '../systems/wanderingCharcoalBurner.js';      
 import * as CourierMaster    from '../systems/imperialCourierMaster.js';            // T466
 import * as LaceMaker        from '../systems/wanderingLaceMaker.js';              // T467
 import * as GlassworksMaster from '../systems/imperialGlassworksMaster.js';        // T468
+import * as SandalMaker      from '../systems/wanderingSandalMaker.js';            // T469
+import * as CottonMerchant   from '../systems/imperialCottonMerchant.js';          // T470
 
 let _panel = null;
 
@@ -494,6 +496,8 @@ function _encountersSection() {
     _imperialCourierMasterSection(),
     _wanderingLaceMakerSection(),
     _imperialGlassworksMasterSection(),
+    _wanderingSandalMakerSection(),
+    _imperialCottonMerchantSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -7873,6 +7877,72 @@ function _imperialGlassworksMasterSection() {
     </div>`;
 }
 
+function _wanderingSandalMakerSection() {
+  if (!SandalMaker.getActiveWanderingSandalMaker()) return '';
+  const secs         = SandalMaker.getSandalMakerSecsLeft();
+  const urgent       = secs <= 20;
+  const food         = state.resources.food  ?? 0;
+  const wood         = state.resources.wood  ?? 0;
+  const gold         = state.resources.gold  ?? 0;
+  const canCommission = food >= SandalMaker.COMMISSION_FOOD_COST && wood >= SandalMaker.COMMISSION_WOOD_COST;
+  const canPurchase   = gold >= SandalMaker.PURCHASE_GOLD_COST;
+  return `
+    <div class="sandalmaker-section--active">
+      <div class="sandalmaker-header">
+        <span class="sandalmaker-title">👡 Wandering Sandal Maker</span>
+        <span class="sandalmaker-timer${urgent ? ' sandalmaker-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="sandalmaker-desc">A wandering sandal maker arrives carrying a leather satchel of tanning tools, a wooden last in several sizes, and finished sandals — sturdy leather soles with braided thong straps, some plain, others tooled with geometric patterns. Offers to commission leather sandals for the settlement's workers and soldiers, or to sell the sandal-making craft for local cobblers.</div>
+      <div class="sandalmaker-actions">
+        <button class="btn--sandalmaker-commission${canCommission ? '' : ' btn--disabled'}" data-action="sandalmaker-commission" ${canCommission ? '' : 'disabled'}>
+          👡 Commission Leather Sandals — ${SandalMaker.COMMISSION_FOOD_COST}🌾 + ${SandalMaker.COMMISSION_WOOD_COST}🪵
+          <span class="sandalmaker-cost">→ +${SandalMaker.COMMISSION_FOOD_RATE} food/s (2.5 min) · +${SandalMaker.COMMISSION_PRESTIGE_REWARD} prestige · +${SandalMaker.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--sandalmaker-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="sandalmaker-purchase" ${canPurchase ? '' : 'disabled'}>
+          📜 Purchase Sandal-Making Craft — ${SandalMaker.PURCHASE_GOLD_COST}💰
+          <span class="sandalmaker-cost">→ +${SandalMaker.PURCHASE_GOLD_RATE} gold/s (2 min) · +${SandalMaker.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--sandalmaker-away" data-action="sandalmaker-away">
+          🚶 Send Away
+          <span class="sandalmaker-cost">→ Sandal maker packs up the last and sets off down the dusty road</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _imperialCottonMerchantSection() {
+  if (!CottonMerchant.getActiveImperialCottonMerchant()) return '';
+  const secs         = CottonMerchant.getCottonMerchantSecsLeft();
+  const urgent       = secs <= 20;
+  const food         = state.resources.food  ?? 0;
+  const wood         = state.resources.wood  ?? 0;
+  const gold         = state.resources.gold  ?? 0;
+  const canTrade      = food >= CottonMerchant.TRADE_FOOD_COST && gold >= CottonMerchant.TRADE_GOLD_COST;
+  const canPurchase   = wood >= CottonMerchant.PURCHASE_WOOD_COST;
+  return `
+    <div class="cottonmerchant-section--active">
+      <div class="cottonmerchant-header">
+        <span class="cottonmerchant-title">🌿 Imperial Cotton Merchant</span>
+        <span class="cottonmerchant-timer${urgent ? ' cottonmerchant-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="cottonmerchant-desc">An imperial cotton merchant arrives bearing bolts of raw cotton wadding in hemp sacks and a sample book of finished cloth weights — from gauze-thin muslin to dense canvas — along with trade contacts in the southern cotton-growing river valleys. Offers a seasonal cotton trade agreement or a manual of cotton weaving lore from the region's textile workshops.</div>
+      <div class="cottonmerchant-actions">
+        <button class="btn--cottonmerchant-trade${canTrade ? '' : ' btn--disabled'}" data-action="cottonmerchant-trade" ${canTrade ? '' : 'disabled'}>
+          🌿 Arrange Cotton Trade — ${CottonMerchant.TRADE_FOOD_COST}🌾 + ${CottonMerchant.TRADE_GOLD_COST}💰
+          <span class="cottonmerchant-cost">→ +${CottonMerchant.TRADE_FOOD_RATE} food/s (2.5 min) · +${CottonMerchant.TRADE_PRESTIGE_REWARD} prestige · +${CottonMerchant.TRADE_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--cottonmerchant-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="cottonmerchant-purchase" ${canPurchase ? '' : 'disabled'}>
+          📜 Purchase Cotton Weaving Lore — ${CottonMerchant.PURCHASE_WOOD_COST}🪵
+          <span class="cottonmerchant-cost">→ +${CottonMerchant.PURCHASE_WOOD_RATE} wood/s (2 min) · +${CottonMerchant.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--cottonmerchant-away" data-action="cottonmerchant-away">
+          🚶 Send Away
+          <span class="cottonmerchant-cost">→ Cotton merchant closes the sample book and departs to seek another partner</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -8754,6 +8824,12 @@ const _HANDLERS = {
   'glassworksmstr-commission': () => GlassworksMaster.commissionImperialGlassDome(),
   'glassworksmstr-purchase':   () => GlassworksMaster.purchaseGlassCastingFormulas(),
   'glassworksmstr-away':       () => GlassworksMaster.sendGlassworksMasterAway(),
+  'sandalmaker-commission':    () => SandalMaker.commissionLeatherSandals(),
+  'sandalmaker-purchase':      () => SandalMaker.purchaseSandalMakingCraft(),
+  'sandalmaker-away':          () => SandalMaker.sendSandalMakerAway(),
+  'cottonmerchant-trade':      () => CottonMerchant.arrangeCottonTrade(),
+  'cottonmerchant-purchase':   () => CottonMerchant.purchaseCottonWeavingLore(),
+  'cottonmerchant-away':       () => CottonMerchant.sendCottonMerchantAway(),
 };
 
 function _handleClick(e) {
@@ -8994,6 +9070,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_COURIER_MASTER_CHANGED,
     Events.WANDERING_LACE_MAKER_CHANGED,
     Events.IMPERIAL_GLASSWORKS_MASTER_CHANGED,
+    Events.WANDERING_SANDAL_MAKER_CHANGED,
+    Events.IMPERIAL_COTTON_MERCHANT_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);
