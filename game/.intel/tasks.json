@@ -2276,7 +2276,7 @@
     {
       "id": "T477",
       "title": "Wandering Fruit Merchant",
-      "description": "Periodic wandering fruit merchant encounter: arrange seasonal supply (25 food -> +0.20 food/s 2.5min · +15 prestige · +8 morale), purchase orchard secrets (18g -> +0.15 gold/s 2min · +10 prestige). Stone Age+, 6+ tiles, 12-16 min spawn, 80s window.",
+      "description": "Periodic wandering fruit merchant encounter: arrange seasonal supply (25 food -> +0.20 food/s 2.5min \u00b7 +15 prestige \u00b7 +8 morale), purchase orchard secrets (18g -> +0.15 gold/s 2min \u00b7 +10 prestige). Stone Age+, 6+ tiles, 12-16 min spawn, 80s window.",
       "priority": 477,
       "status": "done",
       "phase": 151,
@@ -2285,7 +2285,7 @@
     {
       "id": "T478",
       "title": "Imperial Scroll Keeper",
-      "description": "Periodic imperial scroll keeper encounter: commission imperial scrolls (25 mana + 20g -> +0.22 mana/s 2.5min · +22 prestige · +12 morale), access restricted archive (20 stone -> +0.18 stone/s 2min · +15 prestige). Medieval Age+, 10+ tiles, 14-18 min spawn, 75s window.",
+      "description": "Periodic imperial scroll keeper encounter: commission imperial scrolls (25 mana + 20g -> +0.22 mana/s 2.5min \u00b7 +22 prestige \u00b7 +12 morale), access restricted archive (20 stone -> +0.18 stone/s 2min \u00b7 +15 prestige). Medieval Age+, 10+ tiles, 14-18 min spawn, 75s window.",
       "priority": 478,
       "status": "done",
       "phase": 151,
@@ -2294,7 +2294,7 @@
     {
       "id": "T479",
       "title": "Wandering Linen Merchant",
-      "description": "Periodic wandering linen merchant encounter: trade fine linen (25 food -> +0.22 food/s 2.5min · +18 prestige · +10 morale), purchase weaving secrets (18g -> +0.15 gold/s 2min · +12 prestige). Bronze Age+, 8+ tiles, 12-16 min spawn, 80s window.",
+      "description": "Periodic wandering linen merchant encounter: trade fine linen (25 food -> +0.22 food/s 2.5min \u00b7 +18 prestige \u00b7 +10 morale), purchase weaving secrets (18g -> +0.15 gold/s 2min \u00b7 +12 prestige). Bronze Age+, 8+ tiles, 12-16 min spawn, 80s window.",
       "priority": 479,
       "status": "done",
       "phase": 152,
@@ -2304,12 +2304,30 @@
     {
       "id": "T480",
       "title": "Imperial Foundry Master",
-      "description": "Periodic imperial foundry master encounter: commission iron casting works (25 iron + 20g -> +0.22 iron/s 2.5min · +22 prestige · +12 morale), study metallurgy techniques (20 mana -> +0.18 mana/s 2min · +15 prestige). Iron Age+, 10+ tiles, 14-18 min spawn, 75s window.",
+      "description": "Periodic imperial foundry master encounter: commission iron casting works (25 iron + 20g -> +0.22 iron/s 2.5min \u00b7 +22 prestige \u00b7 +12 morale), study metallurgy techniques (20 mana -> +0.18 mana/s 2min \u00b7 +15 prestige). Iron Age+, 10+ tiles, 14-18 min spawn, 75s window.",
       "priority": 480,
       "status": "done",
       "phase": 152,
       "completed_date": "2026-06-02",
       "notes": "Built imperialFoundryMaster.js: commissionIronCastingWorks (25 iron + 20g -> +0.22 iron/s 2.5min +22 prestige +12 morale), studyMetallurgyTechniques (20 mana -> +0.18 mana/s 2min +15 prestige), sendFoundryMasterAway (dismiss). Added IMPERIAL_FOUNDRY_MASTER_CHANGED event to events.js. state.imperialFoundryMaster null field. Wired in main.js: import, registerSystem, init x2, save/load. Added _imperialFoundryMasterSection() + foundrymstr-commission/foundrymstr-study/foundrymstr-away handlers to questPanel.js (import * as FoundryMaster). Events.IMPERIAL_FOUNDRY_MASTER_CHANGED subscribed. CSS: @keyframes foundrymstr-pulse (orange/bronze foundry fire theme), .foundrymstr-section--active, .btn--foundrymstr-commission (orange), .btn--foundrymstr-study (violet/purple mana), .btn--foundrymstr-away (gray). Session 148."
+    },
+    {
+      "id": "T481",
+      "title": "Wandering Ink Merchant",
+      "description": "Stone Age+, 6+ tiles, 12-16 min spawn, 80s window. Commission Ink Supply (20 stone + 15 food \u2192 +0.20 stone/s 2.5min +15 prestige +8 morale), Purchase Ink-Making Craft (18g \u2192 +0.15 gold/s 2min +10 prestige), Send Away.",
+      "priority": 481,
+      "status": "done",
+      "phase": 153,
+      "notes": "Built wanderingInkMerchant.js: commissionInkSupply (20 stone + 15 food \u2192 +0.20 stone/s 2.5min +15 prestige +8 morale), purchaseInkMakingCraft (18g \u2192 +0.15 gold/s 2min +10 prestige), sendInkMerchantAway (dismiss). Added WANDERING_INK_MERCHANT_CHANGED event to events.js. state.wanderingInkMerchant null field. Wired in main.js: import initWanderingInkMerchant+wanderingInkMerchantTick, registerSystem, initWanderingInkMerchant() in _startFreshGame+_startLoadedGame, save/load fields. Added _wanderingInkMerchantSection() render + inkmerchant-commission/inkmerchant-purchase/inkmerchant-away handlers to questPanel.js (import * as InkMerchant). Events.WANDERING_INK_MERCHANT_CHANGED subscribed. CSS: @keyframes inkmerchant-pulse (indigo/violet ink theme), .inkmerchant-section--active, .btn--inkmerchant-commission (indigo), .btn--inkmerchant-purchase (gold/amber), .btn--inkmerchant-away (gray). Session 153."
+    },
+    {
+      "id": "T482",
+      "title": "Imperial Cartography Master",
+      "description": "Iron Age+, 10+ tiles, 14-18 min spawn, 75s window. Commission Territorial Survey (25 stone + 20g \u2192 +0.22 stone/s 2.5min +22 prestige +12 morale), Study Mapping Techniques (20 mana \u2192 +0.18 mana/s 2min +15 prestige), Send Away.",
+      "priority": 482,
+      "status": "done",
+      "phase": 153,
+      "notes": "Built imperialCartographyMaster.js: commissionTerritorialSurvey (25 stone + 20g \u2192 +0.22 stone/s 2.5min +22 prestige +12 morale), studyMappingTechniques (20 mana \u2192 +0.18 mana/s 2min +15 prestige), sendCartographyMasterAway (dismiss). Added IMPERIAL_CARTOGRAPHY_MASTER_CHANGED event to events.js. state.imperialCartographyMaster null field. Wired in main.js: import initImperialCartographyMaster+imperialCartographyMasterTick, registerSystem, initImperialCartographyMaster() in _startFreshGame+_startLoadedGame, save/load fields. Added _imperialCartographyMasterSection() render + cartomstr-commission/cartomstr-study/cartomstr-away handlers to questPanel.js (import * as CartographyMaster). Events.IMPERIAL_CARTOGRAPHY_MASTER_CHANGED subscribed. CSS: @keyframes cartomstr-pulse (parchment/tan-brown theme), .cartomstr-section--active, .btn--cartomstr-commission (tan/amber), .btn--cartomstr-study (violet/indigo mana), .btn--cartomstr-away (gray). Session 153."
     }
   ],
   "session_history": [

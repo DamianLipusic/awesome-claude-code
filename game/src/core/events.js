@@ -422,4 +422,6 @@ export const Events = Object.freeze({
   IMPERIAL_SCROLL_KEEPER_CHANGED:         'imperialScrollKeeperChanged',                                        // T478: scroll keeper spawned / commissioned / accessed / dismissed / expired
   WANDERING_LINEN_MERCHANT_CHANGED:       'wanderingLinenMerchantChanged',                                      // T479: linen merchant spawned / traded / purchased / dismissed / expired
   IMPERIAL_FOUNDRY_MASTER_CHANGED:        'imperialFoundryMasterChanged',                                       // T480: foundry master spawned / commissioned / studied / dismissed / expired
+  WANDERING_INK_MERCHANT_CHANGED:         'wanderingInkMerchantChanged',                                        // T481: ink merchant spawned / commissioned / purchased / dismissed / expired
+  IMPERIAL_CARTOGRAPHY_MASTER_CHANGED:    'imperialCartographyMasterChanged',                                   // T482: cartography master spawned / commissioned / studied / dismissed / expired
 });

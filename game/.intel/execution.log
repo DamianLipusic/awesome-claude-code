@@ -1778,3 +1778,18 @@ Built imperialScrollKeeper.js: commissionImperialScrolls (25 mana + 20g → +0.2
 Wired in main.js: import initImperialScrollKeeper+imperialScrollKeeperTick, registerSystem, initImperialScrollKeeper() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _imperialScrollKeeperSection() render + scrollkeeper-commission/scrollkeeper-access/scrollkeeper-away handlers to questPanel.js (import * as ScrollKeeper). Events.IMPERIAL_SCROLL_KEEPER_CHANGED subscribed.
 CSS: @keyframes scrollkeeper-pulse (violet/purple mana theme), .scrollkeeper-section--active, .btn--scrollkeeper-commission (violet/purple), .btn--scrollkeeper-access (slate), .btn--scrollkeeper-away (gray). Session 147.
+
+Session 153 — T481–T482: Wandering Ink Merchant, Imperial Cartography Master.
+Ink Merchant: Stone Age+, 6+ tiles, 12–16 min, 80s window. Commission Ink Supply (20 stone + 15 food → +0.20 stone/s 2.5min · +15 prestige · +8 morale), Purchase Ink-Making Craft (18g → +0.15 gold/s 2min · +10 prestige). Indigo/violet CSS theme. Imperial Cartography Master: Iron Age+, 10+ tiles, 14–18 min, 75s window. Commission Territorial Survey (25 stone + 20g → +0.22 stone/s 2.5min · +22 prestige · +12 morale), Study Mapping Techniques (20 mana → +0.18 mana/s 2min · +15 prestige). Parchment/tan-brown CSS theme. Both fully wired into main.js (import, registerSystem, init x2, save/load) and questPanel.js (import, section render, handlers, ENCOUNTER_EVENTS). Events added to events.js.
+
+T481: Wandering Ink Merchant — Stone Age+, 6+ tiles, 12–16 min, 80s window.
+Built wanderingInkMerchant.js: commissionInkSupply (20 stone + 15 food → +0.20 stone/s 2.5min +15 prestige +8 morale), purchaseInkMakingCraft (18g → +0.15 gold/s 2min +10 prestige), sendInkMerchantAway (dismiss). Added WANDERING_INK_MERCHANT_CHANGED event to events.js. state.wanderingInkMerchant null field.
+Wired in main.js: import initWanderingInkMerchant+wanderingInkMerchantTick, registerSystem, initWanderingInkMerchant() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingInkMerchantSection() render + inkmerchant-commission/inkmerchant-purchase/inkmerchant-away handlers to questPanel.js (import * as InkMerchant). Events.WANDERING_INK_MERCHANT_CHANGED subscribed.
+CSS: @keyframes inkmerchant-pulse (indigo/violet ink theme), .inkmerchant-section--active, .btn--inkmerchant-commission (indigo/violet), .btn--inkmerchant-purchase (amber/gold), .btn--inkmerchant-away (gray). Session 153.
+
+T482: Imperial Cartography Master — Iron Age+, 10+ tiles, 14–18 min, 75s window.
+Built imperialCartographyMaster.js: commissionTerritorialSurvey (25 stone + 20g → +0.22 stone/s 2.5min +22 prestige +12 morale), studyMappingTechniques (20 mana → +0.18 mana/s 2min +15 prestige), sendCartographyMasterAway (dismiss). Added IMPERIAL_CARTOGRAPHY_MASTER_CHANGED event to events.js. state.imperialCartographyMaster null field.
+Wired in main.js: import initImperialCartographyMaster+imperialCartographyMasterTick, registerSystem, initImperialCartographyMaster() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _imperialCartographyMasterSection() render + cartomstr-commission/cartomstr-study/cartomstr-away handlers to questPanel.js (import * as CartographyMaster). Events.IMPERIAL_CARTOGRAPHY_MASTER_CHANGED subscribed.
+CSS: @keyframes cartomstr-pulse (parchment/tan-brown theme), .cartomstr-section--active, .btn--cartomstr-commission (tan/amber), .btn--cartomstr-study (violet/indigo mana), .btn--cartomstr-away (gray). Session 153.

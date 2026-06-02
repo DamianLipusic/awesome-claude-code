@@ -245,6 +245,8 @@ import * as FruitMerchant    from '../systems/wanderingFruitMerchant.js';       
 import * as ScrollKeeper     from '../systems/imperialScrollKeeper.js';             // T478
 import * as LinenMerchant    from '../systems/wanderingLinenMerchant.js';           // T479
 import * as FoundryMaster    from '../systems/imperialFoundryMaster.js';            // T480
+import * as InkMerchant      from '../systems/wanderingInkMerchant.js';             // T481
+import * as CartographyMaster from '../systems/imperialCartographyMaster.js';       // T482
 
 let _panel = null;
 
@@ -518,6 +520,8 @@ function _encountersSection() {
     _imperialScrollKeeperSection(),
     _wanderingLinenMerchantSection(),
     _imperialFoundryMasterSection(),
+    _wanderingInkMerchantSection(),
+    _imperialCartographyMasterSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -8291,6 +8295,72 @@ function _imperialFoundryMasterSection() {
     </div>`;
 }
 
+function _wanderingInkMerchantSection() {
+  if (!InkMerchant.getActiveWanderingInkMerchant()) return '';
+  const secs         = InkMerchant.getInkMerchantSecsLeft();
+  const urgent       = secs <= 20;
+  const stone        = state.resources.stone ?? 0;
+  const food         = state.resources.food  ?? 0;
+  const gold         = state.resources.gold  ?? 0;
+  const canCommission = stone >= InkMerchant.COMMISSION_STONE_COST && food >= InkMerchant.COMMISSION_FOOD_COST;
+  const canPurchase   = gold  >= InkMerchant.PURCHASE_GOLD_COST;
+  return `
+    <div class="inkmerchant-section--active">
+      <div class="inkmerchant-header">
+        <span class="inkmerchant-title">🖋️ Wandering Ink Merchant</span>
+        <span class="inkmerchant-timer${urgent ? ' inkmerchant-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="inkmerchant-desc">A wandering ink merchant arrives carrying stone-stoppered clay flasks sealed with beeswax — oak-gall iron ink, lampblack suspension in linseed oil, and red ochre slurry for plaster surfaces — with sharpened reed pens and a vellum sheet showing dried test strokes. Offers to supply a commission of finished ink for the settlement's scribes, or to teach the ink-making craft so the settlement can prepare its own supply from local materials.</div>
+      <div class="inkmerchant-actions">
+        <button class="btn--inkmerchant-commission${canCommission ? '' : ' btn--disabled'}" data-action="inkmerchant-commission" ${canCommission ? '' : 'disabled'}>
+          🖋️ Commission Ink Supply — ${InkMerchant.COMMISSION_STONE_COST}🪨 + ${InkMerchant.COMMISSION_FOOD_COST}🌾
+          <span class="inkmerchant-cost">→ +${InkMerchant.COMMISSION_STONE_RATE} stone/s (2.5 min) · +${InkMerchant.COMMISSION_PRESTIGE_REWARD} prestige · +${InkMerchant.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--inkmerchant-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="inkmerchant-purchase" ${canPurchase ? '' : 'disabled'}>
+          📜 Purchase Ink-Making Craft — ${InkMerchant.PURCHASE_GOLD_COST}💰
+          <span class="inkmerchant-cost">→ +${InkMerchant.PURCHASE_GOLD_RATE} gold/s (2 min) · +${InkMerchant.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--inkmerchant-away" data-action="inkmerchant-away">
+          🚶 Send Away
+          <span class="inkmerchant-cost">→ Ink merchant stoppers the flasks and continues along the road</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _imperialCartographyMasterSection() {
+  if (!CartographyMaster.getActiveImperialCartographyMaster()) return '';
+  const secs         = CartographyMaster.getCartographyMasterSecsLeft();
+  const urgent       = secs <= 20;
+  const stone        = state.resources.stone ?? 0;
+  const gold         = state.resources.gold  ?? 0;
+  const mana         = state.resources.mana  ?? 0;
+  const canCommission = stone >= CartographyMaster.COMMISSION_STONE_COST && gold >= CartographyMaster.COMMISSION_GOLD_COST;
+  const canStudy      = mana  >= CartographyMaster.STUDY_MANA_COST;
+  return `
+    <div class="cartomstr-section--active">
+      <div class="cartomstr-header">
+        <span class="cartomstr-title">🗺️ Imperial Cartography Master</span>
+        <span class="cartomstr-timer${urgent ? ' cartomstr-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="cartomstr-desc">An imperial cartography master arrives carrying a cylindrical leather map case — vellum survey maps with graduated elevation washes and distances confirmed by double survey — along with a brass surveying chain, plumb-bob on braided silk cord, and a shadow staff calibrated against monthly noon-shadow tables. Offers to commission a complete territorial survey of the settlement's lands, or to teach the mapping techniques used by imperial surveyors.</div>
+      <div class="cartomstr-actions">
+        <button class="btn--cartomstr-commission${canCommission ? '' : ' btn--disabled'}" data-action="cartomstr-commission" ${canCommission ? '' : 'disabled'}>
+          🗺️ Commission Territorial Survey — ${CartographyMaster.COMMISSION_STONE_COST}🪨 + ${CartographyMaster.COMMISSION_GOLD_COST}💰
+          <span class="cartomstr-cost">→ +${CartographyMaster.COMMISSION_STONE_RATE} stone/s (2.5 min) · +${CartographyMaster.COMMISSION_PRESTIGE_REWARD} prestige · +${CartographyMaster.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--cartomstr-study${canStudy ? '' : ' btn--disabled'}" data-action="cartomstr-study" ${canStudy ? '' : 'disabled'}>
+          📜 Study Mapping Techniques — ${CartographyMaster.STUDY_MANA_COST}✨
+          <span class="cartomstr-cost">→ +${CartographyMaster.STUDY_MANA_RATE} mana/s (2 min) · +${CartographyMaster.STUDY_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--cartomstr-away" data-action="cartomstr-away">
+          🚶 Send Away
+          <span class="cartomstr-cost">→ Cartography master rolls the maps into the leather case and departs</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -9216,6 +9286,14 @@ const _HANDLERS = {
   'foundrymstr-commission':     () => FoundryMaster.commissionIronCastingWorks(),
   'foundrymstr-study':          () => FoundryMaster.studyMetallurgyTechniques(),
   'foundrymstr-away':           () => FoundryMaster.sendFoundryMasterAway(),
+
+  'inkmerchant-commission':     () => InkMerchant.commissionInkSupply(),
+  'inkmerchant-purchase':       () => InkMerchant.purchaseInkMakingCraft(),
+  'inkmerchant-away':           () => InkMerchant.sendInkMerchantAway(),
+
+  'cartomstr-commission':       () => CartographyMaster.commissionTerritorialSurvey(),
+  'cartomstr-study':            () => CartographyMaster.studyMappingTechniques(),
+  'cartomstr-away':             () => CartographyMaster.sendCartographyMasterAway(),
 };
 
 function _handleClick(e) {
@@ -9468,6 +9546,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_SCROLL_KEEPER_CHANGED,
     Events.WANDERING_LINEN_MERCHANT_CHANGED,
     Events.IMPERIAL_FOUNDRY_MASTER_CHANGED,
+    Events.WANDERING_INK_MERCHANT_CHANGED,
+    Events.IMPERIAL_CARTOGRAPHY_MASTER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);
