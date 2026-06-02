@@ -243,6 +243,8 @@ import * as LoomKeeper       from '../systems/wanderingLoomKeeper.js';          
 import * as PorcelainMaster  from '../systems/imperialPorcelainMaster.js';         // T476
 import * as FruitMerchant    from '../systems/wanderingFruitMerchant.js';           // T477
 import * as ScrollKeeper     from '../systems/imperialScrollKeeper.js';             // T478
+import * as LinenMerchant    from '../systems/wanderingLinenMerchant.js';           // T479
+import * as FoundryMaster    from '../systems/imperialFoundryMaster.js';            // T480
 
 let _panel = null;
 
@@ -514,6 +516,8 @@ function _encountersSection() {
     _imperialPorcelainMasterSection(),
     _wanderingFruitMerchantSection(),
     _imperialScrollKeeperSection(),
+    _wanderingLinenMerchantSection(),
+    _imperialFoundryMasterSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -8222,6 +8226,71 @@ function _imperialScrollKeeperSection() {
     </div>`;
 }
 
+function _wanderingLinenMerchantSection() {
+  if (!LinenMerchant.getActiveWanderingLinenMerchant()) return '';
+  const secs       = LinenMerchant.getLinenMerchantSecsLeft();
+  const urgent     = secs <= 20;
+  const food       = state.resources.food ?? 0;
+  const gold       = state.resources.gold ?? 0;
+  const canTrade    = food >= LinenMerchant.TRADE_FOOD_COST;
+  const canPurchase = gold >= LinenMerchant.PURCHASE_GOLD_COST;
+  return `
+    <div class="linenmerchant-section--active">
+      <div class="linenmerchant-header">
+        <span class="linenmerchant-title">🪡 Wandering Linen Merchant</span>
+        <span class="linenmerchant-timer${urgent ? ' linenmerchant-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="linenmerchant-desc">A wandering linen merchant arrives leading pack-horses whose panniers are filled with rolled bolts of finished linen — natural straw-coloured, sun-bleached white, and weld-dyed yellow — along with cultivation notes on seeding rate, pulling date, and retting schedule for fibre flax. Offers to trade a consignment of fine linen for the settlement's workshops and storerooms, or to share production notes so local growers can establish a productive linen harvest.</div>
+      <div class="linenmerchant-actions">
+        <button class="btn--linenmerchant-trade${canTrade ? '' : ' btn--disabled'}" data-action="linenmerchant-trade" ${canTrade ? '' : 'disabled'}>
+          🪡 Trade Fine Linen — ${LinenMerchant.TRADE_FOOD_COST}🌾
+          <span class="linenmerchant-cost">→ +${LinenMerchant.TRADE_FOOD_RATE} food/s (2.5 min) · +${LinenMerchant.TRADE_PRESTIGE_REWARD} prestige · +${LinenMerchant.TRADE_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--linenmerchant-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="linenmerchant-purchase" ${canPurchase ? '' : 'disabled'}>
+          📜 Purchase Weaving Secrets — ${LinenMerchant.PURCHASE_GOLD_COST}💰
+          <span class="linenmerchant-cost">→ +${LinenMerchant.PURCHASE_GOLD_RATE} gold/s (2 min) · +${LinenMerchant.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--linenmerchant-away" data-action="linenmerchant-away">
+          🚶 Send Away
+          <span class="linenmerchant-cost">→ Linen merchant reloads the bolt-rolls and continues along the road</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _imperialFoundryMasterSection() {
+  if (!FoundryMaster.getActiveImperialFoundryMaster()) return '';
+  const secs         = FoundryMaster.getFoundryMasterSecsLeft();
+  const urgent       = secs <= 20;
+  const iron         = state.resources.iron ?? 0;
+  const gold         = state.resources.gold ?? 0;
+  const mana         = state.resources.mana ?? 0;
+  const canCommission = iron >= FoundryMaster.COMMISSION_IRON_COST && gold >= FoundryMaster.COMMISSION_GOLD_COST;
+  const canStudy      = mana >= FoundryMaster.STUDY_MANA_COST;
+  return `
+    <div class="foundrymstr-section--active">
+      <div class="foundrymstr-header">
+        <span class="foundrymstr-title">🔥 Imperial Foundry Master</span>
+        <span class="foundrymstr-timer${urgent ? ' foundrymstr-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="foundrymstr-desc">An imperial foundry master arrives carrying a flat case of pattern boards — carved negative impressions for finished castings with runner channels and riser vents — and a bound workbook of alloy formulas covering every grade of bronze from soft sheet metal to hard bell metal, with hand-annotated corrections for regional ore sources. Offers to commission a set of iron casting works for the settlement's foundry, or to teach the metallurgy techniques that distinguish imperial-grade castings from ordinary rough-poured iron.</div>
+      <div class="foundrymstr-actions">
+        <button class="btn--foundrymstr-commission${canCommission ? '' : ' btn--disabled'}" data-action="foundrymstr-commission" ${canCommission ? '' : 'disabled'}>
+          🔥 Commission Iron Casting Works — ${FoundryMaster.COMMISSION_IRON_COST}⚙️ + ${FoundryMaster.COMMISSION_GOLD_COST}💰
+          <span class="foundrymstr-cost">→ +${FoundryMaster.COMMISSION_IRON_RATE} iron/s (2.5 min) · +${FoundryMaster.COMMISSION_PRESTIGE_REWARD} prestige · +${FoundryMaster.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--foundrymstr-study${canStudy ? '' : ' btn--disabled'}" data-action="foundrymstr-study" ${canStudy ? '' : 'disabled'}>
+          📜 Study Metallurgy Techniques — ${FoundryMaster.STUDY_MANA_COST}✨
+          <span class="foundrymstr-cost">→ +${FoundryMaster.STUDY_MANA_RATE} mana/s (2 min) · +${FoundryMaster.STUDY_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--foundrymstr-away" data-action="foundrymstr-away">
+          🚶 Send Away
+          <span class="foundrymstr-cost">→ Foundry master closes the pattern case and departs for skilled metalworkers</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -9139,6 +9208,14 @@ const _HANDLERS = {
   'scrollkeeper-commission':    () => ScrollKeeper.commissionImperialScrolls(),
   'scrollkeeper-access':        () => ScrollKeeper.accessRestrictedArchive(),
   'scrollkeeper-away':          () => ScrollKeeper.sendScrollKeeperAway(),
+
+  'linenmerchant-trade':        () => LinenMerchant.tradeFineLinen(),
+  'linenmerchant-purchase':     () => LinenMerchant.purchaseWeavingSecrets(),
+  'linenmerchant-away':         () => LinenMerchant.sendLinenMerchantAway(),
+
+  'foundrymstr-commission':     () => FoundryMaster.commissionIronCastingWorks(),
+  'foundrymstr-study':          () => FoundryMaster.studyMetallurgyTechniques(),
+  'foundrymstr-away':           () => FoundryMaster.sendFoundryMasterAway(),
 };
 
 function _handleClick(e) {
@@ -9389,6 +9466,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_PORCELAIN_MASTER_CHANGED,
     Events.WANDERING_FRUIT_MERCHANT_CHANGED,
     Events.IMPERIAL_SCROLL_KEEPER_CHANGED,
+    Events.WANDERING_LINEN_MERCHANT_CHANGED,
+    Events.IMPERIAL_FOUNDRY_MASTER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

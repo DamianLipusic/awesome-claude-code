@@ -2290,6 +2290,26 @@
       "status": "done",
       "phase": 151,
       "notes": "Built imperialScrollKeeper.js: commissionImperialScrolls (25 mana + 20g -> +0.22 mana/s 2.5min +22 prestige +12 morale), accessRestrictedArchive (20 stone -> +0.18 stone/s 2min +15 prestige), sendScrollKeeperAway (dismiss). Added IMPERIAL_SCROLL_KEEPER_CHANGED event to events.js. state.imperialScrollKeeper null field. Wired in main.js: import, registerSystem, init x2, save/load. Added _imperialScrollKeeperSection() + scrollkeeper-commission/scrollkeeper-access/scrollkeeper-away handlers to questPanel.js. CSS: @keyframes scrollkeeper-pulse (violet/purple mana theme), .scrollkeeper-section--active, .btn--scrollkeeper-commission (violet/purple), .btn--scrollkeeper-access (slate), .btn--scrollkeeper-away (gray). Session 147."
+    },
+    {
+      "id": "T479",
+      "title": "Wandering Linen Merchant",
+      "description": "Periodic wandering linen merchant encounter: trade fine linen (25 food -> +0.22 food/s 2.5min · +18 prestige · +10 morale), purchase weaving secrets (18g -> +0.15 gold/s 2min · +12 prestige). Bronze Age+, 8+ tiles, 12-16 min spawn, 80s window.",
+      "priority": 479,
+      "status": "done",
+      "phase": 152,
+      "completed_date": "2026-06-02",
+      "notes": "Built wanderingLinenMerchant.js: tradeFineLinen (25 food -> +0.22 food/s 2.5min +18 prestige +10 morale), purchaseWeavingSecrets (18g -> +0.15 gold/s 2min +12 prestige), sendLinenMerchantAway (dismiss). Added WANDERING_LINEN_MERCHANT_CHANGED event to events.js. state.wanderingLinenMerchant null field. Wired in main.js: import, registerSystem, init x2, save/load. Added _wanderingLinenMerchantSection() + linenmerchant-trade/linenmerchant-purchase/linenmerchant-away handlers to questPanel.js (import * as LinenMerchant). Events.WANDERING_LINEN_MERCHANT_CHANGED subscribed. CSS: @keyframes linenmerchant-pulse (warm ivory/straw yellow linen theme), .linenmerchant-section--active, .btn--linenmerchant-trade (straw yellow), .btn--linenmerchant-purchase (amber/gold), .btn--linenmerchant-away (gray). Session 148."
+    },
+    {
+      "id": "T480",
+      "title": "Imperial Foundry Master",
+      "description": "Periodic imperial foundry master encounter: commission iron casting works (25 iron + 20g -> +0.22 iron/s 2.5min · +22 prestige · +12 morale), study metallurgy techniques (20 mana -> +0.18 mana/s 2min · +15 prestige). Iron Age+, 10+ tiles, 14-18 min spawn, 75s window.",
+      "priority": 480,
+      "status": "done",
+      "phase": 152,
+      "completed_date": "2026-06-02",
+      "notes": "Built imperialFoundryMaster.js: commissionIronCastingWorks (25 iron + 20g -> +0.22 iron/s 2.5min +22 prestige +12 morale), studyMetallurgyTechniques (20 mana -> +0.18 mana/s 2min +15 prestige), sendFoundryMasterAway (dismiss). Added IMPERIAL_FOUNDRY_MASTER_CHANGED event to events.js. state.imperialFoundryMaster null field. Wired in main.js: import, registerSystem, init x2, save/load. Added _imperialFoundryMasterSection() + foundrymstr-commission/foundrymstr-study/foundrymstr-away handlers to questPanel.js (import * as FoundryMaster). Events.IMPERIAL_FOUNDRY_MASTER_CHANGED subscribed. CSS: @keyframes foundrymstr-pulse (orange/bronze foundry fire theme), .foundrymstr-section--active, .btn--foundrymstr-commission (orange), .btn--foundrymstr-study (violet/purple mana), .btn--foundrymstr-away (gray). Session 148."
     }
   ],
   "session_history": [
@@ -2417,7 +2437,8 @@
     "Session 144 (T471-T472): Wandering Comb Maker (T471), Imperial Pottery Master (T472)",
     "Session 145 (T473-T474): Wandering Rush Mat Maker (T473), Imperial Spyglass Maker (T474)",
     "Session 146 (T475-T476): Wandering Loom Keeper (T475), Imperial Porcelain Master (T476)",
-    "Session 147 (T477-T478): Wandering Fruit Merchant (T477), Imperial Scroll Keeper (T478)"
+    "Session 147 (T477-T478): Wandering Fruit Merchant (T477), Imperial Scroll Keeper (T478)",
+    "Session 148 (T479-T480): Wandering Linen Merchant (T479), Imperial Foundry Master (T480)"
   ],
   "sessions": []
 }

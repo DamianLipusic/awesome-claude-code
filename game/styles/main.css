@@ -24357,3 +24357,75 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--scrollkeeper-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T479 Wandering Linen Merchant ─────────────────────────────────────── */
+@keyframes linenmerchant-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(253, 230, 138, 0.00); }
+  50%       { box-shadow: 0 0 8px 2px rgba(253, 230, 138, 0.20); }
+}
+.linenmerchant-section--active {
+  background: linear-gradient(135deg, rgba(253, 230, 138, 0.07), rgba(251, 191, 36, 0.04));
+  border: 1px solid rgba(253, 230, 138, 0.25); border-radius: 8px; padding: 10px;
+  margin-bottom: 10px; animation: linenmerchant-pulse 2.8s ease-in-out infinite;
+}
+.linenmerchant-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.linenmerchant-title  { font-weight: 700; font-size: 0.88rem; color: #fde68a; }
+.linenmerchant-timer  { font-size: 0.78rem; color: #fde68a; }
+.linenmerchant-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.linenmerchant-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.linenmerchant-actions { display: flex; flex-direction: column; gap: 5px; }
+.linenmerchant-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--linenmerchant-trade {
+  background: linear-gradient(135deg, rgba(253, 230, 138, 0.12), rgba(251, 191, 36, 0.08));
+  border: 1px solid rgba(253, 230, 138, 0.30); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fde68a; text-align: left; transition: background 0.15s; padding: 6px 8px;
+}
+.btn--linenmerchant-trade:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(253, 230, 138, 0.22), rgba(251, 191, 36, 0.15)); }
+.btn--linenmerchant-purchase {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(217, 119, 6, 0.10));
+  border: 1px solid rgba(251, 191, 36, 0.35); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fbbf24; text-align: left; transition: background 0.15s; padding: 6px 8px;
+}
+.btn--linenmerchant-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(251, 191, 36, 0.25), rgba(217, 119, 6, 0.18)); }
+.btn--linenmerchant-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--linenmerchant-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T480 Imperial Foundry Master ──────────────────────────────────────── */
+@keyframes foundrymstr-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(251, 146, 60, 0.00); }
+  50%       { box-shadow: 0 0 8px 2px rgba(251, 146, 60, 0.22); }
+}
+.foundrymstr-section--active {
+  background: linear-gradient(135deg, rgba(251, 146, 60, 0.07), rgba(234, 88, 12, 0.04));
+  border: 1px solid rgba(251, 146, 60, 0.25); border-radius: 8px; padding: 10px;
+  margin-bottom: 10px; animation: foundrymstr-pulse 2.8s ease-in-out infinite;
+}
+.foundrymstr-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.foundrymstr-title  { font-weight: 700; font-size: 0.88rem; color: #fb923c; }
+.foundrymstr-timer  { font-size: 0.78rem; color: #fb923c; }
+.foundrymstr-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.foundrymstr-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.foundrymstr-actions { display: flex; flex-direction: column; gap: 5px; }
+.foundrymstr-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--foundrymstr-commission {
+  background: linear-gradient(135deg, rgba(251, 146, 60, 0.12), rgba(234, 88, 12, 0.08));
+  border: 1px solid rgba(251, 146, 60, 0.30); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fb923c; text-align: left; transition: background 0.15s; padding: 6px 8px;
+}
+.btn--foundrymstr-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(251, 146, 60, 0.22), rgba(234, 88, 12, 0.15)); }
+.btn--foundrymstr-study {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(109, 60, 200, 0.10));
+  border: 1px solid rgba(139, 92, 246, 0.35); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #a78bfa; text-align: left; transition: background 0.15s; padding: 6px 8px;
+}
+.btn--foundrymstr-study:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(139, 92, 246, 0.25), rgba(109, 60, 200, 0.18)); }
+.btn--foundrymstr-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--foundrymstr-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

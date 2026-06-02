@@ -420,6 +420,8 @@ import { initWanderingLoomKeeper, wanderingLoomKeeperTick }           from './sy
 import { initImperialPorcelainMaster, imperialPorcelainMasterTick }   from './systems/imperialPorcelainMaster.js';             // T476
 import { initWanderingFruitMerchant, wanderingFruitMerchantTick }     from './systems/wanderingFruitMerchant.js';               // T477
 import { initImperialScrollKeeper, imperialScrollKeeperTick }         from './systems/imperialScrollKeeper.js';                 // T478
+import { initWanderingLinenMerchant, wanderingLinenMerchantTick }     from './systems/wanderingLinenMerchant.js';               // T479
+import { initImperialFoundryMaster, imperialFoundryMasterTick }       from './systems/imperialFoundryMaster.js';                // T480
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -846,6 +848,8 @@ function _registerAllSystems() {
   registerSystem(imperialPorcelainMasterTick);      // T476
   registerSystem(wanderingFruitMerchantTick);       // T477
   registerSystem(imperialScrollKeeperTick);         // T478
+  registerSystem(wanderingLinenMerchantTick);       // T479
+  registerSystem(imperialFoundryMasterTick);        // T480
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -1257,6 +1261,8 @@ function _save() {
     imperialPorcelainMaster:      state.imperialPorcelainMaster,      // T476
     wanderingFruitMerchant:       state.wanderingFruitMerchant,       // T477
     imperialScrollKeeper:         state.imperialScrollKeeper,         // T478
+    wanderingLinenMerchant:       state.wanderingLinenMerchant,       // T479
+    imperialFoundryMaster:        state.imperialFoundryMaster,        // T480
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -1673,6 +1679,8 @@ function _applySave(s) {
   state.imperialPorcelainMaster        = s.imperialPorcelainMaster ?? null;          // T476
   state.wanderingFruitMerchant         = s.wanderingFruitMerchant ?? null;           // T477
   state.imperialScrollKeeper           = s.imperialScrollKeeper ?? null;             // T478
+  state.wanderingLinenMerchant         = s.wanderingLinenMerchant ?? null;           // T479
+  state.imperialFoundryMaster          = s.imperialFoundryMaster ?? null;            // T480
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -2095,6 +2103,8 @@ function _startFreshGame() {
   initImperialPorcelainMaster();      // T476
   initWanderingFruitMerchant();       // T477
   initImperialScrollKeeper();         // T478
+  initWanderingLinenMerchant();       // T479
+  initImperialFoundryMaster();        // T480
   initAchievements();
   initLeaderboard();
 }
@@ -2500,6 +2510,8 @@ function _startLoadedGame(savedData) {
   initImperialPorcelainMaster();      // T476
   initWanderingFruitMerchant();       // T477
   initImperialScrollKeeper();         // T478
+  initWanderingLinenMerchant();       // T479
+  initImperialFoundryMaster();        // T480
   initAchievements();
   initLeaderboard();
 }
