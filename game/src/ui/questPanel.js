@@ -241,6 +241,8 @@ import * as RushMatMaker     from '../systems/wanderingRushMatMaker.js';        
 import * as SpyglassMaker    from '../systems/imperialSpyglassMaker.js';           // T474
 import * as LoomKeeper       from '../systems/wanderingLoomKeeper.js';             // T475
 import * as PorcelainMaster  from '../systems/imperialPorcelainMaster.js';         // T476
+import * as FruitMerchant    from '../systems/wanderingFruitMerchant.js';           // T477
+import * as ScrollKeeper     from '../systems/imperialScrollKeeper.js';             // T478
 
 let _panel = null;
 
@@ -510,6 +512,8 @@ function _encountersSection() {
     _imperialSpyglassMakerSection(),
     _wanderingLoomKeeperSection(),
     _imperialPorcelainMasterSection(),
+    _wanderingFruitMerchantSection(),
+    _imperialScrollKeeperSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -8153,6 +8157,71 @@ function _imperialPorcelainMasterSection() {
     </div>`;
 }
 
+function _wanderingFruitMerchantSection() {
+  if (!FruitMerchant.getActiveWanderingFruitMerchant()) return '';
+  const secs        = FruitMerchant.getFruitMerchantSecsLeft();
+  const urgent      = secs <= 20;
+  const food        = state.resources.food ?? 0;
+  const gold        = state.resources.gold ?? 0;
+  const canArrange  = food >= FruitMerchant.ARRANGE_FOOD_COST;
+  const canPurchase = gold >= FruitMerchant.PURCHASE_GOLD_COST;
+  return `
+    <div class="fruitmerchant-section--active">
+      <div class="fruitmerchant-header">
+        <span class="fruitmerchant-title">🍎 Wandering Fruit Merchant</span>
+        <span class="fruitmerchant-timer${urgent ? ' fruitmerchant-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="fruitmerchant-desc">A wandering fruit merchant arrives with a laden pack mule — one pannier holding sun-dried figs packed in dry grass, the other carrying sealed jars of grape must and pomegranate syrup — along with orchard management notes on rootstock selection, pruning schedules, and early-ripening varieties. Offers to arrange a seasonal supply for the settlement's stores, or to sell the accumulated orchard knowledge to local growers.</div>
+      <div class="fruitmerchant-actions">
+        <button class="btn--fruitmerchant-arrange${canArrange ? '' : ' btn--disabled'}" data-action="fruitmerchant-arrange" ${canArrange ? '' : 'disabled'}>
+          🍎 Arrange Seasonal Supply — ${FruitMerchant.ARRANGE_FOOD_COST}🌾
+          <span class="fruitmerchant-cost">→ +${FruitMerchant.ARRANGE_FOOD_RATE} food/s (2.5 min) · +${FruitMerchant.ARRANGE_PRESTIGE_REWARD} prestige · +${FruitMerchant.ARRANGE_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--fruitmerchant-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="fruitmerchant-purchase" ${canPurchase ? '' : 'disabled'}>
+          📜 Purchase Orchard Secrets — ${FruitMerchant.PURCHASE_GOLD_COST}💰
+          <span class="fruitmerchant-cost">→ +${FruitMerchant.PURCHASE_GOLD_RATE} gold/s (2 min) · +${FruitMerchant.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--fruitmerchant-away" data-action="fruitmerchant-away">
+          🚶 Send Away
+          <span class="fruitmerchant-cost">→ Fruit merchant reloads the panniers and continues along the road</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _imperialScrollKeeperSection() {
+  if (!ScrollKeeper.getActiveImperialScrollKeeper()) return '';
+  const secs        = ScrollKeeper.getScrollKeeperSecsLeft();
+  const urgent      = secs <= 20;
+  const mana        = state.resources.mana  ?? 0;
+  const gold        = state.resources.gold  ?? 0;
+  const stone       = state.resources.stone ?? 0;
+  const canCommission = mana >= ScrollKeeper.COMMISSION_MANA_COST && gold >= ScrollKeeper.COMMISSION_GOLD_COST;
+  const canAccess     = stone >= ScrollKeeper.ACCESS_STONE_COST;
+  return `
+    <div class="scrollkeeper-section--active">
+      <div class="scrollkeeper-header">
+        <span class="scrollkeeper-title">📜 Imperial Scroll Keeper</span>
+        <span class="scrollkeeper-timer${urgent ? ' scrollkeeper-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="scrollkeeper-desc">An imperial scroll keeper arrives carrying a cedar-wood case fitted with felt-lined dividers — each slot holding a scroll on a polished dowel with bone finials, wrapped in a tablet-woven sleeve — containing the full series of imperial administrative precedents: tax survey transcripts, treaty texts with witness lists, and imperial rescript rulings. Offers to commission a complete scroll series for the settlement's archives, or to grant access to restricted archive sections.</div>
+      <div class="scrollkeeper-actions">
+        <button class="btn--scrollkeeper-commission${canCommission ? '' : ' btn--disabled'}" data-action="scrollkeeper-commission" ${canCommission ? '' : 'disabled'}>
+          📜 Commission Imperial Scrolls — ${ScrollKeeper.COMMISSION_MANA_COST}✨ + ${ScrollKeeper.COMMISSION_GOLD_COST}💰
+          <span class="scrollkeeper-cost">→ +${ScrollKeeper.COMMISSION_MANA_RATE} mana/s (2.5 min) · +${ScrollKeeper.COMMISSION_PRESTIGE_REWARD} prestige · +${ScrollKeeper.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--scrollkeeper-access${canAccess ? '' : ' btn--disabled'}" data-action="scrollkeeper-access" ${canAccess ? '' : 'disabled'}>
+          🔑 Access Restricted Archive — ${ScrollKeeper.ACCESS_STONE_COST}🪨
+          <span class="scrollkeeper-cost">→ +${ScrollKeeper.ACCESS_STONE_RATE} stone/s (2 min) · +${ScrollKeeper.ACCESS_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--scrollkeeper-away" data-action="scrollkeeper-away">
+          🚶 Send Away
+          <span class="scrollkeeper-cost">→ Scroll keeper replaces the case lid and departs on the chancery's circuit</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -9062,6 +9131,14 @@ const _HANDLERS = {
   'porcelainmaster-commission': () => PorcelainMaster.commissionPorcelainMasterworks(),
   'porcelainmaster-study':      () => PorcelainMaster.studyGlazingTechniques(),
   'porcelainmaster-away':       () => PorcelainMaster.sendPorcelainMasterAway(),
+
+  'fruitmerchant-arrange':      () => FruitMerchant.arrangeSeasonalSupply(),
+  'fruitmerchant-purchase':     () => FruitMerchant.purchaseOrchardSecrets(),
+  'fruitmerchant-away':         () => FruitMerchant.sendFruitMerchantAway(),
+
+  'scrollkeeper-commission':    () => ScrollKeeper.commissionImperialScrolls(),
+  'scrollkeeper-access':        () => ScrollKeeper.accessRestrictedArchive(),
+  'scrollkeeper-away':          () => ScrollKeeper.sendScrollKeeperAway(),
 };
 
 function _handleClick(e) {
@@ -9310,6 +9387,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_SPYGLASS_MAKER_CHANGED,
     Events.WANDERING_LOOM_KEEPER_CHANGED,
     Events.IMPERIAL_PORCELAIN_MASTER_CHANGED,
+    Events.WANDERING_FRUIT_MERCHANT_CHANGED,
+    Events.IMPERIAL_SCROLL_KEEPER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

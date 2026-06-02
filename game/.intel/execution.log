@@ -1748,3 +1748,18 @@ Built imperialPorcelainMaster.js: commissionPorcelainMasterworks (25 stone + 20g
 Wired in main.js: import initImperialPorcelainMaster+imperialPorcelainMasterTick, registerSystem, initImperialPorcelainMaster() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _imperialPorcelainMasterSection() render + porcelainmaster-commission/porcelainmaster-study/porcelainmaster-away handlers to questPanel.js (import * as PorcelainMaster). Events.IMPERIAL_PORCELAIN_MASTER_CHANGED subscribed.
 CSS: @keyframes porcelainmaster-pulse (pearl/porcelain white theme), .porcelainmaster-section--active, .btn--porcelainmaster-commission (pearl/white), .btn--porcelainmaster-study (violet/indigo mana), .btn--porcelainmaster-away (gray). Session 146.
+
+Session 147 — T477–T478: Wandering Fruit Merchant, Imperial Scroll Keeper.
+Fruit Merchant: Stone Age+, 6+ tiles, 12–16 min, 80s window. Arrange Seasonal Supply (25 food → +0.20 food/s 2.5min · +15 prestige · +8 morale), Purchase Orchard Secrets (18g → +0.15 gold/s 2min · +10 prestige). Spring green CSS theme. Imperial Scroll Keeper: Medieval Age+, 10+ tiles, 14–18 min, 75s window. Commission Imperial Scrolls (25 mana + 20g → +0.22 mana/s 2.5min · +22 prestige · +12 morale), Access Restricted Archive (20 stone → +0.18 stone/s 2min · +15 prestige). Violet/purple mana CSS theme with slate archive button. Both fully wired into main.js (import, registerSystem, init x2, save/load) and questPanel.js (import, section render, handlers, ENCOUNTER_EVENTS). Events added to events.js.
+
+T477: Wandering Fruit Merchant — Stone Age+, 6+ tiles, 12–16 min, 80s window.
+Built wanderingFruitMerchant.js: arrangeSeasonalSupply (25 food → +0.20 food/s 2.5min +15 prestige +8 morale), purchaseOrchardSecrets (18g → +0.15 gold/s 2min +10 prestige), sendFruitMerchantAway (dismiss). Added WANDERING_FRUIT_MERCHANT_CHANGED event to events.js. state.wanderingFruitMerchant null field.
+Wired in main.js: import initWanderingFruitMerchant+wanderingFruitMerchantTick, registerSystem, initWanderingFruitMerchant() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingFruitMerchantSection() render + fruitmerchant-arrange/fruitmerchant-purchase/fruitmerchant-away handlers to questPanel.js (import * as FruitMerchant). Events.WANDERING_FRUIT_MERCHANT_CHANGED subscribed.
+CSS: @keyframes fruitmerchant-pulse (spring green theme), .fruitmerchant-section--active, .btn--fruitmerchant-arrange (spring green), .btn--fruitmerchant-purchase (amber/gold), .btn--fruitmerchant-away (gray). Session 147.
+
+T478: Imperial Scroll Keeper — Medieval Age+, 10+ tiles, 14–18 min, 75s window.
+Built imperialScrollKeeper.js: commissionImperialScrolls (25 mana + 20g → +0.22 mana/s 2.5min +22 prestige +12 morale), accessRestrictedArchive (20 stone → +0.18 stone/s 2min +15 prestige), sendScrollKeeperAway (dismiss). Added IMPERIAL_SCROLL_KEEPER_CHANGED event to events.js. state.imperialScrollKeeper null field.
+Wired in main.js: import initImperialScrollKeeper+imperialScrollKeeperTick, registerSystem, initImperialScrollKeeper() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _imperialScrollKeeperSection() render + scrollkeeper-commission/scrollkeeper-access/scrollkeeper-away handlers to questPanel.js (import * as ScrollKeeper). Events.IMPERIAL_SCROLL_KEEPER_CHANGED subscribed.
+CSS: @keyframes scrollkeeper-pulse (violet/purple mana theme), .scrollkeeper-section--active, .btn--scrollkeeper-commission (violet/purple), .btn--scrollkeeper-access (slate), .btn--scrollkeeper-away (gray). Session 147.

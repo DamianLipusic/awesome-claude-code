@@ -24285,3 +24285,75 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--porcelainmaster-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T477 Wandering Fruit Merchant ─────────────────────────────────────── */
+@keyframes fruitmerchant-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(134, 239, 172, 0.00); }
+  50%       { box-shadow: 0 0 8px 2px rgba(134, 239, 172, 0.20); }
+}
+.fruitmerchant-section--active {
+  background: linear-gradient(135deg, rgba(134, 239, 172, 0.07), rgba(74, 222, 128, 0.04));
+  border: 1px solid rgba(134, 239, 172, 0.25); border-radius: 8px; padding: 10px;
+  margin-bottom: 10px; animation: fruitmerchant-pulse 2.8s ease-in-out infinite;
+}
+.fruitmerchant-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.fruitmerchant-title  { font-weight: 700; font-size: 0.88rem; color: #86efac; }
+.fruitmerchant-timer  { font-size: 0.78rem; color: #86efac; }
+.fruitmerchant-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.fruitmerchant-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.fruitmerchant-actions { display: flex; flex-direction: column; gap: 5px; }
+.fruitmerchant-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--fruitmerchant-arrange {
+  background: linear-gradient(135deg, rgba(134, 239, 172, 0.12), rgba(74, 222, 128, 0.08));
+  border: 1px solid rgba(134, 239, 172, 0.30); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #86efac; text-align: left; transition: background 0.15s; padding: 6px 8px;
+}
+.btn--fruitmerchant-arrange:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(134, 239, 172, 0.22), rgba(74, 222, 128, 0.15)); }
+.btn--fruitmerchant-purchase {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(217, 119, 6, 0.10));
+  border: 1px solid rgba(251, 191, 36, 0.35); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fbbf24; text-align: left; transition: background 0.15s; padding: 6px 8px;
+}
+.btn--fruitmerchant-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(251, 191, 36, 0.25), rgba(217, 119, 6, 0.18)); }
+.btn--fruitmerchant-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--fruitmerchant-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T478 Imperial Scroll Keeper ───────────────────────────────────────── */
+@keyframes scrollkeeper-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(196, 181, 253, 0.00); }
+  50%       { box-shadow: 0 0 8px 2px rgba(196, 181, 253, 0.20); }
+}
+.scrollkeeper-section--active {
+  background: linear-gradient(135deg, rgba(196, 181, 253, 0.07), rgba(167, 139, 250, 0.04));
+  border: 1px solid rgba(196, 181, 253, 0.25); border-radius: 8px; padding: 10px;
+  margin-bottom: 10px; animation: scrollkeeper-pulse 2.8s ease-in-out infinite;
+}
+.scrollkeeper-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.scrollkeeper-title  { font-weight: 700; font-size: 0.88rem; color: #c4b5fd; }
+.scrollkeeper-timer  { font-size: 0.78rem; color: #c4b5fd; }
+.scrollkeeper-timer--urgent { color: #f87171 !important; animation: urgent-flash 0.6s step-end infinite; }
+.scrollkeeper-desc   { font-size: 0.78rem; color: #e2e8f0; margin-bottom: 8px; line-height: 1.4; }
+.scrollkeeper-actions { display: flex; flex-direction: column; gap: 5px; }
+.scrollkeeper-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--scrollkeeper-commission {
+  background: linear-gradient(135deg, rgba(196, 181, 253, 0.12), rgba(167, 139, 250, 0.08));
+  border: 1px solid rgba(196, 181, 253, 0.30); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #c4b5fd; text-align: left; transition: background 0.15s; padding: 6px 8px;
+}
+.btn--scrollkeeper-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(196, 181, 253, 0.22), rgba(167, 139, 250, 0.15)); }
+.btn--scrollkeeper-access {
+  background: linear-gradient(135deg, rgba(148, 163, 184, 0.15), rgba(100, 116, 139, 0.10));
+  border: 1px solid rgba(148, 163, 184, 0.35); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #cbd5e1; text-align: left; transition: background 0.15s; padding: 6px 8px;
+}
+.btn--scrollkeeper-access:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(148, 163, 184, 0.25), rgba(100, 116, 139, 0.18)); }
+.btn--scrollkeeper-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--scrollkeeper-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }

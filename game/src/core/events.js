@@ -418,4 +418,6 @@ export const Events = Object.freeze({
   IMPERIAL_SPYGLASS_MAKER_CHANGED:        'imperialSpyglassMakerChanged',                                       // T474: spyglass maker spawned / commissioned / studied / dismissed / expired
   WANDERING_LOOM_KEEPER_CHANGED:          'wanderingLoomKeeperChanged',                                         // T475: loom keeper spawned / commissioned / purchased / dismissed / expired
   IMPERIAL_PORCELAIN_MASTER_CHANGED:      'imperialPorcelainMasterChanged',                                     // T476: porcelain master spawned / commissioned / studied / dismissed / expired
+  WANDERING_FRUIT_MERCHANT_CHANGED:       'wanderingFruitMerchantChanged',                                      // T477: fruit merchant spawned / arranged / purchased / dismissed / expired
+  IMPERIAL_SCROLL_KEEPER_CHANGED:         'imperialScrollKeeperChanged',                                        // T478: scroll keeper spawned / commissioned / accessed / dismissed / expired
 });
