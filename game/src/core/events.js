@@ -428,4 +428,6 @@ export const Events = Object.freeze({
   IMPERIAL_SUGAR_MERCHANT_CHANGED:        'imperialSugarMerchantChanged',                                       // T484: sugar merchant spawned / established / purchased / dismissed / expired
   WANDERING_SHELLWORKER_CHANGED:          'wanderingShellworkerChanged',                                         // T485: shellworker spawned / commissioned / purchased / dismissed / expired
   IMPERIAL_TEAK_MERCHANT_CHANGED:         'imperialTeakMerchantChanged',                                         // T486: teak merchant spawned / commissioned / purchased / dismissed / expired
+  WANDERING_MEADMAKER_CHANGED:            'wanderingMeadmakerChanged',                                           // T487: meadmaker spawned / brewed / purchased / dismissed / expired
+  IMPERIAL_LACQUERWORK_MASTER_CHANGED:    'imperialLacquerworkMasterChanged',                                    // T488: lacquerwork master spawned / commissioned / studied / dismissed / expired
 });

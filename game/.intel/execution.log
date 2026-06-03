@@ -1,3 +1,18 @@
+Session 156 — T487–T488: Wandering Meadmaker, Imperial Lacquerwork Master.
+Meadmaker: Bronze Age+, 8+ tiles, 12–17 min, 80s window. Brew Imperial Mead (25 food + 15 wood → +0.22 food/s 2.5min · +18 prestige · +12 morale), Purchase Meadmaking Lore (18g → +0.15 gold/s 2min · +10 prestige). Warm amber/honey gold CSS theme (meadmaker- CSS prefix). Imperial Lacquerwork Master: Iron Age+, 10+ tiles, 14–18 min, 75s window. Commission Lacquer Artworks (25 wood + 20g → +0.22 wood/s 2.5min · +22 prestige · +12 morale), Study Lacquer Techniques (20 mana → +0.18 mana/s 2min · +15 prestige). Deep red/black lacquer CSS theme with violet mana button (lacquermaster- CSS prefix). Both fully wired into main.js (import, registerSystem, init x2, save/load) and questPanel.js (import, section render, handlers, ENCOUNTER_EVENTS). Events added to events.js.
+
+T487: Wandering Meadmaker — Bronze Age+, 8+ tiles, 12–17 min, 80s window.
+Built wanderingMeadmaker.js: brewImperialMead (25 food + 15 wood → +0.22 food/s 2.5min +18 prestige +12 morale), purchaseMeadmakingLore (18g → +0.15 gold/s 2min +10 prestige), sendMeadmakerAway (dismiss). Added WANDERING_MEADMAKER_CHANGED event to events.js. state.wanderingMeadmaker null field.
+Wired in main.js: import initWanderingMeadmaker+wanderingMeadmakerTick, registerSystem, initWanderingMeadmaker() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingMeadmakerSection() render + meadmaker-brew/meadmaker-purchase/meadmaker-away handlers to questPanel.js (import * as Meadmaker). Events.WANDERING_MEADMAKER_CHANGED subscribed.
+CSS: @keyframes meadmaker-pulse (warm amber/honey gold theme), .meadmaker-section--active, .btn--meadmaker-brew (amber), .btn--meadmaker-purchase (yellow/gold), .btn--meadmaker-away (gray). Session 156.
+
+T488: Imperial Lacquerwork Master — Iron Age+, 10+ tiles, 14–18 min, 75s window.
+Built imperialLacquerworkMaster.js: commissionLacquerArtworks (25 wood + 20g → +0.22 wood/s 2.5min +22 prestige +12 morale), studyLacquerTechniques (20 mana → +0.18 mana/s 2min +15 prestige), sendLacquerworkMasterAway (dismiss). Added IMPERIAL_LACQUERWORK_MASTER_CHANGED event to events.js. state.imperialLacquerworkMaster null field.
+Wired in main.js: import initImperialLacquerworkMaster+imperialLacquerworkMasterTick, registerSystem, initImperialLacquerworkMaster() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _imperialLacquerworkMasterSection() render + lacquermaster-commission/lacquermaster-study/lacquermaster-away handlers to questPanel.js (import * as LacquerMaster). Events.IMPERIAL_LACQUERWORK_MASTER_CHANGED subscribed.
+CSS: @keyframes lacquermaster-pulse (deep red/black lacquer theme), .lacquermaster-section--active, .btn--lacquermaster-commission (red), .btn--lacquermaster-study (violet/purple mana), .btn--lacquermaster-away (gray). Session 156.
+
 Session 155 — T485–T486: Wandering Shellworker, Imperial Teak Merchant.
 Shellworker: Stone Age+, 6+ tiles, 12-16 min spawn, 80s window. Commission Shell Ornaments (20 food + 15 wood → +0.20 food/s 2.5min · +15 prestige · +8 morale), Purchase Shellwork Craft (18g → +0.15 gold/s 2min · +10 prestige). Light ocean blue/sky CSS (amber/gold purchase button, shellworker- CSS prefix). Teak Merchant: Medieval Age+, 10+ tiles, 14-18 min spawn, 80s window. Commission Teak Fittings (25 wood + 20g → +0.22 wood/s 2.5min · +22 prestige · +12 morale), Purchase Teak Stores (20 food → +0.18 food/s 2min · +15 prestige). Rich teak/mahogany amber-brown CSS (amber/gold purchase button, teakmerchant- CSS prefix). Both fully wired into main.js (import, registerSystem, init x2, save/load) and questPanel.js (import, section render, handlers, ENCOUNTER_EVENTS). Events added to events.js.
 

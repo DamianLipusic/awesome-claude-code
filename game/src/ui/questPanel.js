@@ -251,6 +251,8 @@ import * as FluteMaker        from '../systems/wanderingFluteMaker.js';         
 import * as SugarMerchant     from '../systems/imperialSugarMerchant.js';           // T484
 import * as Shellworker       from '../systems/wanderingShellworker.js';            // T485
 import * as TeakMerchant      from '../systems/imperialTeakMerchant.js';            // T486
+import * as Meadmaker         from '../systems/wanderingMeadmaker.js';              // T487
+import * as LacquerMaster     from '../systems/imperialLacquerworkMaster.js';       // T488
 
 let _panel = null;
 
@@ -530,6 +532,8 @@ function _encountersSection() {
     _imperialSugarMerchantSection(),
     _wanderingShellworkerSection(),
     _imperialTeakMerchantSection(),
+    _wanderingMeadmakerSection(),
+    _imperialLacquerworkMasterSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -8499,6 +8503,72 @@ function _imperialTeakMerchantSection() {
     </div>`;
 }
 
+function _wanderingMeadmakerSection() {
+  if (!Meadmaker.getActiveWanderingMeadmaker()) return '';
+  const secs   = Meadmaker.getMeadmakerSecsLeft();
+  const urgent = secs <= 20;
+  const food   = state.resources.food ?? 0;
+  const wood   = state.resources.wood ?? 0;
+  const gold   = state.resources.gold ?? 0;
+  const canBrew     = food >= Meadmaker.BREW_FOOD_COST && wood >= Meadmaker.BREW_WOOD_COST;
+  const canPurchase = gold >= Meadmaker.PURCHASE_GOLD_COST;
+  return `
+    <div class="meadmaker-section--active">
+      <div class="meadmaker-header">
+        <span class="meadmaker-title">🍯 Wandering Meadmaker</span>
+        <span class="meadmaker-timer${urgent ? ' meadmaker-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="meadmaker-desc">A wandering meadmaker arrives with a pack mule loaded with sealed clay vessels of finished mead and sample bottles showing the full maturation range — pale young brew through deep amber six-month ferment to rich year-aged gold — along with dried wildflower heads from six varieties. The meadmaker offers to brew an imperial mead batch or to teach the meadmaking craft.</div>
+      <div class="meadmaker-actions">
+        <button class="btn--meadmaker-brew${canBrew ? '' : ' btn--disabled'}" data-action="meadmaker-brew" ${canBrew ? '' : 'disabled'}>
+          🍯 Brew Imperial Mead — ${Meadmaker.BREW_FOOD_COST}🌾 + ${Meadmaker.BREW_WOOD_COST}🪵
+          <span class="meadmaker-cost">→ +${Meadmaker.BREW_FOOD_RATE} food/s (2.5 min) · +${Meadmaker.BREW_PRESTIGE_REWARD} prestige · +${Meadmaker.BREW_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--meadmaker-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="meadmaker-purchase" ${canPurchase ? '' : 'disabled'}>
+          📖 Purchase Meadmaking Lore — ${Meadmaker.PURCHASE_GOLD_COST}💰
+          <span class="meadmaker-cost">→ +${Meadmaker.PURCHASE_GOLD_RATE} gold/s (2 min) · +${Meadmaker.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--meadmaker-away" data-action="meadmaker-away">
+          🚶 Send Away
+          <span class="meadmaker-cost">→ Meadmaker loads the mule and continues down the road</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _imperialLacquerworkMasterSection() {
+  if (!LacquerMaster.getActiveImperialLacquerworkMaster()) return '';
+  const secs   = LacquerMaster.getLacquerworkMasterSecsLeft();
+  const urgent = secs <= 20;
+  const wood   = state.resources.wood ?? 0;
+  const gold   = state.resources.gold ?? 0;
+  const mana   = state.resources.mana ?? 0;
+  const canCommission = wood >= LacquerMaster.COMMISSION_WOOD_COST && gold >= LacquerMaster.COMMISSION_GOLD_COST;
+  const canStudy      = mana >= LacquerMaster.STUDY_MANA_COST;
+  return `
+    <div class="lacquermaster-section--active">
+      <div class="lacquermaster-header">
+        <span class="lacquermaster-title">🎨 Imperial Lacquerwork Master</span>
+        <span class="lacquermaster-timer${urgent ? ' lacquermaster-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="lacquermaster-desc">An imperial lacquerwork master arrives with a display case of finished pieces — twelve-layer red-and-black lacquer bowls with depth that shifts with viewing angle, mother-of-pearl inlaid panels, and carved reliquary boxes. The master offers to commission a prestige lacquerwork set or to conduct a study session in advanced lacquer technique.</div>
+      <div class="lacquermaster-actions">
+        <button class="btn--lacquermaster-commission${canCommission ? '' : ' btn--disabled'}" data-action="lacquermaster-commission" ${canCommission ? '' : 'disabled'}>
+          🎨 Commission Lacquer Artworks — ${LacquerMaster.COMMISSION_WOOD_COST}🪵 + ${LacquerMaster.COMMISSION_GOLD_COST}💰
+          <span class="lacquermaster-cost">→ +${LacquerMaster.COMMISSION_WOOD_RATE} wood/s (2.5 min) · +${LacquerMaster.COMMISSION_PRESTIGE_REWARD} prestige · +${LacquerMaster.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--lacquermaster-study${canStudy ? '' : ' btn--disabled'}" data-action="lacquermaster-study" ${canStudy ? '' : 'disabled'}>
+          📚 Study Lacquer Techniques — ${LacquerMaster.STUDY_MANA_COST}✨
+          <span class="lacquermaster-cost">→ +${LacquerMaster.STUDY_MANA_RATE} mana/s (2 min) · +${LacquerMaster.STUDY_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--lacquermaster-away" data-action="lacquermaster-away">
+          🚶 Send Away
+          <span class="lacquermaster-cost">→ Master closes the display case and departs for the next commission</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -9448,6 +9518,14 @@ const _HANDLERS = {
   'teakmerchant-commission':    () => TeakMerchant.commissionTeakFittings(),
   'teakmerchant-purchase':      () => TeakMerchant.purchaseTeakStores(),
   'teakmerchant-away':          () => TeakMerchant.sendTeakMerchantAway(),
+
+  'meadmaker-brew':             () => Meadmaker.brewImperialMead(),
+  'meadmaker-purchase':         () => Meadmaker.purchaseMeadmakingLore(),
+  'meadmaker-away':             () => Meadmaker.sendMeadmakerAway(),
+
+  'lacquermaster-commission':   () => LacquerMaster.commissionLacquerArtworks(),
+  'lacquermaster-study':        () => LacquerMaster.studyLacquerTechniques(),
+  'lacquermaster-away':         () => LacquerMaster.sendLacquerworkMasterAway(),
 };
 
 function _handleClick(e) {
@@ -9706,6 +9784,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_SUGAR_MERCHANT_CHANGED,
     Events.WANDERING_SHELLWORKER_CHANGED,
     Events.IMPERIAL_TEAK_MERCHANT_CHANGED,
+    Events.WANDERING_MEADMAKER_CHANGED,
+    Events.IMPERIAL_LACQUERWORK_MASTER_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

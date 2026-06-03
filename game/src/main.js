@@ -428,6 +428,8 @@ import { initWanderingFluteMaker, wanderingFluteMakerTick }           from './sy
 import { initImperialSugarMerchant, imperialSugarMerchantTick }       from './systems/imperialSugarMerchant.js';                // T484
 import { initWanderingShellworker, wanderingShellworkerTick }         from './systems/wanderingShellworker.js';                  // T485
 import { initImperialTeakMerchant, imperialTeakMerchantTick }         from './systems/imperialTeakMerchant.js';                  // T486
+import { initWanderingMeadmaker, wanderingMeadmakerTick }             from './systems/wanderingMeadmaker.js';                    // T487
+import { initImperialLacquerworkMaster, imperialLacquerworkMasterTick } from './systems/imperialLacquerworkMaster.js';            // T488
 
 // ─── UI panels ──────────────────────────────────────────────────────────────────────────────
 import { renderBuildingsPanel }                from './ui/buildingsPanel.js';
@@ -862,6 +864,8 @@ function _registerAllSystems() {
   registerSystem(imperialSugarMerchantTick);        // T484
   registerSystem(wanderingShellworkerTick);         // T485
   registerSystem(imperialTeakMerchantTick);         // T486
+  registerSystem(wanderingMeadmakerTick);           // T487
+  registerSystem(imperialLacquerworkMasterTick);    // T488
   registerSystem(achievementsTick);
   registerSystem(leaderboardTick);
 }
@@ -1281,6 +1285,8 @@ function _save() {
     imperialSugarMerchant:        state.imperialSugarMerchant,        // T484
     wanderingShellworker:         state.wanderingShellworker,         // T485
     imperialTeakMerchant:         state.imperialTeakMerchant,         // T486
+    wanderingMeadmaker:           state.wanderingMeadmaker,           // T487
+    imperialLacquerworkMaster:    state.imperialLacquerworkMaster,    // T488
     ticker:               _tickCount,
     empireName:           state.empireName,
     rulerName:            state.rulerName,
@@ -1705,6 +1711,8 @@ function _applySave(s) {
   state.imperialSugarMerchant          = s.imperialSugarMerchant ?? null;             // T484
   state.wanderingShellworker           = s.wanderingShellworker ?? null;              // T485
   state.imperialTeakMerchant           = s.imperialTeakMerchant ?? null;              // T486
+  state.wanderingMeadmaker             = s.wanderingMeadmaker ?? null;                // T487
+  state.imperialLacquerworkMaster      = s.imperialLacquerworkMaster ?? null;         // T488
   _tickCount                  = s.ticker                ?? 0;
   state.empireName            = s.empireName            ?? state.empireName;
   state.rulerName             = s.rulerName             ?? state.rulerName;
@@ -2135,6 +2143,8 @@ function _startFreshGame() {
   initImperialSugarMerchant();        // T484
   initWanderingShellworker();         // T485
   initImperialTeakMerchant();         // T486
+  initWanderingMeadmaker();           // T487
+  initImperialLacquerworkMaster();    // T488
   initAchievements();
   initLeaderboard();
 }
@@ -2548,6 +2558,8 @@ function _startLoadedGame(savedData) {
   initImperialSugarMerchant();        // T484
   initWanderingShellworker();         // T485
   initImperialTeakMerchant();         // T486
+  initWanderingMeadmaker();           // T487
+  initImperialLacquerworkMaster();    // T488
   initAchievements();
   initLeaderboard();
 }

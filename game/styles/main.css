@@ -24649,3 +24649,75 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--teakmerchant-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T487: Wandering Meadmaker ─────────────────────────────────────────────── */
+@keyframes meadmaker-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.0); }
+  50%       { box-shadow: 0 0 8px 3px rgba(251, 191, 36, 0.20); }
+}
+.meadmaker-section--active {
+  animation: meadmaker-pulse 3s ease-in-out infinite;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.07), rgba(217, 119, 6, 0.04));
+  border: 1px solid rgba(251, 191, 36, 0.22); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px;
+}
+.meadmaker-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.meadmaker-title  { font-size: 0.88rem; font-weight: 600; color: #f59e0b; }
+.meadmaker-timer  { font-size: 0.78rem; color: #d97706; background: rgba(217, 119, 6, 0.12); padding: 2px 7px; border-radius: 10px; }
+.meadmaker-timer--urgent { color: #f87171; background: rgba(248, 113, 113, 0.15); animation: pulse-urgent 0.8s ease-in-out infinite; }
+.meadmaker-desc   { font-size: 0.78rem; color: #94a3b8; margin-bottom: 8px; line-height: 1.4; }
+.meadmaker-actions { display: flex; flex-direction: column; gap: 5px; }
+.meadmaker-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--meadmaker-brew {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.12), rgba(217, 119, 6, 0.08));
+  border: 1px solid rgba(251, 191, 36, 0.30); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #f59e0b; text-align: left; transition: background 0.15s; padding: 6px 8px;
+}
+.btn--meadmaker-brew:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(251, 191, 36, 0.22), rgba(217, 119, 6, 0.15)); }
+.btn--meadmaker-purchase {
+  background: linear-gradient(135deg, rgba(234, 179, 8, 0.12), rgba(202, 138, 4, 0.08));
+  border: 1px solid rgba(234, 179, 8, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #eab308; text-align: left; transition: background 0.15s; padding: 6px 8px;
+}
+.btn--meadmaker-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(234, 179, 8, 0.22), rgba(202, 138, 4, 0.15)); }
+.btn--meadmaker-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--meadmaker-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T488: Imperial Lacquerwork Master ─────────────────────────────────────── */
+@keyframes lacquermaster-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.0); }
+  50%       { box-shadow: 0 0 8px 3px rgba(220, 38, 38, 0.18); }
+}
+.lacquermaster-section--active {
+  animation: lacquermaster-pulse 3s ease-in-out infinite;
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.06), rgba(15, 23, 42, 0.04));
+  border: 1px solid rgba(220, 38, 38, 0.20); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px;
+}
+.lacquermaster-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.lacquermaster-title  { font-size: 0.88rem; font-weight: 600; color: #ef4444; }
+.lacquermaster-timer  { font-size: 0.78rem; color: #dc2626; background: rgba(220, 38, 38, 0.12); padding: 2px 7px; border-radius: 10px; }
+.lacquermaster-timer--urgent { color: #f87171; background: rgba(248, 113, 113, 0.15); animation: pulse-urgent 0.8s ease-in-out infinite; }
+.lacquermaster-desc   { font-size: 0.78rem; color: #94a3b8; margin-bottom: 8px; line-height: 1.4; }
+.lacquermaster-actions { display: flex; flex-direction: column; gap: 5px; }
+.lacquermaster-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--lacquermaster-commission {
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.11), rgba(15, 23, 42, 0.07));
+  border: 1px solid rgba(220, 38, 38, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #ef4444; text-align: left; transition: background 0.15s; padding: 6px 8px;
+}
+.btn--lacquermaster-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(220, 38, 38, 0.20), rgba(15, 23, 42, 0.12)); }
+.btn--lacquermaster-study {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.11), rgba(109, 40, 217, 0.07));
+  border: 1px solid rgba(139, 92, 246, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #a78bfa; text-align: left; transition: background 0.15s; padding: 6px 8px;
+}
+.btn--lacquermaster-study:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(139, 92, 246, 0.20), rgba(109, 40, 217, 0.14)); }
+.btn--lacquermaster-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--lacquermaster-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
