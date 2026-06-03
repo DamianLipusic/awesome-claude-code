@@ -1793,3 +1793,18 @@ Built imperialCartographyMaster.js: commissionTerritorialSurvey (25 stone + 20g 
 Wired in main.js: import initImperialCartographyMaster+imperialCartographyMasterTick, registerSystem, initImperialCartographyMaster() in _startFreshGame+_startLoadedGame, save/load fields.
 Added _imperialCartographyMasterSection() render + cartomstr-commission/cartomstr-study/cartomstr-away handlers to questPanel.js (import * as CartographyMaster). Events.IMPERIAL_CARTOGRAPHY_MASTER_CHANGED subscribed.
 CSS: @keyframes cartomstr-pulse (parchment/tan-brown theme), .cartomstr-section--active, .btn--cartomstr-commission (tan/amber), .btn--cartomstr-study (violet/indigo mana), .btn--cartomstr-away (gray). Session 153.
+
+Session 154 — T483–T484: Wandering Flute Maker, Imperial Sugar Merchant.
+Flute Maker: Stone Age+, 6+ tiles, 12–16 min, 80s window. Commission Reed Flutes (20 food → +0.20 food/s 2.5min · +15 prestige · +10 morale), Purchase Flute-Making Craft (18g → +0.15 gold/s 2min · +10 prestige). Fresh green CSS theme. Imperial Sugar Merchant: Medieval Age+, 10+ tiles, 14–18 min, 80s window. Establish Sugar Trade (30 food + 20g → +0.25 food/s 2.5min · +22 prestige · +12 morale), Purchase Sugar Stores (25 food → +0.18 food/s 2min · +15 prestige). Warm amber/gold CSS theme. Both fully wired into main.js (import, registerSystem, init x2, save/load) and questPanel.js (import, section render, handlers, ENCOUNTER_EVENTS). Events added to events.js.
+
+T483: Wandering Flute Maker — Stone Age+, 6+ tiles, 12–16 min, 80s window.
+Built wanderingFluteMaker.js: commissionReedFlutes (20 food → +0.20 food/s 2.5min +15 prestige +10 morale), purchaseFluteMakingCraft (18g → +0.15 gold/s 2min +10 prestige), sendFluteMakerAway (dismiss). Added WANDERING_FLUTE_MAKER_CHANGED event to events.js. state.wanderingFluteMaker null field.
+Wired in main.js: import initWanderingFluteMaker+wanderingFluteMakerTick, registerSystem, initWanderingFluteMaker() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingFluteMakerSection() render + flute-commission/flute-purchase/flute-away handlers to questPanel.js (import * as FluteMaker). Events.WANDERING_FLUTE_MAKER_CHANGED subscribed.
+CSS: @keyframes flute-pulse (fresh green theme), .flute-section--active, .btn--flute-commission (green), .btn--flute-purchase (amber/gold), .btn--flute-away (gray). Session 154.
+
+T484: Imperial Sugar Merchant — Medieval Age+, 10+ tiles, 14–18 min, 80s window.
+Built imperialSugarMerchant.js: establishSugarTrade (30 food + 20g → +0.25 food/s 2.5min +22 prestige +12 morale), purchaseSugarStores (25 food → +0.18 food/s 2min +15 prestige), sendSugarMerchantAway (dismiss). Added IMPERIAL_SUGAR_MERCHANT_CHANGED event to events.js. state.imperialSugarMerchant null field.
+Wired in main.js: import initImperialSugarMerchant+imperialSugarMerchantTick, registerSystem, initImperialSugarMerchant() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _imperialSugarMerchantSection() render + sugarmerchant-establish/sugarmerchant-purchase/sugarmerchant-away handlers to questPanel.js (import * as SugarMerchant). Events.IMPERIAL_SUGAR_MERCHANT_CHANGED subscribed.
+CSS: @keyframes sugarmerchant-pulse (warm amber/gold theme), .sugarmerchant-section--active, .btn--sugarmerchant-establish (amber/gold), .btn--sugarmerchant-purchase (orange), .btn--sugarmerchant-away (gray). Session 154.

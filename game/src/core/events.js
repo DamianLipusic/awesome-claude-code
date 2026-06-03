@@ -424,4 +424,6 @@ export const Events = Object.freeze({
   IMPERIAL_FOUNDRY_MASTER_CHANGED:        'imperialFoundryMasterChanged',                                       // T480: foundry master spawned / commissioned / studied / dismissed / expired
   WANDERING_INK_MERCHANT_CHANGED:         'wanderingInkMerchantChanged',                                        // T481: ink merchant spawned / commissioned / purchased / dismissed / expired
   IMPERIAL_CARTOGRAPHY_MASTER_CHANGED:    'imperialCartographyMasterChanged',                                   // T482: cartography master spawned / commissioned / studied / dismissed / expired
+  WANDERING_FLUTE_MAKER_CHANGED:          'wanderingFluteMakerChanged',                                         // T483: flute maker spawned / commissioned / purchased / dismissed / expired
+  IMPERIAL_SUGAR_MERCHANT_CHANGED:        'imperialSugarMerchantChanged',                                       // T484: sugar merchant spawned / established / purchased / dismissed / expired
 });

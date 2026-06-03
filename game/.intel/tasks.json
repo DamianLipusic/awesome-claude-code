@@ -2328,6 +2328,26 @@
       "status": "done",
       "phase": 153,
       "notes": "Built imperialCartographyMaster.js: commissionTerritorialSurvey (25 stone + 20g \u2192 +0.22 stone/s 2.5min +22 prestige +12 morale), studyMappingTechniques (20 mana \u2192 +0.18 mana/s 2min +15 prestige), sendCartographyMasterAway (dismiss). Added IMPERIAL_CARTOGRAPHY_MASTER_CHANGED event to events.js. state.imperialCartographyMaster null field. Wired in main.js: import initImperialCartographyMaster+imperialCartographyMasterTick, registerSystem, initImperialCartographyMaster() in _startFreshGame+_startLoadedGame, save/load fields. Added _imperialCartographyMasterSection() render + cartomstr-commission/cartomstr-study/cartomstr-away handlers to questPanel.js (import * as CartographyMaster). Events.IMPERIAL_CARTOGRAPHY_MASTER_CHANGED subscribed. CSS: @keyframes cartomstr-pulse (parchment/tan-brown theme), .cartomstr-section--active, .btn--cartomstr-commission (tan/amber), .btn--cartomstr-study (violet/indigo mana), .btn--cartomstr-away (gray). Session 153."
+    },
+    {
+      "id": "T483",
+      "title": "Wandering Flute Maker",
+      "description": "Stone Age+, 6+ tiles, 12-16 min spawn, 80s window. Commission Reed Flutes (20 food \u2192 +0.20 food/s 2.5min +15 prestige +10 morale), Purchase Flute-Making Craft (18g \u2192 +0.15 gold/s 2min +10 prestige), Send Away.",
+      "priority": 483,
+      "status": "done",
+      "phase": 154,
+      "completed_date": "2026-06-03",
+      "notes": "Built wanderingFluteMaker.js: commissionReedFlutes (20 food \u2192 +0.20 food/s 2.5min +15 prestige +10 morale), purchaseFluteMakingCraft (18g \u2192 +0.15 gold/s 2min +10 prestige), sendFluteMakerAway (dismiss). Added WANDERING_FLUTE_MAKER_CHANGED event to events.js. state.wanderingFluteMaker null field. Wired in main.js: import initWanderingFluteMaker+wanderingFluteMakerTick, registerSystem, initWanderingFluteMaker() in _startFreshGame+_startLoadedGame, save/load fields. Added _wanderingFluteMakerSection() render + flute-commission/flute-purchase/flute-away handlers to questPanel.js (import * as FluteMaker). Events.WANDERING_FLUTE_MAKER_CHANGED subscribed. CSS: @keyframes flute-pulse (fresh green theme), .flute-section--active, .btn--flute-commission (green), .btn--flute-purchase (amber/gold), .btn--flute-away (gray). Session 154."
+    },
+    {
+      "id": "T484",
+      "title": "Imperial Sugar Merchant",
+      "description": "Medieval Age+, 10+ tiles, 14-18 min spawn, 80s window. Establish Sugar Trade (30 food + 20g \u2192 +0.25 food/s 2.5min +22 prestige +12 morale), Purchase Sugar Stores (25 food \u2192 +0.18 food/s 2min +15 prestige), Send Away.",
+      "priority": 484,
+      "status": "done",
+      "phase": 154,
+      "completed_date": "2026-06-03",
+      "notes": "Built imperialSugarMerchant.js: establishSugarTrade (30 food + 20g \u2192 +0.25 food/s 2.5min +22 prestige +12 morale), purchaseSugarStores (25 food \u2192 +0.18 food/s 2min +15 prestige), sendSugarMerchantAway (dismiss). Added IMPERIAL_SUGAR_MERCHANT_CHANGED event to events.js. state.imperialSugarMerchant null field. Wired in main.js: import initImperialSugarMerchant+imperialSugarMerchantTick, registerSystem, initImperialSugarMerchant() in _startFreshGame+_startLoadedGame, save/load fields. Added _imperialSugarMerchantSection() render + sugarmerchant-establish/sugarmerchant-purchase/sugarmerchant-away handlers to questPanel.js (import * as SugarMerchant). Events.IMPERIAL_SUGAR_MERCHANT_CHANGED subscribed. CSS: @keyframes sugarmerchant-pulse (warm amber/gold theme), .sugarmerchant-section--active, .btn--sugarmerchant-establish (amber/gold), .btn--sugarmerchant-purchase (orange), .btn--sugarmerchant-away (gray). Session 154."
     }
   ],
   "session_history": [
@@ -2456,7 +2476,9 @@
     "Session 145 (T473-T474): Wandering Rush Mat Maker (T473), Imperial Spyglass Maker (T474)",
     "Session 146 (T475-T476): Wandering Loom Keeper (T475), Imperial Porcelain Master (T476)",
     "Session 147 (T477-T478): Wandering Fruit Merchant (T477), Imperial Scroll Keeper (T478)",
-    "Session 148 (T479-T480): Wandering Linen Merchant (T479), Imperial Foundry Master (T480)"
+    "Session 148 (T479-T480): Wandering Linen Merchant (T479), Imperial Foundry Master (T480)",
+    "Session 153 (T481-T482): Wandering Ink Merchant (T481), Imperial Cartography Master (T482)",
+    "Session 154 (T483-T484): Wandering Flute Maker (T483), Imperial Sugar Merchant (T484)"
   ],
   "sessions": []
 }

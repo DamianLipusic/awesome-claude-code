@@ -247,6 +247,8 @@ import * as LinenMerchant    from '../systems/wanderingLinenMerchant.js';       
 import * as FoundryMaster    from '../systems/imperialFoundryMaster.js';            // T480
 import * as InkMerchant      from '../systems/wanderingInkMerchant.js';             // T481
 import * as CartographyMaster from '../systems/imperialCartographyMaster.js';       // T482
+import * as FluteMaker        from '../systems/wanderingFluteMaker.js';             // T483
+import * as SugarMerchant     from '../systems/imperialSugarMerchant.js';           // T484
 
 let _panel = null;
 
@@ -522,6 +524,8 @@ function _encountersSection() {
     _imperialFoundryMasterSection(),
     _wanderingInkMerchantSection(),
     _imperialCartographyMasterSection(),
+    _wanderingFluteMakerSection(),
+    _imperialSugarMerchantSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -8361,6 +8365,70 @@ function _imperialCartographyMasterSection() {
     </div>`;
 }
 
+function _wanderingFluteMakerSection() {
+  if (!FluteMaker.getActiveWanderingFluteMaker()) return '';
+  const secs         = FluteMaker.getFluteMakerSecsLeft();
+  const urgent       = secs <= 20;
+  const food         = state.resources.food ?? 0;
+  const gold         = state.resources.gold ?? 0;
+  const canCommission = food >= FluteMaker.COMMISSION_FOOD_COST;
+  const canPurchase   = gold >= FluteMaker.PURCHASE_GOLD_COST;
+  return `
+    <div class="flute-section--active">
+      <div class="flute-header">
+        <span class="flute-title">🎵 Wandering Flute Maker</span>
+        <span class="flute-timer${urgent ? ' flute-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="flute-desc">A wandering flute maker arrives carrying a bundle of dried river reeds — each selected for uniform wall thickness, sorted into matched bore sets, and cut to graduated lengths that produce a pentatonic scale — with a bone-handled knife, heated wire for finger-hole burning, and a finished demonstration flute. Offers to commission a set of reed flutes for ceremonial use, or to teach the flute-making craft from locally gathered materials.</div>
+      <div class="flute-actions">
+        <button class="btn--flute-commission${canCommission ? '' : ' btn--disabled'}" data-action="flute-commission" ${canCommission ? '' : 'disabled'}>
+          🎵 Commission Reed Flutes — ${FluteMaker.COMMISSION_FOOD_COST}🌾
+          <span class="flute-cost">→ +${FluteMaker.COMMISSION_FOOD_RATE} food/s (2.5 min) · +${FluteMaker.COMMISSION_PRESTIGE_REWARD} prestige · +${FluteMaker.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--flute-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="flute-purchase" ${canPurchase ? '' : 'disabled'}>
+          🎶 Purchase Flute-Making Craft — ${FluteMaker.PURCHASE_GOLD_COST}💰
+          <span class="flute-cost">→ +${FluteMaker.PURCHASE_GOLD_RATE} gold/s (2 min) · +${FluteMaker.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--flute-away" data-action="flute-away">
+          🚶 Send Away
+          <span class="flute-cost">→ Flute maker wraps the reed bundle and continues along the road</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _imperialSugarMerchantSection() {
+  if (!SugarMerchant.getActiveImperialSugarMerchant()) return '';
+  const secs          = SugarMerchant.getSugarMerchantSecsLeft();
+  const urgent        = secs <= 20;
+  const food          = state.resources.food ?? 0;
+  const gold          = state.resources.gold ?? 0;
+  const canEstablish  = food >= SugarMerchant.ESTABLISH_FOOD_COST && gold >= SugarMerchant.ESTABLISH_GOLD_COST;
+  const canPurchase   = food >= SugarMerchant.PURCHASE_FOOD_COST;
+  return `
+    <div class="sugarmerchant-section--active">
+      <div class="sugarmerchant-header">
+        <span class="sugarmerchant-title">🍬 Imperial Sugar Merchant</span>
+        <span class="sugarmerchant-timer${urgent ? ' sugarmerchant-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="sugarmerchant-desc">An imperial sugar merchant arrives leading a mule with wicker panniers packed with muscovado in canvas sacks, pale refined loaf-sugar cones in paper wrappers, and powdered sugar in stoppered clay pots — carrying a letter of introduction from the imperial trade authority granting rights to establish a licensed sugar trade depot, or to purchase a portion of the current cargo at the imperial fixed price.</div>
+      <div class="sugarmerchant-actions">
+        <button class="btn--sugarmerchant-establish${canEstablish ? '' : ' btn--disabled'}" data-action="sugarmerchant-establish" ${canEstablish ? '' : 'disabled'}>
+          🍬 Establish Sugar Trade — ${SugarMerchant.ESTABLISH_FOOD_COST}🌾 + ${SugarMerchant.ESTABLISH_GOLD_COST}💰
+          <span class="sugarmerchant-cost">→ +${SugarMerchant.ESTABLISH_FOOD_RATE} food/s (2.5 min) · +${SugarMerchant.ESTABLISH_PRESTIGE_REWARD} prestige · +${SugarMerchant.ESTABLISH_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--sugarmerchant-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="sugarmerchant-purchase" ${canPurchase ? '' : 'disabled'}>
+          🛍️ Purchase Sugar Stores — ${SugarMerchant.PURCHASE_FOOD_COST}🌾
+          <span class="sugarmerchant-cost">→ +${SugarMerchant.PURCHASE_FOOD_RATE} food/s (2 min) · +${SugarMerchant.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--sugarmerchant-away" data-action="sugarmerchant-away">
+          🚶 Send Away
+          <span class="sugarmerchant-cost">→ Sugar merchant reloads the panniers and continues along the trade road</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -9294,6 +9362,14 @@ const _HANDLERS = {
   'cartomstr-commission':       () => CartographyMaster.commissionTerritorialSurvey(),
   'cartomstr-study':            () => CartographyMaster.studyMappingTechniques(),
   'cartomstr-away':             () => CartographyMaster.sendCartographyMasterAway(),
+
+  'flute-commission':           () => FluteMaker.commissionReedFlutes(),
+  'flute-purchase':             () => FluteMaker.purchaseFluteMakingCraft(),
+  'flute-away':                 () => FluteMaker.sendFluteMakerAway(),
+
+  'sugarmerchant-establish':    () => SugarMerchant.establishSugarTrade(),
+  'sugarmerchant-purchase':     () => SugarMerchant.purchaseSugarStores(),
+  'sugarmerchant-away':         () => SugarMerchant.sendSugarMerchantAway(),
 };
 
 function _handleClick(e) {
@@ -9548,6 +9624,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_FOUNDRY_MASTER_CHANGED,
     Events.WANDERING_INK_MERCHANT_CHANGED,
     Events.IMPERIAL_CARTOGRAPHY_MASTER_CHANGED,
+    Events.WANDERING_FLUTE_MAKER_CHANGED,
+    Events.IMPERIAL_SUGAR_MERCHANT_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);
