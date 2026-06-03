@@ -426,4 +426,6 @@ export const Events = Object.freeze({
   IMPERIAL_CARTOGRAPHY_MASTER_CHANGED:    'imperialCartographyMasterChanged',                                   // T482: cartography master spawned / commissioned / studied / dismissed / expired
   WANDERING_FLUTE_MAKER_CHANGED:          'wanderingFluteMakerChanged',                                         // T483: flute maker spawned / commissioned / purchased / dismissed / expired
   IMPERIAL_SUGAR_MERCHANT_CHANGED:        'imperialSugarMerchantChanged',                                       // T484: sugar merchant spawned / established / purchased / dismissed / expired
+  WANDERING_SHELLWORKER_CHANGED:          'wanderingShellworkerChanged',                                         // T485: shellworker spawned / commissioned / purchased / dismissed / expired
+  IMPERIAL_TEAK_MERCHANT_CHANGED:         'imperialTeakMerchantChanged',                                         // T486: teak merchant spawned / commissioned / purchased / dismissed / expired
 });

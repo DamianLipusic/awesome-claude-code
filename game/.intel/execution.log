@@ -1,3 +1,18 @@
+Session 155 — T485–T486: Wandering Shellworker, Imperial Teak Merchant.
+Shellworker: Stone Age+, 6+ tiles, 12-16 min spawn, 80s window. Commission Shell Ornaments (20 food + 15 wood → +0.20 food/s 2.5min · +15 prestige · +8 morale), Purchase Shellwork Craft (18g → +0.15 gold/s 2min · +10 prestige). Light ocean blue/sky CSS (amber/gold purchase button, shellworker- CSS prefix). Teak Merchant: Medieval Age+, 10+ tiles, 14-18 min spawn, 80s window. Commission Teak Fittings (25 wood + 20g → +0.22 wood/s 2.5min · +22 prestige · +12 morale), Purchase Teak Stores (20 food → +0.18 food/s 2min · +15 prestige). Rich teak/mahogany amber-brown CSS (amber/gold purchase button, teakmerchant- CSS prefix). Both fully wired into main.js (import, registerSystem, init x2, save/load) and questPanel.js (import, section render, handlers, ENCOUNTER_EVENTS). Events added to events.js.
+
+T485: Wandering Shellworker — Stone Age+, 6+ tiles, 12–16 min, 80s window.
+Built wanderingShellworker.js: commissionShellOrnaments (20 food + 15 wood → +0.20 food/s 2.5min +15 prestige +8 morale), purchaseShellworkCraft (18g → +0.15 gold/s 2min +10 prestige), sendShellworkerAway (dismiss). Added WANDERING_SHELLWORKER_CHANGED event to events.js. state.wanderingShellworker null field.
+Wired in main.js: import initWanderingShellworker+wanderingShellworkerTick, registerSystem, initWanderingShellworker() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _wanderingShellworkerSection() render + shellworker-commission/shellworker-purchase/shellworker-away handlers to questPanel.js (import * as Shellworker). Events.WANDERING_SHELLWORKER_CHANGED subscribed.
+CSS: @keyframes shellworker-pulse (light ocean blue/sky theme), .shellworker-section--active, .btn--shellworker-commission (sky blue), .btn--shellworker-purchase (amber/gold), .btn--shellworker-away (gray). Session 155.
+
+T486: Imperial Teak Merchant — Medieval Age+, 10+ tiles, 14–18 min, 80s window.
+Built imperialTeakMerchant.js: commissionTeakFittings (25 wood + 20g → +0.22 wood/s 2.5min +22 prestige +12 morale), purchaseTeakStores (20 food → +0.18 food/s 2min +15 prestige), sendTeakMerchantAway (dismiss). Added IMPERIAL_TEAK_MERCHANT_CHANGED event to events.js. state.imperialTeakMerchant null field.
+Wired in main.js: import initImperialTeakMerchant+imperialTeakMerchantTick, registerSystem, initImperialTeakMerchant() in _startFreshGame+_startLoadedGame, save/load fields.
+Added _imperialTeakMerchantSection() render + teakmerchant-commission/teakmerchant-purchase/teakmerchant-away handlers to questPanel.js (import * as TeakMerchant). Events.IMPERIAL_TEAK_MERCHANT_CHANGED subscribed.
+CSS: @keyframes teakmerchant-pulse (rich teak/mahogany amber-brown theme), .teakmerchant-section--active, .btn--teakmerchant-commission (teak amber), .btn--teakmerchant-purchase (amber/gold), .btn--teakmerchant-away (gray). Session 155.
+
 Session 148 — T479–T480: Wandering Linen Merchant, Imperial Foundry Master.
 Linen Merchant: Bronze Age+, 8+ tiles, 12-16 min spawn, 80s window. Trade Fine Linen (25 food → +0.22 food/s 2.5min · +18 prestige · +10 morale), Purchase Weaving Secrets (18g → +0.15 gold/s 2min · +12 prestige). Warm ivory/straw yellow CSS (amber/gold purchase button, linenmerchant- CSS prefix). Foundry Master: Iron Age+, 10+ tiles, 14-18 min spawn, 75s window. Commission Iron Casting Works (25 iron + 20g → +0.22 iron/s 2.5min · +22 prestige · +12 morale), Study Metallurgy Techniques (20 mana → +0.18 mana/s 2min · +15 prestige). Orange/bronze foundry fire CSS (violet study button, foundrymstr- CSS prefix). Both fully wired into main.js (import, registerSystem, init x2, save/load) and questPanel.js (import, section render, handlers, ENCOUNTER_EVENTS). Events added to events.js.
 

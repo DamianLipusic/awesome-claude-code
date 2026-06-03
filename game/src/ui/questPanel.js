@@ -249,6 +249,8 @@ import * as InkMerchant      from '../systems/wanderingInkMerchant.js';         
 import * as CartographyMaster from '../systems/imperialCartographyMaster.js';       // T482
 import * as FluteMaker        from '../systems/wanderingFluteMaker.js';             // T483
 import * as SugarMerchant     from '../systems/imperialSugarMerchant.js';           // T484
+import * as Shellworker       from '../systems/wanderingShellworker.js';            // T485
+import * as TeakMerchant      from '../systems/imperialTeakMerchant.js';            // T486
 
 let _panel = null;
 
@@ -526,6 +528,8 @@ function _encountersSection() {
     _imperialCartographyMasterSection(),
     _wanderingFluteMakerSection(),
     _imperialSugarMerchantSection(),
+    _wanderingShellworkerSection(),
+    _imperialTeakMerchantSection(),
   ].filter(Boolean);
 
   if (parts.length === 0) return '';
@@ -8429,6 +8433,72 @@ function _imperialSugarMerchantSection() {
     </div>`;
 }
 
+function _wanderingShellworkerSection() {
+  if (!Shellworker.getActiveWanderingShellworker()) return '';
+  const secs             = Shellworker.getShellworkerSecsLeft();
+  const urgent           = secs <= 20;
+  const food             = state.resources.food ?? 0;
+  const wood             = state.resources.wood ?? 0;
+  const gold             = state.resources.gold ?? 0;
+  const canCommission    = food >= Shellworker.COMMISSION_FOOD_COST && wood >= Shellworker.COMMISSION_WOOD_COST;
+  const canPurchase      = gold >= Shellworker.PURCHASE_GOLD_COST;
+  return `
+    <div class="shellworker-section--active">
+      <div class="shellworker-header">
+        <span class="shellworker-title">🐚 Wandering Shellworker</span>
+        <span class="shellworker-timer${urgent ? ' shellworker-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="shellworker-desc">A wandering shellworker arrives carrying a wicker tray of sorted coastal shells — limpet caps, ridged whelks, smooth oyster valves, and polished cowries — along with a bow drill, a leather burnishing pad, and finished ornaments. The shellworker offers to commission a ceremonial set or to teach the shellwork craft from locally gathered materials.</div>
+      <div class="shellworker-actions">
+        <button class="btn--shellworker-commission${canCommission ? '' : ' btn--disabled'}" data-action="shellworker-commission" ${canCommission ? '' : 'disabled'}>
+          🐚 Commission Shell Ornaments — ${Shellworker.COMMISSION_FOOD_COST}🌾 + ${Shellworker.COMMISSION_WOOD_COST}🪵
+          <span class="shellworker-cost">→ +${Shellworker.COMMISSION_FOOD_RATE} food/s (2.5 min) · +${Shellworker.COMMISSION_PRESTIGE_REWARD} prestige · +${Shellworker.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--shellworker-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="shellworker-purchase" ${canPurchase ? '' : 'disabled'}>
+          🪄 Purchase Shellwork Craft — ${Shellworker.PURCHASE_GOLD_COST}💰
+          <span class="shellworker-cost">→ +${Shellworker.PURCHASE_GOLD_RATE} gold/s (2 min) · +${Shellworker.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--shellworker-away" data-action="shellworker-away">
+          🚶 Send Away
+          <span class="shellworker-cost">→ Shellworker covers the tray and continues along the coast road</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function _imperialTeakMerchantSection() {
+  if (!TeakMerchant.getActiveImperialTeakMerchant()) return '';
+  const secs             = TeakMerchant.getTeakMerchantSecsLeft();
+  const urgent           = secs <= 20;
+  const wood             = state.resources.wood ?? 0;
+  const food             = state.resources.food ?? 0;
+  const gold             = state.resources.gold ?? 0;
+  const canCommission    = wood >= TeakMerchant.COMMISSION_WOOD_COST && gold >= TeakMerchant.COMMISSION_GOLD_COST;
+  const canPurchase      = food >= TeakMerchant.PURCHASE_FOOD_COST;
+  return `
+    <div class="teakmerchant-section--active">
+      <div class="teakmerchant-header">
+        <span class="teakmerchant-title">🪵 Imperial Teak Merchant</span>
+        <span class="teakmerchant-timer${urgent ? ' teakmerchant-timer--urgent' : ''}">${secs}s</span>
+      </div>
+      <div class="teakmerchant-desc">An imperial teak merchant arrives managing an ox-cart of seasoned teak planks — each air-dried for three years and marked with chalk notations recording origin, harvest season, and moisture content — along with a sample box showing interlocked grain and natural oil sheen. The merchant offers to commission teak fittings for buildings and harbour works, or to sell seasoned planks at the imperial fixed-quality price.</div>
+      <div class="teakmerchant-actions">
+        <button class="btn--teakmerchant-commission${canCommission ? '' : ' btn--disabled'}" data-action="teakmerchant-commission" ${canCommission ? '' : 'disabled'}>
+          🪵 Commission Teak Fittings — ${TeakMerchant.COMMISSION_WOOD_COST}🪵 + ${TeakMerchant.COMMISSION_GOLD_COST}💰
+          <span class="teakmerchant-cost">→ +${TeakMerchant.COMMISSION_WOOD_RATE} wood/s (2.5 min) · +${TeakMerchant.COMMISSION_PRESTIGE_REWARD} prestige · +${TeakMerchant.COMMISSION_MORALE_REWARD} morale</span>
+        </button>
+        <button class="btn--teakmerchant-purchase${canPurchase ? '' : ' btn--disabled'}" data-action="teakmerchant-purchase" ${canPurchase ? '' : 'disabled'}>
+          📦 Purchase Teak Stores — ${TeakMerchant.PURCHASE_FOOD_COST}🌾
+          <span class="teakmerchant-cost">→ +${TeakMerchant.PURCHASE_FOOD_RATE} food/s (2 min) · +${TeakMerchant.PURCHASE_PRESTIGE_REWARD} prestige</span>
+        </button>
+        <button class="btn--teakmerchant-away" data-action="teakmerchant-away">
+          🚶 Send Away
+          <span class="teakmerchant-cost">→ Merchant loads remaining planks back onto the ox-cart and departs</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Main render
 // ---------------------------------------------------------------------------
@@ -9370,6 +9440,14 @@ const _HANDLERS = {
   'sugarmerchant-establish':    () => SugarMerchant.establishSugarTrade(),
   'sugarmerchant-purchase':     () => SugarMerchant.purchaseSugarStores(),
   'sugarmerchant-away':         () => SugarMerchant.sendSugarMerchantAway(),
+
+  'shellworker-commission':     () => Shellworker.commissionShellOrnaments(),
+  'shellworker-purchase':       () => Shellworker.purchaseShellworkCraft(),
+  'shellworker-away':           () => Shellworker.sendShellworkerAway(),
+
+  'teakmerchant-commission':    () => TeakMerchant.commissionTeakFittings(),
+  'teakmerchant-purchase':      () => TeakMerchant.purchaseTeakStores(),
+  'teakmerchant-away':          () => TeakMerchant.sendTeakMerchantAway(),
 };
 
 function _handleClick(e) {
@@ -9626,6 +9704,8 @@ export function initQuestPanel() {
     Events.IMPERIAL_CARTOGRAPHY_MASTER_CHANGED,
     Events.WANDERING_FLUTE_MAKER_CHANGED,
     Events.IMPERIAL_SUGAR_MERCHANT_CHANGED,
+    Events.WANDERING_SHELLWORKER_CHANGED,
+    Events.IMPERIAL_TEAK_MERCHANT_CHANGED,
     Events.RESOURCE_CHANGED,
   ];
   for (const ev of ENCOUNTER_EVENTS) on(ev, _render);

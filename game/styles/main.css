@@ -24577,3 +24577,75 @@ kbd {
   font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
 }
 .btn--sugarmerchant-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T485: Wandering Shellworker ───────────────────────────────────────────── */
+@keyframes shellworker-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(186, 230, 253, 0.00); }
+  50%       { box-shadow: 0 0 8px 3px rgba(186, 230, 253, 0.22); }
+}
+.shellworker-section--active {
+  animation: shellworker-pulse 3s ease-in-out infinite;
+  background: linear-gradient(135deg, rgba(186, 230, 253, 0.07), rgba(125, 211, 252, 0.04));
+  border: 1px solid rgba(186, 230, 253, 0.22); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px;
+}
+.shellworker-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.shellworker-title  { font-size: 0.88rem; font-weight: 600; color: #bae6fd; }
+.shellworker-timer  { font-size: 0.78rem; color: #7dd3fc; background: rgba(125, 211, 252, 0.12); padding: 2px 7px; border-radius: 10px; }
+.shellworker-timer--urgent { color: #f87171; background: rgba(248, 113, 113, 0.15); animation: pulse-urgent 0.8s ease-in-out infinite; }
+.shellworker-desc   { font-size: 0.78rem; color: #94a3b8; margin-bottom: 8px; line-height: 1.4; }
+.shellworker-actions { display: flex; flex-direction: column; gap: 5px; }
+.shellworker-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--shellworker-commission {
+  background: linear-gradient(135deg, rgba(186, 230, 253, 0.12), rgba(125, 211, 252, 0.08));
+  border: 1px solid rgba(186, 230, 253, 0.30); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #bae6fd; text-align: left; transition: background 0.15s; padding: 6px 8px;
+}
+.btn--shellworker-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(186, 230, 253, 0.22), rgba(125, 211, 252, 0.15)); }
+.btn--shellworker-purchase {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.12), rgba(217, 119, 6, 0.08));
+  border: 1px solid rgba(251, 191, 36, 0.30); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fbbf24; text-align: left; transition: background 0.15s; padding: 6px 8px;
+}
+.btn--shellworker-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(251, 191, 36, 0.22), rgba(217, 119, 6, 0.15)); }
+.btn--shellworker-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--shellworker-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
+
+/* ── T486: Imperial Teak Merchant ──────────────────────────────────────────── */
+@keyframes teakmerchant-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(180, 120, 60, 0.00); }
+  50%       { box-shadow: 0 0 8px 3px rgba(180, 120, 60, 0.22); }
+}
+.teakmerchant-section--active {
+  animation: teakmerchant-pulse 3s ease-in-out infinite;
+  background: linear-gradient(135deg, rgba(180, 120, 60, 0.07), rgba(146, 90, 40, 0.04));
+  border: 1px solid rgba(180, 120, 60, 0.22); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px;
+}
+.teakmerchant-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.teakmerchant-title  { font-size: 0.88rem; font-weight: 600; color: #d97706; }
+.teakmerchant-timer  { font-size: 0.78rem; color: #b45309; background: rgba(180, 83, 9, 0.12); padding: 2px 7px; border-radius: 10px; }
+.teakmerchant-timer--urgent { color: #f87171; background: rgba(248, 113, 113, 0.15); animation: pulse-urgent 0.8s ease-in-out infinite; }
+.teakmerchant-desc   { font-size: 0.78rem; color: #94a3b8; margin-bottom: 8px; line-height: 1.4; }
+.teakmerchant-actions { display: flex; flex-direction: column; gap: 5px; }
+.teakmerchant-cost   { display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+.btn--teakmerchant-commission {
+  background: linear-gradient(135deg, rgba(180, 120, 60, 0.12), rgba(146, 90, 40, 0.08));
+  border: 1px solid rgba(180, 120, 60, 0.30); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #d97706; text-align: left; transition: background 0.15s; padding: 6px 8px;
+}
+.btn--teakmerchant-commission:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(180, 120, 60, 0.22), rgba(146, 90, 40, 0.15)); }
+.btn--teakmerchant-purchase {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.12), rgba(217, 119, 6, 0.08));
+  border: 1px solid rgba(251, 191, 36, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #fbbf24; text-align: left; transition: background 0.15s; padding: 6px 8px;
+}
+.btn--teakmerchant-purchase:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(251, 191, 36, 0.22), rgba(217, 119, 6, 0.15)); }
+.btn--teakmerchant-away {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.12), rgba(75, 85, 99, 0.08));
+  border: 1px solid rgba(107, 114, 128, 0.28); border-radius: 6px; cursor: pointer;
+  font-size: 0.80rem; color: #9ca3af; text-align: left; transition: background 0.15s;
+}
+.btn--teakmerchant-away:hover:not(.btn--disabled) { background: linear-gradient(135deg, rgba(107, 114, 128, 0.22), rgba(75, 85, 99, 0.15)); }
