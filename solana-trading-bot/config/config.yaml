@@ -1,0 +1,123 @@
+# Solana Memecoin Trading Bot Configuration
+# ==========================================
+
+mode: "paper"  # "paper" | "live" - Start with paper trading!
+
+# Solana RPC Configuration
+solana:
+  rpc_url: "https://api.mainnet-beta.solana.com"
+  ws_url: "wss://api.mainnet-beta.solana.com"
+  # For better performance, use a paid RPC:
+  # rpc_url: "https://your-helius-or-quicknode-url"
+  commitment: "confirmed"
+
+# Wallet Configuration (only used in live mode)
+wallet:
+  # NEVER put your private key here - use .env file instead
+  # SOLANA_PRIVATE_KEY=your_base58_private_key
+  max_sol_per_trade: 0.1        # Max SOL per single trade
+  total_portfolio_sol: 1.0      # Total SOL allocated for trading
+  reserve_sol: 0.5              # Keep this much SOL as reserve (for fees etc.)
+
+# Paper Trading Configuration
+paper_trading:
+  initial_balance_sol: 10.0     # Starting paper balance
+  slippage_simulation: 0.02     # 2% simulated slippage
+  fee_simulation: 0.003         # 0.3% simulated fees
+  save_interval_seconds: 300    # Save state every 5 minutes
+
+# Trading Strategy Parameters
+strategy:
+  # Token filtering
+  min_liquidity_usd: 5000       # Minimum liquidity pool size
+  max_token_age_hours: 48       # Only trade tokens younger than this
+  min_holder_count: 50          # Minimum number of holders
+  min_volume_24h_usd: 1000      # Minimum 24h volume
+
+  # Entry signals (ML model features + thresholds)
+  min_confidence_score: 0.65    # Minimum ML confidence to enter trade
+  max_positions: 5              # Maximum concurrent positions
+
+  # Exit strategy - Scaled exits (sell portions at different profit levels)
+  # Level 1: Sell 30% at +25% profit (lock in early gains)
+  # Level 2: Sell 30% at +50% profit (secure more profit)
+  # Level 3: Sell remaining 40% at +100% profit or trailing stop
+  # Scaled exit levels: [profit_threshold, sell_fraction]
+  scaled_exits:
+    - [0.25, 0.30]              # Sell 30% at +25% profit
+    - [0.50, 0.30]              # Sell 30% at +50% profit
+    - [1.00, 0.40]              # Sell remaining 40% at +100% profit
+  take_profit_pct: 0.50         # Fallback if scaled exits empty
+  stop_loss_pct: 0.20           # 20% stop loss - exit everything
+  trailing_stop_pct: 0.10       # 10% trailing stop (activates after +10% profit)
+  max_hold_time_hours: 24       # Force exit after this time
+
+# ML Model Configuration
+ml:
+  model_type: "xgboost"         # "xgboost" | "random_forest" | "gradient_boosting" | "ensemble"
+  retrain_interval_hours: 6     # Retrain model every N hours
+  min_training_samples: 100     # Minimum samples before training
+  feature_window_minutes: 30    # Feature calculation window
+  lookback_periods: [5, 15, 30, 60]  # Minutes for feature calculation
+
+  # Features computed automatically (20 total):
+  # Price: price_change_5m/15m/30m/60m, price_volatility, price_position
+  # Momentum: momentum_score, momentum_acceleration, rsi, macd_signal, roc_10
+  # Volume: buy_sell_ratio, volume_profile, liquidity_depth, volume_24h
+  # Token: holder_count, market_cap, token_age_hours
+  # Technical: bb_position (Bollinger), atr_ratio
+
+# Data Collection
+data:
+  # Token discovery sources
+  sources:
+    - "jupiter"
+    - "raydium"
+    - "pump_fun"
+
+  # Polling intervals (seconds)
+  price_poll_interval: 10
+  token_scan_interval: 60
+  holder_check_interval: 300
+
+  # Database
+  db_path: "data/trading_bot.db"
+
+# Risk Management
+risk:
+  max_daily_loss_pct: 0.10      # Stop trading if daily loss exceeds 10%
+  max_drawdown_pct: 0.25        # Stop trading if drawdown exceeds 25%
+  max_trades_per_hour: 10       # Rate limit trades
+  cooldown_after_loss_minutes: 15  # Wait after a losing trade (extends during streaks)
+  position_size_method: "kelly"  # "fixed" | "kelly" | "risk_parity"
+  kelly_fraction: 0.25          # Use 1/4 Kelly for safety
+
+  # Streak protection:
+  # - Position size reduces by 20% per loss after 3rd consecutive loss
+  # - Trading halts after 5 consecutive losses (manual resume required)
+  # - Winning streaks get up to 30% size boost
+
+# Backtesting
+backtesting:
+  start_date: "2024-01-01"
+  end_date: "2024-12-31"
+  initial_balance_sol: 10.0
+  data_source: "data/historical/"
+
+# Monitoring & Alerts
+monitoring:
+  log_level: "INFO"
+  log_file: "logs/trading_bot.log"
+  # Telegram alerts (optional)
+  telegram:
+    enabled: false
+    bot_token: ""               # Set in .env: TELEGRAM_BOT_TOKEN
+    chat_id: ""                 # Set in .env: TELEGRAM_CHAT_ID
+  # Performance report interval
+  report_interval_hours: 1      # Report every hour (was 24h - too infrequent)
+
+# VPS Deployment
+deployment:
+  auto_restart: true
+  health_check_interval: 60
+  max_memory_mb: 512
